@@ -256,7 +256,7 @@
       "typescript/playwright/frames.ts": "47 instances"
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": "83 instances",
+      "typescript/vscode/async.ts": "84 instances",
       "typescript/vscode/codeEditorWidget.ts": "1 instances",
       "typescript/vscode/extHost.api.impl.ts": "5 instances",
       "typescript/vscode/gulpfile.vscode.ts": "4 instances",

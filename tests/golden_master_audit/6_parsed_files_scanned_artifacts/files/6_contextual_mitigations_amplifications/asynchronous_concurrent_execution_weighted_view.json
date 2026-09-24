@@ -256,7 +256,7 @@
       "typescript/playwright/frames.ts": 552
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": 663,
+      "typescript/vscode/async.ts": 668,
       "typescript/vscode/codeEditorWidget.ts": 10,
       "typescript/vscode/extHost.api.impl.ts": 49,
       "typescript/vscode/gulpfile.vscode.ts": 37,

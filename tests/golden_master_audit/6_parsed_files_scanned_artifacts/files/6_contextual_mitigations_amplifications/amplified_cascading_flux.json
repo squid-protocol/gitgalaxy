@@ -689,7 +689,7 @@
     },
     "html/vscode_webviews": {
       "html/vscode_webviews/github_auth_media_index.html": "7 instances",
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": "9 instances"
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": "10 instances"
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "19 instances",
@@ -718,7 +718,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "72 instances",
       "javascript/threejs/Editor.js": "58 instances",
-      "javascript/threejs/GLTFLoader.js": "331 instances",
+      "javascript/threejs/GLTFLoader.js": "332 instances",
       "javascript/threejs/Matrix4.js": "97 instances",
       "javascript/threejs/WebGLProgram.js": "33 instances",
       "javascript/threejs/WebGLRenderer.js": "233 instances"
@@ -776,31 +776,31 @@
       "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": "46 instances"
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": "23 instances",
+      "lua/cosmopolitan/all.lua": "22 instances",
       "lua/cosmopolitan/api.lua": "110 instances",
-      "lua/cosmopolitan/attrib.lua": "50 instances",
+      "lua/cosmopolitan/attrib.lua": "52 instances",
       "lua/cosmopolitan/big.lua": "6 instances",
       "lua/cosmopolitan/binarytrees.lua": "4 instances",
       "lua/cosmopolitan/bitwise.lua": "21 instances",
       "lua/cosmopolitan/bwcoercion.lua": "8 instances",
-      "lua/cosmopolitan/calls.lua": "34 instances",
+      "lua/cosmopolitan/calls.lua": "33 instances",
       "lua/cosmopolitan/closure.lua": "27 instances",
       "lua/cosmopolitan/code.lua": "8 instances",
-      "lua/cosmopolitan/constructs.lua": "39 instances",
-      "lua/cosmopolitan/coroutine.lua": "65 instances",
+      "lua/cosmopolitan/constructs.lua": "37 instances",
+      "lua/cosmopolitan/coroutine.lua": "64 instances",
       "lua/cosmopolitan/cstack.lua": "6 instances",
-      "lua/cosmopolitan/db.lua": "83 instances",
+      "lua/cosmopolitan/db.lua": "85 instances",
       "lua/cosmopolitan/errors.lua": "41 instances",
       "lua/cosmopolitan/events.lua": "93 instances",
       "lua/cosmopolitan/fetch.lua": "1 instances",
       "lua/cosmopolitan/files.lua": "42 instances",
-      "lua/cosmopolitan/gc.lua": "80 instances",
+      "lua/cosmopolitan/gc.lua": "78 instances",
       "lua/cosmopolitan/gengc.lua": "9 instances",
       "lua/cosmopolitan/goto.lua": "10 instances",
       "lua/cosmopolitan/heavy.lua": "9 instances",
       "lua/cosmopolitan/hitcounter.lua": "2 instances",
       "lua/cosmopolitan/literals.lua": "5 instances",
-      "lua/cosmopolitan/locals.lua": "39 instances",
+      "lua/cosmopolitan/locals.lua": "33 instances",
       "lua/cosmopolitan/main.lua": "13 instances",
       "lua/cosmopolitan/math.lua": "29 instances",
       "lua/cosmopolitan/maxmind.lua": "9 instances",
@@ -843,7 +843,7 @@
       "lua/pandoc/math.lua": "2 instances",
       "lua/pandoc/pandoc-list.lua": "1 instances",
       "lua/pandoc/pandoc-mediabag.lua": "1 instances",
-      "lua/pandoc/sample.lua": "11 instances"
+      "lua/pandoc/sample.lua": "9 instances"
     },
     "lua/redis": {
       "lua/redis/bisect.lua": "2 instances",
@@ -858,7 +858,7 @@
     },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": "41 instances",
-      "matlab/eeglab/eeglab.m": "314 instances",
+      "matlab/eeglab/eeglab.m": "315 instances",
       "matlab/eeglab/eegobj.m": "2 instances",
       "matlab/eeglab/pop_loadset.m": "60 instances",
       "matlab/eeglab/runica.m": "322 instances",
@@ -1184,7 +1184,7 @@
       "ruby/rails/blob.rb": "6 instances",
       "ruby/rails/generator.rb": "38 instances",
       "ruby/rails/inbound_emails_controller.rb": "1 instances",
-      "ruby/rails/metal.rb": "17 instances"
+      "ruby/rails/metal.rb": "19 instances"
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": "14 instances",
@@ -1248,10 +1248,10 @@
     },
     "shell/brew": {
       "shell/brew/brew": "31 instances",
-      "shell/brew/brew.rb": "66 instances",
-      "shell/brew/cask.rb": "10 instances",
-      "shell/brew/download_strategy.rb": "105 instances",
-      "shell/brew/formula.rb": "11 instances"
+      "shell/brew/brew.rb": "67 instances",
+      "shell/brew/cask.rb": "11 instances",
+      "shell/brew/download_strategy.rb": "113 instances",
+      "shell/brew/formula.rb": "12 instances"
     },
     "shell/curl": {
       "shell/curl/appveyor.sh": "12 instances",
@@ -1483,18 +1483,18 @@
       "typescript/playwright/connection.ts": "44 instances",
       "typescript/playwright/crConnection.ts": "13 instances",
       "typescript/playwright/dispatcher.ts": "39 instances",
-      "typescript/playwright/frames.ts": "89 instances"
+      "typescript/playwright/frames.ts": "91 instances"
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/binder.ts": "213 instances"
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": "113 instances",
-      "typescript/vscode/codeEditorWidget.ts": "75 instances",
+      "typescript/vscode/async.ts": "116 instances",
+      "typescript/vscode/codeEditorWidget.ts": "73 instances",
       "typescript/vscode/extHost.api.impl.ts": "25 instances",
       "typescript/vscode/gulpfile.vscode.ts": "43 instances",
       "typescript/vscode/instantiationService.ts": "36 instances",
-      "typescript/vscode/ipc.ts": "61 instances",
+      "typescript/vscode/ipc.ts": "62 instances",
       "typescript/vscode/lifecycle.ts": "44 instances",
       "typescript/vscode/vscode.d.ts": "24 instances"
     },

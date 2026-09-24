@@ -2320,7 +2320,7 @@
       "lua/pandoc/pandoc-list.lua": 0,
       "lua/pandoc/pandoc-log.lua": 0,
       "lua/pandoc/pandoc-mediabag.lua": 0,
-      "lua/pandoc/sample.lua": 0,
+      "lua/pandoc/sample.lua": 2,
       "lua/pandoc/writer-template.lua": 0
     },
     "lua/redis": {
@@ -3655,7 +3655,7 @@
       "typescript/fp-ts/HKT.ts": 0,
       "typescript/fp-ts/TaskEither.ts": 0,
       "typescript/fp-ts/package.json": 0,
-      "typescript/fp-ts/pipeable.ts": 0
+      "typescript/fp-ts/pipeable.ts": 30
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": 0,

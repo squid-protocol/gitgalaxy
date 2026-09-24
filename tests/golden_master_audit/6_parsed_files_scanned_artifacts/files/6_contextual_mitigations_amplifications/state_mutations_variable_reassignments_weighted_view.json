@@ -689,7 +689,7 @@
     },
     "html/vscode_webviews": {
       "html/vscode_webviews/github_auth_media_index.html": 26,
-      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 29
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 31
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 73,
@@ -718,7 +718,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 263,
       "javascript/threejs/Editor.js": 224,
-      "javascript/threejs/GLTFLoader.js": 1091,
+      "javascript/threejs/GLTFLoader.js": 1093,
       "javascript/threejs/Matrix4.js": 520,
       "javascript/threejs/WebGLProgram.js": 117,
       "javascript/threejs/WebGLRenderer.js": 844
@@ -776,31 +776,31 @@
       "livecode/livecode/revsaveasemscriptenstandalone.livecodescript": 160
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 73,
+      "lua/cosmopolitan/all.lua": 71,
       "lua/cosmopolitan/api.lua": 379,
-      "lua/cosmopolitan/attrib.lua": 168,
+      "lua/cosmopolitan/attrib.lua": 172,
       "lua/cosmopolitan/big.lua": 20,
       "lua/cosmopolitan/binarytrees.lua": 16,
       "lua/cosmopolitan/bitwise.lua": 69,
       "lua/cosmopolitan/bwcoercion.lua": 24,
-      "lua/cosmopolitan/calls.lua": 112,
+      "lua/cosmopolitan/calls.lua": 110,
       "lua/cosmopolitan/closure.lua": 86,
       "lua/cosmopolitan/code.lua": 77,
-      "lua/cosmopolitan/constructs.lua": 123,
-      "lua/cosmopolitan/coroutine.lua": 243,
+      "lua/cosmopolitan/constructs.lua": 119,
+      "lua/cosmopolitan/coroutine.lua": 241,
       "lua/cosmopolitan/cstack.lua": 24,
-      "lua/cosmopolitan/db.lua": 279,
+      "lua/cosmopolitan/db.lua": 283,
       "lua/cosmopolitan/errors.lua": 149,
       "lua/cosmopolitan/events.lua": 297,
       "lua/cosmopolitan/fetch.lua": 4,
       "lua/cosmopolitan/files.lua": 142,
-      "lua/cosmopolitan/gc.lua": 260,
+      "lua/cosmopolitan/gc.lua": 256,
       "lua/cosmopolitan/gengc.lua": 28,
       "lua/cosmopolitan/goto.lua": 33,
       "lua/cosmopolitan/heavy.lua": 30,
       "lua/cosmopolitan/hitcounter.lua": 6,
       "lua/cosmopolitan/literals.lua": 23,
-      "lua/cosmopolitan/locals.lua": 167,
+      "lua/cosmopolitan/locals.lua": 155,
       "lua/cosmopolitan/main.lua": 58,
       "lua/cosmopolitan/math.lua": 95,
       "lua/cosmopolitan/maxmind.lua": 28,
@@ -843,7 +843,7 @@
       "lua/pandoc/math.lua": 6,
       "lua/pandoc/pandoc-list.lua": 3,
       "lua/pandoc/pandoc-mediabag.lua": 3,
-      "lua/pandoc/sample.lua": 37
+      "lua/pandoc/sample.lua": 33
     },
     "lua/redis": {
       "lua/redis/bisect.lua": 7,
@@ -858,7 +858,7 @@
     },
     "matlab/eeglab": {
       "matlab/eeglab/eeg_eval.m": 124,
-      "matlab/eeglab/eeglab.m": 1139,
+      "matlab/eeglab/eeglab.m": 1141,
       "matlab/eeglab/eegobj.m": 6,
       "matlab/eeglab/pop_loadset.m": 260,
       "matlab/eeglab/runica.m": 1081,
@@ -1184,7 +1184,7 @@
       "ruby/rails/blob.rb": 20,
       "ruby/rails/generator.rb": 123,
       "ruby/rails/inbound_emails_controller.rb": 4,
-      "ruby/rails/metal.rb": 68
+      "ruby/rails/metal.rb": 72
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 52,
@@ -1248,10 +1248,10 @@
     },
     "shell/brew": {
       "shell/brew/brew": 98,
-      "shell/brew/brew.rb": 221,
-      "shell/brew/cask.rb": 37,
-      "shell/brew/download_strategy.rb": 361,
-      "shell/brew/formula.rb": 39
+      "shell/brew/brew.rb": 223,
+      "shell/brew/cask.rb": 39,
+      "shell/brew/download_strategy.rb": 377,
+      "shell/brew/formula.rb": 41
     },
     "shell/curl": {
       "shell/curl/appveyor.sh": 36,
@@ -1483,18 +1483,18 @@
       "typescript/playwright/connection.ts": 136,
       "typescript/playwright/crConnection.ts": 55,
       "typescript/playwright/dispatcher.ts": 126,
-      "typescript/playwright/frames.ts": 312
+      "typescript/playwright/frames.ts": 316
     },
     "typescript/typescript_compiler": {
       "typescript/typescript_compiler/binder.ts": 743
     },
     "typescript/vscode": {
-      "typescript/vscode/async.ts": 424,
-      "typescript/vscode/codeEditorWidget.ts": 330,
+      "typescript/vscode/async.ts": 430,
+      "typescript/vscode/codeEditorWidget.ts": 326,
       "typescript/vscode/extHost.api.impl.ts": 154,
       "typescript/vscode/gulpfile.vscode.ts": 143,
       "typescript/vscode/instantiationService.ts": 115,
-      "typescript/vscode/ipc.ts": 213,
+      "typescript/vscode/ipc.ts": 215,
       "typescript/vscode/lifecycle.ts": 150,
       "typescript/vscode/vscode.d.ts": 96
     },

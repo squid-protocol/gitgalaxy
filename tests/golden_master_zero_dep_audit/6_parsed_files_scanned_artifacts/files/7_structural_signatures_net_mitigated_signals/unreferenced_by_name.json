@@ -1883,14 +1883,14 @@
       "javascript/react/BabelPlugin.ts": 3,
       "javascript/react/ReactFiberBeginWork.js": 0,
       "javascript/react/ReactFiberWorkLoop.js": 0,
-      "javascript/react/ReactFlightServer.js": 10,
+      "javascript/react/ReactFlightServer.js": 9,
       "javascript/react/ReactSymbols.js": 1,
-      "javascript/react/build.js": 4
+      "javascript/react/build.js": 3
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 17,
       "javascript/threejs/Editor.js": 22,
-      "javascript/threejs/GLTFLoader.js": 8,
+      "javascript/threejs/GLTFLoader.js": 6,
       "javascript/threejs/Matrix4.js": 29,
       "javascript/threejs/WebGLProgram.js": 4,
       "javascript/threejs/WebGLRenderer.js": 30
@@ -3018,11 +3018,11 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 10,
-      "ruby/rails/blob.rb": 17,
+      "ruby/rails/base.rb": 11,
+      "ruby/rails/blob.rb": 20,
       "ruby/rails/generator.rb": 1,
       "ruby/rails/inbound_emails_controller.rb": 1,
-      "ruby/rails/metal.rb": 8,
+      "ruby/rails/metal.rb": 10,
       "ruby/rails/routing.rb": 0
     },
     "rust": {
@@ -3139,8 +3139,8 @@
       "shell/brew/Dockerfile": 0,
       "shell/brew/LICENSE.txt": 0,
       "shell/brew/brew": 0,
-      "shell/brew/brew.rb": 9,
-      "shell/brew/cask.rb": 3,
+      "shell/brew/brew.rb": 8,
+      "shell/brew/cask.rb": 4,
       "shell/brew/download_strategy.rb": 2,
       "shell/brew/formula.rb": 0,
       "shell/brew/formula_installer.rb": 1,
@@ -3666,8 +3666,8 @@
       "typescript/playwright/bidiConnection.ts": 8,
       "typescript/playwright/connection.ts": 11,
       "typescript/playwright/crConnection.ts": 3,
-      "typescript/playwright/dispatcher.ts": 12,
-      "typescript/playwright/frames.ts": 72,
+      "typescript/playwright/dispatcher.ts": 11,
+      "typescript/playwright/frames.ts": 69,
       "typescript/playwright/protocol.ts": 0
     },
     "typescript/typescript_compiler": {
@@ -3676,11 +3676,11 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 40,
-      "typescript/vscode/codeEditorWidget.ts": 91,
+      "typescript/vscode/async.ts": 36,
+      "typescript/vscode/codeEditorWidget.ts": 90,
       "typescript/vscode/eslint.config.js": 0,
-      "typescript/vscode/extHost.api.impl.ts": 331,
-      "typescript/vscode/gulpfile.vscode.ts": 4,
+      "typescript/vscode/extHost.api.impl.ts": 330,
+      "typescript/vscode/gulpfile.vscode.ts": 3,
       "typescript/vscode/instantiationService.ts": 3,
       "typescript/vscode/ipc.ts": 4,
       "typescript/vscode/lifecycle.ts": 0,

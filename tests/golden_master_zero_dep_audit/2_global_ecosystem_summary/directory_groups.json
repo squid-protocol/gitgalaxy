@@ -2459,11 +2459,11 @@
       "avg_exposures": {
         "api_exposure": 4.35,
         "churn": 0.0,
-        "cognitive_load": 27.92,
+        "cognitive_load": 27.99,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.67,
-        "safety_score": 31.17,
+        "safety_score": 31.52,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 41.67,
@@ -2571,9 +2571,9 @@
     },
     "javascript/react": {
       "avg_exposures": {
-        "api_exposure": 18.07,
+        "api_exposure": 18.04,
         "churn": 0.0,
-        "cognitive_load": 37.1,
+        "cognitive_load": 37.11,
         "concurrency": 18.54,
         "dead_code": 2.56,
         "documentation": 91.4,
@@ -2582,11 +2582,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 68.54,
-        "tech_debt": 39.66,
-        "verification": 54.17
+        "tech_debt": 38.96,
+        "verification": 54.16
       },
       "file_count": 6,
-      "total_mass": 10665.24
+      "total_mass": 10590.74
     },
     "javascript/threejs": {
       "avg_exposures": {
@@ -2596,16 +2596,16 @@
         "concurrency": 25.29,
         "dead_code": 3.33,
         "documentation": 49.6,
-        "safety_score": 83.67,
+        "safety_score": 83.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 99.9,
-        "tech_debt": 63.19,
+        "tech_debt": 62.68,
         "verification": 80.0
       },
       "file_count": 6,
-      "total_mass": 8169.1
+      "total_mass": 8170.3
     },
     "jcl/cash-account-cobol": {
       "avg_exposures": {
@@ -2877,20 +2877,20 @@
       "avg_exposures": {
         "api_exposure": 12.06,
         "churn": 0.0,
-        "cognitive_load": 48.88,
+        "cognitive_load": 49.11,
         "concurrency": 21.95,
         "dead_code": 2.82,
         "documentation": 86.05,
-        "safety_score": 44.34,
+        "safety_score": 44.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 77.43,
+        "state_flux": 77.41,
         "tech_debt": 19.66,
         "verification": 45.72
       },
       "file_count": 43,
-      "total_mass": 11424.1
+      "total_mass": 11375.7
     },
     "lua/darwin-xnu": {
       "avg_exposures": {
@@ -2928,26 +2928,26 @@
         "verification": 31.54
       },
       "file_count": 16,
-      "total_mass": 2149.7
+      "total_mass": 2145.4
     },
     "lua/pandoc": {
       "avg_exposures": {
         "api_exposure": 2.53,
         "churn": 0.0,
-        "cognitive_load": 10.03,
+        "cognitive_load": 9.89,
         "concurrency": 0.0,
         "dead_code": 1.08,
         "documentation": 25.93,
-        "safety_score": 36.99,
+        "safety_score": 36.93,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 46.3,
-        "state_flux": 34.37,
+        "state_flux": 34.24,
         "tech_debt": 39.49,
         "verification": 5.07
       },
       "file_count": 27,
-      "total_mass": 789.66
+      "total_mass": 790.86
     },
     "lua/redis": {
       "avg_exposures": {
@@ -3115,10 +3115,10 @@
         "stability": 42.86,
         "state_flux": 84.53,
         "tech_debt": 16.52,
-        "verification": 35.35
+        "verification": 35.36
       },
       "file_count": 7,
-      "total_mass": 4815.84
+      "total_mass": 4922.34
     },
     "mlir": {
       "avg_exposures": {
@@ -4074,20 +4074,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 28.94,
+        "cognitive_load": 28.85,
         "concurrency": 0.0,
         "dead_code": 6.49,
-        "documentation": 52.21,
-        "safety_score": 61.38,
+        "documentation": 52.26,
+        "safety_score": 61.5,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
         "state_flux": 67.34,
-        "tech_debt": 45.12,
+        "tech_debt": 45.77,
         "verification": 40.91
       },
       "file_count": 8,
-      "total_mass": 747.12
+      "total_mass": 769.32
     },
     "rust": {
       "avg_exposures": {
@@ -4338,22 +4338,22 @@
     },
     "shell/brew": {
       "avg_exposures": {
-        "api_exposure": 4.02,
+        "api_exposure": 4.57,
         "churn": 0.0,
-        "cognitive_load": 32.94,
+        "cognitive_load": 32.14,
         "concurrency": 0.0,
         "dead_code": 0.0,
-        "documentation": 34.95,
-        "safety_score": 46.13,
+        "documentation": 34.91,
+        "safety_score": 46.55,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 55.55,
-        "tech_debt": 24.13,
-        "verification": 19.42
+        "tech_debt": 25.25,
+        "verification": 19.43
       },
       "file_count": 9,
-      "total_mass": 1870.62
+      "total_mass": 2089.72
     },
     "shell/curl": {
       "avg_exposures": {
@@ -5369,36 +5369,36 @@
         "cognitive_load": 3.49,
         "concurrency": 4.28,
         "dead_code": 0.0,
-        "documentation": 24.1,
+        "documentation": 23.85,
         "safety_score": 52.09,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 3.48,
-        "tech_debt": 0.0,
+        "tech_debt": 17.03,
         "verification": 48.46
       },
       "file_count": 5,
-      "total_mass": 1881.16
+      "total_mass": 1667.06
     },
     "typescript/playwright": {
       "avg_exposures": {
         "api_exposure": 5.82,
         "churn": 0.0,
-        "cognitive_load": 43.18,
+        "cognitive_load": 43.19,
         "concurrency": 46.33,
         "dead_code": 0.0,
         "documentation": 22.73,
-        "safety_score": 47.42,
+        "safety_score": 47.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 31.82,
         "state_flux": 45.42,
-        "tech_debt": 42.6,
+        "tech_debt": 42.38,
         "verification": 36.78
       },
       "file_count": 11,
-      "total_mass": 3385.18
+      "total_mass": 3309.78
     },
     "typescript/typescript_compiler": {
       "avg_exposures": {
@@ -5423,20 +5423,20 @@
       "avg_exposures": {
         "api_exposure": 7.64,
         "churn": 0.0,
-        "cognitive_load": 31.52,
+        "cognitive_load": 31.58,
         "concurrency": 39.26,
         "dead_code": 1.55,
         "documentation": 54.21,
-        "safety_score": 57.95,
+        "safety_score": 57.97,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.91,
-        "state_flux": 59.98,
-        "tech_debt": 50.83,
+        "state_flux": 59.92,
+        "tech_debt": 50.1,
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 8078.02
+      "total_mass": 7982.32
     },
     "typescript/zod": {
       "avg_exposures": {

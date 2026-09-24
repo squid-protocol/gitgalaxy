@@ -2238,7 +2238,7 @@
       "lua/cosmopolitan/constructs.lua": "file_cluster_15",
       "lua/cosmopolitan/coroutine.lua": "file_cluster_12",
       "lua/cosmopolitan/crashreport.lua": "file_cluster_11",
-      "lua/cosmopolitan/cstack.lua": "file_cluster_15",
+      "lua/cosmopolitan/cstack.lua": "file_cluster_10",
       "lua/cosmopolitan/db.lua": "file_cluster_14",
       "lua/cosmopolitan/errors.lua": "file_cluster_12",
       "lua/cosmopolitan/events.lua": "file_cluster_4",
@@ -2377,11 +2377,11 @@
     "matlab/eeglab": {
       "matlab/eeglab/README.md": "Static: Literature & Documentation",
       "matlab/eeglab/eeg_eval.m": "file_cluster_3",
-      "matlab/eeglab/eeglab.m": "file_cluster_6",
+      "matlab/eeglab/eeglab.m": "file_cluster_8",
       "matlab/eeglab/eegobj.m": "file_cluster_15",
       "matlab/eeglab/pop_loadset.m": "file_cluster_3",
       "matlab/eeglab/runica.m": "file_cluster_3",
-      "matlab/eeglab/supergui.m": "file_cluster_9"
+      "matlab/eeglab/supergui.m": "file_cluster_15"
     },
     "mlir": {
       "mlir/SOURCES.md": "Static: Literature & Documentation"
@@ -3139,7 +3139,7 @@
       "shell/brew/Dockerfile": "file_cluster_8",
       "shell/brew/LICENSE.txt": "Static: Literature & Documentation",
       "shell/brew/brew": "file_cluster_12",
-      "shell/brew/brew.rb": "file_cluster_15",
+      "shell/brew/brew.rb": "file_cluster_4",
       "shell/brew/cask.rb": "file_cluster_5",
       "shell/brew/download_strategy.rb": "file_cluster_12",
       "shell/brew/formula.rb": "file_cluster_5",

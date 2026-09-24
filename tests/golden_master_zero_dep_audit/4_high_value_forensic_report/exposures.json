@@ -86,12 +86,12 @@
         {
           "name": "coroutine.lua",
           "path": "lua/cosmopolitan/coroutine.lua",
-          "value": 99.9964
+          "value": 99.9963
         },
         {
           "name": "events.lua",
           "path": "lua/cosmopolitan/events.lua",
-          "value": 99.9553
+          "value": 99.9624
         }
       ],
       "lowest": [

@@ -5712,20 +5712,19 @@
       "javascript/react/ReactFiberWorkLoop.js": {
         "Callbacks & Closures": 1,
         "Compute Cores": 6,
-        "Defensive Guards": 51,
-        "I/O & Config Routines": 13,
+        "Defensive Guards": 52,
+        "I/O & Config Routines": 12,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 21,
         "State Mutators": 19
       },
       "javascript/react/ReactFlightServer.js": {
-        "Callbacks & Closures": 5,
+        "Callbacks & Closures": 6,
         "Compute Cores": 12,
         "Defensive Guards": 54,
-        "I/O & Config Routines": 1,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 46,
-        "Parameter Forwarders": 20,
+        "Many-Argument Workhorses": 44,
+        "Parameter Forwarders": 22,
         "State Mutators": 10,
         "Type Conversions": 5
       },
@@ -6853,23 +6852,20 @@
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": {
         "Compute Cores": 2,
-        "Defensive Guards": 1,
-        "I/O & Config Routines": 1
+        "Parameter Forwarders": 2
       },
       "lua/cosmopolitan/api.lua": {
         "Callbacks & Closures": 2,
+        "Compute Cores": 2,
         "Defensive Guards": 8,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 8
+        "Interface Declarations": 2,
+        "Parameter Forwarders": 6
       },
       "lua/cosmopolitan/attrib.lua": {
         "Callbacks & Closures": 2,
-        "Compute Cores": 2,
-        "Defensive Guards": 2,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 1
+        "Compute Cores": 1,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 5
       },
       "lua/cosmopolitan/big.lua": {},
       "lua/cosmopolitan/binarytrees.lua": {
@@ -6878,10 +6874,9 @@
         "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/bitwise.lua": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 5,
-        "Defensive Guards": 2,
-        "Parameter Forwarders": 5
+        "Compute Cores": 4,
+        "Defensive Guards": 1,
+        "Parameter Forwarders": 8
       },
       "lua/cosmopolitan/bwcoercion.lua": {
         "Compute Cores": 2,
@@ -6890,10 +6885,10 @@
       "lua/cosmopolitan/call-lua-module.lua": {},
       "lua/cosmopolitan/calls.lua": {
         "Callbacks & Closures": 4,
-        "Compute Cores": 8,
-        "Defensive Guards": 11,
+        "Compute Cores": 6,
+        "Defensive Guards": 4,
         "Interface Declarations": 4,
-        "Parameter Forwarders": 5
+        "Parameter Forwarders": 14
       },
       "lua/cosmopolitan/closedsource.lua": {},
       "lua/cosmopolitan/closure.lua": {
@@ -6909,15 +6904,17 @@
         "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/constructs.lua": {
-        "Compute Cores": 9,
-        "Defensive Guards": 5
+        "Compute Cores": 7,
+        "Defensive Guards": 3,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/coroutine.lua": {
         "Callbacks & Closures": 5,
-        "Compute Cores": 3,
-        "Defensive Guards": 11,
-        "Interface Declarations": 2,
-        "Parameter Forwarders": 7
+        "Compute Cores": 2,
+        "Defensive Guards": 9,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 9
       },
       "lua/cosmopolitan/crashreport.lua": {
         "Interface Declarations": 1,
@@ -6925,31 +6922,26 @@
       },
       "lua/cosmopolitan/cstack.lua": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 3,
+        "Defensive Guards": 4,
         "Interface Declarations": 2,
         "Parameter Forwarders": 2
       },
       "lua/cosmopolitan/db.lua": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 8,
-        "Defensive Guards": 26,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 6
+        "Callbacks & Closures": 1,
+        "Compute Cores": 6,
+        "Defensive Guards": 19,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 15
       },
       "lua/cosmopolitan/errors.lua": {
-        "Callbacks & Closures": 1,
-        "Compute Cores": 2,
-        "Defensive Guards": 10,
-        "I/O & Config Routines": 2,
-        "Parameter Forwarders": 1
+        "Defensive Guards": 9,
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 4
       },
       "lua/cosmopolitan/events.lua": {
-        "Callbacks & Closures": 2,
-        "Compute Cores": 2,
+        "Callbacks & Closures": 1,
         "Defensive Guards": 3,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 5
       },
       "lua/cosmopolitan/fetch.lua": {
         "Compute Cores": 1,
@@ -6964,14 +6956,12 @@
       "lua/cosmopolitan/gc.lua": {
         "Callbacks & Closures": 5,
         "Defensive Guards": 2,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 1,
-        "Parameter Forwarders": 1,
-        "Type Conversions": 1
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/gengc.lua": {
-        "Compute Cores": 1,
-        "Defensive Guards": 1
+        "Defensive Guards": 1,
+        "Interface Declarations": 1
       },
       "lua/cosmopolitan/gensvg.lua": {
         "Compute Cores": 1,
@@ -6986,23 +6976,23 @@
       "lua/cosmopolitan/heavy.lua": {
         "Callbacks & Closures": 3,
         "Compute Cores": 1,
-        "Defensive Guards": 5,
-        "Interface Declarations": 2,
+        "Defensive Guards": 4,
+        "Interface Declarations": 3,
         "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/hitcounter.lua": {},
       "lua/cosmopolitan/literals.lua": {
         "Compute Cores": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 1
+        "Interface Declarations": 3,
+        "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/locals.lua": {
         "Callbacks & Closures": 16,
-        "Defensive Guards": 13,
-        "I/O & Config Routines": 1,
-        "Interface Declarations": 8,
-        "Parameter Forwarders": 8
+        "Compute Cores": 1,
+        "Defensive Guards": 8,
+        "Interface Declarations": 11,
+        "Parameter Forwarders": 10
       },
       "lua/cosmopolitan/main.lua": {
         "Defensive Guards": 5,
@@ -7023,16 +7013,16 @@
         "Interface Declarations": 1
       },
       "lua/cosmopolitan/nextvar.lua": {
-        "Compute Cores": 2,
-        "Defensive Guards": 12,
+        "Compute Cores": 1,
+        "Defensive Guards": 13,
         "Parameter Forwarders": 2
       },
       "lua/cosmopolitan/opensource.lua": {},
       "lua/cosmopolitan/pm.lua": {
         "Callbacks & Closures": 2,
         "Compute Cores": 1,
-        "Defensive Guards": 4,
-        "Parameter Forwarders": 3,
+        "Defensive Guards": 2,
+        "Parameter Forwarders": 5,
         "Type Conversions": 1
       },
       "lua/cosmopolitan/printpayload.lua": {
@@ -7043,13 +7033,13 @@
       },
       "lua/cosmopolitan/sort.lua": {
         "Compute Cores": 1,
-        "Defensive Guards": 5,
-        "Parameter Forwarders": 1,
-        "State Mutators": 1
+        "Defensive Guards": 6,
+        "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/strings.lua": {
+        "Compute Cores": 1,
         "Defensive Guards": 5,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "lua/cosmopolitan/tpack.lua": {
         "Defensive Guards": 1
@@ -7087,10 +7077,10 @@
         "Parameter Forwarders": 3
       },
       "lua/freebsd-src/config.lua": {
-        "Compute Cores": 18,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 3,
-        "Parameter Forwarders": 7
+        "Compute Cores": 17,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 5,
+        "Parameter Forwarders": 8
       },
       "lua/freebsd-src/core.lua": {
         "Compute Cores": 11,
@@ -7291,14 +7281,12 @@
     "matlab/eeglab": {
       "matlab/eeglab/README.md": {},
       "matlab/eeglab/eeg_eval.m": {
-        "Compute Cores": 1,
+        "Defensive Guards": 1,
         "Many-Argument Workhorses": 1
       },
       "matlab/eeglab/eeglab.m": {
-        "Compute Cores": 5,
-        "Defensive Guards": 3,
-        "I/O & Config Routines": 4,
-        "State Mutators": 1
+        "Defensive Guards": 12,
+        "Parameter Forwarders": 1
       },
       "matlab/eeglab/eegobj.m": {
         "Defensive Guards": 1
@@ -9650,46 +9638,40 @@
       "ruby/rails/MIT-LICENSE": {},
       "ruby/rails/Rakefile": {},
       "ruby/rails/base.rb": {
-        "C Struct Operations": 1,
         "Compute Cores": 3,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 9,
-        "Interface Declarations": 5,
-        "Parameter Forwarders": 6
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 10,
+        "Parameter Forwarders": 9
       },
       "ruby/rails/blob.rb": {
         "Callbacks & Closures": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 6,
-        "I/O & Config Routines": 3,
-        "Interface Declarations": 11,
+        "Compute Cores": 3,
+        "Defensive Guards": 7,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 10,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 16,
-        "Stateful Encapsulated Methods": 1
+        "Parameter Forwarders": 16
       },
       "ruby/rails/generator.rb": {
         "Callbacks & Closures": 3,
-        "Compute Cores": 2,
-        "Encapsulated Accessors": 1,
-        "I/O & Config Routines": 12,
-        "Interface Declarations": 2,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 1
+        "Compute Cores": 6,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 7,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 2
       },
       "ruby/rails/inbound_emails_controller.rb": {
-        "Compute Cores": 1,
-        "Encapsulated Accessors": 2,
-        "I/O & Config Routines": 2,
-        "Interface Declarations": 4,
+        "Callbacks & Closures": 1,
+        "I/O & Config Routines": 1,
+        "Interface Declarations": 7,
         "Type Conversions": 1
       },
       "ruby/rails/metal.rb": {
-        "C Struct Operations": 1,
-        "Callbacks & Closures": 3,
-        "Compute Cores": 2,
-        "I/O & Config Routines": 8,
-        "Interface Declarations": 4,
-        "Parameter Forwarders": 6,
+        "Callbacks & Closures": 4,
+        "Compute Cores": 4,
+        "Interface Declarations": 7,
+        "Parameter Forwarders": 9,
         "Type Conversions": 1
       },
       "ruby/rails/routing.rb": {}
@@ -10137,45 +10119,37 @@
         "Parameter Forwarders": 1
       },
       "shell/brew/brew.rb": {
-        "Callbacks & Closures": 7,
-        "Compute Cores": 13,
-        "Defensive Guards": 4,
-        "I/O & Config Routines": 14,
-        "Interface Declarations": 3,
-        "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 5,
-        "Stateful Encapsulated Methods": 1
+        "Callbacks & Closures": 6,
+        "Compute Cores": 17,
+        "Defensive Guards": 3,
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 12,
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 8
       },
       "shell/brew/cask.rb": {
-        "Defensive Guards": 3,
-        "Generic / Templated Code": 3,
-        "I/O & Config Routines": 3,
+        "Callbacks & Closures": 1,
+        "Compute Cores": 1,
+        "Defensive Guards": 4,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 1
+        "Parameter Forwarders": 4
       },
       "shell/brew/download_strategy.rb": {
-        "C Struct Operations": 2,
-        "Callbacks & Closures": 4,
-        "Compute Cores": 11,
-        "Defensive Guards": 25,
-        "Encapsulated Accessors": 3,
-        "Generic / Templated Code": 3,
-        "I/O & Config Routines": 60,
-        "Interface Declarations": 11,
-        "Many-Argument Workhorses": 8,
-        "Parameter Forwarders": 7,
-        "State Mutators": 2,
-        "Stateful Encapsulated Methods": 3
+        "Callbacks & Closures": 1,
+        "Compute Cores": 15,
+        "Defensive Guards": 37,
+        "I/O & Config Routines": 11,
+        "Interface Declarations": 48,
+        "Many-Argument Workhorses": 3,
+        "Parameter Forwarders": 24
       },
       "shell/brew/formula.rb": {
-        "Callbacks & Closures": 1,
-        "Defensive Guards": 3,
-        "Generic / Templated Code": 2,
-        "I/O & Config Routines": 4,
-        "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 1,
-        "State Mutators": 1
+        "Callbacks & Closures": 2,
+        "Compute Cores": 1,
+        "Defensive Guards": 6,
+        "Interface Declarations": 1,
+        "Parameter Forwarders": 3
       },
       "shell/brew/formula_installer.rb": {
         "Compute Cores": 1
@@ -11194,18 +11168,15 @@
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": {
-        "Callbacks & Closures": 3,
+        "Callbacks & Closures": 4,
         "Compute Cores": 6,
         "Defensive Guards": 1,
-        "Generic / Templated Code": 50,
-        "I/O & Config Routines": 1,
-        "Parameter Forwarders": 1
+        "Generic / Templated Code": 51
       },
       "typescript/fp-ts/HKT.ts": {},
       "typescript/fp-ts/TaskEither.ts": {
-        "Callbacks & Closures": 1,
         "Generic / Templated Code": 35,
-        "Parameter Forwarders": 4
+        "Parameter Forwarders": 5
       },
       "typescript/fp-ts/package.json": {},
       "typescript/fp-ts/pipeable.ts": {
@@ -11228,10 +11199,10 @@
         "State Mutators": 6
       },
       "typescript/playwright/connection.ts": {
-        "Callbacks & Closures": 1,
+        "Callbacks & Closures": 2,
         "Compute Cores": 3,
         "Defensive Guards": 1,
-        "Encapsulated Accessors": 2,
+        "Encapsulated Accessors": 1,
         "Generic / Templated Code": 2,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 2,
@@ -11251,10 +11222,10 @@
         "State Mutators": 4
       },
       "typescript/playwright/dispatcher.ts": {
-        "Callbacks & Closures": 2,
+        "Callbacks & Closures": 3,
         "Compute Cores": 2,
         "Defensive Guards": 3,
-        "Encapsulated Accessors": 6,
+        "Encapsulated Accessors": 5,
         "Generic / Templated Code": 1,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 1,
@@ -11266,13 +11237,13 @@
       "typescript/playwright/frames.ts": {
         "Callbacks & Closures": 18,
         "Compute Cores": 24,
-        "Defensive Guards": 18,
+        "Defensive Guards": 16,
         "Encapsulated Accessors": 7,
-        "Generic / Templated Code": 5,
+        "Generic / Templated Code": 6,
         "I/O & Config Routines": 2,
         "Interface Declarations": 11,
         "Many-Argument Workhorses": 7,
-        "Parameter Forwarders": 32,
+        "Parameter Forwarders": 33,
         "State Mutators": 20,
         "Stateful Encapsulated Methods": 13,
         "Type Conversions": 2
@@ -11297,25 +11268,25 @@
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": {},
       "typescript/vscode/async.ts": {
-        "Callbacks & Closures": 41,
+        "Callbacks & Closures": 38,
         "Compute Cores": 4,
-        "Defensive Guards": 25,
-        "Encapsulated Accessors": 27,
-        "Generic / Templated Code": 70,
+        "Defensive Guards": 26,
+        "Encapsulated Accessors": 25,
+        "Generic / Templated Code": 71,
         "I/O & Config Routines": 4,
         "Interface Declarations": 50,
-        "Parameter Forwarders": 18,
+        "Parameter Forwarders": 21,
         "State Mutators": 11,
         "Stateful Encapsulated Methods": 6,
         "Type Conversions": 1
       },
       "typescript/vscode/codeEditorWidget.ts": {
-        "Callbacks & Closures": 22,
+        "Callbacks & Closures": 25,
         "Compute Cores": 41,
-        "Defensive Guards": 14,
+        "Defensive Guards": 13,
         "Encapsulated Accessors": 23,
         "Generic / Templated Code": 5,
-        "I/O & Config Routines": 6,
+        "I/O & Config Routines": 4,
         "Interface Declarations": 39,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 49,
@@ -11336,20 +11307,20 @@
       },
       "typescript/vscode/gulpfile.vscode.ts": {
         "Callbacks & Closures": 6,
-        "Compute Cores": 1,
+        "Compute Cores": 2,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 2,
-        "Parameter Forwarders": 2
+        "Parameter Forwarders": 1
       },
       "typescript/vscode/instantiationService.ts": {
         "Compute Cores": 4,
-        "Defensive Guards": 4,
+        "Defensive Guards": 5,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 2,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 3,
+        "Many-Argument Workhorses": 2,
         "Parameter Forwarders": 4,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 8

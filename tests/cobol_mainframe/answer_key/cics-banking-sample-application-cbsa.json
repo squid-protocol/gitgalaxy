@@ -71051,5 +71051,301 @@
         }
       }
     }
+  },
+  "call_using": {
+    "src/base/cobol_src/ABNDPROC.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 130
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/ACCTCTRL.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 132
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEEGMT",
+          "args": "GMT-LILIAN,GMT-SECONDS,FC",
+          "line": 1442
+        },
+        {
+          "kind": "CALL",
+          "name": "CEEDATM",
+          "args": "PERIOD-NEXT,DATM-PICTURE,DATM-CONV,FC",
+          "line": 1458
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "PARM-BUFFER",
+          "line": 368
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 159
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 176
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DCS.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 188
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 286
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEEDAYS",
+          "args": "DATE-OF-BIRTH-FOR-CEEDAYS,DATE-OF-BIRTH-FORMAT,WS-DATE-OF-BIRTH-LILLIAN,FC",
+          "line": 1379
+        },
+        {
+          "kind": "CALL",
+          "name": "CEELOCT",
+          "args": "WS-TODAY-LILLIAN,WS-TODAY-SECONDS,WS-TODAY-GREGORIAN,FC",
+          "line": 1393
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 353
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 131
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 198
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELACC.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 203
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 245
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/GETCOMPY.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 35
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/GETSCODE.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 36
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACC.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 202
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACCCU.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 193
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 165
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "DFHCOMMAREA",
+          "line": 268
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

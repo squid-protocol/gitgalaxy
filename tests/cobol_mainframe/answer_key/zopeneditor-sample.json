@@ -9928,5 +9928,82 @@
         }
       }
     }
+  },
+  "call_using": {
+    "COBOL/SAM1.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "SAM2",
+          "args": "CUST-REC,TRANSACTION-RECORD,WS-TRAN-OK,WS-TRAN-MSG",
+          "line": 304
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "COBOL/SAM1LIB.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "SAM2",
+          "args": "CUST-REC,TRANSACTION-RECORD,WS-TRAN-OK,WS-TRAN-MSG",
+          "line": 287
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "COBOL/SAM2.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "CUST-REC,TRANSACTION-RECORD,TRAN-OK,TRAN-MSG",
+          "line": 52
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "multiroot/sam/SAM1.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "SAM2",
+          "args": "CUST-REC,TRANSACTION-RECORD,WS-TRAN-OK,WS-TRAN-MSG,SAM2-PARMS",
+          "line": 338
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "multiroot/sam/SAM2.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "CUST-REC,TRANSACTION-RECORD,TRAN-OK,TRAN-MSG,SAM2-PARMS",
+          "line": 54
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

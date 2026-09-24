@@ -498,7 +498,8 @@ class RecordKeeper:
         file's own `uow_handlers` and become uow_handler_data. File definitions
         (#3455) ride on `file_control` (COBOL SELECTs -> file_control_data) and
         `vsam_defines` (JCL IDCAMS -> vsam_define_data). JCL job flow (#3451)
-        rides on `job_flow` and becomes job_flow_data.
+        rides on `job_flow` and becomes job_flow_data. Program entry points
+        (#3454) ride on `entry_points` and become entry_point_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -899,6 +900,7 @@ class RecordKeeper:
                 commarea TEXT,
                 commarea_length TEXT,
                 commarea_datalength TEXT,
+                using_args TEXT,
                 FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
                 FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
@@ -911,6 +913,10 @@ class RecordKeeper:
         # Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
         # (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
         _ensure_columns(cursor, "call_site_data", ["commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"])
+        # #3454: a batch CALL's USING list (call_using.py), comma-joined by position,
+        # NULL for a CALL without USING and every non-CALL row. Paired with the
+        # callee's entry_point_data params by GalaxyIR.call_contracts.
+        _ensure_columns(cursor, "call_site_data", ["using_args TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
@@ -1338,6 +1344,28 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
+
+        # #3454: program entry points -- PROCEDURE DIVISION [USING ...] and ENTRY 'X'
+        # [USING ...] (call_using.py): the parameters a CALL's USING list pairs with.
+        #   kind        -- PROCEDURE | ENTRY;  entry_name -- the ENTRY literal
+        #   params      -- comma-joined by position (BY VALUE / CONTENT prefixed)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS entry_point_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                entry_name TEXT,
+                params TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_entry_point_file_id ON entry_point_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_entry_point_snapshot ON entry_point_data(repo_name, commit_hash);"
+        )
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2559,6 +2587,7 @@ class RecordKeeper:
                         site.get("commarea"),  # #3355
                         site.get("commarea_length"),
                         site.get("commarea_datalength"),
+                        site.get("using_args"),  # #3454
                     )
                 )
             if call_rows:
@@ -2567,8 +2596,8 @@ class RecordKeeper:
                     INSERT INTO call_site_data (
                         repo_name, commit_hash, src_file_id, verb, form,
                         operand, target, dst_file_id, line_number,
-                        commarea, commarea_length, commarea_datalength
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        commarea, commarea_length, commarea_datalength, using_args
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     call_rows,
                 )
@@ -3029,6 +3058,19 @@ class RecordKeeper:
                 j.get("generation"),
                 int(j.get("line", 0) or 0),
             ),
+        )
+
+        # #3454: program entry points -- per-file, like job_flow_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "entry_point_data",
+            ("kind", "entry_name", "params", "line_number"),
+            "entry_points",
+            lambda e: (e.get("kind"), e.get("entry_name"), e.get("params"), int(e.get("line", 0) or 0)),
         )
 
         # #3211-followup: the transaction map, resolved cross-file (transid ->

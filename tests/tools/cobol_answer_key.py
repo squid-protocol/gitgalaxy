@@ -20,6 +20,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-uow <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-file-defs <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-job-flow <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-call-using <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -3210,6 +3211,129 @@ def draft_job_flow(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# Batch CALL USING contracts (#3454)
+# ==============================================================================
+# This tool's own reading of each CALL's USING list and each program's PROCEDURE
+# DIVISION / ENTRY 'X' USING parameters, over the key's Source (Area A..B, so no
+# sequence fields; literals found through the blanked twin). Arguments by
+# position: BY CONTENT / BY VALUE prefix the items that follow (`CONTENT:X`),
+# `A OF B` kept, subscripts dropped, ADDRESS OF / LENGTH OF / OMITTED / literals
+# as written. The list stops at RETURNING, ON, NOT, END-CALL, a period, or a verb.
+_CU_STOP = {"RETURNING", "ON", "NOT", "END-CALL", "EXCEPTION", "OVERFLOW", "GIVING"}
+_CU_VERBS = set(
+    "ACCEPT ADD ALTER CALL CANCEL CLOSE COMPUTE CONTINUE DELETE DISPLAY DIVIDE ELSE END-EVALUATE END-IF "
+    "END-PERFORM END-READ END-SEARCH END-STRING EVALUATE EXEC EXIT GO GOBACK IF INITIALIZE INSPECT MERGE "
+    "MOVE MULTIPLY OPEN PERFORM READ RELEASE RETURN REWRITE SEARCH SET SORT START STOP STRING SUBTRACT "
+    "UNSTRING WHEN WRITE COPY".split()
+)
+
+
+def _cu_list(raw: str) -> Optional[str]:
+    words = re.findall(r"'[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*|[(),.]", raw)
+    if not words or words[0] != "USING":
+        return None
+    out, mode, i = [], "", 1
+    while i < len(words):
+        w = words[i]
+        if w == "." or w in _CU_STOP or w in _CU_VERBS:
+            break
+        if w == ",":
+            i += 1
+        elif w == "BY" and i + 1 < len(words) and words[i + 1] in ("REFERENCE", "CONTENT", "VALUE"):
+            mode = "" if words[i + 1] == "REFERENCE" else words[i + 1] + ":"
+            i += 2
+        elif w in ("REFERENCE", "CONTENT", "VALUE"):
+            mode = "" if w == "REFERENCE" else w + ":"
+            i += 1
+        elif w in ("ADDRESS", "LENGTH") and i + 2 < len(words) and words[i + 1] == "OF":
+            out.append(f"{mode}{w} OF {words[i + 2]}")
+            i += 3
+        elif w == "OMITTED" or w[0] in "'\"":
+            out.append(mode + w)
+            i += 1
+        elif w in ("(", ")"):
+            i += 1
+        else:
+            name, i = w, i + 1
+            while i + 1 < len(words) and words[i] in ("OF", "IN"):
+                name, i = f"{name} OF {words[i + 1]}", i + 2
+            if i < len(words) and words[i] == "(":
+                depth = 0
+                while i < len(words):
+                    depth += (words[i] == "(") - (words[i] == ")")
+                    i += 1
+                    if depth == 0:
+                        break
+            out.append(mode + name)
+    return ",".join(out) or None
+
+
+def call_using_rows(path: Path) -> list[dict[str, Any]]:
+    """CALL sites with a USING list, and entry points with parameters (or ENTRY)."""
+    src = Source(path)
+    rows = []
+    for m in re.finditer(r"\bCALL\s+(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", src.text):
+        # The literal's text is blanked in src.text; read it from raw_text.
+        raw_target = re.match(r"CALL\s+(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", src.raw_text[m.start() :])
+        if raw_target is None:
+            continue
+        target = (raw_target.group(1) or raw_target.group(2) or raw_target.group(3) or "").strip()
+        args = _cu_list(src.raw_text[m.start() + raw_target.end() : m.start() + raw_target.end() + 6000])
+        if args:
+            rows.append({"kind": "CALL", "name": target, "args": args, "line": src.line_of(m.start())})
+    for m in re.finditer(r"\bPROCEDURE\s+DIVISION\b", src.text):
+        params = _cu_list(src.raw_text[m.end() : m.end() + 6000].lstrip())
+        if params:
+            rows.append({"kind": "PROCEDURE", "name": None, "args": params, "line": src.line_of(m.start())})
+    for m in re.finditer(r"\bENTRY\s+(?:'([^']*)'|\"([^\"]*)\")", src.raw_text):
+        if src.text[m.start() : m.start() + 5] != "ENTRY":
+            continue
+        rows.append(
+            {
+                "kind": "ENTRY",
+                "name": (m.group(1) or m.group(2) or "").strip(),
+                "args": _cu_list(src.raw_text[m.end() : m.end() + 6000].lstrip()),
+                "line": src.line_of(m.start()),
+            }
+        )
+    return rows
+
+
+def call_using_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> CALL|PROCEDURE|ENTRY <name> USING <args>` per row."""
+    return {f"L{r['line']} {r['kind']} {r['name'] or '-'} USING {r['args'] or '-'}" for r in rows}
+
+
+def engine_call_using_rows(ef: Any) -> list[dict[str, Any]]:
+    rows = [
+        {"kind": "CALL", "name": c.operand, "args": c.using_args, "line": c.line}
+        for c in ef.calls
+        if c.verb == "CALL" and c.using_args
+    ]
+    rows += [
+        {"kind": e.kind, "name": e.entry_name, "args": e.params, "line": e.line}
+        for e in ef.entry_points
+        if e.params or e.kind == "ENTRY"
+    ]
+    return rows
+
+
+def draft_call_using(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted CALL USING lists and entry-point parameters per COBOL source (#3454)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+            rows = call_using_rows(p)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "rows": rows,
+                    "call_using_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -3614,6 +3738,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # GDG generation), per JCL member. Truth is this tool's own reader; engine
         # is job_flow_data.
         "JCL job flow",
+        # #3454: batch CALL USING lists and PROCEDURE DIVISION / ENTRY USING
+        # parameters, per COBOL source. Truth is this tool's own reader; engine is
+        # call_site_data.using_args + entry_point_data.
+        "CALL USING",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -3935,6 +4063,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             job_flow_keys([engine_job_flow_row(j) for j in ef.job_flow]) if ef else None,
         )
 
+    for rel, k in key.get("call_using", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "CALL USING",
+            rel,
+            call_using_keys(k.get("rows", [])),
+            None,
+            call_using_keys(engine_call_using_rows(ef)) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -4048,6 +4186,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    cup = sub.add_parser("add-call-using")
+    cup.add_argument("repo", type=Path)
+    cup.add_argument("--key", type=Path, required=True)
     jfp = sub.add_parser("add-job-flow")
     jfp.add_argument("repo", type=Path)
     jfp.add_argument("--key", type=Path, required=True)
@@ -4187,6 +4328,16 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-call-using":
+        # #3454: the add-pli discipline -- refresh drafts, keep signed-off files.
+        cu = key.get("call_using", {})
+        for rel, entry in draft_call_using(repo).items():
+            if not cu.get(rel, {}).get("call_using_validated"):
+                cu[rel] = entry
+        key["call_using"] = cu
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(cu)} CALL USING files -> {args.key}")
         return 0
     if args.cmd == "add-job-flow":
         # #3451: the add-pli discipline -- refresh drafts, keep signed-off files.

@@ -110,6 +110,10 @@
 # a field through the program, across CALL USING / COMMAREA storage, to the
 # channel endpoints (FD records, SQL host variables, DL/I I/O areas, CICS
 # FILE / MAP / QUEUE / CONTAINER records).
+# Since #3490, a COBOL `COPY <mapset>` that no real copybook answers gets the
+# symbolic map its BMS source generates (core/bms_symbolic.py, parsed by the
+# record parser; EngineFile.symbolic_copies, never in `files`), so screen fields
+# resolve to storage; GalaxyIR.symbolic_map_layouts lists every generated map.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -730,6 +734,9 @@ class EngineFile:
     dli_calls: list = field(default_factory=list)  # EngineDliCall, source order, #3450
     ims_gen: list = field(default_factory=list)  # EngineImsGen, source order, #3477
     data_moves: list = field(default_factory=list)  # EngineDataMove, source order, #3452
+    # #3490: symbolic maps generated from BMS source for COPY members no real
+    # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
+    symbolic_copies: list = field(default_factory=list)
 
     @property
     def is_program(self) -> bool:
@@ -1171,7 +1178,33 @@ class GalaxyIR:
             hits = [p for p in ctx.copy_deps if Path(p).stem.upper() == member]
             if len(hits) == 1 and hits[0] in self.files:
                 return self.files[hits[0]]
+        for ctx in contexts:  # #3490: a symbolic map generated from BMS source
+            for sym in ctx.symbolic_copies:
+                if sym.file_path.rsplit("#", 1)[-1] == member:
+                    return sym
         return None
+
+    def symbolic_map_layouts(self) -> dict:
+        """Mapset -> {`file` (the BMS source), `items`: sorted `NAME @offset+bytes`}
+        of every generated COBOL symbolic map (#3490): each named item, the I / O
+        records included, at its byte offset from the start of the map record (an
+        O item overlays the I record it REDEFINES; an OCCURS item's first
+        occurrence, its group the whole array)."""
+        out: dict = {}
+        for mapset, sym in sorted(_symbolic_map_files(self.files).items()):
+            spans = self._storage_spans(sym)
+            items = {
+                f"{it.name} @{spans[id(it)][1]}+{spans[id(it)][2]}"
+                for it in sym.data_items
+                if it.name != "FILLER" and it.level not in (66, 88) and id(it) in spans
+            }
+            out[mapset] = {"file": sym.file_path.rsplit("#", 1)[0], "items": sorted(items)}
+        return out
+
+    def _copy_files(self, ef: EngineFile) -> list:
+        """The copybooks program `ef` COPYs: its resolved COPY edges, then the
+        symbolic maps generated for the BMS mapsets it COPYs (#3490)."""
+        return [self.files[p] for p in ef.copy_deps if p in self.files] + ef.symbolic_copies
 
     def _copy_roots(self, member: str, ef: EngineFile, origin: EngineFile, depth: int) -> tuple:
         """(copybook file, its record roots) for `COPY member`, or (None, [])."""
@@ -1341,10 +1374,7 @@ class GalaxyIR:
         found = _matches(ef)
         if found:
             return found
-        for path in ef.copy_deps:
-            cb = self.files.get(path)
-            if cb is None:
-                continue
+        for cb in self._copy_files(ef):
             for owner, it, _ in _matches(cb):
                 # The copied record the program continues past the COPY (its last root).
                 last = [r for r in cb.records if r.level not in (66, 88)][-1:]
@@ -2546,8 +2576,9 @@ class GalaxyIR:
         is (defining file, root name). A REDEFINES item takes the offset of the
         item it overlays; bytes is None when a width inside is unknown. Cached."""
         cache = self.__dict__.setdefault("_span_cache", {})
-        if ef.file_path in cache:
-            return cache[ef.file_path]
+        # Keyed by the object too: a synthetic symbolic map (#3490) is rebuilt per call.
+        if (ef.file_path, id(ef)) in cache:
+            return cache[(ef.file_path, id(ef))][0]
         spans: dict = {}
         paths: dict = {}  # id(item) -> the names of its storage ancestors, innermost first
         items: dict = {}  # record key -> [(offset, bytes, depth, name)]
@@ -2592,16 +2623,13 @@ class GalaxyIR:
             if id(root) not in spans:
                 # `01 B REDEFINES A` overlays record A: same storage, same record key.
                 walk(ef, root, (ef.file_path, root.redefines or root.name), 0, 0, None, ())
-        for path in ef.copy_deps:
-            cb = self.files.get(path)
-            if cb is None:
-                continue
+        for cb in self._copy_files(ef):
             roots = [r for r in cb.records if r.level not in (66, 88)]
             for root in roots:
                 if id(root) not in spans:
                     ext = self._copy_extension(ef, cb) if roots[-1:] == [root] else None
                     walk(cb, root, (cb.file_path, root.name), 0, 0, ext, ())
-        cache[ef.file_path] = spans
+        cache[(ef.file_path, id(ef))] = (spans, ef)  # ef held so its id is never reused
         self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
         self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
         return spans
@@ -2636,7 +2664,7 @@ class GalaxyIR:
             # item expanded under the program's own group (`01 DFHCOMMAREA.` + `COPY
             # PAYDBCR.`) answers to that group, which its copybook never names. Every
             # same-named item is a candidate, the program's own and each copybook's.
-            owners = [ef] + [self.files[p] for p in ef.copy_deps if p in self.files]
+            owners = [ef, *self._copy_files(ef)]
             found = [
                 (o, it, None)
                 for o in owners
@@ -3792,7 +3820,59 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     finally:
         conn.close()
 
+    _attach_symbolic_maps(files)
     return GalaxyIR(db_path, repo_name, commit_hash, files)
+
+
+def _attach_symbolic_maps(files: dict[str, EngineFile]) -> None:
+    """#3490: a COBOL program's `COPY <mapset>` with no real copybook in the
+    repository gets the symbolic map its BMS source generates (core/bms_symbolic),
+    parsed by the engine's record parser as any copybook is. A mapset defined by
+    several BMS sources resolves only to the one whose file stem is the mapset."""
+    stems = {Path(p).stem.upper() for p, f in files.items() if f.language == "cobol"}  # real copybooks
+    maps = _symbolic_map_files(files)
+    for f in files.values():
+        if f.language != "cobol" or not f.data_items:
+            continue
+        members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+        for member in sorted(members):
+            if member not in stems and member in maps:  # no real copybook answers the COPY
+                f.symbolic_copies.append(maps[member])
+
+
+def _symbolic_map_files(files: dict[str, EngineFile]) -> dict[str, EngineFile]:
+    """Mapset -> its generated symbolic map as a synthetic EngineFile (#3490),
+    for every mapset exactly one BMS source defines (or whose file stem is it)."""
+    from gitgalaxy.core.bms_symbolic import symbolic_maps
+    from gitgalaxy.core.mainframe_boundary import _cobol_records
+
+    by_mapset: dict[str, list] = {}
+    for f in sorted(files.values(), key=lambda x: x.file_path):
+        if f.screen_fields:
+            for mapset, text in symbolic_maps(f.screen_fields).items():
+                by_mapset.setdefault(mapset, []).append((f.file_path, text))
+    made: dict[str, EngineFile] = {}
+    for mapset, cands in by_mapset.items():
+        if len(cands) > 1:
+            cands = [c for c in cands if Path(c[0]).stem.upper() == mapset]
+        if len(cands) != 1:
+            continue
+        sym = EngineFile(file_path=f"{cands[0][0]}#{mapset}", language="cobol", total_loc=0)
+        for r in _cobol_records(cands[0][1]):
+            sym.data_items.append(
+                EngineDataItem(
+                    ordinal=r["ordinal"], parent_ordinal=r["parent_ordinal"], level=r["level"],
+                    name=r["name"], section=None, fd_name=None, pic=r["pic"], usage=r["usage"],
+                    occurs_min=r["occurs_min"], occurs_max=r["occurs_max"], occurs_depending_on=None,
+                    redefines=r["redefines"], value=None, line=r["line"],
+                )
+            )  # fmt: skip
+        by_ordinal = {it.ordinal: it for it in sym.data_items}
+        for it in sym.data_items:
+            parent = by_ordinal.get(it.parent_ordinal) if it.parent_ordinal is not None else None
+            (parent.children if parent is not None else sym.records).append(it)
+        made[mapset] = sym
+    return made
 
 
 def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600) -> Path:

@@ -1178,3 +1178,21 @@ def test_data_move_reader_and_truncation_on_its_own(tmp_path):
         "L12 WS-LONG -> WS-DATE",
         "L13 WS-LONG -> WS-SHORT",
     ]
+
+
+def test_symbolic_map_units_by_arithmetic(tmp_path):
+    """#3490: the key's own symbolic-map layout -- offsets by arithmetic from the
+    BMS source (prefix, 3 + k + LENGTH per field, O overlaying I)."""
+    (tmp_path / "SCRM.bms").write_text(
+        "SCRM    DFHMSD TYPE=&&SYSPARM,LANG=COBOL,TIOAPFX=YES,EXTATT=YES\n"
+        "SCRMA   DFHMDI SIZE=(24,80)\n"
+        "        DFHMDF POS=(1,1),LENGTH=5,INITIAL='Name:'\n"
+        "NAME    DFHMDF POS=(1,7),LENGTH=10\n"
+        "        DFHMSD TYPE=FINAL\n",
+        encoding="utf-8",
+    )
+    units = ak.draft_symbolic_maps(tmp_path)["SCRM.bms"]["layouts"]["SCRM"]
+    assert units == sorted(
+        ["SCRMAI @0+29", "SCRMAO @0+29", "NAMEL @12+2", "NAMEF @14+1", "NAMEA @14+1", "NAMEC @15+1",
+         "NAMEP @16+1", "NAMEH @17+1", "NAMEV @18+1", "NAMEI @19+10", "NAMEO @19+10"]
+    )  # fmt: skip

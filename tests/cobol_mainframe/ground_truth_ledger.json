@@ -468,6 +468,15 @@
           },
           "truth": "draft"
         },
+        "symbolic maps": {
+          "engine": {
+            "got": 5307,
+            "tp": 5307,
+            "truth": 5307
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "units": {
           "engine": {
             "got": 870,
@@ -1272,6 +1281,15 @@
           },
           "truth": "draft"
         },
+        "symbolic maps": {
+          "engine": {
+            "got": 1320,
+            "tp": 1320,
+            "truth": 1320
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "units": {
           "engine": {
             "got": 680,
@@ -1592,6 +1610,11 @@
             "tp": 163,
             "truth": 163
           },
+          "truth": "draft"
+        },
+        "symbolic maps": {
+          "engine": null,
+          "forge": null,
           "truth": "draft"
         },
         "units": {

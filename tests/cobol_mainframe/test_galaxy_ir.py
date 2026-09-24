@@ -1889,3 +1889,70 @@ def test_a_pre_3452_db_loads_with_no_data_moves(lineage_scanned, tmp_path):
         conn.execute("DROP TABLE data_move_data")
     ir = load_galaxy_ir(old)
     assert ir.data_flows() == [] and [h["item"] for h in ir.field_lineage("cbl/LCALLER.cbl", "WS-NAME")] == ["WS-NAME"]
+
+
+# ---- #3490: symbolic maps generated from BMS source ---------------------------
+SYM_BMS = (
+    "\n".join(
+        [
+            "SCRM    DFHMSD TYPE=&&SYSPARM,LANG=COBOL,MODE=INOUT,TIOAPFX=YES",
+            "SCRMA   DFHMDI SIZE=(24,80)",
+            "CUSTNAM DFHMDF POS=(1,1),LENGTH=20,ATTRB=UNPROT",
+            "MSG     DFHMDF POS=(24,1),LENGTH=30",
+            "        DFHMSD TYPE=FINAL",
+        ]
+    )
+    + "\n"
+)
+SYM_PGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SYMPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-NAME            PIC X(20).
+       01 WS-LONG            PIC X(40).
+       COPY SCRM.
+       PROCEDURE DIVISION.
+           MOVE CUSTNAMI TO WS-NAME.
+           MOVE WS-LONG TO MSGO.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def symbolic_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_symbolic")
+    repo = base / "sym"
+    for rel, text in {"bms/SCRM.bms": SYM_BMS, "cbl/SYMPGM.cbl": SYM_PGM}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_a_copy_of_a_mapset_with_no_copybook_gets_the_generated_symbolic_map(symbolic_scanned):
+    ir = load_galaxy_ir(symbolic_scanned)
+    assert [s.file_path for s in ir.files["cbl/SYMPGM.cbl"].symbolic_copies] == ["bms/SCRM.bms#SCRM"]
+    flows = {(f["source"], f["target"]): f for f in ir.data_flows()}
+    move_in = flows[("CUSTNAMI", "WS-NAME")]
+    assert move_in["status"] == "resolved"
+    # 12-byte TIOA prefix, then CUSTNAML (2) CUSTNAMF (1): the I field sits at 15.
+    assert (move_in["source_span"]["record"], move_in["source_span"]["offset"]) == ("SCRMAI", 15)
+    assert flows[("WS-LONG", "MSGO")]["truncates"] is True  # 40 bytes into a 30-byte screen field
+    assert ir.symbolic_map_layouts()["SCRM"]["items"][:3] == ["CUSTNAMA @14+1", "CUSTNAMF @14+1", "CUSTNAMI @15+20"]
+
+
+def test_a_real_copybook_wins_over_the_generated_map(tmp_path):
+    repo = tmp_path / "sym"
+    for rel, text in {
+        "bms/SCRM.bms": SYM_BMS,
+        "cbl/SYMPGM.cbl": SYM_PGM,
+        "cpy/SCRM.cpy": "       01  SCRMAI.\n           02  CUSTNAMI  PIC X(20).\n           02  MSGO  PIC X(30).\n",
+    }.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    assert ir.files["cbl/SYMPGM.cbl"].symbolic_copies == []
+    flow = next(f for f in ir.data_flows() if f["source"] == "CUSTNAMI")
+    assert (flow["source_span"]["record_file"], flow["source_span"]["offset"]) == ("cpy/SCRM.cpy", 0)

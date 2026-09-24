@@ -115,3 +115,28 @@ def test_the_resp_window_is_bounded():
     started = time.perf_counter()
     extract_uow_handlers(src)
     assert time.perf_counter() - started < 10.0
+
+
+def test_resp_codes_tested_by_number_count_as_checks():
+    # CardDemo COSGN00C: EVALUATE WS-RESP-CD WHEN 0 ... WHEN 13 is NORMAL / NOTFND.
+    src = (
+        "       READ-SEC.\n"
+        "           EXEC CICS READ DATASET(WS-F) INTO(R) RESP(WS-RESP-CD)\n"
+        "           END-EXEC.\n"
+        "           EVALUATE WS-RESP-CD\n"
+        "               WHEN 0\n"
+        "                   EVALUATE WS-MONTH\n"
+        "                     WHEN 12 CONTINUE\n"
+        "                   END-EVALUATE\n"
+        "               WHEN 13 CONTINUE\n"
+        "               WHEN OTHER CONTINUE\n"
+        "           END-EVALUATE.\n"
+        "           EXEC CICS SEND MAP('M') RESP(WS-RC) END-EXEC.\n"
+        "           IF WS-RC NOT = 0 CONTINUE END-IF.\n"
+        "           EXEC CICS RECEIVE MAP('M') RESP(WS-RC2) END-EXEC.\n"
+        "           IF WS-RC2 = 923 CONTINUE END-IF.\n"
+    )
+    checks = [(r[1], r[2]) for r in _rows(src) if r[0] == "RESP_CHECK"]
+    # WHEN 12 belongs to the nested EVALUATE WS-MONTH, not to the RESP field; an
+    # unnamed code is kept as the number.
+    assert checks == [("READ", "NORMAL,NOTFND"), ("SEND", "NORMAL"), ("RECEIVE", "923")]

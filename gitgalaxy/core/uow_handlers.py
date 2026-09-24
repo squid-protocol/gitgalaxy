@@ -30,8 +30,10 @@
 # window runs from its END-EXEC to the next command that sets v again, the next
 # paragraph / section header, or `_RESP_WINDOW` characters. Inside it, a
 # DFHRESP(x) counts once v has been mentioned (`IF v NOT = DFHRESP(NORMAL)`,
-# `EVALUATE v WHEN DFHRESP(NOTFND)`). A RESP_CHECK with no condition is a
-# command whose outcome is never tested -- a real finding, not an error.
+# `EVALUATE v WHEN DFHRESP(NOTFND)`), and so does a response code tested BY
+# NUMBER on v (`v = 0`, `EVALUATE v WHEN 13`), named through _RESP_CODES. A
+# RESP_CHECK with no condition is a command whose outcome is never tested -- a
+# real finding, not an error.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file. The owning paragraph of each row, whether a
@@ -64,6 +66,68 @@ _DFHRESP = re.compile(r"DFHRESP[ \t]{0,4}\([ \t]{0,4}([A-Z][A-Z0-9]{0,15})[ \t]{
 _COBOL_NAME = r"[A-Z0-9][A-Z0-9-]{0,62}"
 _HEADER = re.compile(r"^ {7,10}" + _COBOL_NAME + r"(?:[ \t]{1,20}SECTION)?[ \t]{0,20}\.[ \t]*$", re.I | re.M)
 _RESP_WINDOW = 8000
+# EIBRESP values a program may test by number instead of DFHRESP(name) (CardDemo
+# COSGN00C: `EVALUATE WS-RESP-CD WHEN 0 ... WHEN 13`). A number not listed here is
+# kept as the number itself.
+_RESP_CODES = {
+    0: "NORMAL",
+    1: "ERROR",
+    4: "EOF",
+    12: "FILENOTFOUND",
+    13: "NOTFND",
+    14: "DUPREC",
+    15: "DUPKEY",
+    16: "INVREQ",
+    17: "IOERR",
+    18: "NOSPACE",
+    19: "NOTOPEN",
+    20: "ENDFILE",
+    21: "ILLOGIC",
+    22: "LENGERR",
+    23: "QZERO",
+    26: "ITEMERR",
+    27: "PGMIDERR",
+    28: "TRANSIDERR",
+    36: "MAPFAIL",
+    44: "QIDERR",
+    70: "NOTAUTH",
+}
+_NUMBER = r"([0-9]{1,4})(?![0-9.])"
+# One EVALUATE-structure word: an EVALUATE opens a level, END-EVALUATE closes one,
+# and a WHEN arm carries a number when it is `WHEN n`.
+_EVALUATE_WORD = re.compile(
+    r"(?<![A-Z0-9-])(END-EVALUATE|EVALUATE|WHEN)(?![A-Z0-9-])(?:[ \t\n]{1,200}" + _NUMBER + r")?", re.I
+)
+
+
+def _numeric_checks(window: str, var: str) -> list[str]:
+    """The response codes `var` is compared with BY NUMBER in `window`: `var [NOT] =
+    n` / `var [NOT] EQUAL [TO] n`, and the WHEN n arms of an `EVALUATE var` itself
+    (a nested EVALUATE's arms skipped). Each as its DFHRESP name when known."""
+    name = re.escape(var)
+    found: list[int] = []
+    compare = re.compile(
+        rf"(?<![A-Z0-9-]){name}(?![A-Z0-9-])[ \t\n]{{0,200}}(?:NOT[ \t\n]{{1,200}})?"
+        rf"(?:=|EQUAL(?:[ \t\n]{{1,200}}TO)?)[ \t\n]{{0,200}}" + _NUMBER,
+        re.I,
+    )
+    found += [int(m.group(1)) for m in compare.finditer(window)]
+    for ev in re.finditer(rf"(?<![A-Z0-9-])EVALUATE[ \t\n]{{1,200}}{name}(?![A-Z0-9-])", window, re.I):
+        # Only the arms of THIS EVALUATE: a nested EVALUATE's WHENs test something else.
+        depth = 1
+        for w in _EVALUATE_WORD.finditer(window, ev.end()):
+            word = w.group(1).upper()
+            if word == "EVALUATE":
+                depth += 1
+            elif word == "END-EVALUATE":
+                depth -= 1
+                if depth == 0:
+                    break
+            elif depth == 1 and w.group(2):
+                found.append(int(w.group(2)))
+    return [_RESP_CODES.get(n, str(n)) for n in found]
+
+
 _UOW_VERBS = {"SYNCPOINT", "HANDLE", "IGNORE", "PUSH", "POP", "ABEND"}
 
 
@@ -221,6 +285,11 @@ def extract_uow_handlers(
                 if shielded is not None and shielded(end + m.start()):
                     continue
                 name = m.group(1).upper()
+                if name not in checked:
+                    checked.append(name)
+            # The numeric forms name the field themselves (EVALUATE v / v = n), so they
+            # read the whole window, not only the text after its first mention.
+            for name in _numeric_checks(window, var):
                 if name not in checked:
                     checked.append(name)
         rows.append(

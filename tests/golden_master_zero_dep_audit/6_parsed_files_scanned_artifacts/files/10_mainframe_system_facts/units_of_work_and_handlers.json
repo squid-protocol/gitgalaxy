@@ -704,7 +704,7 @@
         },
         {
           "Attributes": null,
-          "Condition": null,
+          "Condition": "NORMAL,NOTFND",
           "Kind": "RESP_CHECK",
           "Line": 211,
           "RESP Field": "WS-RESP-CD",

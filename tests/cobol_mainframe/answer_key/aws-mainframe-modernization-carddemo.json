@@ -92226,7 +92226,7 @@
           "kind": "RESP_CHECK",
           "source": "CICS",
           "verb": "READ",
-          "condition": null,
+          "condition": "NORMAL,NOTFND",
           "target": null,
           "target_kind": null,
           "resp_var": "WS-RESP-CD",
@@ -92237,7 +92237,9 @@
       "uow_validated": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-24: L211 READ's RESP is tested by number (EVALUATE WS-RESP-CD WHEN 0 / WHEN 13 = NORMAL / NOTFND); numeric RESP checks are now read. The blind census reviewer of this file reported exactly this reading."
+        ],
         "census": {
           "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
           "at": "2026-09-24"

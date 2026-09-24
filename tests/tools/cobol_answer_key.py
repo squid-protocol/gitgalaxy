@@ -2550,6 +2550,55 @@ _UOW_HEADER = re.compile(r"^[A-Z0-9][A-Z0-9-]*(?:\s+SECTION)?\s*\.\s*$")
 _UOW_SKIP = {"HANDLE", "IGNORE", "PUSH", "POP", "ABEND"}
 
 
+# EIBRESP codes, this tool's own table (CICS Application Programming Reference):
+# a RESP field tested by number (`WHEN 13`) names the same condition as DFHRESP(NOTFND).
+_UOW_CODES = {
+    "0": "NORMAL",
+    "1": "ERROR",
+    "4": "EOF",
+    "12": "FILENOTFOUND",
+    "13": "NOTFND",
+    "14": "DUPREC",
+    "15": "DUPKEY",
+    "16": "INVREQ",
+    "17": "IOERR",
+    "18": "NOSPACE",
+    "19": "NOTOPEN",
+    "20": "ENDFILE",
+    "21": "ILLOGIC",
+    "22": "LENGERR",
+    "23": "QZERO",
+    "26": "ITEMERR",
+    "27": "PGMIDERR",
+    "28": "TRANSIDERR",
+    "36": "MAPFAIL",
+    "44": "QIDERR",
+    "70": "NOTAUTH",
+}
+
+
+def _uow_numeric(text: str, var: str) -> set[str]:
+    """Codes compared with `var` by number: `var [NOT] = n` / `EQUAL [TO] n`, and the
+    `WHEN n` arms of `EVALUATE var` itself (a nested EVALUATE's arms skipped)."""
+    out: set[str] = set()
+    v = re.escape(var)
+    for m in re.finditer(rf"\b{v}(?![A-Z0-9-])\s*(?:NOT\s+)?(?:=|EQUAL(?:\s+TO)?)\s*(\d+)\b(?!\.\d)", text):
+        out.add(_UOW_CODES.get(str(int(m.group(1))), str(int(m.group(1)))))
+    for ev in re.finditer(rf"\bEVALUATE\s+{v}(?![A-Z0-9-])", text):
+        # Walk this EVALUATE's own level only; a nested one's WHENs are not ours.
+        level = 0
+        for tok in re.finditer(r"\b(END-EVALUATE|EVALUATE|WHEN)\b(?:\s+(\d+)\b(?!\.\d))?", text[ev.end() :]):
+            if tok.group(1) == "EVALUATE":
+                level += 1
+            elif tok.group(1) == "END-EVALUATE":
+                if level == 0:
+                    break
+                level -= 1
+            elif level == 0 and tok.group(2):
+                out.add(_UOW_CODES.get(str(int(tok.group(2))), str(int(tok.group(2)))))
+    return out
+
+
 def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
     """Every unit-of-work point, handler, ABEND and RESP check in one COBOL
     source, this tool's own reading (see the section header)."""
@@ -2643,6 +2692,8 @@ def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
         window = src.text[end:limit]
         first = re.search(rf"(?<![A-Z0-9-]){re.escape(var)}(?![A-Z0-9-])", window)
         seen = set(_UOW_DFHRESP.findall(src.raw_text[end + first.start() : limit])) if first else set()
+        if first:
+            seen |= _uow_numeric(src.raw_text[end:limit], var)
         out.append(
             (pos, 1, mk("RESP_CHECK", "CICS", verb, pos, condition=",".join(sorted(seen)) or None, resp_var=var))
         )

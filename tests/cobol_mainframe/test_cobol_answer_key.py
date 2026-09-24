@@ -962,3 +962,13 @@ def test_uow_and_tdq_trigger_readers_are_independent(tmp_path):
         "L14 ABEND ABEND c=K001 t=-/- v=- a=NODUMP",
     ]
     assert ak.draft_tdq_triggers(tmp_path)["UOWK.cbl"]["starts"] == ["PRTQ -> PRT1 -> PRTPGM"]
+
+
+def test_key_reads_resp_codes_tested_by_number():
+    """#3453 follow-up: `EVALUATE v WHEN 0 / WHEN 13` tests NORMAL / NOTFND (CardDemo
+    COSGN00C); a nested EVALUATE's WHEN arms belong to that EVALUATE, not to v."""
+    text = (
+        "EVALUATE WS-RESP-CD\n WHEN 0\n  EVALUATE WS-MONTH\n   WHEN 12 CONTINUE\n  END-EVALUATE\n"
+        " WHEN 13 CONTINUE\nEND-EVALUATE\nIF WS-RESP-CD NOT = 22 CONTINUE END-IF\nIF WS-RESP-CD = 923 CONTINUE END-IF\n"
+    )
+    assert ak._uow_numeric(text, "WS-RESP-CD") == {"NORMAL", "NOTFND", "LENGERR", "923"}

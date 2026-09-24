@@ -67,7 +67,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -1199,7 +1205,13 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -2428,7 +2440,13 @@
           "CALC-DAY-OF-WEEK SECTION (and CDW010/CDW999) is never PERFORMed: real dead logic.",
           "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -5553,6 +5571,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -5657,8 +5679,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -7441,6 +7471,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -7553,8 +7587,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -9206,6 +9248,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -9338,8 +9384,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -11101,6 +11155,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -11205,8 +11263,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -13179,6 +13245,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -13299,8 +13369,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -15609,6 +15687,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -15805,8 +15887,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -17925,6 +18015,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -18029,8 +18123,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -19923,6 +20025,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -20043,8 +20149,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -22193,6 +22307,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -22345,8 +22463,16 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -23310,7 +23436,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -24176,7 +24308,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -25042,7 +25180,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -25908,7 +26052,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -26774,7 +26924,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -27903,7 +28059,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -30617,7 +30779,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -33821,7 +33989,13 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -34968,7 +35142,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -36613,7 +36793,13 @@
         "notes": [
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -38472,7 +38658,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -40622,7 +40814,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -40689,7 +40887,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -40971,7 +41175,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -42715,7 +42925,13 @@
         "notes": [
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -44361,7 +44577,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -45812,7 +46034,13 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -46945,7 +47173,13 @@
           "POPULATE-TIME-DATE SECTION has no reference: real dead logic.",
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -48250,7 +48484,13 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -60407,5 +60647,230 @@
         "notes": []
       }
     }
-  }
+  },
+  "cross_verification": [
+    {
+      "by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+      "at": "2026-09-23",
+      "seed": 3210,
+      "tasks": {
+        "A": {
+          "agree": 130,
+          "asked": 130
+        },
+        "B": {
+          "agree": 31,
+          "asked": 31
+        },
+        "C": {
+          "agree": 59,
+          "asked": 59
+        },
+        "D": {
+          "agree": 14,
+          "asked": 14
+        },
+        "E": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {
+        "A:src/base/cobol_src/BNK1CCS.cbl::A999": {
+          "verdict": "key_fixed",
+          "why": "Reviewer is right: A010's EXEC CICS RETURN TRANSID(...) END-EXEC. sentence is unconditional, so A010 never falls through and A999 is dead. The draft reader only tested the last sentence; fixed, and the same correction applies to A999 in 8 more CBSA programs (BNK1CAC/CCA/CRA/DAC/DCS/TFN/UAC, BNKMENU)."
+        },
+        "D:src/base/cobol_src/INQACCCU.cbl::('LINK', 'INQCUST ')": {
+          "verdict": "key_correct",
+          "why": "Same program: the literal is 'INQCUST ' padded to 8, as CICS program names are. The grader now drops blank padding."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 83,
+          "asked": 84
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 26,
+          "asked": 26
+        },
+        "D": {
+          "agree": 6,
+          "asked": 6
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "A:src/base/cobol_src/INQACCCU.cbl::AH999": {
+          "verdict": "key_correct",
+          "why": "The key's reachability is structural: every condition may be true or false, with no value analysis. The EXEC CICS ABEND before AH999 sits inside IF WS-STORM-DRAIN = 'N', so AH010 can fall through structurally. The reviewer's data-flow argument (the flag can only be 'N' there) is correct but out of the key's scope, and the reviewer notes the structural reading is reachable. The brief now states the structural rule."
+        }
+      },
+      "programs": [
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 6,
+          "asked": 6
+        },
+        "C": {
+          "agree": 27,
+          "asked": 27
+        },
+        "D": {
+          "agree": 11,
+          "asked": 11
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 146,
+          "asked": 146
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 29,
+          "asked": 29
+        },
+        "D": {
+          "agree": 9,
+          "asked": 9
+        },
+        "E": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 4,
+          "asked": 4
+        },
+        "C": {
+          "agree": 28,
+          "asked": 28
+        },
+        "D": {
+          "agree": 10,
+          "asked": 10
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DELACC.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 37,
+          "asked": 37
+        },
+        "D": {
+          "agree": 9,
+          "asked": 9
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
+    }
+  ]
 }

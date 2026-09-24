@@ -734,3 +734,55 @@ def test_sample_is_seeded_and_covers_claim_kinds():
     assert a == ak.sample_claims(key, 60, seed=7)
     assert len(a) == 60
     assert {r["kind"] for r in a} >= {"live", "copybook", "call"}
+
+
+def test_a_terminal_sentence_before_the_last_ends_the_unit(tmp_path):
+    """Blind cross-check finding (CBSA BNK1CCS): A010 ends
+    `EXEC CICS RETURN TRANSID(...) END-EXEC.` then an `IF <resp> ... END-IF.`
+    recovery sentence. Only the last sentence was tested, so A010 read as falling
+    through and A999 as live; nine CBSA programs have this shape."""
+    path = _program(
+        tmp_path,
+        "       A010.\n"
+        "           EXEC CICS RETURN TRANSID('OCCS') RESP(WS-R) END-EXEC.\n"
+        "           IF WS-R NOT = 0\n"
+        "              DISPLAY 'FAIL'\n"
+        "           END-IF.\n"
+        "       A999.\n"
+        "           EXIT.\n",
+        data="       01 WS-R PIC S9(8) COMP.",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert entry["dead"].keys() == {"A999"}
+
+
+def test_alter_target_is_reached(tmp_path):
+    """CardDemo CBSTM03A: `ALTER 8100-FILE-OPEN TO PROCEED TO 8200-XREFFILE-OPEN`
+    then `GO TO 8100-FILE-OPEN` -- 8200 is reached only through the ALTER."""
+    path = _program(
+        tmp_path,
+        "       0000-START.\n"
+        "           ALTER 8100-FILE-OPEN TO PROCEED TO 8200-OPEN\n"
+        "           GO TO 8100-FILE-OPEN.\n"
+        "       8100-FILE-OPEN.\n"
+        "           GO TO 8100-FIRST.\n"
+        "       8100-FIRST.\n"
+        "           GOBACK.\n"
+        "       8200-OPEN.\n"
+        "           GOBACK.\n",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert entry["dead"] == {}
+
+
+@pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
+def test_small_corpus_keys_are_fully_censused(key_path):
+    """Every committed key has been read twice, blind: each program carries a clean
+    census sign-off (cross_verify.py census/sign). A new or re-drafted program must
+    be censused before it lands. A corpus too large to census would need its own
+    sampled-confidence rule instead of this gate."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import cross_verify as cv
+
+    cov = cv.coverage(json.loads(key_path.read_text(encoding="utf-8")))
+    assert not cov["missing"], f"not censused: {cov['missing'][:5]}"

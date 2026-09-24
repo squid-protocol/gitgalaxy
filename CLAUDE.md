@@ -243,6 +243,9 @@ It fails on an unlisted mismatch (a regression) *and* on a listed one that no lo
 Each field is labelled with the weakest verification tier behind it (`llm_verified` <
 `cross_verified` < `human_signed`, `cobol_answer_key.TIERS`), or `draft` when its key section is
 unsigned. Every tier gates, but only the label says how strongly a number may be quoted.
+A key reaches `cross_verified` through `tests/tools/cross_verify.py`: `brief --stage` builds a blind
+packet for a fresh-context reviewer model, `grade` lists disagreements, and `sign` refuses until
+each one is ruled on against the source. The runbook is in `tests/cobol_mainframe/answer_key/README.md`.
 
 ## Testing conventions
 

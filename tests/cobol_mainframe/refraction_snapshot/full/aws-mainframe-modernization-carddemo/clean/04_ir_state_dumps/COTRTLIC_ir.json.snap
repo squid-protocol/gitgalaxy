@@ -390,25 +390,20 @@
         "WS-TYPEFILTER-CHANGED",
         "WS-UPDATE-STATUS"
       ],
-      "total_paras": 62,
+      "total_paras": 63,
       "dead_paras": [
         "0000-MAIN-EXIT",
-        "2000-SEND-MAP-EXIT",
-        "9450-CLOSE-FORWARD-CURSOR",
-        "9450-CLOSE-FORWARD-CURSOR-EXIT",
         "SEND-LONG-TEXT-EXIT",
         "SEND-PLAIN-TEXT",
         "SEND-PLAIN-TEXT-EXIT"
       ],
-      "loc_saved": 449
+      "loc_saved": 419
     },
     "lineage": {
-      "program_id": "002600",
+      "program_id": "COTRTLIC",
       "inputs": [],
       "outputs": [],
-      "unresolved_calls": [
-        "MENU"
-      ]
+      "unresolved_calls": []
     },
     "base_intent": {
       "program_id": "COTRTLIC",

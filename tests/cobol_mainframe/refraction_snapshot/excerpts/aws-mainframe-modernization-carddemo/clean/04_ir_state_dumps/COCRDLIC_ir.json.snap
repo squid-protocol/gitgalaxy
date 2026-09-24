@@ -380,10 +380,7 @@
       "program_id": "COCRDLIC",
       "inputs": [],
       "outputs": [],
-      "unresolved_calls": [
-        "CARD",
-        "MENU"
-      ]
+      "unresolved_calls": []
     },
     "base_intent": {
       "program_id": "COCRDLIC",

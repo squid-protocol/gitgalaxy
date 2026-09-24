@@ -70,9 +70,10 @@
       ],
       "total_paras": 24,
       "dead_paras": [
+        "A999",
         "GMOFH999"
       ],
-      "loc_saved": 67
+      "loc_saved": 77
     },
     "lineage": {
       "program_id": "INQACCCU",

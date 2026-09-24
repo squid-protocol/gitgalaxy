@@ -55,7 +55,8 @@ def test_collects_calls_compiled_globals_and_fstrings():
     for s in sites:
         by_module.setdefault(s.module.rsplit("/", 1)[-1], []).append(s)
     # a literal re.finditer call, measured with its own method
-    dag = [s for s in by_module["cobol_dag_architect.py"] if s.pattern.startswith(r"\bOPEN")]
+    # (#3420: the OPEN anchor starts with the hyphen-aware `(?<![A-Z0-9\-])` guard)
+    dag = [s for s in by_module["cobol_dag_architect.py"] if r"OPEN\s+(?=" in s.pattern]
     assert dag and dag[0].method == "finditer"
     # module-level compiled patterns built from f-strings over module constants
     assert any("SECTION" in s.pattern for s in by_module["cobol_graveyard_finder.py"])

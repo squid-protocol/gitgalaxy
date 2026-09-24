@@ -7,8 +7,8 @@
   • Files Scanned           : 31
   • State Manager Mode      : RAM
   • Unused Memory Addresses : 1251 orphaned variables
-  • Unreachable Logic Blocks: 62 unreachable blocks
-  ✂️ Estimated Bloat Removed: ~1871 Lines of Code
+  • Unreachable Logic Blocks: 74 unreachable blocks
+  ✂️ Estimated Bloat Removed: ~1991 Lines of Code
 
 [2] ZERO-TRUST JCL ARCHITECTURE
 ----------------------------------------------------------

@@ -69,9 +69,10 @@
       ],
       "total_paras": 21,
       "dead_paras": [
+        "A999",
         "GMOFH999"
       ],
-      "loc_saved": 66
+      "loc_saved": 76
     },
     "lineage": {
       "program_id": "DELACC",

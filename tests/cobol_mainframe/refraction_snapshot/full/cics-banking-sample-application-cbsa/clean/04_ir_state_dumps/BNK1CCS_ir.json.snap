@@ -51,10 +51,11 @@
       ],
       "total_paras": 36,
       "dead_paras": [
+        "A999",
         "ATT999",
         "HA999"
       ],
-      "loc_saved": 58
+      "loc_saved": 68
     },
     "lineage": {
       "program_id": "BNK1CCS",

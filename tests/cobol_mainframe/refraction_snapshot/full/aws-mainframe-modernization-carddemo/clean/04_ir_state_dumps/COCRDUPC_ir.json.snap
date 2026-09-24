@@ -207,9 +207,10 @@
       ],
       "total_paras": 47,
       "dead_paras": [
-        "0000-MAIN-EXIT"
+        "0000-MAIN-EXIT",
+        "ABEND-ROUTINE-EXIT"
       ],
-      "loc_saved": 204
+      "loc_saved": 214
     },
     "lineage": {
       "program_id": "COCRDUPC",

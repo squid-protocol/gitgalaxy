@@ -26,13 +26,10 @@
 
 [4] ⚠️ MANUAL INTERVENTION AUDIT (ARCHITECTURAL ANOMALIES)
 ----------------------------------------------------------
-  • AI Agent Job Tickets Generated : 7
+  • AI Agent Job Tickets Generated : 2
 
   The following files contain structural anomalies that require architectural review:
-  [!] [app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl] Unresolved Dynamic CALL to: IF
-  [!] [app/app-transaction-type-db2/cbl/COTRTLIC.cbl] Unresolved Dynamic CALL to: MENU
   [!] [app/app-transaction-type-db2/cbl/COTRTUPC.cbl : Line 1358] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
-  [!] [app/cbl/CBACT01C.cbl] Unresolved Dynamic CALL to: ASSEMBLER
   [!] [app/cbl/COACTUPC.cbl : Line 3208] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
   [!] [app/cbl/COACTUPC.cbl : Line 3214] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
   [!] [app/cbl/COACTUPC.cbl : Line 3220] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
@@ -72,8 +69,5 @@
   [!] [app/cbl/COACTUPC.cbl : Line 3422] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
   [!] [app/cbl/COACTUPC.cbl : Line 3427] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
   [!] [app/cbl/COACTUPC.cbl : Line 3432] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.
-  [!] [app/cbl/COCRDLIC.cbl] Unresolved Dynamic CALL to: CARD
-  [!] [app/cbl/COCRDLIC.cbl] Unresolved Dynamic CALL to: MENU
-  [!] [app/cbl/CSUTLDTC.cbl] Unresolved Dynamic CALL to: TO
 
 ==========================================================

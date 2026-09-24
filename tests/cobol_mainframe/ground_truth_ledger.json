@@ -6,35 +6,10 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
-    "forge_hyphen_word_boundary": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "The forge uses a word boundary before PERFORM / IF / CALL, and that boundary also matches right after a hyphen. So END-PERFORM swallows the next PERFORM, and a live unit reads as dead. END-IF counts as an IF, so a terminal paragraph reads as falling through, and a dead A999 or ABEND-ROUTINE-EXIT reads as live. END-CALL and names ending in -CALL read as calls."
-    },
-    "forge_last_sentence_only": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "The forge's _is_terminal tests only a unit's LAST sentence, so a paragraph with an unconditional EXEC CICS RETURN sentence followed by an IF recovery sentence (CBSA BNK1* A010) reads as falling through and the dead A999 after it as live."
-    },
-    "forge_reads_comment_lines": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "cobol_dag_architect reads column-7 comment lines: commented CALL prose (CALL MENU PROGRAM) becomes a dynamic CALL, and commented SELECT/OPEN become outputs."
-    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
-      "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies it. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
-    },
-    "header_period_next_line": {
-      "issue": 3419,
-      "kind": "defect",
-      "summary": "A paragraph header whose separator period is on the next line (COTRTLIC 2000-SEND-MAP) is not a unit, so its THRU range's -EXIT reads dead in the forge."
-    },
-    "program_id_on_its_own_line": {
-      "issue": 3418,
-      "kind": "defect",
-      "summary": "PROGRAM-ID. alone on its line with the name on the next: the engine reads a sequence-area token (cols 1-6 of the next line, or cols 73-80); the forge reads cols 73-80."
+      "summary": "The forge reads the COMPILED program: resolve_copybooks inlines every COPY, so a procedure-division copybook's paragraphs (CardDemo CSSTRPFY's YYYY-STORE-PFKEY, CSUTLDPY's EDIT-DATE-*, CSDB2RPY's 9998-PRIMING-QUERY) are units of the program that copies them. The key lists the paragraphs written in the program's own source file. Surfaced when #3414 let the COPY-with-period-on-the-next-line shape resolve; the inlining is what dead-code analysis needs."
     }
   },
   "corpora": {
@@ -121,32 +96,6 @@
         "engine | dead | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dead | app/cbl/COACTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dead | app/cbl/COCRDUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | IF | fp": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | FAILED | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | FAIL | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | THRU | fp": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | TO | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | FAILED | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | MENU | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CBACT01C.cbl | ASSEMBLER | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CBSTM03A.CBL | TO | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | CARD | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | MENU | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CSUTLDTC.cbl | TO | fp": "forge_reads_comment_lines",
-        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL1 | fp": "forge_reads_comment_lines",
-        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL2 | fp": "forge_reads_comment_lines",
-        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 00220000 | fp": "program_id_on_its_own_line",
-        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | COTRTUPC | fn": "program_id_on_its_own_line",
-        "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP | fn": "header_period_next_line",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9998-PRIMING-QUERY-EXIT | fp": "forge_units_include_copied_paragraphs",
         "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9999-FORMAT-DB2-MESSAGE | fp": "forge_units_include_copied_paragraphs",
@@ -283,7 +232,7 @@
           },
           "forge": {
             "got": 35,
-            "tp": 32,
+            "tp": 35,
             "truth": 35
           },
           "truth": "cross_verified"
@@ -295,7 +244,7 @@
             "truth": 8
           },
           "forge": {
-            "got": 11,
+            "got": 8,
             "tp": 8,
             "truth": 8
           },
@@ -308,7 +257,7 @@
             "truth": 0
           },
           "forge": {
-            "got": 12,
+            "got": 0,
             "tp": 0,
             "truth": 0
           },
@@ -347,7 +296,7 @@
             "truth": 21
           },
           "forge": {
-            "got": 23,
+            "got": 21,
             "tp": 21,
             "truth": 21
           },
@@ -361,7 +310,7 @@
           },
           "forge": {
             "got": 44,
-            "tp": 43,
+            "tp": 44,
             "truth": 44
           },
           "truth": "cross_verified"
@@ -386,8 +335,8 @@
             "truth": 870
           },
           "forge": {
-            "got": 901,
-            "tp": 869,
+            "got": 902,
+            "tp": 870,
             "truth": 870
           },
           "truth": "cross_verified"
@@ -857,19 +806,7 @@
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/XFRFUN.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
-        "forge | dead | src/base/cobol_src/BNK1CAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CCA.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CCS.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CRA.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1DAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1DCS.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1TFN.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1UAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNKMENU.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/DELACC.cbl | A999 | fn": "forge_hyphen_word_boundary",
-        "forge | dead | src/base/cobol_src/INQACCCU.cbl | A999 | fn": "forge_hyphen_word_boundary",
-        "forge | dead | src/base/cobol_src/UPDCUST.cbl | A999 | fn": "forge_hyphen_word_boundary"
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -973,8 +910,8 @@
             "truth": 74
           },
           "forge": {
-            "got": 62,
-            "tp": 62,
+            "got": 74,
+            "tp": 74,
             "truth": 74
           },
           "truth": "cross_verified"

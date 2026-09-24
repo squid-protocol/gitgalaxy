@@ -72,11 +72,22 @@ _SECTION_SUFFIX = r"(\s+SECTION(?:\s+[0-9]{1,2})?)?"
 _UNIT_HEADER = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"\s*\.[ \t]*$")
 
 # Control flow read by the reachability pass (#3203 defect 5).
-_PERFORM = re.compile(rf"\bPERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")
-_GO_TO = re.compile(rf"\bGO\s+(?:TO\s+)?({_NAME}(?:\s+{_NAME})*)")
+# #3420: `(?<![A-Z0-9-])`, not `\b`, before every verb. COBOL words run through
+# hyphens and `\b` fires at each one, so `END-PERFORM` followed by `PERFORM X`
+# read as a PERFORM of the word PERFORM (swallowing X, which then read dead --
+# CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR), and `END-IF` counted as an IF.
+_V = r"(?<![A-Z0-9\-])"
+_PERFORM = re.compile(rf"{_V}PERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")
+_GO_TO = re.compile(rf"{_V}GO\s+(?:TO\s+)?({_NAME}(?:\s+{_NAME})*)")
+# `ALTER P TO PROCEED TO Q` rewires P's GO TO: Q is reached as a GO TO target
+# (CardDemo CBSTM03A's 8200/8300/8400-*-OPEN are reached only this way).
+_ALTER = re.compile(rf"{_V}ALTER\s+({_NAME})\s+TO\s+(?:PROCEED\s+TO\s+)?({_NAME})")
 _SENTENCE_END = re.compile(r"\.(?=\s|$)")
-_TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{_NAME})$")
-_TAIL_PERFORM = re.compile(rf"\bPERFORM ({_NAME})(?: (?:THRU|THROUGH) ({_NAME}))?$")
+_TERMINAL_TAIL = re.compile(rf"(?:{_V}GOBACK|{_V}STOP\s+RUN|{_V}EXIT\s+PROGRAM|{_V}GO\s+(?:TO\s+)?{_NAME})$")
+_TAIL_PERFORM = re.compile(rf"{_V}PERFORM ({_NAME})(?: (?:THRU|THROUGH) ({_NAME}))?$")
+# A header whose separator period sits on the next line (#3419 shape, CardDemo
+# COTRTLIC `2000-SEND-MAP` / `     .`): the name alone, no period.
+_UNIT_HEADER_OPEN = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"[ \t]*$")
 _CICS_TERMINAL = re.compile(r"EXEC\s+CICS\s+(?:RETURN|XCTL|ABEND)\b")
 # CICS transfers control to these labels itself (an abend, a condition, an
 # attention key), so a unit named in one is reached with no PERFORM or GO TO.
@@ -201,14 +212,27 @@ def procedure_units(proc_div: str) -> list[dict]:
         while i < len(lines) and not _SENTENCE_END.search(_code_area(_trim_fixed_format(lines[i])) or ""):
             i += 1
     units: list[dict] = [{"name": None, "kind": "implicit", "body": []}]
-    for line in lines[i + 1 :]:
-        line = _trim_fixed_format(line)
+    body = [_trim_fixed_format(line) for line in lines[i + 1 :]]
+    skip_period_line = False
+    for j, line in enumerate(body):
         code = _code_area(line)
         if code is None:
             continue
+        if skip_period_line:
+            if not code.strip():
+                continue
+            skip_period_line = False
+            if code.strip() == ".":
+                continue
         name = unit_header(line)
+        header = _UNIT_HEADER.match(line)
+        if name is None:
+            # #3420: a header whose period is on the next code line.
+            open_header = _UNIT_HEADER_OPEN.match(line)
+            nxt = next((c for c in (_code_area(x) for x in body[j + 1 :]) if c is not None and c.strip()), "")
+            if open_header and nxt.strip().startswith(".") and not _NOT_A_PARAGRAPH.fullmatch(open_header.group(1)):
+                name, header, skip_period_line = open_header.group(1), open_header, nxt.strip() == "."
         if name is not None:
-            header = _UNIT_HEADER.match(line)
             kind = "section" if header and header.group(2) else "paragraph"
             units.append({"name": name, "kind": kind, "body": []})
         else:
@@ -225,28 +249,47 @@ def unit_headers(proc_div: str) -> list[str]:
     return [u["name"] for u in procedure_units(proc_div) if u["name"]]
 
 
+def _unconditional_sentences(text: str) -> list[str]:
+    """The unit's sentences, whitespace-collapsed, that sit outside any IF /
+    EVALUATE -- what each ends in always runs. `END-IF` / `END-EVALUATE` are not
+    openers (#3420: `\bIF\b` matched inside `END-IF`, so any sentence with a
+    closed IF read as unterminated)."""
+    out = []
+    for raw in _SENTENCE_END.split(text):
+        s = re.sub(r"\s+", " ", raw.strip())
+        if not s:
+            continue
+        balanced = all(
+            len(re.findall(opener, s)) == len(re.findall(closer, s))
+            for opener, closer in ((rf"{_V}IF\b", r"\bEND-IF\b"), (rf"{_V}EVALUATE\b", r"\bEND-EVALUATE\b"))
+        )
+        if balanced:
+            out.append(s)
+    return out
+
+
 def _last_sentence(text: str) -> Optional[str]:
-    """The unit's last sentence, whitespace-collapsed, or None if it is still inside
-    an unterminated IF / EVALUATE (so anything at its end is conditional)."""
-    sentences = [x.strip() for x in _SENTENCE_END.split(text) if x.strip()]
+    """The unit's last sentence if it is unconditional, else None."""
+    sentences = [x for x in _SENTENCE_END.split(text) if x.strip()]
     if not sentences:
         return None
-    last = re.sub(r"\s+", " ", sentences[-1])
-    for opener, closer in ((r"\bIF\b", r"\bEND-IF\b"), (r"\bEVALUATE\b", r"\bEND-EVALUATE\b")):
-        if len(re.findall(opener, last)) != len(re.findall(closer, last)):
-            return None
-    return last
+    last = _unconditional_sentences(sentences[-1])
+    return last[0] if last else None
+
+
+def _sentence_is_terminal(sentence: str) -> bool:
+    if sentence.endswith("END-EXEC"):
+        starts = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
+        return bool(starts) and _CICS_TERMINAL.match(sentence[starts[-1] :]) is not None
+    return _TERMINAL_TAIL.search(sentence) is not None and " DEPENDING " not in sentence
 
 
 def _is_terminal(text: str) -> bool:
-    """Does the unit end in an unconditional transfer that never falls through?"""
-    last = _last_sentence(text)
-    if last is None:
-        return False
-    if last.endswith("END-EXEC"):
-        starts = [m.start() for m in re.finditer(r"\bEXEC\s", last)]
-        return bool(starts) and _CICS_TERMINAL.match(last[starts[-1] :]) is not None
-    return _TERMINAL_TAIL.search(last) is not None and " DEPENDING " not in last
+    """Does ANY unconditional sentence of the unit end in a transfer that never
+    falls through? Not only the last (#3420): CBSA's BNK1* A010 has
+    `EXEC CICS RETURN TRANSID(...) END-EXEC.` then an `IF <resp> ... END-IF.`
+    recovery sentence, and the RETURN alone ends the unit."""
+    return any(_sentence_is_terminal(s) for s in _unconditional_sentences(text))
 
 
 def reachable_units(units: list[dict]) -> set[str]:
@@ -274,19 +317,25 @@ def reachable_units(units: list[dict]) -> set[str]:
         return a, section_end.get(last, last)
 
     terminal = [_is_terminal(u["text"]) for u in units]
-    tails = []
+    # Every unconditional sentence that is exactly a PERFORM: any one of a range
+    # that never returns makes the unit terminal, wherever it sits (#3420).
+    tails: list[list[tuple[str, Optional[str]]]] = []
     for u in units:
-        last = _last_sentence(u["text"])
-        m = _TAIL_PERFORM.search(last) if last else None
-        tails.append(m.groups() if m and m.group(1) in index else None)
+        found: list[tuple[str, Optional[str]]] = []
+        for s in _unconditional_sentences(u["text"]):
+            m = _TAIL_PERFORM.search(s)
+            if m and m.group(1) in index:
+                found.append((m.group(1), m.group(2)))
+        tails.append(found)
     changed = True
     while changed:  # fixpoint: "never returns" is defined through `terminal`
         changed = False
-        for i, tail in enumerate(tails):
-            if tail and not terminal[i]:
-                a, b = span(*tail)
-                if any(terminal[a : b + 1]):
-                    terminal[i] = changed = True
+        for i, unit_tails in enumerate(tails):
+            for tail in unit_tails:
+                if not terminal[i]:
+                    a, b = span(*tail)
+                    if any(terminal[a : b + 1]):
+                        terminal[i] = changed = True
 
     queue: list[tuple[int, Optional[int]]] = [(0, None)] if units else []
     for u in units:
@@ -310,6 +359,7 @@ def reachable_units(units: list[dict]) -> set[str]:
                         break
                     t = index[target]
                     queue.append((t, end if end is not None and start <= t <= end else None))
+            queue.extend((index[m.group(2)], None) for m in _ALTER.finditer(text) if m.group(2) in index)
             if (end is not None and k >= end) or terminal[k]:
                 break
             k += 1

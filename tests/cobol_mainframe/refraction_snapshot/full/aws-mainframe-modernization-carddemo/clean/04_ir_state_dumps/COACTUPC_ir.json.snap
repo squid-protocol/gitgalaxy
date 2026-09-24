@@ -411,9 +411,10 @@
         "1230-EDIT-ALPHANUM-REQD",
         "1230-EDIT-ALPHANUM-REQD-EXIT",
         "1240-EDIT-ALPHANUM-OPT",
-        "1240-EDIT-ALPHANUM-OPT-EXIT"
+        "1240-EDIT-ALPHANUM-OPT-EXIT",
+        "ABEND-ROUTINE-EXIT"
       ],
-      "loc_saved": 444
+      "loc_saved": 454
     },
     "lineage": {
       "program_id": "COACTUPC",

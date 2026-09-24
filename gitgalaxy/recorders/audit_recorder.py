@@ -318,6 +318,24 @@ class AuditRecorder:
                 }
                 for j in submits
             ]
+        mq = file_data.get("mq_calls") or []
+        if mq:
+            # #3447: IBM MQ calls, mirroring mq_call_data.
+            block["MQ Calls"] = [
+                {
+                    "Verb": q.get("verb"),
+                    "Direction": q.get("direction"),
+                    "Operand": q.get("operand"),
+                    "Queue": q.get("queue"),
+                    "Resolution": q.get("resolution"),
+                    "Candidates": q.get("candidates"),
+                    "Handle": q.get("handle"),
+                    "Open Line": q.get("open_line"),
+                    "Options": q.get("options"),
+                    "Line": q.get("line", 0),
+                }
+                for q in mq
+            ]
         return block
 
     def generate_report(

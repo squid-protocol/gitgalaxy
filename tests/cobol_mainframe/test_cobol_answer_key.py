@@ -892,3 +892,36 @@ def test_job_submission_reader_is_independent(tmp_path):
         ],
         "jcl/SUB.jcl": ["intrdr SYSUT2 -> JOB RPTPROC = jcl/RPTPROC.jcl"],
     }
+
+
+def test_mq_reader_is_independent_and_follows_handles(tmp_path):
+    """#3447: the key's own token walk over MQ calls -- queue through the
+    descriptor's OBJECTNAME, a trigger-named input queue, a handle copied off
+    the shared MQ-HOBJ, and a DISPLAY literal that is not a call."""
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. MQK.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           MOVE MQTM-QNAME TO IN-Q\n"
+        "           MOVE IN-Q TO MQOD-OBJECTNAME\n"
+        "           COMPUTE OPTS = MQOO-INPUT-SHARED + MQOO-FAIL-IF-QUIESCING\n"
+        "           CALL 'MQOPEN' USING HC OD OPTS MQ-HOBJ CC RC\n"
+        "           MOVE MQ-HOBJ TO IN-HANDLE\n"
+        "           MOVE 'APP.OUT' TO MQOD-OBJECTNAME\n"
+        "           COMPUTE OPTS = MQOO-OUTPUT\n"
+        "           CALL 'MQOPEN' USING HC OD OPTS MQ-HOBJ CC RC\n"
+        "           MOVE MQ-HOBJ TO OUT-HANDLE\n"
+        "           DISPLAY 'CALL MQGET FAILED'\n"
+        "           MOVE IN-HANDLE TO MQ-HOBJ\n"
+        "           CALL 'MQGET' USING HC MQ-HOBJ MD GMO L B DL CC RC\n"
+        "           CALL 'MQPUT' USING HC OUT-HANDLE MD PMO L B CC RC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "MQK.cbl").write_text(src, encoding="utf-8")
+    rows = ak.draft_mq(tmp_path)["MQK.cbl"]["calls"]
+    assert sorted(ak.mq_call_keys(rows)) == [
+        "L11 MQOPEN dir=put q=APP.OUT",
+        "L15 MQGET dir=get q=<trigger> open=L7",
+        "L16 MQPUT dir=put q=APP.OUT open=L11",
+        "L7 MQOPEN dir=get q=<trigger>",
+    ]

@@ -493,6 +493,8 @@ class RecordKeeper:
         on each file's own `cics_tasks` and becomes cics_task_data.
         Job-submission evidence (#3448: JCL card literals in COBOL, INTRDR DDs in
         JCL) rides on each file's own `job_submits` and becomes job_submit_data.
+        IBM MQ calls (#3447) ride on each file's own `mq_calls` and become
+        mq_call_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1165,6 +1167,40 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_file_id ON job_submit_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_snapshot ON job_submit_data(repo_name, commit_hash);")
+
+        # #3447: IBM MQ calls (core/mq_calls.py), one row per CALL 'MQxxx'.
+        #   verb              -- MQOPEN | MQPUT | MQPUT1 | MQGET | MQCLOSE | MQINQ | ...
+        #   direction         -- get | browse | put | inquire | set (open options; PUT/GET)
+        #   queue_operand     -- what was MOVEd to the descriptor's OBJECTNAME
+        #   queue_name        -- that operand resolved; NULL unless one literal
+        #   queue_resolution  -- literal | value | move | trigger (MQTM-QNAME) |
+        #                        reply_to (MQMD-REPLYTOQ) | ambiguous | unresolved
+        #   queue_candidates  -- comma-joined values when `ambiguous`
+        #   handle            -- the object handle (MQOPEN's returned, or the one
+        #                        a PUT/GET/CLOSE passes); open_line its MQOPEN
+        #   options           -- the MQOO-/MQPMO-/MQGMO- option words in effect
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS mq_call_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                direction TEXT,
+                queue_operand TEXT,
+                queue_name TEXT,
+                queue_resolution TEXT,
+                queue_candidates TEXT,
+                handle TEXT,
+                open_line INTEGER,
+                options TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_file_id ON mq_call_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_queue ON mq_call_data(queue_name);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_snapshot ON mq_call_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2671,6 +2707,41 @@ class RecordKeeper:
                 j.get("target_kind"),
                 j.get("target"),
                 int(j.get("line", 0) or 0),
+            ),
+        )
+
+        # #3447: IBM MQ calls -- per-file, like job_submit_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "mq_call_data",
+            (
+                "verb",
+                "direction",
+                "queue_operand",
+                "queue_name",
+                "queue_resolution",
+                "queue_candidates",
+                "handle",
+                "open_line",
+                "options",
+                "line_number",
+            ),
+            "mq_calls",
+            lambda q: (
+                q.get("verb"),
+                q.get("direction"),
+                q.get("operand"),
+                q.get("queue"),
+                q.get("resolution"),
+                q.get("candidates"),
+                q.get("handle"),
+                int(q["open_line"]) if q.get("open_line") is not None else None,
+                q.get("options"),
+                int(q.get("line", 0) or 0),
             ),
         )
 

@@ -51,7 +51,9 @@ from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 _LITERAL = r"[XNGZ]?'[^'\n]{0,320}'?|[XNGZ]?\"[^\"\n]{0,320}\"?"
 _NUMBER = r"[+-]?[0-9]*\.[0-9]+|[+-]?[0-9]+"
 _WORD = r"[A-Z0-9][A-Z0-9-]{0,62}"
-_TOKEN = re.compile(rf"{_LITERAL}|(?:{_NUMBER})(?![A-Z0-9-])|{_WORD}|\*\*|[()=:+*/,.<>-]", re.I)
+_NUMBER_TOKEN = rf"(?:{_NUMBER})(?![A-Z0-9-])"  # a number, not the head of a name (1ST-X)
+_OPERATOR = r"\*\*|[()=:+*/,.<>-]"
+_TOKEN = re.compile("|".join((_LITERAL, _NUMBER_TOKEN, _WORD, _OPERATOR)), re.I)
 _STATEMENT_TOKENS = 600
 _VERBS = frozenset(
     {

@@ -85,6 +85,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "JCL resolved DSNs": ("jcl_jobs", "dsns_validated"),
     "CSD resources": ("csd_decks", "resources_validated"),
     "CICS resources": ("cics_resources", "cics_validated"),
+    "CICS task control": ("cics_tasks", "cics_tasks_validated"),
+    "async children": ("cics_tasks", "cics_tasks_validated"),
 }
 
 

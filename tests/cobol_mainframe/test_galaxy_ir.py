@@ -971,3 +971,115 @@ def test_a_pre_3446_db_loads_with_no_sql_statements(scanned_sql, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.sql_statements == [] for ef in ir.files.values())
     assert ir.sql_table_access() == []
+
+
+# ---- #3449: CICS task control and the async task graph ------------------------
+ASYNC_CSD = """\
+ DEFINE TRANSACTION(OCR1) GROUP(BANK)
+        PROGRAM(CRDTAGY1)
+ DEFINE TRANSACTION(OCR2) GROUP(BANK)
+        PROGRAM(CRDTAGY2)
+ DEFINE TRANSACTION(OCRA) GROUP(BANK)
+        PROGRAM(BNKMENU)
+ DEFINE TRANSACTION(OCUP) GROUP(BANK)
+        PROGRAM(UPDWORK)
+"""
+
+PARENT = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PARENT.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-CC-CNT              PIC 9      VALUE 0.
+       01 WS-CHANNEL-NAME        PIC X(16)  VALUE SPACES.
+       01 WS-RUN-TRANSID         PIC X(4)   VALUE SPACES.
+       01 WS-CONT                PIC X(16)  VALUE SPACES.
+       01 WS-TKN                 PIC X(16).
+       01 WS-FETCH-TKN           PIC X(16).
+       PROCEDURE DIVISION.
+       000-MAIN.
+           MOVE 'CREDCHAN' TO WS-CHANNEL-NAME.
+           MOVE 'CIPA' TO WS-CONT.
+           PERFORM VARYING WS-CC-CNT FROM 1 BY 1 UNTIL WS-CC-CNT > 2
+              STRING 'OCR' DELIMITED BY SIZE,
+                      WS-CC-CNT DELIMITED BY SIZE
+                 INTO WS-RUN-TRANSID
+              END-STRING
+              EXEC CICS PUT CONTAINER(WS-CONT)
+                   FROM(WS-CC-CNT) CHANNEL(WS-CHANNEL-NAME)
+              END-EXEC
+              EXEC CICS RUN TRANSID(WS-RUN-TRANSID)
+                   CHANNEL(WS-CHANNEL-NAME) CHILD(WS-TKN)
+              END-EXEC
+           END-PERFORM.
+           EXEC CICS FETCH ANY(WS-FETCH-TKN) CHANNEL(WS-CHANNEL-NAME)
+           END-EXEC.
+           EXEC CICS START TRANSID('OCUP') FROM(WS-CONT)
+           END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+
+def _child(pid: str, body: str = "           EXEC CICS RETURN END-EXEC.\n") -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n"
+        f"       PROGRAM-ID. {pid}.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       000-MAIN.\n" + body
+    )
+
+
+@pytest.fixture(scope="module")
+def async_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_async")
+    repo = base / "bank"
+    files = {
+        "csd/BANK.csd": ASYNC_CSD,
+        "src/PARENT.cbl": PARENT,
+        "src/CRDTAGY1.cbl": _child("CRDTAGY1", "           EXEC CICS DELAY FOR SECONDS(1) END-EXEC.\n"),
+        "src/CRDTAGY2.cbl": _child("CRDTAGY2"),
+        "src/BNKMENU.cbl": _child("BNKMENU"),
+        "src/UPDWORK.cbl": _child("UPDWORK", "           EXEC CICS RETRIEVE INTO(WS-REQ) END-EXEC.\n"),
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_task_rows_load_in_source_order(async_scanned):
+    ir = load_galaxy_ir(async_scanned)
+    rows = [(t.verb, t.name, t.resolution, t.candidates, t.token) for t in ir.files["src/PARENT.cbl"].cics_tasks]
+    assert rows == [
+        ("RUN", None, "pattern", "OCR[0-9]", "WS-TKN"),
+        ("FETCH ANY", None, None, None, "WS-FETCH-TKN"),
+        ("START", "OCUP", "literal", None, None),
+    ]
+    assert [(t.verb, t.timing) for t in ir.files["src/CRDTAGY1.cbl"].cics_tasks] == [("DELAY", "FOR SECONDS(1)")]
+
+
+def test_async_tasks_joins_children_containers_fetches_and_retrieves(async_scanned):
+    run, start = load_galaxy_ir(async_scanned).async_tasks()
+    assert (run["parent"], run["verb"]) == ("src/PARENT.cbl", "RUN")
+    # OCR[0-9] reaches OCR1 and OCR2 through the deck, never OCRA.
+    assert [(c["transid"], c["program"], c["resolves_to"]) for c in run["children"]] == [
+        ("OCR1", "CRDTAGY1", "src/CRDTAGY1.cbl"),
+        ("OCR2", "CRDTAGY2", "src/CRDTAGY2.cbl"),
+    ]
+    assert (run["channel"], run["containers"]) == ("CREDCHAN", ["CIPA"])
+    assert [(j["verb"], j["match"]) for j in run["joins"]] == [("FETCH ANY", "any")]
+    assert run["retrieves"] == []
+    assert [c["transid"] for c in start["children"]] == ["OCUP"]
+    assert [(r["file"], r["record"]) for r in start["retrieves"]] == [("src/UPDWORK.cbl", "WS-REQ")]
+    assert start["joins"] == []
+
+
+def test_a_pre_3449_db_loads_with_no_tasks(async_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(async_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE cics_task_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.cics_tasks == [] for ef in ir.files.values())
+    assert ir.async_tasks() == []

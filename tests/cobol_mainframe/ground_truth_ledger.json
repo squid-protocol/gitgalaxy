@@ -148,6 +148,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "CICS task control": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CSD resources": {
           "engine": {
             "got": 134,
@@ -199,6 +208,15 @@
         },
         "PL/I record fields": {
           "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
           "forge": null,
           "truth": "draft"
         },
@@ -836,6 +854,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "CICS task control": {
+          "engine": {
+            "got": 24,
+            "tp": 24,
+            "truth": 24
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CSD resources": {
           "engine": {
             "got": 100,
@@ -887,6 +914,15 @@
         },
         "PL/I record fields": {
           "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
           "forge": null,
           "truth": "draft"
         },
@@ -1062,6 +1098,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "CICS task control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "CSD resources": {
           "engine": null,
           "forge": null,
@@ -1105,6 +1146,11 @@
             "tp": 113,
             "truth": 113
           },
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": null,
           "forge": null,
           "truth": "draft"
         },

@@ -489,6 +489,8 @@ class RecordKeeper:
         csd_resource_data.
         CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations (#3351-#3354) ride on
         each file's own `cics_resources` and become cics_resource_data.
+        CICS task control (#3449: RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...) rides
+        on each file's own `cics_tasks` and becomes cics_task_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1085,6 +1087,56 @@ class RecordKeeper:
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_cics_resource_snapshot ON cics_resource_data(repo_name, commit_hash);"
         )
+
+        # #3449: CICS task control (core/cics_tasks.py) -- how tasks relate: a
+        # parent RUNs / STARTs a child transaction, FETCHes or FREEs a child,
+        # RETRIEVEs the data a START passed, CANCELs, DELAYs, POSTs, WAITs, and
+        # ENQ/DEQ-serialises on a named resource. One row per command.
+        #   verb              -- RUN | START | START ATTACH | FETCH CHILD | FETCH ANY |
+        #                        FREE CHILD | RETRIEVE | CANCEL | DELAY | POST |
+        #                        WAIT EVENT | WAIT EXTERNAL | WAITCICS | ENQ | DEQ
+        #   target_kind       -- TRANSID (RUN/START/CANCEL) | RESOURCE (ENQ/DEQ)
+        #   target_operand    -- that operand as written
+        #   target_name       -- its literal / VALUE / single MOVEd literal / the
+        #                        one literal a STRING builds; NULL otherwise
+        #   target_resolution -- literal | value | move | string | pattern |
+        #                        ambiguous | unresolved | expression
+        #   target_candidates -- comma-joined MOVEd literals and STRING-built
+        #                        fnmatch patterns (`OCR[0-9]`) when not one name
+        #   channel_operand   -- CHANNEL as written (passed by RUN/START, returned
+        #                        by FETCH), channel_name resolved
+        #   token             -- the CHILD / ANY / REQID data-name joining a spawn to
+        #                        its FETCH / FREE / CANCEL
+        #   record_clause     -- FROM | INTO | SET, and record_name its operand
+        #   timing            -- INTERVAL / TIME / AFTER / FOR / UNTIL + units, as written
+        #   attributes        -- every other kept option (COMPSTATUS, ABCODE, LENGTH,
+        #                        NOSUSPEND, ...)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cics_task_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                target_kind TEXT,
+                target_operand TEXT,
+                target_name TEXT,
+                target_resolution TEXT,
+                target_candidates TEXT,
+                channel_operand TEXT,
+                channel_name TEXT,
+                token TEXT,
+                record_clause TEXT,
+                record_name TEXT,
+                timing TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_snapshot ON cics_task_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2528,6 +2580,49 @@ class RecordKeeper:
                 op.get("record"),
                 op.get("attributes"),
                 int(op.get("line", 0) or 0),
+            ),
+        )
+
+        # #3449: CICS task control -- per-file, like cics_resource_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "cics_task_data",
+            (
+                "verb",
+                "target_kind",
+                "target_operand",
+                "target_name",
+                "target_resolution",
+                "target_candidates",
+                "channel_operand",
+                "channel_name",
+                "token",
+                "record_clause",
+                "record_name",
+                "timing",
+                "attributes",
+                "line_number",
+            ),
+            "cics_tasks",
+            lambda t: (
+                t.get("verb"),
+                t.get("target_kind"),
+                t.get("operand"),
+                t.get("name"),
+                t.get("resolution"),
+                t.get("candidates"),
+                t.get("channel_operand"),
+                t.get("channel"),
+                t.get("token"),
+                t.get("record_clause"),
+                t.get("record"),
+                t.get("timing"),
+                t.get("attributes"),
+                int(t.get("line", 0) or 0),
             ),
         )
 

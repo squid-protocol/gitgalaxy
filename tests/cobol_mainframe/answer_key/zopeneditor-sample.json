@@ -8086,5 +8086,6 @@
       ]
     }
   ],
-  "sql_access": {}
+  "sql_access": {},
+  "cics_tasks": {}
 }

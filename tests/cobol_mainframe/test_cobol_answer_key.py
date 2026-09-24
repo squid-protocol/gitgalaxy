@@ -811,3 +811,41 @@ def test_sql_table_access_reader_is_independent_and_joins_cursors():
         "read CUST",
         "read LIVE",
     ]
+
+
+def test_cics_task_reader_is_independent_and_expands_string_ids(tmp_path):
+    """#3449: the key's own task-control reader -- a STRING-built transid is a
+    PIC-sized pattern expanded against the key's own CSD read (never OCRA), a
+    DISPLAY literal is not a command, and the unit keys match the engine's shape."""
+    (tmp_path / "BANK.csd").write_text(
+        " DEFINE TRANSACTION(OCR1) GROUP(B)\n        PROGRAM(C1)\n"
+        " DEFINE TRANSACTION(OCRA) GROUP(B)\n        PROGRAM(MENU)\n",
+        encoding="utf-8",
+    )
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. PARENT.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 WS-N                 PIC 9.\n"
+        "       01 WS-T                 PIC X(4).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           MOVE 'CHAN1' TO WS-CH.\n"
+        "           STRING 'OCR' DELIMITED BY SIZE, WS-N DELIMITED BY SIZE\n"
+        "              INTO WS-T END-STRING.\n"
+        "           EXEC CICS RUN TRANSID(WS-T) CHANNEL(WS-CH)\n"
+        "                CHILD(WS-TKN) END-EXEC.\n"
+        "           DISPLAY 'EXEC CICS FETCH ANY failed'.\n"
+        "           EXEC CICS DELAY FOR SECONDS(3) END-EXEC.\n"
+        "           EXEC CICS RETRIEVE INTO(MQTM) NOHANDLE END-EXEC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "PARENT.cbl").write_text(src, encoding="utf-8")
+    entry = ak.draft_cics_tasks(tmp_path)["PARENT.cbl"]
+    assert sorted(ak.cics_task_keys(entry["operations"])) == [
+        "L11 RUN T=<pattern:OCR[0-9]> ch=CHAN1 tok=WS-TKN",
+        "L14 DELAY T=- ch=- tok=- @FOR SECONDS(3)",
+        "L15 RETRIEVE T=- ch=- tok=- INTO=MQTM",
+    ]
+    assert entry["children"] == ["RUN OCR1"]
+    assert entry["cics_tasks_validated"] is False

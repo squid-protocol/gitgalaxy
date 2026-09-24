@@ -564,6 +564,7 @@ class LLMRecorder:
                 + len(f.get("screen_fields") or [])  # #3347
                 + len(f.get("csd_resources") or [])  # #3356
                 + len(f.get("cics_resources") or [])  # #3351-#3354
+                + len(f.get("cics_tasks") or [])  # #3449
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -629,6 +630,18 @@ class LLMRecorder:
             lines.append(
                 f"- **CICS operations:** `{len(cics_ops)}` EXEC CICS operations naming a resource ({kinds}); "
                 "verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.\n"
+            )
+
+        # #3449: named only when present, so a scan without task control is unchanged.
+        task_ops = [t for f in carriers for t in (f.get("cics_tasks") or [])]
+        if task_ops:
+            by_verb: dict[str, int] = {}
+            for t in task_ops:
+                by_verb[t.get("verb") or "?"] = by_verb.get(t.get("verb") or "?", 0) + 1
+            verbs = ", ".join(f"`{n}` {v}" for v, n in sorted(by_verb.items()))
+            lines.append(
+                f"- **CICS task control:** `{len(task_ops)}` commands ({verbs}); child transid (or its "
+                "STRING-built pattern), channel, CHILD/REQID token and timing in `cics_task_data`.\n"
             )
 
         for f in carriers[:20]:
@@ -774,6 +787,17 @@ class LLMRecorder:
                 labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in touched.items()]
                 more = f" … (+{len(labels) - 12} more)" if len(labels) > 12 else ""
                 lines.append(f"- **CICS operations:** {', '.join(f'`{lbl}`' for lbl in labels[:12])}{more}")
+            # #3449: CICS task control -- each distinct verb and target.
+            tasks = f.get("cics_tasks") or []
+            if tasks:
+                task_labels: list[str] = []
+                for t in tasks:
+                    target = t.get("name") or t.get("candidates") or t.get("operand")
+                    label = f"{t.get('verb')} {target}" if target else str(t.get("verb"))
+                    if label not in task_labels:
+                        task_labels.append(label)
+                more = f" … (+{len(task_labels) - 12} more)" if len(task_labels) > 12 else ""
+                lines.append(f"- **CICS task control:** {', '.join(f'`{x}`' for x in task_labels[:12])}{more}")
             lines.append("")
 
         if len(carriers) > 20:

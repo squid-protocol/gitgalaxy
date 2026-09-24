@@ -10,6 +10,19 @@ lists every place the two disagree, so each can be settled against the source.
     python tests/tools/cross_verify.py brief --corpus NAME [--live 35] [--programs 10] [--seed S] --out DIR [--stage DIR]
     python tests/tools/cross_verify.py grade --corpus NAME --dir DIR [--answers DIR/answers.json]
     python tests/tools/cross_verify.py sign  --corpus NAME --dir DIR --by "REVIEWER MODEL"
+    python tests/tools/cross_verify.py census --corpus NAME --out DIR [--max-units 150] [--stage DIR]
+    python tests/tools/cross_verify.py coverage --corpus NAME
+
+CENSUS. For a corpus small enough to review in full, `census` packs EVERY program
+(whole, never split) into batches of about --max-units units and writes a blind
+brief per batch (DIR/batch_NN/brief.md + truth.json) that asks every question for
+its programs: all units, dead and live, in source order, plus the full PROGRAM-ID,
+copybook, call and file lists. Each batch goes to its own fresh reviewer and is
+graded and signed like a sample. Signing a census batch marks only its programs
+(`verification.census`), and `coverage` reports how much of the key a clean census
+has covered. At 100% the key's validated fields have been read twice,
+independently, with every disagreement settled against the source. Use sampling
+for corpora too large for that.
 
 `brief` writes DIR/brief.md (the reviewer's whole task: source paths, the fixed-
 format rules, the questions, the JSON reply shape) and DIR/truth.json (the key's
@@ -78,16 +91,19 @@ def _norm_operand(op: str) -> str:
     return op.strip().strip("'\"").strip().upper()
 
 
-def key_answers(key: dict[str, Any], units: list[tuple[str, str]], sample: list[str]) -> dict[str, Any]:
+def key_answers(
+    key: dict[str, Any], units: list[tuple[str, str]], sample: list[str], b_programs: Optional[list[str]] = None
+) -> dict[str, Any]:
     """The key's answers to a fixed question set: `units` for task A (in order),
-    every program for B, and `sample` for C/D/E."""
+    `b_programs` (default: every program) for B, and `sample` for C/D/E."""
     progs = key["programs"]
+    b_set = set(progs) if b_programs is None else set(b_programs)
     return {
         "A": [
             {"n": i + 1, "program": p, "unit": n, "reachable": n not in progs[p]["dead"]}
             for i, (p, n) in enumerate(units)
         ],
-        "B": {p: v["program_id"] for p, v in sorted(progs.items())},
+        "B": {p: v["program_id"] for p, v in sorted(progs.items()) if p in b_set},
         "C": {
             p: sorted({(c["name"], c["resolves_to"]) for c in progs[p]["copybooks"]}, key=lambda t: (t[0], t[1] or ""))
             for p in sample
@@ -113,13 +129,57 @@ def build(key: dict[str, Any], repo: Path, live: int, programs: int, seed: int) 
     # Programs whose verification notes record a finding are the likeliest to be
     # wrong; always include them, so a finding is re-checked blind.
     sample = sorted(set(sample) | {p for p, v in progs.items() if v["verification"].get("notes")})
+    return render(key, repo, units, sample, None, {"seed": seed, "mode": "sample"})
 
+
+def census_batches(key: dict[str, Any], max_units: int) -> list[list[str]]:
+    """Every program, packed whole into batches of about `max_units` units
+    (a program larger than that gets a batch of its own), largest first."""
+    progs = sorted(key["programs"], key=lambda p: (-len(key["programs"][p]["units"]), p))
+    batches: list[list[str]] = []
+    sizes: list[int] = []
+    for p in progs:
+        n = len({u["name"] for u in key["programs"][p]["units"]})
+        for i, size in enumerate(sizes):
+            if size + n <= max_units:
+                batches[i].append(p)
+                sizes[i] += n
+                break
+        else:
+            batches.append([p])
+            sizes.append(n)
+    return [sorted(b) for b in batches]
+
+
+def build_census(key: dict[str, Any], repo: Path, batch: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    """A blind brief asking EVERY question for the programs in `batch`: every unit's
+    reachability (dead and live together, in source order, so position gives
+    nothing away), the PROGRAM-ID, and the full copybook / call / file lists."""
+    units: list[tuple[str, str]] = []
+    for p in batch:
+        seen: set[str] = set()
+        for u in key["programs"][p]["units"]:
+            if u["name"] not in seen:
+                seen.add(u["name"])
+                units.append((p, u["name"]))
+    return render(key, repo, units, batch, batch, {"mode": "census", "batch": index, "of": of})
+
+
+def render(
+    key: dict[str, Any],
+    repo: Path,
+    units: list[tuple[str, str]],
+    sample: list[str],
+    b_programs: Optional[list[str]],
+    meta: dict[str, Any],
+) -> tuple[str, dict[str, Any]]:
     truth = {
         "corpus": key["corpus"],
         "ref": key["ref"],
-        "seed": seed,
+        "seed": meta.get("seed"),
         "root": str(repo),
-        **key_answers(key, units, sample),
+        **meta,
+        **key_answers(key, units, sample, b_programs),
     }
     ul = "\n".join(f"{t['n']}. {repo / t['program']} :: {t['unit']}" for t in truth["A"])
     listing = "\n".join(str(repo / p) for p in sample)
@@ -279,21 +339,43 @@ def sign(
     if bad:
         sys.exit(f"rulings need verdict key_correct|key_fixed and a why: {bad[:5]}")
     at = at or datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    for prog in key["programs"].values():
-        v = prog["verification"]
+    census = truth.get("mode") == "census"
+    # A sample vouches for the key as a whole; a census batch only for the
+    # programs it asked every question about.
+    covered = sorted(truth["B"]) if census else sorted(key["programs"])
+    for rel in covered:
+        v = key["programs"][rel]["verification"]
         v["tier"] = "cross_verified"
-        v["cross_by"] = by
-        v["cross_at"] = at
-    key.setdefault("cross_verification", []).append(
-        {
-            "by": by,
-            "at": at,
-            "seed": truth["seed"],
-            "tasks": g["tasks"],
-            "rulings": {i: rulings[i] for i in sorted(rulings)},
-        }
-    )
+        v["cross_by"] = v.get("cross_by") or by
+        v["cross_at"] = v.get("cross_at") or at
+        if census:
+            v["census"] = {"by": by, "at": at}
+    record: dict[str, Any] = {
+        "by": by,
+        "at": at,
+        "mode": truth.get("mode", "sample"),
+        "tasks": g["tasks"],
+        "rulings": {i: rulings[i] for i in sorted(rulings)},
+    }
+    if census:
+        record["programs"] = covered
+    else:
+        record["seed"] = truth["seed"]
+    key.setdefault("cross_verification", []).append(record)
     return key
+
+
+def coverage(key: dict[str, Any]) -> dict[str, Any]:
+    """How much of the key a clean blind census has covered: programs and units."""
+    progs = key["programs"]
+    done = [p for p, v in progs.items() if v["verification"].get("census")]
+    units = sum(len({u["name"] for u in v["units"]}) for v in progs.values())
+    units_done = sum(len({u["name"] for u in progs[p]["units"]}) for p in done)
+    return {
+        "programs": [len(done), len(progs)],
+        "units": [units_done, units],
+        "missing": sorted(set(progs) - set(done)),
+    }
 
 
 def main() -> int:
@@ -311,6 +393,13 @@ def main() -> int:
         help="copy the corpus (source only, no .git) here and point the brief at the copy, so the reviewer "
         "works in a directory with no engine, key or tooling anywhere above it",
     )
+    c = sub.add_parser("census")
+    c.add_argument("--corpus", required=True)
+    c.add_argument("--out", type=Path, required=True)
+    c.add_argument("--max-units", type=int, default=150)
+    c.add_argument("--stage", type=Path, help="as for brief")
+    cov = sub.add_parser("coverage")
+    cov.add_argument("--corpus", required=True)
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -323,15 +412,34 @@ def main() -> int:
     (corpus,) = mc.select([args.corpus])
     key = load_key(corpus)
     repo = mc.require_clone(corpus)
-    if args.cmd == "brief":
-        if args.stage:
-            import shutil
+    if args.cmd == "coverage":
+        c = coverage(key)
+        print(
+            f"{corpus['name']}: census covers {c['programs'][0]}/{c['programs'][1]} programs, "
+            f"{c['units'][0]}/{c['units'][1]} units"
+        )
+        for p in c["missing"]:
+            print(f"  not yet: {p}")
+        return 0 if not c["missing"] else 1
+    if args.cmd in ("brief", "census") and args.stage:
+        import shutil
 
-            staged = args.stage.resolve() / corpus["name"]
-            if staged.exists():
-                shutil.rmtree(staged)
-            shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
-            repo = staged
+        staged = args.stage.resolve() / corpus["name"]
+        if staged.exists():
+            shutil.rmtree(staged)
+        shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
+        repo = staged
+    if args.cmd == "census":
+        batches = census_batches(key, args.max_units)
+        for i, batch in enumerate(batches, 1):
+            d = args.out / f"batch_{i:02d}"
+            d.mkdir(parents=True, exist_ok=True)
+            brief, truth = build_census(key, repo, batch, i, len(batches))
+            (d / "brief.md").write_text(brief, encoding="utf-8")
+            (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
+            print(f"{d}: {len(batch)} programs, {len(truth['A'])} units")
+        return 0
+    if args.cmd == "brief":
         brief, truth = build(key, repo, args.live, args.programs, args.seed)
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "brief.md").write_text(brief, encoding="utf-8")
@@ -354,7 +462,10 @@ def main() -> int:
 
     # sign: re-grade the SAME questions against the CURRENT key, so a key_fixed
     # ruling is only accepted once the fix is actually in the key.
-    current = dict(truth, **key_answers(key, [(t["program"], t["unit"]) for t in truth["A"]], sorted(truth["C"])))
+    current = dict(
+        truth,
+        **key_answers(key, [(t["program"], t["unit"]) for t in truth["A"]], sorted(truth["C"]), sorted(truth["B"])),
+    )
     g = grade(current, answers, repo)
     rulings_path = args.dir / "rulings.json"
     rulings = json.loads(rulings_path.read_text(encoding="utf-8")) if rulings_path.is_file() else {}

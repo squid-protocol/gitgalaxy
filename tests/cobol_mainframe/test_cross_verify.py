@@ -140,3 +140,44 @@ def test_sign_refuses_unruled_and_bad_rulings_then_signs():
 
 def test_parse_answers_tolerates_a_fence():
     assert cv.parse_answers('here you go\n```json\n{"A": []}\n```') == {"A": []}
+
+
+def _big_key():
+    key = copy.deepcopy(KEY)
+    for i in range(5):
+        key["programs"][f"P{i}.cbl"] = _prog(f"P{i}", [f"U{j}" for j in range(4 + i)], dead=["U1"])
+    return key
+
+
+def test_census_batches_cover_every_program_once_within_the_cap():
+    key = _big_key()
+    batches = cv.census_batches(key, max_units=10)
+    flat = [p for b in batches for p in b]
+    assert sorted(flat) == sorted(key["programs"]) and len(flat) == len(set(flat))
+    for b in batches:
+        size = sum(len(key["programs"][p]["units"]) for p in b)
+        assert size <= 10 or len(b) == 1  # only a single oversized program may exceed the cap
+
+
+def test_census_brief_asks_every_question_for_its_programs_blind():
+    key = _big_key()
+    brief, truth = cv.build_census(key, REPO, ["A.cbl", "P2.cbl"], 1, 2)
+    assert [(t["program"], t["unit"]) for t in truth["A"]] == [
+        ("A.cbl", u) for u in ("MAIN", "DEAD-1", "LIVE-1", "LIVE-2")
+    ] + [("P2.cbl", f"U{j}") for j in range(6)]
+    assert set(truth["B"]) == set(truth["C"]) == {"A.cbl", "P2.cbl"}
+    assert truth["mode"] == "census"
+    for leaked in ("PROGA", "cpy/CPY1.cpy", "INDD", '"reachable": false'):
+        assert leaked not in brief
+
+
+def test_census_sign_covers_only_its_batch_and_coverage_reports_the_rest():
+    key = _big_key()
+    _brief, truth = cv.build_census(key, REPO, ["A.cbl", "P2.cbl"], 1, 2)
+    g = cv.grade(truth, _answers(truth), REPO)
+    signed = cv.sign(key, truth, g, {}, "rev", at="2026-09-24")
+    assert signed["programs"]["A.cbl"]["verification"]["census"] == {"by": "rev", "at": "2026-09-24"}
+    assert "census" not in signed["programs"]["B.cbl"]["verification"]
+    assert signed["cross_verification"][-1]["mode"] == "census"
+    cov = cv.coverage(signed)
+    assert cov["programs"] == [2, 7] and "B.cbl" in cov["missing"]

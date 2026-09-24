@@ -167,6 +167,28 @@
           "Source/ZECSNC.asm"
         ]
       }
+    },
+    {
+      "name": "dsf",
+      "url": "https://github.com/navikt/DSF",
+      "branch": "main",
+      "ref": "faade4961e316c89e8c312456bae411c63f1c482",
+      "license": "MIT",
+      "languages": [
+        "pli",
+        "cobol"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/dsf.json",
+      "notes": "NAV's Det Sentrale Folketrygdsystemet: Norway's national insurance system, production CICS/PL/I from 1983 on (717 programs) -- the only keyed PL/I corpus (#3491). Names carry Nordic national characters (#3520); %INCLUDE members are published only as R* programs, the P*/S* copy members are absent.",
+      "excerpt": {
+        "why": "The DSF administration slice: control program R0010420 (XCTLs to R0010421-R0010427 and back to the menu R0010301, RETURN TRANSID through a DCL'd field), R0010423 (one of its table-maintenance transactions) and R001TK62 (XCTL PROGRAM(PROGRAM_ID), a program name held in a variable).",
+        "files": [
+          "src/R0010301.pli",
+          "src/R0010420.pli",
+          "src/R0010423.pli",
+          "src/R001TK62.pli"
+        ]
+      }
     }
   ]
 }

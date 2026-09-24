@@ -7,6 +7,7 @@ tools and the engine's master DB against it.
         --out key.json [--report why.md]
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-pli-calls <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-access <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
@@ -858,6 +859,135 @@ def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
                 "records_validated": False,
                 "verification": {"status": "draft", "notes": []},
             }
+    return out
+
+
+# ==============================================================================
+# PL/I program call sites (#3491)
+# ==============================================================================
+# This tool's own reading of a PL/I source's calls OUT of the program, over the
+# token stream above (comments dropped, columns 73-80 sequence fields removed),
+# split into statements at `;`. A statement's leading `label:`s are skipped. Rows:
+#   - `EXEC CICS LINK | XCTL`: PROGRAM(x) -- a literal, else a data name whose
+#     DCL carries INIT('...') (form identifier, target the INIT text or None);
+#   - `EXEC CICS RETURN | START | RUN` with TRANSID(x): verb "<VERB> TRANSID";
+#   - `CALL name`: when `name` is no PROC / ENTRY label of this file (a call to an
+#     internal procedure is not a program call). Across the repository, a name that
+#     is only ever a NESTED procedure (never a file's outermost one) belongs to the
+#     program that %INCLUDEs the calling member and is dropped too.
+# The same contract as core/pli_calls.py + the invocation resolver, none of the code.
+_PLI_UNIT_WORDS = {"PROC", "PROCEDURE", "ENTRY"}
+
+
+def _pli_statements(tokens: list) -> list[list]:
+    out, cur = [], []
+    for t in tokens:
+        if t[1] == ";":
+            out.append(cur)
+            cur = []
+        else:
+            cur.append(t)
+    return out + ([cur] if cur else [])
+
+
+def _pli_unlabelled(stmt: list) -> tuple[list[str], list]:
+    """(the statement's leading labels, the rest)."""
+    labels, i = [], 0
+    while i + 1 < len(stmt) and stmt[i][0] == "word" and stmt[i + 1][1] == ":":
+        labels.append(stmt[i][1])
+        i += 2
+    return labels, stmt[i:]
+
+
+def pli_procedures(text: str) -> list[str]:
+    """Every PROC / ENTRY label in source order (the first is the outermost)."""
+    out = []
+    for stmt in _pli_statements(_pli_token_stream(_pli_source_lines(text))):
+        labels, rest = _pli_unlabelled(stmt)
+        if labels and rest and rest[0][1] in _PLI_UNIT_WORDS:
+            out.append(labels[-1])
+    return out
+
+
+def _pli_clause_starts(stmt: list) -> list[int]:
+    """Indexes in a statement where a (sub)statement can begin: its start, and after
+    THEN / ELSE / OTHERWISE, a `)` (WHEN(...), ON-unit conditions), a label's `:`,
+    or an ON-condition name (`ON ERROR CALL X;`, `ON ENDFILE(F) ...`)."""
+    out = [0] if stmt else []
+    for i in range(1, len(stmt)):
+        prev = stmt[i - 1][1]
+        if prev in ("THEN", "ELSE", "OTHERWISE", ")", ":", "SNAP", "SYSTEM") or (i >= 2 and stmt[i - 2][1] == "ON"):
+            out.append(i)
+    return out
+
+
+def pli_call_rows(text: str) -> list[dict[str, Any]]:
+    """The program call sites of one PL/I source (see the section header), before
+    the repository-wide nested-procedure rule."""
+    tokens = _pli_token_stream(_pli_source_lines(text))
+    local = set(pli_procedures(text))
+    inits = {}
+    for item in pli_data_items(text):
+        m = re.search(r"\bINIT(?:IAL)?\s*\(\s*'([^']*)'", item.get("attributes") or "", re.I)
+        if m and m.group(1).strip():
+            inits.setdefault(item["name"].upper(), m.group(1).strip())
+    rows = []
+    for stmt in _pli_statements(tokens):
+        words = [t[1] if t[0] != "string" else None for t in stmt]
+        for i in _pli_clause_starts(stmt):
+            if words[i] == "EXEC" and words[i + 1 : i + 2] == ["CICS"] and i + 2 < len(stmt):
+                verb = words[i + 2]
+                if verb not in ("LINK", "XCTL", "RETURN", "START", "RUN"):
+                    continue
+                opt = "PROGRAM" if verb in ("LINK", "XCTL") else "TRANSID"
+                at = next((j for j in range(i + 3, len(stmt) - 2) if words[j] == opt and words[j + 1] == "("), None)
+                if at is None and opt == "TRANSID":
+                    continue  # a plain RETURN routes nowhere
+                form, operand, target = "unknown", None, None
+                if at is not None:
+                    kind, value, _ = stmt[at + 2]
+                    if kind == "string":
+                        form, operand = "literal", value.strip("'").strip()
+                        target = operand
+                    else:
+                        form, operand = "identifier", value
+                        target = inits.get(value)
+                rows.append({"verb": verb if opt == "PROGRAM" else f"{verb} TRANSID", "form": form,
+                             "operand": operand, "target": target, "line": stmt[i][2]})  # fmt: skip
+            elif words[i] == "CALL" and i + 1 < len(stmt) and stmt[i + 1][0] == "word" and not words[i + 1][0].isdigit():
+                name = words[i + 1]
+                if name not in local:
+                    rows.append({"verb": "CALL", "form": "literal", "operand": name, "target": name, "line": stmt[i][2]})
+    return rows
+
+
+def pli_call_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> VERB OPERAND -> TARGET` per site (on this reader's rows and the engine's)."""
+    return {
+        f"L{r['line']} {r['verb']} {(r.get('operand') or '-').upper()} -> {(r.get('target') or '-').upper()}"
+        for r in rows
+    }
+
+
+def draft_pli_calls(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted PL/I program call sites per PL/I source (#3491); `pli_calls_validated`
+    signs a file off."""
+    files = {
+        p.relative_to(repo).as_posix(): p.read_text(encoding="utf-8", errors="ignore")
+        for p in sorted(repo.rglob("*"))
+        if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts
+    }
+    outer, nested = set(), set()
+    for text in files.values():
+        procs = pli_procedures(text)
+        outer.update(procs[:1])
+        nested.update(procs[1:])
+    included = nested - outer
+    out: dict[str, dict[str, Any]] = {}
+    for rel, text in files.items():
+        rows = [r for r in pli_call_rows(text) if not (r["verb"] == "CALL" and r["target"] in included)]
+        if rows:
+            out[rel] = {"calls": rows, "pli_calls_validated": False, "verification": {"status": "draft", "notes": []}}
     return out
 
 
@@ -5673,6 +5803,9 @@ def main() -> int:
     a = sub.add_parser("add-pli")
     a.add_argument("repo", type=Path)
     a.add_argument("--key", type=Path, required=True)
+    pc = sub.add_parser("add-pli-calls")
+    pc.add_argument("repo", type=Path)
+    pc.add_argument("--key", type=Path, required=True)
     qa = sub.add_parser("add-sql-access")
     qa.add_argument("repo", type=Path)
     qa.add_argument("--key", type=Path, required=True)
@@ -5776,6 +5909,16 @@ def main() -> int:
         return 0
 
     key = json.loads(args.key.read_text(encoding="utf-8"))
+    if args.cmd == "add-pli-calls":
+        # #3491: refresh drafts, never clobber a file someone already signed off.
+        existing_pc = key.get("pli_calls", {})
+        for rel, entry in draft_pli_calls(repo).items():
+            if not existing_pc.get(rel, {}).get("pli_calls_validated"):
+                existing_pc[rel] = entry
+        key["pli_calls"] = existing_pc
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(existing_pc)} PL/I call-site files -> {args.key}")
+        return 0
     if args.cmd == "add-pli":
         # Refresh drafts, but never clobber a file someone already signed off.
         existing = key.get("pli_programs", {})

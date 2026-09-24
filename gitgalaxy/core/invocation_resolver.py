@@ -39,6 +39,7 @@
 # asserts. (#3333 settled it for function calls; these program-level
 # 'call'/'exec' edges are still #3237's.)
 # ==============================================================================
+from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
@@ -65,6 +66,14 @@ PROGRAM_DECLARING_LANGUAGES = ("cobol",)
 # program, not a copybook", which a unit-bearing HLASM macro member is not.
 UNIT_DECLARED_PROGRAM_LANGUAGES = ("hlasm",)
 
+# #3491: a PL/I program is reached two ways. CICS LINK / XCTL name the LOAD
+# MODULE -- the member, i.e. the file stem (navikt/DSF `XCTL PROGRAM('R0010420')`
+# runs R0010420.pli, whose main procedure is labelled R001B1) -- and a `CALL`
+# names an ENTRY, the outermost procedure's label (DSF's `CALL P9956_BER_G_CICS`
+# reaches the member R0019956.pli that defines it). Internal procedures are
+# never indexed: calling one stays a function-level edge.
+MEMBER_NAMED_PROGRAM_LANGUAGES = ("pli",)
+
 # `CALL`/`LINK`/`XCTL` are COBOL-side invocations; `EXEC PGM` is JCL's.
 _EXEC_VERBS = ("EXEC PGM",)
 
@@ -74,6 +83,16 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
     index: dict[str, list[str]] = {}
     for f in parsed_files:
         lang = str(f.get("lang_id", "")).lower()
+        if lang in MEMBER_NAMED_PROGRAM_LANGUAGES:
+            functions = f.get("functions", []) or []
+            if functions:  # a member with no procedure is %INCLUDE text, not a program
+                path = f.get("path", "")
+                # The outermost procedure opens first (`functions` is ordered by size).
+                outer = min(functions, key=lambda fn: int(fn.get("start_line") or 0))
+                names = {Path(path).stem.upper(), str(outer.get("name", "")).strip().upper()}
+                for name in sorted(n for n in names if n):
+                    index.setdefault(name, []).append(path)
+            continue
         if lang in UNIT_DECLARED_PROGRAM_LANGUAGES:
             for fn in f.get("functions", []) or []:
                 name = str(fn.get("name", "")).strip().upper()
@@ -87,6 +106,26 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
             if name:
                 index.setdefault(name, []).append(f.get("path", ""))
     return index
+
+
+def _pli_included_procedures(parsed_files: list[dict[str, Any]]) -> set[str]:
+    """#3491: names that are only ever NESTED PL/I procedures. navikt/DSF splits a
+    program into %INCLUDE members (R00153NC.pli is pasted into R0015301.pli), and a
+    member calls its includer's internal procedures (`CALL P020_SKRIV_BARN_AV_TRANHIST`,
+    defined inside R0015301). After include expansion that is an internal call, a
+    function-level edge -- not a program call site -- so it is dropped here, where
+    the whole repository is visible. A name some file declares as its OUTERMOST
+    procedure (an entry another program can CALL) is never dropped."""
+    nested: set[str] = set()
+    outer: set[str] = set()
+    for f in parsed_files:
+        if str(f.get("lang_id", "")).lower() not in MEMBER_NAMED_PROGRAM_LANGUAGES:
+            continue
+        functions = sorted(f.get("functions", []) or [], key=lambda fn: int(fn.get("start_line") or 0))
+        for i, fn in enumerate(functions):
+            name = str(fn.get("name", "")).strip().upper()
+            (outer if i == 0 else nested).add(name)
+    return nested - outer
 
 
 def resolve_invocations(
@@ -105,13 +144,17 @@ def resolve_invocations(
         shaped like #2992's import edges so edge_data takes them unchanged.
     """
     index = _program_index(parsed_files)
+    included = _pli_included_procedures(parsed_files)
     sites: list[dict[str, Any]] = []
     edges: dict[tuple[str, str, str], dict[str, Any]] = {}
 
     for f in parsed_files:
         src_path = f.get("path", "")
+        is_pli = str(f.get("lang_id", "")).lower() in MEMBER_NAMED_PROGRAM_LANGUAGES
         for site in f.get("call_sites", []) or []:
             target = site.get("target")
+            if is_pli and site.get("verb") == "CALL" and str(target or "").upper() in included:
+                continue  # an internal procedure of the program that %INCLUDEs this member
             resolved = None
             # A TRANSID-routing site's target is a transaction id, not a program:
             # it resolves through the CSD map (resolve_transactions), so it is

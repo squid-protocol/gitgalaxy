@@ -92,6 +92,7 @@ from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
+from gitgalaxy.core.pli_calls import pli_cics_stream, pli_external_calls
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
@@ -1817,6 +1818,23 @@ def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
     return values
 
 
+def _pli_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
+    """PL/I program call sites (#3491): EXEC CICS LINK / XCTL / RETURN|START|RUN
+    TRANSID through the COBOL reader (each command closed by END-EXEC, see
+    core/pli_calls.py), plus `CALL` to an entry outside the compilation unit."""
+    newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+
+    def _shielded(offset: int) -> bool:
+        index = bisect.bisect_left(newlines, offset)
+        line_start = newlines[index - 1] + 1 if index else 0
+        return _opens_inside_literal(code_stream, line_start, offset)
+
+    calls = _cobol_calls(pli_cics_stream(code_stream), values, cics_only=True)
+    calls += pli_external_calls(code_stream, _shielded)
+    calls.sort(key=lambda c: (c["line"], c["verb"], c["operand"] or ""))
+    return calls
+
+
 def _cics_resources(code_stream: str, values: dict[str, str], dialect: str) -> list[dict[str, Any]]:
     """The CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations of one file (#3351-#3354).
 
@@ -2029,7 +2047,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     if dialect == "pli":
         pli_records = _pli_records(code_stream)
         return {
-            "calls": [],
+            "calls": _pli_calls(code_stream, _pli_value_map(pli_records)),  # #3491
             "datasets": [],
             "records": pli_records,
             "transactions": [],

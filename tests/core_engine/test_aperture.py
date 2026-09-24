@@ -305,6 +305,17 @@ def test_aperture_tiered_mass_ceiling(filter_engine, tmp_path):
 # ==============================================================================
 # TEST 7: BINARY DEBRIS & MONOLITHS
 # ==============================================================================
+def test_aperture_admits_text_with_a_stray_nul(filter_engine, tmp_path):
+    """#3491: navikt/DSF has 29 PL/I programs whose EBCDIC transfer left two NULs in
+    kilobytes of source; presence alone dropped them. Density decides now."""
+    src = tmp_path / "R0010410.pli"
+    content = " R001: PROC OPTIONS(MAIN);\n" + "   CALL X;\n" * 400 + "\x00\x00 END R001;\n"
+    src.write_text(content, encoding="utf-8")
+    result = filter_engine.is_in_scope(src, content=content)
+    assert "Binary Format Detected" not in (result.get("reason") or "")
+
+
+# ==============================================================================
 def test_aperture_binary_and_monolith_shields(filter_engine, tmp_path):
     """
     Ensures opaque binaries (null bytes) and >30,000 LOC monoliths are blocked.

@@ -348,7 +348,13 @@ class ApertureFilter:
         # --- Gate 3.1: Opaque Binary Sensor ---
         # DEFENSIVE DESIGN: Checking for a null byte is the fastest, most reliable
         # heuristic to identify compiled binaries masquerading as text files.
-        if "\x00" in content:
+        # #3491: by DENSITY, not presence. Mainframe source transferred out of EBCDIC
+        # can carry a stray NUL (navikt/DSF: 29 PL/I programs with exactly 2 NULs in
+        # 15-318 KB of text were dropped whole). Every binary in the pinned crucible
+        # carries 178+ NULs per 1000 characters (tar, .mat); text damaged in transfer
+        # carries a handful. More than 1 per 1000 is binary.
+        nuls = content.count("\x00") if "\x00" in content else 0
+        if nuls and nuls * 1000 > len(content):
             report.update(
                 {
                     "valid": False,

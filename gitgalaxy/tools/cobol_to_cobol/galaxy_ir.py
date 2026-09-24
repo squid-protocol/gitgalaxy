@@ -3613,7 +3613,7 @@ _CALLEE_LANGUAGES = frozenset({"hlasm", "assembly", "pli", "rexx", "c", "cpp", "
 # #3498: programs and copybooks IBM or the runtime supply -- never a gap.
 _SYSTEM_PROGRAM = re.compile(
     r"(?:IDCAMS|IEB|IEF|IEH|IKJ|ICE|SORT|DFSORT|SYNCSORT|IEW|IGY|ASMA|IBMZ|CEE|DFH|DSN|DFS|ADR|IDC|IRX|EZA|IGZ|ILBO"
-    r"|CSQ|IOEAGFMT|BPXBATCH|AMASPZAP|IMS|DLI|CBLTDLI|AIBTDLI|MQ)[A-Z0-9@#$]*$"
+    r"|CSQ|IOEAGFMT|BPXBATCH|AMASPZAP|IMS|DLI|CBLTDLI|AIBTDLI|PLITDLI|MQ)[A-Z0-9@#$]*$"
 )
 _SYSTEM_COPYBOOK = re.compile(r"(?:DFH|CMQ|SQLCA|SQLDA|DSN|CEE|IGZ|DLI|DFS)[A-Z0-9@#$]*$")
 

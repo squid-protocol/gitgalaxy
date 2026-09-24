@@ -69,6 +69,11 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # --- Parsed source keywords (not a producer/consumer dict contract) ---
+    # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
+    # command it just parsed (cics_resources._options), so "CHANNEL" is written
+    # by the source text, never by a literal in this repo.
+    "CHANNEL": "EXEC CICS option keyword parsed from source (cics_tasks.py, #3449)",
     # --- External package manifests (package.json / composer.json / lockfiles) ---
     # manifest_parser.py and guidestar_lens.py json.load() a THIRD-PARTY file;
     # these keys are that file format's schema, not a dict this repo produces.

@@ -53,7 +53,12 @@
 # GalaxyIR.queue_flows / container_flows; FILE and TD-queue operations joined to
 # the #3356 CSD DSNAME and on to batch lineage by cics_file_lineage /
 # tdqueue_lineage), each name read through its VALUE (or a single MOVEd
-# literal) the way LINK targets are.
+# literal) the way LINK targets are, and since #3449 CICS task control
+# (cics_task_data, per EngineFile.cics_tasks): RUN/START children with their
+# transid -- or the fnmatch pattern a STRING builds it from (`OCR[0-9]`) -- the
+# channel and CHILD/REQID token, FETCH/FREE joins, RETRIEVE, DELAY, POST, WAIT
+# and ENQ/DEQ; GalaxyIR.async_tasks joins each spawn to the CSD transactions and
+# programs it reaches, the containers it passes and the FETCHes that collect it.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -411,6 +416,44 @@ class EngineCicsResource:
 
 
 @dataclass
+class EngineCicsTask:
+    """One CICS task-control command (#3449), flat out of `cics_task_data`.
+
+    `verb` is RUN | START | START ATTACH | FETCH CHILD | FETCH ANY | FREE CHILD |
+    RETRIEVE | CANCEL | DELAY | POST | WAIT EVENT | WAIT EXTERNAL | WAITCICS |
+    ENQ | DEQ. `target_kind` is TRANSID or RESOURCE; `name` the target resolved
+    (literal / VALUE / MOVE / the one literal a STRING builds) and None when
+    `resolution` is `pattern` / `ambiguous` / `unresolved` / `expression` --
+    `candidates` then holds the MOVEd literals and STRING-built fnmatch patterns.
+    `channel` is CHANNEL resolved (passed by RUN/START, returned by FETCH),
+    `token` the CHILD / ANY / REQID data-name, `record` the FROM/INTO/SET area.
+    """
+
+    verb: str
+    target_kind: Optional[str]
+    operand: Optional[str]
+    name: Optional[str]
+    resolution: Optional[str]
+    candidates: Optional[str]
+    channel_operand: Optional[str]
+    channel: Optional[str]
+    token: Optional[str]
+    record_clause: Optional[str]
+    record: Optional[str]
+    timing: Optional[str]
+    attributes: Optional[str]
+    line: int
+
+    def matches(self, name: str) -> bool:
+        """Whether `name` can be this command's target: the resolved name, or a
+        candidate literal / fnmatch pattern."""
+        want = name.upper()
+        if self.name:
+            return self.name.upper() == want
+        return any(fnmatch.fnmatchcase(want, c.upper()) for c in (self.candidates or "").split(",") if c)
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -429,6 +472,7 @@ class EngineFile:
     screen_fields: list = field(default_factory=list)  # EngineScreenField, flat source order, #3347
     csd_resources: list = field(default_factory=list)  # EngineCsdResource, source order, #3356
     cics_resources: list = field(default_factory=list)  # EngineCicsResource, source order, #3351-#3354
+    cics_tasks: list = field(default_factory=list)  # EngineCicsTask, source order, #3449
 
     @property
     def is_program(self) -> bool:
@@ -1445,6 +1489,84 @@ class GalaxyIR:
                         }
         return [best[k] for k in sorted(best)]
 
+    def async_tasks(self) -> list:
+        """Every RUN / START / START ATTACH of a child transaction, joined (#3449).
+
+        Each entry: `parent` (file), `verb`, `line`, `operand`, `resolution` and
+        `candidates` as extracted, then
+          - `children`: the CSD transactions the target can be -- the resolved
+            name, or every defined transaction a candidate literal / pattern
+            matches (`OCR[0-9]` -> OCR1..OCR5, never OCRA) -- each with its
+            `transid`, `program` and `resolves_to` (the program's file or None);
+          - `channel` and `containers`: the channel passed and the containers the
+            parent PUTs/MOVEs on it (same resolved channel name);
+          - `token` and `joins`: the FETCH CHILD / FREE CHILD with the same token,
+            and every FETCH ANY in the parent (it can collect any child it RAN);
+          - `retrieves`: for a START / START ATTACH, each child program's
+            RETRIEVE (file, line, record) -- the other end of the START's data.
+        A target no transaction matches keeps `children` empty: the child is
+        outside this repository, or its id is not determined by the source.
+        """
+        txns = [(t, f) for f in self.files.values() for t in f.transactions]
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_tasks:
+                if op.verb not in ("RUN", "START", "START ATTACH"):
+                    continue
+                children = []
+                seen = set()
+                for t, _deck in sorted(txns, key=lambda x: (x[0].transid, x[1].file_path)):
+                    key = (t.transid.upper(), (t.program or "").upper())
+                    if key in seen or not op.matches(t.transid):
+                        continue
+                    seen.add(key)
+                    children.append({"transid": t.transid, "program": t.program, "resolves_to": t.resolves_to})
+                channel = (op.channel or "").upper() or None
+                containers = sorted(
+                    {
+                        n
+                        for r in f.cics_resources
+                        if r.kind == "CONTAINER"
+                        and r.access in ("write", "move")
+                        and channel
+                        and (r.qualifier or "").upper() == channel
+                        for n in r.names
+                    }
+                )
+                joins = []
+                for j in f.cics_tasks:
+                    if j.verb == "FETCH ANY" and op.verb == "RUN":
+                        joins.append({"verb": j.verb, "line": j.line, "token": j.token, "match": "any"})
+                    elif j.verb in ("FETCH CHILD", "FREE CHILD") and op.token and j.token == op.token:
+                        joins.append({"verb": j.verb, "line": j.line, "token": j.token, "match": "token"})
+                retrieves: list[dict] = []
+                if op.verb != "RUN":
+                    for c in children:
+                        cf = self.files.get(c["resolves_to"] or "")
+                        if cf is not None:
+                            retrieves.extend(
+                                {"file": cf.file_path, "line": r.line, "record": r.record}
+                                for r in cf.cics_tasks
+                                if r.verb == "RETRIEVE"
+                            )
+                out.append(
+                    {
+                        "parent": f.file_path,
+                        "verb": op.verb,
+                        "line": op.line,
+                        "operand": op.operand,
+                        "resolution": op.resolution,
+                        "candidates": op.candidates,
+                        "children": children,
+                        "channel": op.channel,
+                        "containers": containers,
+                        "token": op.token,
+                        "joins": joins,
+                        "retrieves": retrieves,
+                    }
+                )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -1963,6 +2085,36 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         record=row[11],
                         attributes=row[12],
                         line=int(row[13] or 0),
+                    )
+                )
+        # #3449: CICS task control. A pre-#3449 database has no such table, so a
+        # missing table is "no task commands", never an error.
+        if _has_table(cur, "cics_task_data"):
+            for row in cur.execute(
+                "SELECT file_id, verb, target_kind, target_operand, target_name, target_resolution, "
+                "target_candidates, channel_operand, channel_name, token, record_clause, record_name, timing, "
+                "attributes, line_number "
+                "FROM cics_task_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] not in by_id:
+                    continue
+                by_id[row[0]].cics_tasks.append(
+                    EngineCicsTask(
+                        verb=row[1] or "",
+                        target_kind=row[2],
+                        operand=row[3],
+                        name=row[4],
+                        resolution=row[5],
+                        candidates=row[6],
+                        channel_operand=row[7],
+                        channel=row[8],
+                        token=row[9],
+                        record_clause=row[10],
+                        record=row[11],
+                        timing=row[12],
+                        attributes=row[13],
+                        line=int(row[14] or 0),
                     )
                 )
     finally:

@@ -60997,5 +60997,411 @@
         "notes": []
       }
     }
+  },
+  "cics_tasks": {
+    "src/base/cobol_src/CRDTAGY1.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(WS-DELAY-AMT)",
+          "line": 127
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY2.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(WS-DELAY-AMT)",
+          "line": 126
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY3.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(WS-DELAY-AMT)",
+          "line": 126
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY4.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(WS-DELAY-AMT)",
+          "line": 127
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY5.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(WS-DELAY-AMT)",
+          "line": 126
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "operations": [
+        {
+          "verb": "ENQ",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 390
+        },
+        {
+          "verb": "DEQ",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 412
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "operations": [
+        {
+          "verb": "ENQ",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 446
+        },
+        {
+          "verb": "DEQ",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 471
+        },
+        {
+          "verb": "RUN",
+          "name": null,
+          "resolution": "pattern",
+          "candidates": "OCR[0-9]",
+          "channel": "CIPCREDCHANN",
+          "token": "WS-ANY-CHILD-TKN",
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 582
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 623
+        },
+        {
+          "verb": "FETCH ANY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": "WS-ANY-CHILD-FETCH-TKN",
+          "record_clause": null,
+          "record": null,
+          "timing": null,
+          "line": 639
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 1045
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 1303
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 1337
+        }
+      ],
+      "children": [
+        "RUN OCR1",
+        "RUN OCR2",
+        "RUN OCR3",
+        "RUN OCR4",
+        "RUN OCR5"
+      ],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 176
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 368
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 505
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 287
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 586
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 622
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(3)",
+          "line": 653
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "operations": [
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(1)",
+          "line": 1279
+        },
+        {
+          "verb": "DELAY",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": null,
+          "record": null,
+          "timing": "FOR SECONDS(1)",
+          "line": 1476
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

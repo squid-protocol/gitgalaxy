@@ -90434,5 +90434,73 @@
         "notes": []
       }
     }
+  },
+  "cics_tasks": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "operations": [
+        {
+          "verb": "RETRIEVE",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": "INTO",
+          "record": "MQTM",
+          "timing": null,
+          "line": 233
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/COACCT01.cbl": {
+      "operations": [
+        {
+          "verb": "RETRIEVE",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": "INTO",
+          "record": "MQTM",
+          "timing": null,
+          "line": 191
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/CODATE01.cbl": {
+      "operations": [
+        {
+          "verb": "RETRIEVE",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "channel": null,
+          "token": null,
+          "record_clause": "INTO",
+          "record": "MQTM",
+          "timing": null,
+          "line": 140
+        }
+      ],
+      "children": [],
+      "cics_tasks_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

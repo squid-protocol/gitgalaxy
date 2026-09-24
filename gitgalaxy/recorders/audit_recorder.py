@@ -281,6 +281,29 @@ class AuditRecorder:
                 }
                 for op in cics
             ]
+        tasks = file_data.get("cics_tasks") or []
+        if tasks:
+            # #3449: CICS task control (RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...),
+            # mirroring cics_task_data.
+            block["CICS Tasks"] = [
+                {
+                    "Verb": t.get("verb"),
+                    "Target Kind": t.get("target_kind"),
+                    "Operand": t.get("operand"),
+                    "Name": t.get("name"),
+                    "Resolution": t.get("resolution"),
+                    "Candidates": t.get("candidates"),
+                    "Channel Operand": t.get("channel_operand"),
+                    "Channel": t.get("channel"),
+                    "Token": t.get("token"),
+                    "Record Clause": t.get("record_clause"),
+                    "Record": t.get("record"),
+                    "Timing": t.get("timing"),
+                    "Attributes": t.get("attributes"),
+                    "Line": t.get("line", 0),
+                }
+                for t in tasks
+            ]
         return block
 
     def generate_report(

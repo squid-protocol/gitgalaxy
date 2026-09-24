@@ -40,8 +40,9 @@ from typing import Any, Callable, Optional
 
 # A literal that holds one JCL card: the opening quote, `//`, an optional
 # name, then JOB or EXEC and the rest of the card up to the closing quote.
+_JCL_NAME = r"[A-Z@#$][A-Z0-9@#$]{0,7}"
 _CARD = re.compile(
-    r"(['\"])//([A-Z@#$][A-Z0-9@#$]{0,7})?[ \t]{1,20}(JOB|EXEC)(?![A-Z0-9@#$])((?:(?!\1)[^\n]){0,80})\1",
+    r"(['\"])//(" + _JCL_NAME + r")?[ \t]{1,20}(JOB|EXEC)(?![A-Z0-9@#$])((?:(?!\1)[^\n]){0,80})\1",
     re.I,
 )
 _EXEC_TARGET = re.compile(r"^[ \t]{0,20}(?:(PROC|PGM)=)?([A-Z@#$][A-Z0-9@#$]{0,7})", re.I)

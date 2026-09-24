@@ -52,6 +52,10 @@ keyed rows, in full:
 
     web_services      web_validated            web-services assistant steps (the API surface)
 
+`jcics` (#3497) is asked of every Java source that imports com.ibm.cics.server, in full:
+
+    jcics             jcics_validated          JCICS LINKs and file / queue / channel / container operations
+
 The data-move sample is fixed when the census is cut and stored in the key under
 `sample_census.data_moves.plan`: windows around truncation claims and around the
 rarer verbs (so every contract clause is exercised), then random windows over all
@@ -1308,6 +1312,82 @@ def batches_web(key: dict[str, Any], files: list[str], max_items: int) -> list[l
     return _pack({f: len(v) for f, v in key_facts_web(key, files)["web"].items()}, max_items)
 
 
+# ---- the `jcics` suite (#3497) ---------------------------------------------------
+def corpus_files_jcics(key: dict[str, Any], repo: Path) -> list[str]:
+    """Every Java source importing JCICS (and any keyed file)."""
+    return sorted(
+        set(key.get("jcics", {}))
+        | {
+            p.relative_to(repo).as_posix()
+            for p in repo.rglob("*.java")
+            if ".git" not in p.parts and "com.ibm.cics.server" in p.read_text(encoding="utf-8", errors="ignore")
+        }
+    )
+
+
+def canon_jcics(r: dict[str, Any]) -> str:
+    kind = _ws(r.get("kind"))
+    if kind in ("LINK", "PROGRAM"):
+        return _ws(f"L{int(r.get('line') or 0)} LINK {r.get('name') or '?'}")
+    return _ws(f"L{int(r.get('line') or 0)} {kind} {r.get('name') or '?'} {r.get('access') or ''}")
+
+
+def key_facts_jcics(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    jc = key.get("jcics", {})
+    return {"jcics": {rel: sorted({_ws(x) for x in jc.get(rel, {}).get("calls", [])}) for rel in files}}
+
+
+def reviewer_facts_jcics(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"jcics": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["jcics"][r] = {canon_jcics(x) for x in (v or {}).get("jcics", []) if isinstance(x, dict)}
+    return out
+
+
+def render_jcics(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "jcics", "batch": index, "of": of, "files": files, "facts": key_facts_jcics(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real Java source code that runs on IBM CICS, as a second
+reviewer. Read the files yourself. They are all under the repository root {repo}; read only inside that directory.
+Do NOT edit or create any files except your answers file, and do not look for any existing answer key or analysis
+of this code: the point is an independent reading. Line numbers are 1-based physical line numbers. Ignore comments.
+
+The CICS Java API (JCICS, package com.ibm.cics.server) reaches CICS resources through objects. For EACH file below
+list, in "jcics", one entry per call of these methods (an empty list when it has none):
+  - on an object of type Program (declared or created with `new Program()`): `link(...)` ->
+    {{"line", "kind": "LINK", "name": the program name}}
+  - on a KSDS / ESDS / RRDS (a CICS FILE): read / readForUpdate / readGeneric / readGenericForUpdate -> "read",
+    write -> "write", rewrite -> "update", delete -> "delete", startBrowse / startGenericBrowse -> "browse",
+    unlock -> "unlock" as {{"line", "kind": "FILE", "name", "access"}}
+  - on a TSQ / TDQ (a CICS QUEUE): writeItem / writeItemConditional / writeData / writeString -> "write",
+    rewriteItem -> "update", readItem / readNextItem / readData -> "read", delete -> "delete" as
+    {{"line", "kind": "QUEUE", "name", "access"}}
+  - createChannel(x) -> {{"line", "kind": "CHANNEL", "name": x, "access": "pass"}}
+  - createContainer(x) -> {{"line", "kind": "CONTAINER", "name": x, "access": "write"}}; getContainer(x) -> the same
+    with "access": "read"
+"line" is the line of the method name (a chained call may put it below its object). An object's "name" is the
+argument of the most recent `obj.setName(...)` call above the method call on that same variable: a string literal,
+or the value of a `static final String` constant in the same file; when it is built by concatenation starting with
+a string literal, that literal followed by "*"; otherwise null. For createChannel / createContainer / getContainer
+the name is the argument itself when it is a literal or such a constant, else null. A Program link whose name is
+not a literal / constant is not listed.
+
+Java files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"jcics": [...]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_jcics(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_jcics(key, files)["jcics"].items()}, max_items)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1334,6 +1414,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "dynamic"
         else reviewer_facts_web(answers, repo)
         if suite == "web"
+        else reviewer_facts_jcics(answers, repo)
+        if suite == "jcics"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1394,6 +1476,8 @@ def sign(
         if truth.get("suite") == "dynamic"
         else {("web_services", "web_validated")}
         if truth.get("suite") == "web"
+        else {("jcics", "jcics_validated")}
+        if truth.get("suite") == "jcics"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1478,14 +1562,18 @@ def main() -> int:
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
     c.add_argument(
-        "--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web"), default="channels"
+        "--suite",
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics"),
+        default="channels",
     )
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
     c.add_argument("--seed", type=int, default=3452, help="lineage: the sample's seed")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
     cov.add_argument(
-        "--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web"), default="channels"
+        "--suite",
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics"),
+        default="channels",
     )
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
@@ -1508,6 +1596,8 @@ def main() -> int:
         if suite == "dynamic"
         else corpus_files_web(key, repo)
         if suite == "web"
+        else corpus_files_jcics(key, repo)
+        if suite == "jcics"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1550,6 +1640,7 @@ def main() -> int:
             "io": batches_io,
             "dynamic": batches_dynamic,
             "web": batches_web,
+            "jcics": batches_jcics,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -1561,6 +1652,7 @@ def main() -> int:
                 "io": render_io,
                 "dynamic": render_dynamic,
                 "web": render_web,
+                "jcics": render_jcics,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -1593,6 +1685,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
     elif truth.get("suite") == "calls":
         current = dict(truth, facts=key_facts_calls(key, truth["files"]))
+    elif truth.get("suite") == "jcics":
+        current = dict(truth, facts=key_facts_jcics(key, truth["files"]))
     elif truth.get("suite") == "web":
         current = dict(truth, facts=key_facts_web(key, truth["files"]))
     elif truth.get("suite") == "dynamic":

@@ -43,6 +43,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # #3497: JCICS (com.ibm.cics.server) calls become CICS call sites and resource
+    # operations (core/jcics.py) via mainframe_boundary's `java` dialect -- the
+    # #3200 boundary_extraction pattern; a file without the import costs one scan.
+    "boundary_extraction": "java",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)

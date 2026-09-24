@@ -27,6 +27,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-symbolic-maps <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-dynamic-targets <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-web-services <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-jcics <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-io-moves <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
@@ -4170,6 +4171,120 @@ def draft_data_moves(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# JCICS -- Java on CICS (#3497)
+# ==============================================================================
+# This tool's own reading, line by line: a variable is a JCICS resource when its
+# declaration or `new` names Program / KSDS / ESDS / RRDS / TSQ / TDQ; its name is
+# the string of the latest `var.setName(...)` line above the operation (a literal,
+# or a `static final String` constant of the file); Program `link(` is a LINK,
+# the file / queue methods are their access. Channels: createChannel("X");
+# containers: createContainer / getContainer with a literal or constant name.
+_JC_TYPES = ("Program", "KSDS", "ESDS", "RRDS", "TSQ", "TDQ")
+_JC_ACCESS = {
+    "read": "read", "readForUpdate": "read", "readGeneric": "read", "readGenericForUpdate": "read",
+    "write": "write", "rewrite": "update", "delete": "delete", "startBrowse": "browse", "startGenericBrowse": "browse",
+    "unlock": "unlock", "writeItem": "write", "writeItemConditional": "write", "rewriteItem": "update",
+    "readItem": "read", "readNextItem": "read", "writeData": "write", "writeString": "write", "readData": "read",
+}  # fmt: skip
+_JC_KIND = {"Program": "PROGRAM", "KSDS": "FILE", "ESDS": "FILE", "RRDS": "FILE", "TSQ": "QUEUE", "TDQ": "QUEUE"}
+
+
+def jcics_units(text: str) -> list[str]:
+    """`L<line> LINK <program>` / `L<line> <KIND> <name|?> <access>` per JCICS call."""
+    if "com.ibm.cics.server" not in text:
+        return []
+    lines = text.split("\n")
+    code = []
+    in_block = False
+    for ln in lines:  # comments dropped, line numbers kept
+        out = ""
+        i = 0
+        while i < len(ln):
+            if in_block:
+                end = ln.find("*/", i)
+                if end == -1:
+                    i = len(ln)
+                    continue
+                in_block, i = False, end + 2
+                continue
+            if ln.startswith("/*", i):
+                in_block, i = True, i + 2
+                continue
+            if ln.startswith("//", i):
+                break
+            out += ln[i]
+            i += 1
+        code.append(out)
+    consts = dict(re.findall(r'static\s+final\s+String\s+(\w+)\s*=\s*"([^"]*)"', "\n".join(code)))
+    types: dict[str, str] = {}
+    for ln in code:
+        for t, v in re.findall(r"\b(" + "|".join(_JC_TYPES) + r")\s+(\w+)\s*[;=,)]", ln):
+            types[v] = t
+        for v, t in re.findall(r"\b(\w+)\s*=\s*new\s+(" + "|".join(_JC_TYPES) + r")\s*\(", ln):
+            types[v] = t
+    joined = "\n".join(code)
+    names: dict[str, list[tuple[int, Optional[str]]]] = {}
+    for m in re.finditer(r"\b(\w+)\s*\.\s*setName\s*\(\s*([^),]*)", joined):
+        if m.group(1) in types:
+            arg = m.group(2).strip()
+            lit = re.fullmatch(r'"([^"]*)"', arg)
+            pre = re.match(r'"([^"]+)"\s*\+', arg)
+            val = (
+                lit.group(1).strip()
+                if lit
+                else consts.get(arg, "").strip() or (pre.group(1).strip() + "*" if pre else None)
+            )
+            names.setdefault(m.group(1), []).append((joined.count("\n", 0, m.start()) + 1, val or None))
+    out = set()
+    for m in re.finditer(r"\b(\w+)\s*\.\s*(\w+)\s*\(", joined):
+        var, meth = m.group(1), m.group(2)
+        t = types.get(var)
+        if not t:
+            continue
+        line = joined.count("\n", 0, m.start(2)) + 1  # the method's line (a chained call may wrap)
+        prior = [n for ln_, n in names.get(var, []) if ln_ <= line]
+        name = prior[-1] if prior else None
+        if t == "Program" and meth == "link":
+            if name and not name.endswith("*"):
+                out.add(f"L{line} LINK {name.upper()}")
+        elif t != "Program" and meth in _JC_ACCESS:
+            out.add(f"L{line} {_JC_KIND[t]} {(name or '?').upper()} {_JC_ACCESS[meth]}")
+    for m in re.finditer(r'\bcreateChannel\s*\(\s*("([^"]*)"|\w+)', joined):
+        name = m.group(2) if m.group(2) is not None else consts.get(m.group(1))
+        out.add(f"L{joined.count(chr(10), 0, m.start()) + 1} CHANNEL {(name or '?').upper()} pass")
+    for m in re.finditer(r'\b(createContainer|getContainer)\s*\(\s*("([^"]*)"|[\w\[\]]+)', joined):
+        name = m.group(3) if m.group(3) is not None else consts.get(m.group(2))
+        acc = "write" if m.group(1) == "createContainer" else "read"
+        out.add(f"L{joined.count(chr(10), 0, m.start()) + 1} CONTAINER {(name or '?').upper()} {acc}")
+    return sorted(out)
+
+
+def engine_jcics_units(ef: Any) -> set[str]:
+    out = {f"L{c.line} LINK {c.target.upper()}" for c in ef.calls if c.verb == "LINK" and c.target}
+    out |= {
+        f"L{op.line} {op.kind} {(op.name or '?').upper()} {op.access}"
+        for op in ef.cics_resources
+        if (op.attributes or "").startswith("JCICS")
+    }
+    return out
+
+
+def draft_jcics(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted JCICS calls per Java source (#3497); `jcics_validated` signs it off."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*.java")):
+        if p.is_file() and ".git" not in p.parts:
+            units = jcics_units(p.read_text(encoding="utf-8", errors="ignore"))
+            if units:
+                out[p.relative_to(repo).as_posix()] = {
+                    "calls": units,
+                    "jcics_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Web / API services from the web-services assistant JCL (#3496)
 # ==============================================================================
 # This tool's own reading: the JCL statements (the job-flow statement reader) find
@@ -4932,6 +5047,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # #3496: the web-services assistant steps (the estate's API surface). Truth
         # is this tool's own reader; engine is web_service_data.
         "web services",
+        # #3497: JCICS -- Java Program.link LINKs and KSDS / TSQ / TDQ / channel /
+        # container operations. Truth is this tool's own reader; engine is the java
+        # boundary dialect's call_site_data + cics_resource_data rows.
+        "JCICS",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -5284,6 +5403,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_ims.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    for rel, k in key.get("jcics", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add("JCICS", rel, set(k.get("calls", [])), None, engine_jcics_units(ef) if ef else None)
     for rel, k in key.get("web_services", {}).items():
         ef = ir.files.get(rel) if ir else None
         add(
@@ -5488,6 +5610,9 @@ def main() -> int:
     dlp = sub.add_parser("add-dli")
     dlp.add_argument("repo", type=Path)
     dlp.add_argument("--key", type=Path, required=True)
+    jcp = sub.add_parser("add-jcics")
+    jcp.add_argument("repo", type=Path)
+    jcp.add_argument("--key", type=Path, required=True)
     wsp = sub.add_parser("add-web-services")
     wsp.add_argument("repo", type=Path)
     wsp.add_argument("--key", type=Path, required=True)
@@ -5658,6 +5783,16 @@ def main() -> int:
         key["dli_calls"] = dl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(dl)} DL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-jcics":
+        # #3497: the add-pli discipline; an unvalidated file no longer drafted is dropped.
+        jc = {rel: e for rel, e in key.get("jcics", {}).items() if e.get("jcics_validated")}
+        for rel, entry in draft_jcics(repo).items():
+            if not jc.get(rel, {}).get("jcics_validated"):
+                jc[rel] = entry
+        key["jcics"] = jc
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(jc)} JCICS Java files -> {args.key}")
         return 0
     if args.cmd == "add-web-services":
         # #3496: the add-pli discipline; an unvalidated file no longer drafted is dropped.

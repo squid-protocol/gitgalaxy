@@ -1280,3 +1280,23 @@ def test_web_service_reader_on_its_own(tmp_path):
     assert ak.draft_web_services(tmp_path)["WS.jcl"]["services"] == [
         "L2 DFHLS2WS provider program=LGICUS01 uri=GENAPP/LGICUS01 request=SOAIC01 response=SOAIC01 interface=COMMAREA"
     ]
+
+
+def test_jcics_reader_on_its_own(tmp_path):
+    """#3497: the key's own line reading of JCICS -- constants, a wrapped chained
+    call's line, a commented-out call."""
+    src = (
+        "import com.ibm.cics.server.KSDS;\n"
+        'class A { static final String F = "CUST";\n'
+        "  void f(Channel ch) { KSDS k = new KSDS(); k.setName(F);\n"
+        "    k.read(key, h); // k.delete();\n"
+        '    Program p = new Program(); p.setName("GETSCODE"); p.link(d);\n'
+        "    Container c = ch\n"
+        '        .getContainer("CIPB"); } }\n'
+    )
+    (tmp_path / "A.java").write_text(src, encoding="utf-8")
+    assert ak.draft_jcics(tmp_path)["A.java"]["calls"] == [
+        "L4 FILE CUST read",
+        "L5 LINK GETSCODE",
+        "L7 CONTAINER CIPB read",
+    ]

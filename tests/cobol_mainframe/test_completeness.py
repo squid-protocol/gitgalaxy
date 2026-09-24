@@ -85,7 +85,7 @@ PINNED = {
         "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (11, 17),
     },
     "cics-banking-sample-application-cbsa": {
-        "program calls": (140, 140), "copybooks": (88, 88), "transactions": (40, 47), "screens": (36, 37),
+        "program calls": (142, 150), "copybooks": (88, 88), "transactions": (42, 47), "screens": (36, 37),
         "data flows": (4738, 4739), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     "cics-genapp": {

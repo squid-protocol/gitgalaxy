@@ -106,6 +106,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "symbolic maps": ("symbolic_maps", "symbolic_validated"),
     "dynamic call targets": ("dynamic_targets", "dynamic_validated"),
     "web services": ("web_services", "web_validated"),
+    "JCICS": ("jcics", "jcics_validated"),
     "file I/O moves": ("io_moves", "io_moves_validated"),
 }
 

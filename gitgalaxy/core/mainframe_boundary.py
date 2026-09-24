@@ -91,6 +91,7 @@ from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
+from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
@@ -104,7 +105,8 @@ from gitgalaxy.core.web_services import jcl_web_services
 # `pli` carries only the record channel: its DECLAREd structures (#3250).
 # `bms` carries only the screen-field channel: its map field layouts (#3347).
 # `hlasm` carries only the IMS definition channel: PSB / DBD macros (#3477).
-BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli", "bms", "hlasm")
+# `java` carries JCICS LINKs and CICS resource operations (#3497).
+BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli", "bms", "hlasm", "java")
 
 # #3211-followup: the call-site verbs whose `target` is a TRANSACTION, not a
 # program. They ride in call_site_data alongside program invocations, but their
@@ -1940,6 +1942,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE / STRING / UNSTRING / INITIALIZE.
     #3496: jcl also carries `web_services` -- the web-services assistant steps
     (DFHLS2WS / DFHLS2JS providers, DFHWS2LS / DFHJS2LS requesters).
+    #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
@@ -1978,6 +1981,12 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["ims_gen"] = jcl_ims_regions(_jcl_statements(code_stream))  # #3477
         boundary["web_services"] = jcl_web_services(code_stream)  # #3496
         return boundary
+    if dialect == "java":
+        # #3497: JCICS -- Program.link() as CICS LINK call sites, KSDS / TSQ / TDQ /
+        # Channel / Container operations as cics_resources rows.
+        jc = jcics(code_stream)
+        return {"calls": jc["calls"], "datasets": [], "records": [], "transactions": [],
+                "cics_resources": jc["cics_resources"]}  # fmt: skip
     if dialect == "hlasm":
         # #3477: IMS PSB / DBD generation macros (PSBGEN, PCB, SENSEG, DBD, SEGM, ...).
         return {"calls": [], "datasets": [], "records": [], "transactions": [], "ims_gen": ims_gen_macros(code_stream)}

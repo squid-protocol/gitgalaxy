@@ -65600,6 +65600,32 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewer (jcics census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/AccountsResource.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CompanyNameResource.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CounterResource.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CreditScoreCICS540.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CustomerResource.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/HBankDataAccess.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/SortCodeResource.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/web/db2/Account.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/web/db2/ProcessedTransaction.java",
+        "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/web/vsam/Customer.java"
+      ],
+      "wide": false,
+      "suite": "jcics",
+      "tasks": {
+        "jcics": {
+          "agree": 36,
+          "asked": 36
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -79999,5 +80025,118 @@
       }
     }
   },
-  "web_services": {}
+  "web_services": {},
+  "jcics": {
+    "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CompanyNameResource.java": {
+      "calls": [
+        "L78 LINK GETCOMPY"
+      ],
+      "jcics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (jcics census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (jcics census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CounterResource.java": {
+      "calls": [
+        "L102 LINK NEWACCNO",
+        "L149 LINK NEWCUSNO",
+        "L196 LINK NEWCUSNO",
+        "L244 LINK NEWCUSNO",
+        "L248 LINK NEWCUSNO",
+        "L296 LINK NEWACCNO",
+        "L342 LINK NEWACCNO",
+        "L346 LINK NEWACCNO"
+      ],
+      "jcics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (jcics census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (jcics census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/CreditScoreCICS540.java": {
+      "calls": [
+        "L108 CONTAINER ? write",
+        "L145 CONTAINER ? read",
+        "L80 CHANNEL CIPCREDCHANN pass"
+      ],
+      "jcics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (jcics census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (jcics census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/api/json/SortCodeResource.java": {
+      "calls": [
+        "L68 LINK GETSCODE"
+      ],
+      "jcics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (jcics census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (jcics census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/webui/src/main/java/com/ibm/cics/cip/bankliberty/web/vsam/Customer.java": {
+      "calls": [
+        "L1039 FILE CUSTOMER browse",
+        "L1153 FILE CUSTOMER browse",
+        "L1270 FILE CUSTOMER browse",
+        "L1368 FILE CUSTOMER read",
+        "L1427 FILE CUSTOMER browse",
+        "L1526 FILE CUSTOMER browse",
+        "L1640 FILE CUSTOMER browse",
+        "L1753 FILE CUSTOMER browse",
+        "L291 FILE CUSTOMER read",
+        "L358 FILE CUSTOMER browse",
+        "L362 FILE CUSTOMER read",
+        "L411 FILE CUSTOMER browse",
+        "L526 FILE CUSTOMER read",
+        "L530 FILE CUSTOMER update",
+        "L628 FILE CUSTOMER read",
+        "L636 FILE CUSTOMER delete",
+        "L700 FILE CUSTOMER read",
+        "L721 FILE CUSTOMER update",
+        "L809 FILE CUSTOMER write",
+        "L903 FILE CUSTOMER read",
+        "L913 FILE CUSTOMER update",
+        "L975 FILE CUSTOMER read",
+        "L986 FILE CUSTOMER update"
+      ],
+      "jcics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (jcics census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (jcics census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  }
 }

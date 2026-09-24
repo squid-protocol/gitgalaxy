@@ -242,6 +242,11 @@
           "forge": null,
           "truth": "cross_verified"
         },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "JCL job flow": {
           "engine": {
             "got": 558,
@@ -1086,6 +1091,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "JCICS": {
+          "engine": {
+            "got": 36,
+            "tp": 36,
+            "truth": 36
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "JCL job flow": {
           "engine": {
             "got": 410,
@@ -1524,6 +1538,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "JCL job flow": {
           "engine": {
             "got": 253,
@@ -1874,6 +1893,11 @@
           "truth": "draft"
         },
         "IMS segment access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCICS": {
           "engine": null,
           "forge": null,
           "truth": "draft"

@@ -1265,7 +1265,9 @@ class GalaxyIR:
 
         # Program calls (JCL EXEC PGM included).
         calls = [(f, c) for f in self.files.values() for c in f.calls if c.verb not in TRANSACTION_ROUTING_VERBS]
-        any_stem = {Path(p).stem.upper() for p in self.files}
+        # A callee in a language calls are not resolved to (not a copybook or JCL
+        # of the same name -- CBSA ships NEWACCNO.cpy and NEWACCNO.jcl, not the program).
+        any_stem = {Path(p).stem.upper() for p, f in self.files.items() if f.language in _CALLEE_LANGUAGES}
         dynamic = self.dynamic_call_targets()
         # A data-item target resolves when some candidate it can hold is a program here (#3493).
         dyn_ok = {
@@ -3604,6 +3606,9 @@ def _pic_positions(pic: str) -> Optional[list]:
 # children) -- and even when the engine read a stray USAGE into it.
 _PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
 
+
+# #3498: languages a CALL / LINK can reach that the call resolver does not link to.
+_CALLEE_LANGUAGES = frozenset({"hlasm", "assembly", "pli", "rexx", "c", "cpp", "java", "easytrieve"})
 
 # #3498: programs and copybooks IBM or the runtime supply -- never a gap.
 _SYSTEM_PROGRAM = re.compile(

@@ -2203,3 +2203,23 @@ def test_api_surface_joins_program_copybooks_and_csd(tmp_path):
     # APIPGM is a CICS program only the web service reaches: completeness counts it reached.
     tx = ir.completeness()["channels"]["transactions"]
     assert tx["gaps"]["CICS program no transaction reaches"] == 0
+
+
+# ---- #3497: JCICS -- Java LINKs join the COBOL call graph ----------------------
+def test_a_java_jcics_link_resolves_to_the_cobol_program(tmp_path):
+    repo = tmp_path / "jc"
+    files = {
+        "java/Api.java": (
+            "import com.ibm.cics.server.Program;\n"
+            "class Api { void f(byte[] d) throws Exception {\n"
+            '  Program p = new Program(); p.setName("GETSCODE"); p.link(d); } }\n'
+        ),
+        "cbl/GETSCODE.cbl": STUB.format("GETSCODE").replace("GOBACK", "EXEC CICS RETURN END-EXEC"),
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    (call,) = ir.files["java/Api.java"].calls
+    assert (call.verb, call.target, call.resolves_to) == ("LINK", "GETSCODE", "cbl/GETSCODE.cbl")

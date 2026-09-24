@@ -566,6 +566,7 @@ class LLMRecorder:
                 + len(f.get("cics_resources") or [])  # #3351-#3354
                 + len(f.get("cics_tasks") or [])  # #3449
                 + len(f.get("job_submits") or [])  # #3448
+                + len(f.get("mq_calls") or [])  # #3447
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -811,6 +812,18 @@ class LLMRecorder:
                     else:
                         parts.append(f"INTRDR {j.get('name')}<-{j.get('target') or '?'}")
                 lines.append(f"- **Job submission:** {', '.join(f'`{x}`' for x in parts[:12])}")
+            # #3447: each queue this file puts to / gets from.
+            mq = f.get("mq_calls") or []
+            if mq:
+                queues: dict[str, set] = {}
+                for q in mq:
+                    if q.get("direction") not in ("get", "put", "browse"):
+                        continue
+                    name = q.get("queue") or f"<{q.get('resolution') or '?'}>"
+                    queues.setdefault(name, set()).add(q["direction"])
+                if queues:
+                    labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
+                    lines.append(f"- **MQ queues:** {', '.join(f'`{x}`' for x in labels[:12])}")
             lines.append("")
 
         if len(carriers) > 20:

@@ -8088,5 +8088,6 @@
   ],
   "sql_access": {},
   "cics_tasks": {},
-  "job_submissions": {}
+  "job_submissions": {},
+  "mq_calls": {}
 }

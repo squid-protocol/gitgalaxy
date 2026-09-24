@@ -1179,3 +1179,71 @@ def test_a_pre_3448_db_loads_with_no_submissions(submit_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.job_submits == [] for ef in ir.files.values())
     assert ir.job_submissions() == []
+
+
+# ---- #3447: IBM MQ calls, endpoints and flows ---------------------------------
+def _mq_program(pid: str, body: str) -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n"
+        f"       PROGRAM-ID. {pid}.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       000-MAIN.\n" + body + "           GOBACK.\n"
+    )
+
+
+MQ_PRODUCER = _mq_program(
+    "MQPROD",
+    "           MOVE 'APP.ORDERS' TO MQOD-OBJECTNAME\n"
+    "           COMPUTE MQ-OPTIONS = MQOO-OUTPUT\n"
+    "           CALL 'MQOPEN' USING HCONN MQ-OD MQ-OPTIONS HOBJ CC RC\n"
+    "           CALL 'MQPUT' USING HCONN HOBJ MD PMO LEN BUF CC RC\n",
+)
+MQ_CONSUMER = _mq_program(
+    "MQCONS",
+    "           MOVE 'APP.ORDERS' TO MQOD-OBJECTNAME\n"
+    "           COMPUTE MQ-OPTIONS = MQOO-INPUT-SHARED\n"
+    "           CALL 'MQOPEN' USING HCONN MQ-OD MQ-OPTIONS HOBJ CC RC\n"
+    "           CALL 'MQGET' USING HCONN HOBJ MD GMO LEN BUF DLEN CC RC\n"
+    "           MOVE MQMD-REPLYTOQ TO WS-REPLY\n"
+    "           MOVE WS-REPLY TO MQOD-OBJECTNAME\n"
+    "           CALL 'MQPUT1' USING HCONN MQ-OD MD PMO LEN BUF CC RC\n",
+)
+
+
+@pytest.fixture(scope="module")
+def mq_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_mq")
+    repo = base / "mq"
+    (repo / "cbl").mkdir(parents=True)
+    (repo / "cbl" / "MQPROD.cbl").write_text(MQ_PRODUCER, encoding="utf-8")
+    (repo / "cbl" / "MQCONS.cbl").write_text(MQ_CONSUMER, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_mq_calls_load_and_queues_pair_producers_with_consumers(mq_scanned):
+    ir = load_galaxy_ir(mq_scanned)
+    cons = [(q.verb, q.queue, q.resolution, q.open_line) for q in ir.files["cbl/MQCONS.cbl"].mq_calls]
+    assert cons == [
+        ("MQOPEN", "APP.ORDERS", "literal", None),
+        ("MQGET", "APP.ORDERS", "literal", 7),
+        ("MQPUT1", None, "reply_to", None),
+    ]
+    ends = {(e["file"], e["queue"], e["direction"]) for e in ir.mq_queues()}
+    assert ends == {
+        ("cbl/MQPROD.cbl", "APP.ORDERS", "put"),
+        ("cbl/MQCONS.cbl", "APP.ORDERS", "get"),
+        ("cbl/MQCONS.cbl", "<reply_to>", "put"),
+    }
+    assert ir.mq_flows() == [
+        {"queue": "APP.ORDERS", "producer": "cbl/MQPROD.cbl", "consumer": "cbl/MQCONS.cbl", "mode": "get"}
+    ]
+
+
+def test_a_pre_3447_db_loads_with_no_mq_calls(mq_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(mq_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE mq_call_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.mq_calls == [] for ef in ir.files.values())
+    assert ir.mq_queues() == [] and ir.mq_flows() == []

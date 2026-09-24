@@ -90525,5 +90525,232 @@
         "notes": []
       }
     }
+  },
+  "mq_calls": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "calls": [
+        {
+          "verb": "MQOPEN",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": null,
+          "line": 262
+        },
+        {
+          "verb": "MQGET",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 262,
+          "line": 400
+        },
+        {
+          "verb": "MQPUT1",
+          "direction": "put",
+          "queue": null,
+          "resolution": "reply_to",
+          "candidates": null,
+          "open_line": null,
+          "line": 758
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 262,
+          "line": 956
+        }
+      ],
+      "mq_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/COACCT01.cbl": {
+      "calls": [
+        {
+          "verb": "MQOPEN",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": null,
+          "line": 233
+        },
+        {
+          "verb": "MQOPEN",
+          "direction": "put",
+          "queue": "CARD.DEMO.REPLY.ACCT",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": null,
+          "line": 267
+        },
+        {
+          "verb": "MQOPEN",
+          "direction": "put",
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": null,
+          "line": 302
+        },
+        {
+          "verb": "MQGET",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 233,
+          "line": 352
+        },
+        {
+          "verb": "MQPUT",
+          "direction": "put",
+          "queue": "CARD.DEMO.REPLY.ACCT",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 267,
+          "line": 479
+        },
+        {
+          "verb": "MQPUT",
+          "direction": "put",
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 302,
+          "line": 516
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 233,
+          "line": 557
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": "CARD.DEMO.REPLY.ACCT",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 267,
+          "line": 579
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 302,
+          "line": 602
+        }
+      ],
+      "mq_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/CODATE01.cbl": {
+      "calls": [
+        {
+          "verb": "MQOPEN",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": null,
+          "line": 182
+        },
+        {
+          "verb": "MQOPEN",
+          "direction": "put",
+          "queue": "CARD.DEMO.REPLY.DATE",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": null,
+          "line": 216
+        },
+        {
+          "verb": "MQOPEN",
+          "direction": "put",
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": null,
+          "line": 251
+        },
+        {
+          "verb": "MQGET",
+          "direction": "get",
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 182,
+          "line": 301
+        },
+        {
+          "verb": "MQPUT",
+          "direction": "put",
+          "queue": "CARD.DEMO.REPLY.DATE",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 216,
+          "line": 383
+        },
+        {
+          "verb": "MQPUT",
+          "direction": "put",
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 251,
+          "line": 420
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": null,
+          "resolution": "trigger",
+          "candidates": null,
+          "open_line": 182,
+          "line": 461
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": "CARD.DEMO.REPLY.DATE",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 216,
+          "line": 483
+        },
+        {
+          "verb": "MQCLOSE",
+          "direction": null,
+          "queue": "CARD.DEMO.ERROR",
+          "resolution": "move",
+          "candidates": null,
+          "open_line": 251,
+          "line": 506
+        }
+      ],
+      "mq_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

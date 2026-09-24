@@ -16,6 +16,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-cics <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-cics-tasks <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-job-submissions <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-mq <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -41,6 +42,9 @@ reaches into `cics_tasks`, the add-pli way.
 `add-job-submissions` (#3448) drafts, per submitting file, the jobs it submits to
 the internal reader (CICS WRITEQ TD to an extrapartition queue, or a JCL
 SYSOUT=(x,INTRDR) step) into `job_submissions`, the add-pli way.
+
+`add-mq` (#3447) drafts every COBOL source's IBM MQ calls (verb, direction, the
+queue or why it is unnamed, the MQOPEN a handle came from) into `mq_calls`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -2297,6 +2301,235 @@ def engine_job_submissions(entries: list[dict[str, Any]]) -> dict[str, set[str]]
 
 
 # ==============================================================================
+# IBM MQ calls (#3447)
+# ==============================================================================
+# This tool's own reading of a COBOL program's MQI calls: one token walk over the
+# raw text (a literal is one token, so `DISPLAY 'CALL MQPUT'` is never a call),
+# carrying the same contract as the engine's core/mq_calls.py and none of its
+# code. The queue of an MQOPEN / MQPUT1 is the operand last MOVEd to its
+# descriptor's OBJECTNAME; an operand resolves through `_cics_value_of`, then the
+# literals MOVEd to it, following name-to-name MOVEs (depth 3), with MQTM-QNAME
+# read as `trigger` and MQMD-REPLYTOQ as `reply_to`. A PUT / GET / CLOSE is
+# matched to its MQOPEN by the handle it passes or the one MOVEd into that
+# operand just before it; copies of an open's handle made before the next MQ call
+# are that open's too.
+_MQ_TOKEN = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"|[A-Z0-9][A-Z0-9-]*|[=+.,]")
+_MQ_RUNTIME = {"MQTM-QNAME": "trigger", "MQMD-REPLYTOQ": "reply_to"}
+_MQ_FIG = {"SPACE", "SPACES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE", "HIGH-VALUES", "ZERO", "ZEROS"}
+
+
+def mq_call_ops(path: Path) -> list[dict[str, Any]]:
+    """Every MQ call in one COBOL source, this tool's own reading (see above)."""
+    src = Source(path)
+    toks = [(m.group(0), m.start()) for m in _MQ_TOKEN.finditer(src.raw_text)]
+    n = len(toks)
+
+    def name_at(i: int) -> tuple[Optional[str], int]:
+        """(data-name at i, index after it and any `OF qualifier`)."""
+        if i >= n or toks[i][0][0] in "'\"=+.,":
+            return None, i
+        j = i + 1
+        if j + 1 < n and toks[j][0] == "OF":
+            j += 2
+        return toks[i][0], j
+
+    moved: dict[str, set[str]] = {}
+    events: list[tuple] = []
+    i = 0
+    while i < n:
+        t = toks[i][0]
+        if t == "MOVE" and i + 1 < n:
+            src_tok = toks[i + 1][0]
+            j = i + 2
+            if j + 1 < n and toks[j][0] == "OF":
+                j += 2
+            if j < n and toks[j][0] == "TO":
+                tgt, k = name_at(j + 1)
+                qual = toks[j + 2][0] if tgt and j + 3 < n and toks[j + 2][0] == "OF" else None
+                if tgt:
+                    if src_tok[0] in "'\"":
+                        if src_tok[1:-1].strip():
+                            moved.setdefault(tgt, set()).add("'" + src_tok[1:-1].strip())
+                    elif src_tok not in _MQ_FIG and src_tok[0] not in "=+.,":
+                        moved.setdefault(tgt, set()).add(src_tok)
+                    events.append(("move", src_tok, tgt, qual, toks[i][1]))
+                    i = k
+                    continue
+        elif t == "COMPUTE" and i + 2 < n and toks[i + 2][0] == "=":
+            words, j = [], i + 3
+            while j < n and toks[j][0].startswith("MQ"):
+                words.append(toks[j][0])
+                j += 2 if j + 1 < n and toks[j + 1][0] == "+" else 1
+                if toks[j - 1][0] != "+":
+                    break
+            events.append(("opts", toks[i + 1][0], words, toks[i][1]))
+        elif t == "CALL" and i + 1 < n and toks[i + 1][0][:1] in "'\"" and toks[i + 1][0][1:3] == "MQ":
+            verb = toks[i + 1][0][1:-1]
+            args, j = [], i + 2
+            if j < n and toks[j][0] == "USING":
+                j += 1
+                while j < n and len(args) < 4:
+                    if toks[j][0] in ("BY", "REFERENCE", "CONTENT", "VALUE"):
+                        j += 1
+                        continue
+                    a, j2 = name_at(j)
+                    if not a or a == "END-CALL":
+                        break
+                    args.append(a)
+                    j = j2
+            events.append(("call", verb, args, toks[i][1]))
+        i += 1
+
+    def values_of(name: str, depth: int = 0) -> set[str]:
+        if name in _MQ_RUNTIME:
+            return {"<" + _MQ_RUNTIME[name] + ">"}
+        v = _cics_value_of(src, name)
+        if v:
+            return {"'" + v}
+        out: set[str] = set()
+        for x in moved.get(name, set()):
+            out |= {x} if x.startswith("'") else (values_of(x, depth + 1) if depth < 3 else set())
+        return out
+
+    def read(operand: Optional[str]) -> tuple[Optional[str], str, Optional[str]]:
+        if operand is None:
+            return None, "unresolved", None
+        if operand[0] in "'\"":
+            return operand[1:-1].strip() or None, "literal", None
+        found = values_of(operand)
+        if len(found) == 1:
+            only = next(iter(found))
+            if only.startswith("'"):
+                return only[1:], ("value" if _cics_value_of(src, operand) else "move"), None
+            return None, only[1:-1], None
+        if found:
+            return None, "ambiguous", ",".join(sorted(x.lstrip("'") for x in found))
+        return None, "unresolved", None
+
+    family = {"MQOPEN": "MQOO-", "MQPUT": "MQPMO-", "MQPUT1": "MQPMO-", "MQGET": "MQGMO-"}
+    objname: dict[Optional[str], str] = {}
+    opts_by_field: dict[str, list[str]] = {}
+    into_handle: dict[str, str] = {}
+    opens: list[dict[str, Any]] = []
+    fresh: Optional[dict[str, Any]] = None
+    out: list[dict[str, Any]] = []
+    for ev in events:
+        if ev[0] == "move":
+            _, s_tok, tgt, qual, _off = ev
+            if tgt.endswith("OBJECTNAME"):
+                objname[qual] = s_tok
+                objname[None] = s_tok
+            elif re.fullmatch(r"MQ(?:OO|PMO|GMO)-[A-Z0-9-]+", s_tok):
+                opts_by_field[tgt] = [s_tok]
+            elif s_tok[0] not in "'\"":
+                into_handle[tgt] = s_tok
+                if fresh is not None and s_tok in fresh["aliases"]:
+                    fresh["aliases"].add(tgt)
+            continue
+        if ev[0] == "opts":
+            opts_by_field[ev[1]] = ev[2]
+            continue
+        _, verb, args, off = ev
+        fam = family.get(verb)
+        opts: list[str] = []
+        if fam:
+            for words in reversed(list(opts_by_field.values())):
+                if words and words[0].startswith(fam):
+                    opts = words
+                    break
+        if verb in ("MQPUT", "MQPUT1"):
+            direction: Optional[str] = "put"
+        elif verb == "MQGET":
+            direction = "get"
+        elif verb == "MQOPEN":
+            w = set(opts)
+            direction = (
+                "get"
+                if any(x.startswith("MQOO-INPUT") for x in w)
+                else "browse"
+                if "MQOO-BROWSE" in w
+                else "put"
+                if "MQOO-OUTPUT" in w
+                else "inquire"
+                if "MQOO-INQUIRE" in w
+                else "set"
+                if "MQOO-SET" in w
+                else None
+            )
+        else:
+            direction = None
+        row: dict[str, Any] = {"verb": verb, "direction": direction, "queue": None, "resolution": None}
+        row.update({"candidates": None, "open_line": None, "line": src.line_of(off)})
+        if verb in ("MQOPEN", "MQPUT1") and len(args) >= 2:
+            row["queue"], row["resolution"], row["candidates"] = read(objname.get(args[1], objname.get(None)))
+            if verb == "MQOPEN" and len(args) >= 4:
+                fresh = {"row": row, "hobj": args[3], "aliases": {args[3]}}
+                opens.append(fresh)
+        elif verb in ("MQPUT", "MQGET", "MQCLOSE", "MQINQ", "MQSET") and len(args) >= 2:
+            want = into_handle.get(args[1], args[1])
+            hit = [o for o in opens if want in o["aliases"] - {o["hobj"]}] or [o for o in opens if want in o["aliases"]]
+            hit = hit or [o for o in opens if args[1] in o["aliases"]]
+            if len(hit) > 1:
+                hit = hit[-1:]
+            if hit:
+                o = hit[0]["row"]
+                row.update({k: o[k] for k in ("queue", "resolution", "candidates")})
+                row["open_line"] = o["line"]
+            else:
+                row["resolution"] = "unresolved"
+        out.append(row)
+        into_handle = {}
+        if verb != "MQOPEN":
+            fresh = None
+    return out
+
+
+def mq_call_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """One unit per call: `L<line> VERB dir=<d> q=<queue | <resolution[:cands]>>
+    open=L<n>`. Works on this reader's rows and the engine's."""
+    out = set()
+    for r in rows:
+        if r.get("queue"):
+            q = r["queue"].upper()
+        elif r.get("resolution"):
+            q = f"<{r['resolution']}{':' + r['candidates'].upper() if r.get('candidates') else ''}>"
+        else:
+            q = "-"
+        opened = f" open=L{r['open_line']}" if r.get("open_line") else ""
+        out.add(f"L{r['line']} {r['verb']} dir={r.get('direction') or '-'} q={q}{opened}")
+    return out
+
+
+def engine_mq_row(q: Any) -> dict[str, Any]:
+    """An engine `EngineMqCall` in this reader's row shape."""
+    return {
+        "verb": q.verb,
+        "direction": q.direction,
+        "queue": q.queue,
+        "resolution": q.resolution,
+        "candidates": q.candidates,
+        "open_line": q.open_line,
+        "line": q.line,
+    }
+
+
+def draft_mq(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted MQ calls for every COBOL source that makes one (#3447). Adjudicates
+    nothing until signed off with `mq_validated`."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+            rows = mq_call_ops(p)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "calls": rows,
+                    "mq_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -2682,6 +2915,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # (CICS WRITEQ TD to an extrapartition queue, or a JCL SYSOUT=(x,INTRDR)
         # step). Truth is this tool's own join; engine is GalaxyIR.job_submissions().
         "job submissions",
+        # #3447: IBM MQ calls (verb, direction, queue or why unnamed, matched open),
+        # per COBOL source. Truth is this tool's own token walk; engine is mq_call_data.
+        "MQ calls",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -2940,6 +3176,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_subs.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    for rel, k in key.get("mq_calls", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "MQ calls",
+            rel,
+            mq_call_keys(k.get("calls", [])),
+            None,
+            mq_call_keys([engine_mq_row(q) for q in ef.mq_calls]) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -3053,6 +3299,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    mq = sub.add_parser("add-mq")
+    mq.add_argument("repo", type=Path)
+    mq.add_argument("--key", type=Path, required=True)
     js = sub.add_parser("add-job-submissions")
     js.add_argument("repo", type=Path)
     js.add_argument("--key", type=Path, required=True)
@@ -3180,6 +3429,16 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-mq":
+        # #3447: the add-pli discipline -- refresh drafts, keep signed-off files.
+        calls = key.get("mq_calls", {})
+        for rel, entry in draft_mq(repo).items():
+            if not calls.get(rel, {}).get("mq_validated"):
+                calls[rel] = entry
+        key["mq_calls"] = calls
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(calls)} MQ files -> {args.key}")
         return 0
     if args.cmd == "add-job-submissions":
         # #3448: the add-pli discipline -- refresh drafts, keep signed-off files.

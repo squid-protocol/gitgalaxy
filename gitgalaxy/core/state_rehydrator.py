@@ -711,6 +711,31 @@ class StateRehydrator:
                     },
                 )
 
+                # #3447: IBM MQ calls, aliased back to the payload keys.
+                mq_calls_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "mq_call_data",
+                    "SELECT fd.file_path AS _fp, mq.verb, mq.direction, mq.queue_operand AS operand, "
+                    "mq.queue_name AS queue, mq.queue_resolution AS resolution, mq.queue_candidates AS candidates, "
+                    "mq.handle, mq.open_line, mq.options, mq.line_number AS line "
+                    "FROM mq_call_data mq JOIN file_data fd ON mq.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY mq.id",
+                    lambda r: {
+                        "verb": r["verb"],
+                        "direction": r["direction"],
+                        "operand": r["operand"],
+                        "queue": r["queue"],
+                        "resolution": r["resolution"],
+                        "candidates": r["candidates"],
+                        "handle": r["handle"],
+                        "open_line": int(r["open_line"]) if r["open_line"] is not None else None,
+                        "options": r["options"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -725,6 +750,7 @@ class StateRehydrator:
                     node["cics_resources"] = cics_by_file.get(rel_path, [])
                     node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
+                    node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

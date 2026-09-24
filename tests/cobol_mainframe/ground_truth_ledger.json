@@ -222,7 +222,7 @@
             "truth": 14
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "IMS definitions": {
           "engine": {
@@ -231,7 +231,7 @@
             "truth": 39
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "IMS segment access": {
           "engine": {
@@ -267,7 +267,7 @@
             "truth": 82
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": {
@@ -344,7 +344,7 @@
             "truth": 5171
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -1079,7 +1079,7 @@
             "truth": 1
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -1152,7 +1152,7 @@
             "truth": 5179
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {
@@ -1405,7 +1405,7 @@
             "truth": 9
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MQ calls": {
           "engine": null,
@@ -1474,7 +1474,7 @@
             "truth": 323
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "dead": {
           "engine": {

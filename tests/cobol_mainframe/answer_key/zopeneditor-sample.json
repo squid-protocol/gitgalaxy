@@ -8244,6 +8244,87 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 45,
+          "asked": 45
+        },
+        "trunc": {
+          "agree": 6,
+          "asked": 6
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 48,
+          "asked": 48
+        },
+        "trunc": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 20,
+          "asked": 20
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -10158,10 +10239,16 @@
         "L434 'CUSTOMER INPUT FILE I/O ERROR ON READ.  RC: ' -> ERR-MSG-DATA1",
         "L451 'CUSTOMER OUTPUT FILE I/O ERROR ON WRITE. RC: ' -> ERR-MSG-DATA1"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "COBOL/SAM1LIB.cbl": {
@@ -10246,10 +10333,16 @@
         "L417 'CUSTOMER INPUT FILE I/O ERROR ON READ.  RC: ' -> ERR-MSG-DATA1",
         "L434 'CUSTOMER OUTPUT FILE I/O ERROR ON WRITE. RC: ' -> ERR-MSG-DATA1"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "COBOL/SAM2.cbl": {
@@ -10293,10 +10386,16 @@
         "L98 MOVE TRAN-UPDATE-NUM -> WS-UPDATE-NUM"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "multiroot/sam/SAM1.cbl": {
@@ -10406,10 +10505,16 @@
         "L473 'CUSTOMER INPUT FILE I/O ERROR ON READ.  RC: ' -> ERR-MSG-DATA1",
         "L490 'CUSTOMER OUTPUT FILE I/O ERROR ON WRITE. RC: ' -> ERR-MSG-DATA1"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "multiroot/sam/SAM2.cbl": {
@@ -10455,11 +10560,240 @@
         "L99 MOVE 'DATA IS NOT NUMERIC' -> TRAN-MSG"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
+    }
+  },
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "window": 12,
+        "windows": [
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 303,
+            "to": 314
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 332,
+            "to": 343
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 418,
+            "to": 429
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 430,
+            "to": 441
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 447,
+            "to": 458
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 462,
+            "to": 473
+          },
+          {
+            "file": "COBOL/SAM1.cbl",
+            "from": 491,
+            "to": 502
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 211,
+            "to": 222
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 250,
+            "to": 261
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 286,
+            "to": 297
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 385,
+            "to": 396
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 413,
+            "to": 424
+          },
+          {
+            "file": "COBOL/SAM1LIB.cbl",
+            "from": 430,
+            "to": 441
+          },
+          {
+            "file": "COBOL/SAM2.cbl",
+            "from": 62,
+            "to": 73
+          },
+          {
+            "file": "COBOL/SAM2.cbl",
+            "from": 94,
+            "to": 105
+          },
+          {
+            "file": "COBOL/SAM2.cbl",
+            "from": 128,
+            "to": 139
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 240,
+            "to": 251
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 304,
+            "to": 315
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 323,
+            "to": 334
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 338,
+            "to": 349
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 371,
+            "to": 382
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 383,
+            "to": 394
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 418,
+            "to": 429
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 435,
+            "to": 446
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 456,
+            "to": 467
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 469,
+            "to": 480
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 486,
+            "to": 497
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 507,
+            "to": 518
+          },
+          {
+            "file": "multiroot/sam/SAM1.cbl",
+            "from": 556,
+            "to": 567
+          },
+          {
+            "file": "multiroot/sam/SAM2.cbl",
+            "from": 123,
+            "to": 134
+          },
+          {
+            "file": "multiroot/sam/SAM2.cbl",
+            "from": 155,
+            "to": 164
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 1,
+          "windows": [
+            "COBOL/SAM1.cbl@303-314",
+            "COBOL/SAM1.cbl@332-343",
+            "COBOL/SAM1.cbl@418-429",
+            "COBOL/SAM1.cbl@430-441",
+            "COBOL/SAM1.cbl@447-458",
+            "COBOL/SAM1.cbl@462-473",
+            "COBOL/SAM1.cbl@491-502",
+            "COBOL/SAM1LIB.cbl@211-222",
+            "COBOL/SAM1LIB.cbl@250-261",
+            "COBOL/SAM1LIB.cbl@286-297",
+            "COBOL/SAM1LIB.cbl@385-396",
+            "COBOL/SAM1LIB.cbl@413-424",
+            "COBOL/SAM1LIB.cbl@430-441",
+            "COBOL/SAM2.cbl@62-73",
+            "COBOL/SAM2.cbl@94-105"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 2,
+          "windows": [
+            "COBOL/SAM2.cbl@128-139",
+            "multiroot/sam/SAM1.cbl@240-251",
+            "multiroot/sam/SAM1.cbl@304-315",
+            "multiroot/sam/SAM1.cbl@323-334",
+            "multiroot/sam/SAM1.cbl@338-349",
+            "multiroot/sam/SAM1.cbl@371-382",
+            "multiroot/sam/SAM1.cbl@383-394",
+            "multiroot/sam/SAM1.cbl@418-429",
+            "multiroot/sam/SAM1.cbl@435-446",
+            "multiroot/sam/SAM1.cbl@456-467",
+            "multiroot/sam/SAM1.cbl@469-480",
+            "multiroot/sam/SAM1.cbl@486-497",
+            "multiroot/sam/SAM1.cbl@507-518"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 3,
+          "windows": [
+            "multiroot/sam/SAM1.cbl@556-567",
+            "multiroot/sam/SAM2.cbl@123-134",
+            "multiroot/sam/SAM2.cbl@155-164"
+          ]
+        }
+      ],
+      "asked": 122,
+      "key_errors": 0,
+      "upper_bound_95": 0.02426
     }
   }
 }

@@ -65328,6 +65328,173 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 55,
+          "asked": 55
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 51,
+          "asked": 51
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 56,
+          "asked": 56
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 4,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 55,
+          "asked": 56
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "moves:src/base/cobol_src/CRDTAGY5.cbl@185-196::L190 COMPUTE LENGTH OF WS-CONT-IN -> WS-CONTAINER-LEN": {
+          "verdict": "key_correct",
+          "why": "COMPUTE WS-CONTAINER-LEN = LENGTH OF WS-CONT-IN: the result is WS-CONT-IN's declared length, not computed from its content, so it is no data-flow source; the contract takes a COMPUTE's sources as the DATA NAMES of the expression (LENGTH OF X is its own operand form, a MOVE source only). Brief wording tightened."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 5,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 54,
+          "asked": 54
+        },
+        "trunc": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 6,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 49,
+          "asked": 49
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -71696,10 +71863,16 @@
         "L98 MOVE 'NOSTG' -> EIBRESP-STRING"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/ABNDPROC.cbl": {
@@ -71707,10 +71880,16 @@
         "L139 MOVE DFHCOMMAREA -> WS-ABND-AREA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/ACCTCTRL.cbl": {
@@ -71724,10 +71903,16 @@
         "L177 MOVE SQLCODE -> SQLCODE-DISPLAY"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BANKDATA.cbl": {
@@ -72129,10 +72314,16 @@
         "L999 MOVE 'EVANS' -> SURNAME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
@@ -72440,10 +72631,16 @@
         "L997 MOVE EIBTRNID -> ABND-TRANID"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
@@ -72647,10 +72844,16 @@
         "L917 MOVE WS-CICS-RESP2 -> WS-CICS-RESP2-DISP"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
@@ -73067,10 +73270,16 @@
         "L993 MOVE EIBRESP2 -> ABND-RESP2CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
@@ -73321,10 +73530,16 @@
         "L999 MOVE SPACES -> WS-AMOUNT-UNSTR"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
@@ -73610,10 +73825,16 @@
         "L998 MOVE EIBRESP2 -> ABND-RESP2CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
@@ -74171,10 +74392,16 @@
         "L999 STRING WS-TIME-NOW-GRP-MM -> ABND-TIME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
@@ -74450,10 +74677,16 @@
         "L995 MOVE -1 -> AMTL"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
@@ -74819,10 +75052,16 @@
         "L998 MOVE ZEROS -> ABND-SQLCODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/BNKMENU.cbl": {
@@ -75134,10 +75373,16 @@
         "L996 MOVE EIBRESP2 -> ABND-RESP2CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
@@ -75166,10 +75411,16 @@
         "L218 MOVE WS-NEW-CREDSCORE -> WS-CONT-IN-CREDIT-SCORE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
@@ -75198,10 +75449,16 @@
         "L218 MOVE WS-NEW-CREDSCORE -> WS-CONT-IN-CREDIT-SCORE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
@@ -75230,10 +75487,16 @@
         "L217 MOVE WS-NEW-CREDSCORE -> WS-CONT-IN-CREDIT-SCORE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
@@ -75262,10 +75525,16 @@
         "L220 MOVE WS-NEW-CREDSCORE -> WS-CONT-IN-CREDIT-SCORE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
@@ -75294,10 +75563,16 @@
         "L219 MOVE WS-NEW-CREDSCORE -> WS-CONT-IN-CREDIT-SCORE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CREACC.cbl": {
@@ -75566,10 +75841,16 @@
         "L967 MOVE 0 -> HV-PROCTRAN-AMOUNT"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -75797,10 +76078,16 @@
         "L990 MOVE 'H' -> COMM-FAIL-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
@@ -75813,10 +76100,16 @@
         "L194 MOVE '1' -> CUSTOMER-CONTROL-FAIL-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
@@ -75923,10 +76216,16 @@
       "truncations": [
         "L637 '02' -> COMM-FAIL-CODE"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/DELACC.cbl": {
@@ -76043,10 +76342,16 @@
         "L591 STRING HOST-PROCTRAN-ROW -> ABND-FREEFORM"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -76170,10 +76475,16 @@
         "L705 STRING HOST-PROCTRAN-ROW -> ABND-FREEFORM"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/GETCOMPY.cbl": {
@@ -76181,10 +76492,16 @@
         "L38 MOVE 'CICS BANK SAMPLE APPLICATION' -> COMPANY-NAME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/GETSCODE.cbl": {
@@ -76192,10 +76509,16 @@
         "L39 MOVE LITERAL-SORTCODE -> SORTCODE OF DFHCOMMAREA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/INQACC.cbl": {
@@ -76381,10 +76704,16 @@
         "L978 MOVE HV-ACCOUNT-ACTUAL-BAL -> ACCOUNT-ACTUAL-BALANCE OF OUTPUT-DATA"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/INQACCCU.cbl": {
@@ -76530,10 +76859,16 @@
         "L859 MOVE ZERO -> NUMBER-OF-ACCOUNTS"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/INQCUST.cbl": {
@@ -76633,10 +76968,16 @@
         "L708 COMPUTE NCS-CUST-NO-VALUE -> RANDOM-CUSTOMER"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/UPDACC.cbl": {
@@ -76681,10 +77022,16 @@
         "L327 MOVE 'Y' -> COMM-SUCCESS"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/UPDCUST.cbl": {
@@ -76731,10 +77078,16 @@
         "L333 MOVE 'Y' -> COMM-UPD-SUCCESS"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "src/base/cobol_src/XFRFUN.cbl": {
@@ -77070,11 +77423,561 @@
         "L989 COMPUTE HV-ACCOUNT-ACTUAL-BAL -> HV-ACCOUNT-ACTUAL-BAL"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
+    }
+  },
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 400,
+        "window": 12,
+        "windows": [
+          {
+            "file": "src/base/cobol_copy/RESPSTR.cpy",
+            "from": 93,
+            "to": 104
+          },
+          {
+            "file": "src/base/cobol_copy/RESPSTR.cpy",
+            "from": 237,
+            "to": 248
+          },
+          {
+            "file": "src/base/cobol_src/ABNDPROC.cbl",
+            "from": 148,
+            "to": 159
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 219,
+            "to": 230
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 668,
+            "to": 679
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 683,
+            "to": 694
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 708,
+            "to": 719
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 753,
+            "to": 764
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 779,
+            "to": 790
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 936,
+            "to": 947
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CAC.cbl",
+            "from": 1253,
+            "to": 1264
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCA.cbl",
+            "from": 293,
+            "to": 304
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCA.cbl",
+            "from": 346,
+            "to": 357
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCA.cbl",
+            "from": 677,
+            "to": 688
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCA.cbl",
+            "from": 896,
+            "to": 907
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 164,
+            "to": 175
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 311,
+            "to": 322
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 325,
+            "to": 336
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 957,
+            "to": 968
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1018,
+            "to": 1029
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1152,
+            "to": 1163
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1261,
+            "to": 1272
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1400,
+            "to": 1411
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1454,
+            "to": 1465
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CCS.cbl",
+            "from": 1650,
+            "to": 1660
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 443,
+            "to": 454
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 505,
+            "to": 516
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 548,
+            "to": 559
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 593,
+            "to": 604
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 815,
+            "to": 826
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 1001,
+            "to": 1012
+          },
+          {
+            "file": "src/base/cobol_src/BNK1CRA.cbl",
+            "from": 1126,
+            "to": 1137
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DAC.cbl",
+            "from": 807,
+            "to": 818
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DAC.cbl",
+            "from": 826,
+            "to": 837
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DAC.cbl",
+            "from": 917,
+            "to": 928
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 613,
+            "to": 624
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 797,
+            "to": 808
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 1040,
+            "to": 1051
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 1080,
+            "to": 1091
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 1197,
+            "to": 1208
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 1844,
+            "to": 1855
+          },
+          {
+            "file": "src/base/cobol_src/BNK1DCS.cbl",
+            "from": 1982,
+            "to": 1993
+          },
+          {
+            "file": "src/base/cobol_src/BNK1TFN.cbl",
+            "from": 999,
+            "to": 1010
+          },
+          {
+            "file": "src/base/cobol_src/BNK1TFN.cbl",
+            "from": 1040,
+            "to": 1051
+          },
+          {
+            "file": "src/base/cobol_src/BNK1UAC.cbl",
+            "from": 1009,
+            "to": 1020
+          },
+          {
+            "file": "src/base/cobol_src/BNK1UAC.cbl",
+            "from": 1038,
+            "to": 1049
+          },
+          {
+            "file": "src/base/cobol_src/BNKMENU.cbl",
+            "from": 792,
+            "to": 803
+          },
+          {
+            "file": "src/base/cobol_src/BNKMENU.cbl",
+            "from": 1012,
+            "to": 1023
+          },
+          {
+            "file": "src/base/cobol_src/BNKMENU.cbl",
+            "from": 1034,
+            "to": 1045
+          },
+          {
+            "file": "src/base/cobol_src/CRDTAGY2.cbl",
+            "from": 197,
+            "to": 208
+          },
+          {
+            "file": "src/base/cobol_src/CRDTAGY5.cbl",
+            "from": 185,
+            "to": 196
+          },
+          {
+            "file": "src/base/cobol_src/CREACC.cbl",
+            "from": 521,
+            "to": 532
+          },
+          {
+            "file": "src/base/cobol_src/CREACC.cbl",
+            "from": 560,
+            "to": 571
+          },
+          {
+            "file": "src/base/cobol_src/CREACC.cbl",
+            "from": 957,
+            "to": 968
+          },
+          {
+            "file": "src/base/cobol_src/CREACC.cbl",
+            "from": 1149,
+            "to": 1160
+          },
+          {
+            "file": "src/base/cobol_src/CREACC.cbl",
+            "from": 1186,
+            "to": 1197
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 445,
+            "to": 456
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 477,
+            "to": 488
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 727,
+            "to": 738
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 831,
+            "to": 842
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 902,
+            "to": 913
+          },
+          {
+            "file": "src/base/cobol_src/CRECUST.cbl",
+            "from": 1427,
+            "to": 1438
+          },
+          {
+            "file": "src/base/cobol_src/CUSTCTRL.cbl",
+            "from": 159,
+            "to": 170
+          },
+          {
+            "file": "src/base/cobol_src/DBCRFUN.cbl",
+            "from": 436,
+            "to": 447
+          },
+          {
+            "file": "src/base/cobol_src/DBCRFUN.cbl",
+            "from": 481,
+            "to": 492
+          },
+          {
+            "file": "src/base/cobol_src/DBCRFUN.cbl",
+            "from": 515,
+            "to": 526
+          },
+          {
+            "file": "src/base/cobol_src/DBCRFUN.cbl",
+            "from": 633,
+            "to": 644
+          },
+          {
+            "file": "src/base/cobol_src/DELCUS.cbl",
+            "from": 340,
+            "to": 351
+          },
+          {
+            "file": "src/base/cobol_src/DELCUS.cbl",
+            "from": 546,
+            "to": 557
+          },
+          {
+            "file": "src/base/cobol_src/INQACC.cbl",
+            "from": 846,
+            "to": 857
+          },
+          {
+            "file": "src/base/cobol_src/INQACC.cbl",
+            "from": 955,
+            "to": 966
+          },
+          {
+            "file": "src/base/cobol_src/INQACCCU.cbl",
+            "from": 518,
+            "to": 529
+          },
+          {
+            "file": "src/base/cobol_src/INQACCCU.cbl",
+            "from": 856,
+            "to": 867
+          },
+          {
+            "file": "src/base/cobol_src/INQCUST.cbl",
+            "from": 267,
+            "to": 278
+          },
+          {
+            "file": "src/base/cobol_src/INQCUST.cbl",
+            "from": 702,
+            "to": 712
+          },
+          {
+            "file": "src/base/cobol_src/UPDCUST.cbl",
+            "from": 144,
+            "to": 155
+          },
+          {
+            "file": "src/base/cobol_src/UPDCUST.cbl",
+            "from": 162,
+            "to": 173
+          },
+          {
+            "file": "src/base/cobol_src/UPDCUST.cbl",
+            "from": 325,
+            "to": 336
+          },
+          {
+            "file": "src/base/cobol_src/XFRFUN.cbl",
+            "from": 446,
+            "to": 457
+          },
+          {
+            "file": "src/base/cobol_src/XFRFUN.cbl",
+            "from": 737,
+            "to": 748
+          },
+          {
+            "file": "src/base/cobol_src/XFRFUN.cbl",
+            "from": 815,
+            "to": 826
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 1,
+          "windows": [
+            "src/base/cobol_copy/RESPSTR.cpy@93-104",
+            "src/base/cobol_copy/RESPSTR.cpy@237-248",
+            "src/base/cobol_src/ABNDPROC.cbl@148-159",
+            "src/base/cobol_src/BNK1CAC.cbl@219-230",
+            "src/base/cobol_src/BNK1CAC.cbl@668-679",
+            "src/base/cobol_src/BNK1CAC.cbl@683-694",
+            "src/base/cobol_src/BNK1CAC.cbl@708-719",
+            "src/base/cobol_src/BNK1CAC.cbl@753-764",
+            "src/base/cobol_src/BNK1CAC.cbl@779-790",
+            "src/base/cobol_src/BNK1CAC.cbl@936-947",
+            "src/base/cobol_src/BNK1CAC.cbl@1253-1264",
+            "src/base/cobol_src/BNK1CCA.cbl@293-304",
+            "src/base/cobol_src/BNK1CCA.cbl@346-357",
+            "src/base/cobol_src/BNK1CCA.cbl@677-688"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 2,
+          "windows": [
+            "src/base/cobol_src/BNK1CCA.cbl@896-907",
+            "src/base/cobol_src/BNK1CCS.cbl@164-175",
+            "src/base/cobol_src/BNK1CCS.cbl@311-322",
+            "src/base/cobol_src/BNK1CCS.cbl@325-336",
+            "src/base/cobol_src/BNK1CCS.cbl@957-968",
+            "src/base/cobol_src/BNK1CCS.cbl@1018-1029",
+            "src/base/cobol_src/BNK1CCS.cbl@1152-1163",
+            "src/base/cobol_src/BNK1CCS.cbl@1261-1272",
+            "src/base/cobol_src/BNK1CCS.cbl@1400-1411",
+            "src/base/cobol_src/BNK1CCS.cbl@1454-1465",
+            "src/base/cobol_src/BNK1CCS.cbl@1650-1660",
+            "src/base/cobol_src/BNK1CRA.cbl@443-454",
+            "src/base/cobol_src/BNK1CRA.cbl@505-516"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 3,
+          "windows": [
+            "src/base/cobol_src/BNK1CRA.cbl@548-559",
+            "src/base/cobol_src/BNK1CRA.cbl@593-604",
+            "src/base/cobol_src/BNK1CRA.cbl@815-826",
+            "src/base/cobol_src/BNK1CRA.cbl@1001-1012",
+            "src/base/cobol_src/BNK1CRA.cbl@1126-1137",
+            "src/base/cobol_src/BNK1DAC.cbl@807-818",
+            "src/base/cobol_src/BNK1DAC.cbl@826-837",
+            "src/base/cobol_src/BNK1DAC.cbl@917-928",
+            "src/base/cobol_src/BNK1DCS.cbl@613-624",
+            "src/base/cobol_src/BNK1DCS.cbl@797-808",
+            "src/base/cobol_src/BNK1DCS.cbl@1040-1051",
+            "src/base/cobol_src/BNK1DCS.cbl@1080-1091",
+            "src/base/cobol_src/BNK1DCS.cbl@1197-1208"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 4,
+          "windows": [
+            "src/base/cobol_src/BNK1DCS.cbl@1844-1855",
+            "src/base/cobol_src/BNK1DCS.cbl@1982-1993",
+            "src/base/cobol_src/BNK1TFN.cbl@999-1010",
+            "src/base/cobol_src/BNK1TFN.cbl@1040-1051",
+            "src/base/cobol_src/BNK1UAC.cbl@1009-1020",
+            "src/base/cobol_src/BNK1UAC.cbl@1038-1049",
+            "src/base/cobol_src/BNKMENU.cbl@792-803",
+            "src/base/cobol_src/BNKMENU.cbl@1012-1023",
+            "src/base/cobol_src/BNKMENU.cbl@1034-1045",
+            "src/base/cobol_src/CRDTAGY2.cbl@197-208",
+            "src/base/cobol_src/CRDTAGY5.cbl@185-196",
+            "src/base/cobol_src/CREACC.cbl@521-532",
+            "src/base/cobol_src/CREACC.cbl@560-571"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 5,
+          "windows": [
+            "src/base/cobol_src/CREACC.cbl@957-968",
+            "src/base/cobol_src/CREACC.cbl@1149-1160",
+            "src/base/cobol_src/CREACC.cbl@1186-1197",
+            "src/base/cobol_src/CRECUST.cbl@445-456",
+            "src/base/cobol_src/CRECUST.cbl@477-488",
+            "src/base/cobol_src/CRECUST.cbl@727-738",
+            "src/base/cobol_src/CRECUST.cbl@831-842",
+            "src/base/cobol_src/CRECUST.cbl@902-913",
+            "src/base/cobol_src/CRECUST.cbl@1427-1438",
+            "src/base/cobol_src/CUSTCTRL.cbl@159-170",
+            "src/base/cobol_src/DBCRFUN.cbl@436-447",
+            "src/base/cobol_src/DBCRFUN.cbl@481-492",
+            "src/base/cobol_src/DBCRFUN.cbl@515-526",
+            "src/base/cobol_src/DBCRFUN.cbl@633-644"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 6,
+          "windows": [
+            "src/base/cobol_src/DELCUS.cbl@340-351",
+            "src/base/cobol_src/DELCUS.cbl@546-557",
+            "src/base/cobol_src/INQACC.cbl@846-857",
+            "src/base/cobol_src/INQACC.cbl@955-966",
+            "src/base/cobol_src/INQACCCU.cbl@518-529",
+            "src/base/cobol_src/INQACCCU.cbl@856-867",
+            "src/base/cobol_src/INQCUST.cbl@267-278",
+            "src/base/cobol_src/INQCUST.cbl@702-712",
+            "src/base/cobol_src/UPDCUST.cbl@144-155",
+            "src/base/cobol_src/UPDCUST.cbl@162-173",
+            "src/base/cobol_src/UPDCUST.cbl@325-336",
+            "src/base/cobol_src/XFRFUN.cbl@446-457",
+            "src/base/cobol_src/XFRFUN.cbl@737-748",
+            "src/base/cobol_src/XFRFUN.cbl@815-826"
+          ]
+        }
+      ],
+      "asked": 322,
+      "key_errors": 0,
+      "upper_bound_95": 0.00926
     }
   }
 }

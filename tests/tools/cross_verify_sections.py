@@ -31,6 +31,23 @@ COBOL program and JCL member:
     call_using        call_using_validated     CALL USING lists, PROCEDURE DIVISION / ENTRY USING
     dli_calls         dli_validated            DL/I calls as written, and the IMS segment access
 
+`lineage` (#3477 / #3452) pairs a full census with a SAMPLED one:
+
+    ims_gen           ims_gen_validated        PSB / DBD macros, JCL IMS regions, the access check
+                                               (every entry of the section, asked in full)
+    data_moves        data_moves_validated     MOVE / COMPUTE / ... rows and MOVE truncation --
+                                               ~10k facts, so asked over a seeded, stratified SAMPLE
+                                               of 12-line windows (see lineage_plan)
+
+The data-move sample is fixed when the census is cut and stored in the key under
+`sample_census.data_moves.plan`: windows around truncation claims and around the
+rarer verbs (so every contract clause is exercised), then random windows over all
+procedure code, empty ones included (recall). A reviewer lists every row whose
+verb sits in a window. Signing a batch records it under `sample_census`; once
+every planned window is signed, every data_moves entry gets the flag with tier
+`sample_verified` -- the weakest tier: a blind second reading of a sample, with the
+observed disagreement count and a 95% upper bound on the key's error rate.
+
 The census asks about EVERY COBOL source of the corpus -- files the key lists
 nothing for included, so "none" is checked too (recall, not only precision) --
 packed into batches of about --max-items key facts. The corpus-wide questions
@@ -49,6 +66,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import re
 import shutil
 import sys
@@ -740,6 +758,321 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
     return brief, truth
 
 
+# ---- the `lineage` suite (#3477 / #3452) ----------------------------------------
+LINEAGE_TASKS = ("imsdef", "imscheck", "moves", "trunc")
+WINDOW = 12  # lines per data-move window
+_IMS_FIELDS = ("name", "parent", "owner", "dbd", "procopt", "type", "access", "bytes", "start", "psb", "program")
+
+
+def canon_ims_row(r: dict[str, Any]) -> str:
+    """`L<line> KIND field=value ...` over the set fields (the key's ims_gen_keys form)."""
+    parts = []
+    for f in _IMS_FIELDS:
+        v = r.get(f)
+        if v in (None, "", []):
+            continue
+        parts.append(f"{f}={int(v) if f in ('bytes', 'start') else _ws(v)}")
+    return f"L{int(r.get('line') or 0)} {_ws(r.get('kind'))} " + " ".join(parts)
+
+
+def canon_ims_check(segment: Any, status: Any, pcbs: list) -> str:
+    hits = sorted(
+        f"{_ws(p.get('psb'))}/{_ws(p.get('pcb'))}"
+        + (":" + "+".join(sorted(str(d).strip().lower() for d in p.get("denied") or [])) if p.get("denied") else "")
+        for p in pcbs
+        if isinstance(p, dict)
+    )
+    return f"{_ws(segment)} {str(status).strip().lower()} {','.join(hits) or '-'}"
+
+
+def _recanon_check(line: str) -> str:
+    """The key's access-check string with its PCB list sorted (reviewer order is free)."""
+    seg, status, hits = line.split(" ", 2)
+    pcbs = []
+    for h in [] if hits == "-" else hits.split(","):
+        ref, _, denied = h.partition(":")
+        psb, _, pcb = ref.partition("/")
+        pcbs.append({"psb": psb, "pcb": pcb, "denied": denied.split("+") if denied else []})
+    return canon_ims_check(seg, status, pcbs)
+
+
+def _mv_side(text: Any, refmod: Any) -> str:
+    if text in (None, "", "-"):
+        return "-"
+    t = _ws(text)
+    if not re.match(r"[XNGZ]?['\"]|ALL\s", t):  # a literal keeps its text
+        t = re.sub(r"\s+IN\s+", " OF ", t)
+    return t + ("(:)" if refmod else "")
+
+
+def canon_move(r: dict[str, Any]) -> str:
+    verb = _ws(r.get("verb")) + (" CORR" if r.get("corresponding") else "")
+    src = _mv_side(r.get("source"), r.get("source_refmod"))
+    return f"L{int(r.get('line') or 0)} {verb} {src} -> {_mv_side(r.get('target'), r.get('target_refmod'))}"
+
+
+def canon_trunc(r: dict[str, Any]) -> str:
+    return f"L{int(r.get('line') or 0)} {_mv_side(r.get('source'), False)} -> {_mv_side(r.get('target'), False)}"
+
+
+def _line_of(fact: str) -> int:
+    return int(fact.split(" ", 1)[0][1:])
+
+
+def _wid(w: dict[str, Any]) -> str:
+    return f"{w['file']}@{w['from']}-{w['to']}"
+
+
+def _window_facts(key: dict[str, Any], w: dict[str, Any]) -> tuple[list[str], list[str]]:
+    entry = key.get("data_moves", {}).get(w["file"], {})
+    moves = sorted({_ws(m) for m in entry.get("moves", []) if w["from"] <= _line_of(m) <= w["to"]})
+    trunc = sorted({_ws(t) for t in entry.get("truncations", []) if w["from"] <= _line_of(t) <= w["to"]})
+    return moves, trunc
+
+
+def lineage_plan(key: dict[str, Any], repo: Path, budget: int, seed: int) -> list[dict[str, Any]]:
+    """The data-move sample: 12-line windows, non-overlapping per file, until about
+    `budget` key facts are covered. Anchors, in order: up to 15 truncation claims,
+    up to 4 rows of each rarer form (COMPUTE, arithmetic, STRING, UNSTRING,
+    INITIALIZE, MOVE CORR, reference modification), then random procedure lines of
+    every program's procedure division and every copybook of procedure statements
+    (a window with no rows checks recall)."""
+    rng = random.Random(f"{seed}:{key['corpus']}")
+    dm = key.get("data_moves", {})
+    lengths: dict[str, tuple[int, int]] = {}
+    for rel in corpus_files(repo):
+        lines = (repo / rel).read_text(encoding="utf-8", errors="ignore").split("\n")
+        start = next((i + 1 for i, ln in enumerate(lines) if re.search(r"PROCEDURE\s+DIVISION", ln[6:72], re.I)), None)
+        if start is not None or rel in dm:  # a data-only copybook can hold no statement
+            lengths[rel] = (start or 1, len(lines))
+    anchors: list[tuple[str, int]] = []
+    trunc = sorted((rel, _line_of(t)) for rel, e in dm.items() for t in e.get("truncations", []))
+    anchors += rng.sample(trunc, min(15, len(trunc)))
+    rows = sorted((rel, m) for rel, e in dm.items() for m in e.get("moves", []))
+    forms = [
+        lambda m: " COMPUTE " in m,
+        lambda m: re.search(r" (?:ADD|SUBTRACT|MULTIPLY|DIVIDE) ", m) is not None,
+        lambda m: " STRING " in m,
+        lambda m: " UNSTRING " in m,
+        lambda m: " INITIALIZE " in m,
+        lambda m: " CORR " in m,
+        lambda m: "(:)" in m,
+    ]
+    for test in forms:
+        hits = [(rel, _line_of(m)) for rel, m in rows if test(m)]
+        anchors += rng.sample(hits, min(4, len(hits)))
+    procedure = [(rel, n) for rel, (a, b) in lengths.items() for n in range(a, b + 1)]
+    rng.shuffle(procedure)
+    windows: list[dict[str, Any]] = []
+    covered = 0
+    for rel, line in anchors + procedure:
+        if covered >= budget:
+            break
+        if rel not in lengths:
+            continue
+        lo = max(1, line - 4)
+        hi = min(lengths[rel][1], lo + WINDOW - 1)
+        if any(w["file"] == rel and not (hi < w["from"] or lo > w["to"]) for w in windows):
+            continue
+        w = {"file": rel, "from": lo, "to": hi}
+        moves, tr = _window_facts(key, w)
+        windows.append(w)
+        covered += 1 + len(moves) + len(tr)
+    return sorted(windows, key=lambda w: (w["file"], w["from"]))
+
+
+def key_facts_lineage(key: dict[str, Any], files: list[str], windows: list[dict[str, Any]]) -> dict[str, dict]:
+    out: dict[str, dict[str, list[str]]] = {t: {} for t in LINEAGE_TASKS}
+    for rel in files:
+        e = key.get("ims_gen", {}).get(rel, {})
+        if "rows" in e:
+            out["imsdef"][rel] = sorted({canon_ims_row(r) for r in e["rows"]})
+        else:
+            out["imscheck"][rel] = sorted({_recanon_check(x) for x in e.get("access_check", [])})
+    for w in windows:
+        out["moves"][_wid(w)], out["trunc"][_wid(w)] = _window_facts(key, w)
+    return out
+
+
+def reviewer_facts_lineage(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    def rel(p: str) -> str:
+        root = str(repo).rstrip("/") + "/"
+        return p[len(root) :] if p.startswith(root) else p
+
+    out: dict[str, dict[str, set[str]]] = {t: {} for t in LINEAGE_TASKS}
+    for path, v in (answers.get("files") or {}).items():
+        r, v = rel(path), v or {}
+        if "imsdef" in v:
+            out["imsdef"][r] = {canon_ims_row(x) for x in v.get("imsdef") or [] if isinstance(x, dict)}
+        if "imscheck" in v:
+            out["imscheck"][r] = {
+                canon_ims_check(x.get("segment"), x.get("status"), x.get("pcbs") or [])
+                for x in v.get("imscheck") or []
+                if isinstance(x, dict)
+            }
+    for wid, v in (answers.get("windows") or {}).items():
+        w, rows = rel(wid), [x for x in (v or {}).get("moves") or [] if isinstance(x, dict)]
+        out["moves"][w] = {canon_move(x) for x in rows}
+        out["trunc"][w] = {canon_trunc(x) for x in rows if x.get("truncates") is True}
+    return out
+
+
+def render_lineage(
+    key: dict[str, Any], repo: Path, files: list[str], windows: list[dict[str, Any]], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {
+        "corpus": key["corpus"],
+        "ref": key["ref"],
+        "root": str(repo),
+        "mode": "section_census",
+        "suite": "lineage",
+        "batch": index,
+        "of": of,
+        "files": files,
+        "windows": windows,
+        "facts": key_facts_lineage(key, files, windows),
+    }
+    parts = [
+        f"""You are independently verifying facts about real IBM mainframe source code, as a second reviewer.
+Read the source files yourself. They are all under the repository root {repo}; read only inside that directory
+(a COBOL program's copybooks are other files in it). Do NOT edit or create any files except your answers file, and
+do not look for any existing answer key or analysis of this code: the point is an independent reading. Line numbers
+are 1-based physical line numbers. Ignore comment lines, text inside quoted literals, and columns 73-80.
+
+{FIXED_FORMAT_RULES}
+"""
+    ]
+    if files:
+        listing = "\n".join(str(repo / f) for f in files)
+        parts.append(
+            f"""
+PART A -- IMS DEFINITIONS. For each file below:
+
+If it is a PSB or DBD generation source (assembler macros; `*` in column 1 is a comment; a non-blank column 72
+continues the statement, the next line resuming at column 16) or a JCL member, answer "imsdef": one entry per
+PSBGEN / PCB / SENSEG / DBD / SEGM / FIELD / LCHILD / DATASET macro statement, and per JCL
+`EXEC PGM=DFSRRC00,PARM=...` step. Each: "kind" (the macro name, or "REGION" for the JCL step), "line" (where the
+statement starts), and ONLY these fields (omit or null the rest), values upper-case and as written:
+  - PCB: "name" (its label; PCBNAME= when unlabeled; else "PCB@<line>"), "type" (TYPE=), "dbd" (DBDNAME=, or NAME=),
+    "procopt" (PROCOPT=)
+  - SENSEG: "name" (NAME=), "parent" (PARENT=, the first name inside any parentheses; `0` as written),
+    "owner" (the PCB above it, named as above), "procopt" (its own PROCOPT= if coded)
+  - PSBGEN: "name" (PSBNAME=)
+  - DBD: "name" (NAME=), "access" (the FIRST value of ACCESS=, e.g. HIDAM for ACCESS=(HIDAM,VSAM))
+  - SEGM: "name", "parent" (first name inside PARENT=, `0` as written), "owner" (the DBD above), "bytes" (the first
+    number of BYTES= as an integer)
+  - FIELD: "name" (the first name in NAME=), "parent" (the SEGM above), "owner" (the DBD above), "access": "SEQ" when
+    NAME=(x,SEQ,...) else null, "start" and "bytes" (integers)
+  - LCHILD: "name" (first name in NAME=(seg,dbd)), "parent" (the SEGM above), "owner" (the DBD), "dbd" (the second)
+  - DATASET: "name" (DD1=), "owner" (the DBD above)
+  - REGION: from PARM='TYPE,PROGRAM,PSB,...': "access" (TYPE, e.g. DLI / BMP), "name" and "program" (PROGRAM),
+    "psb" (PSB)
+
+If it is a COBOL program, answer "imscheck": one entry per IMS segment the program accesses. Accesses: each EXEC DLI
+command's SEGMENT(...) names and each CALL 'CBLTDLI' SSA's segment (the first 8 characters of the SSA's load-time
+value; the function is the VALUE of the first USING item); GU / GHU / GN / GHN / GNP / GHNP read, ISRT insert,
+REPL update, DLET delete; in a path call the LAST segment gets the access and the ones before it are read. The
+program's PSBs: the PSB of any JCL `EXEC PGM=DFSRRC00,PARM='x,PROG,PSB'` whose PROG is this program's PROGRAM-ID,
+and each EXEC DLI SCHD PSB(...) (a literal, or a data item's VALUE). PSB sources are PSBGEN members in the
+repository. Each entry: "segment", "pcbs": one {{"psb", "pcb" (named as in PART A), "denied": [accesses]}} per PCB of
+the program's PSBs that has a SENSEG for this segment, where "denied" lists the program's accesses to the segment
+that the PCB's PROCOPT does not allow (PROCOPT letters: A all, G read, I insert, R update, D delete, L / LS load =
+insert; e.g. GOTP allows read only), and "status": "no_psb" when none of the program's PSBs is defined in the
+repository, else "not_sensitive" when no PCB has the segment, else "denied" when every such PCB denies something,
+else "ok".
+
+Files:
+{listing}
+"""
+        )
+    if windows:
+        listing = "\n".join(f"{repo / w['file']}  lines {w['from']}-{w['to']}" for w in windows)
+        parts.append(
+            f"""
+PART B -- DATA MOVES. For each file + line range below, list EVERY data-moving statement whose verb word (MOVE,
+COMPUTE, ADD, SUBTRACT, MULTIPLY, DIVIDE, STRING, UNSTRING, INITIALIZE) is on a line inside the range -- the
+statement may continue after the range; statements whose verb is before the range are not listed. Skip anything
+inside EXEC ... END-EXEC, comment lines, and debugging lines ('D' in column 7). Only procedure code counts (after
+PROCEDURE DIVISION; a copybook without that header is procedure code throughout). Pseudo-text awaiting COPY
+REPLACING, like (TAG)-NAME, is not an operand.
+
+One entry per source -> target PAIR:
+  {{"line" (of the verb), "verb", "corresponding" (true for MOVE CORR/CORRESPONDING), "source", "source_refmod",
+    "target", "target_refmod", "truncates"}}
+Operands: data names upper-case with qualifiers as `A OF B` (IN written as OF); subscripts dropped (X(I) is X and
+I is no operand); a reference modification X(1:5) is X with *_refmod true. A literal as written with its quotes
+('ABC', 16, -1), a figurative constant as written (SPACES, ZERO, ALL '9'), `FUNCTION NAME` (arguments dropped),
+`LENGTH OF X` / `ADDRESS OF X`.
+Pairs per verb (TARGETS are always data names -- a literal / figurative / function target is no pair):
+  - MOVE a TO t1 t2 ...: (a, t) for each target.
+  - COMPUTE t1 [ROUNDED] t2 = expr: (x, t) for every DATA NAME x in expr (inside function arguments too; literals,
+    function names and LENGTH OF / ADDRESS OF X are not sources) and every target t.
+  - ADD / SUBTRACT a b TO|FROM c d: (a, c) (a, d) (b, c) (b, d); with GIVING g: every operand before GIVING -> g.
+    MULTIPLY a BY b: (a, b); DIVIDE a INTO|BY b: (a, b); with GIVING / REMAINDER, every operand before GIVING ->
+    each GIVING and REMAINDER item. ADD/SUBTRACT CORRESPONDING: no pairs.
+  - STRING s1 s2 DELIMITED BY d ... INTO t: (s, t) for each sending item s (literals included); the DELIMITED BY
+    operands and POINTER are control, not sources.
+  - UNSTRING s DELIMITED BY ... INTO t1 [DELIMITER IN x] [COUNT IN c] t2 ...: (s, t) for each receiving t; the
+    delimiters, DELIMITER IN / COUNT IN items, POINTER and TALLYING are not pairs.
+  - INITIALIZE t1 t2 [REPLACING ...]: source null for each t.
+  A statement ends at a period, the next statement's verb, an END- word, or ON / NOT / INVALID / AT / SIZE.
+"truncates" (MOVE only, else null; null too in a copybook without PROCEDURE DIVISION, and when either operand has
+reference modification or it is MOVE CORR): true when the target is alphanumeric (a PIC with X or A) or a group
+item and the source -- a data item, or a QUOTED literal (its character count) -- is longer than the target, else
+false; null for any other source or target, or when a width cannot be told. Widths are ONE occurrence: DISPLAY one
+byte per PIC position except S, V and P; COMP-3 / PACKED-DECIMAL digits/2+1; COMP / BINARY 2, 4 or 8 bytes for up
+to 4, 9, 18 digits; N / G two bytes each; a group is the sum of its children (COPY members expanded in place,
+REDEFINES and 88 / 66 entries adding nothing, an OCCURS child counted times its maximum).
+
+Ranges:
+{listing}
+"""
+        )
+    parts.append(
+        """
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative; a window key is
+"<path>@<from>-<to>" exactly as listed, e.g. "app/cbl/X.cbl@120-131"):
+{"files": {"<path>": {"imsdef": [...]} or {"imscheck": [...]}, ...every PART A file...},
+ "windows": {"<path>@<from>-<to>": {"moves": [...]}, ...every PART B range...}}
+"""
+    )
+    return "".join(parts), truth
+
+
+def batches_lineage(
+    key: dict[str, Any], windows: list[dict[str, Any]], max_items: int
+) -> list[tuple[list[str], list[dict[str, Any]]]]:
+    """IMS files in batch 1 (few), then the windows packed by key facts, per file together."""
+    ims = sorted(key.get("ims_gen", {}))
+    out: list[tuple[list[str], list[dict[str, Any]]]] = []
+    if ims:
+        out.append((ims, []))
+    cur: list[dict[str, Any]] = []
+    size = 0
+    for w in windows:
+        moves, tr = _window_facts(key, w)
+        cost = 1 + len(moves) + len(tr)
+        if cur and size + cost > max_items:
+            out.append(([], cur))
+            cur, size = [], 0
+        cur.append(w)
+        size += cost
+    if cur:
+        out.append(([], cur))
+    return out
+
+
+def upper_bound_95(errors: int, n: int) -> float:
+    """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
+    for 0, else a Wilson score bound): what a clean sample does and does not prove."""
+    if n == 0:
+        return 1.0
+    if errors == 0:
+        return 1 - 0.05 ** (1 / n)
+    z, p = 1.645, errors / n
+    return min(1.0, (p + z * z / (2 * n) + z * ((p * (1 - p) + z * z / (4 * n)) / n) ** 0.5) / (1 + z * z / n))
+
+
 def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[str, Any]:
     suite = truth.get("suite")
     got = (
@@ -747,6 +1080,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "files"
         else reviewer_facts_calls(answers, repo)
         if suite == "calls"
+        else reviewer_facts_lineage(answers, repo)
+        if suite == "lineage"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -799,6 +1134,8 @@ def sign(
         if truth.get("suite") == "files"
         else set(CALL_SECTIONS.values())
         if truth.get("suite") == "calls"
+        else {("ims_gen", "ims_gen_validated")}
+        if truth.get("suite") == "lineage"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -824,11 +1161,50 @@ def sign(
             "rulings": {i: rulings[i] for i in sorted(rulings)},
         }
     )
+    if truth.get("windows"):
+        _sign_sample(key, truth, g, rulings, by, at)
     return key
+
+
+def _sign_sample(
+    key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any], by: str, at: str
+) -> None:
+    """Record a data-move sample batch; once every planned window is signed, flag the
+    whole data_moves section `sample_verified` with the sample's error bound. A
+    disagreement ruled key_fixed was a key error the sample caught, and counts."""
+    sc = key["sample_census"]["data_moves"]
+    sc.setdefault("batches", []).append(
+        {"by": by, "at": at, "batch": truth["batch"], "windows": [_wid(w) for w in truth["windows"]]}
+    )
+    asked = sum(g["tasks"].get(t, {}).get("asked", 0) for t in ("moves", "trunc"))
+    errors = sum(
+        1 for i, r in rulings.items() if r.get("verdict") == "key_fixed" and i.split(":", 1)[0] in ("moves", "trunc")
+    )
+    sc["asked"] = sc.get("asked", 0) + asked
+    sc["key_errors"] = sc.get("key_errors", 0) + errors
+    done = {w for b in sc["batches"] for w in b["windows"]}
+    if all(_wid(w) in done for w in sc["plan"]["windows"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        stamp = {"status": "validated", "tier": "sample_verified", "census": {"by": by, "at": at, "sampled": True}}
+        for entry in key.get("data_moves", {}).values():
+            entry["data_moves_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
 def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> dict[str, Any]:
     recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
+    if suite == "lineage":
+        # IMS: every ims_gen entry; data moves: every planned window.
+        files = sorted(key.get("ims_gen", {}))
+        plan = key.get("sample_census", {}).get("data_moves", {})
+        done_w = {w for b in plan.get("batches", []) for w in b["windows"]}
+        missing_w = [_wid(w) for w in plan.get("plan", {}).get("windows", []) if _wid(w) not in done_w]
+        done = {f for rec in recs for f in rec["files"]}
+        return {
+            "files": [len(done & set(files)), len(files)],
+            "wide": bool(plan.get("plan")) and not missing_w,
+            "missing": sorted(set(files) - done) + missing_w,
+        }
     done = {f for rec in recs for f in rec["files"]}
     # Only the channels suite has corpus-wide tasks.
     wide = suite != "channels" or any(rec.get("wide") for rec in recs)
@@ -843,10 +1219,12 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
-    c.add_argument("--suite", choices=("channels", "files", "calls"), default="channels")
+    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage"), default="channels")
+    c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
+    c.add_argument("--seed", type=int, default=3452, help="lineage: the sample's seed")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
-    cov.add_argument("--suite", choices=("channels", "files", "calls"), default="channels")
+    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage"), default="channels")
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -871,6 +1249,29 @@ def main() -> int:
         if staged.exists():
             shutil.rmtree(staged)
         shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
+        if suite == "lineage":
+            # The sample is fixed here and stored in the key, so coverage and sign
+            # judge completeness against it (re-cutting replaces an unsigned plan).
+            sc = key.setdefault("sample_census", {}).setdefault("data_moves", {})
+            if not sc.get("batches"):
+                windows = lineage_plan(key, repo, args.sample_facts, args.seed)
+                sc["plan"] = {"seed": args.seed, "budget": args.sample_facts, "window": WINDOW, "windows": windows}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            done = {w for b in sc.get("batches", []) for w in b["windows"]}
+            todo = [w for w in sc["plan"]["windows"] if _wid(w) not in done]
+            signed_ims = {f for r in key.get("section_census", []) if r.get("suite") == "lineage" for f in r["files"]}
+            groups = batches_lineage(key, todo, args.max_items)
+            groups = [(sorted(set(f) - signed_ims), w) for f, w in groups]
+            groups = [g for g in groups if g[0] or g[1]]
+            for i, (fs, ws) in enumerate(groups, 1):
+                d = args.out / f"batch_{i:02d}"
+                d.mkdir(parents=True, exist_ok=True)
+                brief, truth = render_lineage(key, staged, fs, ws, i, len(groups))
+                (d / "brief.md").write_text(brief, encoding="utf-8")
+                (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
+                n = sum(len(v) for t in truth["facts"].values() for v in t.values())
+                print(f"{d}: {len(fs)} IMS files, {len(ws)} windows, {n} key facts")
+            return 0
         pack = {"files": batches_files, "calls": batches_calls}.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -908,6 +1309,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
     elif truth.get("suite") == "calls":
         current = dict(truth, facts=key_facts_calls(key, truth["files"]))
+    elif truth.get("suite") == "lineage":
+        current = dict(truth, facts=key_facts_lineage(key, truth["files"], truth.get("windows", [])))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

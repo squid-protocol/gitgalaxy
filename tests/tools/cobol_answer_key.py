@@ -91,7 +91,7 @@ SCHEMA_VERSION = 1
 #                   signed; `verification.signed_by` names them
 # The ledger labels each field with the weakest tier behind it, so a score is
 # never quoted as stronger evidence than it is.
-TIERS = ("llm_verified", "cross_verified", "human_signed")
+TIERS = ("sample_verified", "llm_verified", "cross_verified", "human_signed")
 PROGRAM_EXTS = (".cbl", ".cob", ".cobol", ".ccp")
 # `.dcl`: a DCLGEN member, which `EXEC SQL INCLUDE` pulls in like a copybook
 # (CardDemo COPAUS2C `INCLUDE AUTHFRDS` -> app/.../dcl/AUTHFRDS.dcl).

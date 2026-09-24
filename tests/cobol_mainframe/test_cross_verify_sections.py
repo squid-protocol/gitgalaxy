@@ -414,3 +414,82 @@ def test_calls_suite_normalises_function_codes_and_io_wrappers():
         }
     }
     assert cs.grade(truth, answers, REPO)["disagreements"] == []
+
+
+# ---- the `lineage` suite (#3477 / #3452): IMS in full, data moves sampled -------
+LINEAGE_KEY = {
+    "corpus": "k",
+    "ref": "0" * 40,
+    "programs": {},
+    "ims_gen": {
+        "P.psb": {
+            "rows": [{"kind": "PCB", "line": 1, "name": "XPCB", "type": "DB", "dbd": "D", "procopt": "G"}],
+            "ims_gen_validated": False,
+            "verification": {},
+        },
+        "A.cbl": {"access_check": ["SEG denied P/XPCB:update"], "ims_gen_validated": False, "verification": {}},
+    },
+    "data_moves": {
+        "A.cbl": {
+            "moves": ["L10 MOVE WS-A -> WS-B", "L11 MOVE 'IN X' -> WS-C", "L40 COMPUTE WS-A -> WS-T"],
+            "truncations": ["L11 'IN X' -> WS-C"],
+            "data_moves_validated": False,
+            "verification": {},
+        },
+    },
+}
+
+
+def _lineage_answers(moves_ok: bool = True) -> dict:
+    rows = [
+        {"line": 10, "verb": "MOVE", "source": "WS-A", "target": "WS-B", "truncates": False},
+        {"line": 11, "verb": "MOVE", "source": "'IN X'", "target": "WS-C", "truncates": True},
+    ]
+    if not moves_ok:
+        rows = rows[:1]
+    return {
+        "files": {
+            "P.psb": {"imsdef": [{"kind": "pcb", "line": 1, "name": "xpcb", "type": "DB", "dbd": "D", "procopt": "G"}]},
+            "A.cbl": {"imscheck": [{"segment": "SEG", "status": "denied", "pcbs": [{"psb": "P", "pcb": "XPCB", "denied": ["update"]}]}]},
+        },
+        "windows": {"A.cbl@5-16": {"moves": rows}},
+    }  # fmt: skip
+
+
+def test_lineage_suite_brief_is_blind_and_round_trips():
+    key = copy.deepcopy(LINEAGE_KEY)
+    windows = [{"file": "A.cbl", "from": 5, "to": 16}]
+    brief, truth = cs.render_lineage(key, REPO, ["A.cbl", "P.psb"], windows, 1, 1)
+    assert "XPCB" not in brief and "WS-B" not in brief and "A.cbl@5-16" not in brief
+    # Only the window's rows are asked: L40 is outside it.
+    assert truth["facts"]["moves"] == {"A.cbl@5-16": ["L10 MOVE WS-A -> WS-B", "L11 MOVE 'IN X' -> WS-C"]}
+    g = cs.grade(truth, _lineage_answers(), REPO)
+    assert g["disagreements"] == [] and g["tasks"]["trunc"] == {"agree": 1, "asked": 1}
+    bad = cs.grade(truth, _lineage_answers(moves_ok=False), REPO)
+    assert {d["task"] for d in bad["disagreements"]} == {"moves", "trunc"}
+
+
+def test_lineage_sign_flags_ims_per_batch_and_data_moves_only_when_the_plan_is_done():
+    key = copy.deepcopy(LINEAGE_KEY)
+    w1, w2 = {"file": "A.cbl", "from": 5, "to": 16}, {"file": "A.cbl", "from": 35, "to": 46}
+    key["sample_census"] = {"data_moves": {"plan": {"seed": 1, "windows": [w1, w2]}}}
+    _, t1 = cs.render_lineage(key, REPO, ["A.cbl", "P.psb"], [w1], 1, 2)
+    cs.sign(key, t1, cs.grade(t1, _lineage_answers(), REPO), {}, "rev", "2026-09-24")
+    assert key["ims_gen"]["P.psb"]["ims_gen_validated"] is True
+    assert key["data_moves"]["A.cbl"]["data_moves_validated"] is False  # one window still unsigned
+    assert cs.coverage(key, [], "lineage")["missing"] == ["A.cbl@35-46"]
+    _, t2 = cs.render_lineage(key, REPO, [], [w2], 2, 2)
+    answers = {
+        "windows": {"A.cbl@35-46": {"moves": [{"line": 40, "verb": "COMPUTE", "source": "WS-A", "target": "WS-T"}]}}
+    }
+    cs.sign(key, t2, cs.grade(t2, answers, REPO), {}, "rev", "2026-09-24")
+    entry = key["data_moves"]["A.cbl"]
+    assert entry["data_moves_validated"] is True and entry["verification"]["tier"] == "sample_verified"
+    sc = key["sample_census"]["data_moves"]
+    assert sc["asked"] == 4 and sc["key_errors"] == 0 and 0 < sc["upper_bound_95"] < 1
+    assert cs.coverage(key, [], "lineage") == {"files": [2, 2], "wide": True, "missing": []}
+
+
+def test_upper_bound_is_the_zero_failure_bound_and_grows_with_errors():
+    assert cs.upper_bound_95(0, 100) == pytest.approx(0.0295, abs=1e-4)
+    assert cs.upper_bound_95(0, 100) < cs.upper_bound_95(1, 100) < cs.upper_bound_95(5, 100)

@@ -93415,6 +93415,216 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "app/app-authorization-ims-db2-mq/ims/DBPAUTP0.dbd",
+        "app/app-authorization-ims-db2-mq/ims/DBPAUTX0.dbd",
+        "app/app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB",
+        "app/app-authorization-ims-db2-mq/ims/PADFLDBD.DBD",
+        "app/app-authorization-ims-db2-mq/ims/PASFLDBD.DBD",
+        "app/app-authorization-ims-db2-mq/ims/PAUTBUNL.PSB",
+        "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb",
+        "app/app-authorization-ims-db2-mq/ims/PSBPAUTL.psb",
+        "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
+        "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+        "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+        "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+        "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL"
+      ],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 39,
+          "asked": 39
+        },
+        "imscheck": {
+          "agree": 14,
+          "asked": 14
+        },
+        "moves": {
+          "agree": 0,
+          "asked": 0
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 59,
+          "asked": 59
+        },
+        "trunc": {
+          "agree": 2,
+          "asked": 2
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 52,
+          "asked": 52
+        },
+        "trunc": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 4,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 54,
+          "asked": 54
+        },
+        "trunc": {
+          "agree": 2,
+          "asked": 2
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 5,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 45,
+          "asked": 45
+        },
+        "trunc": {
+          "agree": 5,
+          "asked": 5
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 6,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 50,
+          "asked": 50
+        },
+        "trunc": {
+          "agree": 7,
+          "asked": 7
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+      "at": "2026-09-24",
+      "batch": 7,
+      "files": [],
+      "wide": false,
+      "suite": "lineage",
+      "tasks": {
+        "imsdef": {
+          "agree": 0,
+          "asked": 0
+        },
+        "imscheck": {
+          "agree": 0,
+          "asked": 0
+        },
+        "moves": {
+          "agree": 41,
+          "asked": 41
+        },
+        "trunc": {
+          "agree": 6,
+          "asked": 6
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -102810,10 +103020,16 @@
           "bytes": 8
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/DBPAUTX0.dbd": {
@@ -102857,10 +103073,16 @@
           "dbd": "DBPAUTP0"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/DLIGSAMP.PSB": {
@@ -102911,10 +103133,16 @@
           "name": "DLIGSAMP"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/PADFLDBD.DBD": {
@@ -102932,10 +103160,16 @@
           "owner": "PADFLDBD"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/PASFLDBD.DBD": {
@@ -102953,10 +103187,16 @@
           "owner": "PASFLDBD"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/PAUTBUNL.PSB": {
@@ -102991,10 +103231,16 @@
           "name": "PAUTBUNL"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/PSBPAUTB.psb": {
@@ -103029,10 +103275,16 @@
           "name": "PSBPAUTB"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/ims/PSBPAUTL.psb": {
@@ -103067,10 +103319,16 @@
           "name": "PSBPAUTL"
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl": {
@@ -103084,10 +103342,16 @@
           "line": 24
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl": {
@@ -103101,10 +103365,16 @@
           "line": 15
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL": {
@@ -103118,10 +103388,16 @@
           "line": 26
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL": {
@@ -103135,10 +103411,16 @@
           "line": 26
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL": {
@@ -103152,10 +103434,16 @@
           "line": 38
         }
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl": {
@@ -103163,10 +103451,16 @@
         "PAUTDTL1 ok PSBPAUTB/PAUTBPCB",
         "PAUTSUM0 ok PSBPAUTB/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
@@ -103174,10 +103468,16 @@
         "PAUTDTL1 ok PSBPAUTB/PAUTBPCB",
         "PAUTSUM0 ok PSBPAUTB/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -103185,10 +103485,16 @@
         "PAUTDTL1 ok PSBPAUTB/PAUTBPCB",
         "PAUTSUM0 ok PSBPAUTB/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
@@ -103196,10 +103502,16 @@
         "PAUTDTL1 ok PSBPAUTB/PAUTBPCB",
         "PAUTSUM0 ok PSBPAUTB/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
@@ -103207,10 +103519,16 @@
         "PAUTDTL1 ok DLIGSAMP/PAUTBPCB",
         "PAUTSUM0 ok DLIGSAMP/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
@@ -103218,10 +103536,16 @@
         "PAUTDTL1 ok PSBPAUTB/PAUTBPCB",
         "PAUTSUM0 ok PSBPAUTB/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
@@ -103229,10 +103553,16 @@
         "PAUTDTL1 ok PAUTBUNL/PAUTBPCB",
         "PAUTSUM0 ok PAUTBUNL/PAUTBPCB"
       ],
-      "ims_gen_validated": false,
+      "ims_gen_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24"
+        }
       }
     }
   },
@@ -103263,10 +103593,16 @@
         "L382 MOVE 16 -> RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
@@ -103479,10 +103815,16 @@
         "L999 MOVE WS-CUR-TIME-X6 -> ERR-TIME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -103788,10 +104130,16 @@
         "L692 WS-MESSAGE -> ERRMSGO OF COPAU0AO",
         "L779 CUST-PHONE-NUM-1 -> PHONE1O"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
@@ -103907,10 +104255,16 @@
       "truncations": [
         "L377 WS-MESSAGE -> ERRMSGO OF COPAU1AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
@@ -103966,10 +104320,16 @@
         "L239 STRING WS-SQLSTATE -> WS-FRD-ACT-MSG"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
@@ -103991,10 +104351,16 @@
         "L362 MOVE 16 -> RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
@@ -104006,10 +104372,16 @@
         "L365 MOVE 16 -> RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
@@ -104031,10 +104403,16 @@
         "L313 MOVE 16 -> RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
@@ -104058,10 +104436,16 @@
         "L232 MOVE 4 -> RETURN-CODE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
@@ -104293,10 +104677,16 @@
         "L993 INITIALIZE - -> WS-EDIT-SELECT-FLAGS"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
@@ -104459,10 +104849,16 @@
         "L450 LIT-THISMAPSET -> CDEMO-LAST-MAPSET",
         "L634 LIT-THISMAPSET -> CCARD-NEXT-MAPSET"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy": {
@@ -104481,10 +104877,16 @@
         "L84 MOVE WS-LONG-MSG -> WS-RETURN-MSG"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
@@ -104654,10 +105056,16 @@
       "truncations": [
         "L442 'ERROR WHILE READING ACCTFILE' -> MQ-APPL-RETURN-MESSAGE"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
@@ -104804,10 +105212,16 @@
         "L520 MOVE 'MQCLOSE ERR' -> MQ-APPL-RETURN-MESSAGE"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBACT01C.cbl": {
@@ -104888,10 +105302,16 @@
       "truncations": [
         "L233 CODATECN-0UT-DATE -> OUT-ACCT-REISSUE-DATE"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBACT02C.cbl": {
@@ -104920,10 +105340,16 @@
         "L99 MOVE 16 -> APPL-RESULT"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBACT03C.cbl": {
@@ -104952,10 +105378,16 @@
         "L99 MOVE 16 -> APPL-RESULT"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBACT04C.cbl": {
@@ -105079,10 +105511,16 @@
         "L645 MOVE IO-STATUS -> IO-STATUS-04(:)"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBCUS01C.cbl": {
@@ -105111,10 +105549,16 @@
         "L99 MOVE 16 -> APPL-RESULT"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBEXPORT.cbl": {
@@ -105230,10 +105674,16 @@
         "L551 ADD 1 -> WS-TOTAL-RECORDS-EXPORTED"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBIMPORT.cbl": {
@@ -105319,10 +105769,16 @@
         "L446 ADD 1 -> WS-ERROR-RECORDS-WRITTEN"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBSTM03A.CBL": {
@@ -105466,10 +105922,16 @@
         "L756 WS-M03B-FLDT -> TRNX-RECORD",
         "L839 WS-M03B-FLDT -> TRNX-RECORD"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBSTM03B.CBL": {
@@ -105482,10 +105944,16 @@
         "L226 MOVE ACCTFILE-STATUS -> LK-M03B-RC"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBTRN01C.cbl": {
@@ -105566,10 +106034,16 @@
         "L486 MOVE IO-STATUS -> IO-STATUS-04(:)"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBTRN02C.cbl": {
@@ -105717,10 +106191,16 @@
         "L724 MOVE IO-STATUS -> IO-STATUS-04(:)"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CBTRN03C.cbl": {
@@ -105850,10 +106330,16 @@
         "L366 TRAN-TYPE-DESC -> TRAN-REPORT-TYPE-DESC",
         "L368 TRAN-CAT-TYPE-DESC -> TRAN-REPORT-CAT-DESC"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COACTUPC.cbl": {
@@ -106617,10 +107103,16 @@
         "L3792 WS-FILE-ERROR-MESSAGE -> WS-RETURN-MSG",
         "L949 LIT-THISMAPSET -> CDEMO-LAST-MAPSET"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COACTVWC.cbl": {
@@ -106778,10 +107270,16 @@
         "L816 WS-FILE-ERROR-MESSAGE -> WS-RETURN-MSG",
         "L865 WS-FILE-ERROR-MESSAGE -> WS-RETURN-MSG"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COADM01C.cbl": {
@@ -106843,10 +107341,16 @@
       "truncations": [
         "L180 WS-MESSAGE -> ERRMSGO OF COADM1AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COBIL00C.cbl": {
@@ -106969,10 +107473,16 @@
         "L118 CDEMO-CB00-TRN-SELECTED -> ACTIDINI OF COBIL0AI",
         "L293 WS-MESSAGE -> ERRMSGO OF COBIL0AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COBSWAIT.cbl": {
@@ -106980,10 +107490,16 @@
         "L37 MOVE PARM-VALUE -> MVSWAIT-TIME"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COCRDLIC.cbl": {
@@ -107232,10 +107748,16 @@
         "L1316 WS-FILE-ERROR-MESSAGE -> WS-ERROR-MSG",
         "L1369 WS-FILE-ERROR-MESSAGE -> WS-ERROR-MSG"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COCRDSLC.cbl": {
@@ -107348,10 +107870,16 @@
         "L771 WS-FILE-ERROR-MESSAGE -> WS-RETURN-MSG",
         "L807 WS-FILE-ERROR-MESSAGE -> WS-RETURN-MSG"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COCRDUPC.cbl": {
@@ -107580,10 +108108,16 @@
         "L466 LIT-THISMAPSET -> CDEMO-LAST-MAPSET",
         "L571 LIT-THISMAPSET -> CCARD-NEXT-MAPSET"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COMEN01C.cbl": {
@@ -107655,10 +108189,16 @@
       "truncations": [
         "L213 WS-MESSAGE -> ERRMSGO OF COMEN1AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CORPT00C.cbl": {
@@ -107829,10 +108369,16 @@
       "truncations": [
         "L560 WS-MESSAGE -> ERRMSGO OF CORPT0AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COSGN00C.cbl": {
@@ -107884,10 +108430,16 @@
       "truncations": [
         "L149 WS-MESSAGE -> ERRMSGO OF COSGN0AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COTRN00C.cbl": {
@@ -108092,10 +108644,16 @@
         "L441 TRAN-DESC -> TDESC10I OF COTRN0AI",
         "L531 WS-MESSAGE -> ERRMSGO OF COTRN0AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COTRN01C.cbl": {
@@ -108193,10 +108751,16 @@
         "L189 TRAN-MERCHANT-CITY -> MCITYI OF COTRN1AI",
         "L217 WS-MESSAGE -> ERRMSGO OF COTRN1AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COTRN02C.cbl": {
@@ -108420,10 +108984,16 @@
         "L491 TRAN-MERCHANT-CITY -> MCITYI OF COTRN2AI",
         "L520 WS-MESSAGE -> ERRMSGO OF COTRN2AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COUSR00C.cbl": {
@@ -108613,10 +109183,16 @@
       "truncations": [
         "L526 WS-MESSAGE -> ERRMSGO OF COUSR0AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COUSR01C.cbl": {
@@ -108692,10 +109268,16 @@
       "truncations": [
         "L188 WS-MESSAGE -> ERRMSGO OF COUSR1AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COUSR02C.cbl": {
@@ -108796,10 +109378,16 @@
       "truncations": [
         "L270 WS-MESSAGE -> ERRMSGO OF COUSR2AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/COUSR03C.cbl": {
@@ -108879,10 +109467,16 @@
       "truncations": [
         "L217 WS-MESSAGE -> ERRMSGO OF COUSR3AO"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cbl/CSUTLDTC.cbl": {
@@ -108915,10 +109509,16 @@
       "truncations": [
         "L122 WS-DATE-TO-TEST -> WS-DATE"
       ],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSUTLDPY.cpy": {
@@ -108969,11 +109569,537 @@
         "L99 STRING FUNCTION TRIM -> WS-RETURN-MSG"
       ],
       "truncations": [],
-      "data_moves_validated": false,
+      "data_moves_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
       }
+    }
+  },
+  "sample_census": {
+    "data_moves": {
+      "plan": {
+        "seed": 3452,
+        "budget": 400,
+        "window": 12,
+        "windows": [
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+            "from": 219,
+            "to": 230
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+            "from": 350,
+            "to": 361
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+            "from": 871,
+            "to": 882
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+            "from": 688,
+            "to": 699
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+            "from": 776,
+            "to": 787
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+            "from": 882,
+            "to": 893
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+            "from": 162,
+            "to": 173
+          },
+          {
+            "file": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+            "from": 104,
+            "to": 115
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "from": 1033,
+            "to": 1044
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "from": 1582,
+            "to": 1593
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "from": 1639,
+            "to": 1650
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "from": 2029,
+            "to": 2040
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "from": 2094,
+            "to": 2099
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+            "from": 364,
+            "to": 375
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+            "from": 608,
+            "to": 619
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+            "from": 867,
+            "to": 878
+          },
+          {
+            "file": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+            "from": 1346,
+            "to": 1357
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "from": 294,
+            "to": 305
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "from": 341,
+            "to": 352
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "from": 443,
+            "to": 454
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "from": 551,
+            "to": 562
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "from": 587,
+            "to": 598
+          },
+          {
+            "file": "app/app-vsam-mq/cbl/CODATE01.cbl",
+            "from": 477,
+            "to": 488
+          },
+          {
+            "file": "app/cbl/CBACT01C.cbl",
+            "from": 385,
+            "to": 396
+          },
+          {
+            "file": "app/cbl/CBEXPORT.cbl",
+            "from": 424,
+            "to": 435
+          },
+          {
+            "file": "app/cbl/CBIMPORT.cbl",
+            "from": 385,
+            "to": 396
+          },
+          {
+            "file": "app/cbl/CBSTM03A.CBL",
+            "from": 617,
+            "to": 628
+          },
+          {
+            "file": "app/cbl/CBTRN01C.cbl",
+            "from": 452,
+            "to": 463
+          },
+          {
+            "file": "app/cbl/CBTRN02C.cbl",
+            "from": 400,
+            "to": 411
+          },
+          {
+            "file": "app/cbl/CBTRN03C.cbl",
+            "from": 283,
+            "to": 294
+          },
+          {
+            "file": "app/cbl/CBTRN03C.cbl",
+            "from": 416,
+            "to": 427
+          },
+          {
+            "file": "app/cbl/CBTRN03C.cbl",
+            "from": 610,
+            "to": 621
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 945,
+            "to": 956
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 1382,
+            "to": 1393
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 1461,
+            "to": 1472
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 2085,
+            "to": 2096
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 2158,
+            "to": 2169
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 2335,
+            "to": 2346
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 2510,
+            "to": 2521
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 2933,
+            "to": 2944
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 3084,
+            "to": 3095
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 3679,
+            "to": 3690
+          },
+          {
+            "file": "app/cbl/COACTUPC.cbl",
+            "from": 3778,
+            "to": 3789
+          },
+          {
+            "file": "app/cbl/COACTVWC.cbl",
+            "from": 291,
+            "to": 302
+          },
+          {
+            "file": "app/cbl/COACTVWC.cbl",
+            "from": 597,
+            "to": 608
+          },
+          {
+            "file": "app/cbl/COACTVWC.cbl",
+            "from": 717,
+            "to": 728
+          },
+          {
+            "file": "app/cbl/COADM01C.cbl",
+            "from": 114,
+            "to": 125
+          },
+          {
+            "file": "app/cbl/COADM01C.cbl",
+            "from": 176,
+            "to": 187
+          },
+          {
+            "file": "app/cbl/COBIL00C.cbl",
+            "from": 289,
+            "to": 300
+          },
+          {
+            "file": "app/cbl/COCRDLIC.cbl",
+            "from": 312,
+            "to": 323
+          },
+          {
+            "file": "app/cbl/COCRDLIC.cbl",
+            "from": 554,
+            "to": 565
+          },
+          {
+            "file": "app/cbl/COCRDLIC.cbl",
+            "from": 765,
+            "to": 776
+          },
+          {
+            "file": "app/cbl/COCRDLIC.cbl",
+            "from": 1365,
+            "to": 1376
+          },
+          {
+            "file": "app/cbl/COCRDSLC.cbl",
+            "from": 751,
+            "to": 762
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 387,
+            "to": 398
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 462,
+            "to": 473
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 1114,
+            "to": 1125
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 1135,
+            "to": 1146
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 1322,
+            "to": 1333
+          },
+          {
+            "file": "app/cbl/COCRDUPC.cbl",
+            "from": 1511,
+            "to": 1522
+          },
+          {
+            "file": "app/cbl/COMEN01C.cbl",
+            "from": 246,
+            "to": 257
+          },
+          {
+            "file": "app/cbl/COSGN00C.cbl",
+            "from": 224,
+            "to": 235
+          },
+          {
+            "file": "app/cbl/COTRN00C.cbl",
+            "from": 302,
+            "to": 313
+          },
+          {
+            "file": "app/cbl/COTRN00C.cbl",
+            "from": 391,
+            "to": 402
+          },
+          {
+            "file": "app/cbl/COTRN00C.cbl",
+            "from": 411,
+            "to": 422
+          },
+          {
+            "file": "app/cbl/COTRN00C.cbl",
+            "from": 527,
+            "to": 538
+          },
+          {
+            "file": "app/cbl/COTRN00C.cbl",
+            "from": 568,
+            "to": 579
+          },
+          {
+            "file": "app/cbl/COTRN01C.cbl",
+            "from": 213,
+            "to": 224
+          },
+          {
+            "file": "app/cbl/COTRN02C.cbl",
+            "from": 327,
+            "to": 338
+          },
+          {
+            "file": "app/cbl/COTRN02C.cbl",
+            "from": 482,
+            "to": 493
+          },
+          {
+            "file": "app/cbl/COUSR00C.cbl",
+            "from": 630,
+            "to": 641
+          },
+          {
+            "file": "app/cbl/COUSR01C.cbl",
+            "from": 150,
+            "to": 161
+          },
+          {
+            "file": "app/cbl/COUSR01C.cbl",
+            "from": 251,
+            "to": 262
+          },
+          {
+            "file": "app/cbl/COUSR02C.cbl",
+            "from": 266,
+            "to": 277
+          },
+          {
+            "file": "app/cbl/COUSR03C.cbl",
+            "from": 90,
+            "to": 101
+          },
+          {
+            "file": "app/cpy/CSUTLDPY.cpy",
+            "from": 130,
+            "to": 141
+          },
+          {
+            "file": "app/cpy/CSUTLDPY.cpy",
+            "from": 247,
+            "to": 258
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 2,
+          "windows": [
+            "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl@219-230",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl@350-361",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl@871-882",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl@688-699",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl@776-787",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl@882-893",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl@162-173",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl@104-115",
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl@1033-1044"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 3,
+          "windows": [
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl@1582-1593",
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl@1639-1650",
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl@2029-2040",
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl@2094-2099",
+            "app/app-transaction-type-db2/cbl/COTRTUPC.cbl@364-375",
+            "app/app-transaction-type-db2/cbl/COTRTUPC.cbl@608-619",
+            "app/app-transaction-type-db2/cbl/COTRTUPC.cbl@867-878",
+            "app/app-transaction-type-db2/cbl/COTRTUPC.cbl@1346-1357",
+            "app/app-vsam-mq/cbl/COACCT01.cbl@294-305",
+            "app/app-vsam-mq/cbl/COACCT01.cbl@341-352",
+            "app/app-vsam-mq/cbl/COACCT01.cbl@443-454",
+            "app/app-vsam-mq/cbl/COACCT01.cbl@551-562",
+            "app/app-vsam-mq/cbl/COACCT01.cbl@587-598",
+            "app/app-vsam-mq/cbl/CODATE01.cbl@477-488",
+            "app/cbl/CBACT01C.cbl@385-396",
+            "app/cbl/CBEXPORT.cbl@424-435",
+            "app/cbl/CBIMPORT.cbl@385-396"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 4,
+          "windows": [
+            "app/cbl/CBSTM03A.CBL@617-628",
+            "app/cbl/CBTRN01C.cbl@452-463",
+            "app/cbl/CBTRN02C.cbl@400-411",
+            "app/cbl/CBTRN03C.cbl@283-294",
+            "app/cbl/CBTRN03C.cbl@416-427",
+            "app/cbl/CBTRN03C.cbl@610-621",
+            "app/cbl/COACTUPC.cbl@945-956",
+            "app/cbl/COACTUPC.cbl@1382-1393",
+            "app/cbl/COACTUPC.cbl@1461-1472",
+            "app/cbl/COACTUPC.cbl@2085-2096",
+            "app/cbl/COACTUPC.cbl@2158-2169",
+            "app/cbl/COACTUPC.cbl@2335-2346",
+            "app/cbl/COACTUPC.cbl@2510-2521",
+            "app/cbl/COACTUPC.cbl@2933-2944"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 5,
+          "windows": [
+            "app/cbl/COACTUPC.cbl@3084-3095",
+            "app/cbl/COACTUPC.cbl@3679-3690",
+            "app/cbl/COACTUPC.cbl@3778-3789",
+            "app/cbl/COACTVWC.cbl@291-302",
+            "app/cbl/COACTVWC.cbl@597-608",
+            "app/cbl/COACTVWC.cbl@717-728",
+            "app/cbl/COADM01C.cbl@114-125",
+            "app/cbl/COADM01C.cbl@176-187",
+            "app/cbl/COBIL00C.cbl@289-300",
+            "app/cbl/COCRDLIC.cbl@312-323",
+            "app/cbl/COCRDLIC.cbl@554-565",
+            "app/cbl/COCRDLIC.cbl@765-776",
+            "app/cbl/COCRDLIC.cbl@1365-1376",
+            "app/cbl/COCRDSLC.cbl@751-762",
+            "app/cbl/COCRDUPC.cbl@387-398",
+            "app/cbl/COCRDUPC.cbl@462-473",
+            "app/cbl/COCRDUPC.cbl@1114-1125",
+            "app/cbl/COCRDUPC.cbl@1135-1146"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 6,
+          "windows": [
+            "app/cbl/COCRDUPC.cbl@1322-1333",
+            "app/cbl/COCRDUPC.cbl@1511-1522",
+            "app/cbl/COMEN01C.cbl@246-257",
+            "app/cbl/COSGN00C.cbl@224-235",
+            "app/cbl/COTRN00C.cbl@302-313",
+            "app/cbl/COTRN00C.cbl@391-402",
+            "app/cbl/COTRN00C.cbl@411-422",
+            "app/cbl/COTRN00C.cbl@527-538",
+            "app/cbl/COTRN00C.cbl@568-579",
+            "app/cbl/COTRN01C.cbl@213-224"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
+          "at": "2026-09-24",
+          "batch": 7,
+          "windows": [
+            "app/cbl/COTRN02C.cbl@327-338",
+            "app/cbl/COTRN02C.cbl@482-493",
+            "app/cbl/COUSR00C.cbl@630-641",
+            "app/cbl/COUSR01C.cbl@150-161",
+            "app/cbl/COUSR01C.cbl@251-262",
+            "app/cbl/COUSR02C.cbl@266-277",
+            "app/cbl/COUSR03C.cbl@90-101",
+            "app/cpy/CSUTLDPY.cpy@130-141",
+            "app/cpy/CSUTLDPY.cpy@247-258"
+          ]
+        }
+      ],
+      "asked": 323,
+      "key_errors": 0,
+      "upper_bound_95": 0.00923
     }
   }
 }

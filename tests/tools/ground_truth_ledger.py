@@ -43,7 +43,9 @@ The corpora must be fetched first: `mainframe_corpus.py fetch`. Scans are cached
 per engine state, so a re-run on an unchanged engine only re-scores (seconds).
 
 TRUTH TIERS. Each scoreboard field is labelled with the weakest verification tier
-behind it: `llm_verified` < `cross_verified` < `human_signed` (cobol_answer_key.TIERS),
+behind it: `sample_verified` < `llm_verified` < `cross_verified` < `human_signed`
+(cobol_answer_key.TIERS; `sample_verified` = a blind census of a stratified SAMPLE,
+for sections too large to read whole -- cross_verify_sections.py `lineage`),
 or `draft` when a section's own sign-off flag (TRUTH_FLAGS) is not yet set -- this
 tool's own reading, not truth. Every tier gates: a mismatch against draft truth
 still means the engine's output changed and someone must say why. The label only
@@ -104,7 +106,12 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
 }
 
 
-TIERS = ("llm_verified", "cross_verified", "human_signed")  # == cobol_answer_key.TIERS, weakest first
+TIERS = (
+    "sample_verified",
+    "llm_verified",
+    "cross_verified",
+    "human_signed",
+)  # == cobol_answer_key.TIERS, weakest first
 
 
 def _weakest(tiers: list[str]) -> str:

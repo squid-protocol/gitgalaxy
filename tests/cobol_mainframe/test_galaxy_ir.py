@@ -1430,3 +1430,69 @@ def test_a_pre_3455_db_loads_with_no_file_definitions(vsam_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.file_control == [] and ef.vsam_defines == [] for ef in ir.files.values())
     assert ir.vsam_files() == []
+
+
+# ---- #3451: JCL job flow -------------------------------------------------------
+@pytest.fixture(scope="module")
+def flow_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_flow")
+    repo = base / "batch"
+    files = {
+        "proc/REPROC.prc": "//REPROC   PROC\n//PRC001   EXEC PGM=IDCAMS\n//FILEOUT  DD DSN=&OUT,DISP=(NEW,CATLG)\n",
+        "jcl/BACKUP.jcl": (
+            "//BACKUP   JOB CLASS=A\n"
+            "//STEP05R  EXEC PROC=REPROC\n"
+            "//STEP10   EXEC PGM=IEBGENER\n"
+            "//SYSUT1   DD DSN=APP.TRAN.KSDS,DISP=SHR\n"
+            "//SYSUT2   DD DSN=APP.TRAN.BKUP(+1),DISP=(NEW,CATLG)\n"
+            "//STEP20   EXEC PGM=SORT,COND=(4,LT)\n"
+            "//SORTIN   DD DSN=APP.TRAN.BKUP(+1),DISP=SHR\n"
+        ),
+        "jcl/COMBINE.jcl": "//COMBINE  JOB CLASS=A\n//STEP10   EXEC PGM=SORT\n//SORTIN   DD DSN=APP.TRAN.BKUP(0),DISP=SHR\n",
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_job_steps_expand_proc_calls(flow_scanned):
+    jobs = {j["file"]: j for j in load_galaxy_ir(flow_scanned).job_steps()}
+    assert sorted(jobs) == ["jcl/BACKUP.jcl", "jcl/COMBINE.jcl"]  # the PROC member is not a job
+    steps = jobs["jcl/BACKUP.jcl"]["steps"]
+    assert [(s["step"], s["program"], s["proc"], s["cond"]) for s in steps] == [
+        ("STEP05R", None, "REPROC", None),
+        ("STEP10", "IEBGENER", None, None),
+        ("STEP20", "SORT", None, "(4,LT)"),
+    ]
+    assert steps[0]["proc_file"] == "proc/REPROC.prc"
+    assert [(s["step"], s["program"]) for s in steps[0]["expands_to"]] == [("PRC001", "IDCAMS")]
+
+
+def test_job_dataset_flow_pairs_creators_with_later_readers(flow_scanned):
+    edges = {
+        (
+            e["dataset"],
+            e["producer"]["file"],
+            e["producer"]["step"],
+            e["consumer"]["file"],
+            e["consumer"]["step"],
+            e["same_job"],
+        )
+        for e in load_galaxy_ir(flow_scanned).job_dataset_flow()
+    }
+    # A symbolic &OUT is not joined; the GDG base joins (+1) to (0) across jobs.
+    assert edges == {
+        ("APP.TRAN.BKUP", "jcl/BACKUP.jcl", "STEP10", "jcl/BACKUP.jcl", "STEP20", True),
+        ("APP.TRAN.BKUP", "jcl/BACKUP.jcl", "STEP10", "jcl/COMBINE.jcl", "STEP10", False),
+    }
+
+
+def test_a_pre_3451_db_loads_with_no_job_flow(flow_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(flow_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE job_flow_data")
+    ir = load_galaxy_ir(old)
+    assert ir.job_steps() == [] and ir.job_dataset_flow() == []

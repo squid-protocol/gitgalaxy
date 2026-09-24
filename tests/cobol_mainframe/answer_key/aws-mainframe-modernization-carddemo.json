@@ -94239,5 +94239,6075 @@
         "notes": []
       }
     }
+  },
+  "job_flow": {
+    "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CBPAUP0J",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "DFSRRC00",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "IMS.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "XXXXXXXX.PROD.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSRESLB",
+          "dsn": "IMS.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "PROCLIB",
+          "dsn": "IMS.PROCLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSSEL",
+          "dsn": "IMS.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "IMS.PSBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "IMS.DBDLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 34
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DBPAUTP0",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEPDEL",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        },
+        {
+          "kind": "DD",
+          "step": "STEPDEL",
+          "dd": "SYSUT1",
+          "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 9
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "UNLOAD",
+          "pgm": "DFSRRC00",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 15
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 18
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 19
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "DFSRESLB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.PSBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.DBDLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "DFSURGU1",
+          "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "DDPAUTP0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "DDPAUTX0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "DFSVSAMP",
+          "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "RECON1",
+          "dsn": "OEM.IMS.IMSP.RECON1",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "RECON2",
+          "dsn": "OEM.IMS.IMSP.RECON2",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "UNLOAD",
+          "dd": "RECON3",
+          "dsn": "OEM.IMS.IMSP.RECON3",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 42
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "LOADPADB",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "DFSRRC00",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL.V151",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSRESLB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.PSBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.DBDLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "INFILE1",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "INFILE2",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSVSAMP",
+          "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 44
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "UNLDGSAM",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "DFSRRC00",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL.V151",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSRESLB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.PSBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.DBDLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "PASFILOP",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "PADFILOP",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DDPAUTP0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DDPAUTX0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSVSAMP",
+          "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 46
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "UNLDPADB",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP0",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "STEP0",
+          "dd": "DD1",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP0",
+          "dd": "DD2",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP01",
+          "pgm": "DFSRRC00",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL.V151",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSRESLB",
+          "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.PSBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "IMS",
+          "dsn": "OEM.IMS.IMSP.DBDLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "OUTFIL1",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "OUTFIL2",
+          "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DDPAUTP0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DDPAUTX0",
+          "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DFSVSAMP",
+          "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 62
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/jcl/CREADB21.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREADB2",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "OEM.DB2.&DB2S..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "OEM.DB2.&DB2S..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "CEE.SCEERUN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "FREEPLN",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "FREEPLN",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "FREEPLN",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "FREEPLN",
+          "dd": "SYSTSIN",
+          "dsn": "&LBNM..CNTL(DB2FREE)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "CRCRDDB",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "CRCRDDB",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.&DB2S..RUNLIB.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "CRCRDDB",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "CRCRDDB",
+          "dd": "SYSTSIN",
+          "dsn": "&LBNM..CNTL(DB2TIAD1)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "CRCRDDB",
+          "dd": "SYSIN",
+          "dsn": "&LBNM..CNTL(DB2CREAT)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LDTTYPE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "RUNTEP2",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "RUNTEP2",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.&DB2S..RUNLIB.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 66
+        },
+        {
+          "kind": "DD",
+          "step": "RUNTEP2",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "RUNTEP2",
+          "dd": "SYSTSIN",
+          "dsn": "&LBNM..CNTL(DB2TEP41)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 71
+        },
+        {
+          "kind": "DD",
+          "step": "RUNTEP2",
+          "dd": "SYSIN",
+          "dsn": "&LBNM..CNTL(DB2LTTYP)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "LDTCCAT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 77
+        },
+        {
+          "kind": "DD",
+          "step": "LDTCCAT",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.&DB2S..RUNLIB.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 78
+        },
+        {
+          "kind": "DD",
+          "step": "LDTCCAT",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "LDTCCAT",
+          "dd": "SYSTSIN",
+          "dsn": "&LBNM..CNTL(DB2TEP41)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 83
+        },
+        {
+          "kind": "DD",
+          "step": "LDTCCAT",
+          "dd": "SYSIN",
+          "dsn": "&LBNM..CNTL(DB2LTCAT)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 84
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "MNTTRDB2",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP1",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "DBRMLIB",
+          "dsn": "AWS.M2.CARDDEMO.DBRMLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "INPFILE",
+          "dsn": "INPFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 27
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/jcl/TRANEXTR.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANEXTR",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "SYSUT1",
+          "dsn": "&HLQ..TRANTYPE.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..TRANTYPE.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT1",
+          "dsn": "&HLQ..TRANCATG.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..TRANCATG.PS.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP30",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "STEP30",
+          "dd": "DD01",
+          "dsn": "&HLQ..TRANTYPE.PS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP30",
+          "dd": "DD02",
+          "dsn": "&HLQ..TRANCATG.PS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP40",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "STEP40",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.RUNLIB.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 66
+        },
+        {
+          "kind": "DD",
+          "step": "STEP40",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "STEP40",
+          "dd": "SYSREC00",
+          "dsn": "&HLQ..TRANTYPE.PS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP50",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 95
+        },
+        {
+          "kind": "DD",
+          "step": "STEP50",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.RUNLIB.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 96
+        },
+        {
+          "kind": "DD",
+          "step": "STEP50",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 97
+        },
+        {
+          "kind": "DD",
+          "step": "STEP50",
+          "dd": "SYSREC00",
+          "dsn": "&HLQ..TRANCATG.PS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 102
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/ACCTFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ACCTFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "ACCTDATA",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "ACCTVSAM",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 58
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CARDFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CARDFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CLCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 68
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "CARDDATA",
+          "dsn": "AWS.M2.CARDDEMO.CARDDATA.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "CARDVSAM",
+          "dsn": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP40",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "STEP50",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 97
+        },
+        {
+          "kind": "STEP",
+          "ord": 7,
+          "step": "STEP60",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 107
+        },
+        {
+          "kind": "STEP",
+          "ord": 8,
+          "step": "OPCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 118
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CBADMCDJ.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CBADMCDJ",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP1",
+          "pgm": "DFHCSDUP",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "STEPLIB",
+          "dsn": "OEM.CICSTS.V05R06M0.CICS.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "STEP1",
+          "dd": "DFHCSD",
+          "dsn": "OEM.CICSTS.DFHCSD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CBEXPORT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CBEXPORT",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP02",
+          "pgm": "CBEXPORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "CUSTFILE",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "ACCTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "XREFFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "TRANSACT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "CARDFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 57
+        },
+        {
+          "kind": "DD",
+          "step": "STEP02",
+          "dd": "EXPFILE",
+          "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 62
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CBIMPORT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CBIMPORT",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "CBIMPORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "EXPFILE",
+          "dsn": "AWS.M2.CARDDEMO.EXPORT.DATA",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "CUSTOUT",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.IMPORT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "ACCTOUT",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.IMPORT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "XREFOUT",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.IMPORT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "TRNXOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.IMPORT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "ERROUT",
+          "dsn": "AWS.M2.CARDDEMO.IMPORT.ERRORS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 56
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CLOSEFIL.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CLOSEFIL",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CLCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/COMBTRAN.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "COMBTRAN",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05R",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "SHR",
+          "gen": "0",
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.SYSTRAN",
+          "disp": "SHR",
+          "gen": "0",
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "TRANSACT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.COMBINED",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "TRANVSAM",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CREASTMT.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREASTMT",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELDEF01",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP010",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "STEP010",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "STEP010",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRXFL.SEQ",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 48
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP020",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP020",
+          "dd": "INFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRXFL.SEQ",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "STEP020",
+          "dd": "OUTFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP030",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 66
+        },
+        {
+          "kind": "DD",
+          "step": "STEP030",
+          "dd": "HTMLFILE",
+          "dsn": "AWS.M2.CARDDEMO.STATEMNT.HTML",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "STEP030",
+          "dd": "STMTFILE",
+          "dsn": "AWS.M2.CARDDEMO.STATEMNT.PS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP040",
+          "pgm": "CBSTM03A",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "TRNXFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 83
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "XREFFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 84
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "ACCTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 85
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "CUSTFILE",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 86
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "STMTFILE",
+          "dsn": "AWS.M2.CARDDEMO.STATEMNT.PS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 87
+        },
+        {
+          "kind": "DD",
+          "step": "STEP040",
+          "dd": "HTMLFILE",
+          "dsn": "AWS.M2.CARDDEMO.STATEMNT.HTML",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 92
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CUSTFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CUSTFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CLCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "CUSTDATA",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 66
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "CUSTVSAM",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 68
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "OPCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 76
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DALYREJS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DALYREJS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DEFCUST.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DEFCUST",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DEFGDGB.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DEFGDGB",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DEFGDGD.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DEFGDGD",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT1",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP30",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP40",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "STEP40",
+          "dd": "SYSUT1",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 62
+        },
+        {
+          "kind": "DD",
+          "step": "STEP40",
+          "dd": "SYSUT2",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.PS.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 63
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP50",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "STEP60",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 82
+        },
+        {
+          "kind": "DD",
+          "step": "STEP60",
+          "dd": "SYSUT1",
+          "dsn": "AWS.M2.CARDDEMO.DISCGRP.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 85
+        },
+        {
+          "kind": "DD",
+          "step": "STEP60",
+          "dd": "SYSUT2",
+          "dsn": "AWS.M2.CARDDEMO.DISCGRP.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 86
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DISCGRP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DISCGRP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "DISCGRP",
+          "dsn": "AWS.M2.CARDDEMO.DISCGRP.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "DISCVSAM",
+          "dsn": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 58
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DUSRSECJ.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DUSRSECJ",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PREDEL",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PREDEL",
+          "dd": "DD01",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.PS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP01",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "SYSUT2",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.PS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP02",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP03",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "STEP03",
+          "dd": "IN",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 82
+        },
+        {
+          "kind": "DD",
+          "step": "STEP03",
+          "dd": "OUT",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 83
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/ESDSRRDS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ESDSRRDS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PREDEL",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "PREDEL",
+          "dd": "DD01",
+          "dsn": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP01",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "SYSUT2",
+          "dsn": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP02",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP03",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "STEP03",
+          "dd": "IN",
+          "dsn": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 81
+        },
+        {
+          "kind": "DD",
+          "step": "STEP03",
+          "dd": "OUT",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 82
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP04",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 93
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 113
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "IN",
+          "dsn": "AWS.M2.CARDDEMO.ESDSRRDS.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 115
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "OUT",
+          "dsn": "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 116
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/FTPJCL.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "FTPJCLS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP1",
+          "pgm": "FTP",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 30
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/INTCALC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "INTCALC",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP15",
+          "pgm": "CBACT04C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TCATBALF",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "XREFFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "XREFFIL1",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "ACCTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "DISCGRP",
+          "dsn": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANSACT",
+          "dsn": "AWS.M2.CARDDEMO.SYSTRAN",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 37
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/INTRDRJ1.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "INTRDRJ1",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "IDCAMS",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 6
+        },
+        {
+          "kind": "DD",
+          "step": "IDCAMS",
+          "dd": "IN",
+          "dsn": "AWS.M2.CARDEMO.FTP.TEST",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "DD",
+          "step": "IDCAMS",
+          "dd": "OUT",
+          "dsn": "AWS.M2.CARDEMO.FTP.TEST.BKUP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 9
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP01",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 14
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "SYSUT1",
+          "dsn": "AWS.M2.CARDDEMO.JCL(INTRDRJ2)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 17
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/INTRDRJ2.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "INTRDRJ2",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "IDCAMS",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        },
+        {
+          "kind": "DD",
+          "step": "IDCAMS",
+          "dd": "IN",
+          "dsn": "AWS.M2.CARDEMO.FTP.TEST.BKUP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 9
+        },
+        {
+          "kind": "DD",
+          "step": "IDCAMS",
+          "dd": "OUT",
+          "dsn": "AWS.M2.CARDEMO.FTP.TEST.BKUP.INTRDR",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 10
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/OPENFIL.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "OPENFIL",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "OPCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/POSTTRAN.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "POSTTRAN",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP15",
+          "pgm": "CBTRN02C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "DALYTRAN",
+          "dsn": "AWS.M2.CARDDEMO.DALYTRAN.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "XREFFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "DALYREJS",
+          "dsn": "AWS.M2.CARDDEMO.DALYREJS",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "ACCTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TCATBALF",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/PRTCATBL.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "PRTCATBL",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELDEF",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "DELDEF",
+          "dd": "THEFILE",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.REPT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05R",
+          "pgm": null,
+          "proc": "REPROC",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10R",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.BKUP",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.REPT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 59
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/READACCT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "READACCT",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PREDEL",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "PREDEL",
+          "dd": "DD01",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PREDEL",
+          "dd": "DD02",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "PREDEL",
+          "dd": "DD03",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VBPS",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "CBACT01C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "ACCTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "OUTFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.PSCOMP",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "ARRYFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.ARRYPS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "VBRCFILE",
+          "dsn": "AWS.M2.CARDDEMO.ACCTDATA.VBPS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 45
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/READCARD.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "READCARD",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "CBACT02C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "CARDFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 25
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/READCUST.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "READCUST",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "CBCUS01C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "CUSTFILE",
+          "dsn": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 24
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/READXREF.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "READXREF",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "CBACT03C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "XREFFILE",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 25
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/REPTFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "REPTFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TCATBALF.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TCATBALF",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TCATBAL",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TCATBALV",
+          "dsn": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 58
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANBKP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANBKP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05R",
+          "pgm": null,
+          "proc": "REPROC",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 51
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANCATG.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANCATG",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANCATG",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TCATVSAM",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 58
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CLCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANSACT",
+          "dsn": "AWS.M2.CARDDEMO.DALYTRAN.PS.INIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 69
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANVSAM",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 71
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP20",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 79
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "STEP25",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 96
+        },
+        {
+          "kind": "STEP",
+          "ord": 7,
+          "step": "STEP30",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 106
+        },
+        {
+          "kind": "STEP",
+          "ord": 8,
+          "step": "OPCIFIL",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 116
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANIDX.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANIDX",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP20",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP25",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP30",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 49
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANREPT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANREPT",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05R",
+          "pgm": null,
+          "proc": "REPROC",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05R",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10R",
+          "pgm": "CBTRN03C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "CARDXREF",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANTYPE",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 69
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANCATG",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 71
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "DATEPARM",
+          "dsn": "AWS.M2.CARDDEMO.DATEPARM",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 73
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANREPT",
+          "dsn": "AWS.M2.CARDDEMO.TRANREPT",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 76
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANTYPE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TRANTYPE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TRANTYPE",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "TTYPVSAM",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 58
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TXT2PDF1.JCL": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TXT2PDF1",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "TXT2PDF",
+          "pgm": "IKJEFT1B",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "TXT2PDF",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.LBD.TXT2PDF.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "TXT2PDF",
+          "dd": "SYSEXEC",
+          "dsn": "AWS.M2.LBD.TXT2PDF.EXEC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "TXT2PDF",
+          "dd": "INDD",
+          "dsn": "AWS.M2.CARDDEMO.STATEMNT.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 33
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/WAITSTEP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "WAITSTEP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "WAIT",
+          "pgm": "COBSWAIT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "WAIT",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/XREFFILE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "XREFFILE",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP10",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP15",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 57
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "XREFDATA",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.PS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "STEP15",
+          "dd": "XREFVSAM",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 61
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "STEP20",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 69
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "STEP25",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 87
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "STEP30",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 97
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/proc/REPROC.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PRC001",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "REPROC",
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "NULLFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "NULLFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "SYSIN",
+          "dsn": "&CNTLLIB(REPROCT)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 27
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/proc/TRANREPT.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01R",
+          "pgm": null,
+          "proc": "REPROC",
+          "cond": null,
+          "if": null,
+          "in": "REPROC",
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": "REPROC",
+          "line": 27
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05R",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "REPROC",
+          "line": 35
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": "REPROC",
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": "REPROC",
+          "line": 49
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "STEP10R",
+          "pgm": "CBTRN03C",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "REPROC",
+          "line": 57
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "STEPLIB",
+          "dsn": "AWS.M2.CARDDEMO.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANFILE",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+          "disp": "SHR",
+          "gen": "+1",
+          "in": "REPROC",
+          "line": 63
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "CARDXREF",
+          "dsn": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANTYPE",
+          "dsn": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 67
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANCATG",
+          "dsn": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 69
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "DATEPARM",
+          "dsn": "AWS.M2.CARDDEMO.DATEPARM",
+          "disp": "SHR",
+          "gen": null,
+          "in": "REPROC",
+          "line": 71
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10R",
+          "dd": "TRANREPT",
+          "dsn": "AWS.M2.CARDDEMO.TRANREPT",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": "REPROC",
+          "line": 74
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/BATCMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CNJBATMP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BATCMP",
+          "pgm": null,
+          "proc": "BUILDBAT",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 42
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/BMSCMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CBLDBMS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP1",
+          "pgm": null,
+          "proc": "BUILDBMS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "SDSF1",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 42
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/CICCMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CICCMP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CICSCMP",
+          "pgm": null,
+          "proc": "BUILDONL",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "NEWCOPY",
+          "pgm": "SDSF",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 45
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/CICDBCMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CIDBCMP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CICSCMP",
+          "pgm": null,
+          "proc": "BLDCIDB2",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 54
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/IMSMQCMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "IMSMQCMP",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "TRN",
+          "pgm": "DFHECP1$",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "STEPLIB",
+          "dsn": "&CICSHLQ..CICS.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..COBOL.SRC(IMSMQPGM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "SYSPUNCH",
+          "dsn": "&&SYSCIN",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "COBOL",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "IGY.SIGYCOMP.V63",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "CEE.SCEERUN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "CEE.SCEERUN2",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 62
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..CICS.SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 63
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&MQHLQ..SCSQCOBC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..COBCOPY",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&&SYSCIN",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 66
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "COPYIMS",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 71
+        },
+        {
+          "kind": "DD",
+          "step": "COPYIMS",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYIMS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 76
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "COPYLINK",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 82
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYLINK",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 85
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "COPYMQ",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 91
+        },
+        {
+          "kind": "DD",
+          "step": "COPYMQ",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYMQ",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 94
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": "(4,LT)",
+          "if": null,
+          "in": null,
+          "line": 100
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&MQHLQ..SCSQLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 101
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 102
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 103
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..CICS.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 104
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&IMSHLQ..SDFSRESL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 105
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "CSQSTUB",
+          "dsn": "&MQHLQ..SCSQLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 106
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&COPYLINK",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 107
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&COPYMQ",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 108
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 109
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&COPYIMS",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 110
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..CICSLOAD(IMSMQPGM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 112
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/LISTCAT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "LISTFILS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP01",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "STEP01",
+          "dd": "DD1",
+          "dsn": "AWS.M2.CARDDEMO.LISTCAT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP05",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05",
+          "dd": "SYSPRINT",
+          "dsn": "AWS.M2.CARDDEMO.LISTCAT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 28
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/RACFCMDS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "RACFCMDS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "TSOBAT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 19
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/REPRTEST.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "REPRTEST",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05",
+          "pgm": null,
+          "proc": "REPROC",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "PRC001",
+          "dd": "FILEOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 29
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/jcl/SORTTEST.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "SORTTEST",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP05R",
+          "pgm": "SORT",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 19
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTIN",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP",
+          "disp": "SHR",
+          "gen": "0",
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP05R",
+          "dd": "SORTOUT",
+          "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY",
+          "disp": "NEW",
+          "gen": "+1",
+          "in": null,
+          "line": 31
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/proc/BLDCIDB2.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PRECMP",
+          "pgm": "DSNHPC",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDONL",
+          "line": 46
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "STEPLIB",
+          "dsn": "&SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "STEPLIB",
+          "dsn": "&SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "SYSIN",
+          "dsn": "&SRCLIB(&MEMNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 50
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "SYSCIN",
+          "dsn": "&&DSNHOUT",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "DBRMLIB",
+          "dsn": "&DBRMLIB(&MEMNAME)",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "SYSLIB",
+          "dsn": "&DCLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "SYSLIB",
+          "dsn": "&COPYLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "PRECMP",
+          "dd": "SYSLIB",
+          "dsn": "&CPYBKS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 57
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "TRN",
+          "pgm": "DFHECP1$",
+          "proc": null,
+          "cond": "(0,NE,PRECMP)",
+          "if": null,
+          "in": "BLDONL",
+          "line": 68
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "STEPLIB",
+          "dsn": "&SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "SYSIN",
+          "dsn": "&&DSNHOUT",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 71
+        },
+        {
+          "kind": "DD",
+          "step": "TRN",
+          "dd": "SYSPUNCH",
+          "dsn": "&&SYSCIN",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 73
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "COBOL",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": null,
+          "in": "BLDONL",
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&COBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 82
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&DCLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 83
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&COPYLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 84
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CPYBKS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 85
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 86
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&SDFHMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 87
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&&SYSCIN",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 89
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "MOD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 90
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "LKED",
+          "pgm": "HEWL",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": "RC = 0",
+          "in": "BLDONL",
+          "line": 114
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LIBPRFX..SCEELKEX",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 115
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LIBPRFX..SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 116
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 117
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 118
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 119
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "ISP.SISPLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 120
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "GDDM.SADMMOD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 121
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 122
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&SDFHCOB(DFHEILIC)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 124
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 125
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&LOADLIB(&MEMNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 127
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "BINDPK",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": "(0,NE)",
+          "if": "RC = 0",
+          "in": "BLDONL",
+          "line": 135
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPK",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 136
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPK",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 137
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPK",
+          "dd": "DBRMLIB",
+          "dsn": "&DBRMLIB(&MEMNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 138
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "BINDPL",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": "(4,LT,BINDPK)",
+          "if": "RC = 0",
+          "in": "BLDONL",
+          "line": 158
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPL",
+          "dd": "STEPLIB",
+          "dsn": "OEM.DB2.DAZ1.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 159
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPL",
+          "dd": "STEPLIB",
+          "dsn": "OEMA.DB2.VERSIONA.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 160
+        },
+        {
+          "kind": "DD",
+          "step": "BINDPL",
+          "dd": "DBRMLIB",
+          "dsn": "&DBRMLIB(&MEMNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 161
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/proc/BUILDBAT.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COMPILE",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDBAT",
+          "line": 35
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "STEPLIB",
+          "dsn": "&COBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "SYSIN",
+          "dsn": "&SOURCE(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "SYSLIB",
+          "dsn": "&CPYBKS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "SYSPRINT",
+          "dsn": "&LISTING(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "COMPILE",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "MOD",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 42
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "CBLPRINT",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDBAT",
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "CBLPRINT",
+          "dd": "SYSUT1",
+          "dsn": "&LISTING(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 66
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "HEWL",
+          "proc": null,
+          "cond": "(8,LT,COMPILE)",
+          "if": null,
+          "in": "BLDBAT",
+          "line": 74
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 76
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CSF.SCSFMOD0",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 77
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 78
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKEX",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 81
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&LOADLIB(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDBAT",
+          "line": 82
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/proc/BUILDBMS.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "PRINT",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "PRINT",
+          "dd": "SYSUT2",
+          "dsn": "&&TEMPM",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "PRINT",
+          "dd": "SYSUT1",
+          "dsn": "&SRCCODE(&MAPNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 42
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "MAP",
+          "pgm": "ASMA90",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "MAP",
+          "dd": "SYSLIB",
+          "dsn": "&CICSMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "MAP",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "MAP",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEEMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "MAP",
+          "dd": "SYSPUNCH",
+          "dsn": "&&MAP",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "MAP",
+          "dd": "SYSIN",
+          "dsn": "&&TEMPM",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 61
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "HEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 68
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&LOADLIB(&MAPNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&MAP",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "DSECT",
+          "pgm": "ASMA90",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 78
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSPRINT",
+          "dsn": "&LISTING(&MAPNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 81
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSLIB",
+          "dsn": "&CICSMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 82
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 83
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEEMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 84
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSPUNCH",
+          "dsn": "&CPYBKS(&MAPNAME)",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 88
+        },
+        {
+          "kind": "DD",
+          "step": "DSECT",
+          "dd": "SYSIN",
+          "dsn": "&&TEMPM",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 91
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "DISPLIST",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 96
+        },
+        {
+          "kind": "DD",
+          "step": "DISPLIST",
+          "dd": "SYSUT1",
+          "dsn": "&LISTING(&MAPNAME)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 98
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "DELTEMP",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BUILDBMS",
+          "line": 103
+        },
+        {
+          "kind": "DD",
+          "step": "DELTEMP",
+          "dd": "TEMPM",
+          "dsn": "&&TEMPM",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BUILDBMS",
+          "line": 104
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "samples/proc/BUILDONL.prc": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COB",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDONL",
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "STEPLIB",
+          "dsn": "&COBLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "STEPLIB",
+          "dsn": "&DFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSLIB",
+          "dsn": "&CPYBKS",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSLIB",
+          "dsn": "&DFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSPRINT",
+          "dsn": "&LISTING(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 47
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSIN",
+          "dsn": "&SOURCE(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "COB",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "MOD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 49
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "DISPLIST",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDONL",
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "DISPLIST",
+          "dd": "SYSUT1",
+          "dsn": "&LISTING(&MEM)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 72
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "COPYLINK",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDONL",
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT1",
+          "dsn": "&DFHSAMP(DFHEILID)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 81
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYLINK",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 82
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "LKED",
+          "pgm": "HEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BLDONL",
+          "line": 91
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&DFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 96
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 97
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CSF.SCSFMOD0",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 98
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 99
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKEX",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 100
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 101
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&LOADSET",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 102
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&COPYLINK",
+          "disp": "OLD",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 103
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&LOADLIB(&MEM)",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BLDONL",
+          "line": 104
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

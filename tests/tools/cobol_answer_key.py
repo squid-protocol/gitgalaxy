@@ -19,6 +19,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-mq <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-uow <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-file-defs <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-job-flow <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -3027,6 +3028,186 @@ def draft_file_defs(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, di
 
 
 # ==============================================================================
+# JCL job flow (#3451)
+# ==============================================================================
+# This tool's own reading of a JCL member: `//` statements joined across comma
+# continuations (a dotted override name kept), IF ... THEN / ELSE / ENDIF
+# tracked as a stack, and per statement the operands this reader needs pulled
+# out by its own depth-aware operand scan. Same contract as core/job_flow.py.
+def _jf_operand(field: str, key: str) -> Optional[str]:
+    depth, quote, i = 0, False, 0
+    starts = [0]
+    for j, ch in enumerate(field):
+        if ch == "'":
+            quote = not quote
+        elif not quote and ch == "(":
+            depth += 1
+        elif not quote and ch == ")":
+            depth -= 1
+        elif not quote and depth == 0 and ch == ",":
+            starts.append(j + 1)
+    for n, st in enumerate(starts):
+        end = starts[n + 1] - 1 if n + 1 < len(starts) else len(field)
+        piece = field[st:end]
+        if piece.upper().startswith(key + "="):
+            return piece[len(key) + 1 :]
+    return None
+
+
+def job_flow_rows(text: str) -> list[dict[str, Any]]:
+    stmts: list[list] = []
+    open_stmt = None
+    for no, raw in enumerate(text.split("\n"), 1):
+        line = raw[:72].rstrip()
+        if not line.startswith("//") or line.startswith("//*"):
+            open_stmt = None
+            continue
+        m = re.match(r"//(\S*)\s+(JOB|EXEC|DD|PROC|PEND|IF|ELSE|ENDIF|SET|INCLUDE|JCLLIB|OUTPUT)\b\s*(.*)", line)
+        if m:
+            rest = m.group(3)
+            if m.group(2) == "IF":
+                stmts.append([no, m.group(1), "IF", " ".join(re.split(r"\sTHEN\b", rest)[0].split())])
+                open_stmt = None
+                continue
+            field = re.match(r"(?:'[^']*'|[^\s'])*", rest).group(0)
+            stmts.append([no, m.group(1), m.group(2), field])
+            open_stmt = stmts[-1] if field.endswith(",") else None
+        elif open_stmt is not None:
+            more = re.match(r"(?:'[^']*'|[^\s'])*", line[2:].strip()).group(0)
+            open_stmt[3] += more
+            if not more.endswith(","):
+                open_stmt = None
+    rows: list[dict[str, Any]] = []
+    proc, n, step, last, ifs = None, 0, None, None, []
+    for no, name, op, field in stmts:
+        if op == "JOB":
+            rows.append({"kind": "JOB", "name": name or None, "cond": _jf_operand(field, "COND"), "line": no})
+            proc, n, step = None, 0, None
+        elif op == "PROC":
+            proc, n, step = name or "PROC", 0, None
+        elif op == "PEND":
+            proc, n, step = None, 0, None
+        elif op == "IF":
+            ifs.append(field)
+        elif op == "ELSE" and ifs:
+            ifs[-1] = "NOT " + ifs[-1]
+        elif op == "ENDIF" and ifs:
+            ifs.pop()
+        elif op == "EXEC":
+            n += 1
+            step, last = name or None, None
+            pgm = _jf_operand(field, "PGM")
+            called = _jf_operand(field, "PROC")
+            if not pgm and not called:
+                first = field.split(",")[0]
+                called = first if first and "=" not in first else None
+            rows.append(
+                {
+                    "kind": "STEP",
+                    "ord": n,
+                    "step": step,
+                    "pgm": pgm,
+                    "proc": called,
+                    "cond": _jf_operand(field, "COND"),
+                    "if": " AND ".join(ifs) or None,
+                    "in": proc,
+                    "line": no,
+                }
+            )
+        elif op == "DD":
+            st, dd = name.split(".", 1) if "." in name else (step, name)
+            last = dd or last
+            dsn = _jf_operand(field, "DSN") or _jf_operand(field, "DSNAME")
+            if not dsn:
+                continue
+            gen = re.search(r"\(([+-]?\d+)\)$", dsn)
+            g = None
+            if gen:
+                v = int(gen.group(1))
+                g = f"+{v}" if v > 0 else str(v)
+                dsn = dsn[: gen.start()]
+            disp = _jf_operand(field, "DISP")
+            status = (disp.strip("()").split(",")[0] or "NEW") if disp is not None else "NEW"
+            rows.append(
+                {
+                    "kind": "DD",
+                    "step": st,
+                    "dd": dd or last,
+                    "dsn": dsn,
+                    "disp": status,
+                    "gen": g,
+                    "in": proc,
+                    "line": no,
+                }
+            )
+    return rows
+
+
+def job_flow_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """One unit per JOB / STEP / DD row (`L<line> KIND ...` with every field)."""
+
+    def d(v: Any) -> str:
+        return str(v) if v not in (None, "") else "-"
+
+    out = set()
+    for r in rows:
+        if r["kind"] == "JOB":
+            out.add(f"L{r['line']} JOB {d(r['name'])} COND={d(r['cond'])}")
+        elif r["kind"] == "STEP":
+            out.add(
+                f"L{r['line']} STEP {r['ord']} {d(r['step'])} PGM={d(r['pgm'])} PROC={d(r['proc'])} "
+                f"COND={d(r['cond'])} IF={d(r['if'])} IN={d(r['in'])}"
+            )
+        else:
+            out.add(
+                f"L{r['line']} DD {d(r['step'])}.{d(r['dd'])} DSN={d(r['dsn'])} DISP={d(r['disp'])} GEN={d(r['gen'])} IN={d(r['in'])}"
+            )
+    return out
+
+
+def engine_job_flow_row(j: Any) -> dict[str, Any]:
+    if j.kind == "JOB":
+        return {"kind": "JOB", "name": j.name, "cond": j.cond, "line": j.line}
+    if j.kind == "STEP":
+        return {
+            "kind": "STEP",
+            "ord": j.step_ordinal,
+            "step": j.step_name,
+            "pgm": j.program,
+            "proc": j.proc,
+            "cond": j.cond,
+            "if": j.if_cond,
+            "in": j.in_proc,
+            "line": j.line,
+        }
+    return {
+        "kind": "DD",
+        "step": j.step_name,
+        "dd": j.dd_name,
+        "dsn": j.dsn,
+        "disp": j.disp,
+        "gen": j.generation,
+        "in": j.in_proc,
+        "line": j.line,
+    }
+
+
+def draft_job_flow(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted job flow for every JCL member (#3451); `jobflow_validated` signs it off."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
+            rows = job_flow_rows(p.read_text(encoding="utf-8", errors="ignore").upper())
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "rows": rows,
+                    "jobflow_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -3427,6 +3608,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # this tool's own readers; engine is file_control_data / vsam_define_data.
         "file control",
         "VSAM defines",
+        # #3451: JCL job flow (JOB / STEP order, COND / IF, PROC calls, DD DISP and
+        # GDG generation), per JCL member. Truth is this tool's own reader; engine
+        # is job_flow_data.
+        "JCL job flow",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -3738,6 +3923,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             vsam_define_keys([engine_vsam_row(x) for x in ef.vsam_defines]) if ef else None,
         )
 
+    for rel, k in key.get("job_flow", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "JCL job flow",
+            rel,
+            job_flow_keys(k.get("rows", [])),
+            None,
+            job_flow_keys([engine_job_flow_row(j) for j in ef.job_flow]) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -3851,6 +4046,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    jfp = sub.add_parser("add-job-flow")
+    jfp.add_argument("repo", type=Path)
+    jfp.add_argument("--key", type=Path, required=True)
     fdp = sub.add_parser("add-file-defs")
     fdp.add_argument("repo", type=Path)
     fdp.add_argument("--key", type=Path, required=True)
@@ -3987,6 +4185,16 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-job-flow":
+        # #3451: the add-pli discipline -- refresh drafts, keep signed-off files.
+        flows = key.get("job_flow", {})
+        for rel, entry in draft_job_flow(repo).items():
+            if not flows.get(rel, {}).get("jobflow_validated"):
+                flows[rel] = entry
+        key["job_flow"] = flows
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(flows)} JCL members' job flow -> {args.key}")
         return 0
     if args.cmd == "add-file-defs":
         # #3455: the add-pli discipline -- refresh drafts, keep signed-off files.

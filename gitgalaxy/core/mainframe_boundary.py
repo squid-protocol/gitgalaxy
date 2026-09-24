@@ -87,6 +87,7 @@ from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
+from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
@@ -1880,6 +1881,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     condition / abend / AID handlers, explicit ABENDs and RESP checks.
     #3455: cobol also carries `file_control` (each SELECT's organisation, access
     mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
+    #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
+    PROC calls, and each DSN DD's disposition and GDG generation (job_flow).
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
@@ -1907,6 +1910,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["csd_resources"] = _jcl_csd_resources(code_stream)  # #3356
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
+        boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
         return boundary
     if dialect == "csd":
         return {

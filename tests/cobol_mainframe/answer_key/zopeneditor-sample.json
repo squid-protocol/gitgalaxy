@@ -8337,5 +8337,1461 @@
       }
     }
   },
-  "vsam_defines": {}
+  "vsam_defines": {},
+  "job_flow": {
+    "JCL/ALLOCATE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZDEALLC",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.COBOL",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ALLOCAT",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(8,LT)",
+          "if": null,
+          "in": null,
+          "line": 50
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.COBOL",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 75
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 85
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/ASMALLOC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "WAZIASMA",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.ASM",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ALLOCAT",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(8,LT)",
+          "if": null,
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.ASM",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 69
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/INCLUDE.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "IBMUSER",
+          "cond": "(16,LT)",
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP1",
+          "pgm": null,
+          "proc": "COMPROC",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 23
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/PLIALLOC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZDEPLIA",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.PLI",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ALLOCAT",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(8,LT)",
+          "if": null,
+          "in": null,
+          "line": 50
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.PLI",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 75
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 85
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/REXALLOC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZDEALLC",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.REXX",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 34
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ALLOCAT",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": "(8,LT)",
+          "if": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.REXX",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 61
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUN.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZDERUN",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CMPLSAM2",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "CMPLSAM1",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 72
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 73
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM1)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 74
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 75
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "MYFILE",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 76
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "MYLIB",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 77
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM1",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM1)",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 78
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LINKSAM2",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 103
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM2",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 104
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 107
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM2",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 108
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "LINKSAM1",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 120
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM1",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 121
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 124
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 125
+        },
+        {
+          "kind": "DD",
+          "step": "LINKSAM1",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 126
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 135
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.CUSTRPT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 139
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.CUSTOUT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 141
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "SAM1",
+          "pgm": "SAM1",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 147
+        },
+        {
+          "kind": "DD",
+          "step": "SAM1",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 148
+        },
+        {
+          "kind": "DD",
+          "step": "SAM1",
+          "dd": "CUSTFILE",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 154
+        },
+        {
+          "kind": "DD",
+          "step": "SAM1",
+          "dd": "TRANFILE",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 157
+        },
+        {
+          "kind": "DD",
+          "step": "SAM1",
+          "dd": "CUSTOUT",
+          "dsn": "&HLQ..SAMPLE.CUSTOUT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 160
+        },
+        {
+          "kind": "DD",
+          "step": "SAM1",
+          "dd": "CUSTRPT",
+          "dsn": "&HLQ..SAMPLE.CUSTRPT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 165
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUNASAM1.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "WAZIASM1",
+          "cond": "(4,LT)",
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 26
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ASM1",
+          "pgm": "ASMA90",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&MODGEN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 38
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&SCEEMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSPUNCH",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ(ASAM1)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "DD",
+          "step": "ASM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.ASM(ASAM1)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "EXECUTE",
+          "pgm": "ASAM1",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "EXECUTE",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "DD",
+          "step": "EXECUTE",
+          "dd": "FILEIN",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "DD",
+          "step": "EXECUTE",
+          "dd": "FILEOUT",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 72
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUNPSAM1.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZDEPSM1",
+          "cond": "(4,LT)",
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DELETE",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "disp": "MOD",
+          "gen": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "CMPPSAM2",
+          "pgm": "IBMZPLI",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ(PSAM2)",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.PLI(PSAM2)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "CMPPSAM1",
+          "pgm": "IBMZPLI",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 50
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "MYFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "MYLIB",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ(PSAM1)",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "CMPPSAM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.PLI(PSAM1)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "LNKPSAM1",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 59
+        },
+        {
+          "kind": "DD",
+          "step": "LNKPSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "LNKPSAM1",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 63
+        },
+        {
+          "kind": "DD",
+          "step": "LNKPSAM1",
+          "dd": "INOBJ",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "RUNPSAM1",
+          "pgm": "PSAM1",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 74
+        },
+        {
+          "kind": "DD",
+          "step": "RUNPSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 75
+        },
+        {
+          "kind": "DD",
+          "step": "RUNPSAM1",
+          "dd": "CUSTFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 78
+        },
+        {
+          "kind": "DD",
+          "step": "RUNPSAM1",
+          "dd": "TRANFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 79
+        },
+        {
+          "kind": "DD",
+          "step": "RUNPSAM1",
+          "dd": "CUSTRPT",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 80
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCLPROC/COMPROC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "CMPLSAM2",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "COMPROC",
+          "line": 30
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "COMPROC",
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "COMPROC",
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "disp": "SHR",
+          "gen": null,
+          "in": "COMPROC",
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "CMPLSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "disp": "OLD",
+          "gen": null,
+          "in": "COMPROC",
+          "line": 34
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

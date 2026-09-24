@@ -805,6 +805,33 @@ class StateRehydrator:
                     },
                 )
 
+                # #3451: JCL job flow, aliased back to the payload keys.
+                job_flow_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "job_flow_data",
+                    'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, jf.line_number AS "line" '
+                    "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id",
+                    lambda r: {
+                        "kind": r["kind"],
+                        "name": r["name"],
+                        "step_ordinal": int(r["step_ordinal"]) if r["step_ordinal"] is not None else None,
+                        "step_name": r["step_name"],
+                        "program": r["program"],
+                        "proc": r["proc"],
+                        "cond": r["cond"],
+                        "if_cond": r["if_cond"],
+                        "in_proc": r["in_proc"],
+                        "dd_name": r["dd_name"],
+                        "dsn": r["dsn"],
+                        "disp": r["disp"],
+                        "generation": r["generation"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -823,6 +850,7 @@ class StateRehydrator:
                     node["uow_handlers"] = uow_by_file.get(rel_path, [])
                     node["file_control"] = file_control_by_file.get(rel_path, [])
                     node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
+                    node["job_flow"] = job_flow_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

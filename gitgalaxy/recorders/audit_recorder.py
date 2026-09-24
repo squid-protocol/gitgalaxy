@@ -391,6 +391,31 @@ class AuditRecorder:
                 }
                 for v in defines
             ]
+        flow = file_data.get("job_flow") or []
+        if flow:
+            # #3451: JCL job flow, mirroring job_flow_data (only the keys a row carries).
+            labels = {
+                "name": "Job",
+                "step_ordinal": "Step Ordinal",
+                "step_name": "Step",
+                "program": "Program",
+                "proc": "Proc",
+                "cond": "COND",
+                "if_cond": "IF",
+                "in_proc": "In Proc",
+                "dd_name": "DD",
+                "dsn": "DSN",
+                "disp": "DISP",
+                "generation": "Generation",
+            }
+            block["Job Flow"] = [
+                {
+                    "Kind": j.get("kind"),
+                    **{lbl: j[k] for k, lbl in labels.items() if j.get(k) is not None},
+                    "Line": j.get("line", 0),
+                }
+                for j in flow
+            ]
         return block
 
     def generate_report(

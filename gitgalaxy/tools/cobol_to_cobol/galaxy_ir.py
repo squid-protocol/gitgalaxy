@@ -83,6 +83,12 @@
 # EngineFile.vsam_defines); GalaxyIR.vsam_files puts a SELECT's RECORD KEY at its
 # byte offset in the FD record and checks it against the KEYS(l o) of the cluster
 # (or the AIX behind a PATH) its DD is bound to, and against the CSD FILE.
+# Since #3451, JCL job flow (job_flow_data, per EngineFile.job_flow): each job's
+# steps in order with COND= / IF conditions and PROC calls, and each DSN DD's
+# DISP and GDG generation; GalaxyIR.job_steps expands PROC calls into the
+# procedure's steps and job_dataset_flow pairs the DDs that create a dataset with
+# the DDs (of later steps, or of other jobs) that read it. Scheduler order is not
+# in the repository, so cross-job edges are candidates.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -578,6 +584,27 @@ class EngineVsamDefine:
 
 
 @dataclass
+class EngineJobFlow:
+    """One JOB / STEP / DD row of a JCL file's job flow (#3451), from `job_flow_data`
+    (see core/job_flow.py). `dsn` is as written without its GDG `generation`."""
+
+    kind: str
+    name: Optional[str]
+    step_ordinal: Optional[int]
+    step_name: Optional[str]
+    program: Optional[str]
+    proc: Optional[str]
+    cond: Optional[str]
+    if_cond: Optional[str]
+    in_proc: Optional[str]
+    dd_name: Optional[str]
+    dsn: Optional[str]
+    disp: Optional[str]
+    generation: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -602,6 +629,7 @@ class EngineFile:
     uow_handlers: list = field(default_factory=list)  # EngineUowHandler, source order, #3453
     file_control: list = field(default_factory=list)  # EngineFileControl, source order, #3455
     vsam_defines: list = field(default_factory=list)  # EngineVsamDefine, source order, #3455
+    job_flow: list = field(default_factory=list)  # EngineJobFlow, source order, #3451
 
     @property
     def is_program(self) -> bool:
@@ -2096,6 +2124,104 @@ class GalaxyIR:
                 )
         return out
 
+    def _proc_steps(self, ef: EngineFile, proc: str) -> tuple[Optional[str], list]:
+        """(defining file, STEP rows) of procedure `proc`: in-stream in `ef`, else the
+        cataloged member of that name (a procedure member preferred)."""
+        own = [r for r in ef.job_flow if r.kind == "STEP" and (r.in_proc or "").upper() == proc.upper()]
+        if own:
+            return ef.file_path, own
+        member, _cands = self._jcl_member(proc, True)
+        mf = self.files.get(member or "")
+        if mf is None:
+            return None, []
+        return mf.file_path, [r for r in mf.job_flow if r.kind == "STEP" and r.in_proc]
+
+    def job_steps(self) -> list:
+        """Every job's steps in order (#3451): per JCL file with a JOB card, `file`,
+        `job`, `cond` (JOB COND=) and `steps` -- `ordinal`, `step`, `program`, `proc`,
+        `cond`, `if_cond`, `line`, and for a PROC call `proc_file` plus `expands_to`
+        (the procedure's own steps with their program and conditions)."""
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            job = next((r for r in f.job_flow if r.kind == "JOB"), None)
+            if job is None:
+                continue
+            steps = []
+            for r in f.job_flow:
+                if r.kind != "STEP" or r.in_proc:
+                    continue
+                entry = {
+                    "ordinal": r.step_ordinal,
+                    "step": r.step_name,
+                    "program": r.program,
+                    "proc": r.proc,
+                    "cond": r.cond,
+                    "if_cond": r.if_cond,
+                    "line": r.line,
+                }
+                if r.proc:
+                    where, inner = self._proc_steps(f, r.proc)
+                    entry["proc_file"] = where
+                    entry["expands_to"] = [
+                        {"step": s_.step_name, "program": s_.program, "cond": s_.cond, "if_cond": s_.if_cond}
+                        for s_ in inner
+                    ]
+                steps.append(entry)
+            out.append({"file": f.file_path, "job": job.name, "cond": job.cond, "steps": steps})
+        return out
+
+    def job_dataset_flow(self) -> list:
+        """Dataset producer -> consumer edges across steps and jobs (#3451).
+
+        A DD CREATES its dataset when DISP is NEW / MOD (the default with a DSN);
+        it READS it when DISP is SHR / OLD -- whatever its GDG generation: a later
+        step's `X(+1),DISP=SHR` reads the generation the job created. Edges
+        join a creating DD to every reading DD of the same dataset (the resolved
+        DSN from dataset_data where the engine resolved it; generation and member
+        dropped), within a job only when the reader's step comes later. Temporary
+        `&&` datasets and names with unresolved symbols are not joined. Each edge:
+        `dataset`, `producer` / `consumer` (`file`, `step`, `dd`, `disp`,
+        `generation`, `line`) and `same_job`.
+        """
+        resolved: dict[tuple[str, int], str] = {}
+        for f in self.files.values():
+            for ds in f.datasets:
+                if ds.dsn_resolved:
+                    resolved[(f.file_path, ds.line)] = ds.dsn_resolved.upper()
+        creates, reads = [], []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for r in f.job_flow:
+                if r.kind != "DD" or not r.dsn or r.dsn.startswith("&&"):
+                    continue
+                name = resolved.get((f.file_path, r.line), r.dsn)
+                name = re.sub(r"\([+-]?[0-9]{1,3}\)$", "", name)
+                if "&" in name:
+                    continue
+                end = {
+                    "file": f.file_path,
+                    "step": r.step_name,
+                    "dd": r.dd_name,
+                    "disp": r.disp,
+                    "generation": r.generation,
+                    "line": r.line,
+                }
+                # DISP decides, not the generation: a later step's `X(+1),DISP=SHR`
+                # READS the generation an earlier step of the job created.
+                if r.disp in ("NEW", "MOD"):
+                    creates.append((name, end))
+                elif r.disp in ("SHR", "OLD"):
+                    reads.append((name, end))
+        out = []
+        for name, p in creates:
+            for rname, c in reads:
+                if rname != name:
+                    continue
+                same = p["file"] == c["file"]
+                if same and c["line"] <= p["line"]:
+                    continue
+                out.append({"dataset": name, "producer": p, "consumer": c, "same_job": same})
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -2616,6 +2742,33 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3451: JCL job flow. A pre-#3451 database has none.
+        if _has_table(cur, "job_flow_data"):
+            for row in cur.execute(
+                "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "
+                "dd_name, dsn, disp, generation, line_number FROM job_flow_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].job_flow.append(
+                        EngineJobFlow(
+                            kind=row[1] or "",
+                            name=row[2],
+                            step_ordinal=int(row[3]) if row[3] is not None else None,
+                            step_name=row[4],
+                            program=row[5],
+                            proc=row[6],
+                            cond=row[7],
+                            if_cond=row[8],
+                            in_proc=row[9],
+                            dd_name=row[10],
+                            dsn=row[11],
+                            disp=row[12],
+                            generation=row[13],
+                            line=int(row[14] or 0),
+                        )
+                    )
         # #3455: file definitions. A pre-#3455 database has neither table.
         if _has_table(cur, "file_control_data"):
             for row in cur.execute(

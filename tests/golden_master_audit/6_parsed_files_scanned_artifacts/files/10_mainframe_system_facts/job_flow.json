@@ -1,0 +1,8037 @@
+{
+  "groups": {
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2BIND.jcl": [
+        {
+          "Job": "DB2BIND",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IKJEFT01",
+          "Step": "BIND",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.DSND00A.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "SYSD.STOCK.DBRMLIB",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cash-account-cobol/DB2DDL.jcl": [
+        {
+          "Job": "DB2DDL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.DSND00A.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "CREATE",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 68,
+          "Program": "IKJEFT01",
+          "Step": "CRGRACC",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 87,
+          "Program": "IKJEFT01",
+          "Step": "CRINDX",
+          "Step Ordinal": 4
+        }
+      ],
+      "jcl/cash-account-cobol/DEFKSDS.jcl": [
+        {
+          "Job": "DEFKSDS",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IDCAMS",
+          "Step": "STEPNAME",
+          "Step Ordinal": 1
+        }
+      ]
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/ACCLOAD.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "BATCH",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/ACCOFFL.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "BATCH",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": [
+        {
+          "Job": "BANKDATA",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Program": "IDCAMS",
+          "Step": "BANKDAT0",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 56,
+          "Program": "IDCAMS",
+          "Step": "BANKDAT1",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 94,
+          "Program": "IKJEFT01",
+          "Step": "BANKDAT5",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "@BANK_DBRMLIB@",
+          "Kind": "DD",
+          "Line": 95,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "@BANK_LOADLIB@",
+          "Kind": "DD",
+          "Line": 96,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "@DB2_HLQ@.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 97,
+          "Step": "BANKDAT5"
+        },
+        {
+          "DD": "VSAM",
+          "DISP": "SHR",
+          "DSN": "@BANK_PREFIX@.CUSTOMER",
+          "Kind": "DD",
+          "Line": 98,
+          "Step": "BANKDAT5"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BATCH.jcl": [
+        {
+          "In Proc": "BATCH",
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&COBOLHLQ..SIGYCOMP",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DSECT",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHCOB",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHSAMP",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSDEBUG",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DEBUG(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSADATA",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..ADATA(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DBRM(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "OUT",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "COBOL"
+        },
+        {
+          "COND": "(7,LT,COBOL)",
+          "In Proc": "BATCH",
+          "Kind": "STEP",
+          "Line": 42,
+          "Program": "IEWL",
+          "Step": "LKED",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 45,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEELKED",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 47,
+          "Step": "LKED"
+        },
+        {
+          "DD": "CBSAMOD",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..CBSAMOD",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 51,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..LOADLIB",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 53,
+          "Step": "LKED"
+        },
+        {
+          "DD": "IN",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..LKED(&MEMBER)",
+          "In Proc": "BATCH",
+          "Kind": "DD",
+          "Line": 56,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1ACC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1ACC",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CAC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CAM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CAM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCA.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CCM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCS.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CDM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CDM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1CRA.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1DAC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1DAM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1DAM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1DCM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1DCM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1DCS.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1MAI.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1MAI",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1TFM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1TFM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1TFN.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1UAC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNK1UAM.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "MAPGEN",
+          "Step": "BNK1UAM",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BNKMENU.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": [
+        {
+          "Job": "BTCHSQL",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": [
+        {
+          "Job": "CBSACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 17,
+          "Program": "DFHCSDUP",
+          "Step": "DFHCSDUP",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "@CICS_PREFIX@.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "@CSD_PREFIX@.DFHCSD",
+          "Kind": "DD",
+          "Line": 19,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "@CBSA_INSTALL@(BANK)",
+          "Kind": "DD",
+          "Line": 23,
+          "Step": "DFHCSDUP"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICS.jcl": [
+        {
+          "In Proc": "CICS",
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&COBOLHLQ..SIGYCOMP",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DSECT",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHCOB",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHSAMP",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSDEBUG",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DEBUG(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSADATA",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..ADATA(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 17,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..DBRM(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "OUT",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "COBOL"
+        },
+        {
+          "COND": "(7,LT,COBOL)",
+          "In Proc": "CICS",
+          "Kind": "STEP",
+          "Line": 43,
+          "Program": "IEWL",
+          "Step": "LKED",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 47,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LEHLQ..SCEELKED",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 48,
+          "Step": "LKED"
+        },
+        {
+          "DD": "CBSAMOD",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..CBSAMOD",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 52,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..LOADLIB",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 54,
+          "Step": "LKED"
+        },
+        {
+          "DD": "IN",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..LKED(&MEMBER)",
+          "In Proc": "CICS",
+          "Kind": "DD",
+          "Line": 57,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": [
+        {
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 28,
+          "Program": "IDCAMS",
+          "Step": "CICSCNTL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..SYSIN(DFHRC&RUNCICS)",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 30,
+          "Step": "CICSCNTL"
+        },
+        {
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 35,
+          "Program": "IDCAMS",
+          "Step": "DTCNTL",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..SYSIN(DFHRC&DUMPTR)",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "DTCNTL"
+        },
+        {
+          "COND": "(1,NE,CICSCNTL)",
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 43,
+          "Program": "DFHSIP",
+          "Step": "CICS",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "FILEA",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..FILEA",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 52,
+          "Step": "CICS"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..SYSIN(DFH$SIP&SIP)",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 55,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHCMACD",
+          "DISP": "SHR",
+          "DSN": "DFH560.DFHCMACD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 57,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHAUTH",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 63,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX3..SEYUAUTH",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 64,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOD2",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 66,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN2",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 67,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 68,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DFH560.CICS.SDFHLINK",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 69,
+          "Step": "CICS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DFH560.SDFHLIC",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 70,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 83,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "&INDEX3..SEYULOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 84,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "CBSA.CICSBSA.LOADLIB",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 85,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEECICS",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 86,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN2",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 87,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 88,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "TCPIP.SEZATCP",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 89,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "ISM330.SEQAMOD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 90,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "SYS1.MIGLIB",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 91,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "SYS1.SIEAMIGE",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 92,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "DFH560.EQAIVP.LOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 93,
+          "Step": "CICS"
+        },
+        {
+          "DD": "EQADPFMB",
+          "DISP": "SHR",
+          "DSN": "DFH560.CICS.EQADPFMB",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 99,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHTABLE",
+          "DISP": "SHR",
+          "DSN": "DFH560.SYSIN(DFHPLT)",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 100,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHTEMP",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CNTL.CICS&REGNAM..DFHTEMP",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 101,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHINTRA",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CNTL.CICS&REGNAM..DFHINTRA",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 104,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHAUXT",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHAUXT",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 107,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHBUXT",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHBUXT",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 109,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHLCD",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHLCD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 112,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHGCD",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHGCD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 115,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHLRQ",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHLRQ",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 119,
+          "Step": "CICS"
+        },
+        {
+          "DD": "SYSTCPD",
+          "DISP": "SHR",
+          "DSN": "ADCD.Z25A.TCPPARMS(GBLTDATA)",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 127,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHDMPA",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPA",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 131,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHDMPB",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPB",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 133,
+          "Step": "CICS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..DFHCSD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 139,
+          "Step": "CICS"
+        },
+        {
+          "COND": "(1,NE,DTCNTL)",
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 143,
+          "Program": "DFHDU730",
+          "Step": "PRTDMPA",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 145,
+          "Step": "PRTDMPA"
+        },
+        {
+          "DD": "DFHDMPDS",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPA",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 149,
+          "Step": "PRTDMPA"
+        },
+        {
+          "COND": "(1,NE,DTCNTL)",
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 154,
+          "Program": "DFHDU730",
+          "Step": "PRTDMPB",
+          "Step Ordinal": 5
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 156,
+          "Step": "PRTDMPB"
+        },
+        {
+          "DD": "DFHDMPDS",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPB",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 160,
+          "Step": "PRTDMPB"
+        },
+        {
+          "COND": "(1,NE,DTCNTL)",
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 167,
+          "Program": "DFHTU730",
+          "Step": "PRTAUXT",
+          "Step Ordinal": 6
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 168,
+          "Step": "PRTAUXT"
+        },
+        {
+          "DD": "DFHAUXT",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHAUXT",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 169,
+          "Step": "PRTAUXT"
+        },
+        {
+          "COND": "(1,NE,DTCNTL)",
+          "In Proc": "CICSTS56",
+          "Kind": "STEP",
+          "Line": 177,
+          "Program": "DFHTU730",
+          "Step": "PRTBUXT",
+          "Step Ordinal": 7
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 178,
+          "Step": "PRTBUXT"
+        },
+        {
+          "DD": "DFHAUXT",
+          "DISP": "SHR",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHBUXT",
+          "In Proc": "CICSTS56",
+          "Kind": "DD",
+          "Line": 179,
+          "Step": "PRTBUXT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/COMPALL.jcl": [
+        {
+          "Job": "COMPALL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 12,
+          "Proc": "CICS",
+          "Step": "ABNDPROC",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 16,
+          "Proc": "BATCH",
+          "Step": "BANKDATA",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Proc": "MAPGEN",
+          "Step": "BNK1MAI",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 25,
+          "Proc": "CICS",
+          "Step": "BNKMENU",
+          "Step Ordinal": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 29,
+          "Proc": "CICS",
+          "Step": "CRDTAGY1",
+          "Step Ordinal": 5
+        },
+        {
+          "Kind": "STEP",
+          "Line": 33,
+          "Proc": "CICS",
+          "Step": "CRDTAGY2",
+          "Step Ordinal": 6
+        },
+        {
+          "Kind": "STEP",
+          "Line": 37,
+          "Proc": "CICS",
+          "Step": "CRDTAGY3",
+          "Step Ordinal": 7
+        },
+        {
+          "Kind": "STEP",
+          "Line": 41,
+          "Proc": "CICS",
+          "Step": "CRDTAGY4",
+          "Step Ordinal": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 45,
+          "Proc": "CICS",
+          "Step": "CRDTAGY5",
+          "Step Ordinal": 9
+        },
+        {
+          "Kind": "STEP",
+          "Line": 49,
+          "Proc": "CICS",
+          "Step": "CREACC",
+          "Step Ordinal": 10
+        },
+        {
+          "Kind": "STEP",
+          "Line": 53,
+          "Proc": "CICS",
+          "Step": "CRECUST",
+          "Step Ordinal": 11
+        },
+        {
+          "Kind": "STEP",
+          "Line": 57,
+          "Proc": "CICS",
+          "Step": "DBCRFUN",
+          "Step Ordinal": 12
+        },
+        {
+          "Kind": "STEP",
+          "Line": 61,
+          "Proc": "CICS",
+          "Step": "DELACC",
+          "Step Ordinal": 13
+        },
+        {
+          "Kind": "STEP",
+          "Line": 65,
+          "Proc": "CICS",
+          "Step": "DELCUS",
+          "Step Ordinal": 14
+        },
+        {
+          "Kind": "STEP",
+          "Line": 69,
+          "Proc": "CICS",
+          "Step": "GETCOMPY",
+          "Step Ordinal": 15
+        },
+        {
+          "Kind": "STEP",
+          "Line": 73,
+          "Proc": "CICS",
+          "Step": "GETSCODE",
+          "Step Ordinal": 16
+        },
+        {
+          "Kind": "STEP",
+          "Line": 77,
+          "Proc": "CICS",
+          "Step": "INQACC",
+          "Step Ordinal": 17
+        },
+        {
+          "Kind": "STEP",
+          "Line": 81,
+          "Proc": "CICS",
+          "Step": "INQACCCU",
+          "Step Ordinal": 18
+        },
+        {
+          "Kind": "STEP",
+          "Line": 85,
+          "Proc": "CICS",
+          "Step": "INQCUST",
+          "Step Ordinal": 19
+        },
+        {
+          "Kind": "STEP",
+          "Line": 89,
+          "Proc": "CICS",
+          "Step": "UPDACC",
+          "Step Ordinal": 20
+        },
+        {
+          "Kind": "STEP",
+          "Line": 93,
+          "Proc": "CICS",
+          "Step": "UPDCUST",
+          "Step Ordinal": 21
+        },
+        {
+          "Kind": "STEP",
+          "Line": 97,
+          "Proc": "CICS",
+          "Step": "XFRFUN",
+          "Step Ordinal": 22
+        },
+        {
+          "Kind": "STEP",
+          "Line": 104,
+          "Proc": "MAPGEN",
+          "Step": "BNK1ACC",
+          "Step Ordinal": 23
+        },
+        {
+          "Kind": "STEP",
+          "Line": 109,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CAM",
+          "Step Ordinal": 24
+        },
+        {
+          "Kind": "STEP",
+          "Line": 114,
+          "Proc": "CICS",
+          "Step": "BNK1CAC",
+          "Step Ordinal": 25
+        },
+        {
+          "Kind": "STEP",
+          "Line": 118,
+          "Proc": "CICS",
+          "Step": "BNK1CCA",
+          "Step Ordinal": 26
+        },
+        {
+          "Kind": "STEP",
+          "Line": 122,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CCM",
+          "Step Ordinal": 27
+        },
+        {
+          "Kind": "STEP",
+          "Line": 127,
+          "Proc": "CICS",
+          "Step": "BNK1CCS",
+          "Step Ordinal": 28
+        },
+        {
+          "Kind": "STEP",
+          "Line": 131,
+          "Proc": "MAPGEN",
+          "Step": "BNK1CDM",
+          "Step Ordinal": 29
+        },
+        {
+          "Kind": "STEP",
+          "Line": 136,
+          "Proc": "CICS",
+          "Step": "BNK1CRA",
+          "Step Ordinal": 30
+        },
+        {
+          "Kind": "STEP",
+          "Line": 140,
+          "Proc": "MAPGEN",
+          "Step": "BNK1DAM",
+          "Step Ordinal": 31
+        },
+        {
+          "Kind": "STEP",
+          "Line": 145,
+          "Proc": "CICS",
+          "Step": "BNK1DAC",
+          "Step Ordinal": 32
+        },
+        {
+          "Kind": "STEP",
+          "Line": 149,
+          "Proc": "MAPGEN",
+          "Step": "BNK1DCM",
+          "Step Ordinal": 33
+        },
+        {
+          "Kind": "STEP",
+          "Line": 154,
+          "Proc": "CICS",
+          "Step": "BNK1DCS",
+          "Step Ordinal": 34
+        },
+        {
+          "Kind": "STEP",
+          "Line": 159,
+          "Proc": "MAPGEN",
+          "Step": "BNK1TFM",
+          "Step Ordinal": 35
+        },
+        {
+          "Kind": "STEP",
+          "Line": 164,
+          "Proc": "CICS",
+          "Step": "BNK1TFN",
+          "Step Ordinal": 36
+        },
+        {
+          "Kind": "STEP",
+          "Line": 168,
+          "Proc": "MAPGEN",
+          "Step": "BNK1UAM",
+          "Step Ordinal": 37
+        },
+        {
+          "Kind": "STEP",
+          "Line": 173,
+          "Proc": "CICS",
+          "Step": "BNK1UAC",
+          "Step Ordinal": 38
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY1.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY2.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY3.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY4.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY5.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREACC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRECUST.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB00.jcl": [
+        {
+          "Job": "CREDB00",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..DB2.JCL.INSTALL",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..DB2.JCL.INSTALL(EMPTY)",
+          "Kind": "DD",
+          "Line": 23,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": [
+        {
+          "Job": "CREI101",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
+        {
+          "Job": "CREI201",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
+        {
+          "Job": "CREI301",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.BUILDJCL",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..CICSBSA.BUILDJCL(EMPTY)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL002.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.ADATA",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL003.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.LOADLIB",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL004.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.DBRM",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL005.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.LKED",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL006.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.BMS",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..CICSBSA.BMS(EMPTY)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL007.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.DEBUG",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL008.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.CBSAMOD",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL009.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.COBOL",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..CICSBSA.COBOL(EMPTY)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL010.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.DSECT",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..CICSBSA.DSECT(EMPTY)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL011.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IEFBR14",
+          "Step": "STEP10",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD01",
+          "DISP": "NEW",
+          "DSN": "&HLQ..CICSBSA.REORG",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "STEP10"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ICEGENER",
+          "Step": "STEP20",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "&HLQ..CICSBSA.REORG(EMPTY)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl": [
+        {
+          "Job": "CRELIBS",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IEFBR14",
+          "Step": "IEFBR14",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": [
+        {
+          "Job": "CRESG01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
+        {
+          "Job": "CRESG02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": [
+        {
+          "Job": "CRESG03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
+        {
+          "Job": "CRETB01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": [
+        {
+          "Job": "CRETB02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
+        {
+          "Job": "CRETB03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": [
+        {
+          "Job": "CRETS01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
+        {
+          "Job": "CRETS02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
+        {
+          "Job": "CRETS03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": [
+        {
+          "Job": "DB2BIND",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "IKJEFT01",
+          "Step": "BIND",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNEXIT",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "BIND"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(CREACC)",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(CRECUST)",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(DBCRFUN)",
+          "Kind": "DD",
+          "Line": 17,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(DELACC)",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(DELCUS)",
+          "Kind": "DD",
+          "Line": 19,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(INQACC)",
+          "Kind": "DD",
+          "Line": 20,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(INQACCCU)",
+          "Kind": "DD",
+          "Line": 21,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(BANKDATA)",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(UPDACC)",
+          "Kind": "DD",
+          "Line": 23,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&BANKDBRM(XFRFUN)",
+          "Kind": "DD",
+          "Line": 24,
+          "Step": "BIND"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 90,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNEXIT",
+          "Kind": "DD",
+          "Line": 91,
+          "Step": "GRANT"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "Kind": "DD",
+          "Line": 92,
+          "Step": "GRANT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": [
+        {
+          "Job": "DROPDB2",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": [
+        {
+          "Job": "DRPDB00",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
+        {
+          "Job": "DRPI101",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": [
+        {
+          "Job": "DRPI201",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
+        {
+          "Job": "DRPI301",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": [
+        {
+          "Job": "DRPSG01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
+        {
+          "Job": "DRPSG02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": [
+        {
+          "Job": "DRPSG03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
+        {
+          "Job": "DRPTB01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": [
+        {
+          "Job": "DRPTB02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
+        {
+          "Job": "DRPTB03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": [
+        {
+          "Job": "DRPTS01",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
+        {
+          "Job": "DRPTS02",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": [
+        {
+          "Job": "DRPTS03",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/EXTDCUST.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "BATCH",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/GETCOMPY.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/GETSCODE.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INQACC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INQACCCU.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INQCUST.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": [
+        {
+          "Job": "INSTDB2",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "Kind": "DD",
+          "Line": 15
+        },
+        {
+          "Kind": "STEP",
+          "Line": 16,
+          "Program": "IKJEFT01",
+          "Step": "GRANT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": [
+        {
+          "In Proc": "MAPGEN",
+          "Kind": "STEP",
+          "Line": 13,
+          "Program": "IEBGENER",
+          "Step": "COPY",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "NEW",
+          "DSN": "&&TEMPM",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "COPY"
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..BMS(&MEMBER)",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 19,
+          "Step": "COPY"
+        },
+        {
+          "In Proc": "MAPGEN",
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "&ASMBLR",
+          "Step": "ASMMAP",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHMAC",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 24,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MACLIB",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSPUNCH",
+          "DISP": "NEW",
+          "DSN": "&&MAP",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 29,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "OLD",
+          "DSN": "&&TEMPM",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 32,
+          "Step": "ASMMAP"
+        },
+        {
+          "In Proc": "MAPGEN",
+          "Kind": "STEP",
+          "Line": 33,
+          "Program": "IEWL",
+          "Step": "LINKMAP",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&CBSAHLQ..LOADLIB(&MEMBER)",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 36,
+          "Step": "LINKMAP"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&MAP",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 38,
+          "Step": "LINKMAP"
+        },
+        {
+          "In Proc": "MAPGEN",
+          "Kind": "STEP",
+          "Line": 40,
+          "Program": "&ASMBLR",
+          "Step": "ASMDSECT",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&CICSHLQ..SDFHMAC",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MACLIB",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 44,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSPUNCH",
+          "DISP": "OLD",
+          "DSN": "&CBSAHLQ..DSECT(&MEMBER)",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 48,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "OLD",
+          "DSN": "&&TEMPM",
+          "In Proc": "MAPGEN",
+          "Kind": "DD",
+          "Line": 49,
+          "Step": "ASMDSECT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RACF001.jcl": [
+        {
+          "Job": "RACF001",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "TSO",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": [
+        {
+          "Job": "REPLCICS",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IEBCOPY",
+          "Step": "JOBSTEP",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "CBSA.JCL.INSTALL",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "FEU.Z25A.PROCLIB",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "JOBSTEP"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLSIP.jcl": [
+        {
+          "Job": "REPLSIP",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IEBCOPY",
+          "Step": "JOBSTEP",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "CBSA.JCL.INSTALL",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "SHR",
+          "DSN": "DFH560.SYSIN",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "JOBSTEP"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RESTCICS.jcl": [
+        {
+          "Job": "RESTCICS",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "STEP0001",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RESTZOSC.jcl": [
+        {
+          "Job": "RESTZOSC",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "STEP0001",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/SHUTCICS.jcl": [
+        {
+          "Job": "SHUTCICS",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "STEP0001",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": [
+        {
+          "Job": "SHUTZOSC",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "STEP0001",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/UPDACC.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/UPDCUST.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/XFRFUN.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Proc": "CICS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/ZOSCSEC.jcl": [
+        {
+          "Job": "ZOSCSEC",
+          "Kind": "JOB",
+          "Line": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "BPXBATCH",
+          "Step": "BPXIT",
+          "Step Ordinal": 1
+        }
+      ]
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/adef121.jcl": [
+        {
+          "Job": "GENAVSAM",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "IDCAMS",
+          "Step": "DELETE1",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "IDCAMS",
+          "Step": "DEFINE1",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 30,
+          "Program": "IDCAMS",
+          "Step": "DELETE2",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 37,
+          "Program": "IDCAMS",
+          "Step": "DEFINE2",
+          "Step Ordinal": 4
+        },
+        {
+          "COND": "(7,LT,DEFINE1)",
+          "Kind": "STEP",
+          "Line": 55,
+          "Program": "IDCAMS",
+          "Step": "CUSTDATA",
+          "Step Ordinal": 5
+        },
+        {
+          "DD": "DDIN",
+          "DISP": "SHR",
+          "DSN": "<KSDSCUS>",
+          "Kind": "DD",
+          "Line": 62,
+          "Step": "CUSTDATA"
+        },
+        {
+          "DD": "DDOUT",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.GENAPP.KSDSCUST",
+          "Kind": "DD",
+          "Line": 63,
+          "Step": "CUSTDATA"
+        },
+        {
+          "COND": "(7,LT,DEFINE2)",
+          "Kind": "STEP",
+          "Line": 65,
+          "Program": "IDCAMS",
+          "Step": "POLYDATA",
+          "Step Ordinal": 6
+        },
+        {
+          "DD": "DDIN",
+          "DISP": "SHR",
+          "DSN": "<KSDSPOL>",
+          "Kind": "DD",
+          "Line": 72,
+          "Step": "POLYDATA"
+        },
+        {
+          "DD": "DDOUT",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.GENAPP.KSDSPOLY",
+          "Kind": "DD",
+          "Line": 73,
+          "Step": "POLYDATA"
+        }
+      ],
+      "jcl/cics-genapp/asmmap.jcl": [
+        {
+          "Job": "GENAMAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IEBGENER",
+          "Step": "COPY",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>(SSMAP)",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COPY"
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "NEW",
+          "DSN": "&&TEMPM",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COPY"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Program": "ASMA90",
+          "Step": "ASMMAP",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>",
+          "Kind": "DD",
+          "Line": 26,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MODGEN",
+          "Kind": "DD",
+          "Line": 27,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MACLIB",
+          "Kind": "DD",
+          "Line": 28,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSPUNCH",
+          "DISP": "NEW",
+          "DSN": "&&MAP",
+          "Kind": "DD",
+          "Line": 32,
+          "Step": "ASMMAP"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "OLD",
+          "DSN": "&&TEMPM",
+          "Kind": "DD",
+          "Line": 35,
+          "Step": "ASMMAP"
+        },
+        {
+          "COND": "(7,LT,ASMMAP)",
+          "Kind": "STEP",
+          "Line": 39,
+          "Program": "IEWL",
+          "Step": "LINKMAP",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "<LOADX>(SSMAP)",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "LINKMAP"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&MAP",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "LINKMAP"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 52,
+          "Program": "ASMA90",
+          "Step": "ASMDSECT",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "Kind": "DD",
+          "Line": 57,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>",
+          "Kind": "DD",
+          "Line": 58,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MODGEN",
+          "Kind": "DD",
+          "Line": 59,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.MACLIB",
+          "Kind": "DD",
+          "Line": 60,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSPUNCH",
+          "DISP": "SHR",
+          "DSN": "<MAPCOPX>(SSMAP)",
+          "Kind": "DD",
+          "Line": 64,
+          "Step": "ASMDSECT"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "OLD",
+          "DSN": "&&TEMPM",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "ASMDSECT"
+        }
+      ],
+      "jcl/cics-genapp/cdef121.jcl": [
+        {
+          "Job": "GENACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "DFHCSDUP",
+          "Step": "CSDDEFS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef122.jcl": [
+        {
+          "Job": "GENACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "DFHCSDUP",
+          "Step": "CSDDEFS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef123.jcl": [
+        {
+          "Job": "GENACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "DFHCSDUP",
+          "Step": "CSDDEFS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef124.jcl": [
+        {
+          "Job": "GENACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "DFHCSDUP",
+          "Step": "CSDDEFS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef125.jcl": [
+        {
+          "Job": "GENACSD",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "DFHCSDUP",
+          "Step": "CSDDEFS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cobol.jcl": [
+        {
+          "Job": "GENACOMP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "In Proc": "DB2PROC",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "IGYCRCTL",
+          "Step": "COBL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<COBOLHLQ>.SIGYCOMP",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COBL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "COBL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNEXIT",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "COBL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHCOB",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 17,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHSAMP",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 19,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNSAMP",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 20,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNMACS",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 21,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<MAPCOPX>",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 22,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 23,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>(&MEM)",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 24,
+          "Step": "COBL"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "<DBRMLIX>(&MEM)",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "COBL"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "NEW",
+          "DSN": "&&LOADSET",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 26,
+          "Step": "COBL"
+        },
+        {
+          "COND": "(7,LT,COBL)",
+          "In Proc": "DB2PROC",
+          "Kind": "STEP",
+          "Line": 56,
+          "Program": "IEBGENER",
+          "Step": "COPYLINK",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHCOB(DFHEILIC)",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 57,
+          "Step": "COPYLINK"
+        },
+        {
+          "DD": "SYSUT2",
+          "DISP": "NEW",
+          "DSN": "&&COPYLINK",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 58,
+          "Step": "COPYLINK"
+        },
+        {
+          "COND": "(7,LT,COBL)",
+          "In Proc": "DB2PROC",
+          "Kind": "STEP",
+          "Line": 67,
+          "Program": "HEWL",
+          "Step": "LKED",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 69,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 70,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEELKED",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 71,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<LOADX>",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 72,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "<LOADX>(&MEM)",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 73,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&COPYLINK",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 77,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&LOADSET",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 78,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "SHR",
+          "DSN": "<SOURCEX>(LINKPARM)",
+          "In Proc": "DB2PROC",
+          "Kind": "DD",
+          "Line": 79,
+          "Step": "LKED"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 83,
+          "Proc": "DB2PROC",
+          "Step": "LGACDB01",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 84,
+          "Proc": "DB2PROC",
+          "Step": "LGACDB02",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 85,
+          "Proc": "DB2PROC",
+          "Step": "LGACUS01",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 86,
+          "Proc": "DB2PROC",
+          "Step": "LGACVS01",
+          "Step Ordinal": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 87,
+          "Proc": "DB2PROC",
+          "Step": "LGAPDB01",
+          "Step Ordinal": 5
+        },
+        {
+          "Kind": "STEP",
+          "Line": 88,
+          "Proc": "DB2PROC",
+          "Step": "LGAPOL01",
+          "Step Ordinal": 6
+        },
+        {
+          "Kind": "STEP",
+          "Line": 89,
+          "Proc": "DB2PROC",
+          "Step": "LGAPVS01",
+          "Step Ordinal": 7
+        },
+        {
+          "Kind": "STEP",
+          "Line": 90,
+          "Proc": "DB2PROC",
+          "Step": "LGASTAT1",
+          "Step Ordinal": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 91,
+          "Proc": "DB2PROC",
+          "Step": "LGDPDB01",
+          "Step Ordinal": 9
+        },
+        {
+          "Kind": "STEP",
+          "Line": 92,
+          "Proc": "DB2PROC",
+          "Step": "LGDPOL01",
+          "Step Ordinal": 10
+        },
+        {
+          "Kind": "STEP",
+          "Line": 93,
+          "Proc": "DB2PROC",
+          "Step": "LGDPVS01",
+          "Step Ordinal": 11
+        },
+        {
+          "Kind": "STEP",
+          "Line": 94,
+          "Proc": "DB2PROC",
+          "Step": "LGICDB01",
+          "Step Ordinal": 12
+        },
+        {
+          "Kind": "STEP",
+          "Line": 95,
+          "Proc": "DB2PROC",
+          "Step": "LGICUS01",
+          "Step Ordinal": 13
+        },
+        {
+          "Kind": "STEP",
+          "Line": 96,
+          "Proc": "DB2PROC",
+          "Step": "LGICVS01",
+          "Step Ordinal": 14
+        },
+        {
+          "Kind": "STEP",
+          "Line": 97,
+          "Proc": "DB2PROC",
+          "Step": "LGIPDB01",
+          "Step Ordinal": 15
+        },
+        {
+          "Kind": "STEP",
+          "Line": 98,
+          "Proc": "DB2PROC",
+          "Step": "LGIPOL01",
+          "Step Ordinal": 16
+        },
+        {
+          "Kind": "STEP",
+          "Line": 99,
+          "Proc": "DB2PROC",
+          "Step": "LGIPVS01",
+          "Step Ordinal": 17
+        },
+        {
+          "Kind": "STEP",
+          "Line": 100,
+          "Proc": "DB2PROC",
+          "Step": "LGSETUP",
+          "Step Ordinal": 18
+        },
+        {
+          "Kind": "STEP",
+          "Line": 101,
+          "Proc": "DB2PROC",
+          "Step": "LGSTSQ",
+          "Step Ordinal": 19
+        },
+        {
+          "Kind": "STEP",
+          "Line": 102,
+          "Proc": "DB2PROC",
+          "Step": "LGTESTC1",
+          "Step Ordinal": 20
+        },
+        {
+          "Kind": "STEP",
+          "Line": 103,
+          "Proc": "DB2PROC",
+          "Step": "LGTESTP1",
+          "Step Ordinal": 21
+        },
+        {
+          "Kind": "STEP",
+          "Line": 104,
+          "Proc": "DB2PROC",
+          "Step": "LGTESTP2",
+          "Step Ordinal": 22
+        },
+        {
+          "Kind": "STEP",
+          "Line": 105,
+          "Proc": "DB2PROC",
+          "Step": "LGTESTP3",
+          "Step Ordinal": 23
+        },
+        {
+          "Kind": "STEP",
+          "Line": 106,
+          "Proc": "DB2PROC",
+          "Step": "LGTESTP4",
+          "Step Ordinal": 24
+        },
+        {
+          "Kind": "STEP",
+          "Line": 107,
+          "Proc": "DB2PROC",
+          "Step": "LGUCDB01",
+          "Step Ordinal": 25
+        },
+        {
+          "Kind": "STEP",
+          "Line": 108,
+          "Proc": "DB2PROC",
+          "Step": "LGUCUS01",
+          "Step Ordinal": 26
+        },
+        {
+          "Kind": "STEP",
+          "Line": 109,
+          "Proc": "DB2PROC",
+          "Step": "LGUCVS01",
+          "Step Ordinal": 27
+        },
+        {
+          "Kind": "STEP",
+          "Line": 110,
+          "Proc": "DB2PROC",
+          "Step": "LGUPDB01",
+          "Step Ordinal": 28
+        },
+        {
+          "Kind": "STEP",
+          "Line": 111,
+          "Proc": "DB2PROC",
+          "Step": "LGUPOL01",
+          "Step Ordinal": 29
+        },
+        {
+          "Kind": "STEP",
+          "Line": 112,
+          "Proc": "DB2PROC",
+          "Step": "LGUPVS01",
+          "Step Ordinal": 30
+        },
+        {
+          "Kind": "STEP",
+          "Line": 113,
+          "Proc": "DB2PROC",
+          "Step": "LGWEBST5",
+          "Step Ordinal": 31
+        }
+      ],
+      "jcl/cics-genapp/cpsmde2.jcl": [
+        {
+          "Job": "DEFCPSM",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Proc": "EYUJXBTP",
+          "Step": "EYU9XDBT",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/db2bind.jcl": [
+        {
+          "Job": "GENABIND",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IKJEFT01",
+          "Step": "BIND",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "<DBRMLIX>",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cics-genapp/db2cre.jcl": [
+        {
+          "Job": "GENADB2",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 6
+        },
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IKJEFT01",
+          "Step": "CREATE",
+          "Step Ordinal": 1
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 91,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 2
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 142,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 3
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 184,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 4
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 221,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 5
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 256,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 6
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 294,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 7
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 342,
+          "Program": "IKJEFT01",
+          "Step": "CRTABS",
+          "Step Ordinal": 8
+        },
+        {
+          "COND": "(4,LT)",
+          "Kind": "STEP",
+          "Line": 375,
+          "Program": "IKJEFT01",
+          "Step": "CRGRACC",
+          "Step Ordinal": 9
+        },
+        {
+          "Kind": "STEP",
+          "Line": 404,
+          "Program": "IKJEFT01",
+          "Step": "INSERT",
+          "Step Ordinal": 10
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 405,
+          "Step": "INSERT"
+        }
+      ],
+      "jcl/cics-genapp/db2del.jcl": [
+        {
+          "Job": "GENADB2",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "DD": "JOBLIB",
+          "DISP": "SHR",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 6
+        },
+        {
+          "Kind": "STEP",
+          "Line": 11,
+          "Program": "IKJEFT01",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/defdrep.jcl": [
+        {
+          "Job": "EYUDREP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IDCAMS",
+          "Step": "DELWREP",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 19,
+          "Program": "IDCAMS",
+          "Step": "DEFDREP",
+          "Step Ordinal": 2
+        },
+        {
+          "COND": "(8,LT)",
+          "Kind": "STEP",
+          "Line": 37,
+          "Program": "EYU9XDUT",
+          "Step": "DREPINIT",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Kind": "DD",
+          "Line": 49,
+          "Step": "DREPINIT"
+        },
+        {
+          "DD": "EYUDREP",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.EYUDREP",
+          "Kind": "DD",
+          "Line": 50,
+          "Step": "DREPINIT"
+        }
+      ],
+      "jcl/cics-genapp/defwrep.jcl": [
+        {
+          "Job": "EYUWREP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IDCAMS",
+          "Step": "DELWREP",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 19,
+          "Program": "IDCAMS",
+          "Step": "DEFWREP",
+          "Step Ordinal": 2
+        }
+      ],
+      "jcl/cics-genapp/itpentr.jcl": [
+        {
+          "Job": "GENAWSIM",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "ITPENTER",
+          "Step": "RUNSIM",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "INITDD",
+          "DISP": "SHR",
+          "DSN": "<WSIMWSX>",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "MSGDD",
+          "DISP": "SHR",
+          "DSN": "<WSIMMSX>",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "MSGDD",
+          "DISP": "SHR",
+          "DSN": "<WSIMWSX>",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "RUNSIM"
+        },
+        {
+          "DD": "LOGDD",
+          "DISP": "SHR",
+          "DSN": "<WSIMLGX>",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "RUNSIM"
+        }
+      ],
+      "jcl/cics-genapp/itpll.jcl": [
+        {
+          "Job": "GENALL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "ITPLL",
+          "Step": "LOGLIST",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "LOGLIST"
+        },
+        {
+          "DD": "SYSUT1",
+          "DISP": "SHR",
+          "DSN": "<WSIMLGX>",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "LOGLIST"
+        }
+      ],
+      "jcl/cics-genapp/itpstl.jcl": [
+        {
+          "Job": "GENASTL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "In Proc": "STL",
+          "Kind": "STEP",
+          "Line": 7,
+          "Program": "ITPSTL",
+          "Step": "ITPSTL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "In Proc": "STL",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "<WSIMWSX>(&MEM)",
+          "In Proc": "STL",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "<WSIMWSX>",
+          "In Proc": "STL",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "ITPSTL"
+        },
+        {
+          "DD": "MSGDD",
+          "DISP": "SHR",
+          "DSN": "<WSIMMSX>",
+          "In Proc": "STL",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "ITPSTL"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 17,
+          "Proc": "STL",
+          "Step": "#ONCICS",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 18,
+          "Proc": "STL",
+          "Step": "#SSVARS",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 19,
+          "Proc": "STL",
+          "Step": "SSC1A1",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 20,
+          "Proc": "STL",
+          "Step": "SSC1I1",
+          "Step Ordinal": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Proc": "STL",
+          "Step": "SSP1A1",
+          "Step Ordinal": 5
+        },
+        {
+          "Kind": "STEP",
+          "Line": 22,
+          "Proc": "STL",
+          "Step": "SSP1D1",
+          "Step Ordinal": 6
+        },
+        {
+          "Kind": "STEP",
+          "Line": 23,
+          "Proc": "STL",
+          "Step": "SSP1I1",
+          "Step Ordinal": 7
+        },
+        {
+          "Kind": "STEP",
+          "Line": 24,
+          "Proc": "STL",
+          "Step": "SSP1U1",
+          "Step Ordinal": 8
+        },
+        {
+          "Kind": "STEP",
+          "Line": 25,
+          "Proc": "STL",
+          "Step": "SSP2A1",
+          "Step Ordinal": 9
+        },
+        {
+          "Kind": "STEP",
+          "Line": 26,
+          "Proc": "STL",
+          "Step": "SSP2D1",
+          "Step Ordinal": 10
+        },
+        {
+          "Kind": "STEP",
+          "Line": 27,
+          "Proc": "STL",
+          "Step": "SSP2I1",
+          "Step Ordinal": 11
+        },
+        {
+          "Kind": "STEP",
+          "Line": 28,
+          "Proc": "STL",
+          "Step": "SSP2U1",
+          "Step Ordinal": 12
+        },
+        {
+          "Kind": "STEP",
+          "Line": 29,
+          "Proc": "STL",
+          "Step": "SSP3A1",
+          "Step Ordinal": 13
+        },
+        {
+          "Kind": "STEP",
+          "Line": 30,
+          "Proc": "STL",
+          "Step": "SSP3D1",
+          "Step Ordinal": 14
+        },
+        {
+          "Kind": "STEP",
+          "Line": 31,
+          "Proc": "STL",
+          "Step": "SSP3I1",
+          "Step Ordinal": 15
+        },
+        {
+          "Kind": "STEP",
+          "Line": 32,
+          "Proc": "STL",
+          "Step": "SSP3U1",
+          "Step Ordinal": 16
+        },
+        {
+          "Kind": "STEP",
+          "Line": 33,
+          "Proc": "STL",
+          "Step": "SSP4A1",
+          "Step Ordinal": 17
+        },
+        {
+          "Kind": "STEP",
+          "Line": 34,
+          "Proc": "STL",
+          "Step": "SSP4D1",
+          "Step Ordinal": 18
+        },
+        {
+          "Kind": "STEP",
+          "Line": 35,
+          "Proc": "STL",
+          "Step": "SSP4I1",
+          "Step Ordinal": 19
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Proc": "STL",
+          "Step": "STOP",
+          "Step Ordinal": 20
+        },
+        {
+          "Kind": "STEP",
+          "Line": 37,
+          "Proc": "STL",
+          "Step": "WSC1A1",
+          "Step Ordinal": 21
+        },
+        {
+          "Kind": "STEP",
+          "Line": 38,
+          "Proc": "STL",
+          "Step": "WSC1I1",
+          "Step Ordinal": 22
+        }
+      ],
+      "jcl/cics-genapp/sampcma.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "EYU9XECS",
+          "Step": "CMAS",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CPSMHLQ>.SEYULOAD",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEERUN",
+          "Kind": "DD",
+          "Line": 17,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "EYUDREP",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.EYUDREP",
+          "Kind": "DD",
+          "Line": 19,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 41,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHDMPA",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHDMPA",
+          "Kind": "DD",
+          "Line": 42,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHGCD",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHGCD",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHINTRA",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHINTRA",
+          "Kind": "DD",
+          "Line": 44,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHLCD",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHLCD",
+          "Kind": "DD",
+          "Line": 45,
+          "Step": "CMAS"
+        },
+        {
+          "DD": "DFHTEMP",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHTEMP",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "CMAS"
+        }
+      ],
+      "jcl/cics-genapp/sampncs.jcl": [
+        {
+          "Job": "CICSCNCS",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "DFHNCMN",
+          "Step": "NCSERVER",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "NCSERVER"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "NCSERVER"
+        }
+      ],
+      "jcl/cics-genapp/samptsq.jcl": [
+        {
+          "Job": "CICSSTSQ",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "DFHXQMN",
+          "Step": "SHARETSQ",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "SHARETSQ"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "SHARETSQ"
+        }
+      ],
+      "jcl/cics-genapp/sampwui.jcl": [
+        {
+          "Kind": "STEP",
+          "Line": 5,
+          "Program": "DFHSIP",
+          "Step": "GENAPP1",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CPSMHLQ>.SEYULOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<CEEHLQ>.SCEERUN",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHRPL",
+          "DISP": "SHR",
+          "DSN": "<LOADX>",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "EYUWREP",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.EYUWREP",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHCSD",
+          "DISP": "SHR",
+          "DSN": "<CSDNAME>",
+          "Kind": "DD",
+          "Line": 57,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHDMPA",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHDMPA",
+          "Kind": "DD",
+          "Line": 58,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHDMPB",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHDMPB",
+          "Kind": "DD",
+          "Line": 59,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHAUXT",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHAUXT",
+          "Kind": "DD",
+          "Line": 60,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHBUXT",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHBUXT",
+          "Kind": "DD",
+          "Line": 61,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHGCD",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHGCD",
+          "Kind": "DD",
+          "Line": 62,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHINTRA",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHINTRA",
+          "Kind": "DD",
+          "Line": 63,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHLCD",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHLCD",
+          "Kind": "DD",
+          "Line": 64,
+          "Step": "GENAPP1"
+        },
+        {
+          "DD": "DFHTEMP",
+          "DISP": "SHR",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHTEMP",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "GENAPP1"
+        }
+      ],
+      "jcl/cics-genapp/wsaac01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/wsaap01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 14,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 58,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 80,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 4
+        }
+      ],
+      "jcl/cics-genapp/wsaic01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/wsaip01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 15,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSM",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 37,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSH",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 59,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSE",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 81,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSB",
+          "Step Ordinal": 4
+        },
+        {
+          "Kind": "STEP",
+          "Line": 103,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSB",
+          "Step Ordinal": 5
+        }
+      ],
+      "jcl/cics-genapp/wsauc01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/wsaup01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 14,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 2
+        },
+        {
+          "Kind": "STEP",
+          "Line": 58,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 3
+        },
+        {
+          "Kind": "STEP",
+          "Line": 80,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WS",
+          "Step Ordinal": 4
+        }
+      ],
+      "jcl/cics-genapp/wsavc01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSVS",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cics-genapp/wsavp01.jcl": [
+        {
+          "Job": "GENASOAP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Proc": "DFHLS2WS",
+          "Step": "LS2WSVS",
+          "Step Ordinal": 1
+        }
+      ]
+    },
+    "jcl/cics-java-jcics-samples": {
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": [
+        {
+          "Job": "DEFVSAM",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 4,
+          "Program": "IDCAMS",
+          "Step": "DEFINE",
+          "Step Ordinal": 1
+        }
+      ]
+    },
+    "jcl/cobol-programming-course": {
+      "jcl/cobol-programming-course/ADDAMT.jcl": [
+        {
+          "Job": "ADDAMT",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(ADDAMT)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(ADDAMT)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "ADDAMT",
+          "Step": "STEP2",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "STEP2"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0001J.jcl": [
+        {
+          "Job": "CBL0001J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0001)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0001)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0001",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0002J.jcl": [
+        {
+          "Job": "CBL0002J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0002)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0002)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0002",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0003J.jcl": [
+        {
+          "Job": "CBL0003J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0001)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0001)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0001",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREX",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0004J.jcl": [
+        {
+          "Job": "CBL0004J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0004)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0004)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0004",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0005J.jcl": [
+        {
+          "Job": "CBL0005J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0005)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0005)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0005",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0006J.jcl": [
+        {
+          "Job": "CBL0006J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0006)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0006)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0006",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0007J.jcl": [
+        {
+          "Job": "CBL0007J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0007)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0007)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0007",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0008J.jcl": [
+        {
+          "Job": "CBL0008J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0008)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0008)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0008",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0009J.jcl": [
+        {
+          "Job": "CBL0009J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0009)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0009)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0009",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0010J.jcl": [
+        {
+          "Job": "CBL0010J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0010)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0010)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0010",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0011J.jcl": [
+        {
+          "Job": "CBL0011J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0011)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0011)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0011",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0012J.jcl": [
+        {
+          "Job": "CBL0012J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0012)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0012)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0012",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0013J.jcl": [
+        {
+          "Job": "CBL0013J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 3,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0013)",
+          "Kind": "DD",
+          "Line": 4,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0013)",
+          "Kind": "DD",
+          "Line": 5,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "CBL0013",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0014J.jcl": [
+        {
+          "Job": "CBL0014J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 3,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0014)",
+          "Kind": "DD",
+          "Line": 4,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0014)",
+          "Kind": "DD",
+          "Line": 5,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "CBL0014",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0033J.jcl": [
+        {
+          "Job": "CBL0033J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(HELLO)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(HELLO)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0033)",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0033)",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(HELLO)",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0 AND RC = 0",
+          "Kind": "STEP",
+          "Line": 19,
+          "Program": "CBL0033",
+          "Step": "RUN",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 20,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 21,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL006AJ.jcl": [
+        {
+          "Job": "CBL006AJ",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL006A)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL006A)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL006A",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0106J.jcl": [
+        {
+          "Job": "CBL0106J",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(CBL0106)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(CBL0106)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "CBL0106",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB21C.jcl": [
+        {
+          "Job": "CBLDB21C",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DB2CBL",
+          "Step": "COMPILE",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB21R.jcl": [
+        {
+          "Job": "CBLDB21R",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "RUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB22C.jcl": [
+        {
+          "Job": "CBLDB22C",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DB2CBL",
+          "Step": "COMPILE",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB22R.jcl": [
+        {
+          "Job": "CBLDB22R",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "RUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB23C.jcl": [
+        {
+          "Job": "CBLDB23C",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DB2CBL",
+          "Step": "COMPILE",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB23R.jcl": [
+        {
+          "Job": "CBLDB23R",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 8,
+          "Program": "IKJEFT01",
+          "Step": "RUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/COBRUN.jcl": [
+        {
+          "Job": "COBOL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(COBOL)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(COBEXEC)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "COBEXEC",
+          "Step": "STEP2",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "STEP2"
+        },
+        {
+          "DD": "PRTDONE",
+          "DISP": "NEW",
+          "DSN": "&SYSUID..COBRUN.OUTPUT",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "STEP2"
+        }
+      ],
+      "jcl/cobol-programming-course/CRETBL.jcl": [
+        {
+          "Job": "CREATE1",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DB2JCL",
+          "Step": "SQLEXEC",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/DB2CBL.jcl": [
+        {
+          "IF": "RC = 0",
+          "In Proc": "DB2CBL",
+          "Kind": "STEP",
+          "Line": 9,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "IGY630.SIGYCOMP",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.DBCG.SDSNEXIT",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEERUN2",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(&MBR)",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 15,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DBRMLIB(&MBR)",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 16,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "MOD",
+          "DSN": "&&LOADSET",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 18,
+          "Step": "COBOL"
+        },
+        {
+          "COND": "(8,LT,COBOL)",
+          "IF": "RC <= 4",
+          "In Proc": "DB2CBL",
+          "Kind": "STEP",
+          "Line": 41,
+          "Program": "IEWBLINK",
+          "Step": "LKED",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "CEE.SCEELKED",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 42,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&LOADSET",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(&MBR)",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 47,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC <= 4",
+          "In Proc": "DB2CBL",
+          "Kind": "STEP",
+          "Line": 53,
+          "Program": "IKJEFT01",
+          "Step": "BIND",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 54,
+          "Step": "BIND"
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DBRMLIB",
+          "In Proc": "DB2CBL",
+          "Kind": "DD",
+          "Line": 55,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2JCL.jcl": [
+        {
+          "In Proc": "DB2JCL",
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IKJEFT01",
+          "Step": "SQL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "DSNC10.SDSNLOAD",
+          "In Proc": "DB2JCL",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "SQL"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2SETUP.jcl": [
+        {
+          "Job": "DB2SETUP",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IEBCOPY",
+          "Step": "JOBSTEP",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "JCL",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..JCL",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "DB2JCL",
+          "DISP": "SHR",
+          "DSN": "ZOS.PUBLIC.DB2.JCL",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "CBL",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "JOBSTEP"
+        },
+        {
+          "DD": "DB2CBL",
+          "DISP": "SHR",
+          "DSN": "ZOS.PUBLIC.DB2.CBL",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 33,
+          "Program": "IEFBR14",
+          "Step": "DBRMLIB",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "DBRMLIB",
+          "DISP": "NEW",
+          "DSN": "&SYSUID..DBRMLIB",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "DBRMLIB"
+        }
+      ],
+      "jcl/cobol-programming-course/DBRMLIB.jcl": [
+        {
+          "Job": "DBRMLIB",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 7,
+          "Program": "IEFBR14",
+          "Step": "ALLOC",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DBRM",
+          "DISP": "NEW",
+          "DSN": "&SYSUID..DBRMLIB",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "ALLOC"
+        }
+      ],
+      "jcl/cobol-programming-course/DEPTPAY.JCL": [
+        {
+          "Job": "DEPTPAYJ",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 2,
+          "Program": "IKJEFT01",
+          "Step": "COPY2DS1",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "OUTMVS",
+          "DISP": "SHR",
+          "DSN": "Z99998.CBL(DEPTPAY)",
+          "Kind": "DD",
+          "Line": 5,
+          "Step": "COPY2DS1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 10,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "Z99998.CBL(DEPTPAY)",
+          "Kind": "DD",
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "Z99998.LOAD(DEPTPAY)",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "LKED"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 13,
+          "Program": "DEPTPAY",
+          "Step": "RUN",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "Z99998.LOAD",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/DSNUPROC.jcl": [
+        {
+          "In Proc": "DSNUPROC",
+          "Kind": "STEP",
+          "Line": 3,
+          "Program": "DSNUTILB",
+          "Step": "DSNUPROC",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIB",
+          "In Proc": "DSNUPROC",
+          "Kind": "DD",
+          "Line": 4,
+          "Step": "DSNUPROC"
+        },
+        {
+          "DD": "SORTLIB",
+          "DISP": "SHR",
+          "DSN": "SYS1.SORTLIB",
+          "In Proc": "DSNUPROC",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "DSNUPROC"
+        }
+      ],
+      "jcl/cobol-programming-course/EMPPAY.JCL": [
+        {
+          "Job": "EMPPAY",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(EMPPAY)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(EMPPAY)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "EMPPAY",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/HELLO.jcl": [
+        {
+          "Job": "HELLOCBL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCLG",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWC.jcl": [
+        {
+          "In Proc": "IGYWC",
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "In Proc": "IGYWC",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "In Proc": "IGYWC",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "In Proc": "IGYWC",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "NEW",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "In Proc": "IGYWC",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "MOD",
+          "DSN": "&&LOADSET",
+          "In Proc": "IGYWC",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCL.jcl": [
+        {
+          "In Proc": "IGYWCL",
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "MOD",
+          "DSN": "&&LOADSET",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "IF": "RC < 8",
+          "In Proc": "IGYWCL",
+          "Kind": "STEP",
+          "Line": 31,
+          "Program": "IEWBLINK",
+          "Step": "LKED",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEELKEX",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 32,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEELKED",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 33,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&LOADSET",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 35,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(&SRC)",
+          "In Proc": "IGYWCL",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCLG.jcl": [
+        {
+          "In Proc": "IGYWCLG",
+          "Kind": "STEP",
+          "Line": 6,
+          "Program": "IGYCRCTL",
+          "Step": "COBOL",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 9,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "MOD",
+          "DSN": "&&LOADSET",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "IF": "RC < 8",
+          "In Proc": "IGYWCLG",
+          "Kind": "STEP",
+          "Line": 33,
+          "Program": "IEWBLINK",
+          "Step": "LKED",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEELKEX",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEELKED",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 35,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&&LOADSET",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(&SRC)",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 39,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC < 8",
+          "In Proc": "IGYWCLG",
+          "Kind": "STEP",
+          "Line": 44,
+          "Program": "*.LKED.SYSLMOD",
+          "Step": "GO",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 45,
+          "Step": "GO"
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "In Proc": "IGYWCLG",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "GO"
+        }
+      ],
+      "jcl/cobol-programming-course/LOADTBL.jcl": [
+        {
+          "Job": "LOADTBL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DSNUPROC",
+          "Step": "LOAD",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "TBLRECS",
+          "DISP": "SHR",
+          "DSN": "ZOS.PUBLIC.SEQ.DATA",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "LOAD"
+        },
+        {
+          "COND": "(0,NE)",
+          "Kind": "STEP",
+          "Line": 22,
+          "Proc": "DSNUPROC",
+          "Step": "RUNSTAT",
+          "Step Ordinal": 2
+        }
+      ],
+      "jcl/cobol-programming-course/PAYROL00.jcl": [
+        {
+          "Job": "PAYROL00",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCLG",
+          "Step": "PAYROLL",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/PAYROL0X.jcl": [
+        {
+          "Job": "PAYROL0X",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCLG",
+          "Step": "PAYROLL",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/SELTBL.jcl": [
+        {
+          "Job": "SELTBL",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "DB2JCL",
+          "Step": "SQLEXEC",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHBINJ.jcl": [
+        {
+          "Job": "SRCHBINJ",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(SRCHBIN)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(SRCHBIN)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "SRCHBIN",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHSERJ.jcl": [
+        {
+          "Job": "SRCHSERJ",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 6,
+          "Proc": "IGYWCL",
+          "Step": "COBRUN",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..CBL(SRCHSER)",
+          "Kind": "DD",
+          "Line": 7,
+          "Step": "COBOL"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD(SRCHSER)",
+          "Kind": "DD",
+          "Line": 8,
+          "Step": "LKED"
+        },
+        {
+          "IF": "RC = 0",
+          "Kind": "STEP",
+          "Line": 12,
+          "Program": "SRCHSER",
+          "Step": "RUN",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..LOAD",
+          "Kind": "DD",
+          "Line": 13,
+          "Step": "RUN"
+        },
+        {
+          "DD": "ACCTREC",
+          "DISP": "SHR",
+          "DSN": "&SYSUID..DATA",
+          "Kind": "DD",
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ]
+    },
+    "jcl/zopeneditor-sample": {
+      "jcl/zopeneditor-sample/ALLOCATE.jcl": [
+        {
+          "Job": "ZDEALLC",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.COBOL",
+          "Kind": "DD",
+          "Line": 31,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD6",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD7",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "DELETE"
+        },
+        {
+          "COND": "(8,LT)",
+          "Kind": "STEP",
+          "Line": 50,
+          "Program": "IEFBR14",
+          "Step": "ALLOCAT",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "DD1",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "Kind": "DD",
+          "Line": 55,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 60,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.COBOL",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "Kind": "DD",
+          "Line": 70,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "Kind": "DD",
+          "Line": 75,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD6",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "Kind": "DD",
+          "Line": 80,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD7",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "Kind": "DD",
+          "Line": 85,
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/ASMALLOC.jcl": [
+        {
+          "Job": "WAZIASMA",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "Kind": "DD",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASM",
+          "Kind": "DD",
+          "Line": 31,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "DELETE"
+        },
+        {
+          "COND": "(8,LT)",
+          "Kind": "STEP",
+          "Line": 44,
+          "Program": "IEFBR14",
+          "Step": "ALLOCAT",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "DD1",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "Kind": "DD",
+          "Line": 49,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "Kind": "DD",
+          "Line": 54,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASM",
+          "Kind": "DD",
+          "Line": 59,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "Kind": "DD",
+          "Line": 64,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "Kind": "DD",
+          "Line": 69,
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/COMPROC.jcl": [
+        {
+          "In Proc": "COMPROC",
+          "Kind": "STEP",
+          "Line": 30,
+          "Program": "IGYCRCTL",
+          "Step": "CMPLSAM2",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CMPLLIB",
+          "In Proc": "COMPROC",
+          "Kind": "DD",
+          "Line": 31,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "In Proc": "COMPROC",
+          "Kind": "DD",
+          "Line": 32,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "In Proc": "COMPROC",
+          "Kind": "DD",
+          "Line": 33,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "In Proc": "COMPROC",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "CMPLSAM2"
+        }
+      ],
+      "jcl/zopeneditor-sample/INCLUDE.jcl": [
+        {
+          "COND": "(16,LT)",
+          "Job": "IBMUSER",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 23,
+          "Proc": "COMPROC",
+          "Step": "STEP1",
+          "Step Ordinal": 1
+        }
+      ],
+      "jcl/zopeneditor-sample/PLIALLOC.jcl": [
+        {
+          "Job": "ZDEPLIA",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "Kind": "DD",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLI",
+          "Kind": "DD",
+          "Line": 31,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD6",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD7",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "DELETE"
+        },
+        {
+          "COND": "(8,LT)",
+          "Kind": "STEP",
+          "Line": 50,
+          "Program": "IEFBR14",
+          "Step": "ALLOCAT",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "DD1",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "Kind": "DD",
+          "Line": 55,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "Kind": "DD",
+          "Line": 60,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLI",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "Kind": "DD",
+          "Line": 70,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD5",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "Kind": "DD",
+          "Line": 75,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD6",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "Kind": "DD",
+          "Line": 80,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD7",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "Kind": "DD",
+          "Line": 85,
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/REXALLOC.jcl": [
+        {
+          "Job": "ZDEALLC",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 21,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.REXX",
+          "Kind": "DD",
+          "Line": 25,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "Kind": "DD",
+          "Line": 28,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "Kind": "DD",
+          "Line": 31,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "Kind": "DD",
+          "Line": 34,
+          "Step": "DELETE"
+        },
+        {
+          "COND": "(8,LT)",
+          "Kind": "STEP",
+          "Line": 41,
+          "Program": "IEFBR14",
+          "Step": "ALLOCAT",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "DD1",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.REXX",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "Kind": "DD",
+          "Line": 51,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD3",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "Kind": "DD",
+          "Line": 56,
+          "Step": "ALLOCAT"
+        },
+        {
+          "DD": "DD4",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "Kind": "DD",
+          "Line": 61,
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUN.jcl": [
+        {
+          "Job": "ZDERUN",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 42,
+          "Program": "IGYCRCTL",
+          "Step": "CMPLSAM2",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CMPLLIB",
+          "Kind": "DD",
+          "Line": 43,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "Kind": "DD",
+          "Line": 44,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "Kind": "DD",
+          "Line": 45,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "Kind": "DD",
+          "Line": 46,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 72,
+          "Program": "IGYCRCTL",
+          "Step": "CMPLSAM1",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CMPLLIB",
+          "Kind": "DD",
+          "Line": 73,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM1)",
+          "Kind": "DD",
+          "Line": 74,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "Kind": "DD",
+          "Line": 75,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "MYFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "Kind": "DD",
+          "Line": 76,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "MYLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "Kind": "DD",
+          "Line": 77,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM1)",
+          "Kind": "DD",
+          "Line": 78,
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 103,
+          "Program": "IEWL",
+          "Step": "LINKSAM2",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 104,
+          "Step": "LINKSAM2"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LINKLIB",
+          "Kind": "DD",
+          "Line": 107,
+          "Step": "LINKSAM2"
+        },
+        {
+          "DD": "OBJ",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "Kind": "DD",
+          "Line": 108,
+          "Step": "LINKSAM2"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 120,
+          "Program": "IEWL",
+          "Step": "LINKSAM1",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 121,
+          "Step": "LINKSAM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LINKLIB",
+          "Kind": "DD",
+          "Line": 124,
+          "Step": "LINKSAM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 125,
+          "Step": "LINKSAM1"
+        },
+        {
+          "DD": "OBJ",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "Kind": "DD",
+          "Line": 126,
+          "Step": "LINKSAM1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 135,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 5
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.CUSTRPT",
+          "Kind": "DD",
+          "Line": 139,
+          "Step": "DELETE"
+        },
+        {
+          "DD": "DD2",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.CUSTOUT",
+          "Kind": "DD",
+          "Line": 141,
+          "Step": "DELETE"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 147,
+          "Program": "SAM1",
+          "Step": "SAM1",
+          "Step Ordinal": 6
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "Kind": "DD",
+          "Line": 148,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "CUSTFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "Kind": "DD",
+          "Line": 154,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "TRANFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "Kind": "DD",
+          "Line": 157,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "CUSTOUT",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.CUSTOUT",
+          "Kind": "DD",
+          "Line": 160,
+          "Step": "SAM1"
+        },
+        {
+          "DD": "CUSTRPT",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.CUSTRPT",
+          "Kind": "DD",
+          "Line": 165,
+          "Step": "SAM1"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNASAM1.jcl": [
+        {
+          "COND": "(4,LT)",
+          "Job": "WAZIASM1",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 26,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "Kind": "DD",
+          "Line": 30,
+          "Step": "DELETE"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 36,
+          "Program": "ASMA90",
+          "Step": "ASM1",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&MACLIB",
+          "Kind": "DD",
+          "Line": 37,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&MODGEN",
+          "Kind": "DD",
+          "Line": 38,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&SCEEMAC",
+          "Kind": "DD",
+          "Line": 39,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSPUNCH",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ(ASAM1)",
+          "Kind": "DD",
+          "Line": 41,
+          "Step": "ASM1"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASM(ASAM1)",
+          "Kind": "DD",
+          "Line": 47,
+          "Step": "ASM1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 51,
+          "Program": "IEWL",
+          "Step": "LKED",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "Kind": "DD",
+          "Line": 52,
+          "Step": "LKED"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LINKLIB",
+          "Kind": "DD",
+          "Line": 55,
+          "Step": "LKED"
+        },
+        {
+          "DD": "OBJ",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "Kind": "DD",
+          "Line": 56,
+          "Step": "LKED"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 64,
+          "Program": "ASAM1",
+          "Step": "EXECUTE",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "EXECUTE"
+        },
+        {
+          "DD": "FILEIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "Kind": "DD",
+          "Line": 70,
+          "Step": "EXECUTE"
+        },
+        {
+          "DD": "FILEOUT",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "Kind": "DD",
+          "Line": 72,
+          "Step": "EXECUTE"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNPSAM1.jcl": [
+        {
+          "COND": "(4,LT)",
+          "Job": "ZDEPSM1",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
+          "Kind": "STEP",
+          "Line": 25,
+          "Program": "IEFBR14",
+          "Step": "DELETE",
+          "Step Ordinal": 1
+        },
+        {
+          "DD": "DD1",
+          "DISP": "MOD",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "Kind": "DD",
+          "Line": 29,
+          "Step": "DELETE"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 35,
+          "Program": "IBMZPLI",
+          "Step": "CMPPSAM2",
+          "Step Ordinal": 2
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CMPLLIB",
+          "Kind": "DD",
+          "Line": 36,
+          "Step": "CMPPSAM2"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "Kind": "DD",
+          "Line": 39,
+          "Step": "CMPPSAM2"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ(PSAM2)",
+          "Kind": "DD",
+          "Line": 40,
+          "Step": "CMPPSAM2"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI(PSAM2)",
+          "Kind": "DD",
+          "Line": 41,
+          "Step": "CMPPSAM2"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 46,
+          "Program": "IBMZPLI",
+          "Step": "CMPPSAM1",
+          "Step Ordinal": 3
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&CMPLLIB",
+          "Kind": "DD",
+          "Line": 47,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "Kind": "DD",
+          "Line": 50,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "MYFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "Kind": "DD",
+          "Line": 51,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "MYLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "Kind": "DD",
+          "Line": 52,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "SYSLIN",
+          "DISP": "OLD",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ(PSAM1)",
+          "Kind": "DD",
+          "Line": 53,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "DD": "SYSIN",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI(PSAM1)",
+          "Kind": "DD",
+          "Line": 54,
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 59,
+          "Program": "IEWL",
+          "Step": "LNKPSAM1",
+          "Step Ordinal": 4
+        },
+        {
+          "DD": "SYSLIB",
+          "DISP": "SHR",
+          "DSN": "&LINKLIB",
+          "Kind": "DD",
+          "Line": 60,
+          "Step": "LNKPSAM1"
+        },
+        {
+          "DD": "SYSLMOD",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "Kind": "DD",
+          "Line": 63,
+          "Step": "LNKPSAM1"
+        },
+        {
+          "DD": "INOBJ",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "Kind": "DD",
+          "Line": 65,
+          "Step": "LNKPSAM1"
+        },
+        {
+          "Kind": "STEP",
+          "Line": 74,
+          "Program": "PSAM1",
+          "Step": "RUNPSAM1",
+          "Step Ordinal": 5
+        },
+        {
+          "DD": "STEPLIB",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "Kind": "DD",
+          "Line": 75,
+          "Step": "RUNPSAM1"
+        },
+        {
+          "DD": "CUSTFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "Kind": "DD",
+          "Line": 78,
+          "Step": "RUNPSAM1"
+        },
+        {
+          "DD": "TRANFILE",
+          "DISP": "SHR",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "Kind": "DD",
+          "Line": 79,
+          "Step": "RUNPSAM1"
+        },
+        {
+          "DD": "CUSTRPT",
+          "DISP": "NEW",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "Kind": "DD",
+          "Line": 80,
+          "Step": "RUNPSAM1"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Job Flow"
+  ]
+}

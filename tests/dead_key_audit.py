@@ -83,6 +83,9 @@ ALLOWLIST = {
     "PENT": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "RECSZ": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "RELATE": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
+    "DISP": "JCL operand keyword parsed from source (job_flow.py, #3451)",
+    "PGM": "JCL operand keyword parsed from source (job_flow.py, #3451)",
+    "PROC": "JCL operand keyword parsed from source (job_flow.py, #3451)",
     # --- External package manifests (package.json / composer.json / lockfiles) ---
     # manifest_parser.py and guidestar_lens.py json.load() a THIRD-PARTY file;
     # these keys are that file format's schema, not a dict this repo produces.

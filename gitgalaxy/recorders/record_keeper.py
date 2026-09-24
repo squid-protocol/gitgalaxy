@@ -497,7 +497,8 @@ class RecordKeeper:
         mq_call_data. Units of work and error handling (#3453) ride on each
         file's own `uow_handlers` and become uow_handler_data. File definitions
         (#3455) ride on `file_control` (COBOL SELECTs -> file_control_data) and
-        `vsam_defines` (JCL IDCAMS -> vsam_define_data).
+        `vsam_defines` (JCL IDCAMS -> vsam_define_data). JCL job flow (#3451)
+        rides on `job_flow` and becomes job_flow_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1303,6 +1304,41 @@ class RecordKeeper:
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_vsam_define_snapshot ON vsam_define_data(repo_name, commit_hash);"
         )
+        # #3451: JCL job flow (core/job_flow.py): one row per JOB / EXEC step / DSN DD.
+        #   kind          -- JOB | STEP | DD;  job_name on a JOB row
+        #   step_ordinal / step_name -- a STEP's 1-based position in its job or PROC
+        #   program / proc_name -- EXEC PGM= / EXEC PROC= (or positional)
+        #   cond / if_cond -- COND= as written; the enclosing IF conditions (` AND `)
+        #   in_proc       -- the PROC a STEP / DD belongs to
+        #   dd_name / dsn / disp / generation -- a DD's name (an override's own), DSN
+        #                    as written without generation, NEW|OLD|SHR|MOD, +1|0|-1
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS job_flow_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                job_name TEXT,
+                step_ordinal INTEGER,
+                step_name TEXT,
+                program TEXT,
+                proc_name TEXT,
+                cond TEXT,
+                if_cond TEXT,
+                in_proc TEXT,
+                dd_name TEXT,
+                dsn TEXT,
+                disp TEXT,
+                generation TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
+
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
         # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM
@@ -2949,6 +2985,49 @@ class RecordKeeper:
                 v.get("upgrade"),
                 v.get("step"),
                 int(v.get("line", 0) or 0),
+            ),
+        )
+
+        # #3451: JCL job flow -- per-file, like vsam_define_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "job_flow_data",
+            (
+                "kind",
+                "job_name",
+                "step_ordinal",
+                "step_name",
+                "program",
+                "proc_name",
+                "cond",
+                "if_cond",
+                "in_proc",
+                "dd_name",
+                "dsn",
+                "disp",
+                "generation",
+                "line_number",
+            ),
+            "job_flow",
+            lambda j: (
+                j.get("kind"),
+                j.get("name"),
+                int(j["step_ordinal"]) if j.get("step_ordinal") is not None else None,
+                j.get("step_name"),
+                j.get("program"),
+                j.get("proc"),
+                j.get("cond"),
+                j.get("if_cond"),
+                j.get("in_proc"),
+                j.get("dd_name"),
+                j.get("dsn"),
+                j.get("disp"),
+                j.get("generation"),
+                int(j.get("line", 0) or 0),
             ),
         )
 

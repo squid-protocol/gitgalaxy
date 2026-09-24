@@ -570,6 +570,7 @@ class LLMRecorder:
                 + len(f.get("uow_handlers") or [])  # #3453
                 + len(f.get("file_control") or [])  # #3455
                 + len(f.get("vsam_defines") or [])  # #3455
+                + len(f.get("job_flow") or [])  # #3451
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -843,6 +844,26 @@ class LLMRecorder:
                     for d in defs
                 ]
                 lines.append(f"- **VSAM defines:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
+            # #3451: the job's step sequence and what it creates.
+            flow = f.get("job_flow") or []
+            steps = [x for x in flow if x.get("kind") == "STEP" and not x.get("in_proc")]
+            if steps:
+                seq = [
+                    f"{x.get('step_name') or '?'}={x.get('program') or ('PROC ' + str(x.get('proc')))}"
+                    + (" (cond)" if x.get("cond") or x.get("if_cond") else "")
+                    for x in steps
+                ]
+                made = sorted(
+                    {
+                        x["dsn"]
+                        for x in flow
+                        if x.get("kind") == "DD" and (x.get("disp") in ("NEW", "MOD") or x.get("generation") == "+1")
+                    }
+                )
+                lines.append(
+                    f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
+                    + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
+                )
             # #3453: where the unit of work ends and what handles errors.
             uow = f.get("uow_handlers") or []
             if uow:

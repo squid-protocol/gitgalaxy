@@ -1007,3 +1007,32 @@ def test_file_definition_readers_are_independent(tmp_path):
         "L4 CLUSTER A.KSDS ORG=INDEXED KEYS=8,0 REC=80,80 REL=- UNIQ=- UPG=- STEP=S1",
         "L8 AIX A.AIX ORG=- KEYS=5,8 REC=- REL=A.KSDS UNIQ=UNIQUE UPG=- STEP=S1",
     }
+
+
+def test_job_flow_reader_is_independent():
+    """#3451: the key's own job-flow reading: steps with COND / IF / ELSE, an
+    override DD, a concatenation, DISP defaults and GDG generations."""
+    text = (
+        "//J1 JOB CLASS=A\n"
+        "//S1 EXEC PGM=SORT,COND=(4,LT)\n"
+        "//SORTIN DD DSN=A.B(0),DISP=SHR\n"
+        "//       DD DSN=A.C,DISP=OLD\n"
+        "// IF (S1.RC = 0) THEN\n"
+        "//S2 EXEC PROC=P1\n"
+        "//P1S1.IN DD DISP=SHR,\n"
+        "//        DSN=A.D\n"
+        "// ELSE\n"
+        "//S3 EXEC PGM=X\n"
+        "//OUT DD DSN=A.E(+1),DISP=(,CATLG)\n"
+        "// ENDIF\n"
+    )
+    assert ak.job_flow_keys(ak.job_flow_rows(text)) == {
+        "L1 JOB J1 COND=-",
+        "L2 STEP 1 S1 PGM=SORT PROC=- COND=(4,LT) IF=- IN=-",
+        "L3 DD S1.SORTIN DSN=A.B DISP=SHR GEN=0 IN=-",
+        "L4 DD S1.SORTIN DSN=A.C DISP=OLD GEN=- IN=-",
+        "L6 STEP 2 S2 PGM=- PROC=P1 COND=- IF=(S1.RC = 0) IN=-",
+        "L7 DD P1S1.IN DSN=A.D DISP=SHR GEN=- IN=-",
+        "L10 STEP 3 S3 PGM=X PROC=- COND=- IF=NOT (S1.RC = 0) IN=-",
+        "L11 DD S3.OUT DSN=A.E DISP=NEW GEN=+1 IN=-",
+    }

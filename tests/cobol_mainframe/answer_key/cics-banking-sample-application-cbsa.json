@@ -64976,5 +64976,5111 @@
         "notes": []
       }
     }
+  },
+  "job_flow": {
+    "etc/install/base/buildjcl/ABNDPROC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/ACCLOAD.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/ACCOFFL.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/ACCTCTRL.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/ASMNCOPT.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ASMNCOPT",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "ASM",
+          "pgm": "ASMA90",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 19
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MODGEN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSPUNCH",
+          "dsn": "&&SYSMOD",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 27
+        },
+        {
+          "kind": "DD",
+          "step": "ASM",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..ASM(DFHNCOPT)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": "(7,LT,ASM)",
+          "if": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..AUTHLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIN",
+          "dsn": "&&SYSMOD",
+          "disp": "OLD",
+          "gen": null,
+          "in": null,
+          "line": 35
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BANKDATA.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BATCH.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COBOL",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "BATCH",
+          "line": 5
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&COBOLHLQ..SIGYCOMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 8
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 9
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 10
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CBSAHLQ..DSECT",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 12
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 13
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 14
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 15
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "&CBSAHLQ..DBRM(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 16
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..COBOL(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 38
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "COPYLINK",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": "BATCH",
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYLINK",
+          "disp": "NEW",
+          "gen": null,
+          "in": "BATCH",
+          "line": 42
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": "BATCH",
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "&CBSAHLQ..CBSAMOD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "&CBSAHLQ..LKED(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "BATCH",
+          "line": 63
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1ACC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1ACC",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CAC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CAM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1CAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CCA.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CCM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CCS.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CDM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1CDM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1CRA.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1DAC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1DAM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1DAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1DCM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1DCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1DCS.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1MAI.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1MAI",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1TFM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1TFM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1TFN.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1UAC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNK1UAM.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BNK1UAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BNKMENU.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CICS.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COBOL",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "CICS",
+          "line": 5
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&COBOLHLQ..SIGYCOMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 8
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 9
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 10
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CBSAHLQ..DSECT",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 12
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 13
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 14
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 15
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "&CBSAHLQ..DBRM(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 16
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..COBOL(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 38
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "COPYLINK",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": "CICS",
+          "line": 39
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYLINK",
+          "disp": "NEW",
+          "gen": null,
+          "in": "CICS",
+          "line": 42
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": "CICS",
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "&CBSAHLQ..CBSAMOD",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 60
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "&CBSAHLQ..LKED(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "CICS",
+          "line": 63
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/COMPALL.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "COMPALL",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "ABNDPROC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "BANKDATA",
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 16
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "BNK1MAI",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "BNKMENU",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": "CRDTAGY1",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 29
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": "CRDTAGY2",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 33
+        },
+        {
+          "kind": "STEP",
+          "ord": 7,
+          "step": "CRDTAGY3",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 37
+        },
+        {
+          "kind": "STEP",
+          "ord": 8,
+          "step": "CRDTAGY4",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 41
+        },
+        {
+          "kind": "STEP",
+          "ord": 9,
+          "step": "CRDTAGY5",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "STEP",
+          "ord": 10,
+          "step": "CREACC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 49
+        },
+        {
+          "kind": "STEP",
+          "ord": 11,
+          "step": "CRECUST",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "STEP",
+          "ord": 12,
+          "step": "DBCRFUN",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 57
+        },
+        {
+          "kind": "STEP",
+          "ord": 13,
+          "step": "DELACC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 61
+        },
+        {
+          "kind": "STEP",
+          "ord": 14,
+          "step": "DELCUS",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "STEP",
+          "ord": 15,
+          "step": "GETCOMPY",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 69
+        },
+        {
+          "kind": "STEP",
+          "ord": 16,
+          "step": "GETSCODE",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 73
+        },
+        {
+          "kind": "STEP",
+          "ord": 17,
+          "step": "INQACC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 77
+        },
+        {
+          "kind": "STEP",
+          "ord": 18,
+          "step": "INQACCCU",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 81
+        },
+        {
+          "kind": "STEP",
+          "ord": 19,
+          "step": "INQCUST",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 85
+        },
+        {
+          "kind": "STEP",
+          "ord": 20,
+          "step": "UPDACC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 89
+        },
+        {
+          "kind": "STEP",
+          "ord": 21,
+          "step": "UPDCUST",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 93
+        },
+        {
+          "kind": "STEP",
+          "ord": 22,
+          "step": "XFRFUN",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 97
+        },
+        {
+          "kind": "STEP",
+          "ord": 23,
+          "step": "BNK1ACC",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 104
+        },
+        {
+          "kind": "STEP",
+          "ord": 24,
+          "step": "BNK1CAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 109
+        },
+        {
+          "kind": "STEP",
+          "ord": 25,
+          "step": "BNK1CAC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 114
+        },
+        {
+          "kind": "STEP",
+          "ord": 26,
+          "step": "BNK1CCA",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 118
+        },
+        {
+          "kind": "STEP",
+          "ord": 27,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 122
+        },
+        {
+          "kind": "STEP",
+          "ord": 28,
+          "step": "BNK1CCS",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 127
+        },
+        {
+          "kind": "STEP",
+          "ord": 29,
+          "step": "BNK1CDM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 131
+        },
+        {
+          "kind": "STEP",
+          "ord": 30,
+          "step": "BNK1CRA",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 136
+        },
+        {
+          "kind": "STEP",
+          "ord": 31,
+          "step": "BNK1DAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 140
+        },
+        {
+          "kind": "STEP",
+          "ord": 32,
+          "step": "BNK1DAC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 145
+        },
+        {
+          "kind": "STEP",
+          "ord": 33,
+          "step": "BNK1DCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 149
+        },
+        {
+          "kind": "STEP",
+          "ord": 34,
+          "step": "BNK1DCS",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 154
+        },
+        {
+          "kind": "STEP",
+          "ord": 35,
+          "step": "BNK1TFM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 159
+        },
+        {
+          "kind": "STEP",
+          "ord": 36,
+          "step": "BNK1TFN",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 164
+        },
+        {
+          "kind": "STEP",
+          "ord": 37,
+          "step": "BNK1UAM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 168
+        },
+        {
+          "kind": "STEP",
+          "ord": 38,
+          "step": "BNK1UAC",
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 173
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRDTAGY1.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRDTAGY2.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRDTAGY3.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRDTAGY4.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRDTAGY5.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CREACC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CRECUST.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CUSTCTRL.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/DBCRFUN.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/DELACC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/DELCUS.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/EXTDCUST.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/GETCOMPY.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/GETSCODE.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/INQACC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/INQACCCU.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/INQCUST.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/MAPGEN.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COPY",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "MAPGEN",
+          "line": 13
+        },
+        {
+          "kind": "DD",
+          "step": "COPY",
+          "dd": "SYSUT2",
+          "dsn": "&&TEMPM",
+          "disp": "NEW",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 15
+        },
+        {
+          "kind": "DD",
+          "step": "COPY",
+          "dd": "SYSUT1",
+          "dsn": "&CBSAHLQ..BMS(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 19
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "ASMMAP",
+          "pgm": "&ASMBLR",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "MAPGEN",
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "ASMMAP",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "ASMMAP",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 25
+        },
+        {
+          "kind": "DD",
+          "step": "ASMMAP",
+          "dd": "SYSPUNCH",
+          "dsn": "&&MAP",
+          "disp": "NEW",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 29
+        },
+        {
+          "kind": "DD",
+          "step": "ASMMAP",
+          "dd": "SYSIN",
+          "dsn": "&&TEMPM",
+          "disp": "OLD",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 32
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LINKMAP",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "MAPGEN",
+          "line": 33
+        },
+        {
+          "kind": "DD",
+          "step": "LINKMAP",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB(&MEMBER)",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 36
+        },
+        {
+          "kind": "DD",
+          "step": "LINKMAP",
+          "dd": "SYSLIN",
+          "dsn": "&&MAP",
+          "disp": "OLD",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 38
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": "ASMDSECT",
+          "pgm": "&ASMBLR",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": "MAPGEN",
+          "line": 40
+        },
+        {
+          "kind": "DD",
+          "step": "ASMDSECT",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "ASMDSECT",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "ASMDSECT",
+          "dd": "SYSPUNCH",
+          "dsn": "&CBSAHLQ..DSECT(&MEMBER)",
+          "disp": "OLD",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "ASMDSECT",
+          "dd": "SYSIN",
+          "dsn": "&&TEMPM",
+          "disp": "OLD",
+          "gen": null,
+          "in": "MAPGEN",
+          "line": 49
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/NEWACCNO.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/NEWCUSNO.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/PLOP1.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "PLOP1",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 16
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 28
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        },
+        {
+          "kind": "STEP",
+          "ord": 7,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "STEP",
+          "ord": 8,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 40
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/PROLOAD.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/PROOFFL.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/TEST.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TEST",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 16
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "STEP",
+          "ord": 4,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 25
+        },
+        {
+          "kind": "STEP",
+          "ord": 5,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 30
+        },
+        {
+          "kind": "STEP",
+          "ord": 6,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 35
+        },
+        {
+          "kind": "STEP",
+          "ord": 7,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 40
+        },
+        {
+          "kind": "STEP",
+          "ord": 8,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "STEP",
+          "ord": 9,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 50
+        },
+        {
+          "kind": "STEP",
+          "ord": 10,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "STEP",
+          "ord": 11,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 60
+        },
+        {
+          "kind": "STEP",
+          "ord": 12,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 65
+        },
+        {
+          "kind": "STEP",
+          "ord": 13,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 70
+        },
+        {
+          "kind": "STEP",
+          "ord": 14,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 75
+        },
+        {
+          "kind": "STEP",
+          "ord": 15,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 80
+        },
+        {
+          "kind": "STEP",
+          "ord": 16,
+          "step": null,
+          "pgm": null,
+          "proc": "BATCH",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 85
+        },
+        {
+          "kind": "STEP",
+          "ord": 17,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 90
+        },
+        {
+          "kind": "STEP",
+          "ord": 18,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 95
+        },
+        {
+          "kind": "STEP",
+          "ord": 19,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 100
+        },
+        {
+          "kind": "STEP",
+          "ord": 20,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 105
+        },
+        {
+          "kind": "STEP",
+          "ord": 21,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 110
+        },
+        {
+          "kind": "STEP",
+          "ord": 22,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 115
+        },
+        {
+          "kind": "STEP",
+          "ord": 23,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 120
+        },
+        {
+          "kind": "STEP",
+          "ord": 24,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 125
+        },
+        {
+          "kind": "STEP",
+          "ord": 25,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 129
+        },
+        {
+          "kind": "STEP",
+          "ord": 26,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 133
+        },
+        {
+          "kind": "STEP",
+          "ord": 27,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 138
+        },
+        {
+          "kind": "STEP",
+          "ord": 28,
+          "step": "BNK1ACC",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 145
+        },
+        {
+          "kind": "STEP",
+          "ord": 29,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 151
+        },
+        {
+          "kind": "STEP",
+          "ord": 30,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 156
+        },
+        {
+          "kind": "STEP",
+          "ord": 31,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 162
+        },
+        {
+          "kind": "STEP",
+          "ord": 32,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 167
+        },
+        {
+          "kind": "STEP",
+          "ord": 33,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 173
+        },
+        {
+          "kind": "STEP",
+          "ord": 34,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 178
+        },
+        {
+          "kind": "STEP",
+          "ord": 35,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 184
+        },
+        {
+          "kind": "STEP",
+          "ord": 36,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 189
+        },
+        {
+          "kind": "STEP",
+          "ord": 37,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 194
+        },
+        {
+          "kind": "STEP",
+          "ord": 38,
+          "step": "BNK1CCM",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 200
+        },
+        {
+          "kind": "STEP",
+          "ord": 39,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 206
+        },
+        {
+          "kind": "STEP",
+          "ord": 40,
+          "step": "BNK1MAI",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 211
+        },
+        {
+          "kind": "STEP",
+          "ord": 41,
+          "step": "BNK1MAI",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 217
+        },
+        {
+          "kind": "STEP",
+          "ord": 42,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 223
+        },
+        {
+          "kind": "STEP",
+          "ord": 43,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 228
+        },
+        {
+          "kind": "STEP",
+          "ord": 44,
+          "step": "BNK1MAI",
+          "pgm": null,
+          "proc": "MAPGEN",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 233
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/TMP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "TMP",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "COBOL",
+          "pgm": "IGYCRCTL",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "IGY630.SIGYCOMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 10
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "DFH560.CICS.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CBSA.CICSBSA.DSECT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 13
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 14
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHCOB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 15
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHSAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 16
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 17
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "CBSA.CICSBSA.DBRM(INQACCCU)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 18
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "CBSA.CICSBSA.CBSAMOD(INQACCCU)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 24
+        },
+        {
+          "kind": "DD",
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "CBSA.CICSBSA.COBOL(INQACCCU)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 42
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "COPYLINK",
+          "pgm": "IEBGENER",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": null,
+          "line": 43
+        },
+        {
+          "kind": "DD",
+          "step": "COPYLINK",
+          "dd": "SYSUT2",
+          "dsn": "&&COPYLINK",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "LKED",
+          "pgm": "IEWL",
+          "proc": null,
+          "cond": "(7,LT,COBOL)",
+          "if": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 57
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKED",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 58
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "CBSA.CICSBSA.CBSAMOD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 62
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "CBSA.CICSBSA.LOADLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 64
+        },
+        {
+          "kind": "DD",
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "CBSA.CICSBSA.LKED(INQACCCU)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 67
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/UPDACC.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/UPDCUST.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/XFRFUN.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": null,
+          "pgm": null,
+          "proc": "CICS",
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 7
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/BTCHSQL.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "BTCHSQL",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREDB00.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREDB00",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI101.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREI101",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI201.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREI201",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI301.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CREI301",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRESG01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRESG02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRESG03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETB01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETB02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETB03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETS01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETS02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRETS03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DB2BIND.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DB2BIND",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BIND",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 44
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 45
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 46
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(CREACC)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 47
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(CRECUST)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 48
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DBCRFUN)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 49
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DELACC)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 50
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DELCUS)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 51
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(INQACC)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 52
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(INQACCCU)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 53
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(BANKDATA)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 54
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(UPDACC)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 55
+        },
+        {
+          "kind": "DD",
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(XFRFUN)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 122
+        },
+        {
+          "kind": "DD",
+          "step": "GRANT",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 123
+        },
+        {
+          "kind": "DD",
+          "step": "GRANT",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 124
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DROPDB2.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DROPDB2",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPDB00.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPDB00",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI101.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPI101",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI201.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPI201",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI301.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPI301",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPSG01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPSG02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPSG03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTB01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTB02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTB03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS01.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTS01",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS02.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTS02",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS03.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "DRPTS03",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 9
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/INSTDB2.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "INSTDB2",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "DD",
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 31
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "GRANT",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 32
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/BANKDATA.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "BANKDATA",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BANKDAT0",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 36
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "BANKDAT1",
+          "pgm": "IDCAMS",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 56
+        },
+        {
+          "kind": "STEP",
+          "ord": 3,
+          "step": "BANKDAT5",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 94
+        },
+        {
+          "kind": "DD",
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@BANK_DBRMLIB@",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 95
+        },
+        {
+          "kind": "DD",
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@BANK_LOADLIB@",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 96
+        },
+        {
+          "kind": "DD",
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 97
+        },
+        {
+          "kind": "DD",
+          "step": "BANKDAT5",
+          "dd": "VSAM",
+          "dsn": "@BANK_PREFIX@.CUSTOMER",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 98
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREDB2L.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..DB2.JCL.INSTALL",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 13
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 21
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..DB2.JCL.INSTALL(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL001.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.BUILDJCL",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.BUILDJCL(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL002.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.COPYLIB",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.COPYLIB(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL003.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.LOADLIB",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL004.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.DBRM",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL005.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.LKED",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL006.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.BMS",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.BMS(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL007.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.ASM",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.ASM(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL008.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.CBSAMOD",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL009.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.COBOL",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.COBOL(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL010.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.DSECT",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.DSECT(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL011.jcl": {
+      "rows": [
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP10",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.REORG",
+          "disp": "NEW",
+          "gen": null,
+          "in": null,
+          "line": 12
+        },
+        {
+          "kind": "STEP",
+          "ord": 2,
+          "step": "STEP20",
+          "pgm": "ICEGENER",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 20
+        },
+        {
+          "kind": "DD",
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.REORG(EMPTY)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 22
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CRELIBS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "CRELIBS",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "IEFBR14",
+          "pgm": "IEFBR14",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/HBANKCSD.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "HBANKCSD",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "DFHCSDUP",
+          "pgm": "DFHCSDUP",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 17
+        },
+        {
+          "kind": "DD",
+          "step": "DFHCSDUP",
+          "dd": "STEPLIB",
+          "dsn": "@CICS_PREFIX@.SDFHLOAD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 18
+        },
+        {
+          "kind": "DD",
+          "step": "DFHCSDUP",
+          "dd": "DFHCSD",
+          "dsn": "@CSD_PREFIX@.DFHCSD",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 19
+        },
+        {
+          "kind": "DD",
+          "step": "DFHCSDUP",
+          "dd": "SYSIN",
+          "dsn": "@CBSA_INSTALL@(BANK)",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 23
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/RACF001.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "RACF001",
+          "cond": null,
+          "line": 1
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "TSO",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/REPLCICS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "REPLCICS",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "JOBSTEP",
+          "pgm": "IEBCOPY",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "DD",
+          "step": "JOBSTEP",
+          "dd": "SYSUT1",
+          "dsn": "CBSA.JCL.INSTALL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "JOBSTEP",
+          "dd": "SYSUT2",
+          "dsn": "FEU.Z25A.PROCLIB",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 13
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/REPLSIP.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "REPLSIP",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "JOBSTEP",
+          "pgm": "IEBCOPY",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        },
+        {
+          "kind": "DD",
+          "step": "JOBSTEP",
+          "dd": "SYSUT1",
+          "dsn": "CBSA.JCL.INSTALL",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 11
+        },
+        {
+          "kind": "DD",
+          "step": "JOBSTEP",
+          "dd": "SYSUT2",
+          "dsn": "DFH560.SYSIN",
+          "disp": "SHR",
+          "gen": null,
+          "in": null,
+          "line": 13
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/RESTCICS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "RESTCICS",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP0001",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/RESTZOSC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "RESTZOSC",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP0001",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/SHUTCICS.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "SHUTCICS",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP0001",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/SHUTZOSC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "SHUTZOSC",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "STEP0001",
+          "pgm": "IKJEFT01",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/ZOSCSEC.jcl": {
+      "rows": [
+        {
+          "kind": "JOB",
+          "name": "ZOSCSEC",
+          "cond": null,
+          "line": 4
+        },
+        {
+          "kind": "STEP",
+          "ord": 1,
+          "step": "BPXIT",
+          "pgm": "BPXBATCH",
+          "proc": null,
+          "cond": null,
+          "if": null,
+          "in": null,
+          "line": 8
+        }
+      ],
+      "jobflow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

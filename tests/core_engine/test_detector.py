@@ -1184,6 +1184,21 @@ def test_detector_ghost_tether_and_metadata():
     )
 
 
+def test_extract_name_keeps_national_and_unicode_letters():
+    """#3520: the final token charset was ASCII-only, so navikt/DSF's PL/I
+    `OVERFØR_TIL_MAP: PROC;` was stored as `R_TIL_MAP` and no CALL could link to it.
+    The func_start regex already captured the whole name; the normalizer cut it."""
+    pli = StructuralExtractor("pli", MOCK_LANG_DEFS)
+    assert pli._extract_name("OVERFØR_TIL_MAP") == "OVERFØR_TIL_MAP"
+    assert pli._extract_name("ÅPNE_DATABASE") == "ÅPNE_DATABASE"
+    assert pli._extract_name("SCAN@#$") == "SCAN@#$"  # national characters in a name
+
+    java = StructuralExtractor("java", MOCK_LANG_DEFS)
+    assert java._extract_name("prüfeEingabe(") == "prüfeEingabe"
+    # `@` stays a separator outside the mainframe languages (annotations, decorators).
+    assert java._extract_name("@Override run") == "run"
+
+
 # ==============================================================================
 # TEST 10: OOP & MACRO NAME EXTRACTOR SHIELDS
 # ==============================================================================

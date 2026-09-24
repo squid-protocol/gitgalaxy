@@ -1050,6 +1050,10 @@ _ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
 # (never counted as unrelated later content). The terminator capture is
 # bounded to 61 chars and the whole match is applied to one already-sliced
 # physical line (never unbounded input), so this stays a fixed-cost check.
+# #3520: languages whose identifiers may carry the national characters `@` and `#`
+# (and `$`, which every language's name charset already keeps).
+_NATIONAL_CHARACTER_LANGUAGES = frozenset({"pli", "hlasm", "jcl", "csd", "rexx", "bms"})
+
 _DOCKERFILE_HEREDOC_OPENER_RE = re.compile(r"<<-?[ \t]*(?:['\"]?)([A-Za-z_][A-Za-z0-9_]{0,60})(?:['\"]?)[ \t]*$")
 
 # #2863: matches a COBOL `ENTRY` statement at the start of a physical line,
@@ -9366,8 +9370,16 @@ class StructuralExtractor:
         # BUG FIX: `[` and `]` (TypeScript's computed properties like `[Symbol.asyncIterator]`)
         # were missing, causing them to be extracted as `Symbol.asyncIterator`, misaligning
         # with AST engines.
+        # BUG FIX (#3520): the charset was ASCII-only, so a name holding a non-ASCII
+        # letter split at it and `words[-1]` kept the tail -- navikt/DSF's PL/I
+        # `OVERFØR_TIL_MAP: PROC;` was recorded as `R_TIL_MAP`, and every
+        # `CALL OVERFØR_TIL_MAP` pointed at nothing. `\w` is Unicode-aware on a str
+        # pattern (it still excludes punctuation such as Go assembly's `·`). The
+        # mainframe languages also allow `@` and `#` in names; on Nordic EBCDIC code
+        # pages those, with `$`, are the very bytes that display as Æ Ø Å.
         is_swift = self.primary_lang_id == "swift"
-        pattern = r"[a-zA-Z0-9_./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else r"[a-zA-Z0-9_./%$():~'\-\[\]]+"
+        national = "@#" if self.primary_lang_id in _NATIONAL_CHARACTER_LANGUAGES else ""
+        pattern = r"[\w./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else rf"[\w{national}./%$():~'\-\[\]]+"
         words = [w for w in re.findall(pattern, clean) if w.strip("_-:")]
 
         if not words:

@@ -7,25 +7,26 @@ from gitgalaxy.standards.language_standards._shared_patterns import (
 
 from _strict_harness import assert_redos_immune
 
+
 def test_calls_out_c_style_strict():
     """
     Epic #3264: Validate the universal C-style invocation pattern.
     """
     assert CALLS_OUT_C_STYLE is not None
-    
+
     # 1. Valid matches
     assert CALLS_OUT_C_STYLE.findall("foo()") == ["foo"]
     assert CALLS_OUT_C_STYLE.findall("foo (  )") == ["foo"]
     assert CALLS_OUT_C_STYLE.findall("my_func(x, y)") == ["my_func"]
     assert CALLS_OUT_C_STYLE.findall("Class.method(") == ["method"]
-    
+
     # 2. ReDoS immunity
     # Create a long string that ALMOST matches but fails at the end.
     # The pattern is: \b([a-zA-Z_]\w*)\s*\(
     # Adversarial payload: a valid identifier, followed by 10,000 spaces, but NO parenthesis.
     payload = "foo" + (" " * 10000) + "x"
     assert_redos_immune(CALLS_OUT_C_STYLE, payload)
-    
+
     # Another payload: 10,000 valid identifier characters, then a space, then no parenthesis
     payload2 = "a" * 10000 + " " + "x"
     assert_redos_immune(CALLS_OUT_C_STYLE, payload2)
@@ -45,6 +46,10 @@ def test_calls_out_call_verb_strict():
     assert CALLS_OUT_CALL_VERB.findall("CALL 'SUBPROG' USING X") == ["SUBPROG"]
     assert CALLS_OUT_CALL_VERB.findall("    call    probe_io") == ["probe_io"]
     assert CALLS_OUT_CALL_VERB.findall("CALL SYS$#@-LIB") == ["SYS$#@-LIB"]
+    # #3520: a Unicode or national first character (navikt/DSF `CALL ÅPNE_DATABASE`).
+    assert CALLS_OUT_CALL_VERB.findall("CALL ÅPNE_DATABASE;") == ["ÅPNE_DATABASE"]
+    assert CALLS_OUT_CALL_VERB.findall("CALL OVERFØR_TIL_MAP;") == ["OVERFØR_TIL_MAP"]
+    assert CALLS_OUT_CALL_VERB.findall("CALL $X") == ["$X"]
 
     # 2. Negatives: no bare-word capture, no partial-word CALL, no numeric labels.
     assert CALLS_OUT_CALL_VERB.findall("PROBE_BRANCH(ARGV)") == []

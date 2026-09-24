@@ -3608,7 +3608,7 @@
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 79.75,
-        "tech_debt": 22.06,
+        "tech_debt": 19.5,
         "verification": 14.95
       },
       "file_count": 12,

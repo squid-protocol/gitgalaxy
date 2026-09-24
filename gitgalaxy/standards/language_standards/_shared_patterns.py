@@ -164,7 +164,10 @@ CALLS_OUT_UNSUPPORTED = None
 # Deliberately NOT cobol's paradigm: PERFORM is cobol-only, and `GO\s+TO` would
 # capture numeric statement labels (FORTRAN `GO TO 100`), so cobol keeps its
 # language-local rule. Charset admits `$#@` (mainframe identifiers) and `-`.
-CALLS_OUT_CALL_VERB = re.compile(r"(?i)\bCALL\s+['\"]?([A-Za-z_][\w$#@-]*)")
+# #3520: the FIRST character may be any Unicode letter or a national character too
+# (`[^\W\d]` = a letter or `_`): navikt/DSF writes `CALL ÅPNE_DATABASE`, which an
+# ASCII-only first character skipped entirely.
+CALLS_OUT_CALL_VERB = re.compile(r"(?i)\bCALL\s+['\"]?((?:[^\W\d]|[$#@])[\w$#@-]*)")
 
 # Lisp family (scheme): the callee is the first symbol after an open paren.
 # Charset includes lisp identifier punctuation (probe-branch, null?, set!).

@@ -98,9 +98,9 @@
   },
   "pli": {
    "function": {
-    "note": "Re-verified against language-crucible v1.5.0 (adds data/pli/dsf_cics_admin, 10 production CICS/PL/I programs from navikt/DSF) by the same three-way method, gg-only. (1) real pipeline DB: struct_func_start == function_count on every file (46 total), so there is no prism/detector drop. (2) An independent parse of the raw source (label(s) + PROC/PROCEDURE, cols 73-80 sequence numbers dropped, comments stripped, national characters allowed) finds the same 46 units, but only 38 NAMES match. In 4 DSF files `OVERF\u00d8R_TIL_MAP: PROC;` / `OVERF\u00d8R_FRA_MAP: PROC;` are named `R_TIL_MAP` / `R_FRA_MAP`: GitGalaxy truncates at the Nordic national character \u00d8 (CP277 renders @#$ as \u00c6\u00d8\u00c5), gitgalaxy#3520. The unit is found but misnamed, so it is not counted as verified. The v1.4.0 zopeneditor_sample 7/7 are unchanged. Class panel is still a genuine absence (0).",
+    "note": "Re-verified against language-crucible v1.5.0 after gitgalaxy#3520. (1) real pipeline DB: struct_func_start == function_count on every file (46), so there is no prism/detector drop. (2) An independent parse of the raw source (label(s) + PROC/PROCEDURE, cols 73-80 sequence numbers dropped, comments stripped, national characters allowed) matches EXACTLY on units AND names, 46 == 46. That includes the 8 navikt/DSF units named with the Nordic national character \u00d8 (OVERF\u00d8R_TIL_MAP / OVERF\u00d8R_FRA_MAP), which #3520's name-normalizer fix stops truncating to R_TIL_MAP / R_FRA_MAP. The class panel is a genuine absence (0).",
     "total": 46,
-    "verified": 38,
+    "verified": 46,
     "verified_at": "2026-09-24",
     "verified_by": "Claude Opus 5.5"
    }

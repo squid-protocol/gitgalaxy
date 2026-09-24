@@ -326,3 +326,24 @@ The same fix exposed a second blind spot. CardDemo CBSTM03A reaches `8200/8300/8
 The two call disagreements were the grader, not the key: `'INQCUST '` is padded to 8 characters, as CICS program names are. The grader now ignores blank padding.
 
 Every key is now `cross_verified`. The rulings are stored in each key's `cross_verification` list. The reviewer was the same model family as the author, which `cross_by` states. A Gemini run through `agy` would add cross-family evidence.
+
+## Full blind census, 2026-09-24
+
+Sampling bounds an error rate. A census removes the need for one: every validated claim is read twice. The three corpora are small enough for that, so `cross_verify.py census` packed every program into 12 batches of about 150 units, and each batch went to its own fresh-context reviewer.
+
+| task | agree | claims |
+|---|---|---|
+| reachability (every unit) | 1,607 | 1,608 |
+| PROGRAM-ID | 80 | 80 |
+| copybooks | 478 | 478 |
+| calls | 107 | 107 |
+| files | 67 | 67 |
+| **total** | **2,339** | **2,340** |
+
+**The census found no errors in the key.** The first pass had five disagreements:
+- **Four were one grader format difference.** A subscripted XCTL operand, `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)`, is the table the key records as `CDEMO-MENU-OPT-PGMNAME`. The grader now drops the subscript.
+- **One was a definition question.** For INQACCCU AH999, the reviewer showed by data flow that `WS-STORM-DRAIN` can only be `'N'` at that point, so the ABEND before AH999 always runs. The key's reachability is structural (every condition may go either way), and the reviewer agreed AH999 is structurally reachable. It was ruled `key_correct`, and briefs now state the structural rule.
+
+Every program carries `verification.census`. `test_small_corpus_keys_are_fully_censused` fails if a program lacks it, so a new or re-drafted program has to be censused before it lands.
+
+What this does and doesn't establish: two independent readings agree on every validated claim, and every disagreement was settled against the source. What remains is an error both readers make the same way. Both were the same model family, which `cross_by` records; a Gemini census would cover that. The drafted sections (records, BMS, JCL, DB2, CSD, CICS) have not been censused yet.

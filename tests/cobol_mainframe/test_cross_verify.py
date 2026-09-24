@@ -109,7 +109,7 @@ def test_every_kind_of_disagreement_is_listed():
 def test_operands_compare_without_quotes_or_case():
     _brief, truth = cv.build(KEY, REPO, 2, 2, 1)
     ans = _answers(truth)
-    ans["D"]["A.cbl"] = [{"verb": "call", "operand": "'sub'"}, {"verb": "XCTL", "operand": "ws-pgm"}]
+    ans["D"]["A.cbl"] = [{"verb": "call", "operand": "'sub'"}, {"verb": "XCTL", "operand": "ws-pgm(ws-option)"}]
     assert not [d for d in cv.grade(truth, ans, REPO)["disagreements"] if d["task"] == "D"]
 
 

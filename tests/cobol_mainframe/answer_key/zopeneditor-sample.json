@@ -181,7 +181,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -2046,7 +2050,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -3378,7 +3386,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -3730,7 +3742,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -5742,7 +5758,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -8029,6 +8049,41 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 58,
+          "asked": 58
+        },
+        "B": {
+          "agree": 5,
+          "asked": 5
+        },
+        "C": {
+          "agree": 14,
+          "asked": 14
+        },
+        "D": {
+          "agree": 3,
+          "asked": 3
+        },
+        "E": {
+          "agree": 12,
+          "asked": 12
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM1LIB.cbl",
+        "COBOL/SAM2.cbl",
+        "multiroot/sam/SAM1.cbl",
+        "multiroot/sam/SAM2.cbl"
+      ]
     }
   ]
 }

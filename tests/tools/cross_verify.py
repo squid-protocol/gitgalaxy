@@ -70,7 +70,8 @@ the indicator ('*' or '/' = comment line, ignore the whole line), Area A is colu
 headers start there), columns 73-80 are an identification area (ignore). A paragraph header's separator period may
 appear on a following line. The same paragraph name may be declared twice while nothing references it."""
 
-REACH_RULES = """Count as reaching a unit: PERFORM X; PERFORM A THRU B (every unit from A to B inclusive, but only as far as
+REACH_RULES = """Decide from control STRUCTURE only: treat every IF / EVALUATE / PERFORM UNTIL condition as able to
+be true or false, and do not reason about what values data items can hold. Count as reaching a unit: PERFORM X; PERFORM A THRU B (every unit from A to B inclusive, but only as far as
 control actually flows -- if A ends in a statement that never returns, units after it in the range are not reached
 through that PERFORM); GO TO; falling through from the previous unit when that unit's execution can finish without
 an unconditional transfer; EXEC CICS HANDLE ABEND/CONDITION/AID LABEL(x). Unconditional transfers that never fall
@@ -87,8 +88,13 @@ def load_key(corpus: dict[str, Any]) -> dict[str, Any]:
 
 def _norm_operand(op: str) -> str:
     """Quotes, case and blank padding dropped: CICS pads program names to 8, so
-    `'INQCUST '` and `INQCUST` name the same program."""
-    return op.strip().strip("'\"").strip().upper()
+    `'INQCUST '` and `INQCUST` name the same program. A subscript on an identifier
+    is dropped too: `CDEMO-MENU-OPT-PGMNAME(WS-OPTION)` is the table
+    CDEMO-MENU-OPT-PGMNAME, which is what the key records."""
+    op = op.strip()
+    if not op.startswith(("'", '"')):
+        op = re.sub(r"\s*\(.*\)\s*$", "", op)
+    return op.strip("'\"").strip().upper()
 
 
 def key_answers(
@@ -471,7 +477,8 @@ def main() -> int:
     rulings = json.loads(rulings_path.read_text(encoding="utf-8")) if rulings_path.is_file() else {}
     signed = sign(key, truth, g, rulings, args.by)
     (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(signed, indent=2) + "\n", encoding="utf-8")
-    print(f"{corpus['answer_key']}: {len(signed['programs'])} programs now cross_verified by {args.by}")
+    covered = signed["cross_verification"][-1].get("programs") or signed["programs"]
+    print(f"{corpus['answer_key']}: {len(covered)} program(s) signed by {args.by} ({truth.get('mode', 'sample')})")
     return 0
 
 

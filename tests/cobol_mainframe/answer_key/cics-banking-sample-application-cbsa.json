@@ -69,7 +69,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -1203,7 +1207,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -2434,7 +2442,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -5672,7 +5684,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -7576,7 +7592,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -9369,7 +9389,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -11244,7 +11268,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -13346,7 +13374,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -15860,7 +15892,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -18092,7 +18128,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -20114,7 +20154,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -22424,7 +22468,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -23390,7 +23438,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -24258,7 +24310,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -25126,7 +25182,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -25994,7 +26054,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -26862,7 +26926,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -27993,7 +28061,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -30709,7 +30781,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -33915,7 +33991,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -35064,7 +35144,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -36711,7 +36795,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -38572,7 +38660,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -40724,7 +40816,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -40793,7 +40889,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -41077,7 +41177,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -42823,7 +42927,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -44471,7 +44579,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -45924,7 +46036,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -47059,7 +47175,11 @@
         ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -48366,7 +48486,11 @@
         "notes": [],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
-        "cross_at": "2026-09-23"
+        "cross_at": "2026-09-23",
+        "census": {
+          "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+          "at": "2026-09-24"
+        }
       },
       "records": [
         {
@@ -60561,6 +60685,192 @@
           "why": "Same program: the literal is 'INQCUST ' padded to 8, as CICS program names are. The grader now drops blank padding."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 83,
+          "asked": 84
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 26,
+          "asked": 26
+        },
+        "D": {
+          "agree": 6,
+          "asked": 6
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "A:src/base/cobol_src/INQACCCU.cbl::AH999": {
+          "verdict": "key_correct",
+          "why": "The key's reachability is structural: every condition may be true or false, with no value analysis. The EXEC CICS ABEND before AH999 sits inside IF WS-STORM-DRAIN = 'N', so AH010 can fall through structurally. The reviewer's data-flow argument (the flag can only be 'N' there) is correct but out of the key's scope, and the reviewer notes the structural reading is reachable. The brief now states the structural rule."
+        }
+      },
+      "programs": [
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 6,
+          "asked": 6
+        },
+        "C": {
+          "agree": 27,
+          "asked": 27
+        },
+        "D": {
+          "agree": 11,
+          "asked": 11
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CREACC.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 146,
+          "asked": 146
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 29,
+          "asked": 29
+        },
+        "D": {
+          "agree": 9,
+          "asked": 9
+        },
+        "E": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 4,
+          "asked": 4
+        },
+        "C": {
+          "agree": 28,
+          "asked": 28
+        },
+        "D": {
+          "agree": 10,
+          "asked": 10
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DELACC.cbl"
+      ]
+    },
+    {
+      "by": "claude-opus-5.5, fresh-context subagent per census batch, given only the brief (blind; same model family as the author)",
+      "at": "2026-09-24",
+      "mode": "census",
+      "tasks": {
+        "A": {
+          "agree": 150,
+          "asked": 150
+        },
+        "B": {
+          "agree": 7,
+          "asked": 7
+        },
+        "C": {
+          "agree": 37,
+          "asked": 37
+        },
+        "D": {
+          "agree": 9,
+          "asked": 9
+        },
+        "E": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {},
+      "programs": [
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ]
     }
   ]
 }

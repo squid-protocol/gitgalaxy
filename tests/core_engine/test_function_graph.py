@@ -26,20 +26,22 @@ def _fn(name, line, calls=(), synthetic=False, owner=None):
 
 def _files():
     # main -> helper -> leaf ; util -> leaf ; module-level code -> main
+    # PHP (global namespace): `helper` reaches lib.php's `leaf` with no import.
+    # A package-scoped language would make that pair `unseen` (#3443).
     # `get` is only reachable through an untyped receiver (ambiguous: no edge),
     # `Store(...)` resolves to a class (no function node: no edge).
     main = _fn("main", 1, ["helper", "Store", "get"])
     main["calls_out_qualifiers"]["get"] = ["d"]
     return [
         {
-            "path": "app.py",
-            "lang_id": "python",
+            "path": "app.php",
+            "lang_id": "php",
             "functions": [_fn("<module>", 0, ["main"], synthetic=True), main, _fn("helper", 9, ["leaf"])],
         },
-        {"path": "lib.py", "lang_id": "python", "functions": [_fn("leaf", 1), _fn("util", 5, ["leaf"])]},
+        {"path": "lib.php", "lang_id": "php", "functions": [_fn("leaf", 1), _fn("util", 5, ["leaf"])]},
         {
-            "path": "far/store.py",
-            "lang_id": "python",
+            "path": "far/store.php",
+            "lang_id": "php",
             "functions": [_fn("get", 2, owner="Store")],
             "classes": [{"name": "Store", "inheritance": []}],
         },
@@ -53,12 +55,12 @@ def _metrics(files):
 
 def test_fan_in_and_fan_out_follow_confident_links_only():
     m = _metrics(_files())
-    main = m[("app.py", "main", 1)]
+    main = m[("app.php", "main", 1)]
     # fan-in: the module-level caller; fan-out: helper only (Store is a class,
     # `d.get()` is ambiguous)
     assert (main["func_fan_in"], main["func_fan_out"]) == (1, 1)
-    assert m[("lib.py", "leaf", 1)]["func_fan_in"] == 2
-    assert m[("far/store.py", "get", 2)]["func_fan_in"] == 0
+    assert m[("lib.php", "leaf", 1)]["func_fan_in"] == 2
+    assert m[("far/store.php", "get", 2)]["func_fan_in"] == 0
 
 
 def test_pagerank_concentrates_on_the_shared_callee():
@@ -110,11 +112,11 @@ def test_blast_radius_query_follows_confident_links(tmp_path):
     RecordKeeper().record_mission(files, [], {}, session, str(db), fcall_sites=sites)
     # module-level code is not a function_data row, so it is not listed
     assert blast_radius(str(db), "leaf") == [
-        ("app.py", "helper", 9, 1),
-        ("lib.py", "util", 5, 1),
-        ("app.py", "main", 1, 2),
+        ("app.php", "helper", 9, 1),
+        ("lib.php", "util", 5, 1),
+        ("app.php", "main", 1, 2),
     ]
-    assert blast_radius(str(db), "main", downstream=True) == [("app.py", "helper", 9, 1), ("lib.py", "leaf", 1, 2)]
+    assert blast_radius(str(db), "main", downstream=True) == [("app.php", "helper", 9, 1), ("lib.php", "leaf", 1, 2)]
     assert blast_radius(str(db), "get") == []
 
 

@@ -246,6 +246,10 @@ unsigned. Every tier gates, but only the label says how strongly a number may be
 A key reaches `cross_verified` through `tests/tools/cross_verify.py`: `brief --stage` builds a blind
 packet for a fresh-context reviewer model, `grade` lists disagreements, and `sign` refuses until
 each one is ruled on against the source. The runbook is in `tests/cobol_mainframe/answer_key/README.md`.
+The `mainframe-ground-truth` skill covers the day-to-day work: triaging a ledger failure, merging generated
+files after a squash merge, blessing snapshots, running a blind census, and the COBOL reader traps.
+`answer-key-guard.yml` posts a semantic diff of key and ledger changes on PRs (`tests/tools/ground_truth_diff.py`).
+The runtime-interaction channels still to build (SQL, MQ, IMS, async CICS, JCL flow, lineage) are epic #3445.
 
 ## Testing conventions
 

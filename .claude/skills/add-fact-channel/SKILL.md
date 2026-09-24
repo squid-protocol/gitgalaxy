@@ -48,6 +48,12 @@ count, you're in the wrong skill — use `add-signal`.**
    `stated_absence` once the DB carries it); re-bless the baseline, `unexplained` must not rise.
 8. `cobol_answer_key.py`: drafted field via the key's OWN independent reader; INDEPENDENT verdict
    gated behind an explicit per-program flag.
+8b. **Ground truth** (skill `mainframe-ground-truth`):
+    - a scored field in `score()`, plus a `ground_truth_ledger.TRUTH_FLAGS` entry for its sign-off flag;
+    - `ground_truth_ledger.py update`, with every new mismatch `assign`ed to a cause;
+    - a blind census of the new section (`cross_verify.py census`, then `grade`, then `sign`) before the flag flips to `true`.
+
+    A channel without a ledger field has no regression gate.
 9. Tests mirroring the trio: `test_<extractor>.py`, `test_<name>_data.py`, `test_galaxy_ir.py`, +
    differential/answer-key cases.
 
@@ -86,6 +92,12 @@ step above, but the spine describes *how*, this is *did you actually do it*:
   verdict isn't actually independent.
 - [ ] **Drafted answer-key field**: a `fields` entry + `add(...)` row in `score()`, populated
   `draft` (not `validated`) on new corpora, added without regenerating existing committed keys.
+- [ ] **Ledger field and census** (skill `mainframe-ground-truth`):
+  - `ground_truth_ledger.py check` is clean;
+  - every new mismatch has a cause with `--kind` and `--issue`, and `deliberate` is used only for a documented design choice;
+  - the new key section is censused blind and signed off.
+
+  Quote the channel's scoreboard row (P/R per corpus) in the PR.
 - [ ] **`audit_recorder.py` JSON section**: a `_<name>_facts_block(file_data)` with the full detail
   (mirrors the DB table), numbered, presence-keyed (nothing for a file with none). This moves the
   golden master — see invariants below.

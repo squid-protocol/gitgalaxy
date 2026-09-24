@@ -1,0 +1,61 @@
+name: Answer Key Guard
+
+# The mainframe answer keys are the oracle that every COBOL accuracy number is
+# measured against (tests/cobol_mainframe/answer_key/, #3210), and the ledger
+# records every accepted disagreement with them. A change to either is a
+# change to *truth*, so it needs the source evidence in the PR, not just a
+# green ledger check. This job posts a semantic diff (tests/tools/
+# ground_truth_diff.py) to the job summary, and raises a warning annotation
+# for:
+#   - a program whose key answers changed while its census stamp did not
+#     (the census vouched for the old answers: re-census it);
+#   - a ledger cause switched from defect to deliberate (the one way to turn a
+#     real defect green without fixing it).
+# It never fails the build. mainframe-ground-truth.yml and
+# test_small_corpus_keys_are_fully_censused are the gates. Mirrors
+# golden-master-guard.yml. See the mainframe-ground-truth skill.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tests/cobol_mainframe/answer_key/**"
+      - "tests/cobol_mainframe/ground_truth_ledger.json"
+      - "tests/tools/cobol_answer_key.py"
+      - "tests/tools/cross_verify.py"
+      - "tests/tools/ground_truth_ledger.py"
+      - ".github/workflows/answer-key-guard.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  answer-key-diff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Semantic diff of the ground truth
+        run: |
+          python tests/tools/ground_truth_diff.py \
+            --base "origin/${{ github.base_ref }}" --head HEAD \
+            --summary "$GITHUB_STEP_SUMMARY"
+          {
+            echo ""
+            echo "Reviewers: every changed key answer needs the source evidence in the PR description."
+            echo "A changed program must be re-censused (\`cross_verify.py census\`, then \`grade\`, then \`sign\`) before merge."
+          } >> "$GITHUB_STEP_SUMMARY"

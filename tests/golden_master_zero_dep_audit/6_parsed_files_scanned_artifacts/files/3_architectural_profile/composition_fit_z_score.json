@@ -2414,9 +2414,9 @@
       "perl/exiftool/exiftool": 0.279
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 0.278,
+      "perl/mojo/IOLoop.pm": 0.298,
       "perl/mojo/Makefile.PL": 0.152,
-      "perl/mojo/Promise.pm": 0.632,
+      "perl/mojo/Promise.pm": 0.609,
       "perl/mojo/Template.pm": 1.28,
       "perl/mojo/WebSocket.pm": 1.33
     },
@@ -3012,7 +3012,7 @@
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 0.915,
-      "rust/serde/serde_core_de_mod.rs": 0.476,
+      "rust/serde/serde_core_de_mod.rs": 0.456,
       "rust/serde/serde_core_macros.rs": 0.15,
       "rust/serde/serde_derive_de.rs": -0.232,
       "rust/serde/serde_internals_ast.rs": -0.312,
@@ -3068,7 +3068,7 @@
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 0.967,
       "scheme/racket/eval.c": 0.227,
-      "scheme/racket/fun.c": 0.131,
+      "scheme/racket/fun.c": 0.155,
       "scheme/racket/io.ss": 2.548,
       "scheme/racket/schemify.rkt": 0.835,
       "scheme/racket/thread.rkt": 1.365
@@ -3814,7 +3814,7 @@
       "zig/zls/mach/collision.zig": 0.304,
       "zig/zls/mach/graph.zig": 0.381,
       "zig/zls/mach/main.zig": 1.188,
-      "zig/zls/mach/module.zig": 0.313,
+      "zig/zls/mach/module.zig": 0.335,
       "zig/zls/mach/testing.zig": 0.525,
       "zig/zls/mach/win32.zig": 1.91
     }

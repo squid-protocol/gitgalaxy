@@ -328,3 +328,31 @@ def test_transfers_never_become_file_edges():
         {"src_path": "a.cbl", "dst_path": "b.cbl", "resolution": "unique", "kind": "call"},
     ]
     assert confident_file_pairs(sites) == {("a.cbl", "b.cbl"): 1}
+
+
+def test_bare_perl_builtin_never_links_to_a_same_named_sub():
+    """#3401: Mojo's Promise.pm defines `sub map`; every bare `map(` in bugzilla
+    and spamassassin resolved `unique` to it. A Perl bare call to a built-in is
+    the built-in, even in the defining file."""
+    files = [
+        _file("bugzilla/Bug.pm", "perl", [_fn("run", 1, calls=["map"], quals={"map": [""]})]),
+        _file(
+            "mojo/Promise.pm",
+            "perl",
+            [_fn("map", 68), _fn("then", 90, calls=["map"], quals={"map": [""]})],
+        ),
+    ]
+    sites, _ = resolve_calls(files)
+    rows = [s for s in sites if s["callee"] == "map"]
+    assert rows and all((r["step"], r["resolution"], r["dst_path"]) == ("none", "external", None) for r in rows)
+
+
+def test_a_redefinable_name_still_resolves():
+    """A language whose definitions CAN shadow a built-in keeps the edge: redis's
+    global `function printf` in printf.lua is what a bare `printf(` calls."""
+    files = [
+        _file("redis/a.lua", "lua", [_fn("run", 1, calls=["printf"], quals={"printf": [""]})]),
+        _file("redis/printf.lua", "lua", [_fn("printf", 1)]),
+    ]
+    row = _site(resolve_calls(files)[0], "printf")
+    assert (row["resolution"], row["dst_path"]) == ("unique", "redis/printf.lua")

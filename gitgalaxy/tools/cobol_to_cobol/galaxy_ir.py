@@ -2320,7 +2320,7 @@ class GalaxyIR:
         ]
 
     def error_handlers(self) -> list:
-        """Every HANDLE CONDITION / HANDLE ABEND / HANDLE AID (#3453): `file`,
+        """Every HANDLE CONDITION / HANDLE ABEND / HANDLE AID (#3453) and PL/I ON unit (#3491): `file`,
         `kind`, `condition`, `target`, `target_kind`, `line`, the owning `unit`,
         and `handler_found` -- whether a LABEL target is a paragraph / section of
         the same program (None for a non-LABEL target)."""
@@ -2328,8 +2328,16 @@ class GalaxyIR:
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
             names = {u.name.upper() for u in f.units}
             for u in f.uow_handlers:
-                if u.kind not in ("HANDLE_CONDITION", "HANDLE_ABEND", "HANDLE_AID"):
+                # #3491: a PL/I ON unit is a handler too (target_kind SYSTEM / NULL /
+                # BLOCK / PROCEDURE / LABEL / STATEMENT).
+                if u.kind not in ("HANDLE_CONDITION", "HANDLE_ABEND", "HANDLE_AID", "ON_UNIT"):
                     continue
+                # A PROCEDURE target, or a COBOL LABEL, is a unit; PL/I statement labels
+                # are not, and nothing else has a target to look up.
+                if u.target_kind == "PROCEDURE" or (u.target_kind == "LABEL" and f.language != "pli"):
+                    found = (u.target or "").upper() in names
+                else:
+                    found = None
                 out.append(
                     {
                         "file": f.file_path,
@@ -2339,7 +2347,7 @@ class GalaxyIR:
                         "target_kind": u.target_kind,
                         "line": u.line,
                         "unit": self._owning_unit(f, u.line),
-                        "handler_found": (u.target or "").upper() in names if u.target_kind == "LABEL" else None,
+                        "handler_found": found,
                     }
                 )
         return out

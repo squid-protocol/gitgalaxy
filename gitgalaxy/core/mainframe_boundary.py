@@ -97,6 +97,7 @@ from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import pli_cics_stream, pli_external_calls
+from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
 
@@ -1820,7 +1821,13 @@ def _pli_value_map(records: list[dict[str, Any]]) -> dict[str, str]:
         if not name or not isinstance(value, str):
             continue
         text = value.strip()
-        if text and not re.fullmatch(r"[-+]?[0-9.]+", text):
+        # #3491: a CHARACTER item's string INIT is a value even when it is all digits
+        # (DSF `STOP CHAR(4) INIT('0450')`, an ABCODE); a numeric item's is not, and a
+        # bit string / repetition factor keeps its quotes and is no resource name.
+        is_char = re.match(r"CHAR(?:ACTER)?\b", str(item.get("usage") or ""), re.I) is not None
+        if not text or "'" in text or '"' in text:
+            continue
+        if is_char or not re.fullmatch(r"[-+]?[0-9.]+", text):
             values.setdefault(name.upper(), text)
     return values
 
@@ -1840,6 +1847,15 @@ def _pli_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]
     calls += pli_external_calls(code_stream, _shielded)
     calls.sort(key=lambda c: (c["line"], c["verb"], c["operand"] or ""))
     return calls
+
+
+def _pli_uow_handlers(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
+    """PL/I units of work and handlers (#3491): the CICS SYNCPOINT / HANDLE / ABEND /
+    RESP-check rows through the COBOL reader (each command closed by END-EXEC), plus
+    PL/I's own ON / REVERT / SIGNAL statements (core/pli_on_units.py)."""
+    rows = _uow_handlers(pli_cics_stream(code_stream), values) + pli_on_units(code_stream)
+    rows.sort(key=lambda r: r["line"])
+    return rows
 
 
 def _cics_resources(code_stream: str, values: dict[str, str], dialect: str) -> list[dict[str, Any]]:
@@ -2062,6 +2078,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "sql_statements": extract_sql_statements(code_stream, "pli"),  # #3446
             "cics_resources": _cics_resources(code_stream, _pli_value_map(pli_records), "pli"),  # #3351-#3354
             "cics_tasks": _cics_tasks(code_stream, _pli_value_map(pli_records), [], "pli"),  # #3449
+            "uow_handlers": _pli_uow_handlers(code_stream, _pli_value_map(pli_records)),  # #3491
         }
     if dialect == "bms":
         # #3347: BMS map field layouts ride their own key (`screen_fields`), read

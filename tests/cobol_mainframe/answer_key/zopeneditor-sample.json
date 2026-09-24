@@ -8090,7 +8090,124 @@
   "cics_tasks": {},
   "job_submissions": {},
   "mq_calls": {},
-  "uow_handlers": {},
+  "uow_handlers": {
+    "PLI/PSAM1.pli": {
+      "rows": [
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDFILE(CUSTFILE)",
+          "target": null,
+          "target_kind": "STATEMENT",
+          "resp_var": null,
+          "attributes": null,
+          "line": 152,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDFILE(TRANFILE)",
+          "target": null,
+          "target_kind": "STATEMENT",
+          "resp_var": null,
+          "attributes": null,
+          "line": 155,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDPAGE(CUSTRPT)",
+          "target": null,
+          "target_kind": "BLOCK",
+          "resp_var": null,
+          "attributes": null,
+          "line": 158,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "SIGNAL",
+          "condition": "ENDPAGE(CUSTRPT)",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 190,
+          "kind": "SIGNAL"
+        }
+      ],
+      "uow_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I UOW)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "PLI/PSAM1LIB.pli": {
+      "rows": [
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDFILE(CUSTFILE)",
+          "target": null,
+          "target_kind": "STATEMENT",
+          "resp_var": null,
+          "attributes": null,
+          "line": 142,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDFILE(TRANFILE)",
+          "target": null,
+          "target_kind": "STATEMENT",
+          "resp_var": null,
+          "attributes": null,
+          "line": 145,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "ON",
+          "condition": "ENDPAGE(CUSTRPT)",
+          "target": null,
+          "target_kind": "BLOCK",
+          "resp_var": null,
+          "attributes": null,
+          "line": 148,
+          "kind": "ON_UNIT"
+        },
+        {
+          "source": "PLI",
+          "verb": "SIGNAL",
+          "condition": "ENDPAGE(CUSTRPT)",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 180,
+          "kind": "SIGNAL"
+        }
+      ],
+      "uow_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I UOW)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  },
   "tdq_triggers": {},
   "section_census": [
     {
@@ -8396,6 +8513,26 @@
         "plicalls": {
           "agree": 2,
           "asked": 2
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I UOW)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "PLI/MACSAMP.pli",
+        "PLI/PSAM1.pli",
+        "PLI/PSAM1LIB.pli",
+        "PLI/PSAM2.pli"
+      ],
+      "wide": false,
+      "suite": "pliuow",
+      "tasks": {
+        "uow": {
+          "agree": 8,
+          "asked": 8
         }
       },
       "rulings": {}
@@ -10904,6 +11041,38 @@
       "asked": 2,
       "key_errors": 0,
       "upper_bound_95": 0.77639
+    },
+    "pli_uow": {
+      "plan": {
+        "seed": 3491,
+        "strata": {
+          "on": 12,
+          "cics": 12,
+          "none": 6
+        },
+        "files": [
+          "PLI/MACSAMP.pli",
+          "PLI/PSAM1.pli",
+          "PLI/PSAM1LIB.pli",
+          "PLI/PSAM2.pli"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I UOW)",
+          "at": "2026-09-24",
+          "batch": 1,
+          "files": [
+            "PLI/MACSAMP.pli",
+            "PLI/PSAM1.pli",
+            "PLI/PSAM1LIB.pli",
+            "PLI/PSAM2.pli"
+          ]
+        }
+      ],
+      "asked": 8,
+      "key_errors": 0,
+      "upper_bound_95": 0.31234
     }
   },
   "symbolic_maps": {},

@@ -21,6 +21,7 @@
 #   PUSH_HANDLE / POP_HANDLE  CICS
 #   ABEND             CICS    ABEND                      the ABCODE       -   (attributes:
 #                                                                         NODUMP / CANCEL)
+#   ON_UNIT / REVERT / SIGNAL  PLI  (#3491: PL/I condition handling, core/pli_on_units.py)
 #   RESP_CHECK        CICS    the checked command        the DFHRESP(...) conditions tested
 #                             (READ, LINK, ...)          on its RESP field, comma-joined;
 #                                                        NULL when nothing tests it

@@ -280,13 +280,52 @@ class HlasmSource(Source):
         return None
 
 
+class PliSource(Source):
+    """#3491: a PL/I source as a `Source` for the CICS readers. This tool's own
+    reading: `/* */` comments blanked (newlines kept), columns 73-80 sequence fields
+    dropped (`_pli_source_lines`), and ` END-EXEC` written before the `;` that ends
+    each `EXEC CICS` (outside quotes), so no line moves. Operands name the
+    `INIT('...')` of their DCL (a qualified reference: of its last field)."""
+
+    def __init__(self, path: Path):
+        raw = path.read_text(encoding="utf-8", errors="ignore")
+        text = re.sub(r"/\*.*?(?:\*/|\Z)", lambda m: re.sub(r"[^\n]", " ", m.group(0)), raw, flags=re.S)
+        text = _pli_source_lines(text).upper()
+        out, pos = [], 0
+        for m in re.finditer(r"(?<![\w@#$])EXEC\s+CICS(?![\w@#$])", text):
+            if m.start() < pos:
+                continue
+            quoted, i = False, m.end()
+            while i < len(text) and (quoted or text[i] != ";"):
+                quoted ^= text[i] == "'"
+                i += 1
+            if i < len(text):
+                out.append(text[pos:i] + " END-EXEC")
+                pos = i
+        out.append(text[pos:])
+        self.inits = pli_char_inits(raw)
+        super().__init__(path, list(enumerate("".join(out).split("\n"), 1)))
+        self.proc_start = 0
+
+    def program_id(self) -> Optional[str]:
+        return None
+
+
 def _key_source(path: Path) -> Source:
-    """The reading a CICS reader takes of `path`: HLASM or COBOL."""
-    return HlasmSource(path) if path.suffix.lower() in HLASM_EXTS else Source(path)
+    """The reading a CICS reader takes of `path`: HLASM, PL/I or COBOL."""
+    suffix = path.suffix.lower()
+    if suffix in HLASM_EXTS:
+        return HlasmSource(path)
+    return PliSource(path) if suffix in PLI_EXTS else Source(path)
+
+
+PLI_NAME = r"[\w@#$]+(?:\.[\w@#$]+)*"
 
 
 def _operand_name(src: Source) -> str:
     """The identifier syntax an operand may be written in for `src`'s language."""
+    if isinstance(src, PliSource):
+        return PLI_NAME
     return HLASM_NAME if isinstance(src, HlasmSource) else NAME
 
 
@@ -917,6 +956,18 @@ def _pli_unlabelled(stmt: list) -> tuple[list[str], list]:
     return labels, stmt[i:]
 
 
+def pli_char_inits(text: str) -> dict[str, str]:
+    """Name -> the character string a CHARACTER item's DCL INITs it to (first wins).
+    Only a plain character string: `'0'B` is a bit string, `(78)' '` a repetition."""
+    out: dict[str, str] = {}
+    for item in pli_data_items(text):
+        attrs = item.get("attributes") or ""
+        m = re.search(r"\bINIT(?:IAL)?\s*\(\s*'([^']*)'\s*\)", attrs, re.I)
+        if m and m.group(1).strip() and re.match(r"CHAR", attrs, re.I):
+            out.setdefault(item["name"].upper(), m.group(1).strip())
+    return out
+
+
 def pli_procedures(text: str) -> list[str]:
     """Every PROC / ENTRY label in source order (the first is the outermost)."""
     out = []
@@ -944,11 +995,7 @@ def pli_call_rows(text: str) -> list[dict[str, Any]]:
     the repository-wide nested-procedure rule."""
     tokens = _pli_token_stream(_pli_source_lines(text))
     local = set(pli_procedures(text))
-    inits = {}
-    for item in pli_data_items(text):
-        m = re.search(r"\bINIT(?:IAL)?\s*\(\s*'([^']*)'", item.get("attributes") or "", re.I)
-        if m and m.group(1).strip():
-            inits.setdefault(item["name"].upper(), m.group(1).strip())
+    inits = pli_char_inits(text)
     rows = []
     for stmt in _pli_statements(tokens):
         words = [t[1] if t[0] != "string" else None for t in stmt]
@@ -2081,6 +2128,8 @@ def _cics_value_of(src: Source, ident: str) -> Optional[str]:
     column 72 and writes VALUE on the next line."""
     if isinstance(src, HlasmSource):  # #3495: an assembler operand names a DC constant
         return src.dc.get(ident)
+    if isinstance(src, PliSource):  # #3491: a PL/I operand names its DCL's INIT
+        return src.inits.get(ident) or src.inits.get(ident.rsplit(".", 1)[-1])
     m = re.search(
         rf"(?m)^\s*\d{{1,2}}\s+{re.escape(ident)}(?![A-Z0-9-])[^.]{{0,400}}?\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\")",
         src.raw_text,
@@ -2986,7 +3035,10 @@ def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
             )
         )
     out.sort(key=lambda x: (x[0], x[1]))
-    return [r for _p, _k, r in out]
+    rows = [r for _p, _k, r in out]
+    if isinstance(src, PliSource):  # #3491: PL/I's own condition handling
+        rows += pli_on_rows(path.read_text(encoding="utf-8", errors="ignore"))
+    return rows
 
 
 def uow_keys(rows: list[dict[str, Any]]) -> set[str]:
@@ -3008,12 +3060,80 @@ def engine_uow_row(u: Any) -> dict[str, Any]:
     }
 
 
+# ---- #3491: PL/I condition handling ------------------------------------------
+# This tool's own reading of PL/I's ON / REVERT / SIGNAL statements, over the PL/I
+# token stream (comments dropped, sequence fields removed) split at `;`. An ON
+# counts where a statement can begin (`_pli_clause_starts`) and names a condition
+# from the Language Reference's list: a bare condition, or a file condition /
+# CONDITION(name) with its parenthesised reference. The on-unit that follows is
+# SYSTEM, NULL (the statement ends: the condition is swallowed), BLOCK (BEGIN),
+# PROCEDURE (CALL x), LABEL (GO TO x) or STATEMENT; SNAP is an attribute.
+_PLI_BARE_CONDITIONS = {
+    "ANYCONDITION", "ANYCOND", "AREA", "ATTENTION", "ATTN", "CONVERSION", "CONV", "ERROR", "FINISH",
+    "FIXEDOVERFLOW", "FOFL", "INVALIDOP", "OVERFLOW", "OFL", "SIZE", "STORAGE", "STRINGRANGE", "STRG",
+    "STRINGSIZE", "STRZ", "SUBSCRIPTRANGE", "SUBRG", "UNDERFLOW", "UFL", "ZERODIVIDE", "ZDIV",
+}  # fmt: skip
+_PLI_FILE_CONDITIONS = {"ENDFILE", "ENDPAGE", "KEY", "NAME", "RECORD", "TRANSMIT", "UNDEFINEDFILE", "UNDF",
+                        "CONDITION", "COND"}  # fmt: skip
+
+
+def _pli_condition_at(stmt: list, i: int) -> tuple[Optional[str], int]:
+    """(the condition written at stmt[i], the index after it) or (None, i)."""
+    if i >= len(stmt) or stmt[i][0] != "word":
+        return None, i
+    word = stmt[i][1]
+    if word in _PLI_FILE_CONDITIONS and i + 1 < len(stmt) and stmt[i + 1][1] == "(":
+        end = _pli_group(stmt, i + 1)
+        return word + "".join(t[1] for t in stmt[i + 1 : end]), end
+    if word in _PLI_BARE_CONDITIONS and not (i + 1 < len(stmt) and stmt[i + 1][1] == "("):
+        return word, i + 1
+    return None, i
+
+
+def pli_on_rows(text: str) -> list[dict[str, Any]]:
+    """Every ON / REVERT / SIGNAL statement of one PL/I source (see above)."""
+    rows = []
+    for stmt in _pli_statements(_pli_token_stream(_pli_source_lines(text))):
+        for i in _pli_clause_starts(stmt):
+            word = stmt[i][1] if stmt[i][0] == "word" else None
+            if word not in ("ON", "REVERT", "SIGNAL"):
+                continue
+            cond, j = _pli_condition_at(stmt, i + 1)
+            if cond is None:
+                continue
+            base = {"source": "PLI", "verb": word, "condition": cond, "target": None, "target_kind": None,
+                    "resp_var": None, "attributes": None, "line": stmt[i][2]}  # fmt: skip
+            if word != "ON":
+                rows.append(dict(base, kind=word))
+                continue
+            snap = j < len(stmt) and stmt[j][1] == "SNAP"
+            j += 1 if snap else 0
+            rest = [t[1] for t in stmt[j:]]
+            target, kind = None, "STATEMENT"
+            if not rest:
+                kind = "NULL"
+            elif rest == ["SYSTEM"]:
+                kind = "SYSTEM"
+            elif rest[0] == "BEGIN":
+                kind = "BLOCK"
+            elif rest[0] == "CALL" and len(rest) > 1:
+                target, kind = rest[1], "PROCEDURE"
+            elif rest[:2] == ["GO", "TO"] and len(rest) > 2:
+                target, kind = rest[2], "LABEL"
+            elif rest[0] == "GOTO" and len(rest) > 1:
+                target, kind = rest[1], "LABEL"
+            rows.append(
+                dict(base, kind="ON_UNIT", target=target, target_kind=kind, attributes="SNAP" if snap else None)
+            )
+    return rows
+
+
 def draft_uow(repo: Path) -> dict[str, dict[str, Any]]:
-    """Drafted units of work and handlers for every COBOL source (#3453).
-    Adjudicates nothing until signed off with `uow_validated`."""
+    """Drafted units of work and handlers for every COBOL, HLASM and PL/I source (#3453,
+    #3495, #3491). Adjudicates nothing until signed off with `uow_validated`."""
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS + PLI_EXTS and ".git" not in p.parts:
             rows = uow_handler_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {

@@ -158,6 +158,9 @@ _FIXED_VERB = {
     "PUSH_HANDLE": "PUSH HANDLE",
     "POP_HANDLE": "POP HANDLE",
     "ABEND": "ABEND",
+    "ON_UNIT": "ON",  # #3491: PL/I condition handling
+    "REVERT": "REVERT",
+    "SIGNAL": "SIGNAL",
 }
 
 
@@ -165,6 +168,8 @@ def canon_uow(r: dict[str, Any]) -> str:
     if not r.get("verb") and _ws(r.get("kind")) in _FIXED_VERB:
         r = dict(r, verb=_FIXED_VERB[_ws(r.get("kind"))])
     cond = r.get("condition")
+    if _ws(r.get("kind")) in ("ON_UNIT", "REVERT", "SIGNAL") and cond:
+        cond = re.sub(r"\s+", "", str(cond))  # `ENDFILE (F)` == `ENDFILE(F)`
     if r.get("kind") == "RESP_CHECK" and cond:
         parts = cond if isinstance(cond, list) else str(cond).split(",")
         cond = ",".join(sorted(_ws(c) for c in parts if str(c).strip()))
@@ -1641,6 +1646,118 @@ def _sign_pli_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
+# DSF's ~1,760 handler rows over 1,473 files: a seeded, stratified sample of files
+# (ON / REVERT / SIGNAL files, CICS-handler-only files, files with none) is read in
+# full, as `plicalls` does. When the plan covers every PL/I file (zOpenEditor's 4)
+# it IS a full census, and the section is signed `cross_verified`.
+PLI_UOW_SAMPLE = {"on": 12, "cics": 12, "none": 6}
+
+
+def _pli_files(key: dict[str, Any]) -> list[str]:
+    """Every PL/I file of the corpus (the pli_calls section lists them all)."""
+    return sorted(key.get("pli_calls", {}))
+
+
+def pli_uow_plan(key: dict[str, Any], seed: int) -> list[str]:
+    buckets: dict[str, list[str]] = {"on": [], "cics": [], "none": []}
+    uow = key.get("uow_handlers", {})
+    for rel in _pli_files(key):
+        sources = {r.get("source") for r in uow.get(rel, {}).get("rows", [])}
+        buckets["on" if "PLI" in sources else "cics" if sources else "none"].append(rel)
+    rng = random.Random(seed)
+    return sorted(f for b, n in PLI_UOW_SAMPLE.items() for f in rng.sample(buckets[b], min(n, len(buckets[b]))))
+
+
+def corpus_files_pliuow(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("pli_uow", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_pliuow(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    uow = key.get("uow_handlers", {})
+    return {"uow": {rel: sorted({canon_uow(r) for r in uow.get(rel, {}).get("rows", [])}) for rel in files}}
+
+
+def reviewer_facts_pliuow(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"uow": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["uow"][r] = {canon_uow(x) for x in (v or {}).get("uow", []) if isinstance(x, dict)}
+    return out
+
+
+def render_pliuow(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "pliuow", "batch": index, "of": of, "files": files, "facts": key_facts_pliuow(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe PL/I source code that runs under CICS,
+as a second reviewer. Read the files yourself. They are all under the repository root {repo}; read only the files
+listed below. Do NOT edit or create any files except your answers file, and do not look for any existing answer
+key or analysis of this code: the point is an independent reading. Line numbers are 1-based physical line numbers.
+
+PL/I READING RULES. `/* ... */` is a comment (it may span lines). A statement ends at `;` (outside a quoted
+'literal'). Columns 73-80 of a line may hold a sequence field (e.g. `00001740` or `R0015160`): never code. Names are
+case-insensitive (answer them upper-cased). A statement may carry labels (`NAME:`) and may sit after THEN / ELSE /
+OTHERWISE / WHEN(...) / an ON condition. A data name's fixed value is the character string in the `INIT('...')`
+of its DCL when it is declared CHAR / CHARACTER (a bit string such as `'0'B` is not a value).
+
+For EACH file list, in "uow", every unit-of-work point and error handler, one entry each, with "line", "kind",
+"verb", "condition", "target", "target_kind", "resp_var", "attributes" (null where not given):
+  - CICS (the line of `EXEC CICS`): SYNCPOINT -> kind COMMIT, verb "SYNCPOINT"; SYNCPOINT ROLLBACK -> kind
+    ROLLBACK, verb "SYNCPOINT ROLLBACK". HANDLE CONDITION / HANDLE AID: one entry per condition or key, kind
+    HANDLE_CONDITION / HANDLE_AID, condition the name, target the label in its parentheses with target_kind LABEL,
+    or target null + target_kind DEFAULT when named bare. IGNORE CONDITION: one per condition, kind IGNORE_CONDITION.
+    PUSH / POP HANDLE: kind PUSH_HANDLE / POP_HANDLE. HANDLE ABEND: kind HANDLE_ABEND, target_kind LABEL (target the
+    label) / PROGRAM (target the program name, a literal or a data name's value) / CANCEL / RESET. EXEC CICS ABEND:
+    kind ABEND, condition the ABCODE (the literal, or the data name's value, else the data name as written),
+    attributes the NODUMP / CANCEL options in written order, else null.
+  - RESP checks: every OTHER EXEC CICS command coded RESP(v), or NOHANDLE (then v = EIBRESP): kind RESP_CHECK, verb
+    the command's first word, resp_var v, condition the DFHRESP(x) names compared against v after the command (up
+    to the next command coded RESP(v) / NOHANDLE again, or about 100 lines) as a list, or null when nothing tests v.
+  - PL/I condition handling (the line of the ON / REVERT / SIGNAL keyword): `ON cond ...` -> kind ON_UNIT, verb "ON",
+    condition the condition as written without blanks (ERROR, FINISH, ZERODIVIDE, ..., or a file condition /
+    CONDITION with its reference: ENDFILE(F), KEY(F), CONDITION(NAME)); attributes "SNAP" when the statement codes
+    SNAP; and what the on-unit is: `ON c SYSTEM;` -> target_kind SYSTEM; `ON c;` (nothing) -> target_kind NULL;
+    `ON c BEGIN; ... END;` -> BLOCK; `ON c CALL x;` -> PROCEDURE with target x; `ON c GO TO x;` -> LABEL with target
+    x; any other single statement -> STATEMENT. `REVERT cond;` -> kind REVERT, `SIGNAL cond;` -> kind SIGNAL (verb
+    the keyword, condition as above). Only real condition names count: `ON` in prose or in a data name is not one.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"uow": [{{"line": 1, "kind": "ON_UNIT", "verb": "ON", "condition": "ERROR", "target": null,
+                                 "target_kind": "SYSTEM", "resp_var": null, "attributes": null}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_pliuow(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_pliuow(key, files)["uow"].items()}, max_items)
+
+
+def _sign_pli_uow_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                         by: str, at: str) -> None:  # fmt: skip
+    """Record a PL/I UOW sample batch; once every planned file is signed, flag every
+    PL/I uow_handlers entry -- `cross_verified` when the plan read every PL/I file,
+    else `sample_verified` with the sample's error bound."""
+    sc = key["sample_census"]["pli_uow"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("uow", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        full = set(sc["plan"]["files"]) >= set(_pli_files(key))
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        census = {"by": by, "at": at} if full else {"by": by, "at": at, "sampled": True}
+        stamp = {"status": "validated", "tier": "cross_verified" if full else "sample_verified", "census": census}
+        for rel, entry in key.get("uow_handlers", {}).items():
+            if rel in key.get("pli_calls", {}):
+                entry["uow_validated"] = True
+                entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1673,6 +1790,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "resources"
         else reviewer_facts_plicalls(answers, repo, set(truth.get("included", [])))
         if suite == "plicalls"
+        else reviewer_facts_pliuow(answers, repo)
+        if suite == "pliuow"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1737,8 +1856,8 @@ def sign(
         if truth.get("suite") == "jcics"
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
-        else set()  # plicalls: flagged all at once when the sample completes
-        if truth.get("suite") == "plicalls"
+        else set()  # plicalls / pliuow: flagged all at once when the sample completes
+        if truth.get("suite") in ("plicalls", "pliuow")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1770,6 +1889,8 @@ def sign(
         _sign_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plicalls":
         _sign_pli_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "pliuow":
+        _sign_pli_uow_sample(key, truth, g, rulings, by, at)
     return key
 
 
@@ -1828,7 +1949,19 @@ def main() -> int:
     c.add_argument("--max-items", type=int, default=70)
     c.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources", "plicalls"),
+        choices=(
+            "channels",
+            "files",
+            "calls",
+            "lineage",
+            "io",
+            "dynamic",
+            "web",
+            "jcics",
+            "resources",
+            "plicalls",
+            "pliuow",
+        ),
         default="channels",
     )
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
@@ -1837,7 +1970,19 @@ def main() -> int:
     cov.add_argument("--corpus", required=True)
     cov.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources", "plicalls"),
+        choices=(
+            "channels",
+            "files",
+            "calls",
+            "lineage",
+            "io",
+            "dynamic",
+            "web",
+            "jcics",
+            "resources",
+            "plicalls",
+            "pliuow",
+        ),
         default="channels",
     )
     for name in ("grade", "sign"):
@@ -1867,6 +2012,8 @@ def main() -> int:
         if suite == "resources"
         else corpus_files_plicalls(key)
         if suite == "plicalls"
+        else corpus_files_pliuow(key)
+        if suite == "pliuow"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1888,6 +2035,12 @@ def main() -> int:
                               "included": sorted(key.get("pli_calls_included", []))}  # fmt: skip
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             files = corpus_files_plicalls(key)
+        if suite == "pliuow":
+            pu = key.setdefault("sample_census", {}).setdefault("pli_uow", {})
+            if not pu.get("batches"):
+                pu["plan"] = {"seed": args.seed, "strata": PLI_UOW_SAMPLE, "files": pli_uow_plan(key, args.seed)}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_pliuow(key)
         if suite == "lineage":
             # The sample is fixed here and stored in the key, so coverage and sign
             # judge completeness against it (re-cutting replaces an unsigned plan).
@@ -1920,6 +2073,7 @@ def main() -> int:
             "jcics": batches_jcics,
             "resources": batches_resources,
             "plicalls": batches_plicalls,
+            "pliuow": batches_pliuow,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -1934,6 +2088,7 @@ def main() -> int:
                 "jcics": render_jcics,
                 "resources": render_resources,
                 "plicalls": render_plicalls,
+                "pliuow": render_pliuow,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -1980,6 +2135,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_resources(key, truth["files"]))
     elif truth.get("suite") == "plicalls":
         current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
+    elif truth.get("suite") == "pliuow":
+        current = dict(truth, facts=key_facts_pliuow(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

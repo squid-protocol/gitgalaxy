@@ -7306,6 +7306,380 @@
           "Verb": "WRITE"
         }
       ]
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": [
+        {
+          "Attributes": null,
+          "Condition": "ERROR",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 148,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "FEILBEH",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010422.pli": [
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 101,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 113,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 124,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 127,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010423.pli": [
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 99,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VL",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 111,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 122,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VL",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 125,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010424.pli": [
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 97,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VS",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 109,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 120,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VS",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 123,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010425.pli": [
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 100,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VM",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 113,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NOTFND",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 126,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VM",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 129,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "NOTFND_VN",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010427.pli": [
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 57,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDFILE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        }
+      ],
+      "pli/dsf_cics_admin/R001TK62.pli": [
+        {
+          "Attributes": "SNAP",
+          "Condition": "ERROR",
+          "Kind": "ON_UNIT",
+          "Line": 100,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "BLOCK",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ERROR",
+          "Kind": "ON_UNIT",
+          "Line": 101,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "SYSTEM",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ERROR",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 113,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "FEILBEH",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "IGNORE_CONDITION",
+          "Line": 114,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "IGNORE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 115,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "SLUTT_FIL",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 231,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ]
+    },
+    "pli/zopeneditor_sample": {
+      "pli/zopeneditor_sample/PSAM1.pli": [
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE(CUSTFILE)",
+          "Kind": "ON_UNIT",
+          "Line": 152,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "STATEMENT",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE(TRANFILE)",
+          "Kind": "ON_UNIT",
+          "Line": 155,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "STATEMENT",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDPAGE(CUSTRPT)",
+          "Kind": "ON_UNIT",
+          "Line": 158,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "BLOCK",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDPAGE(CUSTRPT)",
+          "Kind": "SIGNAL",
+          "Line": 190,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SIGNAL"
+        }
+      ],
+      "pli/zopeneditor_sample/PSAM1LIB.pli": [
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE(CUSTFILE)",
+          "Kind": "ON_UNIT",
+          "Line": 142,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "STATEMENT",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE(TRANFILE)",
+          "Kind": "ON_UNIT",
+          "Line": 145,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "STATEMENT",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDPAGE(CUSTRPT)",
+          "Kind": "ON_UNIT",
+          "Line": 148,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": "BLOCK",
+          "Verb": "ON"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDPAGE(CUSTRPT)",
+          "Kind": "SIGNAL",
+          "Line": 180,
+          "RESP Field": null,
+          "Source": "PLI",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SIGNAL"
+        }
+      ]
     }
   },
   "path": [

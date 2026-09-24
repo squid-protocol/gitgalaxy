@@ -716,11 +716,11 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
     unquoted = re.sub(r"'[^'\n]*'|\"[^\"\n]*\"", lambda m: " " * len(m.group(0)), code_stream)
     entries: list[re.Match] = []
     for m in _LEVEL_START.finditer(code_stream):
-        if entries and not _ENTRY_END.search(unquoted, entries[-1].end(), m.start()):
-            if m.group(2).upper() in ("THRU", "THROUGH") or _OPEN_VALUE_LIST.search(
-                unquoted, entries[-1].end(), m.start()
-            ):
-                continue
+        unfinished = bool(entries) and not _ENTRY_END.search(unquoted, entries[-1].end(), m.start())
+        if unfinished and (
+            m.group(2).upper() in ("THRU", "THROUGH") or _OPEN_VALUE_LIST.search(unquoted, entries[-1].end(), m.start())
+        ):
+            continue
         entries.append(m)
     records: list[dict[str, Any]] = []
     stack: list[tuple[int, int]] = []  # (level, ordinal) of the open group items

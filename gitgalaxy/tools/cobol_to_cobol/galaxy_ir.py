@@ -1187,6 +1187,184 @@ class GalaxyIR:
                     return sym
         return None
 
+    # ---- #3498: skeleton completeness -------------------------------------------
+    def completeness(self) -> dict:
+        """How complete this scan's mainframe skeleton is, channel by channel (#3498).
+
+        Each channel counts facts that resolved against everything else the scan
+        holds, and splits the rest into `system` (a name the runtime or IBM
+        supplies -- IDCAMS, DFHAID, EIBCALEN: not a gap) and named `gaps`:
+
+          program calls   CALL / LINK / XCTL / EXEC PGM sites reaching a program in
+                          the repository; gaps: missing program, dynamic target,
+                          non-COBOL program not linked (an engine gap)
+          copybooks       COBOL COPY members answered by a copybook (or a generated
+                          symbolic map, #3490); gap: missing copybook
+          transactions    CICS programs a transaction or a LINK / XCTL / START
+                          reaches, and CSD transactions whose program exists;
+                          gaps: CICS program no transaction reaches, transaction to
+                          a missing program
+          screens         SEND / RECEIVE MAP commands whose BMS source is scanned;
+                          gaps: missing BMS source, dynamic map name
+          data flows      data moves (#3452) with both operands resolved to storage
+          IMS PSBs        DL/I programs whose PSB is defined in the repository
+          batch entry     batch main programs (no CICS, not CALLed) a JCL step runs
+
+        `missing_inputs` turns the gaps into what to ask the estate owner for
+        (docs/mainframe_ingestion_checklist.md): per input the gap count and up to
+        five examples. `score` is the mean of the channel ratios (channels with no
+        facts are left out), a coarse 0-1 summary -- read the channels.
+        """
+        cobol = [f for f in self.files.values() if f.language == "cobol"]
+        programs = [f for f in cobol if f.is_program]
+        channels: dict = {}
+        examples: dict = {}
+
+        def note(inp: str, example: str) -> None:
+            examples.setdefault(inp, []).append(example)
+
+        # Program calls (JCL EXEC PGM included).
+        calls = [(f, c) for f in self.files.values() for c in f.calls if c.verb not in TRANSACTION_ROUTING_VERBS]
+        any_stem = {Path(p).stem.upper() for p in self.files}
+        ch: dict = {"resolved": 0, "total": 0, "system": 0,
+              "gaps": {"missing program": 0, "dynamic target": 0, "non-COBOL program not linked": 0}}  # fmt: skip
+        for f, c in calls:
+            if c.resolves_to:
+                ch["resolved"] += 1
+            elif c.target and _SYSTEM_PROGRAM.match(c.target.upper()):
+                ch["system"] += 1
+                continue
+            elif c.target and c.target.upper() in any_stem:
+                # The program IS in the repository, in a language calls are not
+                # resolved to (assembler, PL/I): an engine gap, not a missing input.
+                ch["gaps"]["non-COBOL program not linked"] += 1
+            elif c.target:
+                ch["gaps"]["missing program"] += 1
+                note("application programs (source or load-module list)", f"{c.target} ({f.file_path}:{c.line})")
+            else:
+                ch["gaps"]["dynamic target"] += 1
+            ch["total"] += 1
+        channels["program calls"] = ch
+
+        # Copybooks.
+        stems = {Path(p).stem.upper() for p, f in self.files.items() if f.language == "cobol"}
+        ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"missing copybook": 0}}
+        for f in cobol:
+            members = {m for it in f.data_items for m in (it.copy_members or "").split(",") if m}
+            sym = {s.file_path.rsplit("#", 1)[-1] for s in f.symbolic_copies}
+            for m in sorted(members):
+                if m in stems or m in sym:
+                    ch["resolved"] += 1
+                elif _SYSTEM_COPYBOOK.match(m):
+                    ch["system"] += 1
+                    continue
+                else:
+                    ch["gaps"]["missing copybook"] += 1
+                    note("copybook libraries", f"{m} ({f.file_path})")
+                ch["total"] += 1
+        channels["copybooks"] = ch
+
+        # Transactions: CICS programs reachable, CSD programs present.
+        tmap = self.transaction_map()
+        reached = {t["resolves_to"] for t in tmap if t["resolves_to"]}
+        reached |= {c.resolves_to for f in self.files.values() for c in f.calls if c.resolves_to and c.verb != "CALL"}
+        for c in (c for f in self.files.values() for c in f.calls if c.verb in TRANSACTION_ROUTING_VERBS):
+            prog = self._transaction_program(c.target) if c.target else None
+            if prog:
+                reached.add(prog)
+        cics = [f for f in programs if f.cics_resources or f.cics_tasks or any(c.verb in _CONTRACT_VERBS for c in f.calls)
+                or any(r.name == "DFHCOMMAREA" for r in f.records)]  # fmt: skip
+        ch = {"resolved": 0, "total": 0, "system": 0,
+              "gaps": {"CICS program no transaction reaches": 0, "transaction to a missing program": 0}}  # fmt: skip
+        for f in cics:
+            ch["total"] += 1
+            if f.file_path in reached:
+                ch["resolved"] += 1
+            else:
+                ch["gaps"]["CICS program no transaction reaches"] += 1
+                note("CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it", f.file_path)
+        for t in tmap:
+            ch["total"] += 1
+            if t["resolves_to"]:
+                ch["resolved"] += 1
+            elif t["program"] and _SYSTEM_PROGRAM.match(t["program"].upper()):
+                ch["system"] += 1
+                ch["total"] -= 1
+            else:
+                ch["gaps"]["transaction to a missing program"] += 1
+                note(
+                    "application programs (source or load-module list)", f"{t['program']} (transaction {t['transid']})"
+                )
+        channels["transactions"] = ch
+
+        # Screens.
+        ops = self.screen_bindings()
+        ch = {"resolved": sum(1 for o in ops if o["bms_file"]), "total": len(ops), "system": 0,
+              "gaps": {"missing BMS source": 0, "dynamic map name": 0}}  # fmt: skip
+        for o in ops:
+            if o["bms_file"]:
+                continue
+            if not o["map"]:
+                ch["gaps"]["dynamic map name"] += 1  # MAP(ws-item): nothing to ask for
+            else:
+                ch["gaps"]["missing BMS source"] += 1
+                note("BMS map sources", f"{o['mapset']}/{o['map']} ({o['program']}:{o['line']})")
+        channels["screens"] = ch
+
+        # Data flows.
+        flows = self.data_flows()
+        status = {k: sum(1 for fl in flows if fl["status"] == k) for k in ("resolved", "system")}
+        ch = {"resolved": status["resolved"], "total": len(flows) - status["system"], "system": status["system"],
+              "gaps": {"unresolved operand": sum(1 for fl in flows if fl["status"] not in ("resolved", "system"))}}  # fmt: skip
+        channels["data flows"] = ch
+
+        # IMS PSBs.
+        checks = self.ims_access_check()
+        progs: dict = {}
+        for c in checks:
+            progs[c["file"]] = progs.get(c["file"], True) and c["status"] != "no_psb"
+        ch = {"resolved": sum(1 for ok in progs.values() if ok), "total": len(progs), "system": 0,
+              "gaps": {"DL/I program with no PSB": sum(1 for ok in progs.values() if not ok)}}  # fmt: skip
+        for path, ok in sorted(progs.items()):
+            if not ok:
+                note("PSB / DBD generation sources", path)
+        channels["IMS PSBs"] = ch
+
+        # Batch entry: batch main programs a JCL step runs.
+        run = set()
+        for job in self.job_steps():
+            for st in job["steps"]:
+                for step in [st, *(st.get("expands_to") or [])]:
+                    if step.get("program"):
+                        run.add(step["program"].upper())
+        called = {c.resolves_to for f in self.files.values() for c in f.calls if c.resolves_to and c.verb == "CALL"}
+        batch = [f for f in programs if f not in cics and f.file_path not in called]
+        ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"batch program no JCL step runs": 0}}
+        for f in batch:
+            ch["total"] += 1
+            if any(pid.upper() in run for pid in f.program_ids):
+                ch["resolved"] += 1
+            else:
+                ch["gaps"]["batch program no JCL step runs"] += 1
+                note("JCL and PROC libraries", f.file_path)
+        channels["batch entry"] = ch
+
+        for ch in channels.values():
+            ch["ratio"] = round(ch["resolved"] / ch["total"], 4) if ch["total"] else None
+        ratios = [c["ratio"] for c in channels.values() if c["ratio"] is not None]
+        missing = [
+            {"input": inp, "count": len(ex), "examples": sorted(set(ex))[:5]}
+            for inp, ex in sorted(examples.items(), key=lambda kv: (-len(kv[1]), kv[0]))
+        ]
+        if len(self.job_steps()) > 1:
+            missing.append({"input": "scheduler export (CA-7 / Control-M / TWS)", "count": len(self.job_steps()),
+                            "examples": ["cross-job order is not in the repository"]})  # fmt: skip
+        return {
+            "score": round(sum(ratios) / len(ratios), 4) if ratios else None,
+            "channels": channels,
+            "missing_inputs": missing,
+        }
+
     def symbolic_map_layouts(self) -> dict:
         """Mapset -> {`file` (the BMS source), `items`: sorted `NAME @offset+bytes`}
         of every generated COBOL symbolic map (#3490): each named item, the I / O
@@ -3085,6 +3263,13 @@ def _pic_positions(pic: str) -> Optional[list]:
 # children) -- and even when the engine read a stray USAGE into it.
 _PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
 
+
+# #3498: programs and copybooks IBM or the runtime supply -- never a gap.
+_SYSTEM_PROGRAM = re.compile(
+    r"(?:IDCAMS|IEB|IEF|IEH|IKJ|ICE|SORT|DFSORT|SYNCSORT|IEW|IGY|ASMA|IBMZ|CEE|DFH|DSN|DFS|ADR|IDC|IRX|EZA|IGZ|ILBO"
+    r"|CSQ|IOEAGFMT|BPXBATCH|AMASPZAP|IMS|DLI|CBLTDLI|AIBTDLI|MQ)[A-Z0-9@#$]*$"
+)
+_SYSTEM_COPYBOOK = re.compile(r"(?:DFH|CMQ|SQLCA|SQLDA|DSN|CEE|IGZ|DLI|DFS)[A-Z0-9@#$]*$")
 
 # #3492: file I/O that moves a whole record between the FD buffer and an area.
 _RECORD_IO_VERBS = frozenset({"READ", "RETURN", "WRITE", "REWRITE", "RELEASE"})

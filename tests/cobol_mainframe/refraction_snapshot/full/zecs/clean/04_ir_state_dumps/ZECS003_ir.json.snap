@@ -1,0 +1,292 @@
+{
+  "metadata": {
+    "file_name": "ZECS003.cbl",
+    "path": "<WORK>/zecs/Source/ZECS003.cbl",
+    "corporate_header": "",
+    "loc": 463
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "ZECS003.cbl",
+      "total_vars": 93,
+      "orphaned_vars": [
+        "CSSL",
+        "DC-CRLF",
+        "DFHCOMMAREA",
+        "FC-DELETE",
+        "FC-READ",
+        "FE-FN",
+        "FE-PARAGRAPH",
+        "FE-RESP",
+        "FE-RESP2",
+        "FILE-ERROR",
+        "KE-FN",
+        "KE-PARAGRAPH",
+        "KE-RESP",
+        "KE-RESP2",
+        "KEY-ERROR",
+        "TD-DATE",
+        "TD-LENGTH",
+        "TD-MESSAGE",
+        "TD-RECORD",
+        "TD-TIME",
+        "TD-TRANID",
+        "ZF-DATA",
+        "ZF-EXTRA",
+        "ZF-PREFIX",
+        "ZF-SEGMENTS",
+        "ZF-TTL",
+        "ZK-LENGTH",
+        "ZK-RECORD",
+        "ZK-SEGMENTS",
+        "ZK-ZF-KEY"
+      ],
+      "total_paras": 22,
+      "dead_paras": [
+        "9000-EXIT"
+      ],
+      "loc_saved": 40
+    },
+    "lineage": {
+      "program_id": "ZECS003",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "ZECS003",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 13,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    CURRENT_ABS                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    TWELVE                         INTEGER,\n    TEN                            INTEGER,\n    SEVEN                          INTEGER,\n    TWO                            INTEGER,\n    ONE                            INTEGER,\n    FIVE_TWELVE                    INTEGER,\n    EOF                            VARCHAR(01),\n    SLASH                          VARCHAR(01),\n    ADR                            VARCHAR(03),\n    SDR                            VARCHAR(03),\n    DOT                            VARCHAR(01),\n    CLEAR_ALL                      VARCHAR(07),\n    CRLF                           VARCHAR(02),\n    DC_TRANID                      VARCHAR(04),\n    ZK_TRANID                      VARCHAR(04),\n    ZF_TRANID                      VARCHAR(04),\n    ZF_LENGTH                      SMALLINT,\n    DELETE_LENGTH                  SMALLINT,\n    URI_MAP                        VARCHAR(08),\n    URI_PATH                       VARCHAR(255),\n    RESOURCES                      VARCHAR(10),\n    REPLICATE                      VARCHAR(10),\n    HTTP_OK                        VARCHAR(02),\n    HTTP_STATUS_200                SMALLINT,\n    SEND_ACTION                    INTEGER,\n    NUMBER_OF_SPACES               INTEGER,\n    NUMBER_OF_NULLS                INTEGER,\n    WEB_METHOD                     INTEGER,\n    WEB_PATH_LENGTH                INTEGER,\n    ACTIVE_SINGLE                  VARCHAR(02),\n    ACTIVE_ACTIVE                  VARCHAR(02),\n    ACTIVE_STANDBY                 VARCHAR(02),\n    DC_TYPE                        VARCHAR(02),\n    THE_OTHER_DC                   VARCHAR(160),\n    DC_TOKEN                       VARCHAR(16),\n    DC_LENGTH                      INTEGER,\n    THE_OTHER_DC_LENGTH            INTEGER,\n    SESSION_TOKEN                  BIGINT,\n    URL_SCHEME_NAME                VARCHAR(16),\n    URL_SCHEME                     INTEGER,\n    URL_PORT                       INTEGER,\n    URL_HOST_NAME                  VARCHAR(80),\n    URL_HOST_NAME_LENGTH           INTEGER,\n    WEB_STATUS_CODE                SMALLINT,\n    WEB_STATUS_LENGTH              INTEGER,\n    WEB_STATUS_ABSTIME             BIGINT,\n    WEB_PATH                       VARCHAR(512),\n    CONVERSE_LENGTH                INTEGER,\n    CONVERSE_RESPONSE              VARCHAR(40),\n    TEXT_PLAIN                     VARCHAR(56),\n    CA_TYPE                        VARCHAR(03),\n    CA_URI_FIELD_01                VARCHAR(10)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "CURRENT_ABS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "TWELVE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "TEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "SEVEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "TWO": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "ONE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "FIVE_TWELVE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "EOF": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "SLASH": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "ADR": {
+            "type": "string",
+            "description": "Legacy PIC: X(03)"
+          },
+          "SDR": {
+            "type": "string",
+            "description": "Legacy PIC: X(03)"
+          },
+          "DOT": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "CLEAR_ALL": {
+            "type": "string",
+            "description": "Legacy PIC: X(07)"
+          },
+          "CRLF": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "DC_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "ZK_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "ZF_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "ZF_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "DELETE_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "URI_MAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "URI_PATH": {
+            "type": "string",
+            "description": "Legacy PIC: X(255)"
+          },
+          "RESOURCES": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "REPLICATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "HTTP_OK": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "HTTP_STATUS_200": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "SEND_ACTION": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "NUMBER_OF_SPACES": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "NUMBER_OF_NULLS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "WEB_METHOD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "WEB_PATH_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "ACTIVE_SINGLE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "ACTIVE_ACTIVE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "ACTIVE_STANDBY": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "DC_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "THE_OTHER_DC": {
+            "type": "string",
+            "description": "Legacy PIC: X(160)"
+          },
+          "DC_TOKEN": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "DC_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "THE_OTHER_DC_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "SESSION_TOKEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(18)"
+          },
+          "URL_SCHEME_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "URL_SCHEME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "URL_PORT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "URL_HOST_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "URL_HOST_NAME_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "WEB_STATUS_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "WEB_STATUS_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "WEB_STATUS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(15)"
+          },
+          "WEB_PATH": {
+            "type": "string",
+            "description": "Legacy PIC: X(512)"
+          },
+          "CONVERSE_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "CONVERSE_RESPONSE": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)"
+          },
+          "TEXT_PLAIN": {
+            "type": "string",
+            "description": "Legacy PIC: X(56)"
+          },
+          "CA_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(03)"
+          },
+          "CA_URI_FIELD_01": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=ZECS003\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

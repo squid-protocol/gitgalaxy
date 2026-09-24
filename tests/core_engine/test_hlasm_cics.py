@@ -67,3 +67,20 @@ def test_a_source_without_cics_is_untouched():
     assert cics_stream(plain) == plain
     b = extract_boundary("hlasm", plain)
     assert b["calls"] == b["cics_resources"] == b["cics_tasks"] == b["uow_handlers"] == []
+
+
+def test_a_continuation_mark_drifted_into_column_73_still_continues():
+    """zECS: `EXEC CICS WRITEQ TD ... X` with the X in column 73 (72 blank, nothing
+    after); a real sequence field fills 73-80 and does not continue."""
+    drifted = "\n".join(
+        [
+            "         EXEC CICS WRITEQ TD QUEUE('@tdq@') FROM(TD_DATA)".ljust(72) + "X",
+            "               LENGTH(TD_LEN) NOHANDLE",
+        ]
+    )
+    (row,) = [r for r in extract_boundary("hlasm", drifted)["uow_handlers"] if r["verb"] == "WRITEQ"]
+    assert row["line"] == 1 and row["resp_var"] == "EIBRESP"  # NOHANDLE on the continuation was read
+    numbered = "         EXEC CICS RETURN".ljust(72) + "00010000\n         BR    14"
+    first, second = cics_stream(numbered).split("\n")
+    assert first.split() == ["EXEC", "CICS", "RETURN", "END-EXEC"]  # closed on its own line
+    assert "END-EXEC" not in second

@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "CURRENT_ABS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "TWELVE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "TEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "SEVEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "TWO": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "ONE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "FIVE_TWELVE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "EOF": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "SLASH": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ADR": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)"
+    },
+    "SDR": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)"
+    },
+    "DOT": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "CLEAR_ALL": {
+      "type": "string",
+      "description": "Legacy PIC: X(07)"
+    },
+    "CRLF": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "DC_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "ZK_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "ZF_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "ZF_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "DELETE_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "URI_MAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "URI_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(255)"
+    },
+    "RESOURCES": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "REPLICATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "HTTP_OK": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "HTTP_STATUS_200": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "SEND_ACTION": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "NUMBER_OF_SPACES": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "NUMBER_OF_NULLS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WEB_METHOD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WEB_PATH_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "ACTIVE_SINGLE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "ACTIVE_ACTIVE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "ACTIVE_STANDBY": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "DC_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "THE_OTHER_DC": {
+      "type": "string",
+      "description": "Legacy PIC: X(160)"
+    },
+    "DC_TOKEN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "DC_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "THE_OTHER_DC_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "SESSION_TOKEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(18)"
+    },
+    "URL_SCHEME_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "URL_SCHEME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "URL_PORT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "URL_HOST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "URL_HOST_NAME_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WEB_STATUS_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WEB_STATUS_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WEB_STATUS_ABSTIME": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(15)"
+    },
+    "WEB_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(512)"
+    },
+    "CONVERSE_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "CONVERSE_RESPONSE": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)"
+    },
+    "TEXT_PLAIN": {
+      "type": "string",
+      "description": "Legacy PIC: X(56)"
+    },
+    "CA_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)"
+    },
+    "CA_URI_FIELD_01": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    }
+  }
+}

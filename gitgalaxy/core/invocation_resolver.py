@@ -55,6 +55,16 @@ from gitgalaxy.core.path_proximity import nearest_path
 # a language here therefore has to be right for both readings.
 PROGRAM_DECLARING_LANGUAGES = ("cobol",)
 
+# #3495: languages whose call target is an executable UNIT, not a `classes` entry.
+# An HLASM program is named by its control section -- `name CSECT` / `RSECT` /
+# `START`, or `name DFHEIENT` for a command-level CICS program -- which the hlasm
+# func_start rule yields as the file's functions; its `classes` are DSECTs,
+# storage layouts no verb can call. Without it walmartlabs/zECS's COBOL
+# `LINK PROGRAM('ZECS002')` never reached ZECS002.asm. Kept apart from
+# PROGRAM_DECLARING_LANGUAGES because #3199 reads that tuple as "this file is a
+# program, not a copybook", which a unit-bearing HLASM macro member is not.
+UNIT_DECLARED_PROGRAM_LANGUAGES = ("hlasm",)
+
 # `CALL`/`LINK`/`XCTL` are COBOL-side invocations; `EXEC PGM` is JCL's.
 _EXEC_VERBS = ("EXEC PGM",)
 
@@ -63,7 +73,14 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
     """PROGRAM-ID (upper-cased) -> the paths declaring it, in scan order."""
     index: dict[str, list[str]] = {}
     for f in parsed_files:
-        if str(f.get("lang_id", "")).lower() not in PROGRAM_DECLARING_LANGUAGES:
+        lang = str(f.get("lang_id", "")).lower()
+        if lang in UNIT_DECLARED_PROGRAM_LANGUAGES:
+            for fn in f.get("functions", []) or []:
+                name = str(fn.get("name", "")).strip().upper()
+                if name:
+                    index.setdefault(name, []).append(f.get("path", ""))
+            continue
+        if lang not in PROGRAM_DECLARING_LANGUAGES:
             continue
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name", "")).strip().upper()

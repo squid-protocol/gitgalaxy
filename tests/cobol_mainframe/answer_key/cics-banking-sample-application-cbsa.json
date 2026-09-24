@@ -73032,7 +73032,7 @@
         "L1090 MOVE SUBPGM-CS-REVIEW-DATE(:) -> SCRDTMMO",
         "L1092 MOVE SUBPGM-CS-REVIEW-DATE(:) -> SCRDTYYO",
         "L1116 MOVE WS-UCTRANS -> STORED-UCTRANS",
-        "L1125 MOVE DFHVALUE -> WS-UCTRANS",
+        "L1125 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
         "L1141 INITIALIZE - -> ABNDINFO-REC",
         "L1142 MOVE EIBRESP -> ABND-RESPCODE",
         "L1143 MOVE EIBRESP2 -> ABND-RESP2CODE",
@@ -73201,7 +73201,7 @@
         "L338 MOVE WS-CICS-RESP -> WS-CICS-RESP-DISP",
         "L339 MOVE WS-CICS-RESP2 -> WS-CICS-RESP2-DISP",
         "L354 MOVE DFHCOMMAREA -> WS-COMM-AREA",
-        "L407 MOVE DFHVALUE -> WS-UCTRANS",
+        "L407 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
         "L422 INITIALIZE - -> ABNDINFO-REC",
         "L423 MOVE EIBRESP -> ABND-RESPCODE",
         "L424 MOVE EIBRESP2 -> ABND-RESP2CODE",
@@ -74208,7 +74208,7 @@
         "L1629 MOVE WS-CICS-RESP -> WS-CICS-RESP-DISP",
         "L1630 MOVE WS-CICS-RESP2 -> WS-CICS-RESP2-DISP",
         "L1658 MOVE WS-UCTRANS -> STORED-UCTRANS",
-        "L1667 MOVE DFHVALUE -> WS-UCTRANS",
+        "L1667 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
         "L1683 INITIALIZE - -> ABNDINFO-REC",
         "L1684 MOVE EIBRESP -> ABND-RESPCODE",
         "L1685 MOVE EIBRESP2 -> ABND-RESP2CODE",
@@ -74368,7 +74368,7 @@
         "L477 MOVE SPACES -> MESSAGEO",
         "L478 STRING ' ' -> MESSAGEO",
         "L478 STRING 'AMEND DATA THEN PRESS <ENTER>.' -> MESSAGEO",
-        "L523 MOVE DFHVALUE -> WS-UCTRANS",
+        "L523 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
         "L539 INITIALIZE - -> ABNDINFO-REC",
         "L540 MOVE EIBRESP -> ABND-RESPCODE",
         "L541 MOVE EIBRESP2 -> ABND-RESP2CODE",
@@ -78126,6 +78126,35 @@
                 "L385 UNSTRING PARM(:) -> STEP-KEY"
               ],
               "removed": []
+            }
+          ]
+        },
+        {
+          "at": "2026-09-24",
+          "issue": "#3495 (zECS pin)",
+          "why": "`MOVE DFHVALUE(NOUCTRAN) TO WS-UCTRANS` moves a CICS translator constant (a CVDA), not a subscripted data item: both the engine and this key's reader dropped the parenthesis and recorded a phantom source field DFHVALUE. The zECS blind census caught it (8 disagreements, all this construct); both now keep DFHVALUE(x) / DFHRESP(x) whole as source kind cics_constant. These rows were outside every sampled window, so the sample's error statistics are unchanged.",
+          "files": [
+            {
+              "file": "src/base/cobol_src/BNK1CCS.cbl",
+              "added": [
+                "L407 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
+                "L1125 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS"
+              ],
+              "removed": [
+                "L407 MOVE DFHVALUE -> WS-UCTRANS",
+                "L1125 MOVE DFHVALUE -> WS-UCTRANS"
+              ]
+            },
+            {
+              "file": "src/base/cobol_src/BNK1DCS.cbl",
+              "added": [
+                "L523 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS",
+                "L1667 MOVE DFHVALUE(NOUCTRAN) -> WS-UCTRANS"
+              ],
+              "removed": [
+                "L523 MOVE DFHVALUE -> WS-UCTRANS",
+                "L1667 MOVE DFHVALUE -> WS-UCTRANS"
+              ]
             }
           ]
         }

@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CICS_MSG2",
+  "type": "object",
+  "properties": {
+    "URIMAP_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "SESSION_TOKEN": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "ECS_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "ECS_KEY_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "TERM_DATA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
+    },
+    "BODY_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(3000)"
+    },
+    "BODY_DATA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "ECS_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(3000)"
+    },
+    "ECS_DATA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "PATH_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(400)"
+    },
+    "PATH_NAME_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "HTTP_STATUS_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
+    },
+    "HTTP_STATUS_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "HTTP_STATUS_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(100)"
+    },
+    "METHOD_CDVA": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "I": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
+    },
+    "MEDIA_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(56)"
+    },
+    "INPUT_PARM1": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "INPUT_PARM2": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "TERM_LINES": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "CICS_MSG_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(34)"
+    },
+    "CICS_MSG_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
+    },
+    "CICS_MSG_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
+    },
+    "CICS_MSG_HTTP": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "CICS_MSG_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
+    },
+    "CICS_MSG_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(31)"
+    }
+  }
+}

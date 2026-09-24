@@ -81,20 +81,24 @@ def test_markdown_lists_every_channel_and_input(estate):
 # engine improvement (re-pin) or a regression.
 PINNED = {
     "aws-mainframe-modernization-carddemo": {
-        "program calls": (63, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
+        "program calls": (65, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
         "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (11, 17),
     },
     "cics-banking-sample-application-cbsa": {
         "program calls": (142, 150), "copybooks": (88, 88), "transactions": (42, 47), "screens": (36, 37),
-        "data flows": (4738, 4739), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        "data flows": (4742, 4743), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     "cics-genapp": {
         "program calls": (95, 101), "copybooks": (29, 29), "transactions": (74, 74), "screens": (52, 52),
         "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     "zopeneditor-sample": {
-        "program calls": (4, 6), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
+        "program calls": (5, 6), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
         "data flows": (327, 374), "IMS PSBs": (0, 0), "batch entry": (3, 3),
+    },
+    "zecs": {
+        "program calls": (2, 3), "copybooks": (6, 6), "transactions": (9, 9), "screens": (0, 0),
+        "data flows": (331, 331), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
 }  # fmt: skip
 

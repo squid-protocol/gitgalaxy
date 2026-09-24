@@ -126,7 +126,12 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*"
 # re.M because the anchor has to fire on EVERY line, not just the first of the
 # buffer it is handed -- without it the entry above a blank line was invisible,
 # which lost all 124 of CBSA's `VALUE`-resolved LINK targets.
-_LEVEL_START = re.compile(_COBOL_AREA_A + r"(\d{1,2})[ \t]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M)
+# #3495 (zECS pin): a COBOL user-defined word may START with a digit as long as it
+# holds a letter (`02 50702-KEY PIC X(08)`, walmartlabs/zECS ZECS001.cbl), so the
+# name is any word with a letter in it -- a bare number (a continued VALUE list) is not.
+_LEVEL_START = re.compile(
+    _COBOL_AREA_A + r"(\d{1,2})[ \t]+((?=[0-9-]*[A-Z])[A-Z0-9][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M
+)
 
 # The period that ends a data description entry (not a decimal point), and an
 # entry left open mid VALUE list (#3452).
@@ -181,7 +186,9 @@ _CALL_IDENTIFIER = re.compile(r"(?<![A-Z0-9-])CALL[ \t\n]+(?!['\"])([A-Z][A-Z0-9
 _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(LINK|XCTL)\b", re.I)
 # #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
 # `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
-_CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I)
+_CICS_PROGRAM_OPERAND = re.compile(
+    r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I
+)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
 _CICS_BLOCK_LIMIT = 2000
@@ -197,7 +204,9 @@ _CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b
 # resolved through its working-storage VALUE (`TRANSID(WS-TRANID)` where
 # `05 WS-TRANID PIC X(4) VALUE 'CC00'`). A name with no readable VALUE (populated
 # at runtime, `VALUE SPACES`) resolves to None -- data, not a gap.
-_CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I)
+_CICS_TRANSID_OPERAND = re.compile(
+    r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I
+)
 
 # #3355: the COMMAREA contract operands of a LINK/XCTL/RETURN block -- which
 # record the call passes (`COMMAREA(x)`) and how many bytes it says it passes

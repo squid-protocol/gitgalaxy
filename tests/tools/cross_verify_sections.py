@@ -56,6 +56,11 @@ keyed rows, in full:
 
     jcics             jcics_validated          JCICS LINKs and file / queue / channel / container operations
 
+`resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
+
+    cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations
+    (an HLASM source also answers cics_tasks and uow_handlers here -- COBOL answers them in `channels`)
+
 The data-move sample is fixed when the census is cut and stored in the key under
 `sample_census.data_moves.plan`: windows around truncation claims and around the
 rarer verbs (so every contract clause is exercised), then random windows over all
@@ -1388,6 +1393,151 @@ def batches_jcics(key: dict[str, Any], files: list[str], max_items: int) -> list
     return _pack({f: len(v) for f, v in key_facts_jcics(key, files)["jcics"].items()}, max_items)
 
 
+# ---- the `resources` suite (#3351-#3354 / #3495) ---------------------------------
+# The CICS resource operations (FILE / QUEUE / MAP / CONTAINER / CHANNEL), asked of
+# every COBOL and HLASM source that issues EXEC CICS; for an HLASM source also its
+# task control and units of work (a COBOL source answers those in `channels`).
+HLASM_EXTS = (".asm", ".hlasm", ".assemble")
+RESOURCE_SECTIONS = {("cics_resources", "cics_validated")}
+HLASM_SECTIONS = {("cics_tasks", "cics_tasks_validated"), ("uow_handlers", "uow_validated")}
+
+
+def _is_hlasm(rel: str) -> bool:
+    return rel.lower().endswith(HLASM_EXTS)
+
+
+def corpus_files_resources(key: dict[str, Any], repo: Path) -> list[str]:
+    """Every COBOL / HLASM source that issues EXEC CICS (and any keyed file)."""
+    found = set(key.get("cics_resources", {}))
+    for p in repo.rglob("*"):
+        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in COBOL_EXTS + HLASM_EXTS:
+            if re.search(r"EXEC\s+CICS", p.read_text(encoding="utf-8", errors="ignore"), re.I):
+                found.add(p.relative_to(repo).as_posix())
+    return sorted(found)
+
+
+def canon_resource(r: dict[str, Any]) -> str:
+    rec = f" {_ws(r.get('record_clause'))}={_d(r.get('record'))}" if r.get("record_clause") else ""
+    return (
+        f"L{int(r.get('line') or 0)} {_ws(r.get('verb'))} {_ws(r.get('kind'))} N={_d(r.get('name'))} "
+        f"Q={_d(r.get('qualifier'))}{rec}"
+    )
+
+
+def key_facts_resources(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    per_channel = key_facts(key, files, wide=False)
+    out: dict[str, dict[str, list[str]]] = {"resources": {}, "tasks": {}, "uow": {}}
+    for rel in files:
+        ops = key.get("cics_resources", {}).get(rel, {}).get("operations", [])
+        out["resources"][rel] = sorted({canon_resource(r) for r in ops})
+        if _is_hlasm(rel):
+            out["tasks"][rel] = per_channel["tasks"][rel]
+            out["uow"][rel] = per_channel["uow"][rel]
+    return out
+
+
+def reviewer_facts_resources(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"resources": {}, "tasks": {}, "uow": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        v = v or {}
+        out["resources"][r] = {canon_resource(x) for x in v.get("resources", []) if isinstance(x, dict)}
+        if _is_hlasm(r):
+            out["tasks"][r] = {canon_task(x) for x in v.get("tasks", []) if isinstance(x, dict)}
+            out["uow"][r] = {canon_uow(x) for x in v.get("uow", []) if isinstance(x, dict)}
+    return out
+
+
+def render_resources(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "resources", "batch": index, "of": of, "files": files,
+             "facts": key_facts_resources(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) + ("   (assembler)" if _is_hlasm(f) else "") for f in files)
+    asm = any(_is_hlasm(f) for f in files)
+    asm_rules = (
+        """
+ASSEMBLER (HLASM) FILES (marked "(assembler)" below). A line with `*` (or `.*`) in column 1 is a comment. A
+statement continues onto the next line when its column 72 is non-blank; the continuation's text should start in
+column 16 (take the whole continuation line's text -- real source drifts a column). Columns 73-80 are a sequence
+field, never part of the statement. An `EXEC CICS` command is its whole statement (there is no END-EXEC). A
+data-name's fixed value is its constant `NAME DC C'text'` or `NAME DC CLn'text'` (trailing blanks are padding, not
+part of the value); `NAME DS ...` reserves storage and fixes no value.
+
+For every ASSEMBLER file also answer:
+TASK TASKS -- CICS task-control commands: RUN, START, START ATTACH, FETCH CHILD, FETCH ANY, FREE CHILD, RETRIEVE,
+CANCEL, DELAY, POST, WAIT EVENT, WAIT EXTERNAL, WAITCICS, ENQ, DEQ. One entry each: "line" (of `EXEC CICS`), "verb",
+"target" (TRANSID for RUN/START/START ATTACH/CANCEL, RESOURCE for ENQ/DEQ) only when the source fixes it -- a
+literal or the operand's DC constant -- else null; "channel" (CHANNEL(...) resolved the same way, else null);
+"token" (the operand of CHILD(...) / ANY(...) / REQID(...), else null); "record" (the FROM / INTO / SET operand as
+written, else null).
+TASK UOW -- one entry each, with "line" (of the EXEC), "kind", "verb", "condition", "target", "target_kind",
+"resp_var", "attributes" (null where not given):
+  - EXEC CICS SYNCPOINT: kind COMMIT, verb "SYNCPOINT"; SYNCPOINT ROLLBACK: kind ROLLBACK, verb "SYNCPOINT ROLLBACK".
+  - HANDLE CONDITION / HANDLE AID / IGNORE CONDITION / PUSH HANDLE / POP HANDLE / HANDLE ABEND as for COBOL:
+    kind HANDLE_CONDITION / HANDLE_AID / IGNORE_CONDITION / PUSH_HANDLE / POP_HANDLE / HANDLE_ABEND.
+  - EXEC CICS ABEND: kind ABEND, condition the ABCODE (the literal, or the operand's DC constant, else the operand as
+    written), attributes the NODUMP / CANCEL options in written order, else null.
+  - RESP checks: every OTHER EXEC CICS command coded RESP(v), or NOHANDLE (then v = EIBRESP): kind RESP_CHECK, verb
+    the command's first word, resp_var v, condition what is compared against v after the command -- up to the next
+    command coded RESP(v) / NOHANDLE again or about 100 lines (labels do not end it) -- as a list of names: a
+    DFHRESP(x) reference counts as x; `OC v,v` (which tests v for zero) counts as NORMAL; `CLC v,=F'n'` counts as
+    the response numbered n (0 NORMAL, 13 NOTFND, 14 DUPREC, 16 INVREQ, 17 IOERR, 22 LENGERR, 27 PGMIDERR, ...);
+    null when nothing tests v in that span.
+"""
+        if asm
+        else ""
+    )
+    asm_shape = (
+        """,
+                      "tasks": [{"line": 1, "verb": "START", "target": null, "channel": null, "token": null, "record": null}],
+                      "uow": [{"line": 1, "kind": "ABEND", "verb": "ABEND", "condition": "X", "target": null,
+                               "target_kind": null, "resp_var": null, "attributes": null}]"""
+        if asm
+        else ""
+    )
+    brief = f"""You are independently verifying facts about real IBM mainframe source code (COBOL and assembler that
+issue CICS commands), as a second reviewer. Read the source files yourself. They are all under the repository root
+{repo}; read only inside that directory. Do NOT edit or create any files except your answers file, and do not look
+for any existing answer key or analysis of this code: the point is an independent reading. Line numbers are 1-based
+physical line numbers of the file. Ignore commented-out lines and text inside quoted literals.
+
+{FIXED_FORMAT_RULES}
+{asm_rules}
+For EACH file below answer TASK RESOURCES (a file with none gets an empty list):
+TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry each: "line" (of `EXEC CICS`),
+"verb" (the command's first word), "kind", "name", "qualifier", "record_clause", "record":
+  - kind CONTAINER: PUT / GET / MOVE / DELETE with a CONTAINER(...) option; name the container, qualifier the
+    CHANNEL(...) value.
+  - kind FILE: READ / READNEXT / READPREV / STARTBR / RESETBR / ENDBR / WRITE / REWRITE / DELETE / UNLOCK with a
+    FILE(...) or DATASET(...) option (not a DELETE CONTAINER); name that option's value, qualifier null.
+  - kind MAP: SEND / RECEIVE with a MAP(...) option; name the map, qualifier the MAPSET(...) value.
+  - kind QUEUE: WRITEQ / READQ / DELETEQ with QUEUE(...) or QNAME(...); name the queue, qualifier "TD" when the
+    command says TD, else "TS".
+  - kind CHANNEL: LINK / XCTL (qualifier the PROGRAM(...) value) or START / RETURN / RUN (qualifier the TRANSID(...)
+    value) with a CHANNEL(...) option; name the channel.
+  A command naming none of these (SEND TEXT, WRITE OPERATOR, ASKTIME, ...) is not listed. A name or qualifier is a
+  value only when the source fixes it: a literal (its text), or a data-name with a fixed value (COBOL: its VALUE
+  literal, else the one literal ever MOVEd into it; assembler: its DC constant); otherwise null. "record_clause" is
+  the first of INTO / FROM / SET the command codes (null if none), "record" that option's operand as written.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"resources": [{{"line": 1, "verb": "READ", "kind": "FILE", "name": "F", "qualifier": null,
+                                     "record_clause": "INTO", "record": "R"}}]{asm_shape}}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_resources(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_resources(key, files)
+    return _pack({f: sum(len(facts[t].get(f, [])) for t in facts) for f in files}, max_items)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1416,6 +1566,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "web"
         else reviewer_facts_jcics(answers, repo)
         if suite == "jcics"
+        else reviewer_facts_resources(answers, repo)
+        if suite == "resources"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1478,10 +1630,14 @@ def sign(
         if truth.get("suite") == "web"
         else {("jcics", "jcics_validated")}
         if truth.get("suite") == "jcics"
+        else RESOURCE_SECTIONS
+        if truth.get("suite") == "resources"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
-        for section, flag in per_file:
+        # #3495: an assembler source answers its task control and units of work here.
+        extra = HLASM_SECTIONS if truth.get("suite") == "resources" and _is_hlasm(rel) else set()
+        for section, flag in per_file | extra:
             entry = key.get(section, {}).get(rel)
             if entry is not None:
                 entry[flag] = True
@@ -1563,7 +1719,7 @@ def main() -> int:
     c.add_argument("--max-items", type=int, default=70)
     c.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics"),
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources"),
         default="channels",
     )
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
@@ -1572,7 +1728,7 @@ def main() -> int:
     cov.add_argument("--corpus", required=True)
     cov.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics"),
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources"),
         default="channels",
     )
     for name in ("grade", "sign"):
@@ -1598,6 +1754,8 @@ def main() -> int:
         if suite == "web"
         else corpus_files_jcics(key, repo)
         if suite == "jcics"
+        else corpus_files_resources(key, repo)
+        if suite == "resources"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1641,6 +1799,7 @@ def main() -> int:
             "dynamic": batches_dynamic,
             "web": batches_web,
             "jcics": batches_jcics,
+            "resources": batches_resources,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -1653,6 +1812,7 @@ def main() -> int:
                 "dynamic": render_dynamic,
                 "web": render_web,
                 "jcics": render_jcics,
+                "resources": render_resources,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -1695,6 +1855,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_io(key, truth["files"]))
     elif truth.get("suite") == "lineage":
         current = dict(truth, facts=key_facts_lineage(key, truth["files"], truth.get("windows", [])))
+    elif truth.get("suite") == "resources":
+        current = dict(truth, facts=key_facts_resources(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

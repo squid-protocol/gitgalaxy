@@ -16,6 +16,8 @@
 # rewrites a source into the COBOL shape the walkers already read, so each fact
 # is extracted by the same code for every host language:
 #   - comment lines (`*` / `.*` in column 1) are blanked;
+#   - a statement is continued by a non-blank column 72 (or a lone mark drifted
+#     into column 73 -- see `_continues`);
 #   - columns 72-80 (continuation mark + sequence field) are blanked;
 #   - the last line of every `EXEC CICS` statement gets ` END-EXEC` appended.
 # No line is added or removed, so every walker's line numbers are the source's.
@@ -36,6 +38,17 @@ def _is_comment(line: str) -> bool:
     return line.startswith("*") or line.startswith(".*")
 
 
+def _continues(line: str) -> bool:
+    """Column 72 is non-blank -- or the mark drifted one column right: column 72 blank
+    and a lone character in column 73 with nothing after it (a sequence field fills
+    73-80). zECS's two `EXEC CICS WRITEQ TD ... X` lines carry their X in column 73,
+    and the `LENGTH(TD_LEN) NOHANDLE` line under each is that command's own."""
+    body = line.rstrip("\r")
+    if len(body) > 71 and body[71] != " ":
+        return True
+    return len(body.rstrip()) == 73 and body[71] == " "
+
+
 def cics_stream(code_stream: str) -> str:
     """The source with comments and columns 72-80 blanked and each EXEC CICS
     statement closed by END-EXEC on its last line (line-aligned)."""
@@ -52,7 +65,7 @@ def cics_stream(code_stream: str) -> str:
             continue
         start, text = i, raw[:71]
         # Continued while column 72 is non-blank; the next line resumes at column 16.
-        while len(lines[i].rstrip("\r")) > 71 and lines[i][71] != " " and i + 1 < len(lines) and i - start < _STATEMENT_LIMIT:
+        while _continues(lines[i]) and i + 1 < len(lines) and i - start < _STATEMENT_LIMIT:
             i += 1
             text += " " + lines[i][15:71]
         is_cics = _EXEC_CICS.match(text) is not None

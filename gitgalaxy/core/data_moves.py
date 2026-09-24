@@ -15,6 +15,8 @@
 #               (`A OF B`), a literal, a figurative constant, `FUNCTION NAME`,
 #               `LENGTH OF X` / `ADDRESS OF X`; None for INITIALIZE
 #   source_kind item | literal | figurative | function | length | address |
+#               cics_constant (#3495 zECS pin: `DFHVALUE(IMMEDIATE)` / `DFHRESP(NORMAL)`,
+#               a CICS translator constant -- kept whole, it is no data item) |
 #               file (READ / RETURN: the FILE name, whose FD record is the source)
 #               | special (ACCEPT: `DATE YYYYMMDD`, `TIME`, `SYSIN` when no FROM)
 #   target      the receiving data name with its qualifiers
@@ -151,6 +153,14 @@ class _Stream:
             self.i += 2
             self._skip_parens()
             return f"FUNCTION {name}", "function", False
+        if t in ("DFHVALUE", "DFHRESP") and self.peek(1) == "(":
+            # A CICS translator constant, not a subscripted data item: `MOVE
+            # DFHVALUE(IMMEDIATE) TO SEND-ACTION` flows no field into SEND-ACTION.
+            self.i += 1
+            start = self.i
+            self._skip_parens()
+            arg = "".join(tok[0] for tok in self.toks[start + 1 : self.i - 1]).upper()
+            return f"{t}({arg})", "cics_constant", False
         if not re.fullmatch(_WORD, raw, re.I) or not re.search(r"[A-Z]", t):
             return None
         name = t

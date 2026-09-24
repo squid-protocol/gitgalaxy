@@ -222,6 +222,75 @@ class Source:
 
 
 # ==============================================================================
+# HLASM command-level CICS (#3495)
+# ==============================================================================
+# This tool's own reading of an assembler source, so the CICS readers below (which
+# find `EXEC CICS ... END-EXEC` in a COBOL `Source`) read assembler the same way.
+# Over the RAW file: `*` / `.*` column-1 comment lines are dropped; a statement is
+# its physical lines, each cut at column 71, joined while column 72 is non-blank
+# (a continuation line's text is taken whole -- it should start in column 16, and
+# real source drifts a column); the LAST line of an `EXEC CICS` statement is closed
+# with ` END-EXEC`. An operand names a constant through `NAME DC C'text'` /
+# `CLn'text'` (the blank padding to the field is not part of the value). It
+# shares the engine's CONTRACT (core/hlasm_cics.py), none of its code.
+HLASM_EXTS = (".asm", ".hlasm", ".assemble")
+HLASM_NAME = r"[A-Z@#$_][A-Z0-9@#$_]*"
+_HLASM_CICS = re.compile(r"^\S*\s+EXEC\s+CICS\b")
+_HLASM_DC = re.compile(rf"^({HLASM_NAME})\s+DC\s+C(?:L\d+)?'([^']*)'")
+
+
+class HlasmSource(Source):
+    """An assembler source as a `Source`: statements joined, each EXEC CICS closed."""
+
+    def __init__(self, path: Path):  # noqa: D107 -- deliberately does not call Source.__init__
+        self.path = path
+        physical = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        self.lines = []
+        self.dc: dict[str, str] = {}
+        i = 0
+        while i < len(physical):
+            if physical[i].startswith(("*", ".*")) or not physical[i].strip():
+                i += 1
+                continue
+            group = [(i + 1, physical[i][:71].upper())]
+            # Continued by a non-blank column 72; a single character standing alone in
+            # column 73 (72 blank, nothing after) is the same mark one column off --
+            # never a sequence field, which runs 73-80.
+            while (
+                physical[i][71:72].strip() or (physical[i][71:72] == " " and len(physical[i][72:].rstrip()) == 1)
+            ) and i + 1 < len(physical):
+                i += 1
+                group.append((i + 1, physical[i][:71].upper()))
+            i += 1
+            if _HLASM_CICS.match(" ".join(t for _, t in group)):
+                no, last = group[-1]
+                group[-1] = (no, last.rstrip() + " END-EXEC")
+            dc = _HLASM_DC.match(group[0][1])
+            if dc and dc.group(2).strip():
+                self.dc.setdefault(dc.group(1), dc.group(2).strip())
+            self.lines.extend(group)
+        self.raw_text = "\n".join(a for _, a in self.lines)
+        self.text = _blank_literals(self.raw_text)
+        self._line_at = []
+        for no, area in self.lines:
+            self._line_at.extend([no] * (len(area) + 1))
+        self.proc_start = 0
+
+    def program_id(self) -> Optional[str]:
+        return None
+
+
+def _key_source(path: Path) -> Source:
+    """The reading a CICS reader takes of `path`: HLASM or COBOL."""
+    return HlasmSource(path) if path.suffix.lower() in HLASM_EXTS else Source(path)
+
+
+def _operand_name(src: Source) -> str:
+    """The identifier syntax an operand may be written in for `src`'s language."""
+    return HLASM_NAME if isinstance(src, HlasmSource) else NAME
+
+
+# ==============================================================================
 # Units and reachability
 # ==============================================================================
 def _units(src: Source) -> list[dict[str, Any]]:
@@ -1837,6 +1906,8 @@ def _cics_value_of(src: Source, ident: str) -> Optional[str]:
     """`ident`'s quoted VALUE, first declaration wins. Unlike `_value_of` (80 chars)
     the entry may run up to its terminating period, because carddemo pads PIC to
     column 72 and writes VALUE on the next line."""
+    if isinstance(src, HlasmSource):  # #3495: an assembler operand names a DC constant
+        return src.dc.get(ident)
     m = re.search(
         rf"(?m)^\s*\d{{1,2}}\s+{re.escape(ident)}(?![A-Z0-9-])[^.]{{0,400}}?\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\")",
         src.raw_text,
@@ -1849,7 +1920,7 @@ def _cics_value_of(src: Source, ident: str) -> Optional[str]:
 def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
     """Every EXEC CICS command in one COBOL source that names a resource, this
     tool's own reading (see the section header)."""
-    src = Source(path)
+    src = _key_source(path)  # #3495: or an assembler source
     moves: dict[str, set[str]] = {}
     for m in _CICS_MOVE.finditer(src.raw_text):
         lit = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
@@ -1862,7 +1933,7 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
         op = operand.strip()
         if op[:1] in "'\"" and len(op) > 1 and op[-1] == op[0]:
             return (op[1:-1].strip() or None), "literal", None
-        if not re.fullmatch(NAME, op) or op[0].isdigit():
+        if not re.fullmatch(_operand_name(src), op) or op[0].isdigit():
             return None, "expression", None
         value = _cics_value_of(src, op)
         if value:
@@ -1963,7 +2034,7 @@ def draft_cics(repo: Path) -> dict[str, dict[str, Any]]:
     off with `cics_validated` -- the records_validated precedent (#3246)."""
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
             rows = cics_resource_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
@@ -2052,7 +2123,7 @@ def _key_string_globs(src: Source) -> dict[str, set[str]]:
 
 def cics_task_ops(path: Path) -> list[dict[str, Any]]:
     """Every CICS task-control command in one COBOL source, this tool's own reading."""
-    src = Source(path)
+    src = _key_source(path)  # #3495: or an assembler source
     moves: dict[str, set[str]] = {}
     for m in _CICS_MOVE.finditer(src.raw_text):
         lit = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
@@ -2066,7 +2137,7 @@ def cics_task_ops(path: Path) -> list[dict[str, Any]]:
         op = operand.strip()
         if op[:1] in "'\"" and len(op) > 1 and op[-1] == op[0]:
             return (op[1:-1].strip() or None), "literal", None
-        if not re.fullmatch(NAME, op) or op[0].isdigit():
+        if not re.fullmatch(_operand_name(src), op) or op[0].isdigit():
             return None, "expression", None
         value = _cics_value_of(src, op)
         if value:
@@ -2188,7 +2259,7 @@ def draft_cics_tasks(repo: Path) -> dict[str, dict[str, Any]]:
     transids = {t for tx in _key_transactions(repo).values() for t in tx}
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
             rows = cics_task_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
@@ -2623,13 +2694,19 @@ def _uow_numeric(text: str, var: str) -> set[str]:
                 level -= 1
             elif level == 0 and tok.group(2):
                 out.add(_UOW_CODES.get(str(int(tok.group(2))), str(int(tok.group(2)))))
+    # #3495: the assembler tests. `OC v,v` ORs a field into itself to set the
+    # condition code -- zero is NORMAL; `CLC v,=F'n'` / `=AL4(n)` compares by number.
+    if re.search(rf"\bOC\s+{v},{v}(?![A-Z0-9@#$_])", text):
+        out.add(_UOW_CODES.get("0", "0"))
+    for m in re.finditer(rf"\bCLC\s+{v},=(?:F'|AL4\()(\d+)", text):
+        out.add(_UOW_CODES.get(str(int(m.group(1))), str(int(m.group(1)))))
     return out
 
 
 def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
     """Every unit-of-work point, handler, ABEND and RESP check in one COBOL
     source, this tool's own reading (see the section header)."""
-    src = Source(path)
+    src = _key_source(path)  # #3495: or an assembler source
 
     def value(op: Optional[str]) -> Optional[str]:
         if not op:
@@ -2763,7 +2840,7 @@ def draft_uow(repo: Path) -> dict[str, dict[str, Any]]:
     Adjudicates nothing until signed off with `uow_validated`."""
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
             rows = uow_handler_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
@@ -3779,6 +3856,7 @@ _MV_NAME = r"[A-Z0-9][A-Z0-9-]*"
 _MV_PARENS = r"\((?:[^()]|\([^()]*\))*\)"
 _MV_OPERAND = re.compile(
     r"(?P<lit>[XNGZ]?'[^']*'?|[XNGZ]?\"[^\"]*\"?)"
+    rf"|(?P<cics>(?:DFHVALUE|DFHRESP)\s*\(\s*{_MV_NAME}\s*\))"
     rf"|(?P<fn>FUNCTION\s+{_MV_NAME}(?:\s*{_MV_PARENS})?)"
     rf"|(?P<lenof>(?:LENGTH|ADDRESS)\s+OF\s+{_MV_NAME}(?:\s+(?:OF|IN)\s+{_MV_NAME})*)"
     rf"|(?P<all>ALL\s+(?:'[^']*'|\"[^\"]*\"|{_MV_NAME}))"
@@ -3820,6 +3898,9 @@ def _mv_operands(
             out.append((lits[int(m.group("lit").strip("'"))], "literal", False))
         elif m.group("lit") or m.group("num"):
             out.append((m.group(0).strip(), "literal", False))
+        elif m.group("cics"):
+            # #3495 zECS pin: a CICS translator constant (DFHVALUE / DFHRESP), no data item.
+            out.append(("".join(m.group("cics").split()), "cics_constant", False))
         elif m.group("fn"):
             out.append((" ".join(m.group("fn").split("(")[0].split()), "function", False))
         elif m.group("lenof"):
@@ -3975,7 +4056,14 @@ def data_move_rows(path: Path, verbs: tuple = _MV_VERBS) -> list[dict[str, Any]]
     for m in re.finditer(r"(?<![A-Z0-9-])(" + "|".join(verbs) + r")(?![A-Z0-9-])", blank):
         if m.start() < start:
             continue
-        end = (read_enders if m.group(1) in ("READ", "RETURN") else enders).search(src.text, m.end())
+        # A verb word inside parentheses is an argument, not a new statement:
+        # zECS `MOVE DFHVALUE(DELETE) TO METHOD-CDVA` (#3495 pin).
+        end = None
+        for cand in (read_enders if m.group(1) in ("READ", "RETURN") else enders).finditer(src.text, m.end()):
+            span = src.text[m.end() : cand.start()]
+            if span.count("(") <= span.count(")"):
+                end = cand
+                break
         stop = end.start() if end else len(src.text)
         body = src.raw_text[m.end() : stop].replace("\n", " ")
         pairs = _io_statement_pairs if m.group(1) in _IO_VERBS else _mv_statement_pairs

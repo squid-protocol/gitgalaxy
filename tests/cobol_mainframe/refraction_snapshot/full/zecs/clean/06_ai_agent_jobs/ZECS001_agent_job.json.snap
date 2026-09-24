@@ -1,0 +1,17 @@
+{
+  "job_id": "ZECS001_REMEDIATION",
+  "status": "PENDING",
+  "task_type": "STRUCTURAL_ANOMALY_RESOLUTION",
+  "target_file": "<WORK>/zecs/Source/ZECS001.cbl",
+  "context": {
+    "detected_anomalies": [
+      "Unresolved Dynamic CALL to: ZUIDSTCK"
+    ],
+    "inputs_required": [],
+    "outputs_produced": [],
+    "external_calls": [
+      "ZUIDSTCK"
+    ]
+  },
+  "system_prompt": "You are a deterministic legacy systems architect. Your task is to analyze the provided 'target_file' and resolve the structural issues listed in 'detected_anomalies'. Do not alter the core business logic. Return your proposed solution as a valid JSON object containing a 'diagnosis' string and a 'patched_code' string."
+}

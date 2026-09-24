@@ -7153,6 +7153,17 @@
           "Attributes": null,
           "Condition": null,
           "Kind": "RESP_CHECK",
+          "Line": 296,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
           "Line": 300,
           "RESP Field": "EIBRESP",
           "Source": "CICS",
@@ -7271,6 +7282,17 @@
           "Target": null,
           "Target Kind": null,
           "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 219,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
         },
         {
           "Attributes": null,

@@ -141,6 +141,32 @@
           "base/src/ssmap.bms"
         ]
       }
+    },
+    {
+      "name": "zecs",
+      "url": "https://github.com/walmartlabs/zECS",
+      "branch": "master",
+      "ref": "6d6bcbbc89c9be086a58cb7ad2ff4d702e873d02",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol",
+        "hlasm",
+        "jcl",
+        "csd",
+        "rexx"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/zecs.json",
+      "notes": "Walmart's z/OS Enterprise Cache Service: production CICS code. The only keyed corpus with command-level EXEC CICS in HLASM (#3495: ZECS002 / ZECSNC, DFHEIENT entries), a CICS HTTP server and client in COBOL (WEB RECEIVE / SEND / OPEN / CONVERSE, #3512), and CSD definitions in `.rdo` DFHCSDUP members.",
+      "excerpt": {
+        "why": "The HLASM CICS slice: ZECSNC (DFHEIENT entry; ASSIGN, ABEND, RECEIVE, DEFINE DCOUNTER checked by `OC EIBRESP,EIBRESP`, START TRANSID from a DS field, WRITEQ TD) and ZECS002 (ABEND through a DC constant, VERIFY), the CSDZECS.rdo member that defines them, and the CSDZECS.jcl job that feeds it to DFHCSDUP. ECS001.cbl is the COBOL side: a CICS web client (WEB OPEN / CONVERSE / CLOSE) whose `MOVE DFHVALUE(DELETE) TO METHOD-CDVA` moves a CICS translator constant, not a data item (the zECS census finding).",
+        "files": [
+          "JCL/CSDZECS.jcl",
+          "Source/CSDZECS.rdo",
+          "Source/ECS001.cbl",
+          "Source/ZECS002.asm",
+          "Source/ZECSNC.asm"
+        ]
+      }
     }
   ]
 }

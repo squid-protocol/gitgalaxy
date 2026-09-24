@@ -4240,7 +4240,7 @@
       "hlasm/zecs/ZECS002.asm": [
         {
           "Access": "write",
-          "Attributes": null,
+          "Attributes": "LENGTH(TD_LEN)",
           "Candidates": null,
           "Kind": "QUEUE",
           "Line": 296,
@@ -4257,7 +4257,7 @@
       "hlasm/zecs/ZECSNC.asm": [
         {
           "Access": "write",
-          "Attributes": null,
+          "Attributes": "LENGTH(TD_LEN)",
           "Candidates": null,
           "Kind": "QUEUE",
           "Line": 219,

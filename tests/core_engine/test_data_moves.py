@@ -149,3 +149,14 @@ def test_file_io_verbs_move_whole_records():
         (16, "ACCEPT", "DATE YYYYMMDD", "special", "WS-DATE"),
         (17, "ACCEPT", "SYSIN", "special", "WS-PARM"),
     ]
+
+
+def test_a_cics_translator_constant_is_no_data_item():
+    """#3495 (zECS pin, blind census): `MOVE DFHVALUE(IMMEDIATE) TO SEND-ACTION` moves a
+    CICS constant, so it is kept whole -- read as a subscripted item `DFHVALUE` it made
+    every such MOVE a flow out of one phantom field."""
+    rows = _rows(_program("MOVE DFHVALUE(IMMEDIATE) TO SEND-ACTION.", "MOVE DFHRESP(NORMAL) TO WS-R."))
+    assert [(r[2], r[3], r[4]) for r in rows] == [
+        ("DFHVALUE(IMMEDIATE)", "cics_constant", "SEND-ACTION"),
+        ("DFHRESP(NORMAL)", "cics_constant", "WS-R"),
+    ]

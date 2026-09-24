@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TD_RECORD",
+  "type": "object",
+  "properties": {
+    "EOF": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ZC": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "URI_PREFIX": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "URI_SUFFIX": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "URI_TRAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "ZX_SUFFIX": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "CSSL": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "TD_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "TD_SUFFIX": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "TD_TRAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "TD_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "URI_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(256)"
+    }
+  }
+}

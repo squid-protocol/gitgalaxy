@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "file_name": "ECS001.cbl",
+    "path": "<WORK>/zecs/Source/ECS001.cbl",
+    "corporate_header": "",
+    "loc": 422,
+    "patched_path": "<WORK>/zecs_gitgalaxy_clean_<TS>/00_patched_source/Source/ECS001.cbl"
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "ECS001.cbl",
+      "total_vars": 30,
+      "orphaned_vars": [],
+      "total_paras": 16,
+      "dead_paras": [
+        "Z1000-EXIT"
+      ],
+      "loc_saved": 10
+    },
+    "lineage": {
+      "program_id": "ECS001",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "ECS001",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 8,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "CICS_MSG2",
+      "sql": "CREATE TABLE CICS_MSG2 (\n    URIMAP_NAME                    VARCHAR(08),\n    SESSION_TOKEN                  VARCHAR(08),\n    ECS_KEY                        VARCHAR(80),\n    ECS_KEY_LEN                    INTEGER,\n    TERM_DATA_LEN                  SMALLINT,\n    BODY_DATA                      VARCHAR(3000),\n    BODY_DATA_LEN                  INTEGER,\n    ECS_DATA                       VARCHAR(3000),\n    ECS_DATA_LEN                   INTEGER,\n    PATH_NAME                      VARCHAR(400),\n    PATH_NAME_LEN                  INTEGER,\n    HTTP_STATUS_CODE               SMALLINT,\n    HTTP_STATUS_LEN                INTEGER,\n    HTTP_STATUS_TEXT               VARCHAR(100),\n    METHOD_CDVA                    INTEGER,\n    I                              SMALLINT,\n    MEDIA_TYPE                     VARCHAR(56),\n    INPUT_PARM1                    VARCHAR(80),\n    INPUT_PARM2                    VARCHAR(80),\n    TERM_LINES                     VARCHAR(80),\n    CICS_MSG_TEXT                  VARCHAR(34),\n    CICS_MSG_RESP                  SMALLINT,\n    CICS_MSG_RESP2                 SMALLINT,\n    CICS_MSG_HTTP                  VARCHAR(20),\n    CICS_MSG_CODE                  SMALLINT,\n    CICS_MSG_STATUS                VARCHAR(31)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "CICS_MSG2",
+        "type": "object",
+        "properties": {
+          "URIMAP_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "SESSION_TOKEN": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "ECS_KEY": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "ECS_KEY_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "TERM_DATA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "BODY_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(3000)"
+          },
+          "BODY_DATA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "ECS_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(3000)"
+          },
+          "ECS_DATA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "PATH_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(400)"
+          },
+          "PATH_NAME_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "HTTP_STATUS_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "HTTP_STATUS_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "HTTP_STATUS_TEXT": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)"
+          },
+          "METHOD_CDVA": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "I": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "MEDIA_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(56)"
+          },
+          "INPUT_PARM1": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "INPUT_PARM2": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "TERM_LINES": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "CICS_MSG_TEXT": {
+            "type": "string",
+            "description": "Legacy PIC: X(34)"
+          },
+          "CICS_MSG_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "CICS_MSG_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "CICS_MSG_HTTP": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "CICS_MSG_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(03)"
+          },
+          "CICS_MSG_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(31)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=ECS001\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

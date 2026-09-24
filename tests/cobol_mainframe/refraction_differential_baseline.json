@@ -23,6 +23,16 @@
       "unexplained": 0
     },
     "cics-genapp": {
+      "by_cause": {
+        "bms_symbolic_map": 1,
+        "entry_point": 3,
+        "exec_sql_include": 1,
+        "stated_absence": 7
+      },
+      "note": null,
+      "unexplained": 0
+    },
+    "zecs": {
       "by_cause": {},
       "note": null,
       "unexplained": 0
@@ -70,6 +80,14 @@
         "entry_point": 39,
         "exec_sql_include": 8,
         "stated_absence": 70
+      },
+      "note": null,
+      "unexplained": 0
+    },
+    "zecs": {
+      "by_cause": {
+        "stated_absence": 10,
+        "usage_status_not_reachability": 7
       },
       "note": null,
       "unexplained": 0

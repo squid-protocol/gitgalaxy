@@ -1,0 +1,14 @@
+CREATE TABLE TD_RECORD (
+    EOF                            VARCHAR(01),
+    ZC                             VARCHAR(02),
+    URI_PREFIX                     VARCHAR(04),
+    URI_SUFFIX                     VARCHAR(04),
+    URI_TRAN                       VARCHAR(04),
+    ZX_SUFFIX                      VARCHAR(02),
+    CSSL                           VARCHAR(04),
+    TD_LENGTH                      SMALLINT,
+    TD_SUFFIX                      VARCHAR(02),
+    TD_TRAN                        VARCHAR(04),
+    TD_PATH                        VARCHAR(80),
+    URI_PATH                       VARCHAR(256)
+);

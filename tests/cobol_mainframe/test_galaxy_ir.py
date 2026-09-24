@@ -1956,3 +1956,60 @@ def test_a_real_copybook_wins_over_the_generated_map(tmp_path):
     assert ir.files["cbl/SYMPGM.cbl"].symbolic_copies == []
     flow = next(f for f in ir.data_flows() if f["source"] == "CUSTNAMI")
     assert (flow["source_span"]["record_file"], flow["source_span"]["offset"]) == ("cpy/SCRM.cpy", 0)
+
+
+# ---- #3492: file I/O INTO / FROM as lineage edges ------------------------------
+IO_PGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. IOPGM.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT IN-FILE ASSIGN TO INDD.
+           SELECT OUT-FILE ASSIGN TO OUTDD.
+       DATA DIVISION.
+       FILE SECTION.
+       FD IN-FILE.
+       01 IN-REC.
+          05 IN-NAME         PIC X(10).
+          05 IN-AMT          PIC 9(5).
+       01 IN-REC-ALT         PIC X(15).
+       FD OUT-FILE.
+       01 OUT-REC            PIC X(15).
+       WORKING-STORAGE SECTION.
+       01 WS-REC.
+          05 WS-NAME         PIC X(10).
+          05 WS-AMT          PIC 9(5).
+       PROCEDURE DIVISION.
+           READ IN-FILE INTO WS-REC.
+           WRITE OUT-REC FROM WS-REC.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def io_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_io")
+    repo = base / "io"
+    path = repo / "cbl" / "IOPGM.cbl"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(IO_PGM, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_read_into_takes_the_fd_record_and_fd_records_share_storage(io_scanned):
+    ir = load_galaxy_ir(io_scanned)
+    read = next(f for f in ir.data_flows() if f["verb"] == "READ")
+    assert read["status"] == "resolved" and read["source_span"]["record"] == "IN-REC"
+    ef = ir.files["cbl/IOPGM.cbl"]
+    # The FD's second 01 overlays the first: same record, same storage.
+    assert ir._operand_span(ef, "IN-REC-ALT")[0]["record"] == "IN-REC"
+
+
+def test_lineage_runs_file_to_file_through_read_into_and_write_from(io_scanned):
+    hops = load_galaxy_ir(io_scanned).field_lineage("cbl/IOPGM.cbl", "IN-NAME")
+    got = [(h["item"], h["via"] and h["via"]["verb"], h["endpoints"]) for h in hops]
+    # IN-NAME's bytes keep their offset through the READ INTO and the WRITE FROM.
+    assert ("WS-NAME", "READ", []) in got
+    assert any(item in ("OUT-REC",) and verb == "WRITE" and "file FD OUT-FILE" in ep for item, verb, ep in got)
+    assert got[0] == ("IN-NAME", None, ["file FD IN-FILE"])

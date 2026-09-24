@@ -121,3 +121,31 @@ def test_a_value_continuation_line_is_not_an_item():
         (88, "WS-VALID-MONTH", 1),
         (20, "WS-DD", 0),
     ]
+
+
+def test_file_io_verbs_move_whole_records():
+    # #3492: READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT [FROM].
+    src = _program(
+        "READ ACCT-FILE NEXT RECORD INTO WS-ACCT",
+        "    AT END MOVE 'Y' TO WS-EOF",
+        "END-READ.",
+        "READ XREF-FILE KEY IS WS-KEY INVALID KEY MOVE 1 TO WS-RC.",
+        "WRITE OUT-REC FROM WS-LINE AFTER ADVANCING 1.",
+        "WRITE OUT-REC.",
+        "REWRITE ACCT-REC FROM WS-ACCT.",
+        "RELEASE SORT-REC FROM WS-ACCT.",
+        "RETURN SORT-FILE INTO WS-SORTED AT END CONTINUE.",
+        "ACCEPT WS-DATE FROM DATE YYYYMMDD.",
+        "ACCEPT WS-PARM.",
+    )
+    assert _rows(src) == [
+        (7, "READ", "ACCT-FILE", "file", "WS-ACCT"),
+        (8, "MOVE", "'Y'", "literal", "WS-EOF"),
+        (10, "MOVE", "1", "literal", "WS-RC"),  # no INTO: the FD record is the buffer, no move
+        (11, "WRITE", "WS-LINE", "item", "OUT-REC"),
+        (13, "REWRITE", "WS-ACCT", "item", "ACCT-REC"),
+        (14, "RELEASE", "WS-ACCT", "item", "SORT-REC"),
+        (15, "RETURN", "SORT-FILE", "file", "WS-SORTED"),
+        (16, "ACCEPT", "DATE YYYYMMDD", "special", "WS-DATE"),
+        (17, "ACCEPT", "SYSIN", "special", "WS-PARM"),
+    ]

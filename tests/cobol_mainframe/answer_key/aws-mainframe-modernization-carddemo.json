@@ -93625,6 +93625,77 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "app/cbl/CBSTM03A.CBL"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 94,
+          "asked": 94
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBEXPORT.cbl",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/CBSTM03B.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 47,
+          "asked": 47
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COBSWAIT.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COCRDUPC.cbl"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 5,
+          "asked": 5
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -115639,6 +115710,424 @@
       "verification": {
         "status": "draft",
         "notes": []
+      }
+    }
+  },
+  "io_moves": {
+    "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl": {
+      "moves": [
+        "L186 ACCEPT DATE -> CURRENT-DATE",
+        "L187 ACCEPT DAY -> CURRENT-YYDDD",
+        "L189 ACCEPT SYSIN -> PRM-INFO"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
+      "moves": [
+        "L185 ACCEPT DATE -> CURRENT-DATE",
+        "L186 ACCEPT DAY -> CURRENT-YYDDD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
+      "moves": [
+        "L193 ACCEPT DATE -> CURRENT-DATE",
+        "L194 ACCEPT DAY -> CURRENT-YYDDD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
+      "moves": [
+        "L176 ACCEPT DATE -> CURRENT-DATE",
+        "L177 ACCEPT DAY -> CURRENT-YYDDD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
+      "moves": [
+        "L101 READ TR-RECORD -> WS-INPUT-REC"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBACT01C.cbl": {
+      "moves": [
+        "L166 READ ACCTFILE-FILE -> ACCOUNT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBACT02C.cbl": {
+      "moves": [
+        "L93 READ CARDFILE-FILE -> CARD-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBACT03C.cbl": {
+      "moves": [
+        "L93 READ XREFFILE-FILE -> CARD-XREF-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBACT04C.cbl": {
+      "moves": [
+        "L326 READ TCATBAL-FILE -> TRAN-CAT-BAL-RECORD",
+        "L356 REWRITE ACCOUNT-RECORD -> FD-ACCTFILE-REC",
+        "L373 READ ACCOUNT-FILE -> ACCOUNT-RECORD",
+        "L394 READ XREF-FILE -> CARD-XREF-RECORD",
+        "L416 READ DISCGRP-FILE -> DIS-GROUP-RECORD",
+        "L444 READ DISCGRP-FILE -> DIS-GROUP-RECORD",
+        "L500 WRITE TRAN-RECORD -> FD-TRANFILE-REC"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBCUS01C.cbl": {
+      "moves": [
+        "L93 READ CUSTFILE-FILE -> CUSTOMER-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBEXPORT.cbl": {
+      "moves": [
+        "L175 ACCEPT DATE YYYYMMDD -> WS-CURRENT-DATE",
+        "L176 ACCEPT TIME -> WS-CURRENT-TIME",
+        "L301 WRITE EXPORT-RECORD -> EXPORT-OUTPUT-RECORD",
+        "L364 WRITE EXPORT-RECORD -> EXPORT-OUTPUT-RECORD",
+        "L419 WRITE EXPORT-RECORD -> EXPORT-OUTPUT-RECORD",
+        "L484 WRITE EXPORT-RECORD -> EXPORT-OUTPUT-RECORD",
+        "L542 WRITE EXPORT-RECORD -> EXPORT-OUTPUT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBIMPORT.cbl": {
+      "moves": [
+        "L261 READ EXPORT-INPUT -> EXPORT-RECORD",
+        "L439 WRITE WS-ERROR-RECORD -> ERROR-OUTPUT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBSTM03A.CBL": {
+      "moves": [
+        "L435 WRITE ST-LINE12 -> FD-STMTFILE-REC",
+        "L436 WRITE ST-LINE14A -> FD-STMTFILE-REC",
+        "L437 WRITE ST-LINE15 -> FD-STMTFILE-REC",
+        "L440 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L442 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L444 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L446 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L448 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L450 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L452 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L454 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L460 WRITE ST-LINE0 -> FD-STMTFILE-REC",
+        "L488 WRITE ST-LINE1 -> FD-STMTFILE-REC",
+        "L489 WRITE ST-LINE2 -> FD-STMTFILE-REC",
+        "L490 WRITE ST-LINE3 -> FD-STMTFILE-REC",
+        "L491 WRITE ST-LINE4 -> FD-STMTFILE-REC",
+        "L492 WRITE ST-LINE5 -> FD-STMTFILE-REC",
+        "L493 WRITE ST-LINE6 -> FD-STMTFILE-REC",
+        "L494 WRITE ST-LINE5 -> FD-STMTFILE-REC",
+        "L495 WRITE ST-LINE7 -> FD-STMTFILE-REC",
+        "L496 WRITE ST-LINE8 -> FD-STMTFILE-REC",
+        "L497 WRITE ST-LINE9 -> FD-STMTFILE-REC",
+        "L498 WRITE ST-LINE10 -> FD-STMTFILE-REC",
+        "L499 WRITE ST-LINE11 -> FD-STMTFILE-REC",
+        "L500 WRITE ST-LINE12 -> FD-STMTFILE-REC",
+        "L501 WRITE ST-LINE13 -> FD-STMTFILE-REC",
+        "L502 WRITE ST-LINE12 -> FD-STMTFILE-REC",
+        "L509 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L511 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L513 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L515 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L517 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L519 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L521 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L523 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L525 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L527 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L530 WRITE HTML-L11 -> FD-HTMLFILE-REC",
+        "L532 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L534 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L536 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L538 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L540 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L542 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L544 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L546 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L548 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L550 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L552 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L576 WRITE HTML-ADDR-LN -> FD-HTMLFILE-REC",
+        "L584 WRITE HTML-ADDR-LN -> FD-HTMLFILE-REC",
+        "L592 WRITE HTML-ADDR-LN -> FD-HTMLFILE-REC",
+        "L595 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L597 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L599 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L601 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L603 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L605 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L607 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L609 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L611 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L619 WRITE HTML-BSIC-LN -> FD-HTMLFILE-REC",
+        "L626 WRITE HTML-BSIC-LN -> FD-HTMLFILE-REC",
+        "L633 WRITE HTML-BSIC-LN -> FD-HTMLFILE-REC",
+        "L635 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L637 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L639 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L641 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L643 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L645 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L647 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L649 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L651 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L653 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L655 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L657 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L659 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L661 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L663 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L665 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L667 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L669 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L679 WRITE ST-LINE14 -> FD-STMTFILE-REC",
+        "L682 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L685 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L692 WRITE HTML-TRAN-LN -> FD-HTMLFILE-REC",
+        "L694 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L697 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L704 WRITE HTML-TRAN-LN -> FD-HTMLFILE-REC",
+        "L706 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L709 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L716 WRITE HTML-TRAN-LN -> FD-HTMLFILE-REC",
+        "L718 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC",
+        "L721 WRITE HTML-FIXED-LN -> FD-HTMLFILE-REC"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBSTM03B.CBL": {
+      "moves": [
+        "L141 READ TRNX-FILE -> LK-M03B-FLDT",
+        "L165 READ XREF-FILE -> LK-M03B-FLDT",
+        "L190 READ CUST-FILE -> LK-M03B-FLDT",
+        "L215 READ ACCT-FILE -> LK-M03B-FLDT"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBTRN01C.cbl": {
+      "moves": [
+        "L203 READ DALYTRAN-FILE -> DALYTRAN-RECORD",
+        "L229 READ XREF-FILE -> CARD-XREF-RECORD",
+        "L243 READ ACCOUNT-FILE -> ACCOUNT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBTRN02C.cbl": {
+      "moves": [
+        "L346 READ DALYTRAN-FILE -> DALYTRAN-RECORD",
+        "L383 READ XREF-FILE -> CARD-XREF-RECORD",
+        "L395 READ ACCOUNT-FILE -> ACCOUNT-RECORD",
+        "L451 WRITE REJECT-RECORD -> FD-REJS-RECORD",
+        "L474 READ TCATBAL-FILE -> TRAN-CAT-BAL-RECORD",
+        "L510 WRITE TRAN-CAT-BAL-RECORD -> FD-TRAN-CAT-BAL-RECORD",
+        "L528 REWRITE TRAN-CAT-BAL-RECORD -> FD-TRAN-CAT-BAL-RECORD",
+        "L554 REWRITE ACCOUNT-RECORD -> FD-ACCTFILE-REC",
+        "L564 WRITE TRAN-RECORD -> FD-TRANFILE-REC"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CBTRN03C.cbl": {
+      "moves": [
+        "L221 READ DATE-PARMS-FILE -> WS-DATEPARM-RECORD",
+        "L249 READ TRANSACT-FILE -> TRAN-RECORD",
+        "L485 READ XREF-FILE -> CARD-XREF-RECORD",
+        "L495 READ TRANTYPE-FILE -> TRAN-TYPE-RECORD",
+        "L505 READ TRANCATG-FILE -> TRAN-CAT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COBSWAIT.cbl": {
+      "moves": [
+        "L36 ACCEPT SYSIN -> PARM-VALUE"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
       }
     }
   }

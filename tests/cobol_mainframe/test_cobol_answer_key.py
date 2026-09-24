@@ -1196,3 +1196,25 @@ def test_symbolic_map_units_by_arithmetic(tmp_path):
         ["SCRMAI @0+29", "SCRMAO @0+29", "NAMEL @12+2", "NAMEF @14+1", "NAMEA @14+1", "NAMEC @15+1",
          "NAMEP @16+1", "NAMEH @17+1", "NAMEV @18+1", "NAMEI @19+10", "NAMEO @19+10"]
     )  # fmt: skip
+
+
+def test_io_move_reader_on_its_own(tmp_path):
+    """#3492: the key's own reading of READ / RETURN INTO (READ's NEXT is no NEXT
+    SENTENCE), WRITE / REWRITE FROM, ACCEPT [FROM]."""
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. IOK.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           READ ACCT-FILE NEXT RECORD INTO WS-ACCT\n"
+        "               AT END MOVE 'Y' TO WS-EOF END-READ.\n"
+        "           WRITE OUT-REC FROM WS-LINE AFTER ADVANCING 1.\n"
+        "           ACCEPT WS-DATE FROM DATE YYYYMMDD.\n"
+        "           ACCEPT WS-PARM.\n"
+    )
+    (tmp_path / "IOK.cbl").write_text(src, encoding="utf-8")
+    assert ak.draft_io_moves(tmp_path)["IOK.cbl"]["moves"] == [
+        "L4 READ ACCT-FILE -> WS-ACCT",
+        "L6 WRITE WS-LINE -> OUT-REC",
+        "L7 ACCEPT DATE YYYYMMDD -> WS-DATE",
+        "L8 ACCEPT SYSIN -> WS-PARM",
+    ]

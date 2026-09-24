@@ -9,11 +9,14 @@
 # source -> target pair of every data-moving statement:
 #
 #   verb        MOVE | COMPUTE | ADD | SUBTRACT | MULTIPLY | DIVIDE | STRING |
-#               UNSTRING | INITIALIZE
+#               UNSTRING | INITIALIZE, and (#3492) the file-I/O verbs READ /
+#               RETURN (INTO) | WRITE / REWRITE / RELEASE (FROM) | ACCEPT
 #   source      the sending operand as written: a data name with its qualifiers
 #               (`A OF B`), a literal, a figurative constant, `FUNCTION NAME`,
 #               `LENGTH OF X` / `ADDRESS OF X`; None for INITIALIZE
-#   source_kind item | literal | figurative | function | length | address
+#   source_kind item | literal | figurative | function | length | address |
+#               file (READ / RETURN: the FILE name, whose FD record is the source)
+#               | special (ACCEPT: `DATE YYYYMMDD`, `TIME`, `SYSIN` when no FROM)
 #   target      the receiving data name with its qualifiers
 #   corresponding  MOVE CORRESPONDING (group to group, by matching names)
 #   source_refmod / target_refmod  the operand carries a reference modification
@@ -25,7 +28,8 @@
 # b (a -> b) / GIVING, REMAINDER r; STRING s... DELIMITED BY d INTO t (the
 # delimiters and the POINTER are control, not data); UNSTRING s DELIMITED BY d
 # INTO t... (DELIMITER IN / COUNT IN / POINTER / TALLYING are control);
-# INITIALIZE t....
+# INITIALIZE t....; READ / RETURN f INTO t (f's record -> t); WRITE / REWRITE /
+# RELEASE r FROM s (s -> r); ACCEPT t [FROM x] (x -> t).
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only, per file, operands as written. Resolving a name to its
@@ -35,8 +39,9 @@
 #     (GalaxyIR.data_flows / field_lineage).
 #   - Procedure code only: from PROCEDURE DIVISION, or the whole member for a
 #     copybook of procedure statements. EXEC ... END-EXEC blocks are skipped
-#     (their host variables are the SQL / CICS channels'). SET, ACCEPT, READ
-#     INTO and the other verbs that move data implicitly are not rows.
+#     (their host variables and INTO / FROM areas are the SQL / CICS / DL/I
+#     channels' endpoints, #3452). SET is not a row; a READ without INTO or a
+#     WRITE without FROM moves no program data (the FD record is the buffer).
 #   - Sequence fields, comment and debugging lines are blanked first. Bounded per
 #     statement. Pseudo-text awaiting COPY REPLACING (`(TAG)-NAME`) is not an
 #     operand, and names a COPY ... REPLACING would produce are not resolved by
@@ -65,7 +70,11 @@ _VERBS = frozenset(
         "SUBTRACT", "UNSTRING", "WHEN", "WRITE", "COPY", "OTHERWISE", "THEN", "NEXT",
     }
 )  # fmt: skip
-_DATA_VERBS = ("MOVE", "COMPUTE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "STRING", "UNSTRING", "INITIALIZE")
+_DATA_VERBS = ("MOVE", "COMPUTE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "STRING", "UNSTRING", "INITIALIZE",
+               "READ", "RETURN", "WRITE", "REWRITE", "RELEASE", "ACCEPT")  # fmt: skip
+# #3492: the file-I/O verbs above move a whole record, as a MOVE does.
+IO_VERBS = frozenset({"READ", "RETURN", "WRITE", "REWRITE", "RELEASE", "ACCEPT"})
+_READ_PHRASE = frozenset({"NEXT", "PREVIOUS", "RECORD", "KEY", "IS", "WITH", "NO", "LOCK", "IGNORE"})
 _STOPS = frozenset({"ON", "NOT", "SIZE", "OVERFLOW", "EXCEPTION", "INVALID", "AT"})
 _FIGURATIVE = frozenset(
     {
@@ -289,6 +298,36 @@ def _rows_of(verb: str, s: _Stream) -> list[tuple[Optional[tuple], tuple, bool]]
     elif verb == "INITIALIZE":
         stop = frozenset({"REPLACING", "WITH", "ALL", "TO", "DEFAULT", "FILLER"})
         pairs = [(None, t, False) for t in s.operands(stop)]
+    elif verb in ("READ", "RETURN"):
+        # READ file [NEXT | PREVIOUS] [RECORD] [INTO x] ...: the file's record -> x.
+        f = s.operand()
+        # NEXT / PREVIOUS / RECORD / KEY IS / WITH LOCK are READ's own phrases here.
+        while s.peek() in _READ_PHRASE or (not s.done() and s.peek() not in _STOPS and s.peek() != "INTO"):
+            s.i += 1
+        if f is None or s.peek() != "INTO":
+            return []
+        s.i += 1
+        t = s.operand()
+        pairs = [((f[0], "file", False), t, False)] if t else []
+    elif verb in ("WRITE", "REWRITE", "RELEASE"):
+        # WRITE record [FROM x] ...: x -> the record.
+        rec = s.operand()
+        if rec is None or s.peek() != "FROM":
+            return []
+        s.i += 1
+        src = s.operand()
+        pairs = [(src, rec, False)] if src else []
+    elif verb == "ACCEPT":
+        # ACCEPT x [FROM DATE [YYYYMMDD] | DAY | TIME | ...]: a runtime-supplied value -> x.
+        t = s.operand()
+        words = ["SYSIN"]
+        if t is not None and s.peek() == "FROM":
+            s.i += 1
+            words = []
+            while not s.done() and len(words) < 2 and re.fullmatch(_WORD, s.peek() or "-", re.I):
+                words.append(s.peek())
+                s.i += 1
+        pairs = [((" ".join(words) or "SYSIN", "special", False), t, False)] if t else []
     return [p for p in pairs if p[1][1] == "item"]
 
 

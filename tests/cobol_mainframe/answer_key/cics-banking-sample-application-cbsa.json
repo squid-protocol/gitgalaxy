@@ -65495,6 +65495,39 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -79400,5 +79433,6 @@
         "notes": []
       }
     }
-  }
+  },
+  "io_moves": {}
 }

@@ -39,6 +39,11 @@ COBOL program and JCL member:
                                                ~10k facts, so asked over a seeded, stratified SAMPLE
                                                of 12-line windows (see lineage_plan)
 
+`io` (#3492) is asked of every COBOL source with a FILE SECTION, an ACCEPT, or
+keyed rows, in full:
+
+    io_moves          io_moves_validated       READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT
+
 The data-move sample is fixed when the census is cut and stored in the key under
 `sample_census.data_moves.plan`: windows around truncation claims and around the
 rarer verbs (so every contract clause is exercised), then random windows over all
@@ -1062,6 +1067,82 @@ def batches_lineage(
     return out
 
 
+# ---- the `io` suite (#3492) ------------------------------------------------------
+def corpus_files_io(key: dict[str, Any], repo: Path) -> list[str]:
+    """COBOL sources that could hold file I/O moves: keyed ones, and any with a FILE
+    SECTION or an ACCEPT (so a reviewer checks the ones the key says have none)."""
+    out = set(key.get("io_moves", {}))
+    for rel in corpus_files(repo):
+        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper()
+        if re.search(r"\bFILE\s+SECTION\b|\bACCEPT\s", text):
+            out.add(rel)
+    return sorted(out)
+
+
+def key_facts_io(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    return {
+        "io": {rel: sorted({_ws(m) for m in key.get("io_moves", {}).get(rel, {}).get("moves", [])}) for rel in files}
+    }
+
+
+def reviewer_facts_io(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"io": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["io"][r] = {canon_move(x) for x in (v or {}).get("io", []) if isinstance(x, dict)}
+    return out
+
+
+def render_io(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census", "suite": "io",
+             "batch": index, "of": of, "files": files, "facts": key_facts_io(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe COBOL source code, as a second reviewer.
+Read the source files yourself. They are all under the repository root {repo}; read only inside that directory.
+Do NOT edit or create any files except your answers file, and do not look for any existing answer key or analysis
+of this code: the point is an independent reading. Line numbers are 1-based physical line numbers. Ignore comment
+lines, debugging lines ('D' in column 7), text inside quoted literals, EXEC ... END-EXEC blocks, and columns 73-80.
+
+{FIXED_FORMAT_RULES}
+
+For EACH file below list, in "io", one entry per FILE-I/O DATA MOVE in the procedure code (after PROCEDURE
+DIVISION; a copybook without that header is procedure code throughout); an empty list when it has none:
+  - READ file ... INTO t, RETURN file ... INTO t: {{"line" (of the verb), "verb": "READ" | "RETURN",
+    "source": the FILE name as written, "target": t}}. A READ without INTO moves nothing: no entry.
+  - WRITE r FROM s, REWRITE r FROM s, RELEASE r FROM s: {{"line", "verb", "source": s, "target": r}}. Without FROM:
+    no entry.
+  - ACCEPT t [FROM ...]: {{"line", "verb": "ACCEPT", "source": the (at most two) words after FROM, e.g.
+    "DATE YYYYMMDD", "TIME", "DAY-OF-WEEK"; "SYSIN" when there is no FROM, "target": t}}.
+Operands: data names upper-case with qualifiers as `A OF B`; subscripts dropped; a literal as written with quotes;
+a figurative constant as written.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"io": [...]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_io(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_io(key, files)["io"]
+    out: list[list[str]] = []
+    sizes: list[int] = []
+    for f in sorted(files, key=lambda x: (-len(facts.get(x, [])), x)):
+        load = 1 + len(facts.get(f, []))
+        for i, sz in enumerate(sizes):
+            if sz + load <= max_items:
+                out[i].append(f)
+                sizes[i] += load
+                break
+        else:
+            out.append([f])
+            sizes.append(load)
+    return [sorted(b) for b in out]
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1082,6 +1163,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "calls"
         else reviewer_facts_lineage(answers, repo)
         if suite == "lineage"
+        else reviewer_facts_io(answers, repo)
+        if suite == "io"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1136,6 +1219,8 @@ def sign(
         if truth.get("suite") == "calls"
         else {("ims_gen", "ims_gen_validated")}
         if truth.get("suite") == "lineage"
+        else {("io_moves", "io_moves_validated")}
+        if truth.get("suite") == "io"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1219,12 +1304,12 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
-    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage"), default="channels")
+    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io"), default="channels")
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
     c.add_argument("--seed", type=int, default=3452, help="lineage: the sample's seed")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
-    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage"), default="channels")
+    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io"), default="channels")
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -1237,7 +1322,13 @@ def main() -> int:
     key = load_key(corpus)
     repo = mc.require_clone(corpus)
     suite = getattr(args, "suite", "channels")
-    files = corpus_files_files(repo) if suite == "files" else corpus_files(repo)  # calls: every COBOL source
+    files = (
+        corpus_files_files(repo)
+        if suite == "files"
+        else corpus_files_io(key, repo)
+        if suite == "io"
+        else corpus_files(repo)  # calls: every COBOL source
+    )
     if args.cmd == "coverage":
         cv = coverage(key, files, suite)
         print(
@@ -1272,12 +1363,12 @@ def main() -> int:
                 n = sum(len(v) for t in truth["facts"].values() for v in t.values())
                 print(f"{d}: {len(fs)} IMS files, {len(ws)} windows, {n} key facts")
             return 0
-        pack = {"files": batches_files, "calls": batches_calls}.get(suite, batches)
+        pack = {"files": batches_files, "calls": batches_calls, "io": batches_io}.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
             d = args.out / f"batch_{i:02d}"
             d.mkdir(parents=True, exist_ok=True)
-            make = {"files": render_files, "calls": render_calls}.get(suite, render)
+            make = {"files": render_files, "calls": render_calls, "io": render_io}.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
             (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
@@ -1309,6 +1400,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
     elif truth.get("suite") == "calls":
         current = dict(truth, facts=key_facts_calls(key, truth["files"]))
+    elif truth.get("suite") == "io":
+        current = dict(truth, facts=key_facts_io(key, truth["files"]))
     elif truth.get("suite") == "lineage":
         current = dict(truth, facts=key_facts_lineage(key, truth["files"], truth.get("windows", [])))
     else:

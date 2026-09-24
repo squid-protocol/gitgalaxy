@@ -114,6 +114,9 @@
 # symbolic map its BMS source generates (core/bms_symbolic.py, parsed by the
 # record parser; EngineFile.symbolic_copies, never in `files`), so screen fields
 # resolve to storage; GalaxyIR.symbolic_map_layouts lists every generated map.
+# Since #3492 the file-I/O verbs are data moves too (READ INTO: the FD record ->
+# the area; WRITE FROM: the area -> the record), an FD's 01 records share one
+# storage key, and they carry a field's offset as a group MOVE does.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -2619,10 +2622,13 @@ class GalaxyIR:
             items.setdefault(key, []).append((offset, total, len(path), it.name))
             return total
 
+        fd_first: dict = {}
         for root in ef.records:
             if id(root) not in spans:
-                # `01 B REDEFINES A` overlays record A: same storage, same record key.
-                walk(ef, root, (ef.file_path, root.redefines or root.name), 0, 0, None, ())
+                # `01 B REDEFINES A` overlays record A: same storage, same record key;
+                # so do the 01 records of one FD, whose buffer they share (#3492).
+                name = root.redefines or (fd_first.setdefault(root.fd_name, root.name) if root.fd_name else root.name)
+                walk(ef, root, (ef.file_path, name), 0, 0, None, ())
         for cb in self._copy_files(ef):
             roots = [r for r in cb.records if r.level not in (66, 88)]
             for root in roots:
@@ -2713,7 +2719,13 @@ class GalaxyIR:
         for f, home in sorted(scopes, key=lambda x: (x[0].file_path, x[1] is not x[0], x[1].file_path)):
             for m in home.data_moves:
                 target, t_status = self._operand_span(f, m.target)
-                source, s_status = self._operand_span(f, m.source) if m.source_kind == "item" else (None, "resolved")
+                if m.source_kind == "item":
+                    source, s_status = self._operand_span(f, m.source)
+                elif m.source_kind == "file":  # READ / RETURN INTO: the file's FD record (#3492)
+                    fd = next((r for r in f.records if (r.fd_name or "").upper() == (m.source or "").upper()), None)
+                    source, s_status = self._operand_span(f, fd.name) if fd is not None else (None, "unresolved")
+                else:
+                    source, s_status = None, "resolved"
                 status = "resolved"
                 if "ambiguous" in (t_status, s_status):
                     status = "ambiguous"
@@ -2894,7 +2906,10 @@ class GalaxyIR:
                              "resolved": False}
                         )  # fmt: skip
                     continue
-                exact = fl["verb"] == "MOVE" and not fl["corresponding"] and fl["source_kind"] == "item"
+                # A MOVE of an item and the whole-record file I/O (#3492) keep a field's offset.
+                exact = not fl["corresponding"] and (
+                    (fl["verb"] == "MOVE" and fl["source_kind"] == "item") or fl["verb"] in _RECORD_IO_VERBS
+                )
                 span = carried(node, src, dst) if exact else dict(dst)
                 nxt.append((node["file"], span, via))
             for this, other, that, via in links.get(node["file"], []):
@@ -3070,6 +3085,9 @@ def _pic_positions(pic: str) -> Optional[list]:
 # children) -- and even when the engine read a stray USAGE into it.
 _PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
 
+
+# #3492: file I/O that moves a whole record between the FD buffer and an area.
+_RECORD_IO_VERBS = frozenset({"READ", "RETURN", "WRITE", "REWRITE", "RELEASE"})
 
 # #3452: data names the runtime supplies, never declared in the repository: the
 # CICS EIB and IMS DIB fields, the SQLCA, the DFHBMSCA / DFHAID constants, and

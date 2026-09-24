@@ -8325,6 +8325,41 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "multiroot/sam/SAM1.cbl"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 44,
+          "asked": 44
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (io census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "COBOL/SAM1LIB.cbl"
+      ],
+      "wide": false,
+      "suite": "io",
+      "tasks": {
+        "io": {
+          "agree": 19,
+          "asked": 19
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -10796,5 +10831,115 @@
       "upper_bound_95": 0.02426
     }
   },
-  "symbolic_maps": {}
+  "symbolic_maps": {},
+  "io_moves": {
+    "COBOL/SAM1.cbl": {
+      "moves": [
+        "L218 ACCEPT DATE -> CURRENT-DATE",
+        "L219 ACCEPT TIME -> CURRENT-TIME",
+        "L244 ACCEPT DATE -> CURRENT-DATE",
+        "L245 ACCEPT TIME -> CURRENT-TIME",
+        "L350 WRITE ERR-MSG-BAD-TRAN -> REPORT-RECORD",
+        "L351 WRITE MSG-TRAN-SCALE-1 -> REPORT-RECORD",
+        "L352 WRITE MSG-TRAN-SCALE-2 -> REPORT-RECORD",
+        "L354 WRITE ERR-MSG-BAD-TRAN-2 -> REPORT-RECORD",
+        "L442 WRITE WS-CUST-REC -> CSTOUT-REC",
+        "L445 WRITE WS-CUST-CONTACT-REC -> CSTOUT-CONTACT-REC",
+        "L469 WRITE RPT-HEADER1 -> REPORT-RECORD",
+        "L478 WRITE RPT-TRAN-DETAIL1 -> REPORT-RECORD",
+        "L481 WRITE RPT-STATS-HDR1 -> REPORT-RECORD",
+        "L482 WRITE RPT-STATS-HDR2 -> REPORT-RECORD",
+        "L483 WRITE RPT-STATS-HDR3 -> REPORT-RECORD",
+        "L484 WRITE RPT-STATS-HDR4 -> REPORT-RECORD",
+        "L491 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L498 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L505 WRITE RPT-STATS-DETAIL -> REPORT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "COBOL/SAM1LIB.cbl": {
+      "moves": [
+        "L201 ACCEPT DATE -> CURRENT-DATE",
+        "L202 ACCEPT TIME -> CURRENT-TIME",
+        "L227 ACCEPT DATE -> CURRENT-DATE",
+        "L228 ACCEPT TIME -> CURRENT-TIME",
+        "L333 WRITE ERR-MSG-BAD-TRAN -> REPORT-RECORD",
+        "L334 WRITE MSG-TRAN-SCALE-1 -> REPORT-RECORD",
+        "L335 WRITE MSG-TRAN-SCALE-2 -> REPORT-RECORD",
+        "L337 WRITE ERR-MSG-BAD-TRAN-2 -> REPORT-RECORD",
+        "L425 WRITE WS-CUST-REC -> CSTOUT-REC",
+        "L428 WRITE WS-CUST-CONTACT-REC -> CSTOUT-CONTACT-REC",
+        "L452 WRITE RPT-HEADER1 -> REPORT-RECORD",
+        "L461 WRITE RPT-TRAN-DETAIL1 -> REPORT-RECORD",
+        "L464 WRITE RPT-STATS-HDR1 -> REPORT-RECORD",
+        "L465 WRITE RPT-STATS-HDR2 -> REPORT-RECORD",
+        "L466 WRITE RPT-STATS-HDR3 -> REPORT-RECORD",
+        "L467 WRITE RPT-STATS-HDR4 -> REPORT-RECORD",
+        "L474 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L481 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L488 WRITE RPT-STATS-DETAIL -> REPORT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "multiroot/sam/SAM1.cbl": {
+      "moves": [
+        "L245 ACCEPT DATE -> CURRENT-DATE",
+        "L246 ACCEPT TIME -> CURRENT-TIME",
+        "L271 ACCEPT DATE -> CURRENT-DATE",
+        "L272 ACCEPT TIME -> CURRENT-TIME",
+        "L389 WRITE ERR-MSG-BAD-TRAN -> REPORT-RECORD",
+        "L390 WRITE MSG-TRAN-SCALE-1 -> REPORT-RECORD",
+        "L391 WRITE MSG-TRAN-SCALE-2 -> REPORT-RECORD",
+        "L393 WRITE ERR-MSG-BAD-TRAN-2 -> REPORT-RECORD",
+        "L481 WRITE WS-CUST-REC -> CSTOUT-REC",
+        "L484 WRITE WS-CUST-CONTACT-REC -> CSTOUT-CONTACT-REC",
+        "L508 WRITE RPT-HEADER1 -> REPORT-RECORD",
+        "L525 WRITE RPT-TRAN-DETAIL1 -> REPORT-RECORD",
+        "L528 WRITE RPT-STATS-HDR1 -> REPORT-RECORD",
+        "L529 WRITE RPT-STATS-HDR2 -> REPORT-RECORD",
+        "L530 WRITE RPT-STATS-HDR3 -> REPORT-RECORD",
+        "L531 WRITE RPT-STATS-HDR4 -> REPORT-RECORD",
+        "L538 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L545 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L552 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L559 WRITE RPT-STATS-DETAIL -> REPORT-RECORD",
+        "L561 WRITE RPT-STATS-HDR5 -> REPORT-RECORD",
+        "L564 WRITE RPT-STATS-CUST-DETAIL -> REPORT-RECORD",
+        "L567 WRITE RPT-STATS-CUST-DETAIL -> REPORT-RECORD",
+        "L570 WRITE RPT-STATS-CUST-DETAIL -> REPORT-RECORD",
+        "L576 WRITE RPT-STATS-CUST-DETAIL -> REPORT-RECORD"
+      ],
+      "io_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (io census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  }
 }

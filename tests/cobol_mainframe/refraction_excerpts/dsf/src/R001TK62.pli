@@ -1,0 +1,236 @@
+ /*       SIST ENDRET 19/06-91 10.20.03 AV   HERMAN                   */00000000
+ /*       SIST ENDRET 14/06-91 09.40.21 AV   DYBVIK                   */00000010
+ /*       SIST ENDRET 08/05-91 13.26.35 AV   DYBVIK                   */00000020
+ /******************************************************************* */00000030
+ /*IDENTIFIKASJON:                                                    */00000040
+ /************************                                            */00000050
+ /*  PROGRAM-IDENT : R001TK62 - HOVEDPROGRAM.                         */00000060
+ /*  PROGRAM-SPRÅK : PLI/CICS                                         */00000070
+ /*  PROGRAMMERER  : TUYEN                                            */00000080
+ /*  PROGRAM LAGET : FEB 91                                           */00000090
+ /*                                                                   */00000100
+ /******************************************************************* */00000110
+ /*HENSIKT:                                                           */00000120
+ /************                                                        */00000130
+ /*  HISTORIKK - FORESPØRSEL.                                         */00000140
+ /******************************************************************* */00000150
+ /*PROGRAMTILKNYTTING:                                                */00000160
+ /**********************                                              */00000170
+ /*  PROGRAMMET BLIR AKTIVISERT FRA CICS MED TRANSKODE RT62.          */00000180
+ /*                                                                   */00000190
+ /******************************************************************* */00000200
+ /*DATASETTOPPLYSNINGER:                                              */00000210
+ /*************************                                           */00000220
+ /*  DET BLIR IKKE BRUKT NOEN DATASETT I DETTE PROGRAMMET             */00000230
+ /*                                                                   */00000240
+ /******************************************************************* */00000250
+ /*FEILMELDINGER:                                                     */00000260
+ /*********************                                               */00000270
+ /*                                                                   */00000280
+ /*                                                                   */00000290
+ /* ***************************************************************** */00000300
+ R001T62:                                                               00000310
+   PROC(COMMAREA_PEKER) OPTIONS(MAIN);                                  00000320
+                                                                        00000330
+ %PAGE;                                                                 00000340
+      %INCLUDE S001T2;             /* HISTORIKK-MAPSETTET   */          00000350
+ %PAGE;                                                                 00000360
+      %INCLUDE P001TK03;           /* KOM_OMR */                        00000370
+ %PAGE;                                                                 00000380
+      %INCLUDE DFHBMSCA;                                                00000390
+ %PAGE;                                                                 00000400
+                                                                        00000410
+   DCL                                                                  00000420
+      (BMSMAPBR, COMMAREA_PEKER) PTR;                                   00000430
+   DCL                                                                  00000440
+      (CSTG,                                                            00000450
+      ADDR,                                                             00000460
+      VERIFY,                                                           00000470
+      UNSPEC,                                                           00000480
+      LOW,                                                              00000490
+      NULL,                                                             00000500
+      ONCODE,                                                           00000510
+      DATE,                                                             00000520
+      SUBSTR) BUILTIN;                                                  00000530
+                                                                        00000540
+ /* HJELPE-VARIABLE */                                                  00000550
+ /*-----------------*/                                                  00000560
+                                                                        00000570
+   DCL                                                                  00000580
+      ONKODE                      PIC'9999',                            00000590
+      CURSOR_POS                  FIXED BIN(15) INIT(-1),               00000600
+      ONK DEF ONKODE              CHAR(4),                              00000610
+      FEIL                        FIXED BIN(15) INIT(0),                00000620
+      FEILKODE                    CHAR(4),                              00000630
+      TELLER                      FIXED DEC (3) INIT(0),                00000640
+      FATAL_FEIL                  BIT (1) INIT ('0'B),                  00000650
+      TK_FINNES                   BIT (1) INIT ('0'B),                  00000660
+      DSNAVN                      CHAR(8),                              00000670
+      IN_RBA                      POINTER,                              00000680
+      LENGDE                      FIXED BIN(15) INIT(948),              00000690
+      SIDE                        PIC 'Z9'      INIT ( 1),              00000700
+      IN_REC                      CHAR (948);                           00000710
+                                                                        00000720
+   DCL 1 SPLITT DEF IN_REC,                                             00000730
+         5 KODE               CHAR ( 1),                                00000740
+         5 ANTALL_TIL         PIC '( 2)9',                              00000750
+         5 FRA_TKNR           PIC '( 4)9',                              00000760
+         5 FRA_TKNAVN         CHAR (35),                                00000770
+         5 FRA_TKNR_DATO      CHAR ( 6),                                00000780
+         5 TIL(1:20),                                                   00000790
+           10 TIL_TKNR        PIC '( 4)9',                              00000800
+           10 TIL_TKNAVN      CHAR (35),                                00000810
+           10 TIL_TKNR_DATO   CHAR ( 6);                                00000820
+                                                                        00000830
+   DCL 1 SAMMEN DEF IN_REC,                                             00000840
+         5 KODE               CHAR ( 1),                                00000850
+         5 ANTALL_FRA         PIC '( 2)9',                              00000860
+         5 TIL_TKNR           PIC '( 4)9',                              00000870
+         5 TIL_TKNAVN         CHAR (35),                                00000880
+         5 TIL_TKNR_DATO      CHAR ( 6),                                00000890
+         5 FRA(1:20),                                                   00000900
+           10 FRA_TKNR        PIC '( 4)9',                              00000910
+           10 FRA_TKNAVN      CHAR (35),                                00000920
+           10 FRA_TKNR_DATO   CHAR ( 6);                                00000930
+                                                                        00000940
+                                                                        00000950
+ /* SLUTT PÅ DEKLARASJONER */                                           00000960
+ /**************************/                                           00000970
+                                                                        00000980
+ ON ERROR SNAP BEGIN       ;                                            00000990
+    ON ERROR SYSTEM        ;                                            00001000
+    ONKODE=ONCODE          ;                                            00001010
+    FEILKODE = 'FEIL'      ;                                            00001020
+    DSNAVN   = EIBDS       ;                                            00001030
+    GO TO FEILBEH          ;                                            00001040
+ END;                                                                   00001050
+                                                                        00001060
+ FEILKODE        = 'FEIL'   ;                                           00001070
+ DSNAVN          = '       ';                                           00001080
+ PROGRAM_ID      = 'R001TK62';                                          00001090
+ ALLOCATE S001021O;                                                     00001100
+                                                                        00001110
+ EXEC CICS HANDLE CONDITION ERROR(FEILBEH);                             00001120
+ EXEC CICS IGNORE CONDITION MAPFAIL       ;                             00001130
+ EXEC CICS HANDLE CONDITION ENDFILE(SLUTT_FIL);                         00001140
+                                                                        00001150
+ EXEC CICS STARTBR DATASET ('HISTOR')                                   00001160
+                   RIDFLD  (IN_RBA) RBA;                                00001170
+                                                                        00001180
+ EXEC CICS READNEXT INTO (IN_REC)                                       00001190
+                 DATASET ('HISTOR')                                     00001200
+                  RIDFLD (IN_RBA) RBA;                                  00001210
+                                                                        00001220
+ LES_NESTE:                                                             00001230
+   IN_REC = '';                                                         00001240
+                                                                        00001250
+   EXEC CICS READNEXT INTO (IN_REC)                                     00001260
+                   DATASET ('HISTOR')                                   00001270
+                    RIDFLD (IN_RBA) RBA;                                00001280
+                                                                        00001290
+   TELLER = 1;                                                          00001300
+                                                                        00001310
+   DO WHILE (TELLER <= 20);                                             00001320
+      S001021O.FRA_TKNRO(TELLER)     = '';                              00001330
+      S001021O.FRA_TKNAVNO(TELLER)   = '';                              00001340
+      S001021O.FRA_TKNR_DATOO(TELLER)= '';                              00001350
+                                                                        00001360
+      S001021O.TIL_TKNRO(TELLER)     = '';                              00001370
+      S001021O.TIL_TKNAVNO(TELLER)   = '';                              00001380
+      S001021O.TIL_TKNR_DATOO(TELLER)= '';                              00001390
+                                                                        00001400
+      TELLER = TELLER + 1;                                              00001410
+   END;                                                                 00001420
+                                                                        00001430
+   TELLER = 1;                                                          00001440
+                                                                        00001450
+   IF SUBSTR(IN_REC,1,1) = 'S' THEN                                     00001460
+      DO;                                                               00001470
+         S001021O.TIL_TKNRO(1)      = SAMMEN.TIL_TKNR;                  00001480
+         S001021O.TIL_TKNAVNO(1)    = SAMMEN.TIL_TKNAVN;                00001490
+         S001021O.TIL_TKNR_DATOO(1) = SAMMEN.TIL_TKNR_DATO;             00001500
+                                                                        00001510
+         DO WHILE (TELLER <= SAMMEN.ANTALL_FRA);                        00001520
+            S001021O.FRA_TKNRO(TELLER)     = SAMMEN.FRA_TKNR(TELLER);   00001530
+            S001021O.FRA_TKNAVNO(TELLER)   = SAMMEN.FRA_TKNAVN(TELLER); 00001540
+            S001021O.FRA_TKNR_DATOO(TELLER)=                            00001550
+                    SAMMEN.FRA_TKNR_DATO(TELLER);                       00001560
+                                                                        00001570
+            TELLER = TELLER + 1;                                        00001580
+         END;                                                           00001590
+      END;                                                              00001600
+                                                                        00001610
+   ELSE                                                                 00001620
+      DO;                                                               00001630
+         S001021O.FRA_TKNRO(1)      = SPLITT.FRA_TKNR;                  00001640
+         S001021O.FRA_TKNAVNO(1)    = SPLITT.FRA_TKNAVN;                00001650
+         S001021O.FRA_TKNR_DATOO(1) = SPLITT.FRA_TKNR_DATO;             00001660
+                                                                        00001670
+         DO WHILE (TELLER <= SPLITT.ANTALL_TIL);                        00001680
+            S001021O.TIL_TKNRO(TELLER)     = SPLITT.TIL_TKNR(TELLER);   00001690
+            S001021O.TIL_TKNAVNO(TELLER)   = SPLITT.TIL_TKNAVN(TELLER); 00001700
+            S001021O.TIL_TKNR_DATOO(TELLER)=                            00001710
+                    SPLITT.TIL_TKNR_DATO(TELLER);                       00001720
+                                                                        00001730
+            TELLER = TELLER + 1;                                        00001740
+         END;                                                           00001750
+                                                                        00001760
+      END;                                                              00001770
+                                                                        00001780
+   S001021O.SIDEO = SIDE;                                               00001790
+                                                                        00001800
+   EXEC CICS SEND MAP ('S001021')                                       00001810
+              MAPSET  ('S001T23')                                       00001820
+              ERASE                                                     00001830
+              PAGING                                                    00001840
+              ACCUM;                                                    00001850
+                                                                        00001860
+   SIDE = SIDE + 1;                                                     00001870
+                                                                        00001880
+   GOTO LES_NESTE;                                                      00001890
+                                                                        00001900
+  SLUTT_FIL:                                                            00001910
+                                                                        00001920
+     EXEC CICS ENDBR DATASET ('HISTOR');                                00001930
+                                                                        00001940
+     EXEC CICS SEND PAGE                                                00001950
+                    NOAUTOPAGE                                          00001960
+                    OPERPURGE                                           00001970
+                    RETAIN;                                             00001980
+                                                                        00001990
+     SEND_MAP      = '1'B;                                              00002000
+     PROGRAM_ID    = 'R001TK08';                                        00002010
+                                                                        00002020
+     EXEC CICS XCTL PROGRAM(PROGRAM_ID) COMMAREA(KOM_OMR);              00002030
+                                                                        00002040
+  FEILBEH:                                                              00002050
+                                                                        00002060
+                                                                        00002070
+     ALLOCATE S001021O;                                                 00002080
+                                                                        00002090
+     S001021O.MELDING1O =                                               00002100
+                                                                        00002110
+              'F E I L  H A R  O P P S T Å T T ! ! !.';                 00002120
+                                                                        00002130
+     S001021O.MELDING2O =                                               00002140
+              'EIBRCODE : ' !! UNSPEC(EIBRCODE);                        00002150
+                                                                        00002160
+     S001021O.MELDING3O =                                               00002170
+          'EIBFN    : ' !! UNSPEC(EIBFN) !! '. FEILKODE : ' !! FEILKODE 00002180
+                                         !! '. DATASETT : ' !! DSNAVN;  00002190
+                                                                        00002200
+     S001021O.MELDING4O =                                               00002210
+                   '.INGEN OPPDATERING ER BLITT UTFØRT.';               00002220
+                                                                        00002230
+     EXEC CICS SEND MAP('S001021') MAPSET('S001T23') ERASE;             00002240
+                                                                        00002250
+     EXEC CICS RECEIVE MAP('S001021')                                   00002260
+                       MAPSET('S001T23') SET(BMSMAPBR);                 00002270
+                                                                        00002280
+                                                                        00002290
+     EXEC CICS SYNCPOINT ROLLBACK;                                      00002300
+                                                                        00002310
+     EXEC CICS RETURN;                                                  00002320
+                                                                        00002330
+                                                                        00002340
+ END R001T62;                                                           00002350

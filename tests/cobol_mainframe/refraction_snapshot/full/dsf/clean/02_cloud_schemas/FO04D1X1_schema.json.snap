@@ -1,0 +1,287 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PARAM",
+  "type": "object",
+  "properties": {
+    "T_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(11)"
+    },
+    "T_NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "T_PSTAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_PSTAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_PSTAT3": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_GRP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TPAVD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TPEGEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_EFORTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_BFORTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_FORINNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SUMYD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_UFGRAD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_TIL851": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_SAERTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_KOMPTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_VGRP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_VTILP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_NETTO_GP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_NETTO_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_EK_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_BA_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SB_TILL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SB_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_GT_TIL_L92": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_GT_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_AFP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "SORTNAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "KKART": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "KTRK": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "KSORTB": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "I_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(11)"
+    },
+    "I_NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "I_PENSJT1": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "I_PENSJT2": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "I_PENSJT3": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "I_GP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_TPAVD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_TPEGEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_ET": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_BT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_FORVI": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_SUM_Y": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_TKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_GRAD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "I_T851": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "I_ST": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_KT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "I_VT_GP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_VT_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_GP_N": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_TP_N": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_EK_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_BA_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_SB_TILL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_SB_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_GT_TIL_L92": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_GT_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I_AFP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "I": {
+      "type": "integer",
+      "description": "Legacy PIC: S999"
+    },
+    "I2": {
+      "type": "integer",
+      "description": "Legacy PIC: S999"
+    },
+    "KART": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRKK": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "SORTB": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "P_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S_TILL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "S_TILL_16": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "P_MP100": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "P_MP075": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    }
+  }
+}

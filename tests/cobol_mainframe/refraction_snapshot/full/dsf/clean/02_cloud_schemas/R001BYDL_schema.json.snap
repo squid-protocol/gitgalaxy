@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IP_PCB",
+  "type": "object",
+  "properties": {
+    "T_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(11)"
+    },
+    "T_NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "T_PSTAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_PSTAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_PSTAT3": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "T_GRP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TPAVD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TPEGEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_EFORTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_BFORTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_FORINNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SUMYD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_TKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_UFGRAD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_TIL851": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_SAERTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_KOMPTIL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(3)"
+    },
+    "T_VGRP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_VTILP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_NETTO_GP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_NETTO_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_EK_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_BA_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SB_TILL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_SB_GR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_GT_TIL_L92": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_GT_TP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "T_AFP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(5)"
+    },
+    "SORTNAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "T_AVD": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "IP01_PERSNKEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "IP01_FNR_SISTE": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "IP01_BOKOMM": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "IP01_SYSTAVD": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "IP01_SSA1_PERSNKEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "W_AR": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "W_DAG": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "W_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "W_IP_TKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
+    },
+    "W_IP_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "W_IP_KEYN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(15)"
+    },
+    "IP_KEY_PACK": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "IP_KEY_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "W_DD": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "W_KOMM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
+    },
+    "DLI_GU": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "IP_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: XX"
+    }
+  }
+}

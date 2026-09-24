@@ -1538,6 +1538,109 @@ def batches_resources(key: dict[str, Any], files: list[str], max_items: int) -> 
     return _pack({f: sum(len(facts[t].get(f, [])) for t in facts) for f in files}, max_items)
 
 
+# ---- the `plicalls` suite (#3491): a SAMPLED census of PL/I program call sites ----
+# 1,473 DSF files hold ~8,000 call-site facts, so -- like the data-move sample -- a
+# seeded, stratified sample of FILES is read in full (CICS-transfer files, CALL-only
+# files and files with none, so "nothing here" is checked too). The reviewer reads
+# each file alone; the repository-wide rule (a CALL whose target is only ever a
+# nested procedure of some other member is an include-internal call, not a program
+# call) is a set operation over every file's procedure labels, applied to the
+# reviewer's rows here from the plan's `included` list.
+PLI_SAMPLE = {"cics": 14, "call": 14, "none": 8}
+
+
+def _canon_pli_call(r: dict[str, Any]) -> str:
+    return f"L{int(r.get('line') or 0)} {_ws(r.get('verb'))} {_d(r.get('operand'))} -> {_d(r.get('target'))}"
+
+
+def pli_calls_plan(key: dict[str, Any], seed: int) -> list[str]:
+    buckets: dict[str, list[str]] = {"cics": [], "call": [], "none": []}
+    for rel, entry in sorted(key.get("pli_calls", {}).items()):
+        verbs = {r["verb"] for r in entry.get("calls", [])}
+        buckets["none" if not verbs else "call" if verbs == {"CALL"} else "cics"].append(rel)
+    rng = random.Random(seed)
+    return sorted(f for b, n in PLI_SAMPLE.items() for f in rng.sample(buckets[b], min(n, len(buckets[b]))))
+
+
+def corpus_files_plicalls(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("pli_calls", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_plicalls(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    pc = key.get("pli_calls", {})
+    return {"plicalls": {rel: sorted({_canon_pli_call(r) for r in pc.get(rel, {}).get("calls", [])}) for rel in files}}
+
+
+def reviewer_facts_plicalls(answers: dict[str, Any], repo: Path, included: set[str]) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"plicalls": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        rows = [x for x in (v or {}).get("calls", []) if isinstance(x, dict)]
+        rows = [x for x in rows if not (_ws(x.get("verb")) == "CALL" and _ws(x.get("target")) in included)]
+        out["plicalls"][r] = {_canon_pli_call(x) for x in rows}
+    return out
+
+
+def render_plicalls(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    included = key.get("sample_census", {}).get("pli_calls", {}).get("plan", {}).get("included", [])
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "plicalls", "batch": index, "of": of, "files": files, "included": included,
+             "facts": key_facts_plicalls(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe PL/I source code that runs under CICS,
+as a second reviewer. Read the files yourself. They are all under the repository root {repo}; read only the files
+listed below. Do NOT edit or create any files except your answers file, and do not look for any existing answer
+key or analysis of this code: the point is an independent reading. Line numbers are 1-based physical line numbers.
+
+PL/I READING RULES. `/* ... */` is a comment (it may span lines). A statement ends at `;` (outside a quoted
+'literal'). Columns 73-80 of a line may hold a sequence field (e.g. `00001740` or `R0015160`): never code. Names
+are case-insensitive (answer them upper-cased) and may contain national letters (Æ Ø Å), digits, `_ @ # $`. A
+statement may carry labels (`NAME:`) and may sit after THEN / ELSE / OTHERWISE / WHEN(...) / an ON condition.
+
+For EACH file list, in "calls", every PROGRAM CALL SITE, one entry per statement (an empty list when none):
+  - `EXEC CICS LINK` / `EXEC CICS XCTL`: {{"line": the line of EXEC, "verb": "LINK" or "XCTL", "operand": the value
+    in PROGRAM(...) -- a literal's text without quotes, or the data name as written -- "target": the literal's text,
+    or, for a data name, the string in the `INIT('...')` of its DCL in the same file (null if it has none)}}. No
+    PROGRAM option: operand and target null.
+  - `EXEC CICS RETURN` / `START` / `RUN` WITH a TRANSID(...) option: verb "RETURN TRANSID" / "START TRANSID" /
+    "RUN TRANSID", operand and target as above from TRANSID(...). A RETURN without TRANSID is not listed.
+  - `CALL name` (with or without an argument list): only when `name` is NOT a label of a PROCEDURE / PROC or ENTRY
+    statement in the same file (`name: PROC ...`) -- a call to one of the file's own procedures is not listed.
+    {{"line": the line of CALL, "verb": "CALL", "operand": name, "target": name}}. Judge this file alone.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"calls": [{{"line": 1, "verb": "XCTL", "operand": "R0010301", "target": "R0010301"}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_plicalls(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_plicalls(key, files)["plicalls"].items()}, max_items)
+
+
+def _sign_pli_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                     by: str, at: str) -> None:  # fmt: skip
+    """Record a PL/I call-site sample batch; once every planned file is signed, flag
+    the whole pli_calls section `sample_verified` with the sample's error bound."""
+    sc = key["sample_census"]["pli_calls"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("plicalls", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        stamp = {"status": "validated", "tier": "sample_verified", "census": {"by": by, "at": at, "sampled": True}}
+        for entry in key.get("pli_calls", {}).values():
+            entry["pli_calls_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1568,6 +1671,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "jcics"
         else reviewer_facts_resources(answers, repo)
         if suite == "resources"
+        else reviewer_facts_plicalls(answers, repo, set(truth.get("included", [])))
+        if suite == "plicalls"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1632,6 +1737,8 @@ def sign(
         if truth.get("suite") == "jcics"
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
+        else set()  # plicalls: flagged all at once when the sample completes
+        if truth.get("suite") == "plicalls"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1661,6 +1768,8 @@ def sign(
     )
     if truth.get("windows"):
         _sign_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "plicalls":
+        _sign_pli_sample(key, truth, g, rulings, by, at)
     return key
 
 
@@ -1719,7 +1828,7 @@ def main() -> int:
     c.add_argument("--max-items", type=int, default=70)
     c.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources"),
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources", "plicalls"),
         default="channels",
     )
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
@@ -1728,7 +1837,7 @@ def main() -> int:
     cov.add_argument("--corpus", required=True)
     cov.add_argument(
         "--suite",
-        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources"),
+        choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web", "jcics", "resources", "plicalls"),
         default="channels",
     )
     for name in ("grade", "sign"):
@@ -1756,6 +1865,8 @@ def main() -> int:
         if suite == "jcics"
         else corpus_files_resources(key, repo)
         if suite == "resources"
+        else corpus_files_plicalls(key)
+        if suite == "plicalls"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1769,6 +1880,14 @@ def main() -> int:
         if staged.exists():
             shutil.rmtree(staged)
         shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
+        if suite == "plicalls":
+            # #3491: fix the file sample (and the include-internal name set) in the key.
+            pc = key.setdefault("sample_census", {}).setdefault("pli_calls", {})
+            if not pc.get("batches"):
+                pc["plan"] = {"seed": args.seed, "strata": PLI_SAMPLE, "files": pli_calls_plan(key, args.seed),
+                              "included": sorted(key.get("pli_calls_included", []))}  # fmt: skip
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_plicalls(key)
         if suite == "lineage":
             # The sample is fixed here and stored in the key, so coverage and sign
             # judge completeness against it (re-cutting replaces an unsigned plan).
@@ -1800,6 +1919,7 @@ def main() -> int:
             "web": batches_web,
             "jcics": batches_jcics,
             "resources": batches_resources,
+            "plicalls": batches_plicalls,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -1813,6 +1933,7 @@ def main() -> int:
                 "web": render_web,
                 "jcics": render_jcics,
                 "resources": render_resources,
+                "plicalls": render_plicalls,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -1857,6 +1978,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_lineage(key, truth["files"], truth.get("windows", [])))
     elif truth.get("suite") == "resources":
         current = dict(truth, facts=key_facts_resources(key, truth["files"]))
+    elif truth.get("suite") == "plicalls":
+        current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

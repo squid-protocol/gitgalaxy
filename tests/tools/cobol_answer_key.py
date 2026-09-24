@@ -343,6 +343,16 @@ def _sentences(text: str) -> list[str]:
     return [re.sub(r"\s+", " ", x.strip()) for x in _SENTENCE_END.split(text) if x.strip()]
 
 
+_CONDITIONAL_PHRASE = re.compile(
+    r"(?<![\w-])(?:(?:NOT\s+)?(?:AT\s+)?(?:END|END-OF-PAGE|EOP)|(?:NOT\s+)?INVALID\s+KEY"
+    r"|(?:NOT\s+)?(?:ON\s+)?(?:SIZE\s+ERROR|OVERFLOW|EXCEPTION))(?![\w-])"
+)
+_PHRASE_SCOPE_END = re.compile(
+    r"\bEND-(?:READ|RETURN|WRITE|REWRITE|DELETE|START|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|CALL|STRING"
+    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY)\b"
+)
+
+
 def _unconditional(sentence: str) -> bool:
     r"""Is the sentence outside any IF / EVALUATE (so what it ends in always runs)?
 
@@ -350,6 +360,14 @@ def _unconditional(sentence: str) -> bool:
     closed IF read as unterminated and a paragraph ending `... END-IF ... GOBACK.`
     as falling through (CardDemo CBPAUP0C MAIN-PARA)."""
     if len(re.findall(r"(?<![\w-])IF\b", sentence)) != len(re.findall(r"\bEND-IF\b", sentence)):
+        return False
+    # #3491 (DSF pin): an I/O or arithmetic statement's conditional phrase is an IF
+    # too -- `READ INN-FR AT END GO TO SLUTT.` transfers only at end of file -- unless
+    # the statement's own END- scope terminator closes it before the transfer.
+    phrase = None
+    for phrase in _CONDITIONAL_PHRASE.finditer(sentence):
+        pass
+    if phrase is not None and not _PHRASE_SCOPE_END.search(sentence, phrase.end()):
         return False
     return len(re.findall(r"(?<![\w-])EVALUATE\b", sentence)) == len(re.findall(r"\bEND-EVALUATE\b", sentence))
 
@@ -950,14 +968,24 @@ def pli_call_rows(text: str) -> list[dict[str, Any]]:
                         form, operand = "literal", value.strip("'").strip()
                         target = operand
                     else:
+                        # A qualified reference (`TRANS_OPPL_OMR.TRANSKODE`) is one
+                        # operand; its INIT, if any, is the last field's.
+                        j = at + 3
+                        while j + 1 < len(stmt) and words[j] == "." and stmt[j + 1][0] == "word":
+                            value += "." + words[j + 1]
+                            j += 2
                         form, operand = "identifier", value
-                        target = inits.get(value)
+                        target = inits.get(value) or inits.get(value.rsplit(".", 1)[-1])
                 rows.append({"verb": verb if opt == "PROGRAM" else f"{verb} TRANSID", "form": form,
                              "operand": operand, "target": target, "line": stmt[i][2]})  # fmt: skip
-            elif words[i] == "CALL" and i + 1 < len(stmt) and stmt[i + 1][0] == "word" and not words[i + 1][0].isdigit():
+            elif (
+                words[i] == "CALL" and i + 1 < len(stmt) and stmt[i + 1][0] == "word" and not words[i + 1][0].isdigit()
+            ):
                 name = words[i + 1]
                 if name not in local:
-                    rows.append({"verb": "CALL", "form": "literal", "operand": name, "target": name, "line": stmt[i][2]})
+                    rows.append(
+                        {"verb": "CALL", "form": "literal", "operand": name, "target": name, "line": stmt[i][2]}
+                    )
     return rows
 
 
@@ -969,25 +997,41 @@ def pli_call_keys(rows: list[dict[str, Any]]) -> set[str]:
     }
 
 
-def draft_pli_calls(repo: Path) -> dict[str, dict[str, Any]]:
-    """Drafted PL/I program call sites per PL/I source (#3491); `pli_calls_validated`
-    signs a file off."""
-    files = {
+def engine_pli_call_row(c: Any) -> dict[str, Any]:
+    """An engine call site in this reader's row shape."""
+    return {"verb": c.verb, "operand": c.operand, "target": c.target, "line": c.line}
+
+
+def _pli_files(repo: Path) -> dict[str, str]:
+    return {
         p.relative_to(repo).as_posix(): p.read_text(encoding="utf-8", errors="ignore")
         for p in sorted(repo.rglob("*"))
         if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts
     }
+
+
+def pli_included_procedures(files: dict[str, str]) -> set[str]:
+    """Names only ever a NESTED procedure (never any file's outermost): a CALL to one
+    from another member is an include-internal call (see the section header)."""
     outer, nested = set(), set()
     for text in files.values():
         procs = pli_procedures(text)
         outer.update(procs[:1])
         nested.update(procs[1:])
-    included = nested - outer
+    return nested - outer
+
+
+def draft_pli_calls(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted PL/I program call sites per PL/I source (#3491); `pli_calls_validated`
+    signs a file off."""
+    files = _pli_files(repo)
+    included = pli_included_procedures(files)
     out: dict[str, dict[str, Any]] = {}
     for rel, text in files.items():
+        # Every PL/I file, none-at-all included, so an engine call site in a file
+        # this reader finds nothing in is still a scored disagreement.
         rows = [r for r in pli_call_rows(text) if not (r["verb"] == "CALL" and r["target"] in included)]
-        if rows:
-            out[rel] = {"calls": rows, "pli_calls_validated": False, "verification": {"status": "draft", "notes": []}}
+        out[rel] = {"calls": rows, "pli_calls_validated": False, "verification": {"status": "draft", "notes": []}}
     return out
 
 
@@ -5268,6 +5312,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # container operations. Truth is this tool's own reader; engine is the java
         # boundary dialect's call_site_data + cics_resource_data rows.
         "JCICS",
+        # #3491: PL/I program call sites -- EXEC CICS LINK / XCTL / RETURN|START|RUN
+        # TRANSID and CALLs leaving the program. Truth is this tool's own reader;
+        # engine is the pli boundary dialect's call_site_data (after the resolver).
+        "PL/I call sites",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -5623,6 +5671,15 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
     for rel, k in key.get("jcics", {}).items():
         ef = ir.files.get(rel) if ir else None
         add("JCICS", rel, set(k.get("calls", [])), None, engine_jcics_units(ef) if ef else None)
+    for rel, k in key.get("pli_calls", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "PL/I call sites",
+            rel,
+            pli_call_keys(k.get("calls", [])),
+            None,
+            pli_call_keys([engine_pli_call_row(c) for c in ef.calls]) if ef else None,
+        )
     for rel, k in key.get("web_services", {}).items():
         ef = ir.files.get(rel) if ir else None
         add(
@@ -5916,6 +5973,8 @@ def main() -> int:
             if not existing_pc.get(rel, {}).get("pli_calls_validated"):
                 existing_pc[rel] = entry
         key["pli_calls"] = existing_pc
+        # The repository-wide include-internal names, for the sampled census's grader.
+        key["pli_calls_included"] = sorted(pli_included_procedures(_pli_files(repo)))
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing_pc)} PL/I call-site files -> {args.key}")
         return 0

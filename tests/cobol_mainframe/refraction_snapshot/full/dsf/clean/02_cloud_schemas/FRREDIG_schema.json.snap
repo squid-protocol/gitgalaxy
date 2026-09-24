@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PARAMIN",
+  "type": "object",
+  "properties": {
+    "INN_AAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "TRKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "AAR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "MND": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "DAG": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "FNR1": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
+    },
+    "FNR2": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "GATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "POSTSTED": {
+      "type": "string",
+      "description": "Legacy PIC: X(21)"
+    },
+    "UTPOSTEN": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    },
+    "TELLER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "DAGO": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "MNDO": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "AARO": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "FNR1O": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
+    },
+    "FNR2O": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "NAVNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "GATEO": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "POSTSTEDO": {
+      "type": "string",
+      "description": "Legacy PIC: X(21)"
+    },
+    "TRKNR_L": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "AARSTALL": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "INNAAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "BLK": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    }
+  }
+}

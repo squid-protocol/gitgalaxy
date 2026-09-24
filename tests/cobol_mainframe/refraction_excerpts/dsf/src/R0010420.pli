@@ -1,0 +1,179 @@
+ /*   SIST ENDRET PÅ PROD   2004.07.16 12.50.09 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2004.03.12 13.47.11 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2003.02.27 12.38.58 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2002.11.21 13.30.52 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2002.01.15 11.51.15 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2001.10.22 12.56.06 AV   JDA2970          */        
+ /*       SIST ENDRET 28/08-98 14.33.52 AV   SPA7339                  */        
+ /*       SIST ENDRET 14/01-98 15.17.32 AV   SPA7339                  */        
+ /* ***************************************************************** */        
+ /* IDENTIFIKASJON                                                    */        
+ /*     R0010420 - DET FØRSTE PROGRAM I ADMINISTRASJONSDELEN AV       */        
+ /*                SYSTEMET.                                          */        
+ /*                HOVEDPROGRAM I CICS/PLI.                           */        
+ /*     PROGRAMMERER: JAN - H. KRISTENSEN AUGUST 1983.                */        
+ /* HENSIKT                                                           */        
+ /*     PROGRAMMET SKAL SENDE UT EN MAP FØRST FOR AT EN SKAL KUNNE    */        
+ /*     VELGE STYREKODER FOR DET EN ØNSKER UTFØRT.                    */        
+ /*     DERETTER SKAL DENNE MAPPEN RECEIVES SLIK AT DETTE PROGRAMMET  */        
+ /*     KAN GI KONTROLL TIL DET AKTUELLE PROGRAM SOM UTFØRER DE       */        
+ /*     FORSKJELLIGE AKSJONER.                                        */        
+ /* PROGRAMTILKNYTNING                                                */        
+ /*     BLIR AKTIVISERT FRA CICS MED TRANSKODE 'RA20' SOM SETTES I    */        
+ /*     PROGRAM R0010301, I DETTE PROGRAM, SAMT I UNDERLIGGENDE       */        
+ /*     R0010421, R0010422, R0010423, R0010424, R0010425.             */        
+ /*                                                                   */        
+ /* ***************************************************************** */        
+                                                                                
+ R001B1: PROC(COMMAREA_PEKER)                  OPTIONS (MAIN);                  
+                                                                                
+    %INCLUDE P0019906;            /* TRANS_OPPL_OMR                   */        
+    %INCLUDE P0019908;            /* KOM_OMR        */                          
+    %INCLUDE P0019910;            /* STYRINGS_OMR                     */        
+    %INCLUDE P0019912;            /* DIV_PARAM_OMR                    */        
+    DCL 1 B01    BASED(B01_PEKER),                                              
+        %INCLUDE P0019921;        /* B01 (BASED)                      */        
+    %INCLUDE S001A0;              /* HOVED - MAP FOR ADMINISTRASJON   */        
+    %INCLUDE S00101;              /* HOVED - MENY                     */        
+                                                                                
+    DCL                                                                         
+      HENT_MAP                   BIT  (1) INIT('0'B)          ,                 
+     (ADDR , CSTG , SUBSTR)      BUILTIN                      ,                 
+      BMSMAPBR                   POINTER                      ,                 
+      IDENT_PEKER                POINTER                      ,                 
+      IDENT_BIT                  BIT (32) BASED(IDENT_PEKER)  ,                 
+      COMMAREA_PEKER             POINTER                      ;                 
+   DCL W_MELD                    CHAR ( 64);                                    
+   DCL 01 W01_IDENT_DEF,                                                        
+          02 W01_IDENT_1_4                  CHAR (4),                           
+          02 W01_IDENT_5                    CHAR (1),                           
+       01 W01_IDENT DEF W01_IDENT_DEF      CHAR(05) ;                           
+                                                                                
+                                                                                
+                                                                                
+                                                                                
+    ALLOCATE B01;                                                               
+    ALLOCATE S001A0O;                                                           
+    KOM_OMR.B01_PEKER         =  ADDR(B01);                                     
+    KOM_OMR.TRANS_LISTE_PEKER  =  ADDR(KOM_OMR.TRANS_LISTE_OMR);                
+    KOM_OMR.TRANS_OPPL_PEKER  =  ADDR(KOM_OMR.TRANS_OPPL_OMR);                  
+    KOM_OMR.STYRINGS_PEKER    =  ADDR(KOM_OMR.STYRINGS_OMR);                    
+    KOM_OMR.DIV_PARAM_PEKER   =  ADDR(KOM_OMR.DIV_PARAM_OMR);                   
+    ATK_KOM_PTR  =  ADDR(KOM_OMR.ATK_COM_OMR);                                  
+    B01 = '';                                                                   
+    KOM_OMR.TRANS_LISTE_OMR = '';                                               
+    S001A0O.CICS_INFOO = CICS_NAVN             ;                                
+                                                                                
+    IF PROGRAM_ID = 'R0010301' THEN          /* KOMMER IN FØRSTE GANG */        
+       DO;                                                                      
+          EXEC CICS SEND MAP('S001A0') MAPSET('S001A03')  ERASE;                
+       END;                                                                     
+    ELSE                                                                        
+       DO;                                                                      
+          IF TRANS_OPPL_OMR.TRANSKODE = 'RA20' !                                
+             TRANS_OPPL_OMR.TRANSKODE = 'RA27' THEN                             
+             DO;                                                                
+                EXEC CICS RECEIVE MAP('S001A0')MAPSET('S001A03')                
+                                                  SET(BMSMAPBR);                
+                                                                                
+                IF S001A0I.STYRE_KODEL    >  0                  THEN            
+                   STYRINGS_OMR.STYREKODE =  S001A0I.STYRE_KODEI    ;           
+             END;                                                               
+          ELSE                                                                  
+             HENT_MAP = '1'B;                                                   
+                                                                                
+          PROGRAM_ID = 'R0010420';                                              
+      /*                                                                        
+          IF STYRINGS_OMR.STYREKODE  = 'SH' THEN                                
+             DO;                                                                
+              IF CICS_NAVN   = 'CICSD410'  !                                    
+                 CICS_NAVN   = 'CICSQ001'  !                                    
+                 CICS_NAVN   = 'CICSP001'     THEN;                             
+              ELSE                                                              
+                 STYRINGS_OMR.STYREKODE  = 'S ' ;                               
+             END;                                                               
+     */                                                                         
+          SELECT(STYRINGS_OMR.STYREKODE);                                       
+                                                                                
+             WHEN('TB')                                                         
+                EXEC CICS XCTL PROGRAM('R0010422') COMMAREA(KOM_OMR);           
+                                                                                
+             WHEN('LB')                                                         
+                EXEC CICS XCTL PROGRAM('R0010423') COMMAREA(KOM_OMR);           
+                                                                                
+             WHEN('NB')                                                         
+                EXEC CICS XCTL PROGRAM('R0010424') COMMAREA(KOM_OMR);           
+                                                                                
+             WHEN('FB')                                                         
+                EXEC CICS XCTL PROGRAM('R0010425') COMMAREA(KOM_OMR);           
+                                                                                
+      /* FUNSJON    SK      ER OVERFORT TIL R0010301    */                      
+                                                                                
+                                                                                
+             WHEN('SL')                                                         
+                EXEC CICS XCTL PROGRAM('R0010427') COMMAREA(KOM_OMR);           
+                                                                                
+             WHEN('IN')                                                         
+            EXEC CICS XCTL PROGRAM('R0010430') COMMAREA(KOM_OMR);               
+                                                                                
+             WHEN('SH')                                                         
+                EXEC CICS XCTL PROGRAM('R0018010') COMMAREA(KOM_OMR);           
+                                                                                
+                                                                                
+             WHEN('XX')                                                         
+                DO;                                                             
+                                                                                
+                    ALLOCATE S001013O ;                                         
+                    S001013O.FUNKSJONSKODEO = LOW(1) ;                          
+                    S001013O.CICS_INFOO     = DIV_PARAM_OMR.CICS_NAVN ;         
+                    EXEC CICS SEND MAP('S001013') MAPSET('S001013')             
+                                         ERASE ;                                
+                    TRANSKODE = 'R030';                                         
+                    EXEC CICS RETURN TRANSID        (TRANSKODE)                 
+                            COMMAREA (KOM_OMR )         ;                       
+                                                                                
+             /*  ENDRET AV SATISH 27.01.2004                                    
+                                                                                
+                   TRANS_OPPL_OMR.TRANSKODE = 'R030' ;                          
+                   EXEC CICS XCTL PROGRAM('R0010301')                           
+                                                COMMAREA(KOM_OMR);              
+              */                                                                
+                                                                                
+                END;                                                            
+                                                                                
+                                                                                
+             OTHERWISE                                                          
+                DO;                                                             
+                   IF HENT_MAP THEN                                             
+                      DO;                                                       
+                         EXEC CICS LOAD PROGRAM ('S001A03');                    
+                         ALLOCATE S001A0O;                                      
+                         S001A0O.STYRE_KODEO = STYRINGS_OMR.STYREKODE;          
+                         S001A0O.CICS_INFOO = CICS_NAVN             ;           
+                      END;                                                      
+                                                                                
+                   S001A0O.MELDINGO = 'UGYLDIG KODE';                           
+                                                                                
+                   IF HENT_MAP THEN                                             
+                      EXEC CICS SEND MAP ('S001A0') MAPSET  ('S001A03')         
+                                                    ERASE             ;         
+                   ELSE                                                         
+                      EXEC CICS SEND MAP ('S001A0') MAPSET  ('S001A03')         
+                                                    DATAONLY          ;         
+                END;                                                            
+                                                                                
+                                                                                
+          END;      /* SELECT  */                                               
+                                                                                
+                                                                                
+                                                                                
+       END;                                                                     
+                                                                                
+                                                                                
+    TRANS_OPPL_OMR.TRANSKODE = 'RA20';      /* DETTE PROGRAM  */                
+    PROGRAM_ID = 'R0010420';                                                    
+    EXEC CICS RETURN TRANSID(TRANS_OPPL_OMR.TRANSKODE)                          
+                             COMMAREA(KOM_OMR) ;                                
+                                                                                
+ /* %INCLUDE R0019999;               ATK_KONTROLL            */                 
+ END R001B1;                                                                    

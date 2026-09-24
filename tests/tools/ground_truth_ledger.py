@@ -107,6 +107,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "dynamic call targets": ("dynamic_targets", "dynamic_validated"),
     "web services": ("web_services", "web_validated"),
     "JCICS": ("jcics", "jcics_validated"),
+    "PL/I call sites": ("pli_calls", "pli_calls_validated"),
     "file I/O moves": ("io_moves", "io_moves_validated"),
 }
 

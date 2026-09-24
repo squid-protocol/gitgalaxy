@@ -1,0 +1,572 @@
+ /*   SIST ENDRET PÅ PROD   2005.09.05 14.11.00 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2005.09.05 14.03.18 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2005.06.10 10.02.56 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2005.06.10  9.48.05 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ PROD   2005.05.23 13.53.06 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2005.04.05 13.44.49 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2004.12.21  7.43.27 AV   TSB2970          */        
+ /*   SIST ENDRET PÅ TEST   2004.12.21  7.41.01 AV   TSB2970          */        
+ /*   SIST ENDRET PÅ PROD   2004.12.17 14.50.45 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ TEST   2004.07.13 13.53.27 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ QASS   2004.03.15 12.04.12 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2004.03.12 13.47.08 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2003.09.19 12.55.06 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2003.08.22 13.41.27 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ TEST   2003.08.13  9.26.27 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2003.05.23 11.48.05 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ TEST   2003.05.23 11.47.15 AV   SPA2970          */        
+ /*   SIST ENDRET PÅ PROD   2003.03.14 12.35.24 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2003.02.27 12.38.39 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ TEST   2002.11.21 13.30.24 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2002.09.25 10.52.08 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2001.10.22 12.54.22 AV   JDA2970          */        
+ /*   SIST ENDRET PÅ PROD   2000.02.22  9.34.17 AV   JDA7339          */        
+ /*       SIST ENDRET 04/05-98 14.12.03 AV   JDA7339                  */        
+ /*       SIST ENDRET 19/11-97 08.44.08 AV   SPA7339                  */        
+ R00103:                                                                        
+   PROC(COMMAREA_PEKER) OPTIONS(MAIN);                                          
+                                                                                
+ /******************************************************************* */        
+ /*IDENTIFIKASJON:                                                    */        
+ /************************                                            */        
+ /*  PROGRAM-IDENT : R0010301 - VALG AV FUNKSJON - HOVEDPROGRAM       */        
+ /*  PROGRAM-SPRÅK : PLI / CICS                                       */        
+ /*  PROGRAMMERER  : ?                                                */        
+ /*  PROGRAMMET BLE LAGET  ?                                          */        
+ /*  ENDRINGERSDATO :                                                 */        
+ /*  ENDRINGEN GJELDER:                                               */        
+ /*  ENDRINGEN BLE UTFØRT AV :                                        */        
+ /*                                                                   */        
+ /******************************************************************* */        
+ /*HENSIKT:                                                           */        
+ /************                                                        */        
+ /*                                                                   */        
+ /*  PROGRAMMET ER MED I STYRINGEN AV MENYEN VED OPPSTARTINGEN        */        
+ /*  AV FOLKETRYGDSYSTEMET. PROGRAMMET LESER INN FUNKSJONSKODEN       */        
+ /*  OG KONTROLLERER DEN OG SENDER UT NESTE BILDET I DIALOGEN.        */        
+ /*  PROGRAMMETS TRANSKODE ER R030.                                   */        
+ /*  PROGRAMMET BLIR AKTIVISERT NÅR OPERATØREN HAR TASTET INN         */        
+ /*  FUNKSJONSKODEN, MAP S001013 - MAPSET R001013:                    */        
+ /*  PROGRAMMET LESER INN FUNKSJONSKODEN, KONTROLLERER DEN OG SENDER  */        
+ /*  UT NESTE BILDE SOM ER AVHENGIG AV FUNKSJONSKODEN :               */        
+ /*   A --->  NYTT BILDE SENDES FRA R0010420                          */        
+ /*   E --->  MAP S00101E MAPSET S001013 - MENY FJERN TRANS           */        
+ /*   R --->  MAP S001014 MAPSET S001013 - MENY REGISTRERING          */        
+ /*   I --->  MAP S001I01 MAPSET S001I13 - MENY JUSTERING INNTEKTER   */        
+ /*   F --->  MAP S001015 MAPSET S001013 - MENY FORESPØRSLER          */        
+ /*   V --->  MAP S001481 MAPSET S001V03 - MENY VENTETRANS-BEHANDLING */        
+ /*   X --->  MAP S001012 MAPSET S001013 - PAUSEBILDE                 */        
+ /*                                                                   */        
+ /******************************************************************* */        
+ /*PROGRAMTILKNYTTING:                                                */        
+ /**********************                                              */        
+ /*  PROGRAMMET BLIR AKTIVISERT FRA CICS MED TRANS-ID = R030.         */        
+ /*  DENNE TRANSID SETTES I R0010201:                                 */        
+ /*    EXEC CICS RETURN TRANSID(TRANSKODE) COMMAREA(KOM_OMR);         */        
+ /*  KONTROLLEN GÅR VIA CICS TIL FORSKJELLIGE PROGRAM AVHENGIG AV     */        
+ /*  HVILKEN FUNKSJONSKODE SOM BLIR SATT AV OPERATØREN:               */        
+ /*  A - ADMINISTASJON                   - R550 - R0010420            */        
+ /*  E - FJERNING AV DATA FRA HOVEDBASEN - R045 - R0010450            */        
+ /*  R - REGISTRERING                    - R040 - R0010401            */        
+ /*  I - JUSTERING AV INNTEKTER          - R0I1 - R001I101            */        
+ /*  F - FORESPØRSEL                     - R410 - R0010410            */        
+ /*  V - VENTETRANSBEHANDLING            - R048 - R0010480            */        
+ /*  H - HJELPERUTINE                    - IKKE LAGET                 */        
+ /*  X - FRIGJØRE TERMINAL               -      - AVSLUTTES           */        
+ /*                                                                   */        
+ /******************************************************************* */        
+ /*DATASETTOPPLYSNINGER:                                              */        
+ /*************************                                           */        
+ /*  DET BLIR IKKE BRUKT NOEN DATASETT I DETTE PROGRAMMET             */        
+ /*                                                                   */        
+ /******************************************************************* */        
+ /*FEILMELDINGER:                                                     */        
+ /*********************                                               */        
+ /*  'UGYLDIG FUNKSJONSKODE' BLIR SKREVET PÅ SKJERMBILDET             */        
+ /*  NÅR KODEN IKKE ER GYLDIG                                         */        
+ /* ***************************************************************** */        
+ %PAGE;                                                                         
+      %INCLUDE S00101;   /* MENY MAPSETTET */                                   
+ %PAGE;                                                                         
+      %INCLUDE S001V0;   /* VENTE-TRANS MAPSETTET */                            
+ %PAGE;                                                                         
+      %INCLUDE S001I4;     /*  REG-INNTEKT    MAPSETTET   */                    
+ %PAGE;                                                                         
+      %INCLUDE S001I1;   /* INNTEKTS    MAPSETTET */                            
+ %PAGE;                                                                         
+      %INCLUDE S0010R;   /* FJERNING AV SEGMENT   */                            
+ %PAGE;                                                                         
+      %INCLUDE S001S1;   /* KORRIGERING INNTEKT   */                            
+ %PAGE;                                                                         
+      %INCLUDE S001S3;   /* KORRIGERING YRKESKODE */                            
+      %INCLUDE S00115;   /*    ENDRINGSBLANKETT-2 MAPSETTET   */                
+      %INCLUDE S00118;   /* PENSJON BREV          */                            
+      %INCLUDE S00123;   /* PENSJON BREV          */                            
+      %INCLUDE S001A0;     /*  SATSVISE KJØRING               */                
+ %PAGE;                                                                         
+      %INCLUDE P0019906;   /* TRANS_OPPL_OMRÅDE (BASED) */                      
+ %PAGE;                                                                         
+      %INCLUDE P0019908;   /* KOM_OMRÅDE (BASED) */                             
+ %PAGE;                                                                         
+      %INCLUDE P0019910;   /* STYRINGS_OMRÅDE (BASED) */                        
+ %PAGE;                                                                         
+      %INCLUDE P0019912;   /* DIV_PARAM       (BASED) */                        
+ %PAGE;                                                                         
+ /*   %INCLUDE P0019959;      OMRÅDET FOR FUNKTAB     */                        
+ %PAGE;                                                                         
+      %INCLUDE DFHBMSCA;                                                        
+                                                                                
+ %PAGE;                                                                         
+      %INCLUDE P0019990;   /* OMR FOR ACF2_KOM_PRG  FOR PROG */                 
+                                                                                
+   DCL                                                                          
+      COMMAREA_PEKER POINTER,                                                   
+      IDENT_PEKER    POINTER,                                                   
+      BMSMAPBR       POINTER;                                                   
+   DCL                                                                          
+      IDENT_BIT      BIT(32)    BASED (IDENT_PEKER);                            
+   DCL                                                                          
+      W01_CICSINFO   CHAR(16) ,                                                 
+      W01_CICS_NAVN  CHAR(08) ,                                                 
+      W01_PSB_NAVN   CHAR(08) ,                                                 
+      W01_BRUKER_ID  CHAR(08) ,                                                 
+      W01_CICSINDEX  CHAR(02)  ,                                                
+      W01_TERMINAL   CHAR(04)  ,                                                
+      W01_ROLLE      CHAR(04)  ,                                                
+      W01_FNR_SØKER  PIC '(11)9',                                               
+      W01_DATO_2000  PIC '(08)9' ;                                              
+   DCL 01 W01_IDENT_DEF,                                                        
+          02 W01_IDENT_1_4                  CHAR (4),                           
+          02 W01_IDENT_5                    CHAR (1),                           
+       01 W01_IDENT DEF W01_IDENT_DEF      CHAR(05) ;                           
+                                                                                
+   DCL W_MELD    CHAR(45);                                                      
+                                                                                
+   DCL                                                                          
+      (ADDR,CSTG,LOW,STG,NULL,SUBSTR,VERIFY) BUILTIN;                           
+                                                                                
+   EXEC CICS HANDLE CONDITION ERROR(FEILBEH);                                   
+   KOM_OMR.PEKER_LISTE.STYRINGS_PEKER   =  ADDR(KOM_OMR.STYRINGS_OMR)  ;        
+   KOM_OMR.PEKER_LISTE.DIV_PARAM_PEKER  =  ADDR(KOM_OMR.DIV_PARAM_OMR) ;        
+   KOM_OMR.PEKER_LISTE.TRANS_LISTE_PEKER =                                      
+                                          ADDR(KOM_OMR.TRANS_LISTE_OMR);        
+   KOM_OMR.PEKER_LISTE.TRANS_OPPL_PEKER =  ADDR(KOM_OMR.TRANS_OPPL_OMR);        
+   ATK_KOM_PTR                          =  ADDR(KOM_OMR.ATK_COM_OMR);           
+   KOM_OMR.PCB_UIB_PEKER                =  NULL                        ;        
+                                                                                
+   W01_CICSINDEX                        =  DIV_PARAM_OMR.CICS_IND      ;        
+   W01_CICS_NAVN                        =  DIV_PARAM_OMR.CICS_NAVN     ;        
+   W01_PSB_NAVN                         =  DIV_PARAM_OMR.PSB_NAVN     ;         
+   W01_BRUKER_ID                        =  DIV_PARAM_OMR.BRUKER_ID    ;         
+   W01_DATO_2000                        =  DIV_PARAM_OMR.DATO_2000    ;         
+   W01_TERMINAL                         =  DIV_PARAM_OMR.TERMINAL_NR  ;         
+   W01_ROLLE                            =  DIV_PARAM_OMR.ATK_ROLLE    ;         
+   W01_FNR_SØKER                        =  DIV_PARAM_OMR.FNR_SØKER    ;         
+   KOM_OMR.DIV_PARAM_OMR                =  '';                                  
+   DIV_PARAM_OMR                        =  '';                                  
+   DIV_PARAM_OMR.CICS_IND               =  W01_CICSINDEX               ;        
+   DIV_PARAM_OMR.CICS_NAVN              =  W01_CICS_NAVN               ;        
+   DIV_PARAM_OMR.PSB_NAVN               =  W01_PSB_NAVN               ;         
+   DIV_PARAM_OMR.BRUKER_ID              =  W01_BRUKER_ID;                       
+   DIV_PARAM_OMR.DATO_2000              =  W01_DATO_2000    ;                   
+   DIV_PARAM_OMR.TERMINAL_NR            =  W01_TERMINAL     ;                   
+   DIV_PARAM_OMR.ATK_ROLLE              =  W01_ROLLE        ;                   
+   DIV_PARAM_OMR.FNR_SØKER              =  W01_FNR_SØKER    ;                   
+   DIV_PARAM_OMR.FRA_UTEN_DIALOG        =  '0'B;                                
+   DIV_PARAM_OMR.FRA_MED_DIALOG         =  '0'B;                                
+   DIV_PARAM_OMR.FRA_CICS               =  '0'B;                                
+   DIV_PARAM_OMR.HENT_FRAM_MAP          =  '0'B;                                
+   DIV_PARAM_OMR.BO_TKNR                =   0  ;                                
+                                                                                
+   DIV_PARAM_OMR.FEIL_MELD_NR           =   0  ;                                
+   STYRINGS_OMR.STYREKODE               =  '  ';                                
+                                                                                
+   IF FEIL_MELD_NR = 0   THEN                                                   
+   DIV_PARAM_OMR.PROGRAM_ID             =  'R0010301';                          
+   IF TRANSKODE                         =  'R030'                   THEN        
+      DO;                                                                       
+         /*--------------------------------------------------------*/           
+         /* LESER INN BILDE MED FUNKSJONSKODEN SATT                */           
+         /*--------------------------------------------------------*/           
+                                                                                
+         EXEC CICS RECEIVE MAP('S001013') MAPSET ('S001013')                    
+         SET (BMSMAPBR);                                                        
+         FUNKSJONSKODE            = S001013I.FUNKSJONSKODEI;                    
+                                                                                
+                                                                                
+      END;                                                                      
+                                                                                
+   /* PGA NY PENSONSYSYTEM DSF ER NED LAGGET. ALLE FUNKSJONER UTEN OM           
+      FORESPROLES  ER IKKE I BRUK.                  */                          
+                                                                                
+   IF FUNKSJONSKODE = 'A' !                                                     
+      FUNKSJONSKODE = 'M' !                                                     
+      FUNKSJONSKODE = 'S' !                                                     
+      FUNKSJONSKODE = 'X'  THEN;                                                
+   ELSE                                                                         
+      FUNKSJONSKODE = 'F' ;                                                     
+   /*       ** OPPTIL  HIT                    */                                
+                                                                                
+                                                                                
+                                                                                
+  IF FUNKSJONSKODE ^= 'X'     THEN                                              
+                                                                                
+    CALL  ATK_KONTROLL;                                                         
+  ELSE                                                                          
+    FEIL_MELD_NR = 0 ;                                                          
+                                                                                
+ IF FUNKSJONSKODE ^= 'X'   &                                                    
+    FEIL_MELD_NR  > 0              THEN                                         
+    DO;                                                                         
+                                                                                
+        IF TRANSKODE    ^=  'R030'        THEN                                  
+            DO;                                                                 
+               ALLOCATE S001013O;                                               
+               /*                                                               
+               S001013O.ROLLEO =  DIV_PARAM_OMR.ATK_ROLLE ;                     
+               EXEC CICS SEND MAP('S001013') MAPSET('S001013')                  
+               MAPONLY SET(BMSMAPBR);                                           
+               */                                                               
+             END;                                                               
+                                                                                
+                                                                                
+          W_MELD  =  ACF2_FEIL( FEIL_MELD_NR );                                 
+          S001013O.MELDINGO   =  W_MELD;                                        
+          S001013O.FUNKSJONSKODEA     =  'I';                                   
+          S001013O.FUNKSJONSKODEO     =   FUNKSJONSKODE             ;           
+          S001013O.CICS_INFOO         =   DIV_PARAM_OMR.CICS_NAVN ;             
+                                                                                
+          S001013O.ROLLEO =  DIV_PARAM_OMR.ATK_ROLLE ;                          
+                                                                                
+          IF TRANSKODE                =  'R030'                  THEN           
+             EXEC CICS SEND MAP ('S001013') MAPSET('S001013')                   
+             ERASEAUP DATAONLY;                                                 
+          ELSE                                                                  
+             EXEC CICS SEND MAP ('S001013') MAPSET('S001013') ERASE;            
+                                                                                
+          TRANSKODE                   =  'R030';                                
+          GOTO      RETURN                     ;                                
+    END;                                                                        
+      /*                                                                        
+      IF FUNKSJONSKODE   = 'E'  THEN                                            
+         FUNKSJONSKODE  = 'Ø';                                                  
+      */                                                                        
+      SELECT (FUNKSJONSKODE);                                                   
+         WHEN('A')                                                              
+            DO;                                                                 
+               TRANSKODE = 'RA20';                                              
+               EXEC CICS XCTL PROGRAM('R0010420')COMMAREA(KOM_OMR);             
+            END;                                                                
+         WHEN('F')                                                              
+            DO;                                                                 
+                                                                                
+               TRANSKODE       = 'F410';                                        
+                                                                                
+               ALLOCATE S001015O;                                               
+               S001015O.FNRO  = TRANS_OPPL_OMR.FØDSNUMMER ;                     
+        /*     S001015O.FNRO   =  DIV_PARAM_OMR.FNR_SØKER; */                   
+               S001015O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                  
+       /*      S001015O.ROLLEO =  ATK_KOM_OMR.ROLLE(1); */                      
+               S001015O.ROLLEO =  DIV_PARAM_OMR.ATK_ROLLE ;                     
+                                                                                
+               IF SUBSTR(DIV_PARAM_OMR.CICS_IND,2,1) = 'A'   THEN               
+               S001015O.CICS_INFOA = DFHBLINK;                                  
+                                                                                
+            /* SJEKKER FNR OG NULLSTILLER DERSOM UGYLDIG  */                    
+                                                                                
+               IF ^F_GYLDIG_FNR(S001015O.FNRO) THEN                             
+                  DO;                                                           
+                     S001015I.FNRI = LOW(11) ;                                  
+                     S001015I.FNRL =  -1  ;                                     
+                  END;                                                          
+                                                                                
+               ELSE                                                             
+                  DO;                                                           
+                     S001015O.OPPLYSNINGSTYPEO  =  'S' ;                        
+                     S001015I.FNRL =  -1  ;                                     
+                  END;                                                          
+                                                                                
+            /* SKRIVER UT FORESPØRSEL-BILDET M/ OVERFØRT FNR */                 
+                                                                                
+               EXEC CICS SEND MAP('S001015') MAPSET('S001013')                  
+                                           CURSOR  ERASE;                       
+                                                                                
+            END;                                                                
+         WHEN('R' )                                                             
+            DO;                                                                 
+               TRANSKODE = 'R040';                                              
+               ALLOCATE S001014O ;                                              
+               S001014O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                  
+               S001014O.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                         
+                                                                                
+               EXEC CICS SEND MAP('S001014') MAPSET('S001013')                  
+                                             ERASE;                             
+               /* SKRIVER MENY-SKJERMBILDE FOR REGISTRERING */                  
+            END;                                                                
+                                                                                
+         WHEN('N' )                                                             
+            DO;                                                                 
+                                                                                
+                DIV_PERIODE                   = '' ;                            
+                DIV_PARAM_OMR.FRA_CICS        = '1'B;                           
+                DIV_PARAM_OMR.HENT_FRAM_MAP   = '0'B;                           
+                DIV_PARAM_OMR.FRA_MED_DIALOG  = '0'B;                           
+                DIV_PARAM_OMR.FRA_UTEN_DIALOG = '0'B;                           
+                IF STYRINGS_OMR.FUNKSJONSKODE   = ' ' THEN                      
+                   STYRINGS_OMR.FUNKSJONSKODE   = 'R';                          
+                                                                                
+                KOM_OMR.PCB_UIB_PEKER = NULL;                                   
+                STYRINGS_OMR.STYREKODE  = 'NI';                                 
+                                                                                
+                TRANSKODE = 'R0I4';                                             
+                ALLOCATE S001I04O ;                                             
+                S001I04O.ROLLEO  = DIV_PARAM_OMR.ATK_ROLLE ;                    
+                S001I04O.CICS_INFOO =                                           
+                                  DIV_PARAM_OMR.CICS_NAVN ;                     
+                                                                                
+                EXEC CICS SEND MAP('S001I04')                                   
+                                    MAPSET('S001I43') ERASE;                    
+                                                                                
+            END;                                                                
+                                                                                
+         WHEN('E')                                                              
+            DO;                                                                 
+               TRANSKODE = 'R045';                                              
+               ALLOCATE S00101EO ;                                              
+               S00101EO.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                  
+               S00101EO.FNRO   =  DIV_PARAM_OMR.FNR_SØKER;                      
+                                                                                
+               S00101EO.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                         
+               EXEC CICS SEND MAP('S00101E') MAPSET('S001013')                  
+                                             ERASE;                             
+             /*** SKRIVER MENY-SKJERMBILDE FOR FJERN TRANS **/                  
+            END;                                                                
+                                                                                
+         WHEN('I')                                                              
+            DO;                                                                 
+                                                                                
+                 TRANSKODE = 'R0I1';                                            
+                 ALLOCATE S001I01O ;                                            
+                 S001I01O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                
+                 S001I01O.ROLLEO =  DIV_PARAM_OMR.ATK_ROLLE ;                   
+                 EXEC CICS SEND MAP('S001I01') MAPSET('S001I13')                
+                                                     ERASE;                     
+             END;                                                               
+                                                                                
+         WHEN('V')                                                              
+            DO;                                                                 
+               /*-----------------------------------------------*/              
+               /* SKRIVER MENY-SKJERMBILDE FOR BEHANDLING AV    */              
+               /* TRANSER På VENTEREGISTERET                    */              
+               /*-----------------------------------------------*/              
+                                                                                
+               TRANSKODE   = 'R048';                                            
+               ALLOCATE S001481O;                                               
+               S001481O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                  
+               S001481O.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                         
+               S001481O.FNRO   =  DIV_PARAM_OMR.FNR_SØKER;                      
+               EXEC CICS SEND MAP ('S001481') MAPSET ('S001V03')                
+                              ERASE;                                            
+            END;                                                                
+                                                                                
+          WHEN('P')              /* PENSJONSBREV  AU   */                       
+             DO;                                                                
+                DIV_PERIODE                   = '' ;                            
+                DIV_PARAM_OMR.FRA_CICS        = '1'B;                           
+                DIV_PARAM_OMR.HENT_FRAM_MAP   = '0'B;                           
+                DIV_PARAM_OMR.FRA_MED_DIALOG  = '0'B;                           
+                DIV_PARAM_OMR.FRA_UTEN_DIALOG = '0'B;                           
+                KOM_OMR.PCB_UIB_PEKER = NULL;                                   
+                STYRINGS_OMR.STYREKODE  = 'AU';                                 
+                                                                                
+                ALLOCATE S001181O ;                                             
+                S001181O.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                        
+                S001181O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                 
+                S001181O.FNRO   =  DIV_PARAM_OMR.FNR_SØKER;                     
+                TRANSKODE = 'R180';                                             
+                                                                                
+                EXEC CICS SEND MAP('S001181') MAPSET('S001183')                 
+                                              ERASE ;                           
+                                                                                
+                /* SKRIVER SKJERMBILDET FOR STYRT AUTOHENDELSE       */         
+              END;                                                              
+                                                                                
+          WHEN('D')              /* PENSJONSBREV  AU   */                       
+             DO;                                                                
+                DIV_PERIODE                   = '' ;                            
+                DIV_PARAM_OMR.FRA_CICS        = '1'B;                           
+                DIV_PARAM_OMR.HENT_FRAM_MAP   = '0'B;                           
+                DIV_PARAM_OMR.FRA_MED_DIALOG  = '0'B;                           
+                DIV_PARAM_OMR.FRA_UTEN_DIALOG = '0'B;                           
+                KOM_OMR.PCB_UIB_PEKER = NULL;                                   
+                STYRINGS_OMR.STYREKODE  = 'FI';                                 
+                                                                                
+                ALLOCATE S001230O ;                                             
+                S001230O.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                        
+                S001230O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                 
+      /*                                                                        
+                W01_FNR_SØKER   =  DIV_PARAM_OMR.FNR_SØKER;                     
+                S001230O.FNRO   =  W01_FNR_SØKER;                               
+                S001230I.FNRI   =  W01_FNR_SØKER;                               
+      */                                                                        
+                TRANSKODE = 'R230';                                             
+                                                                                
+                EXEC CICS SEND MAP('S001230') MAPSET('S001233')                 
+                                              ERASE ;                           
+                                                                                
+                /* SKRIVER SKJERMBILDET FOR STYRT AUTOHENDELSE       */         
+              END;                                                              
+                                                                                
+                                                                                
+          WHEN('S')                  /* SATSVISE KJØRING       */               
+             DO;                                                                
+                STYRINGS_OMR.STYREKODE  = 'SK';                                 
+                  EXEC CICS XCTL PROGRAM('R0010426') COMMAREA(KOM_OMR);         
+              END;                                                              
+          WHEN('T' )         /* ENDRING TRYGDEKONTOR */                         
+             DO;                                                                
+                TRANSKODE = 'R150';                                             
+                                                                                
+                DIV_PERIODE                   = '' ;                            
+                DIV_PARAM_OMR.FRA_CICS        = '1'B;                           
+                DIV_PARAM_OMR.HENT_FRAM_MAP   = '0'B;                           
+                DIV_PARAM_OMR.FRA_MED_DIALOG  = '0'B;                           
+                DIV_PARAM_OMR.FRA_UTEN_DIALOG = '0'B;                           
+                IF STYRINGS_OMR.FUNKSJONSKODE   = ' ' THEN                      
+                   STYRINGS_OMR.FUNKSJONSKODE   = 'R';                          
+                                                                                
+                KOM_OMR.PCB_UIB_PEKER = NULL;                                   
+                                                                                
+                STYRINGS_OMR.STYREKODE  = 'E2';                                 
+                ALLOCATE S001151O ;                                             
+                S001151O.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                 
+                S001151O.ROLLEO =  ATK_KOM_OMR.ROLLE(1);                        
+              /* SKRIVER REGISTRERINGSBILDE FOR ENDRINGS-           */          
+              /* BLANKETT-2                                         */          
+                                                                                
+                EXEC CICS SEND MAP('S001151') MAPSET('S001153')                 
+                                              ERASE ;                           
+                                                                                
+             END;                                                               
+                                                                                
+                                                                                
+         WHEN('Z')                                                              
+            DO;                                                                 
+               /*-----------------------------------------------*/              
+               /* SKRIVER MENY-SKJERMBILDE FOR BEHANDLING AV    */              
+               /* TRANSER På FJERN ROT / SEGMENT                */              
+               /*-----------------------------------------------*/              
+                                                                                
+               TRANSKODE   = 'R0F1';                                            
+               ALLOCATE S0010RO;                                                
+               S0010RO.CICS_INFOO = DIV_PARAM_OMR.CICS_NAVN ;                   
+                                                                                
+               EXEC CICS SEND MAP ('S0010R') MAPSET ('S0010R3')                 
+                              ERASE;                                            
+               HENT_FRAM_MAP = '0'B;                                            
+            END;                                                                
+         WHEN('X')                                                              
+            DO;                                                                 
+               /*-----------------------------------------------*/              
+               /* SKRIVER PAUSEBILDET                           */              
+               /*-----------------------------------------------*/              
+                                                                                
+               TRANSKODE = 'R010';                                              
+               EXEC CICS XCTL PROGRAM('R0010101') COMMAREA(KOM_OMR);            
+                                                                                
+            END;                                                                
+                                                                                
+         OTHERWISE                                                              
+            DO;                                                                 
+                                                                                
+              /*-----------------------------------------------*/               
+              /* FEILMELDING: 'UGYLDIG FUNKSJONSKODE' SKRIVES  */               
+              /*-----------------------------------------------*/               
+              IF TRANSKODE      ^= 'R030' THEN                                  
+                 DO;                                                            
+                    EXEC CICS SEND MAP('S001013') MAPSET('S001013')             
+                    MAPONLY   SET      (BMSMAPBR)                 ;             
+                    ALLOCATE  S001013O                            ;             
+                 END;                                                           
+                                                                                
+      /*      IF FUNKSJONSKODE   =  'Ø'  THEN                                   
+                DO;                                                             
+                    S001013O.MELDINGO  =                                        
+                      ' FUNKSJONSKODE ER IKKE TILGJENGELIG';                    
+                    S001013O.FUNKSJONSKODEO =  FUNKSJONSKODE;                   
+                END;                                                            
+              ELSE */                                                           
+              IF FUNKSJONSKODE   ^=  'H'  THEN                                  
+                DO;                                                             
+                    S001013O.MELDINGO  = 'UGYLDIG FUNKSJONSKODE'   ;            
+                    S001013O.FUNKSJONSKODEO =  FUNKSJONSKODE;                   
+                END;                                                            
+              ELSE                                                              
+                DO;                                                             
+                    S001013O.MELDINGO  = '                     '   ;            
+                    S001013O.FUNKSJONSKODEO =  ' ';                             
+                END;                                                            
+                                                                                
+              S001013O.CICS_INFOO     =  DIV_PARAM_OMR.CICS_NAVN  ;             
+              S001013O.FUNKSJONSKODEA = 'I'; /* MDT SET,HIGH INT*/              
+                                                                                
+              IF TRANSKODE            = 'R030'                THEN              
+                 EXEC CICS SEND MAP ('S001013') MAPSET ('S001013')              
+                 ERASEAUP  DATAONLY;                                            
+              ELSE                                                              
+                 EXEC CICS SEND MAP    ('S001013')                              
+                                MAPSET ('S001013') ERASE          ;             
+                                                                                
+              TRANSKODE    =        'R030'                        ;             
+            END;                                                                
+                                                                                
+      END;  /*  SELECT  ( ....         )                         */             
+  RETURN:                                                                       
+                                                                                
+                                                                                
+   EXEC CICS RETURN TRANSID(TRANSKODE) COMMAREA(KOM_OMR);                       
+                                                                                
+                                                                                
+  FEILBEH:                                                                      
+   /*-----------------------------------------------*/                          
+   /* SKRIVER PAUSEBILDET                           */                          
+   /*-----------------------------------------------*/                          
+                                                                                
+   EXEC CICS SEND MAP ('S001012') MAPSET ('S001013')                            
+                                  MAPONLY  ERASE     ;                          
+   EXEC CICS RETURN                                  ;                          
+                                                                                
+ ATK_KONTROLL: PROC;                                                            
+                                                                                
+   ACF2_KOM_PRG.LENGDE      = 168;                                              
+   ACF2_KOM_PRG.ACF2_FUNK   = 'IR';                                             
+   ACF2_KOM_PRG.RECORD_TYPE = '01R';                                            
+   ACF2_KOM_PRG.SYSTEM      = 'DSF ';                                           
+   ACF2_KOM_PRG.I_SYSTEM    = 'DSF ';                                           
+   ACF2_KOM_PRG.I_RESSURS  = '        ';                                        
+   ACF2_KOM_PRG.I_FUNKSJON = ' ';                                               
+   ACF2_KOM_PRG.I_BLANK    = '   ';                                             
+   ACF2_KOM_PRG.I_TYPE      = 'G'   ;                                           
+                                                                                
+   ACF2_KOM_PRG.I_FUNKSJON = FUNKSJONSKODE;                                     
+                                                                                
+         EXEC CICS LINK PROGRAM('K410C002')                                     
+                                        COMMAREA(ACF2_KOM_PRG);                 
+                                                                                
+      FEIL_MELD_NR = 0000 ;                                                     
+                                                                                
+                                                                                
+      IF ACF2_KOM_PRG.RC > 0   THEN FEIL_MELD_NR = 0660 ;                       
+      IF ACF2_KOM_PRG.RC = 4   THEN FEIL_MELD_NR = 0661 ;                       
+      IF ACF2_KOM_PRG.RC = 8   THEN FEIL_MELD_NR = 0651 ;                       
+      IF ACF2_KOM_PRG.RC = 12  THEN FEIL_MELD_NR = 0663 ;                       
+      IF ACF2_KOM_PRG.RC = 16  THEN FEIL_MELD_NR = 0659 ;                       
+                                                                                
+                                                                                
+ END ATK_KONTROLL;                                                              
+   %INCLUDE R0019904;           /*  F_GYLDIG_FNR            */                  
+   %INCLUDE R0019998;           /*  ACF2_FEILMELD           */                  
+   %INCLUDE R0019999;           /*  KONTROLL_ACF2           */                  
+   %PAGE;                                                                       
+                                                                                
+ END R00103;                                                                    

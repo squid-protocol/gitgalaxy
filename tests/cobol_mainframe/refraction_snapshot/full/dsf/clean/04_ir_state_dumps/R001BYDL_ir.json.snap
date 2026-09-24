@@ -1,0 +1,267 @@
+{
+  "metadata": {
+    "file_name": "R001BYDL.cobol",
+    "path": "<WORK>/dsf/src/GML/R001BYDL.cobol",
+    "corporate_header": "",
+    "loc": 201
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "R001BYDL.cobol",
+      "total_vars": 39,
+      "orphaned_vars": [
+        "IP-SEGM-NAVN",
+        "IP01-ADRESSE",
+        "IP01-NAVN",
+        "IP01-PERSKEY",
+        "IP01-PERSONKEY",
+        "IP01-POSTNR",
+        "IP01-SSA1-HP",
+        "IP01-SSA1-REL-OP",
+        "IP01-SSA1-SEGM-FELT",
+        "IP01-TKAVD",
+        "MANGLER",
+        "W-ADRESSE",
+        "W-FNR-SNUDD",
+        "W-MND",
+        "W-PERSONNR",
+        "W-POSTNR",
+        "W-STATUS",
+        "W-TKNR"
+      ],
+      "total_paras": 6,
+      "dead_paras": [],
+      "loc_saved": 18
+    },
+    "lineage": {
+      "program_id": "R001BYDL",
+      "inputs": [
+        "REG"
+      ],
+      "outputs": [
+        "NYREG"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "R001BYDL",
+      "files_requested": [
+        {
+          "internal": "REG",
+          "dd_name": "REG"
+        },
+        {
+          "internal": "NYREG",
+          "dd_name": "NYREG"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "IP_PCB",
+      "sql": "CREATE TABLE IP_PCB (\n    T_FNR                          BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    T_NAVN                         VARCHAR(25),\n    T_PSTAT1                       VARCHAR(1),\n    T_PSTAT2                       VARCHAR(1),\n    T_PSTAT3                       VARCHAR(1),\n    T_GRP                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TPAVD                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TPEGEN                       INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_EFORTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_BFORTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_FORINNT                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SUMYD                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TKNR                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_UFGRAD                       SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_TIL851                       SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_SAERTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_KOMPTIL                      SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_VGRP                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_VTILP                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_NETTO_GP                     INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_NETTO_TP                     INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_EK_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_BA_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SB_TILL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SB_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_GT_TIL_L92                   INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_GT_TP                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_AFP                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    SORTNAVN                       VARCHAR(25),\n    T_FNR                          BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    T_NAVN                         VARCHAR(25),\n    T_PSTAT1                       VARCHAR(1),\n    T_PSTAT2                       VARCHAR(1),\n    T_PSTAT3                       VARCHAR(1),\n    T_GRP                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TPAVD                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TPEGEN                       INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_EFORTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_BFORTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_FORINNT                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SUMYD                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_TKNR                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_AVD                          VARCHAR(1),\n    T_UFGRAD                       SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_TIL851                       SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_SAERTIL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_KOMPTIL                      SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    T_VGRP                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_VTILP                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_NETTO_GP                     INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_NETTO_TP                     INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_EK_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_BA_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SB_TILL                      INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_SB_GR                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_GT_TIL_L92                   INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_GT_TP                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    T_AFP                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    SORTNAVN                       VARCHAR(25),\n    IP01_PERSNKEY                  VARCHAR(7),\n    IP01_FNR_SISTE                 VARCHAR(1),\n    IP01_BOKOMM                    VARCHAR(4),\n    IP01_SYSTAVD                   VARCHAR(1),\n    IP01_SSA1_PERSNKEY             VARCHAR(7),\n    W_AR                           SMALLINT,\n    W_DAG                          SMALLINT,\n    W_FNR                          BIGINT,\n    W_IP_TKNR                      SMALLINT,\n    W_IP_FNR                       BIGINT,\n    W_IP_KEYN                      BIGINT,\n    IP_KEY_PACK                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    IP_KEY_X                       VARCHAR(7),\n    W_DD                           SMALLINT,\n    W_KOMM                         SMALLINT,\n    DLI_GU                         VARCHAR(4),\n    IP_STATUS                      VARCHAR(2)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "IP_PCB",
+        "type": "object",
+        "properties": {
+          "T_FNR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(11)"
+          },
+          "T_NAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(25)"
+          },
+          "T_PSTAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "T_PSTAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "T_PSTAT3": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "T_GRP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_TPAVD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_TPEGEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_EFORTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_BFORTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_FORINNT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_SUMYD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_TKNR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_UFGRAD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(3)"
+          },
+          "T_TIL851": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(3)"
+          },
+          "T_SAERTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_KOMPTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(3)"
+          },
+          "T_VGRP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_VTILP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_NETTO_GP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_NETTO_TP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_EK_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_BA_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_SB_TILL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_SB_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_GT_TIL_L92": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_GT_TP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "T_AFP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "SORTNAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(25)"
+          },
+          "T_AVD": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "IP01_PERSNKEY": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "IP01_FNR_SISTE": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "IP01_BOKOMM": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "IP01_SYSTAVD": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "IP01_SSA1_PERSNKEY": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "W_AR": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "W_DAG": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "W_FNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "W_IP_TKNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
+          },
+          "W_IP_FNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "W_IP_KEYN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(15)"
+          },
+          "IP_KEY_PACK": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "IP_KEY_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "W_DD": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "W_KOMM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
+          },
+          "DLI_GU": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "IP_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: XX"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=R001BYDL\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//REG      DD DSN=HERC01.DATA.REG,\n//             DISP=SHR\n//NYREG    DD DSN=HERC01.DATA.NYREG,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

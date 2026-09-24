@@ -1,0 +1,18 @@
+CREATE TABLE PARAMIN (
+    INN_AAR                        VARCHAR(80),
+    TRKNR                          SMALLINT,
+    NAVN                           VARCHAR(26),
+    GATE1                          VARCHAR(25),
+    GATE2                          VARCHAR(25),
+    POSTSTED                       VARCHAR(21),
+    UTPOSTEN                       VARCHAR(133),
+    TELLER                         SMALLINT,
+    NAVN1                          VARCHAR(33),
+    NAVN2                          VARCHAR(33),
+    NAVN22                         VARCHAR(33),
+    NAVN3                          VARCHAR(33),
+    TRKNR_L                        SMALLINT,
+    AARSTALL                       VARCHAR(4),
+    INNAAR                         VARCHAR(4),
+    BLK                            VARCHAR(133)
+);

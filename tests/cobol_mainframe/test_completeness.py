@@ -93,8 +93,12 @@ PINNED = {
         "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     "zopeneditor-sample": {
-        "program calls": (5, 6), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
+        "program calls": (8, 8), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
         "data flows": (327, 374), "IMS PSBs": (0, 0), "batch entry": (3, 3),
+    },
+    "dsf": {
+        "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (0, 0), "screens": (0, 2421),
+        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 7),
     },
     "zecs": {
         "program calls": (2, 3), "copybooks": (6, 6), "transactions": (9, 9), "screens": (0, 0),

@@ -38,9 +38,7 @@ _LABELLED_UNIT = re.compile(
 )
 # The name may sit on the next line, past the 8-digit sequence field (columns
 # 73-80) that ends the CALL's own line; an identifier never starts with a digit.
-_CALL = re.compile(
-    r"(?<![\w@#$%.])CALL(?:[ \t]*[0-9]{8})?[ \t\r\n]+((?![0-9])" + _ID + r"{1,64})(?![\w@#$])", re.I
-)
+_CALL = re.compile(r"(?<![\w@#$%.])CALL(?:[ \t]*[0-9]{8})?[ \t\r\n]+((?![0-9])" + _ID + r"{1,64})(?![\w@#$])", re.I)
 _BLOCK_LIMIT = 2000  # characters one EXEC CICS statement may run over
 
 

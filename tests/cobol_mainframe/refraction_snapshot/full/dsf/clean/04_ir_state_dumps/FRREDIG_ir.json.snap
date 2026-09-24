@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "file_name": "FRREDIG.cobol",
+    "path": "<WORK>/dsf/src/GML/FRREDIG.cobol",
+    "corporate_header": "",
+    "loc": 135
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "FRREDIG.cobol",
+      "total_vars": 41,
+      "orphaned_vars": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "FNR",
+        "FNRO",
+        "INN-FR",
+        "LOVERSK",
+        "MRK-OVERSK",
+        "S3",
+        "S4",
+        "TRKNR-M"
+      ],
+      "total_paras": 6,
+      "dead_paras": [],
+      "loc_saved": 13
+    },
+    "lineage": {
+      "program_id": "LIST1X",
+      "inputs": [
+        "INPUT",
+        "PARAM"
+      ],
+      "outputs": [
+        "OUTPUT"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LIST1X",
+      "files_requested": [
+        {
+          "internal": "INPUTA",
+          "dd_name": "INPUT"
+        },
+        {
+          "internal": "UTFIL",
+          "dd_name": "OUTPUT"
+        },
+        {
+          "internal": "INFIL",
+          "dd_name": "PARAM"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "PARAMIN",
+      "sql": "CREATE TABLE PARAMIN (\n    INN_AAR                        VARCHAR(80),\n    TRKNR                          SMALLINT,\n    AAR                            SMALLINT,\n    MND                            SMALLINT,\n    DAG                            SMALLINT,\n    FNR1                           SMALLINT,\n    FNR2                           SMALLINT,\n    NAVN                           VARCHAR(26),\n    GATE                           VARCHAR(50),\n    POSTSTED                       VARCHAR(21),\n    UTPOSTEN                       VARCHAR(133),\n    TELLER                         SMALLINT,\n    DAGO                           SMALLINT,\n    MNDO                           SMALLINT,\n    AARO                           SMALLINT,\n    FNR1O                          SMALLINT,\n    FNR2O                          SMALLINT,\n    NAVNO                          VARCHAR(26),\n    GATEO                          VARCHAR(50),\n    POSTSTEDO                      VARCHAR(21),\n    TRKNR_L                        SMALLINT,\n    AARSTALL                       VARCHAR(4),\n    INNAAR                         VARCHAR(4),\n    BLK                            VARCHAR(133)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "PARAMIN",
+        "type": "object",
+        "properties": {
+          "INN_AAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "TRKNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "AAR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "MND": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "DAG": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "FNR1": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
+          },
+          "FNR2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "NAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "GATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "POSTSTED": {
+            "type": "string",
+            "description": "Legacy PIC: X(21)"
+          },
+          "UTPOSTEN": {
+            "type": "string",
+            "description": "Legacy PIC: X(133)"
+          },
+          "TELLER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "DAGO": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "MNDO": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "AARO": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "FNR1O": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
+          },
+          "FNR2O": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "NAVNO": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "GATEO": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "POSTSTEDO": {
+            "type": "string",
+            "description": "Legacy PIC: X(21)"
+          },
+          "TRKNR_L": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "AARSTALL": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "INNAAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "BLK": {
+            "type": "string",
+            "description": "Legacy PIC: X(133)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=LIST1X\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//INPUT    DD DSN=HERC01.DATA.INPUT,\n//             DISP=SHR\n//OUTPUT   DD DSN=HERC01.DATA.OUTPUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//PARAM    DD DSN=HERC01.DATA.PARAM,\n//             DISP=SHR\n//"
+  }
+}

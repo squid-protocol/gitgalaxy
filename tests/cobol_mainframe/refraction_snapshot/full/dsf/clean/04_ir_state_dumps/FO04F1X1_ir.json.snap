@@ -1,0 +1,393 @@
+{
+  "metadata": {
+    "file_name": "FO04F1X1.cobol",
+    "path": "<WORK>/dsf/src/GML/FO04F1X1.cobol",
+    "corporate_header": "",
+    "loc": 406
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "FO04F1X1.cobol",
+      "total_vars": 67,
+      "orphaned_vars": [
+        "ARBEIDSOMRAADE",
+        "PSTAT3",
+        "REC-1",
+        "SNAVN",
+        "W-DAG",
+        "W-REST",
+        "X-FIL",
+        "X-FNR",
+        "X-NAVN",
+        "X-NAVN-5B",
+        "X-TAI"
+      ],
+      "total_paras": 9,
+      "dead_paras": [],
+      "loc_saved": 11
+    },
+    "lineage": {
+      "program_id": "FO04F1X1",
+      "inputs": [
+        "SYS004",
+        "SYS006"
+      ],
+      "outputs": [
+        "SYS005"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "FO04F1X1",
+      "files_requested": [
+        {
+          "internal": "INFILE",
+          "dd_name": "SYS006"
+        },
+        {
+          "internal": "UTFILE",
+          "dd_name": "SYS005"
+        },
+        {
+          "internal": "PARAMFILE",
+          "dd_name": "SYS004"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "ARBEIDSOMRAADE",
+      "sql": "CREATE TABLE ARBEIDSOMRAADE (\n    FNR                            BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    NAVN                           VARCHAR(25),\n    PSTAT1                         VARCHAR(1),\n    PSTAT2                         VARCHAR(1),\n    GRP                            INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    TPAVD                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    TPEGEN                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    EFORTIL                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    BFORTIL                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    FORINNT                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    SUMYD                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    TRKNR                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    UGRAD                          SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    TIL851                         SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    SAERTIL                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    TAI                            SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    VGRP                           INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    VTLP                           INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    NETTO_GP                       INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    NETTO_TP                       INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    EK_GR                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    BA_GR                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    SB_TILL                        INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    SB_GR                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    GT_L92                         INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    GT_TP                          INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    AFP                            INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    K_ART                          VARCHAR(1),\n    TKNR                           SMALLINT,\n    TRK_AKK                        SMALLINT,\n    SIDE_AKK                       SMALLINT,\n    LINJE_AKK                      SMALLINT,\n    TKNR_TEST                      SMALLINT,\n    SVAR                           VARCHAR(1),\n    TRK_NR                         SMALLINT,\n    TRK_NAVN                       VARCHAR(23),\n    SW_ALLE                        VARCHAR(1),\n    FORINNT_AKK                    INTEGER,\n    X_FELT                         SMALLINT,\n    X_ALDER                        SMALLINT,\n    W_FNR                          BIGINT,\n    W_MN                           SMALLINT,\n    W_AR                           SMALLINT,\n    W_AVD                          VARCHAR(1),\n    SIDENR                         SMALLINT,\n    TRKNR_UT                       SMALLINT,\n    TKNAVN                         VARCHAR(23),\n    FIL_1                          VARCHAR(10),\n    FIL_2                          VARCHAR(1),\n    H2C_DATO1                      VARCHAR(13),\n    BELOP                          SMALLINT,\n    H2C_DATO2                      VARCHAR(12),\n    FNR_UT                         INTEGER,\n    NAVN_UT                        VARCHAR(09),\n    PSTAT1_UT                      VARCHAR(1),\n    PSTAT2_UT                      VARCHAR(1),\n    UGRAD_UT                       TEXT,\n    GRP_UT                         SMALLINT,\n    TPAVD_UT                       SMALLINT,\n    TPEGEN_UT                      SMALLINT,\n    EFORTIL_UT                     SMALLINT,\n    BFORTIL_UT                     SMALLINT,\n    SBTILL_UT                      SMALLINT,\n    AFP_UT                         SMALLINT,\n    GT_LOV92_UT                    SMALLINT,\n    FORINNT_UT                     SMALLINT,\n    NETTO_GP_UT                    SMALLINT,\n    NETTO_TP_UT                    SMALLINT,\n    VGRP_UT                        SMALLINT,\n    VTLP_UT                        SMALLINT,\n    SAERTIL_UT                     SMALLINT,\n    GT_TP_UT                       SMALLINT,\n    SUMYD_UT                       SMALLINT,\n    ID_X                           VARCHAR(9),\n    GRBELOP                        INTEGER,\n    PPSTAT                         VARCHAR(1),\n    K_SPROS                        VARCHAR(4),\n    K_DATO                         VARCHAR(13),\n    B_DATO                         VARCHAR(13)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "ARBEIDSOMRAADE",
+        "type": "object",
+        "properties": {
+          "FNR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(11)"
+          },
+          "NAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(25)"
+          },
+          "PSTAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "PSTAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "GRP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "TPAVD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "TPEGEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "EFORTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "BFORTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "FORINNT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "SUMYD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "TRKNR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "UGRAD": {
+            "type": "integer",
+            "description": "Legacy PIC: S999"
+          },
+          "TIL851": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(3)"
+          },
+          "SAERTIL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "TAI": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(3)"
+          },
+          "VGRP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "VTLP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "NETTO_GP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "NETTO_TP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "EK_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "BA_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "SB_TILL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "SB_GR": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "GT_L92": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "GT_TP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "AFP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(5)"
+          },
+          "K_ART": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "TKNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TRK_AKK": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "SIDE_AKK": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "LINJE_AKK": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "TKNR_TEST": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "SVAR": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "TRK_NR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TRK_NAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(23)"
+          },
+          "SW_ALLE": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "FORINNT_AKK": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(7)"
+          },
+          "X_FELT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "X_ALDER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "W_FNR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "W_MN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "W_AR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(2)"
+          },
+          "W_AVD": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "SIDENR": {
+            "type": "integer",
+            "description": "Legacy PIC: ZZZ9"
+          },
+          "TRKNR_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TKNAVN": {
+            "type": "string",
+            "description": "Legacy PIC: X(23)"
+          },
+          "FIL_1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "FIL_2": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "H2C_DATO1": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          },
+          "BELOP": {
+            "type": "integer",
+            "description": "Legacy PIC: ZZZZ9"
+          },
+          "H2C_DATO2": {
+            "type": "string",
+            "description": "Legacy PIC: X(12)"
+          },
+          "FNR_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(06)B99999"
+          },
+          "NAVN_UT": {
+            "type": "string",
+            "description": "Legacy PIC: X(09)"
+          },
+          "PSTAT1_UT": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "PSTAT2_UT": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "UGRAD_UT": {
+            "type": "string",
+            "description": "Legacy PIC: ZZZ"
+          },
+          "GRP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "TPAVD_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "TPEGEN_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "EFORTIL_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "BFORTIL_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "SBTILL_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "AFP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "GT_LOV92_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "FORINNT_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(5)9"
+          },
+          "NETTO_GP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "NETTO_TP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "VGRP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "VTLP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "SAERTIL_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(4)9"
+          },
+          "GT_TP_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: ZZZ9"
+          },
+          "SUMYD_UT": {
+            "type": "integer",
+            "description": "Legacy PIC: ZZZZ9"
+          },
+          "ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "GRBELOP": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(5)"
+          },
+          "PPSTAT": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "K_SPROS": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "K_DATO": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          },
+          "B_DATO": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=FO04F1X1\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//SYS006   DD DSN=HERC01.DATA.SYS006,\n//             DISP=SHR\n//SYS005   DD DSN=HERC01.DATA.SYS005,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//SYS004   DD DSN=HERC01.DATA.SYS004,\n//             DISP=SHR\n//"
+  }
+}

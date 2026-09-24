@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PRINT_REC1",
+  "type": "object",
+  "properties": {
+    "FELTKODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "TRK_NR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "INN_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(11)"
+    },
+    "NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "INN_TRKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "ADDR": {
+      "type": "string",
+      "description": "Legacy PIC: X(71)"
+    },
+    "UT_TRKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "UT_FNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "UT_NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "UT_ADDR": {
+      "type": "string",
+      "description": "Legacy PIC: X(71)"
+    },
+    "PRINT1": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    },
+    "TELLER1": {
+      "type": "integer",
+      "description": "Legacy PIC: 99999"
+    }
+  }
+}

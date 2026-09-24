@@ -1,0 +1,14 @@
+CREATE TABLE PRINT_REC1 (
+    FELTKODE                       VARCHAR(2),
+    TRK_NR                         SMALLINT,
+    INN_FNR                        BIGINT -- Legacy: COMP-3 (Packed Decimal),
+    NAVN                           VARCHAR(26),
+    INN_TRKNR                      SMALLINT -- Legacy: COMP-3 (Packed Decimal),
+    ADDR                           VARCHAR(71),
+    UT_TRKNR                       SMALLINT,
+    UT_FNR                         BIGINT,
+    UT_NAVN                        VARCHAR(26),
+    UT_ADDR                        VARCHAR(71),
+    PRINT1                         VARCHAR(133),
+    TELLER1                        INTEGER
+);

@@ -1,6 +1,11 @@
 {
   "about": "Mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py). Every engine/forge disagreement with a hand-verified answer key, keyed '<side> | <field> | <program> | <value> | fp|fn' -> cause; every cause has a kind (defect|deliberate) and names its owning issue. CI fails on an unlisted mismatch, a listed one that no longer reproduces, an UNTRIAGED entry, a cause without an issue, or a stale scoreboard. Re-measure with `update`, triage with `assign`.",
   "causes": {
+    "dsf_cobol_unit_extraction": {
+      "issue": 3533,
+      "kind": "defect",
+      "summary": "navikt/DSF's GML COBOL: the engine reads SPECIAL-NAMES as a procedure unit and misses all-digit paragraph names (0000. / 9999.); the forge loses PLUKKFR's paragraphs after 'PROCEDURE        DIVISION.' and FO04D1X1's unit B."
+    },
     "engine_dead_is_unreferenced_by_name": {
       "issue": 2806,
       "kind": "deliberate",
@@ -282,6 +287,11 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         },
         "PL/I record fields": {
           "engine": null,
@@ -1132,6 +1142,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -1575,6 +1590,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -1813,6 +1833,402 @@
         }
       }
     },
+    "dsf": {
+      "mismatches": {
+        "engine | dead (non-trivial) | src/GML/FO04D1X1.cobol | TEST-TRK-TAB | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FO04F1X1.cobol | LES-KORT | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FO04F1X1.cobol | START--X | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FRMERK.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FRMERK.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead (non-trivial) | src/GML/FRMERK.cobol | STARTEN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FRREDIG.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/FRREDIG.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead (non-trivial) | src/GML/FRREDIG.cobol | STARTEN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/PLUKKFR.cobol | LESE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/PLUKKFR.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead (non-trivial) | src/GML/PLUKKFRN.cobol | LESE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/GML/PLUKKFRN.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead | src/GML/FO04D1X1.cobol | TEST-TRK-TAB | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FO04F1X1.cobol | LES-KORT | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FO04F1X1.cobol | START--X | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FRMERK.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FRMERK.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead | src/GML/FRMERK.cobol | STARTEN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FRREDIG.cobol | SKRIV-SIDE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/FRREDIG.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead | src/GML/FRREDIG.cobol | STARTEN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/PLUKKFR.cobol | LESE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/PLUKKFR.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | dead | src/GML/PLUKKFRN.cobol | LESE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/GML/PLUKKFRN.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/FRMERK.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/FRREDIG.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/PLUKKFR.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/PLUKKFRN.cobol | SPECIAL-NAMES | fp": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/R001BYDL.cobol | 0000 | fn": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/R001BYDL.cobol | 1000 | fn": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/R001BYDL.cobol | 8000 | fn": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/R001BYDL.cobol | 9000 | fn": "dsf_cobol_unit_extraction",
+        "engine | units | src/GML/R001BYDL.cobol | 9999 | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/FO04D1X1.cobol | B | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | FEIL-TRANS | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | LES-TRK | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | LESE | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | SKRIV-UT | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | SLUTT | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFR.cobol | TEST-TRKNR | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | FEIL-TRANS | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | LES-TRK | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | LESE | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | SKRIV-UT | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | SLUTT | fn": "dsf_cobol_unit_extraction",
+        "forge | units | src/GML/PLUKKFRN.cobol | TEST-TRKNR | fn": "dsf_cobol_unit_extraction"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CALL USING": {
+          "engine": {
+            "got": 4,
+            "tp": 4,
+            "truth": 4
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "CICS resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS task control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 22,
+            "tp": 22,
+            "truth": 22
+          },
+          "forge": {
+            "got": 22,
+            "tp": 22,
+            "truth": 22
+          },
+          "truth": "cross_verified"
+        },
+        "DL/I calls": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "IMS access check": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "IMS definitions": {
+          "engine": null,
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "IMS segment access": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL job flow": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL resolved DSNs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "MOVE truncation": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
+          "truth": "sample_verified"
+        },
+        "MQ calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I call sites": {
+          "engine": {
+            "got": 8012,
+            "tp": 8012,
+            "truth": 8012
+          },
+          "forge": null,
+          "truth": "sample_verified"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "VSAM defines": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 140,
+            "tp": 140,
+            "truth": 140
+          },
+          "forge": null,
+          "truth": "sample_verified"
+        },
+        "dead": {
+          "engine": {
+            "got": 13,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 13,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic call targets": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "draft"
+        },
+        "file I/O moves": {
+          "engine": {
+            "got": 38,
+            "tp": 38,
+            "truth": 38
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "file control": {
+          "engine": {
+            "got": 22,
+            "tp": 22,
+            "truth": 22
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "inputs": {
+          "engine": {
+            "got": 13,
+            "tp": 13,
+            "truth": 13
+          },
+          "forge": {
+            "got": 13,
+            "tp": 13,
+            "truth": 13
+          },
+          "truth": "cross_verified"
+        },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "outputs": {
+          "engine": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "forge": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "truth": "cross_verified"
+        },
+        "program_id": {
+          "engine": {
+            "got": 7,
+            "tp": 7,
+            "truth": 7
+          },
+          "forge": {
+            "got": 7,
+            "tp": 7,
+            "truth": 7
+          },
+          "truth": "cross_verified"
+        },
+        "record fields": {
+          "engine": {
+            "got": 294,
+            "tp": 294,
+            "truth": 294
+          },
+          "forge": {
+            "got": 294,
+            "tp": 294,
+            "truth": 294
+          },
+          "truth": "draft"
+        },
+        "symbolic maps": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "units": {
+          "engine": {
+            "got": 50,
+            "tp": 46,
+            "truth": 51
+          },
+          "forge": {
+            "got": 38,
+            "tp": 38,
+            "truth": 51
+          },
+          "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "web services": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        }
+      }
+    },
     "zecs": {
       "mismatches": {
         "engine | dead (non-trivial) | Source/ZECS000.cbl | 9950-ABS | fn": "engine_dead_is_unreferenced_by_name",
@@ -1942,6 +2358,11 @@
           "truth": "sample_verified"
         },
         "MQ calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I call sites": {
           "engine": null,
           "forge": null,
           "truth": "draft"
@@ -2292,6 +2713,15 @@
           "engine": null,
           "forge": null,
           "truth": "draft"
+        },
+        "PL/I call sites": {
+          "engine": {
+            "got": 2,
+            "tp": 2,
+            "truth": 2
+          },
+          "forge": null,
+          "truth": "sample_verified"
         },
         "PL/I record fields": {
           "engine": {

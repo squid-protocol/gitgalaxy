@@ -8379,6 +8379,26 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "PLI/MACSAMP.pli",
+        "PLI/PSAM1.pli",
+        "PLI/PSAM1LIB.pli",
+        "PLI/PSAM2.pli"
+      ],
+      "wide": false,
+      "suite": "plicalls",
+      "tasks": {
+        "plicalls": {
+          "agree": 2,
+          "asked": 2
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -10848,6 +10868,42 @@
       "asked": 122,
       "key_errors": 0,
       "upper_bound_95": 0.02426
+    },
+    "pli_calls": {
+      "plan": {
+        "seed": 3491,
+        "strata": {
+          "cics": 14,
+          "call": 14,
+          "none": 8
+        },
+        "files": [
+          "PLI/MACSAMP.pli",
+          "PLI/PSAM1.pli",
+          "PLI/PSAM1LIB.pli",
+          "PLI/PSAM2.pli"
+        ],
+        "included": [
+          "PRTHDG1",
+          "TRANTOT"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+          "at": "2026-09-24",
+          "batch": 1,
+          "files": [
+            "PLI/MACSAMP.pli",
+            "PLI/PSAM1.pli",
+            "PLI/PSAM1LIB.pli",
+            "PLI/PSAM2.pli"
+          ]
+        }
+      ],
+      "asked": 2,
+      "key_errors": 0,
+      "upper_bound_95": 0.77639
     }
   },
   "symbolic_maps": {},
@@ -11012,5 +11068,83 @@
     }
   },
   "web_services": {},
-  "jcics": {}
+  "jcics": {},
+  "pli_calls": {
+    "PLI/MACSAMP.pli": {
+      "calls": [],
+      "pli_calls_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM1.pli": {
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "PSAM2",
+          "target": "PSAM2",
+          "line": 238
+        }
+      ],
+      "pli_calls_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM1LIB.pli": {
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "PSAM2",
+          "target": "PSAM2",
+          "line": 228
+        }
+      ],
+      "pli_calls_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM2.pli": {
+      "calls": [],
+      "pli_calls_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (zopeneditor PL/I calls)",
+          "at": "2026-09-24",
+          "sampled": true
+        }
+      }
+    }
+  },
+  "pli_calls_included": [
+    "PRTHDG1",
+    "TRANTOT"
+  ]
 }

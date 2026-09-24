@@ -71,7 +71,9 @@ def calibrate_ir_medium(
     if cobol_files is None:
         # Sorted by parts, which compare case-sensitively on every OS (WindowsPath's own order does not):
         # rglob order is the filesystem's, and it orders the report and the agent jobs (#3212)
-        cobol_files = sorted([*target_path.rglob("*.cbl"), *target_path.rglob("*.cob")], key=lambda p: p.parts)
+        # `.cobol` too (#3491): navikt/DSF's batch programs, and a cobol extension the engine claims.
+        found = [*target_path.rglob("*.cbl"), *target_path.rglob("*.cob"), *target_path.rglob("*.cobol")]
+        cobol_files = sorted(found, key=lambda p: p.parts)
     file_count = len(cobol_files)
 
     total_bytes = sum(f.stat().st_size for f in cobol_files if f.is_file())

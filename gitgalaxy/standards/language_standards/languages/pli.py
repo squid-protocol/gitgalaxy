@@ -153,7 +153,7 @@ DEFINITION: dict[str, Any] = {
         # them declares a parameter of an executable unit (#2773 contract).
         "args": re.compile(
             r"(?<![\w@#$%])" + _ID + r"{1,64}[ \t]*:"
-            r"(?:[ \t]{0,80}" + _SEQ + r"\r?\n){0,3}[ \t]{0,80}"
+            r"(?:[ \t]{0,80}" + _SEQ + r"\r?\n){0,8}[ \t]{0,80}"
             r"(?:PROC(?:EDURE)?|ENTRY)[ \t\r\n]{0,20}\(([^()]{0,500})\)",
             re.I,
         ),
@@ -168,14 +168,17 @@ DEFINITION: dict[str, Any] = {
         # sees `A` as adjacent) and a condition prefix `(SUBRG): name: PROC` is skipped
         # naturally. Real fixed-format source puts the label and PROC on separate lines
         # with a sequence number in columns 73-80 between them (navikt/DSF R0011803.pli:
-        # `KONTROLLER_AU_SØKER:  00000480` / `PROC(FEIL_FUNNET);`), so up to three line
-        # breaks, each optionally carrying a sequence field, may separate the two. A
+        # `KONTROLLER_AU_SØKER:  00000480` / `PROC(FEIL_FUNNET);`), so several line
+        # breaks, each optionally carrying a sequence field, may separate the two --
+        # up to eight since #3491: DSF GML/R0014164.pli puts a blank line, a comment
+        # (blank in the code stream) and another blank line between
+        # `BEREGN_BUP_FPP:` and its `PROC(FØDSELSÅR,IND);`. A
         # preprocessor procedure (`%SETUPL: PROC`) runs at compile time and is macros',
         # not an executable block. BEGIN blocks are unnamed and ENTRY is an alternate way
         # into an existing procedure (api's), so neither opens a new unit here.
         "func_start": re.compile(
             r"(?<![\w@#$%])(" + _ID + r"{1,64})[ \t]*:"
-            r"(?:[ \t]{0,80}" + _SEQ + r"\r?\n){0,3}[ \t]{0,80}"
+            r"(?:[ \t]{0,80}" + _SEQ + r"\r?\n){0,8}[ \t]{0,80}"
             r"PROC(?:EDURE)?" + _R,
             re.I,
         ),

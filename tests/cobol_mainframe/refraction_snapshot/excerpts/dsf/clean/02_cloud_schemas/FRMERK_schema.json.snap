@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PARAMIN",
+  "type": "object",
+  "properties": {
+    "INN_AAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "TRKNR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "NAVN": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "GATE1": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "GATE2": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "POSTSTED": {
+      "type": "string",
+      "description": "Legacy PIC: X(21)"
+    },
+    "UTPOSTEN": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    },
+    "TELLER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
+    },
+    "NAVN1": {
+      "type": "string",
+      "description": "Legacy PIC: X(33)"
+    },
+    "NAVN2": {
+      "type": "string",
+      "description": "Legacy PIC: X(33)"
+    },
+    "NAVN22": {
+      "type": "string",
+      "description": "Legacy PIC: X(33)"
+    },
+    "NAVN3": {
+      "type": "string",
+      "description": "Legacy PIC: X(33)"
+    },
+    "TRKNR_L": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "AARSTALL": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "INNAAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "BLK": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    }
+  }
+}

@@ -92,11 +92,11 @@ from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
-from gitgalaxy.core.pli_calls import pli_cics_stream, pli_external_calls
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
+from gitgalaxy.core.pli_calls import pli_cics_stream, pli_external_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
 
@@ -187,9 +187,12 @@ _CALL_IDENTIFIER = re.compile(r"(?<![A-Z0-9-])CALL[ \t\n]+(?!['\"])([A-Z][A-Z0-9
 _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(LINK|XCTL)\b", re.I)
 # #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
 # `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
-_CICS_PROGRAM_OPERAND = re.compile(
-    r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I
-)
+# The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
+# HLASM symbols included (#3495), and a PL/I qualified reference kept whole (#3491:
+# DSF's `TRANSID(TRANS_OPPL_OMR.TRANSKODE)`); COBOL names contain neither `_` nor `.`.
+_OPERAND_NAME = r"[A-Z@#$_][A-Z0-9@#$_-]*"
+_OPERAND_VALUE = r"[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
+_CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM" + _OPERAND_VALUE, re.I)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
 _CICS_BLOCK_LIMIT = 2000
@@ -205,9 +208,7 @@ _CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b
 # resolved through its working-storage VALUE (`TRANSID(WS-TRANID)` where
 # `05 WS-TRANID PIC X(4) VALUE 'CC00'`). A name with no readable VALUE (populated
 # at runtime, `VALUE SPACES`) resolves to None -- data, not a gap.
-_CICS_TRANSID_OPERAND = re.compile(
-    r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I
-)
+_CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID" + _OPERAND_VALUE, re.I)
 
 # #3355: the COMMAREA contract operands of a LINK/XCTL/RETURN block -- which
 # record the call passes (`COMMAREA(x)`) and how many bytes it says it passes
@@ -481,6 +482,12 @@ def _cics_contract_operands(block: str) -> dict[str, str]:
     return out
 
 
+def _identifier_value(values: dict[str, str], operand: str) -> Optional[str]:
+    """The fixed value of a data name, or of a PL/I qualified reference's field
+    (`TRANS_OPPL_OMR.TRANSKODE` -> the INIT of TRANSKODE): the INIT belongs to the field."""
+    return values.get(operand) or (values.get(operand.rsplit(".", 1)[-1]) if "." in operand else None)
+
+
 def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = False) -> list[dict[str, Any]]:
     """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`.
 
@@ -533,7 +540,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
             form, operand, target = "literal", literal.strip(), literal.strip()
         else:
             operand = operand_match.group(3).upper()
-            form, target = "identifier", values.get(operand)
+            form, target = "identifier", _identifier_value(values, operand)
         calls.append(
             {
                 "verb": match.group(1).upper(),
@@ -610,7 +617,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
             form, operand, target = "literal", literal.strip(), literal.strip()
         else:
             operand = operand_match.group(3).upper()
-            form, target = "identifier", values.get(operand)
+            form, target = "identifier", _identifier_value(values, operand)
         calls.append(
             {
                 "verb": f"{match.group(1).upper()} TRANSID",

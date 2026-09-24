@@ -6512,6 +6512,440 @@
           "Verb": "EXEC PGM"
         }
       ]
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 258,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 424,
+          "Operand": "R0010426",
+          "Target": "R0010426",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 475,
+          "Operand": "R0010101",
+          "Target": "R0010101",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 527,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ACF2_KOM_PRG",
+          "Form": "literal",
+          "Line": 553,
+          "Operand": "K410C002",
+          "Target": "K410C002",
+          "Verb": "LINK"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010420.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 99,
+          "Operand": "R0010422",
+          "Target": "R0010422",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 102,
+          "Operand": "R0010423",
+          "Target": "R0010423",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 105,
+          "Operand": "R0010424",
+          "Target": "R0010424",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 108,
+          "Operand": "R0010425",
+          "Target": "R0010425",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 114,
+          "Operand": "R0010427",
+          "Target": "R0010427",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 117,
+          "Operand": "R0010430",
+          "Target": "R0010430",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 120,
+          "Operand": "R0018010",
+          "Target": "R0018010",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 132,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 175,
+          "Operand": "TRANS_OPPL_OMR.TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010421.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 61,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 69,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 74,
+          "Operand": "R0019F01",
+          "Target": "R0019F01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 78,
+          "Operand": "R0019D70",
+          "Target": "R0019D70",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 82,
+          "Operand": "R0019H01",
+          "Target": "R0019H01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 97,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010422.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 86,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 93,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 139,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 161,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010423.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 84,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 91,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 211,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 233,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010424.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 82,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 89,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 210,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 232,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010425.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 85,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 92,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 221,
+          "Operand": "R0010420",
+          "Target": "R0010420",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 243,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010426.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 77,
+          "Operand": "R0010301",
+          "Target": "R0010301",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 89,
+          "Operand": "R0019F01",
+          "Target": "R0019F01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 93,
+          "Operand": "R0019D70",
+          "Target": "R0019D70",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 97,
+          "Operand": "R0019H01",
+          "Target": "R0019H01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 101,
+          "Operand": "R0019E01",
+          "Target": "R0019E01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 122,
+          "Operand": "R0019A01",
+          "Target": "R0019A01",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 126,
+          "Operand": "R001NO10",
+          "Target": "R001NO10",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 130,
+          "Operand": "R0019H21",
+          "Target": "R0019H21",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 133,
+          "Operand": "R0019H31",
+          "Target": "R0019H31",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 137,
+          "Operand": "R0019H41",
+          "Target": "R0019H41",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 158,
+          "Operand": "TRANSKODE",
+          "Target": null,
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010427.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "literal",
+          "Line": 106,
+          "Operand": "RA20",
+          "Target": "RA20",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "pli/dsf_cics_admin/R001TK62.pli": [
+        {
+          "COMMAREA": "KOM_OMR",
+          "Form": "identifier",
+          "Line": 204,
+          "Operand": "PROGRAM_ID",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ]
+    },
+    "pli/zopeneditor_sample": {
+      "pli/zopeneditor_sample/PSAM1.pli": [
+        {
+          "Form": "literal",
+          "Line": 238,
+          "Operand": "PSAM2",
+          "Target": "PSAM2",
+          "Verb": "CALL"
+        }
+      ],
+      "pli/zopeneditor_sample/PSAM1LIB.pli": [
+        {
+          "Form": "literal",
+          "Line": 228,
+          "Operand": "PSAM2",
+          "Target": "PSAM2",
+          "Verb": "CALL"
+        }
+      ]
     }
   },
   "path": [

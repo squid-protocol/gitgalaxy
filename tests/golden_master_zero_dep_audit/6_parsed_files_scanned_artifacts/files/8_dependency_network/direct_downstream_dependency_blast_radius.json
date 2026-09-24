@@ -1203,7 +1203,7 @@
       "dart/flutter/events.dart": 0,
       "dart/flutter/framework.dart": 3,
       "dart/flutter/navigator.dart": 0,
-      "dart/flutter/object.dart": 1,
+      "dart/flutter/object.dart": 0,
       "dart/flutter/semantics.dart": 1,
       "dart/flutter/theme_data.dart": 0
     },
@@ -1340,8 +1340,8 @@
       "go/core/main.go": 0,
       "go/core/mgc.go": 2,
       "go/core/mutex.go": 2,
-      "go/core/proc.go": 4,
-      "go/core/server.go": 5,
+      "go/core/proc.go": 3,
+      "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
       "go/core/value.go": 9
     },
@@ -1503,7 +1503,7 @@
       "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": 0,
-      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 4,
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_list_LinkedList.groovy": 3,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_JoinUtils.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_SplitUtils.groovy": 0,
       "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": 0,
@@ -1576,7 +1576,7 @@
     },
     "groovy/retrofit_gradle": {
       "groovy/retrofit_gradle/LICENSE.txt": 0,
-      "groovy/retrofit_gradle/build.gradle": 1,
+      "groovy/retrofit_gradle/build.gradle": 0,
       "groovy/retrofit_gradle/retrofit-adapters_guava_build.gradle": 0,
       "groovy/retrofit_gradle/retrofit-adapters_java8_build.gradle": 0,
       "groovy/retrofit_gradle/retrofit-adapters_rxjava2_build.gradle": 0,
@@ -1609,7 +1609,7 @@
       "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_org_spockframework_util_GroovyUtil.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecCompiler.groovy": 1,
-      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": 1,
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_HamcrestMatchers.groovy": 0,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": 1,
@@ -1873,25 +1873,25 @@
       "javascript/jquery/LICENSE.txt": 0,
       "javascript/jquery/ajax.js": 0,
       "javascript/jquery/buildFragment.js": 0,
-      "javascript/jquery/core.js": 7,
+      "javascript/jquery/core.js": 6,
       "javascript/jquery/css.js": 18,
-      "javascript/jquery/deferred.js": 8,
-      "javascript/jquery/event.js": 8,
+      "javascript/jquery/deferred.js": 0,
+      "javascript/jquery/event.js": 5,
       "javascript/jquery/tokenize.js": 0
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 0,
       "javascript/react/ReactFiberBeginWork.js": 1,
       "javascript/react/ReactFiberWorkLoop.js": 1,
-      "javascript/react/ReactFlightServer.js": 1,
+      "javascript/react/ReactFlightServer.js": 0,
       "javascript/react/ReactSymbols.js": 3,
       "javascript/react/build.js": 0
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 1,
+      "javascript/threejs/BufferGeometry.js": 0,
       "javascript/threejs/Editor.js": 0,
       "javascript/threejs/GLTFLoader.js": 0,
-      "javascript/threejs/Matrix4.js": 3,
+      "javascript/threejs/Matrix4.js": 2,
       "javascript/threejs/WebGLProgram.js": 0,
       "javascript/threejs/WebGLRenderer.js": 0
     },
@@ -2422,13 +2422,13 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0,
-      "perl/bugzilla/Bug.pm": 1,
-      "perl/bugzilla/CGI.pm": 1,
+      "perl/bugzilla/Bug.pm": 0,
+      "perl/bugzilla/CGI.pm": 0,
       "perl/bugzilla/DB.pm": 0,
-      "perl/bugzilla/Requirements.pm": 1
+      "perl/bugzilla/Requirements.pm": 0
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 1,
+      "perl/exiftool/ExifTool.pm": 0,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
@@ -2436,9 +2436,9 @@
       "perl/exiftool/exiftool": 0
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 1,
+      "perl/mojo/IOLoop.pm": 0,
       "perl/mojo/Makefile.PL": 0,
-      "perl/mojo/Promise.pm": 7,
+      "perl/mojo/Promise.pm": 6,
       "perl/mojo/Template.pm": 1,
       "perl/mojo/WebSocket.pm": 0
     },
@@ -2706,8 +2706,8 @@
     "python/cython": {
       "python/cython/CodeGeneration.py": 0,
       "python/cython/MemoryView.pxd": 0,
-      "python/cython/MemoryView.pyx": 3,
-      "python/cython/Nodes.py": 1
+      "python/cython/MemoryView.pyx": 0,
+      "python/cython/Nodes.py": 0
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -2717,20 +2717,20 @@
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 0,
       "python/fastapi/fastapi/__main__.py": 0,
-      "python/fastapi/fastapi/applications.py": 44,
+      "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 1,
       "python/fastapi/fastapi/cli.py": 2,
       "python/fastapi/fastapi/concurrency.py": 2,
       "python/fastapi/fastapi/datastructures.py": 8,
       "python/fastapi/fastapi/encoders.py": 4,
       "python/fastapi/fastapi/exception_handlers.py": 1,
-      "python/fastapi/fastapi/exceptions.py": 36,
+      "python/fastapi/fastapi/exceptions.py": 33,
       "python/fastapi/fastapi/logger.py": 1,
       "python/fastapi/fastapi/param_functions.py": 2,
       "python/fastapi/fastapi/params.py": 3,
       "python/fastapi/fastapi/requests.py": 5,
       "python/fastapi/fastapi/responses.py": 26,
-      "python/fastapi/fastapi/routing.py": 10,
+      "python/fastapi/fastapi/routing.py": 4,
       "python/fastapi/fastapi/sse.py": 3,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
@@ -2868,7 +2868,7 @@
       "python/fastapi/tests/test_return_none_stringified_annotations.py": 0,
       "python/fastapi/tests/test_route_scope.py": 0,
       "python/fastapi/tests/test_router_circular_import.py": 0,
-      "python/fastapi/tests/test_router_events.py": 1,
+      "python/fastapi/tests/test_router_events.py": 0,
       "python/fastapi/tests/test_router_prefix_with_template.py": 0,
       "python/fastapi/tests/test_router_redirect_slashes.py": 0,
       "python/fastapi/tests/test_schema_compat_pydantic_v2.py": 0,
@@ -2918,7 +2918,7 @@
       "python/fastapi/tests/test_starlette_exception.py": 0,
       "python/fastapi/tests/test_starlette_urlconvertors.py": 0,
       "python/fastapi/tests/test_stream_bare_type.py": 0,
-      "python/fastapi/tests/test_stream_cancellation.py": 1,
+      "python/fastapi/tests/test_stream_cancellation.py": 0,
       "python/fastapi/tests/test_stream_json_validation_error.py": 0,
       "python/fastapi/tests/test_strict_content_type_app_level.py": 0,
       "python/fastapi/tests/test_strict_content_type_nested.py": 0,
@@ -2943,18 +2943,18 @@
       "python/fastapi/tests/test_webhooks_security.py": 0,
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 0,
       "python/fastapi/tests/test_ws_dependencies.py": 0,
-      "python/fastapi/tests/test_ws_router.py": 2,
+      "python/fastapi/tests/test_ws_router.py": 0,
       "python/fastapi/tests/utils.py": 2
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
-      "python/numpy/cfuncs.py": 1,
-      "python/numpy/core.py": 16,
-      "python/numpy/crackfortran.py": 1,
+      "python/numpy/cfuncs.py": 0,
+      "python/numpy/core.py": 0,
+      "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
-      "python/numpy/func2subr.py": 1,
+      "python/numpy/func2subr.py": 0,
       "python/numpy/genapi.py": 4,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
@@ -2962,13 +2962,13 @@
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 3,
       "python/numpy/symbolic.py": 0,
-      "python/numpy/testutils.py": 1,
+      "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 1,
       "python/numpy/verify_c_api_version.py": 0
     },
     "python/twisted": {
       "python/twisted/defer.py": 1,
-      "python/twisted/http.py": 13,
+      "python/twisted/http.py": 12,
       "python/twisted/reflect.py": 3,
       "python/twisted/transport.py": 2
     },
@@ -3030,10 +3030,10 @@
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 0,
-      "rust/bevy/bevy_ecs_query.rs": 1,
-      "rust/bevy/bevy_ecs_table.rs": 1,
+      "rust/bevy/bevy_ecs_query.rs": 0,
+      "rust/bevy/bevy_ecs_table.rs": 0,
       "rust/bevy/bevy_ecs_world.rs": 1,
-      "rust/bevy/bevy_reflect_path.rs": 1,
+      "rust/bevy/bevy_reflect_path.rs": 0,
       "rust/bevy/bevy_render_phase.rs": 0,
       "rust/bevy/bevy_schedule_graph.rs": 0
     },
@@ -3052,13 +3052,13 @@
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
-      "rust/serde/serde_internals_attr.rs": 1,
+      "rust/serde/serde_internals_attr.rs": 0,
       "rust/serde/test_annotations.rs": 0
     },
     "rust/syn": {
       "rust/syn/LICENSE-APACHE": 0,
       "rust/syn/bigint.rs": 0,
-      "rust/syn/buffer.rs": 1,
+      "rust/syn/buffer.rs": 0,
       "rust/syn/classify.rs": 0,
       "rust/syn/custom_keyword.rs": 0,
       "rust/syn/custom_punctuation.rs": 0,
@@ -3076,7 +3076,7 @@
       "rust/tokio/lib.rs": 1,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 1,
-      "rust/tokio/tokio_mpsc_bounded.rs": 1,
+      "rust/tokio/tokio_mpsc_bounded.rs": 0,
       "rust/tokio/tokio_named_pipe.rs": 0
     },
     "rust/wasmtime": {
@@ -3651,7 +3651,7 @@
       "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 3,
+      "typescript/fp-ts/Either.ts": 2,
       "typescript/fp-ts/HKT.ts": 2,
       "typescript/fp-ts/TaskEither.ts": 0,
       "typescript/fp-ts/package.json": 0,
@@ -3665,27 +3665,27 @@
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
       "typescript/playwright/connection.ts": 1,
-      "typescript/playwright/crConnection.ts": 1,
+      "typescript/playwright/crConnection.ts": 0,
       "typescript/playwright/dispatcher.ts": 0,
-      "typescript/playwright/frames.ts": 1,
+      "typescript/playwright/frames.ts": 0,
       "typescript/playwright/protocol.ts": 1
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 1,
+      "typescript/typescript_compiler/binder.ts": 0,
       "typescript/typescript_compiler/package.json": 0
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0,
-      "typescript/vscode/async.ts": 1,
-      "typescript/vscode/codeEditorWidget.ts": 1,
+      "typescript/vscode/async.ts": 0,
+      "typescript/vscode/codeEditorWidget.ts": 0,
       "typescript/vscode/eslint.config.js": 0,
       "typescript/vscode/extHost.api.impl.ts": 0,
-      "typescript/vscode/gulpfile.vscode.ts": 2,
+      "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
-      "typescript/vscode/lifecycle.ts": 6,
+      "typescript/vscode/lifecycle.ts": 1,
       "typescript/vscode/package.json": 0,
-      "typescript/vscode/vscode.d.ts": 8
+      "typescript/vscode/vscode.d.ts": 0
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0,
@@ -3812,7 +3812,7 @@
       "zig/bun/MimallocArena.zig": 0,
       "zig/bun/Parser.zig": 0,
       "zig/bun/comptime_string_map.zig": 0,
-      "zig/bun/napi.zig": 3
+      "zig/bun/napi.zig": 0
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 1,
@@ -3826,14 +3826,14 @@
       "zig/tigerbeetle/direction.zig": 1,
       "zig/tigerbeetle/download.sh": 0,
       "zig/tigerbeetle/download.win.ps1": 0,
-      "zig/tigerbeetle/state_machine.zig": 1
+      "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": 2,
       "zig/zig/InternPool.zig": 4,
       "zig/zig/Type.zig": 6,
-      "zig/zig/Zcu.zig": 8,
-      "zig/zig/main.zig": 3
+      "zig/zig/Zcu.zig": 4,
+      "zig/zig/main.zig": 0
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 2,

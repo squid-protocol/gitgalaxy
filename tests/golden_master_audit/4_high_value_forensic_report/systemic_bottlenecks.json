@@ -6,54 +6,42 @@
   "value": {
     "cascading_state_mutation": [
       {
-        "btw": 0.0003,
-        "path": "python/numpy/core.py",
-        "score": 0.033,
-        "state_mutation": 100.0
-      },
-      {
-        "btw": 0.0003,
-        "path": "python/twisted/http.py",
-        "score": 0.029,
-        "state_mutation": 100.0
-      },
-      {
-        "btw": 0.0003,
+        "btw": 0.0,
         "path": "dockerfile/moby/builder/dockerfile/copy.go",
-        "score": 0.029,
+        "score": 0.002,
         "state_mutation": 95.106
       },
       {
-        "btw": 0.0003,
-        "path": "python/cython/MemoryView.pyx",
-        "score": 0.027,
+        "btw": 0.0,
+        "path": "dockerfile/moby/builder/dockerfile/internals.go",
+        "score": 0.002,
+        "state_mutation": 99.6514
+      },
+      {
+        "btw": 0.0,
+        "path": "python/twisted/http.py",
+        "score": 0.001,
         "state_mutation": 100.0
       },
       {
-        "btw": 0.0003,
-        "path": "python/twisted/defer.py",
-        "score": 0.027,
-        "state_mutation": 99.9997
+        "btw": 0.0,
+        "path": "dockerfile/moby/builder/dockerfile/builder.go",
+        "score": 0.001,
+        "state_mutation": 99.8383
+      },
+      {
+        "btw": 0.0,
+        "path": "dockerfile/moby/builder/dockerfile/evaluator.go",
+        "score": 0.001,
+        "state_mutation": 98.7038
       }
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0178,
+        "close": 0.0124,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 1.626
-      },
-      {
-        "close": 0.0159,
-        "err": 75.2927,
-        "path": "python/fastapi/fastapi/types.py",
-        "score": 1.198
-      },
-      {
-        "close": 0.0112,
-        "err": 96.5311,
-        "path": "python/twisted/http.py",
-        "score": 1.077
+        "score": 1.137
       },
       {
         "close": 0.0136,
@@ -62,42 +50,54 @@
         "score": 1.068
       },
       {
-        "close": 0.0166,
+        "close": 0.0163,
         "err": 62.0321,
         "path": "assembly/bootos/os.asm",
-        "score": 1.029
+        "score": 1.008
+      },
+      {
+        "close": 0.0142,
+        "err": 56.49,
+        "path": "scheme/racket/io.ss",
+        "score": 0.803
+      },
+      {
+        "close": 0.0093,
+        "err": 79.8033,
+        "path": "lua/cosmopolitan/nextvar.lua",
+        "score": 0.743
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.266,
-        "score": 1426.6
-      },
-      {
-        "doc": 100.0,
-        "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.355,
-        "score": 535.5
+        "pr": 14.54,
+        "score": 1454.0
       },
       {
         "doc": 100.0,
         "path": "scheme/racket/io.ss",
-        "pr": 4.77,
-        "score": 477.0
+        "pr": 4.89,
+        "score": 489.0
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.669,
-        "score": 466.9
+        "pr": 4.723,
+        "score": 472.3
       },
       {
         "doc": 100.0,
-        "path": "python/fastapi/fastapi/responses.py",
-        "pr": 4.121,
-        "score": 412.1
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "pr": 4.622,
+        "score": 462.2
+      },
+      {
+        "doc": 100.0,
+        "path": "assembly/bootos/os.asm",
+        "pr": 3.975,
+        "score": 397.5
       }
     ]
   }

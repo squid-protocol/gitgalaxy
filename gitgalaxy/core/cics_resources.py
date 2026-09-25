@@ -1,5 +1,5 @@
 # ==============================================================================
-# GitGalaxy Core: CICS resource operations (#3351, #3352, #3353, #3354)
+# GitGalaxy Core: CICS resource operations (#3351, #3352, #3353, #3354, #3512)
 #
 # PURPOSE:
 # The counted rules say THAT a program issues CICS commands (`io`/`ipc`
@@ -14,6 +14,19 @@
 #   CONTAINER  PUT / GET / MOVE / DELETE CONTAINER       (#3354)  CONTAINER (+ CHANNEL)
 #   CHANNEL    LINK / XCTL / START / RETURN / RUN ... CHANNEL(...)  CHANNEL
 #              -- the channel a program hands to another program or transaction
+#   WEB        WEB OPEN / CONVERSE / SEND / RECEIVE / CLOSE,  URIMAP, else HOST
+#              WEB READ / WRITE HTTPHEADER           (#3512)  (OPEN) or PATH;
+#                                                             READ / WRITE: HTTPHEADER
+#   SERVICE    INVOKE SERVICE / WEBSERVICE           (#3512)  SERVICE / WEBSERVICE (+ CHANNEL)
+#   TRANSFORM  TRANSFORM DATATOXML / XMLTODATA /     (#3512)  XMLTRANSFORM / JSONTRANSFRM
+#              DATATOJSON / JSONTODATA                        (+ CHANNEL)
+#
+# The WEB / SERVICE / TRANSFORM verbs are the command's first two words (`WEB
+# SEND`, `INVOKE SERVICE`). A WEB row's qualifier is its side of the HTTP
+# exchange: CLIENT for OPEN / CONVERSE / CLOSE and any command coding SESSTOKEN
+# (an outbound session), else SERVER -- a SERVER SEND / RECEIVE is a hand-written
+# HTTP provider (zECS). WEB EXTRACT / PARSE / browse commands inspect a request
+# already received and name nothing, so they draw no row.
 #
 # ONE TABLE, NOT FOUR. The four kinds share one shape: a verb, an access
 # direction, one named resource (a literal or a data-name read through its
@@ -86,6 +99,15 @@ _MAP_VERBS = {"SEND": "write", "RECEIVE": "read"}
 # The transfer verbs that can hand a channel on, and the operand naming who
 # receives it.
 _CHANNEL_VERBS = {"LINK": "PROGRAM", "XCTL": "PROGRAM", "START": "TRANSID", "RETURN": "TRANSID", "RUN": "TRANSID"}
+# #3512: WEB subcommand -> access; the name options, in precedence order.
+_WEB_VERBS = {"OPEN": "open", "CONVERSE": "converse", "SEND": "write", "RECEIVE": "read", "CLOSE": "close",
+              "READ": "read", "WRITE": "write"}  # fmt: skip
+_WEB_CLIENT_ONLY = frozenset({"OPEN", "CONVERSE", "CLOSE"})
+_WEB_NAMES = {"OPEN": ("URIMAP", "HOST"), "CONVERSE": ("URIMAP", "PATH"), "SEND": ("URIMAP", "PATH"),
+              "READ": ("HTTPHEADER",), "WRITE": ("HTTPHEADER",)}  # fmt: skip
+_SERVICE_VERBS = ("SERVICE", "WEBSERVICE")
+_TRANSFORM_VERBS = {"DATATOXML": "encode", "DATATOJSON": "encode", "XMLTODATA": "decode", "JSONTODATA": "decode"}
+_TRANSFORM_NAMES = ("XMLTRANSFORM", "JSONTRANSFRM")
 # The record operand, in precedence order.
 _RECORD_CLAUSES = ("INTO", "FROM", "SET")
 # Options that are error plumbing, not resource facts.
@@ -259,6 +281,25 @@ def _row(
     }
 
 
+def _two_word_spec(
+    first: str, second: str, present: set[str]
+) -> tuple[str, Optional[tuple[str, str, Optional[str], Optional[str], set[str], Optional[str]]]]:
+    """#3512: the (verb, spec) of a WEB / INVOKE / TRANSFORM command, spec None for any other."""
+    verb = f"{first} {second}"
+    if first == "WEB" and second in _WEB_VERBS:
+        if second in ("READ", "WRITE") and "HTTPHEADER" not in present:
+            return verb, None  # READ FORMFIELD / QUERYPARM: request data, not a header
+        side = "CLIENT" if second in _WEB_CLIENT_ONLY or "SESSTOKEN" in present else "SERVER"
+        name_key = next((k for k in _WEB_NAMES.get(second, ()) if k in present), None)
+        return verb, ("WEB", _WEB_VERBS[second], name_key, None, {second}, side)
+    if first == "INVOKE" and second in _SERVICE_VERBS:
+        return verb, ("SERVICE", "invoke", second, "CHANNEL", set(), None)
+    if first == "TRANSFORM" and second in _TRANSFORM_VERBS:
+        name_key = next((k for k in _TRANSFORM_NAMES if k in present), None)
+        return verb, ("TRANSFORM", _TRANSFORM_VERBS[second], name_key, "CHANNEL", {second}, None)
+    return verb, None
+
+
 def extract_cics_resources(
     code_stream: str,
     values: Optional[dict[str, str]] = None,
@@ -267,7 +308,8 @@ def extract_cics_resources(
     shielded: Optional[Callable[[int], bool]] = None,
 ) -> list[dict[str, Any]]:
     """Every CICS command in one file that names a FILE, MAP, QUEUE, CONTAINER or
-    passed CHANNEL, as flat source-ordered rows (see the module header).
+    passed CHANNEL, or does web / service / transform I/O (#3512), as flat
+    source-ordered rows (see the module header).
 
     `values` is the file's data-name -> VALUE literal map and `moves` its
     data-name -> MOVEd literals; `shielded(offset)` says an offset sits inside a
@@ -305,7 +347,7 @@ def extract_cics_resources(
             continue
         present = set(opts)
         # (kind, access, name option, qualifier option, options consumed, fixed qualifier)
-        spec: Optional[tuple[str, str, str, Optional[str], set[str], Optional[str]]] = None
+        spec: Optional[tuple[str, str, Optional[str], Optional[str], set[str], Optional[str]]] = None
         if verb in _CONTAINER_VERBS and "CONTAINER" in present:
             spec = ("CONTAINER", _CONTAINER_VERBS[verb], "CONTAINER", "CHANNEL", set(), None)
         elif verb in _FILE_VERBS and ({"FILE", "DATASET"} & present):
@@ -318,6 +360,8 @@ def extract_cics_resources(
             spec = ("QUEUE", _QUEUE_VERBS[verb], "QUEUE" if "QUEUE" in present else "QNAME", None, {"TS", "TD"}, qtype)
         elif verb in _CHANNEL_VERBS and "CHANNEL" in present:
             spec = ("CHANNEL", "pass", "CHANNEL", _CHANNEL_VERBS[verb], set(), None)
+        elif len(ordered) > 1:
+            verb, spec = _two_word_spec(verb, ordered[1][0], present)
         if spec is None:
             continue
         kind, access, name_key, qualifier_key, consumed, fixed = spec

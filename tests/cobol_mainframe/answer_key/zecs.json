@@ -12970,6 +12970,42 @@
           "line": 546
         },
         {
+          "verb": "WEB OPEN",
+          "kind": "WEB",
+          "access": "open",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 625
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "CONVERSE-RESPONSE",
+          "line": 672
+        },
+        {
+          "verb": "WEB CLOSE",
+          "kind": "WEB",
+          "access": "close",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 696
+        },
+        {
           "verb": "WRITEQ",
           "kind": "QUEUE",
           "access": "write",
@@ -12987,15 +13023,51 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
     "Source/ZECS001.cbl": {
       "operations": [
+        {
+          "verb": "WEB RECEIVE",
+          "kind": "WEB",
+          "access": "read",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "SET",
+          "record": "CACHE-ADDRESS",
+          "line": 530
+        },
+        {
+          "verb": "WEB RECEIVE",
+          "kind": "WEB",
+          "access": "read",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "SET",
+          "record": "CACHE-ADDRESS",
+          "line": 542
+        },
+        {
+          "verb": "WEB READ",
+          "kind": "WEB",
+          "access": "read",
+          "name": "AUTHORIZATION",
+          "resolution": "value",
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": null,
+          "record": null,
+          "line": 782
+        },
         {
           "verb": "READ",
           "kind": "FILE",
@@ -13057,6 +13129,30 @@
           "line": 1137
         },
         {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CACHE-MESSAGE",
+          "line": 1214
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CACHE-MESSAGE",
+          "line": 1225
+        },
+        {
           "verb": "READ",
           "kind": "FILE",
           "access": "read",
@@ -13091,6 +13187,18 @@
           "record_clause": "INTO",
           "record": "ZK-RECORD",
           "line": 1365
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 1457
         },
         {
           "verb": "WRITE",
@@ -13165,6 +13273,18 @@
           "line": 1631
         },
         {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 1659
+        },
+        {
           "verb": "READ",
           "kind": "FILE",
           "access": "read",
@@ -13175,6 +13295,150 @@
           "record_clause": "INTO",
           "record": "ZF-RECORD",
           "line": 1712
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "HTTP-201-TEXT",
+          "line": 1759
+        },
+        {
+          "verb": "WEB OPEN",
+          "kind": "WEB",
+          "access": "open",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 1830
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "CONVERSE-RESPONSE",
+          "line": 1861
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "CONVERSE-RESPONSE",
+          "line": 1882
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "CONVERSE-RESPONSE",
+          "line": 1903
+        },
+        {
+          "verb": "WEB CLOSE",
+          "kind": "WEB",
+          "access": "close",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 1927
+        },
+        {
+          "verb": "WEB WRITE",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": null,
+          "record": null,
+          "line": 1951
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 2017
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 2040
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 2062
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": null,
+          "record": null,
+          "line": 2087
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 2108
         },
         {
           "verb": "WRITEQ",
@@ -13194,10 +13458,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -13221,10 +13485,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -13265,6 +13529,54 @@
           "record_clause": null,
           "record": null,
           "line": 279
+        },
+        {
+          "verb": "WEB OPEN",
+          "kind": "WEB",
+          "access": "open",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 355
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "CONVERSE-RESPONSE",
+          "line": 400
+        },
+        {
+          "verb": "WEB CLOSE",
+          "kind": "WEB",
+          "access": "close",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 426
+        },
+        {
+          "verb": "WEB SEND",
+          "kind": "WEB",
+          "access": "write",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "SERVER",
+          "record_clause": "FROM",
+          "record": "CRLF",
+          "line": 440
         }
       ],
       "cics_validated": true,
@@ -13272,10 +13584,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -13299,10 +13611,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -13326,10 +13638,73 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
+        }
+      }
+    },
+    "Source/ECS001.cbl": {
+      "operations": [
+        {
+          "verb": "WEB OPEN",
+          "kind": "WEB",
+          "access": "open",
+          "name": "ECS001",
+          "resolution": "value",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 191
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "ECS-DATA",
+          "line": 243
+        },
+        {
+          "verb": "WEB CONVERSE",
+          "kind": "WEB",
+          "access": "converse",
+          "name": null,
+          "resolution": "unresolved",
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": "INTO",
+          "record": "ECS-DATA",
+          "line": 259
+        },
+        {
+          "verb": "WEB CLOSE",
+          "kind": "WEB",
+          "access": "close",
+          "name": null,
+          "resolution": null,
+          "candidates": null,
+          "qualifier": "CLIENT",
+          "record_clause": null,
+          "record": null,
+          "line": 348
+        }
+      ],
+      "cics_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     }
@@ -13433,10 +13808,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -14669,10 +15044,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -14963,10 +15338,10 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (zecs census)",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (zecs census)",
-          "at": "2026-09-24"
+          "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+          "at": "2026-09-25"
         }
       }
     },
@@ -19902,6 +20277,86 @@
           "why": "DFHVALUE(x) is a CICS translator constant (a CVDA value), not a subscripted data item: the key (and engine) dropped the parenthesis and recorded a phantom source field DFHVALUE. Both now keep DFHVALUE(x) / DFHRESP(x) whole as source kind cics_constant, as the reviewer read it."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECSNC.asm"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 49,
+          "asked": 55
+        },
+        "tasks": {
+          "agree": 1,
+          "asked": 1
+        },
+        "uow": {
+          "agree": 12,
+          "asked": 12
+        }
+      },
+      "rulings": {
+        "resources:Source/ECS001.cbl::L243 WEB CONVERSE WEB N=- Q=CLIENT FROM=BODY-DATA": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        },
+        "resources:Source/ECS001.cbl::L243 WEB CONVERSE WEB N=- Q=CLIENT INTO=ECS-DATA": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        },
+        "resources:Source/ZECS001.cbl::L1861 WEB CONVERSE WEB N=- Q=CLIENT FROM=CACHE-MESSAGE": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        },
+        "resources:Source/ZECS001.cbl::L1861 WEB CONVERSE WEB N=- Q=CLIENT INTO=CONVERSE-RESPONSE": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        },
+        "resources:Source/ZECS001.cbl::L1882 WEB CONVERSE WEB N=- Q=CLIENT FROM=CACHE-MESSAGE": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        },
+        "resources:Source/ZECS001.cbl::L1882 WEB CONVERSE WEB N=- Q=CLIENT INTO=CONVERSE-RESPONSE": {
+          "verdict": "key_correct",
+          "why": "The brief said record_clause is 'the first of INTO / FROM / SET the command codes', meant as that precedence (the engine's _RECORD_CLAUSES and the key's reader both take INTO, then FROM, then SET); the reviewer read it as source order, and WEB CONVERSE -- the first command in any census to code both FROM and INTO -- writes FROM first. Both readings agree on line, verb, kind, name and qualifier; the INTO operand the key records is coded on the command. The brief now states the precedence explicitly (#3512)."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs resources census with WEB commands, #3512)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "Source/ZECS002.asm",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 9,
+          "asked": 9
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 6,
+          "asked": 6
+        }
+      },
+      "rulings": {}
     }
   ]
 }

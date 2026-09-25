@@ -100,9 +100,12 @@ PINNED = {
         "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (0, 0), "screens": (0, 2421),
         "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 7),
     },
+    # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
+    # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it
+    # is a CICS program whose transaction the repository does not define.
     "zecs": {
-        "program calls": (2, 3), "copybooks": (6, 6), "transactions": (9, 9), "screens": (0, 0),
-        "data flows": (331, 331), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        "program calls": (2, 3), "copybooks": (6, 6), "transactions": (9, 10), "screens": (0, 0),
+        "data flows": (331, 331), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
 }  # fmt: skip
 

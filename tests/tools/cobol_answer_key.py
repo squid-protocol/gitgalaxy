@@ -2305,7 +2305,8 @@ def commarea_values(rows: list[dict[str, Any]]) -> set[str]:
 # (the VALUE reader the call-site key already uses), then a sole `MOVE 'LIT' TO`
 # literal. It shares the engine's CONTRACT, not its code: one row per command
 # naming a FILE (FILE/DATASET), MAP, QUEUE (QUEUE/QNAME, TS unless TD), CONTAINER
-# or a CHANNEL passed by LINK/XCTL/START/RETURN/RUN.
+# or a CHANNEL passed by LINK/XCTL/START/RETURN/RUN -- and (#3512) the two-word
+# web commands in _CICS_TWO_WORD, whose verb is both words.
 CICS_EXTS = PROGRAM_EXTS + COPYBOOK_EXTS
 _CICS_EXEC = re.compile(r"\bEXEC\s+CICS\b")
 _CICS_END = re.compile(r"\bEND-EXEC\b")
@@ -2327,6 +2328,25 @@ _CICS_QUEUE = {"WRITEQ": "write", "READQ": "read", "DELETEQ": "delete"}
 _CICS_CONTAINER = {"PUT": "write", "GET": "read", "MOVE": "move", "DELETE": "delete"}
 _CICS_MAP = {"SEND": "write", "RECEIVE": "read"}
 _CICS_PASS = {"LINK": "PROGRAM", "XCTL": "PROGRAM", "START": "TRANSID", "RETURN": "TRANSID", "RUN": "TRANSID"}
+# #3512: (first word, second word) -> (kind, access, name options by precedence,
+# qualifier option). A WEB command's qualifier is its side: CLIENT when it opens,
+# converses on or closes an outbound session or codes SESSTOKEN, else SERVER. WEB
+# READ / WRITE count only for an HTTPHEADER (not FORMFIELD / QUERYPARM).
+_CICS_TWO_WORD = {
+    ("WEB", "OPEN"): ("WEB", "open", ("URIMAP", "HOST"), None),
+    ("WEB", "CONVERSE"): ("WEB", "converse", ("URIMAP", "PATH"), None),
+    ("WEB", "SEND"): ("WEB", "write", ("URIMAP", "PATH"), None),
+    ("WEB", "RECEIVE"): ("WEB", "read", (), None),
+    ("WEB", "CLOSE"): ("WEB", "close", (), None),
+    ("WEB", "READ"): ("WEB", "read", ("HTTPHEADER",), None),
+    ("WEB", "WRITE"): ("WEB", "write", ("HTTPHEADER",), None),
+    ("INVOKE", "SERVICE"): ("SERVICE", "invoke", ("SERVICE",), "CHANNEL"),
+    ("INVOKE", "WEBSERVICE"): ("SERVICE", "invoke", ("WEBSERVICE",), "CHANNEL"),
+    ("TRANSFORM", "DATATOXML"): ("TRANSFORM", "encode", ("XMLTRANSFORM",), "CHANNEL"),
+    ("TRANSFORM", "XMLTODATA"): ("TRANSFORM", "decode", ("XMLTRANSFORM",), "CHANNEL"),
+    ("TRANSFORM", "DATATOJSON"): ("TRANSFORM", "encode", ("JSONTRANSFRM",), "CHANNEL"),
+    ("TRANSFORM", "JSONTODATA"): ("TRANSFORM", "decode", ("JSONTRANSFRM",), "CHANNEL"),
+}
 
 
 def _cics_value_of(src: Source, ident: str) -> Optional[str]:
@@ -2401,9 +2421,19 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
             qtype = "TD" if "TD" in d else "TS"
         elif verb in _CICS_PASS and "CHANNEL" in d:
             kind, access, name_key, q_key, qtype = "CHANNEL", "pass", "CHANNEL", _CICS_PASS[verb], None
+        elif len(opts) > 1 and (verb, opts[1][0]) in _CICS_TWO_WORD:
+            second = opts[1][0]
+            kind, access, names, q_key = _CICS_TWO_WORD[(verb, second)]
+            if names == ("HTTPHEADER",) and "HTTPHEADER" not in d:
+                continue
+            name_key = next((k for k in names if k in d), None)
+            qtype = None
+            if kind == "WEB":
+                qtype = "CLIENT" if "SESSTOKEN" in d or second in ("OPEN", "CONVERSE", "CLOSE") else "SERVER"
+            verb = f"{verb} {second}"
         else:
             continue
-        name, resolution, candidates = resolve(d.get(name_key))
+        name, resolution, candidates = resolve(d.get(name_key) if name_key else None)
         qualifier = qtype if qtype else resolve(d.get(q_key) if q_key else None)[0]
         clause = next((c for c in ("INTO", "FROM", "SET") if d.get(c)), None)
         out.append(

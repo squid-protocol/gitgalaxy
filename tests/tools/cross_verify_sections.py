@@ -58,7 +58,8 @@ keyed rows, in full:
 
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
-    cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations
+    cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
+                                               and WEB / SERVICE / TRANSFORM commands (#3512)
     (an HLASM source also answers cics_tasks and uow_handlers here -- COBOL answers them in `channels`)
 
 The data-move sample is fixed when the census is cut and stored in the key under
@@ -1513,7 +1514,8 @@ physical line numbers of the file. Ignore commented-out lines and text inside qu
 {asm_rules}
 For EACH file below answer TASK RESOURCES (a file with none gets an empty list):
 TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry each: "line" (of `EXEC CICS`),
-"verb" (the command's first word), "kind", "name", "qualifier", "record_clause", "record":
+"verb" (the command's first word -- for WEB / INVOKE / TRANSFORM its first two words, e.g. "WEB SEND"), "kind",
+"name", "qualifier", "record_clause", "record":
   - kind CONTAINER: PUT / GET / MOVE / DELETE with a CONTAINER(...) option; name the container, qualifier the
     CHANNEL(...) value.
   - kind FILE: READ / READNEXT / READPREV / STARTBR / RESETBR / ENDBR / WRITE / REWRITE / DELETE / UNLOCK with a
@@ -1523,10 +1525,19 @@ TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry 
     command says TD, else "TS".
   - kind CHANNEL: LINK / XCTL (qualifier the PROGRAM(...) value) or START / RETURN / RUN (qualifier the TRANSID(...)
     value) with a CHANNEL(...) option; name the channel.
+  - kind WEB: WEB OPEN / CONVERSE / SEND / RECEIVE / CLOSE, and WEB READ / WRITE with an HTTPHEADER(...) option (not
+    WEB EXTRACT / PARSE / STARTBROWSE / READNEXT / ENDBROWSE, nor WEB READ FORMFIELD / QUERYPARM). name: for OPEN the
+    URIMAP(...) value, else HOST(...); for CONVERSE and SEND the URIMAP(...) value, else PATH(...); for READ / WRITE
+    the HTTPHEADER(...) value; for RECEIVE and CLOSE null. qualifier: "CLIENT" for OPEN, CONVERSE, CLOSE and any WEB
+    command coding SESSTOKEN(...), else "SERVER".
+  - kind SERVICE: INVOKE SERVICE(...) / INVOKE WEBSERVICE(...); name that value, qualifier the CHANNEL(...) value.
+  - kind TRANSFORM: TRANSFORM DATATOXML / XMLTODATA (name the XMLTRANSFORM(...) value) or DATATOJSON / JSONTODATA
+    (name the JSONTRANSFRM(...) value); qualifier the CHANNEL(...) value.
   A command naming none of these (SEND TEXT, WRITE OPERATOR, ASKTIME, ...) is not listed. A name or qualifier is a
   value only when the source fixes it: a literal (its text), or a data-name with a fixed value (COBOL: its VALUE
   literal, else the one literal ever MOVEd into it; assembler: its DC constant); otherwise null. "record_clause" is
-  the first of INTO / FROM / SET the command codes (null if none), "record" that option's operand as written.
+  INTO if the command codes it, else FROM, else SET -- that precedence, not source order (a WEB CONVERSE codes both
+  FROM and INTO: INTO) -- null if none; "record" that option's operand as written.
 
 Files:
 {listing}

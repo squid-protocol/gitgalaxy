@@ -337,3 +337,103 @@ def test_many_move_statements_stay_linear():
     start = time.perf_counter()
     extract_boundary("cobol", src + "\n           EXEC CICS READ FILE(A) END-EXEC\n")
     assert time.perf_counter() - start < 2.0
+
+
+# ---- WEB / SERVICE / TRANSFORM (#3512) ----------------------------------------
+
+
+def _brief(op: dict) -> tuple:
+    return (op["verb"], op["kind"], op["access"], op["name"], op["qualifier"], op["record_clause"], op["record"])
+
+
+def test_a_hand_written_http_provider_is_server_side():
+    # zECS ZECS001.cbl: WEB RECEIVE / READ HTTPHEADER / WRITE HTTPHEADER / SEND, no session token.
+    ops = _ops(
+        "       01  HEADER-ACAO  PIC X(27) VALUE 'Access-Control-Allow-Origin'.\n"
+        "           EXEC CICS WEB RECEIVE SET(CACHE-ADDRESS) LENGTH(RECEIVE-LENGTH)\n"
+        "                MEDIATYPE(WEB-MEDIA-TYPE) RESP(WEBRESP) NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB READ HTTPHEADER(HTTP-HEADER) VALUE(HTTP-HEADER-VALUE)\n"
+        "                NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB WRITE HTTPHEADER(HEADER-ACAO) VALUE(VALUE-ACAO)\n"
+        "                NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB SEND FROM (CACHE-MESSAGE) FROMLENGTH(CACHE-LENGTH)\n"
+        "                MEDIATYPE (WEB-MEDIA-TYPE) STATUSCODE(HTTP-STATUS-200) SRVCONVERT\n"
+        "                NOHANDLE END-EXEC.\n"
+    )
+    assert [_brief(op) for op in ops] == [
+        ("WEB RECEIVE", "WEB", "read", None, "SERVER", "SET", "CACHE-ADDRESS"),
+        ("WEB READ", "WEB", "read", None, "SERVER", None, None),  # HTTP-HEADER has no fixed value
+        ("WEB WRITE", "WEB", "write", "Access-Control-Allow-Origin", "SERVER", None, None),
+        ("WEB SEND", "WEB", "write", None, "SERVER", "FROM", "CACHE-MESSAGE"),
+    ]
+    assert ops[0]["attributes"] == "LENGTH(RECEIVE-LENGTH) MEDIATYPE(WEB-MEDIA-TYPE)"
+    assert ops[1]["operand"] == "HTTP-HEADER" and ops[1]["resolution"] == "unresolved"
+
+
+def test_an_outbound_session_is_client_side():
+    # zECS ZECS001.cbl replication: OPEN a host, CONVERSE on the session, CLOSE it.
+    ops = _ops(
+        "           EXEC CICS WEB OPEN HOST(URL-HOST-NAME) PORTNUMBER(URL-PORT)\n"
+        "                SCHEME(URL-SCHEME) SESSTOKEN(SESSION-TOKEN) NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB CONVERSE SESSTOKEN(SESSION-TOKEN) PATH(WEB-PATH)\n"
+        "                METHOD(WEB-METHOD) FROM(CACHE-MESSAGE) INTO(CONVERSE-RESPONSE)\n"
+        "                NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB SEND SESSTOKEN(SESSION-TOKEN) PATH('/api/v1')\n"
+        "                FROM(REQ) END-EXEC.\n"
+        "           EXEC CICS WEB OPEN URIMAP('ZECSREPL') SESSTOKEN(S) END-EXEC.\n"
+        "           EXEC CICS WEB CLOSE SESSTOKEN(SESSION-TOKEN) NOHANDLE END-EXEC.\n"
+    )
+    assert [_brief(op) for op in ops] == [
+        ("WEB OPEN", "WEB", "open", None, "CLIENT", None, None),
+        ("WEB CONVERSE", "WEB", "converse", None, "CLIENT", "INTO", "CONVERSE-RESPONSE"),  # INTO before FROM
+        ("WEB SEND", "WEB", "write", "/api/v1", "CLIENT", "FROM", "REQ"),
+        ("WEB OPEN", "WEB", "open", "ZECSREPL", "CLIENT", None, None),  # a URIMAP wins over HOST
+        ("WEB CLOSE", "WEB", "close", None, "CLIENT", None, None),
+    ]
+    assert ops[0]["operand"] == "URL-HOST-NAME"
+
+
+def test_web_commands_that_name_nothing_draw_nothing():
+    assert not _ops(
+        "           EXEC CICS WEB EXTRACT SCHEME(S) HOST(H) PATH(P) NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB PARSE URL(U) HOST(H) NOHANDLE END-EXEC.\n"
+        "           EXEC CICS WEB READ FORMFIELD(F) VALUE(V) END-EXEC.\n"
+        "           EXEC CICS WEB STARTBROWSE HTTPHEADER END-EXEC.\n"
+    )
+
+
+def test_invoke_service_names_the_service_and_its_channel():
+    ops = _ops(
+        "       01  WS-CHAN  PIC X(16) VALUE 'QUOTE-CHANNEL'.\n"
+        "           EXEC CICS INVOKE SERVICE('GETQUOTE') CHANNEL(WS-CHAN)\n"
+        "                OPERATION('getQuote') RESP(R) END-EXEC.\n"
+        "           EXEC CICS INVOKE WEBSERVICE(WS-NAME) CHANNEL('C2')\n"
+        "                OPERATION(OP-NAME) URI('http://example.com/q') END-EXEC.\n"
+    )
+    assert [_brief(op) for op in ops] == [
+        ("INVOKE SERVICE", "SERVICE", "invoke", "GETQUOTE", "QUOTE-CHANNEL", None, None),
+        ("INVOKE WEBSERVICE", "SERVICE", "invoke", None, "C2", None, None),
+    ]
+    assert ops[0]["attributes"] == "OPERATION('getQuote')"
+    assert ops[1]["attributes"] == "OPERATION(OP-NAME) URI('http://example.com/q')"
+
+
+def test_transform_names_its_transformer_and_channel():
+    ops = _ops(
+        "           EXEC CICS TRANSFORM DATATOXML CHANNEL('ORDERS')\n"
+        "                XMLTRANSFORM('ORDERXF') DATCONTAINER('DATA') XMLCONTAINER('XML')\n"
+        "           END-EXEC.\n"
+        "           EXEC CICS TRANSFORM JSONTODATA CHANNEL(CH) JSONTRANSFRM('CUSTJS') END-EXEC.\n"
+        "           EXEC CICS TRANSFORM XMLTODATA CHANNEL(CH) ELEMNAME(E) END-EXEC.\n"
+    )
+    assert [_brief(op) for op in ops] == [
+        ("TRANSFORM DATATOXML", "TRANSFORM", "encode", "ORDERXF", "ORDERS", None, None),
+        ("TRANSFORM JSONTODATA", "TRANSFORM", "decode", "CUSTJS", None, None, None),
+        ("TRANSFORM XMLTODATA", "TRANSFORM", "decode", None, None, None, None),
+    ]
+    assert ops[0]["attributes"] == "DATCONTAINER('DATA') XMLCONTAINER('XML')"
+
+
+def test_pli_web_commands_end_at_semicolon():
+    op = _one(" EXEC CICS WEB SEND FROM(BUF) FROMLENGTH(L) MEDIATYPE('text/plain');\n X = 1;\n", "pli")
+    assert _brief(op) == ("WEB SEND", "WEB", "write", None, "SERVER", "FROM", "BUF")

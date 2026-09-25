@@ -30,7 +30,8 @@
 #     placeholders such as `<ZFSHOME>` kept). Joining the program to its file and
 #     the members to copybooks, and adding the CSD URIMAP / PIPELINE definitions,
 #     is the reader's (GalaxyIR.api_surface).
-#   - Program-side EXEC CICS WEB / INVOKE SERVICE / TRANSFORM are not read here.
+#   - Program-side EXEC CICS WEB / INVOKE SERVICE / TRANSFORM are cics_resources
+#     rows (#3512); api_surface joins an INVOKE to its requester step here.
 #   - A value continued with a non-blank column 72 is joined to the next line.
 # ==============================================================================
 import re

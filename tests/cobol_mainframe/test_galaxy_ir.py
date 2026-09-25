@@ -2205,6 +2205,62 @@ def test_api_surface_joins_program_copybooks_and_csd(tmp_path):
     assert tx["gaps"]["CICS program no transaction reaches"] == 0
 
 
+# ---- #3512: the program side of the API surface ----------------------------------
+WS2LS_JCL = """\
+//GENAREQ   JOB  ,S8SMITH,CLASS=A
+//WS2LS     EXEC DFHWS2LS
+//INPUT.SYSUT1 DD *
+ REQMEM=QUOTEQ
+ RESPMEM=QUOTER
+ WSBIND=/u/wsbind/requester/GETQUOTE.wsbind
+ WSDL=/u/wsdl/getquote.wsdl
+/*
+"""
+INVOKER = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QUOTER.
+       PROCEDURE DIVISION.
+           EXEC CICS INVOKE SERVICE('GETQUOTE') CHANNEL('QCHAN')
+                OPERATION('getQuote') END-EXEC.
+           EXEC CICS INVOKE SERVICE('NOWHERE') CHANNEL('QCHAN') END-EXEC.
+           EXEC CICS WEB OPEN URIMAP('RATES') SESSTOKEN(TOK) END-EXEC.
+           EXEC CICS WEB CONVERSE SESSTOKEN(TOK) PATH('/rates') INTO(R) END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+HTTP_PROVIDER = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. KVSTORE.
+       PROCEDURE DIVISION.
+           EXEC CICS WEB RECEIVE INTO(BODY) LENGTH(L) END-EXEC.
+           EXEC CICS WEB SEND FROM(BODY) FROMLENGTH(L) END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+
+def test_invoke_service_joins_its_requester_step_and_csd_webservice(tmp_path):
+    repo = tmp_path / "req"
+    for rel, text in {"cntl/WSREQ.jcl": WS2LS_JCL, "csd/WEB.csd": " DEFINE WEBSERVICE(GETQUOTE) GROUP(WEB)\n",
+                      "cbl/QUOTER.cbl": INVOKER, "cbl/KVSTORE.cbl": HTTP_PROVIDER}.items():  # fmt: skip
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    api = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).api_surface()
+    (svc,) = api["services"]
+    assert (svc["direction"], svc["invoked_by"]) == ("requester", ["cbl/QUOTER.cbl"])
+    found, missing = api["invocations"]
+    assert (found["service"], found["channel"], found["requester"], found["csd"]) == (
+        "GETQUOTE",
+        "QCHAN",
+        ["cntl/WSREQ.jcl:2"],
+        "csd/WEB.csd",
+    )
+    assert (missing["service"], missing["requester"], missing["csd"]) == ("NOWHERE", [], None)
+    assert api["http"] == [
+        {"file": "cbl/KVSTORE.cbl", "side": "SERVER", "commands": 2, "endpoints": []},
+        {"file": "cbl/QUOTER.cbl", "side": "CLIENT", "commands": 2, "endpoints": ["/rates", "RATES"]},
+    ]
+
+
 # ---- #3497: JCICS -- Java LINKs join the COBOL call graph ----------------------
 def test_a_java_jcics_link_resolves_to_the_cobol_program(tmp_path):
     repo = tmp_path / "jc"

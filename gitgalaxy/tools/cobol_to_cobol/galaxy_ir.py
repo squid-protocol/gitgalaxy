@@ -468,8 +468,10 @@ class EngineCsdResource:
 class EngineCicsResource:
     """One EXEC CICS command that names a resource (#3351-#3354), from `cics_resource_data`.
 
-    `kind` is FILE | MAP | QUEUE | CONTAINER | CHANNEL and `access` its direction
-    (read | write | update | delete | browse | unlock | move | pass). `operand` is
+    `kind` is FILE | MAP | QUEUE | CONTAINER | CHANNEL -- or WEB | SERVICE |
+    TRANSFORM (#3512; a WEB row's qualifier is CLIENT | SERVER) -- and `access` its
+    direction (read | write | update | delete | browse | unlock | move | pass;
+    open | converse | close | invoke | encode | decode). `operand` is
     the name operand as written; `name` its resolved value -- the literal, the
     data-name's VALUE, or the single literal MOVEd to it (`resolution` says which)
     -- and None when that is `ambiguous` (the MOVEd literals are in `candidates`),
@@ -1434,7 +1436,18 @@ class GalaxyIR:
         `response_file` (the copybook, or None), `interface`, `binding`,
         `document`. `csd`: the CSD definitions that serve HTTP -- every URIMAP,
         PIPELINE, WEBSERVICE and TCPIPSERVICE, with `name`, `group`, `defined_in`
-        and its kept `attributes` (a URIMAP's PATH / PROGRAM / PIPELINE)."""
+        and its kept `attributes` (a URIMAP's PATH / PROGRAM / PIPELINE).
+
+        #3512, the program side. `invocations`: one per EXEC CICS INVOKE SERVICE /
+        WEBSERVICE -- `defined_in`, `line`, `verb`, `service` (resolved, else None),
+        `operand`, `channel`, `requester` (the `defined_in:line` of every requester
+        step whose WSBIND file is named after the service: an installed web service
+        takes its wsbind file's name) and `csd` (the file defining a CSD WEBSERVICE
+        of that name, or None). Each service carries `invoked_by`, the files that
+        INVOKE it (a requester's callers; empty for a provider). `http`: one per
+        program and side of a hand-coded EXEC CICS WEB exchange -- `file`, `side`
+        (SERVER: a hand-written HTTP provider; CLIENT: an outbound session),
+        `commands` and the resolved `endpoints` (URIMAP / HOST / PATH / header names)."""
         by_pid = {pid.upper(): f.file_path for f in self.files.values() if f.is_program for pid in f.program_ids}
         copybooks: dict = {}
         for path, f in self.files.items():
@@ -1450,7 +1463,7 @@ class GalaxyIR:
              "uri": w.uri, "program": w.program, "program_file": by_pid.get((w.program or "").upper()),
              "request": w.request, "request_file": book(w.request), "response": w.response,
              "response_file": book(w.response), "interface": w.interface, "binding": w.binding,
-             "document": w.document}
+             "document": w.document, "invoked_by": []}
             for f in sorted(self.files.values(), key=lambda x: x.file_path)
             for w in f.web_services
         ]  # fmt: skip
@@ -1466,7 +1479,45 @@ class GalaxyIR:
             for r in f.csd_resources
             if (r.resource_type or "").upper() in ("URIMAP", "PIPELINE", "WEBSERVICE", "TCPIPSERVICE")
         ]
-        return {"services": services, "csd": csd}
+        requesters: dict = {}
+        for svc in services:
+            if svc["direction"] == "requester" and svc["binding"]:
+                stem = re.split(r"[/\\]", svc["binding"])[-1].rsplit(".", 1)[0].upper()
+                requesters.setdefault(stem, []).append(svc)
+        csd_ws = {(c["name"] or "").upper(): c["defined_in"] for c in csd if (c["type"] or "").upper() == "WEBSERVICE"}
+        invocations = []
+        http: dict = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind == "WEB":
+                    entry = http.setdefault((f.file_path, op.qualifier), {"commands": 0, "endpoints": set()})
+                    entry["commands"] += 1
+                    if op.name:
+                        entry["endpoints"].add(op.name)
+                if op.kind != "SERVICE":
+                    continue
+                key = (op.name or "").upper()
+                steps = requesters.get(key, []) if key else []
+                for svc in steps:
+                    if f.file_path not in svc["invoked_by"]:
+                        svc["invoked_by"].append(f.file_path)
+                invocations.append(
+                    {
+                        "defined_in": f.file_path,
+                        "line": op.line,
+                        "verb": op.verb,
+                        "service": op.name,
+                        "operand": op.operand,
+                        "channel": op.qualifier,
+                        "requester": [f"{s['defined_in']}:{s['line']}" for s in steps],
+                        "csd": csd_ws.get(key) if key else None,
+                    }
+                )
+        http_rows = [
+            {"file": path, "side": side, "commands": e["commands"], "endpoints": sorted(e["endpoints"])}
+            for (path, side), e in sorted(http.items(), key=lambda kv: (kv[0][0], kv[0][1] or ""))
+        ]
+        return {"services": services, "csd": csd, "invocations": invocations, "http": http_rows}
 
     def symbolic_map_layouts(self) -> dict:
         """Mapset -> {`file` (the BMS source), `items`: sorted `NAME @offset+bytes`}

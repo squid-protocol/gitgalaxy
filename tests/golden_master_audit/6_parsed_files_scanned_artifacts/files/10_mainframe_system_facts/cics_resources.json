@@ -1,5 +1,165 @@
 {
   "groups": {
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": [
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 473,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        },
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 498,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": [
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 420,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        },
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 445,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        {
+          "Access": "read",
+          "Attributes": "MAXLENGTH(WS-BODY-LEN) LENGTH(WS-BODY-LEN-RECV)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 131,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-BODY-BRUT",
+          "Record Clause": "INTO",
+          "Resolution": null,
+          "Verb": "WEB RECEIVE"
+        },
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 485,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        },
+        {
+          "Access": "write",
+          "Attributes": "MEDIATYPE('application/json') CHARACTERSET('ISO-8859-1') STATUSCODE(200) STATUSTEXT(WS-STATUSTXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 529,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "WS-JSON-RESPONSE",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": [
+        {
+          "Access": "open",
+          "Attributes": "PORTNUMBER(WS-PORT) SESSTOKEN(WS-SESSTOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 52,
+          "Name": "10.20.0.138",
+          "Operand": "WS-HOST",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": "value",
+          "Verb": "WEB OPEN"
+        },
+        {
+          "Access": "converse",
+          "Attributes": "SESSTOKEN(WS-SESSTOKEN) PATHLENGTH(WS-SMS-PATH-LEN) METHOD(DFHVALUE(GET)) CHARACTERSET('iso-8859-1') MAXLENGTH(2000) TOLENGTH(WS-RESP-LEN) STATUSCODE(WS-HTTP-STATUS) STATUSTEXT(WS-STATUSTEXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 97,
+          "Name": null,
+          "Operand": "WS-SMS-PATH",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": "WS-RESPONSE-BUFFER",
+          "Record Clause": "INTO",
+          "Resolution": "unresolved",
+          "Verb": "WEB CONVERSE"
+        },
+        {
+          "Access": "close",
+          "Attributes": "SESSTOKEN(WS-SESSTOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 118,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": null,
+          "Verb": "WEB CLOSE"
+        }
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": [
         {
@@ -4034,6 +4194,68 @@
       ]
     },
     "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": [
+        {
+          "Access": "open",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 191,
+          "Name": "ECS001",
+          "Operand": "URIMAP-NAME",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": "value",
+          "Verb": "WEB OPEN"
+        },
+        {
+          "Access": "converse",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN) METHOD(METHOD-CDVA) PATHLENGTH(PATH-NAME-LEN) FROM(BODY-DATA) FROMLENGTH(BODY-DATA-LEN) MEDIATYPE(MEDIA-TYPE) TOLENGTH(ECS-DATA-LEN) STATUSCODE(HTTP-STATUS-CODE) STATUSLEN(HTTP-STATUS-LEN) STATUSTEXT(HTTP-STATUS-TEXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 243,
+          "Name": null,
+          "Operand": "PATH-NAME",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": "ECS-DATA",
+          "Record Clause": "INTO",
+          "Resolution": "unresolved",
+          "Verb": "WEB CONVERSE"
+        },
+        {
+          "Access": "converse",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN) METHOD(METHOD-CDVA) PATHLENGTH(PATH-NAME-LEN) TOLENGTH(ECS-DATA-LEN) STATUSCODE(HTTP-STATUS-CODE) STATUSLEN(HTTP-STATUS-LEN) STATUSTEXT(HTTP-STATUS-TEXT)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 259,
+          "Name": null,
+          "Operand": "PATH-NAME",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": "ECS-DATA",
+          "Record Clause": "INTO",
+          "Resolution": "unresolved",
+          "Verb": "WEB CONVERSE"
+        },
+        {
+          "Access": "close",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 348,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": null,
+          "Verb": "WEB CLOSE"
+        }
+      ],
       "cobol/zECS/ZECS000.cbl": [
         {
           "Access": "read",
@@ -4156,6 +4378,51 @@
           "Verb": "DELETE"
         },
         {
+          "Access": "open",
+          "Attributes": "HOSTLENGTH(URL-HOST-NAME-LENGTH) PORTNUMBER(URL-PORT) SCHEME(URL-SCHEME) SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 625,
+          "Name": null,
+          "Operand": "URL-HOST-NAME",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": "unresolved",
+          "Verb": "WEB OPEN"
+        },
+        {
+          "Access": "converse",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN) PATHLENGTH(WEB-PATH-LENGTH) METHOD(WEB-METHOD) MEDIATYPE(ZF-MEDIA) TOLENGTH(CONVERSE-LENGTH) MAXLENGTH(CONVERSE-LENGTH) STATUSCODE(WEB-STATUS-CODE) STATUSLEN(WEB-STATUS-LENGTH) STATUSTEXT(WEB-STATUS-ABSTIME)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 672,
+          "Name": null,
+          "Operand": "WEB-PATH",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": "CONVERSE-RESPONSE",
+          "Record Clause": "INTO",
+          "Resolution": "unresolved",
+          "Verb": "WEB CONVERSE"
+        },
+        {
+          "Access": "close",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 696,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": null,
+          "Verb": "WEB CLOSE"
+        },
+        {
           "Access": "write",
           "Attributes": "LENGTH(TD-LENGTH)",
           "Candidates": null,
@@ -4216,6 +4483,66 @@
           "Record Clause": null,
           "Resolution": "unresolved",
           "Verb": "DELETE"
+        },
+        {
+          "Access": "open",
+          "Attributes": "HOSTLENGTH(URL-HOST-NAME-LENGTH) PORTNUMBER(URL-PORT) SCHEME(URL-SCHEME) SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 355,
+          "Name": null,
+          "Operand": "URL-HOST-NAME",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": "unresolved",
+          "Verb": "WEB OPEN"
+        },
+        {
+          "Access": "converse",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN) PATHLENGTH(WEB-PATH-LENGTH) METHOD(WEB-METHOD) MEDIATYPE(ZF-MEDIA) TOLENGTH(CONVERSE-LENGTH) MAXLENGTH(CONVERSE-LENGTH) STATUSCODE(WEB-STATUS-CODE) STATUSLEN(WEB-STATUS-LENGTH) STATUSTEXT(WEB-STATUS-ABSTIME) QUERYSTRING(CLEAR-ALL) QUERYSTRLEN(SEVEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 400,
+          "Name": null,
+          "Operand": "WEB-PATH",
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": "CONVERSE-RESPONSE",
+          "Record Clause": "INTO",
+          "Resolution": "unresolved",
+          "Verb": "WEB CONVERSE"
+        },
+        {
+          "Access": "close",
+          "Attributes": "SESSTOKEN(SESSION-TOKEN)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 426,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "CLIENT",
+          "Qualifier Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": null,
+          "Verb": "WEB CLOSE"
+        },
+        {
+          "Access": "write",
+          "Attributes": "FROMLENGTH(TWO) MEDIATYPE(TEXT-PLAIN) ACTION(SEND-ACTION) STATUSCODE(HTTP-STATUS-200) STATUSTEXT(HTTP-OK)",
+          "Candidates": null,
+          "Kind": "WEB",
+          "Line": 440,
+          "Name": null,
+          "Operand": null,
+          "Qualifier": "SERVER",
+          "Qualifier Operand": null,
+          "Record": "CRLF",
+          "Record Clause": "FROM",
+          "Resolution": null,
+          "Verb": "WEB SEND"
         }
       ],
       "cobol/zECS/ZECSPLT.cbl": [

@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
+from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
 def map_type_to_java(json_type: str, description: str) -> str:
@@ -255,8 +256,32 @@ def dto_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
     return entity_class_name(schema_json, unit_key) + "Dto"
 
 
-def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optional[str] = None) -> str:
-    """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps."""
+_FIELD_DECL = re.compile(r"^    private ([\w<>]+) (\w+)(?: = [^;]+)?;$")
+
+
+def _declared_fields(lines: list[str]) -> list[tuple[str, str]]:
+    """(type, name) of every `private T name;` line _render_field wrote."""
+    return [(m.group(1), m.group(2)) for m in (_FIELD_DECL.match(ln.rstrip("\n")) for ln in lines) if m]
+
+
+def _accessors(class_name: str, fields: list[tuple[str, str]]) -> list[str]:
+    """#3613 `data_classes: plain`: the no-args constructor and the getters / setters
+    Lombok's @Data / @NoArgsConstructor would have generated."""
+    out = [f"    public {class_name}() {{", "    }", ""]
+    for java_type, name in fields:
+        cap = name[0].upper() + name[1:]
+        out += [f"    public {java_type} get{cap}() {{", f"        return {name};", "    }", ""]
+        out += [f"    public void set{cap}({java_type} {name}) {{", f"        this.{name} = {name};", "    }", ""]
+    return out
+
+
+def generate_java_entity(
+    schema_json: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+) -> str:
+    """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps.
+
+    `target` (#3613): Lombok `@Data` (the default), or plain explicit accessors."""
+    lombok = (target or JavaTarget()).lombok
     # The table keeps the legacy record name: the class is disambiguated, the
     # COBOL 01-level it maps is not renamed.
     table_name = schema_json.get("title", "UnknownTable")
@@ -269,16 +294,18 @@ def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optiona
 
     java = []
     java.append(f"package {package_name}.entity;\n")
-    java.append("import lombok.Data;")
-    java.append("import lombok.NoArgsConstructor;")
+    if lombok:
+        java.append("import lombok.Data;")
+        java.append("import lombok.NoArgsConstructor;")
     java.append("import jakarta.persistence.*;")
     java.append("import java.math.BigDecimal;")
     if requires_list:
         java.append("import java.util.List;")
     java.append("")
 
-    java.append("@Data")
-    java.append("@NoArgsConstructor")
+    if lombok:
+        java.append("@Data")
+        java.append("@NoArgsConstructor")
     java.append("@Entity")
     java.append(f'@Table(name = "{table_name}")')
     java.append(f"public class {class_name} {{")
@@ -289,14 +316,20 @@ def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optiona
     java.append('    @Column(name = "sys_id")')
     java.append("    private Long sysId;\n")
 
+    body: list[str] = []
     for col_name, col_data in properties.items():
-        java.extend(_render_field(col_name, col_data, table_name, jpa=True))
+        body.extend(_render_field(col_name, col_data, table_name, jpa=True))
+    java.extend(body)
+    if not lombok:
+        java.extend(_accessors(class_name, [("Long", "sysId"), *_declared_fields(body)]))
 
     java.append("}")
     return "\n".join(java)
 
 
-def generate_java_dto(schema_json: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+def generate_java_dto(
+    schema_json: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+) -> str:
     """Generates a plain Lombok POJO DTO for a transient record (#3233).
 
     A DFHCOMMAREA is a CICS communication area -- a parameter block, not persistent
@@ -304,27 +337,57 @@ def generate_java_dto(schema_json: dict, package_name: str, unit_key: Optional[s
     surrogate key, no `@Column`. The exact COBOL layout (field order, precision,
     OCCURS arrays, REDEFINES aliases) is preserved as plain fields, since the block
     is still read and written by the migrated business logic.
+
+    `target` (#3613): a Lombok class (the default), a plain class with explicit
+    accessors, or (`dto_style: record`) a Java record of the same fields.
     """
+    t = target or JavaTarget()
     class_name = dto_class_name(schema_json, unit_key)
     properties = schema_json.get("properties", {})
 
     requires_list = any("OCCURS" in col_data.get("description", "").upper() for col_data in properties.values())
 
+    body: list[str] = []
+    for col_name, col_data in properties.items():
+        body.extend(_render_field(col_name, col_data, class_name, jpa=False))
+
     java = []
     java.append(f"package {package_name}.dto;\n")
-    java.append("import lombok.Data;")
-    java.append("import lombok.NoArgsConstructor;")
+    use_lombok = t.lombok and t.java.dto_style == "class"
+    if use_lombok:
+        java.append("import lombok.Data;")
+        java.append("import lombok.NoArgsConstructor;")
     java.append("import java.math.BigDecimal;")
     if requires_list:
         java.append("import java.util.List;")
     java.append("")
 
-    java.append("@Data")
-    java.append("@NoArgsConstructor")
-    java.append(f"public class {class_name} {{\n")
+    if t.java.dto_style == "record":
+        # A record's components are its fields: each keeps its structural comments.
+        components: list[str] = []
+        for ln in body:
+            m = _FIELD_DECL.match(ln.rstrip("\n"))
+            if m:
+                components.append(f"        {m.group(1)} {m.group(2)}")
+            elif ln.strip().startswith("//"):
+                components.append("    " + ln.rstrip("\n"))
+        decl = list(components)
+        idx = [i for i, c in enumerate(decl) if not c.strip().startswith("//")]
+        for i in idx[:-1]:
+            decl[i] += ","
+        java.append(f"public record {class_name}(")
+        java.extend(decl)
+        java.append(") {")
+        java.append("}")
+        return "\n".join(java)
 
-    for col_name, col_data in properties.items():
-        java.extend(_render_field(col_name, col_data, class_name, jpa=False))
+    if use_lombok:
+        java.append("@Data")
+        java.append("@NoArgsConstructor")
+    java.append(f"public class {class_name} {{\n")
+    java.extend(body)
+    if not use_lombok:
+        java.extend(_accessors(class_name, _declared_fields(body)))
 
     java.append("}")
     return "\n".join(java)

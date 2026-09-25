@@ -55,6 +55,30 @@ We treat the legacy codebase as a mathematical topology. By utilizing our **Stru
 
 ---
 
+## Choosing the Java you get: the target config
+
+`cobol-to-java` writes Java 17 / Spring Boot 3.2.4 / Maven / PostgreSQL / Lombok by default. A
+YAML (or JSON) config picks something else. GitGalaxy reads it with its own YAML reader, so
+PyYAML is not needed:
+
+```sh
+cobol-to-java --init-config modernize.yaml          # an annotated file with every option and its default
+cobol-to-java <staging dir> --config modernize.yaml
+```
+
+| section | options |
+|---|---|
+| `project` | `package`, `group_id`, `artifact_id`, `version`, `description`, `header_file` |
+| `java` | `version` (17, 21), `build_tool` (maven, gradle), `data_classes` (lombok, plain), `dto_style` (class, record) |
+| `spring_boot` | `version` (any 3.x.y) |
+| `database` | `engine` (postgresql, db2, oracle, mysql, h2), `ddl_auto`, `username`, `password`, `show_sql` |
+| `features` | `rest_controllers`, `services`, `batch`, `ebcdic_decoder`, `mock_services`, `agent_tickets` |
+
+Every key is validated. An unknown key or an unsupported value stops the run with an error naming
+it. Explicit `--pkg` / `--header` flags override the file. Without `--config` the output is
+unchanged. Every supported combination is compile-checked by `tests/tools/java_target_matrix.py`,
+which generates CardDemo under 13 configs and runs the real Maven / Gradle build.
+
 ## Engineering Highlights (Architectural Defenses)
 
 * **Unreachable Logic Masking (`cobol_dag_architect.py`):** COBOL programs often contain legacy, unreachable paragraphs. If a standard regex engine scans these, it will extract `OPEN` statements for files that are never actually utilized at runtime, creating false dependencies. We dynamically integrate with the Deprecated Trails Analyzer's state to "mask out" dead paragraphs with whitespace, preserving exact topology while eliminating hallucinated I/O dependencies.

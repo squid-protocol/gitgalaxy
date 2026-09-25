@@ -26,9 +26,12 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     output_key,
     program_key_from_ir,
 )
+from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
-def generate_rest_controller(ir_state: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+def generate_rest_controller(
+    ir_state: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+) -> str:
     """Generates the API endpoints and auto-wires the Service layer.
 
     `unit_key` is the clean-room output key this IR was written under (#3221);
@@ -53,8 +56,10 @@ def generate_rest_controller(ir_state: dict, package_name: str, unit_key: Option
     java = []
     java.append(f"package {package_name}.controller;\n")
     java.append("import org.springframework.web.bind.annotation.*;")
+    lombok = (target or JavaTarget()).lombok
     java.append("import org.springframework.http.ResponseEntity;")
-    java.append("import lombok.RequiredArgsConstructor;")
+    if lombok:
+        java.append("import lombok.RequiredArgsConstructor;")
     java.append(f"import {package_name}.service.{camel_prog}Service;\n")
 
     if is_batch:
@@ -64,10 +69,15 @@ def generate_rest_controller(ir_state: dict, package_name: str, unit_key: Option
 
     java.append("@RestController")
     java.append(f'@RequestMapping("/api/v1/{java_url_segment(prog_id)}")')
-    java.append("@RequiredArgsConstructor")
+    if lombok:
+        java.append("@RequiredArgsConstructor")
     java.append(f"public class {camel_prog}Controller {{\n")
 
     java.append(f"    private final {camel_prog}Service {service_var}Service;\n")
+    if not lombok:  # #3613 plain: the constructor injection Lombok would have generated
+        java.append(f"    public {camel_prog}Controller({camel_prog}Service {service_var}Service) {{")
+        java.append(f"        this.{service_var}Service = {service_var}Service;")
+        java.append("    }\n")
 
     if is_batch:
         # --- BATCH PARADIGM ---

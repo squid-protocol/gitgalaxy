@@ -43,8 +43,10 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge import (
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
     generate_application_yml,
+    generate_build_gradle,
     generate_main_class,
     generate_pom_xml,
+    generate_settings_gradle,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
@@ -64,6 +66,13 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
     generate_java_dto,
     generate_java_entity,
     is_transient_record,
+)
+from gitgalaxy.tools.cobol_to_java.java_target import (
+    DEFAULT_CONFIG,
+    ConfigError,
+    load_target,
+    target_as_dict,
+    target_from_dict,
 )
 
 
@@ -137,10 +146,35 @@ def main():
     enforce_licensing_guard("COBOL-to-Java Translator")
 
     parser = argparse.ArgumentParser(description="GitGalaxy COBOL to Java Controller")
-    parser.add_argument("clean_room", help="Path to the isolated staging directory (gitgalaxy_clean_[TIMESTAMP])")
-    parser.add_argument("--pkg", default="com.gitgalaxy.modernized", help="Base Java package name")
-    parser.add_argument("--header", default="header.txt", help="Path to the custom header text file")
+    parser.add_argument(
+        "clean_room", nargs="?", help="Path to the isolated staging directory (gitgalaxy_clean_[TIMESTAMP])"
+    )
+    parser.add_argument("--pkg", default=None, help="Base Java package name (overrides the config's project.package)")
+    parser.add_argument("--header", default=None, help="Path to the custom header text file (overrides the config)")
+    parser.add_argument("--config", type=Path, help="A YAML / JSON target config: Java kind, build tool, database, ...")
+    parser.add_argument("--init-config", type=Path, metavar="PATH", help="Write an annotated default config and exit")
     args = parser.parse_args()
+
+    # #3613: the target config -- explicit CLI flags, then the config file, then the defaults.
+    if args.init_config:
+        if args.init_config.exists():
+            print(f"Error: {args.init_config} already exists; not overwriting it.")
+            sys.exit(1)
+        args.init_config.write_text(DEFAULT_CONFIG, encoding="utf-8")
+        print(f"Wrote an annotated default config to {args.init_config}")
+        return
+    if not args.clean_room:
+        parser.error("the staging directory is required (unless --init-config)")
+    try:
+        target = load_target(args.config)
+        if args.pkg:
+            target = target_from_dict({**target_as_dict(target), "project": {**target_as_dict(target)["project"],
+                                       "package": args.pkg}})  # fmt: skip
+    except (ConfigError, OSError, ValueError) as e:
+        print(f"Error: invalid target config: {e}")
+        sys.exit(2)
+    args.pkg = target.project.package
+    args.header = args.header or target.project.header_file or "header.txt"
 
     clean_room_path = Path(args.clean_room).resolve()
     if not clean_room_path.exists():
@@ -152,7 +186,7 @@ def main():
         shutil.rmtree(java_out_dir)
 
     # Determine Artifact ID from the isolated staging directory name
-    artifact_id = clean_room_path.name.split("_gitgalaxy_clean")[0].lower()
+    artifact_id = target.project.artifact_id or clean_room_path.name.split("_gitgalaxy_clean")[0].lower()
     app_class_name = "".join(word.capitalize() for word in artifact_id.split("-"))
 
     print("\n" + "=" * 70)
@@ -176,13 +210,19 @@ def main():
     java_dirs = build_spring_boot_scaffold(java_out_dir, args.pkg)
     stats = {"entities": 0, "dtos": 0, "controllers": 0, "agent_jobs": 0, "config_files": 0}
 
-    # Generate pom.xml
-    pom_content = generate_pom_xml(group_id=args.pkg, artifact_id=artifact_id)
-    (java_dirs["root"] / "pom.xml").write_text(pom_content, encoding="utf-8")
-    stats["config_files"] += 1
+    # Generate the build: pom.xml, or build.gradle + settings.gradle (#3613)
+    if target.java.build_tool == "gradle":
+        gradle = generate_build_gradle(target.group_id(), target)
+        (java_dirs["root"] / "build.gradle").write_text(gradle, encoding="utf-8")
+        (java_dirs["root"] / "settings.gradle").write_text(generate_settings_gradle(artifact_id), encoding="utf-8")
+        stats["config_files"] += 2
+    else:
+        pom_content = generate_pom_xml(group_id=target.group_id(), artifact_id=artifact_id, target=target)
+        (java_dirs["root"] / "pom.xml").write_text(pom_content, encoding="utf-8")
+        stats["config_files"] += 1
 
     # Generate application.yml
-    yml_content = generate_application_yml(artifact_id=artifact_id)
+    yml_content = generate_application_yml(artifact_id=artifact_id, target=target)
     (java_dirs["resources"] / "application.yml").write_text(yml_content, encoding="utf-8")
     stats["config_files"] += 1
 
@@ -194,11 +234,12 @@ def main():
     stats["config_files"] += 1
 
     # --- Generate EBCDIC Decoder Utility ---
-    decoder_content = generate_decoder_util(args.pkg)
-    if java_header:
-        decoder_content = java_header + decoder_content
-    (java_dirs["util"] / "EbcdicDecoderUtil.java").write_text(decoder_content, encoding="utf-8")
-    stats["config_files"] += 1
+    if target.features.ebcdic_decoder:
+        decoder_content = generate_decoder_util(args.pkg)
+        if java_header:
+            decoder_content = java_header + decoder_content
+        (java_dirs["util"] / "EbcdicDecoderUtil.java").write_text(decoder_content, encoding="utf-8")
+        stats["config_files"] += 1
     # -------------------------------------------
 
     print("  [+] Generated Build System: pom.xml, application.yml, Main Class, DecoderUtil")
@@ -215,11 +256,11 @@ def main():
                 # @Entity produced N classes on one @Table(name="DFHCOMMAREA") that
                 # Hibernate refuses to start. Such a record becomes a plain DTO.
                 if is_transient_record(schema):
-                    java_code = generate_java_dto(schema, args.pkg, unit_key=unit_key)
+                    java_code = generate_java_dto(schema, args.pkg, unit_key=unit_key, target=target)
                     class_name = dto_class_name(schema, unit_key)
                     out_dir, stat_key, label = java_dirs["dto"], "dtos", "DTO   "
                 else:
-                    java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
+                    java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key, target=target)
                     # #3221: named from the schema's own clean-room key, so two
                     # programs that both declare a DFHCOMMAREA get two classes.
                     class_name = entity_class_name(schema, unit_key)
@@ -254,17 +295,19 @@ def main():
                 safe_file_name = java_class_base(raw_prog_id)
 
                 # 3A. Generate the @Service Skeleton
-                service_code = generate_service_skeleton(ir_state, args.pkg, unit_key=raw_prog_id)
-                if java_header:
-                    service_code = java_header + service_code
-                out_path_svc = java_dirs["service"] / f"{safe_file_name}Service.java"
-                out_path_svc.write_text(service_code, encoding="utf-8")
-                print(f"  [+] Generated Service: {safe_file_name}Service.java")
+                if target.features.services:
+                    service_code = generate_service_skeleton(ir_state, args.pkg, unit_key=raw_prog_id, target=target)
+                    if java_header:
+                        service_code = java_header + service_code
+                    out_path_svc = java_dirs["service"] / f"{safe_file_name}Service.java"
+                    out_path_svc.write_text(service_code, encoding="utf-8")
+                    print(f"  [+] Generated Service: {safe_file_name}Service.java")
 
                 # 3B. Generate the @RestController
                 lineage = ir_state.get("analysis", {}).get("lineage", {})
-                if lineage and (lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")):
-                    java_code = generate_rest_controller(ir_state, args.pkg, unit_key=raw_prog_id)
+                wants_api = lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")
+                if target.features.rest_controllers and lineage and wants_api:
+                    java_code = generate_rest_controller(ir_state, args.pkg, unit_key=raw_prog_id, target=target)
                     if java_header:
                         java_code = java_header + java_code
                     out_path_ctrl = java_dirs["controller"] / f"{safe_file_name}Controller.java"
@@ -273,7 +316,7 @@ def main():
                     print(f"  [+] Generated API   : {safe_file_name}Controller.java")
 
                 # 3C. Generate Mock Services for Unresolved Subroutines
-                unresolved = lineage.get("unresolved_calls", [])
+                unresolved = lineage.get("unresolved_calls", []) if target.features.mock_services else []
                 for sub in unresolved:
                     # 🛡️ Skip empty, dynamic, or invalid subroutine calls
                     if not sub or not sub.strip():
@@ -299,7 +342,7 @@ def main():
 
     # 4. Generate Autonomous AI Agent Tickets
     slice_dir = clean_room_path / "05_microservice_slices"
-    if slice_dir.exists():
+    if target.features.agent_tickets and slice_dir.exists():
         for slice_file in sorted(slice_dir.glob("*_slice.json"), key=lambda p: p.name):
             try:
                 slice_data = json.loads(slice_file.read_text(encoding="utf-8"))
@@ -326,7 +369,16 @@ def main():
         f.write(f"  • Source Staging Environment : {clean_room_path.name}\n")
         f.write(f"  • Target Artifact            : {artifact_id}\n")
         f.write(f"  • Target Package             : {args.pkg}\n")
-        f.write(f"  • Corporate Header Applied   : {'Yes' if java_header else 'No'}\n\n")
+        f.write(f"  • Corporate Header Applied   : {'Yes' if java_header else 'No'}\n")
+        if args.config:  # #3613: record the target a config chose (the default run's report is unchanged)
+            f.write(f"  • Target Config              : {args.config.name}\n")
+            f.write(
+                f"  • Java / Spring Boot / Build : {target.java.version} / {target.spring_boot.version} / "
+                f"{target.java.build_tool}\n"
+            )
+            f.write(f"  • Data Classes / DTO Style   : {target.java.data_classes} / {target.java.dto_style}\n")
+            f.write(f"  • Database                   : {target.database.engine}\n")
+        f.write("\n")
 
         f.write("[1] GENERATED CLOUD SCAFFOLDING\n")
         f.write("----------------------------------------------------------\n")

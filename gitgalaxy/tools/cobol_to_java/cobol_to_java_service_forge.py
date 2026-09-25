@@ -28,9 +28,12 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     output_key,
     program_key_from_ir,
 )
+from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
-def generate_service_skeleton(ir_state: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+def generate_service_skeleton(
+    ir_state: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+) -> str:
     """Generates the Spring Boot @Service skeleton and stages DAG dependencies.
 
     `unit_key` is the clean-room output key this IR was written under (#3221).
@@ -46,13 +49,16 @@ def generate_service_skeleton(ir_state: dict, package_name: str, unit_key: Optio
 
     java = []
     java.append(f"package {package_name}.service;\n")
+    lombok = (target or JavaTarget()).lombok  # #3613: the service injects nothing, so plain needs no constructor
     java.append("import org.springframework.stereotype.Service;")
-    java.append("import lombok.RequiredArgsConstructor;")
+    if lombok:
+        java.append("import lombok.RequiredArgsConstructor;")
     java.append("import org.slf4j.Logger;")
     java.append("import org.slf4j.LoggerFactory;\n")
 
     java.append("@Service")
-    java.append("@RequiredArgsConstructor")
+    if lombok:
+        java.append("@RequiredArgsConstructor")
     java.append(f"public class {camel_prog}Service {{\n")
 
     java.append(f"    private static final Logger log = LoggerFactory.getLogger({camel_prog}Service.class);\n")

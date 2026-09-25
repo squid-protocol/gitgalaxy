@@ -40,6 +40,14 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Rust explicitly allows nested block comments (/* /* */ */),
     # unlike standard C/C++. Standard C parsing would prematurely terminate here.
     "lexical_family": "recursive_block",
+    # #3554: a body-less `mod name;` names name.rs or name/mod.rs in its OWNER's module
+    # directory -- the file's own directory for mod.rs/lib.rs/main.rs, else <dir>/<stem>/.
+    # network_risk_sensor.py resolves a `./name` module token by that tree only.
+    "imports_follow_module_tree": True,
+    # `_dependency_capture` group 2 is that `mod name;` declaration: galaxyscope records
+    # it as `./name`, a LOCAL token, so the supply-chain firewall and the typosquat radar
+    # never read a module file name as an external crate.
+    "local_module_capture_group": 2,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
@@ -269,7 +277,16 @@ DEFINITION: dict[str, Any] = {
             # entire public surface) didn't match at all -- the whole `use` statement was
             # invisible to the dependency graph.
             # =====================================================================
-            r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},*\s]+);",
+            #
+            # #3554: `mod name;` (no body) declares a module whose SOURCE is another
+            # file -- name.rs / name/mod.rs, found by the module tree (see the
+            # `imports_follow_module_tree` flag above). It is the edge that makes a
+            # split crate's module files reachable; without it every one of them was
+            # an orphan in the import graph. A `mod name { ... }` has a body and names
+            # no file, so the `;` is required. The import COUNT is unchanged: that is
+            # the `import` rule's, and it counts `use` (docs/import_rule_contract.md).
+            r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},*\s]+);"
+            r"|\b(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+([A-Za-z_]\w{0,127})[ \t]*;",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

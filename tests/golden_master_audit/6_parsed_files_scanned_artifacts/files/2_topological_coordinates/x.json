@@ -3068,9 +3068,9 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": -2226.7,
       "rust/tokio/block_on.rs": -1420.43,
-      "rust/tokio/blocking.rs": -1078.61,
+      "rust/tokio/blocking.rs": -1918.13,
       "rust/tokio/builder.rs": -1870.57,
-      "rust/tokio/config.rs": -1895.9,
+      "rust/tokio/config.rs": -1056.11,
       "rust/tokio/fuzz.rs": -1358.7,
       "rust/tokio/interval.rs": -2129.72,
       "rust/tokio/lib.rs": -1202.43,

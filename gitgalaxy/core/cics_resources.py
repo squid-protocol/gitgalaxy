@@ -41,7 +41,11 @@
 # through its working-storage `VALUE` literal, same file only. When it has none,
 # a `MOVE 'LIT' TO name` in the same file is the next reading -- CBSA sets every
 # channel and container name that way -- and it is taken only when exactly one
-# distinct literal is ever moved there. Several distinct literals are kept as
+# distinct literal is ever moved there. #3578: a `MOVE other-name TO name` counts
+# too, bounded at _CHAIN_DEPTH hops: `name` can then hold whatever `other-name`
+# holds (its VALUE, else its own MOVEd literals, recursively), so CardDemo's
+# `MOVE LIT-THISMAP TO CCARD-NEXT-MAP` + `SEND MAP(CCARD-NEXT-MAP)` resolves. A
+# source with no fixed value adds nothing, as a non-literal source always has. Several distinct literals are kept as
 # `candidates` with `resolution = 'ambiguous'`; a subscripted or computed
 # operand is `expression`; a name with neither is `unresolved`. None of these is
 # a guess: `resource_name` is set only for `literal`, `value` and `move`.
@@ -79,6 +83,18 @@ _MOVE_LITERAL = re.compile(
     r"(?<![A-Z0-9-])MOVE[ \t\n]+(?:'([^'\n]*)'|\"([^\"\n]*)\")[ \t\n]+TO[ \t\n]+([A-Z][A-Z0-9-]*)",
     re.I,
 )
+
+# #3578: `MOVE a TO b` between two plain data-names (no subscript, qualifier or
+# reference modification: the receiver may not be followed by `(`).
+_MOVE_NAME = re.compile(
+    r"(?<![A-Z0-9-])MOVE[ \t\n]+([A-Z][A-Z0-9-]*)[ \t\n]+TO[ \t\n]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-]|[ \t]*\()",
+    re.I,
+)
+# Figurative constants are values, not data-names: never followed as a source.
+_FIGURATIVE = re.compile(
+    r"(?:SPACES?|ZEROS?|ZEROES|LOW-VALUES?|HIGH-VALUES?|QUOTES?|NULLS?|ALL|FUNCTION|LENGTH|ADDRESS)", re.I
+)
+_CHAIN_DEPTH = 3
 
 # Verb -> access direction, per kind. `write` produces, `read` consumes.
 _FILE_VERBS = {
@@ -199,14 +215,38 @@ def _options(block: str) -> list[tuple[str, Optional[str]]]:
     return out
 
 
-def cobol_move_literals(code_stream: str) -> dict[str, set[str]]:
-    """Data-name -> every distinct literal a `MOVE 'LIT' TO name` assigns it (same file)."""
-    moves: dict[str, set[str]] = {}
+def cobol_move_literals(code_stream: str, values: Optional[dict[str, str]] = None) -> dict[str, set[str]]:
+    """Data-name -> every distinct literal it can be MOVEd (same file): `MOVE 'LIT' TO
+    name`, and (#3578, given the file's VALUE map) `MOVE other TO name` followed up to
+    _CHAIN_DEPTH hops through `other`'s VALUE or its own moves. Cycles stop."""
+    literal: dict[str, set[str]] = {}
     for m in _MOVE_LITERAL.finditer(code_stream):
         text = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
         if text:
-            moves.setdefault(m.group(3).upper(), set()).add(text)
-    return moves
+            literal.setdefault(m.group(3).upper(), set()).add(text)
+    if values is None:
+        return literal
+    sources: dict[str, set[str]] = {}
+    for m in _MOVE_NAME.finditer(code_stream):
+        src, dst = m.group(1).upper(), m.group(2).upper()
+        if src != dst and not _FIGURATIVE.fullmatch(src):
+            sources.setdefault(dst, set()).add(src)
+
+    def holds(name: str, depth: int, seen: frozenset) -> set[str]:
+        out = set(literal.get(name, ()))
+        if depth >= _CHAIN_DEPTH:
+            return out
+        for src in sources.get(name, ()):
+            if src in seen:
+                continue
+            if src in values:
+                out.add(values[src])
+            else:
+                out |= holds(src, depth + 1, seen | {src})
+        return out
+
+    moves = {name: holds(name, 0, frozenset({name})) for name in set(literal) | set(sources)}
+    return {name: lits for name, lits in moves.items() if lits}
 
 
 def _resolver(

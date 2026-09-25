@@ -8293,7 +8293,7 @@
     },
     "rust/holylang": {
       "Average Risk Exposures": {
-        "API Exposure": "6.12%",
+        "API Exposure": "6.37%",
         "Cognitive Load Exposure": "19.04%",
         "Commented Logic Exposure": "1.74%",
         "Concurrency Exposure": "0.0%",
@@ -8395,21 +8395,21 @@
     },
     "rust/tokio": {
       "Average Risk Exposures": {
-        "API Exposure": "5.7%",
+        "API Exposure": "12.4%",
         "Cognitive Load Exposure": "14.99%",
         "Commented Logic Exposure": "31.58%",
         "Concurrency Exposure": "50.45%",
-        "Documentation Exposure": "40.79%",
+        "Documentation Exposure": "40.78%",
         "Error & Exception Exposure": "21.89%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "15.64%",
-        "Tech Debt Exposure": "55.01%",
+        "Tech Debt Exposure": "44.52%",
         "Testing Exposure": "21.57%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1345.5,
+      "Directory Group Magnitude": 1346.5,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "66.7%",
         "file_cluster_13": "16.7%",

@@ -8,10 +8,9 @@ Snapshot written 2026-09-15 with the language's addition (#2502, which also clos
 old relative to `last_updated` below.
 
 **Scope note:** PL/I has no tree-sitter grammar or ctags parser available to this repo's comparison
-tooling, and no ground-truth parser was run, so there is no §9. The pinned language-crucible corpus
-carries no PL/I either (its `zopeneditor-sample` copy keeps only the COBOL and JCL members), so the
-golden masters cannot see a PL/I regression yet. Adding PL/I repositories to the crucible is a
-follow-up.
+tooling, and no ground-truth parser was run, so there is no §9. *(Updated 2026-09-25:)* crucible
+v1.5.0 added PL/I (`pli/dsf_cics_admin`, `pli/zopeneditor_sample`, 16 files), so the golden masters
+now see PL/I regressions. The CICS-level facts are measured separately, against an answer key (§11).
 
 ## 1. At a glance
 
@@ -186,7 +185,7 @@ and §8 measures them:
 - **`state_mutation` misses a labelled assignment** (`L1: X = 1;`) and an assignment right after
   an ON condition. Both are rare in the measured corpora.
 - **`time_date_logic` counts `TIME(` inside CICS timer options** (`EXEC CICS POST TIME(...)`).
-- **The golden masters cannot catch a PL/I regression yet** (see the scope note).
+- ~~The golden masters cannot catch a PL/I regression yet~~ — resolved by crucible v1.5.0 (see the scope note).
 
 ## 6. Test depth
 
@@ -269,3 +268,29 @@ Grouped by the `rosetta-language-sweep` five-cause taxonomy:
 
 The remaining out-of-band cells are `risk_churn` and `risk_stability`, which measure commit age
 (the folder is new). They are not gated.
+
+## 11. CICS / mainframe system facts (added 2026-09-25)
+
+The signals above count *that* a PL/I program issues CICS, SQL or DLI. The mainframe fact channels
+record *what* it does. The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md), which has the tier legend and the
+caveats. For PL/I:
+
+| fact | how it is extracted | verification |
+|---|---|---|
+| program call sites: EXEC CICS LINK / XCTL / RETURN / START TRANSID, and CALLs that leave the compilation unit | `core/pli_calls.py` (#3491); the resolver indexes a PL/I program by member name and outermost procedure, and drops calls into included members' own procedures | sample_verified: 8,012 facts on navikt/DSF, 2 on zopeneditor-sample |
+| field-level data moves (assignments, including BY NAME) | `core/pli_data_moves.py` (#3491) | sample_verified: 1,560 facts (DSF), 97 (zopeneditor-sample) |
+| units of work and handlers: ON / REVERT / SIGNAL, plus CICS SYNCPOINT / HANDLE / ABEND | `core/pli_on_units.py` + `core/uow_handlers.py` | sample_verified: 1,761 facts (DSF) |
+| DECLARE structures (record layouts) | `_pli_records` (#3250) | draft: 113 facts (zopeneditor-sample) |
+| CICS file / queue / map / container operations, task control | the COBOL walkers, with `;` as the terminator | **not keyed**: the answer key's CICS reader covers COBOL and HLASM only |
+| embedded DB2 statements and DECLARE TABLE | the COBOL readers | not keyed on a PL/I corpus |
+
+What that means in practice:
+- **PL/I CICS is proven on one estate.** DSF is 1,473 PL/I programs from one organisation, in one
+  house style. It surfaced quirks no sample had shown: sequence numbers glued to code, national
+  characters (ÆØÅ) in identifiers, NUL bytes, and `%INCLUDE` fragments calling their includer's
+  procedures. Expect another estate to surface more.
+- **DSF scores 36% on the completeness report.** That reflects missing inputs, not engine gaps: the
+  repository ships no BMS, JCL or CSD. The report also scores transactions and batch entry for
+  COBOL programs only.
+- **Not supported:** the PL/I macro preprocessor beyond `%INCLUDE`, meaning `%DCL` / `%IF`-generated
+  code is not expanded.

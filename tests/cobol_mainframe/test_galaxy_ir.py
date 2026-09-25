@@ -2279,3 +2279,36 @@ def test_a_java_jcics_link_resolves_to_the_cobol_program(tmp_path):
     ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
     (call,) = ir.files["java/Api.java"].calls
     assert (call.verb, call.target, call.resolves_to) == ("LINK", "GETSCODE", "cbl/GETSCODE.cbl")
+
+
+# ---- #3576: completeness scores PL/I and assembler programs ---------------------
+def test_completeness_scores_pli_and_hlasm_programs(tmp_path):
+    repo = tmp_path / "mixed"
+    files = {
+        # A CICS PL/I program whose CICS commands sit in the member it %INCLUDEs.
+        "pli/ONLINE1.pli": " ONLINE1: PROC(CA) OPTIONS(MAIN);\n %INCLUDE CICSIO;\n END ONLINE1;\n",
+        "pli/CICSIO.pli": " EXEC CICS READ FILE('CUST') INTO(REC);\n",
+        # A batch PL/I main run by JCL under its member name, and one no step runs.
+        "pli/BATCH1.pli": " BATCH1: PROC OPTIONS(MAIN);\n PUT SKIP LIST('HI');\n END BATCH1;\n",
+        "pli/BATCH2.pli": " BATCH2: PROC OPTIONS(MAIN);\n PUT SKIP LIST('HI');\n END BATCH2;\n",
+        # An include with no entry point: not a program.
+        "pli/HELPERS.pli": " HELP: PROC;\n END HELP;\n",
+        "jcl/RUN.jcl": "//RUNJOB   JOB  ,CLASS=A\n//STEP1    EXEC PGM=BATCH1\n",
+        # A command-level CICS assembler program.
+        "asm/ASMPGM.asm": (
+            "DFHEISTG DSECT\n"
+            "ASMPGM   DFHEIENT\n"
+            "         EXEC CICS WRITEQ TD QUEUE('CSSL') FROM(MSG) LENGTH(L)\n"
+            "         END   ASMPGM\n"
+        ),
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    report = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).completeness()
+    tx, batch = report["channels"]["transactions"], report["channels"]["batch entry"]
+    assert (tx["total"], tx["resolved"]) == (2, 0)  # ONLINE1 (through CICSIO) and ASMPGM, unreached
+    assert (batch["total"], batch["resolved"]) == (2, 1)  # BATCH1 run by STEP1; BATCH2 by nothing
+    unreached = next(m for m in report["missing_inputs"] if m["input"].startswith("CSD extract"))
+    assert unreached["examples"] == ["asm/ASMPGM.asm", "pli/ONLINE1.pli"]

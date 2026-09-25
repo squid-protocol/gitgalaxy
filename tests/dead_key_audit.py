@@ -78,6 +78,7 @@ ALLOWLIST = {
     "RESP": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "ABCODE": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
+    "raw_arch_api": "file_data column read into EngineFile.signals by zip(SIGNAL_COLUMNS, row) (galaxy_ir.py, #3576)",
     "NAME": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "PATHENTRY": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "PENT": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",

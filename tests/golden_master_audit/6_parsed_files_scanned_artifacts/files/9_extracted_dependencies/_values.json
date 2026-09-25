@@ -13874,6 +13874,14 @@
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": [
+        "./component",
+        "./event",
+        "./message",
+        "./query_data",
+        "./query_filter",
+        "./template",
+        "./variant_defaults",
+        "./world_query",
         "BevyManifest",
         "ConstParam",
         "Data",
@@ -13899,6 +13907,16 @@
         "token::Comma"
       ],
       "rust/bevy/bevy_ecs_query.rs": [
+        "./access",
+        "./access_iter",
+        "./builder",
+        "./error",
+        "./fetch",
+        "./filter",
+        "./iter",
+        "./par_iter",
+        "./state",
+        "./world_query",
         "ArchetypeQueryData",
         "Changed",
         "Entity",
@@ -13950,6 +13968,16 @@
         "thin_array_ptr::ThinArrayPtr"
       ],
       "rust/bevy/bevy_ecs_world.rs": [
+        "./command_queue",
+        "./deferred_world",
+        "./entity_access",
+        "./entity_fetch",
+        "./error",
+        "./filtered_resource",
+        "./identifier",
+        "./reflect",
+        "./spawn_batch",
+        "./unsafe_world_cell",
         "ADD",
         "Archetypes",
         "AtomicU32",
@@ -14138,6 +14166,15 @@
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": [
+        "./exprs",
+        "./fmt_display",
+        "./fmt_display_tests",
+        "./int_literal_value",
+        "./int_literal_value_tests",
+        "./span",
+        "./stmts",
+        "./types",
+        "./types_tests",
         "exprs::*",
         "int_literal_value::*",
         "span::Span",
@@ -14162,10 +14199,22 @@
         "std::fs"
       ],
       "rust/holylang/parser.rs": [
+        "./blackbox_tests",
+        "./helpers",
+        "./helpers_tests",
+        "./parse_expr",
+        "./parse_expr_tests",
         "crate::ast::*",
         "crate::error::HolyError"
       ],
       "rust/holylang/semantic.rs": [
+        "./blackbox_tests",
+        "./branch_analysis",
+        "./branch_analysis_tests",
+        "./constants",
+        "./helpers",
+        "./helpers_tests",
+        "./infer",
         "Constant",
         "Expr",
         "Function",
@@ -14214,6 +14263,9 @@
         "std::os::windows::ffi::OsStringExt"
       ],
       "rust/serde/serde_core_de_mod.rs": [
+        "./ignored_any",
+        "./impls",
+        "./value",
         "Deserialize",
         "DeserializeOwned",
         "DeserializeSeed",
@@ -14251,6 +14303,15 @@
         "std::marker::PhantomData"
       ],
       "rust/serde/serde_derive_de.rs": [
+        "./enum_",
+        "./enum_adjacently",
+        "./enum_externally",
+        "./enum_internally",
+        "./enum_untagged",
+        "./identifier",
+        "./struct_",
+        "./tuple",
+        "./unit",
         "Ctxt",
         "Data",
         "Derive",
@@ -14556,6 +14617,22 @@
         "tokio::time::self"
       ],
       "rust/tokio/lib.rs": [
+        "./blocking",
+        "./doc",
+        "./fs",
+        "./future",
+        "./fuzz",
+        "./io",
+        "./loom",
+        "./macros",
+        "./net",
+        "./process",
+        "./runtime",
+        "./signal",
+        "./sync",
+        "./task",
+        "./time",
+        "./util",
         "AsyncWriteExt",
         "crate::runtime::task::trace::trace_leaf",
         "self::doc::os",
@@ -14683,6 +14760,8 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": [
+        "./bindgen",
+        "./component",
         "Error",
         "parse_macro_input",
         "syn::DeriveInput"
@@ -14741,6 +14820,9 @@
         "crate::lexer::Lexer"
       ],
       "rust/wasmtime/wasmtime_pulley_interp.rs": [
+        "./debug",
+        "./match_loop",
+        "./tail_loop",
         "ExecutingPcRef",
         "IndexMut",
         "Interpreter",

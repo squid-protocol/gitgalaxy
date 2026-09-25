@@ -1885,7 +1885,7 @@
       "javascript/react/ReactFiberWorkLoop.js": 0,
       "javascript/react/ReactFlightServer.js": 0,
       "javascript/react/ReactSymbols.js": 0,
-      "javascript/react/build.js": 1
+      "javascript/react/build.js": 0
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 1,
@@ -2423,12 +2423,12 @@
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 0,
       "perl/bugzilla/Bug.pm": 0,
-      "perl/bugzilla/CGI.pm": 1,
+      "perl/bugzilla/CGI.pm": 0,
       "perl/bugzilla/DB.pm": 0,
       "perl/bugzilla/Requirements.pm": 0
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 2,
+      "perl/exiftool/ExifTool.pm": 0,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
@@ -2447,7 +2447,7 @@
       "perl/spamassassin/Bayes.pm": 0,
       "perl/spamassassin/HTML.pm": 0,
       "perl/spamassassin/Makefile.PL": 0,
-      "perl/spamassassin/Message.pm": 1,
+      "perl/spamassassin/Message.pm": 0,
       "perl/spamassassin/Parser.pm": 0,
       "perl/spamassassin/PerMsgStatus.pm": 0,
       "perl/spamassassin/SpamAssassin.pm": 0

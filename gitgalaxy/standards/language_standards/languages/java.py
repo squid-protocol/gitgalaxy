@@ -43,6 +43,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # #3600: an import path is never a string literal here, so a `"""` block (a raw
+    # string / text block -- test fixtures full of example source) is blanked before
+    # `_dependency_capture` runs. Lazy with a fixed terminator: linear per block.
+    "import_capture_blank": r'"""[\s\S]*?"""',
     # #3544: `import a.b.C` is .../a/b/C.java, so a candidate must end in a/b/C even when it
     # is the only C.java (network_risk_sensor.py).
     "import_path_mirrors_module_path": True,

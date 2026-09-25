@@ -405,7 +405,7 @@
     },
     "assembly/nasm_testsuite": {
       "avg_exposures": {
-        "api_exposure": 3.02,
+        "api_exposure": 1.9,
         "churn": 0.0,
         "cognitive_load": 1.44,
         "concurrency": 0.0,
@@ -416,11 +416,11 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 14.6,
-        "tech_debt": 19.04,
+        "tech_debt": 23.59,
         "verification": 2.32
       },
       "file_count": 18,
-      "total_mass": 365.76
+      "total_mass": 364.76
     },
     "assembly/os_tutorial_x86": {
       "avg_exposures": {
@@ -2837,7 +2837,7 @@
     },
     "livecode/livecode": {
       "avg_exposures": {
-        "api_exposure": 4.39,
+        "api_exposure": 3.87,
         "churn": 0.0,
         "cognitive_load": 29.47,
         "concurrency": 9.21,
@@ -2848,7 +2848,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 56.53,
-        "tech_debt": 69.13,
+        "tech_debt": 70.08,
         "verification": 16.67
       },
       "file_count": 98,
@@ -3312,7 +3312,7 @@
     },
     "perl/exiftool": {
       "avg_exposures": {
-        "api_exposure": 13.22,
+        "api_exposure": 5.2,
         "churn": 0.0,
         "cognitive_load": 43.98,
         "concurrency": 4.19,
@@ -3323,7 +3323,7 @@
         "spec_match": 0.0,
         "stability": 41.67,
         "state_flux": 50.0,
-        "tech_debt": 19.96,
+        "tech_debt": 20.14,
         "verification": 40.77
       },
       "file_count": 6,
@@ -3901,7 +3901,7 @@
     },
     "python/fastapi/fastapi": {
       "avg_exposures": {
-        "api_exposure": 24.96,
+        "api_exposure": 24.94,
         "churn": 0.0,
         "cognitive_load": 15.38,
         "concurrency": 18.74,
@@ -5364,22 +5364,22 @@
     },
     "typescript/fp-ts": {
       "avg_exposures": {
-        "api_exposure": 49.14,
+        "api_exposure": 35.3,
         "churn": 0.0,
         "cognitive_load": 3.49,
         "concurrency": 4.28,
         "dead_code": 0.0,
-        "documentation": 24.07,
+        "documentation": 23.87,
         "safety_score": 52.09,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
         "state_flux": 3.48,
-        "tech_debt": 17.03,
+        "tech_debt": 21.47,
         "verification": 48.46
       },
       "file_count": 5,
-      "total_mass": 1667.06
+      "total_mass": 1666.06
     },
     "typescript/playwright": {
       "avg_exposures": {

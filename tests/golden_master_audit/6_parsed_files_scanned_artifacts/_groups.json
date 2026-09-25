@@ -783,7 +783,7 @@
     },
     "assembly/nasm_testsuite": {
       "Average Risk Exposures": {
-        "API Exposure": "3.02%",
+        "API Exposure": "1.9%",
         "Cognitive Load Exposure": "1.44%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
@@ -793,11 +793,11 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "14.6%",
-        "Tech Debt Exposure": "19.04%",
+        "Tech Debt Exposure": "23.59%",
         "Testing Exposure": "2.32%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 365.76,
+      "Directory Group Magnitude": 364.76,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_11": "11.1%",
         "file_cluster_15": "5.6%",
@@ -5716,7 +5716,7 @@
     },
     "livecode/livecode": {
       "Average Risk Exposures": {
-        "API Exposure": "4.39%",
+        "API Exposure": "3.87%",
         "Cognitive Load Exposure": "29.47%",
         "Commented Logic Exposure": "3.04%",
         "Concurrency Exposure": "9.21%",
@@ -5726,7 +5726,7 @@
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "56.53%",
-        "Tech Debt Exposure": "69.13%",
+        "Tech Debt Exposure": "70.08%",
         "Testing Exposure": "16.67%",
         "Volatility Exposure": "0.0%"
       },
@@ -6625,7 +6625,7 @@
     },
     "perl/exiftool": {
       "Average Risk Exposures": {
-        "API Exposure": "13.22%",
+        "API Exposure": "5.2%",
         "Cognitive Load Exposure": "43.98%",
         "Commented Logic Exposure": "2.82%",
         "Concurrency Exposure": "4.19%",
@@ -6635,7 +6635,7 @@
         "Instability Exposure": "41.67%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "50.0%",
-        "Tech Debt Exposure": "19.96%",
+        "Tech Debt Exposure": "20.14%",
         "Testing Exposure": "40.77%",
         "Volatility Exposure": "0.0%"
       },
@@ -7663,7 +7663,7 @@
     },
     "python/fastapi/fastapi": {
       "Average Risk Exposures": {
-        "API Exposure": "24.96%",
+        "API Exposure": "24.94%",
         "Cognitive Load Exposure": "15.38%",
         "Commented Logic Exposure": "0.21%",
         "Concurrency Exposure": "18.74%",
@@ -10446,21 +10446,21 @@
     },
     "typescript/fp-ts": {
       "Average Risk Exposures": {
-        "API Exposure": "49.14%",
+        "API Exposure": "35.3%",
         "Cognitive Load Exposure": "3.49%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "4.28%",
-        "Documentation Exposure": "24.07%",
+        "Documentation Exposure": "23.87%",
         "Error & Exception Exposure": "52.09%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "40.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "3.48%",
-        "Tech Debt Exposure": "17.03%",
+        "Tech Debt Exposure": "21.47%",
         "Testing Exposure": "48.46%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 1667.06,
+      "Directory Group Magnitude": 1666.06,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "20.0%",
         "file_cluster_0": "40.0%",

@@ -261,6 +261,12 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
     LOCAL module, recorded as `./name`: never an external package.
     """
     tokens: set[str] = set()
+    # #3600: a language whose import path is never a string literal blanks the
+    # literals it names here (Kotlin/Scala/Java `"""` blocks: test fixtures full
+    # of example source), newlines kept.
+    blank = lang_def.get("import_capture_blank")
+    if blank:
+        content = re.sub(blank, lambda m: re.sub(r"[^\n]", " ", m.group()), content)
     relative_groups = lang_def.get("relative_import_groups")
     local_group = lang_def.get("local_module_capture_group")
     for match in import_regex.finditer(content):
@@ -800,11 +806,18 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # markdown's relative links are dependencies -- popularity and
             # orphaned-docs detection). The other inert skips (security lens,
             # named tokens, popularity census) stay skipped.
+            #
+            # #3600: a code file's imports are read from the CODE STREAM -- comments
+            # and Python docstrings removed, string literals (most import paths)
+            # kept -- so an example in a `///` doc comment, a commented-out import or
+            # a docstring's usage block is never an edge. An inert format keeps its
+            # raw text: its references ARE its content (markdown links).
             import_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_dependency_capture")
             if import_regex:
                 try:
+                    import_source = content_buffer if is_inert else refraction.get("code_stream", content_buffer)
                     raw_imports.update(
-                        extract_raw_imports(import_regex, cast(str, content_buffer), lang_defs.get(lang_id, {}))
+                        extract_raw_imports(import_regex, cast(str, import_source), lang_defs.get(lang_id, {}))
                     )
                 except Exception:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)

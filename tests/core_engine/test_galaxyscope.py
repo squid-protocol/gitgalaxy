@@ -1019,6 +1019,60 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         sec_content = MockSecurity.return_value.scan_content.call_args[0][0]
         self.assertFalse(sec_content.startswith("﻿"), "BOM leaked into the security scan!")
 
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_worker_reads_imports_from_the_code_stream(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        #3600: imports come from PRISM's code stream (comments and docstrings
+        removed, string literals kept), never the raw file -- a commented-out or
+        documented `import` is not an edge.
+        """
+        import logging
+        import re as _re
+
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+
+        raw = "import os\n# import secrets_helper\n"
+        MockAperture.return_value.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        MockAperture.return_value.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+        MockDetector.return_value.inspect.return_value = {
+            "lang_id": "python",
+            "intensity": 0.99,
+            "lock_tier": 1,
+            "source_proof": "Test",
+        }
+        MockPrism.return_value.split_streams.return_value = {
+            "code_stream": "import os\n\n",
+            "comment_stream": "# import secrets_helper",
+            "coding_loc": 1,
+            "doc_loc": 1,
+        }
+        MockSecurity.return_value.scan_content.return_value = {"counts": {}, "snippets": {}}
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {
+            "python": {"extensions": [".py"], "rules": {"_dependency_capture": _re.compile(r"\bimport[ \t]+(\w+)")}}
+        }
+
+        with tempfile.TemporaryDirectory() as td:
+            td = str(Path(td).resolve())
+            (Path(td) / "mod.py").write_text(raw)
+            _init_worker(
+                root_str=td,
+                config=self.mock_config,
+                ext_tally={".py": 1},
+                log_level=logging.INFO,
+                git_tracked={"mod.py"},
+                census={"mod"},
+            )
+            result = _process_file_worker("mod.py")
+
+        self.assertEqual(result["status"], "success")
+        self.assertEqual(set(result["data"]["raw_imports"]), {"os"})
+
     # ==============================================================================
     # TEST 13.5: security_lens findings are recorded under their sec_ signal
     # (originally the #344 double-corroboration test; detector-side taint removed in #3101)

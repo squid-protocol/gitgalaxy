@@ -81,7 +81,7 @@
       "agc_assembly/apollo-11/LICENSE.md": 0,
       "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 5,
       "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 29,
-      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 1,
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 2,
       "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 3,
       "agc_assembly/apollo-11/WAITLIST.agc": 2
     },
@@ -1070,7 +1070,7 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
       "cpp/NVDA/__init__.py": 39,
-      "cpp/NVDA/braille.py": 59,
+      "cpp/NVDA/braille.py": 58,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
       "cpp/NVDA/core.py": 74,
@@ -1300,10 +1300,10 @@
       "embedded_python/meow_turtle/actuators.py": 6,
       "embedded_python/meow_turtle/app.py": 15,
       "embedded_python/meow_turtle/bldc_driver.py": 2,
-      "embedded_python/meow_turtle/boot.py": 14,
+      "embedded_python/meow_turtle/boot.py": 12,
       "embedded_python/meow_turtle/diagnostics.py": 3,
       "embedded_python/meow_turtle/logging.py": 2,
-      "embedded_python/meow_turtle/meowprotocol.py": 4,
+      "embedded_python/meow_turtle/meowprotocol.py": 3,
       "embedded_python/meow_turtle/mpu6050.py": 3,
       "embedded_python/meow_turtle/ota.py": 4,
       "embedded_python/meow_turtle/pio_programs.py": 1,
@@ -1468,25 +1468,25 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 7,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": 1,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": 4,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": 4,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 4,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 5,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 1,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 3,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 5,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 2,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": 6,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 5,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": 0,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": 1,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": 3,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFeatureFlagsIntegrationTest.groovy": 2,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileCollectionIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileTreeIntegrationTest.groovy": 1,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFlowScopeIntegrationTest.groovy": 3,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFlowScopeIntegrationTest.groovy": 1,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheGradlePropertiesFileIntegrationTest.groovy": 0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildInputsChangesIntegrationTest.groovy": 4,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicChangesIntegrationTest.groovy": 1,
@@ -1613,7 +1613,7 @@
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": 3,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_HamcrestMatchers.groovy": 1,
       "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": 2,
-      "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_extension_SpockSnapshotter.groovy": 2,
+      "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_extension_SpockSnapshotter.groovy": 1,
       "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_jacoco_JacocoAstDumpTrigger.groovy": 9
     },
     "groovy/spock_smoke_specs": {
@@ -1646,7 +1646,7 @@
       "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 2,
       "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 4,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 7,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 6,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 1,
@@ -1655,7 +1655,7 @@
       "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 1,
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 3,
-      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 14,
+      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 13,
       "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 2,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 3,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 10,
@@ -1885,12 +1885,12 @@
       "javascript/react/ReactFiberWorkLoop.js": 59,
       "javascript/react/ReactFlightServer.js": 23,
       "javascript/react/ReactSymbols.js": 0,
-      "javascript/react/build.js": 30
+      "javascript/react/build.js": 29
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 11,
       "javascript/threejs/Editor.js": 7,
-      "javascript/threejs/GLTFLoader.js": 4,
+      "javascript/threejs/GLTFLoader.js": 3,
       "javascript/threejs/Matrix4.js": 2,
       "javascript/threejs/WebGLProgram.js": 8,
       "javascript/threejs/WebGLRenderer.js": 37
@@ -2126,10 +2126,10 @@
       "livecode/livecode/accountsignupcardbehavior.livecodescript": 0,
       "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": 0,
       "livecode/livecode/arithmetic-commands.livecodescript": 0,
-      "livecode/livecode/arithmetic.lcb": 8,
-      "livecode/livecode/array.lcb": 3,
+      "livecode/livecode/arithmetic.lcb": 1,
+      "livecode/livecode/array.lcb": 1,
       "livecode/livecode/array.livecodescript": 0,
-      "livecode/livecode/assert.lcb": 1,
+      "livecode/livecode/assert.lcb": 0,
       "livecode/livecode/assign-ops.lcb": 1,
       "livecode/livecode/automaticactivationactivationgroupbehavior.livecodescript": 0,
       "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": 0,
@@ -2138,21 +2138,21 @@
       "livecode/livecode/automaticactivationprocessinggroupbehavior.livecodescript": 0,
       "livecode/livecode/background-pattern-scroll.livecodescript": 0,
       "livecode/livecode/basic.livecodescript": 0,
-      "livecode/livecode/binary.lcb": 3,
+      "livecode/livecode/binary.lcb": 1,
       "livecode/livecode/bitwise.lcb": 1,
       "livecode/livecode/bom.livecodescript": 0,
       "livecode/livecode/builder_tool.livecodescript": 2,
       "livecode/livecode/builder_utilities.livecodescript": 1,
       "livecode/livecode/button.livecodescript": 0,
-      "livecode/livecode/byte.lcb": 2,
+      "livecode/livecode/byte.lcb": 1,
       "livecode/livecode/bytecode.lcb": 0,
       "livecode/livecode/canvas.livecodescript": 0,
       "livecode/livecode/case-senstive-db-type.livecodescript": 0,
-      "livecode/livecode/char.lcb": 3,
+      "livecode/livecode/char.lcb": 1,
       "livecode/livecode/char.livecodescript": 0,
       "livecode/livecode/clipmessages.livecodescript": 0,
       "livecode/livecode/code.livecodescript": 0,
-      "livecode/livecode/codeunit.lcb": 2,
+      "livecode/livecode/codeunit.lcb": 1,
       "livecode/livecode/combine.livecodescript": 0,
       "livecode/livecode/compound.livecodescript": 0,
       "livecode/livecode/connect.livecodescript": 0,
@@ -2188,14 +2188,14 @@
       "livecode/livecode/invoke.lcb": 0,
       "livecode/livecode/item.lcb": 1,
       "livecode/livecode/iterator.lcb": 0,
-      "livecode/livecode/java.lcb": 6,
+      "livecode/livecode/java.lcb": 1,
       "livecode/livecode/java.livecodescript": 0,
       "livecode/livecode/lexical-scoping.lcb": 0,
       "livecode/livecode/line.lcb": 1,
-      "livecode/livecode/list.lcb": 5,
+      "livecode/livecode/list.lcb": 1,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
       "livecode/livecode/log.livecodescript": 0,
-      "livecode/livecode/logic.lcb": 4,
+      "livecode/livecode/logic.lcb": 1,
       "livecode/livecode/map.lcb": 0,
       "livecode/livecode/math-foundation.lcb": 1,
       "livecode/livecode/math.lcb": 1,
@@ -2225,7 +2225,7 @@
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": 27,
       "lua/cosmopolitan/api.lua": 8,
-      "lua/cosmopolitan/attrib.lua": 18,
+      "lua/cosmopolitan/attrib.lua": 16,
       "lua/cosmopolitan/big.lua": 1,
       "lua/cosmopolitan/binarytrees.lua": 0,
       "lua/cosmopolitan/bitwise.lua": 2,
@@ -2243,7 +2243,7 @@
       "lua/cosmopolitan/errors.lua": 1,
       "lua/cosmopolitan/events.lua": 1,
       "lua/cosmopolitan/fetch.lua": 0,
-      "lua/cosmopolitan/files.lua": 2,
+      "lua/cosmopolitan/files.lua": 1,
       "lua/cosmopolitan/finger.lua": 0,
       "lua/cosmopolitan/gc.lua": 1,
       "lua/cosmopolitan/gengc.lua": 1,
@@ -2421,19 +2421,19 @@
       "perl/SOURCES.md": 0
     },
     "perl/bugzilla": {
-      "perl/bugzilla/Auth.pm": 20,
-      "perl/bugzilla/Bug.pm": 50,
-      "perl/bugzilla/CGI.pm": 22,
-      "perl/bugzilla/DB.pm": 42,
-      "perl/bugzilla/Requirements.pm": 18
+      "perl/bugzilla/Auth.pm": 18,
+      "perl/bugzilla/Bug.pm": 28,
+      "perl/bugzilla/CGI.pm": 13,
+      "perl/bugzilla/DB.pm": 28,
+      "perl/bugzilla/Requirements.pm": 9
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 99,
+      "perl/exiftool/ExifTool.pm": 49,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 2,
       "perl/exiftool/README": 0,
-      "perl/exiftool/RandomAccess.pm": 5,
-      "perl/exiftool/exiftool": 84
+      "perl/exiftool/RandomAccess.pm": 3,
+      "perl/exiftool/exiftool": 58
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 12,
@@ -2443,35 +2443,35 @@
       "perl/mojo/WebSocket.pm": 7
     },
     "perl/spamassassin": {
-      "perl/spamassassin/AsyncLoop.pm": 22,
-      "perl/spamassassin/Bayes.pm": 9,
-      "perl/spamassassin/HTML.pm": 13,
-      "perl/spamassassin/Makefile.PL": 15,
-      "perl/spamassassin/Message.pm": 25,
-      "perl/spamassassin/Parser.pm": 24,
-      "perl/spamassassin/PerMsgStatus.pm": 47,
-      "perl/spamassassin/SpamAssassin.pm": 57
+      "perl/spamassassin/AsyncLoop.pm": 17,
+      "perl/spamassassin/Bayes.pm": 7,
+      "perl/spamassassin/HTML.pm": 9,
+      "perl/spamassassin/Makefile.PL": 10,
+      "perl/spamassassin/Message.pm": 14,
+      "perl/spamassassin/Parser.pm": 15,
+      "perl/spamassassin/PerMsgStatus.pm": 26,
+      "perl/spamassassin/SpamAssassin.pm": 54
     },
     "php": {
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 18,
-      "php/guzzle/CurlFactory.php": 11,
+      "php/guzzle/Client.php": 10,
+      "php/guzzle/CurlFactory.php": 10,
       "php/guzzle/CurlMultiHandler.php": 6,
       "php/guzzle/Middleware.php": 7,
       "php/guzzle/Pool.php": 5,
       "php/guzzle/RequestException.php": 5,
-      "php/guzzle/StreamHandler.php": 14
+      "php/guzzle/StreamHandler.php": 12
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 33,
-      "php/laravel_core/BladeCompiler.php": 41,
+      "php/laravel_core/BladeCompiler.php": 38,
       "php/laravel_core/Collection.php": 13,
       "php/laravel_core/Container.php": 20,
       "php/laravel_core/Facade.php": 13,
       "php/laravel_core/LICENSE.md": 0,
-      "php/laravel_core/Model.php": 49,
+      "php/laravel_core/Model.php": 47,
       "php/laravel_core/Router.php": 31
     },
     "php/magento2": {
@@ -2479,9 +2479,9 @@
       "php/magento2/AbstractModel.php": 18,
       "php/magento2/Application.php": 4,
       "php/magento2/Http.php": 9,
-      "php/magento2/Interceptor.php": 2,
+      "php/magento2/Interceptor.php": 1,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 41,
+      "php/magento2/Mysql.php": 32,
       "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
@@ -2490,18 +2490,18 @@
       "php/symfony/EventDispatcher.php": 2,
       "php/symfony/HttpKernel.php": 23,
       "php/symfony/Parser.php": 0,
-      "php/symfony/Request.php": 11,
-      "php/symfony/Router.php": 27
+      "php/symfony/Request.php": 6,
+      "php/symfony/Router.php": 18
     },
     "php/wordpress": {
-      "php/wordpress/admin-ajax.php": 5,
-      "php/wordpress/class-wp-query.php": 36,
-      "php/wordpress/formatting.php": 93,
-      "php/wordpress/functions.php": 121,
+      "php/wordpress/admin-ajax.php": 3,
+      "php/wordpress/class-wp-query.php": 2,
+      "php/wordpress/formatting.php": 15,
+      "php/wordpress/functions.php": 58,
       "php/wordpress/license.txt": 0,
-      "php/wordpress/plugin.php": 11,
-      "php/wordpress/wp-login.php": 13,
-      "php/wordpress/wp-settings.php": 338
+      "php/wordpress/plugin.php": 1,
+      "php/wordpress/wp-login.php": 7,
+      "php/wordpress/wp-settings.php": 329
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0
@@ -2524,8 +2524,8 @@
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": 0,
       "pli/dsf_cics_admin/PROVENANCE.md": 0,
-      "pli/dsf_cics_admin/R0010301.pli": 21,
-      "pli/dsf_cics_admin/R0010420.pli": 8,
+      "pli/dsf_cics_admin/R0010301.pli": 20,
+      "pli/dsf_cics_admin/R0010420.pli": 7,
       "pli/dsf_cics_admin/R0010421.pli": 5,
       "pli/dsf_cics_admin/R0010422.pli": 6,
       "pli/dsf_cics_admin/R0010423.pli": 6,
@@ -2701,13 +2701,13 @@
     "python/airflow": {
       "python/airflow/dag.py": 40,
       "python/airflow/s3.py": 35,
-      "python/airflow/scheduler_job_runner.py": 78
+      "python/airflow/scheduler_job_runner.py": 76
     },
     "python/cython": {
       "python/cython/CodeGeneration.py": 2,
       "python/cython/MemoryView.pxd": 0,
       "python/cython/MemoryView.pyx": 3,
-      "python/cython/Nodes.py": 29
+      "python/cython/Nodes.py": 24
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -2717,20 +2717,20 @@
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": 10,
       "python/fastapi/fastapi/__main__.py": 1,
-      "python/fastapi/fastapi/applications.py": 33,
-      "python/fastapi/fastapi/background.py": 6,
+      "python/fastapi/fastapi/applications.py": 27,
+      "python/fastapi/fastapi/background.py": 5,
       "python/fastapi/fastapi/cli.py": 1,
       "python/fastapi/fastapi/concurrency.py": 6,
-      "python/fastapi/fastapi/datastructures.py": 7,
+      "python/fastapi/fastapi/datastructures.py": 6,
       "python/fastapi/fastapi/encoders.py": 21,
       "python/fastapi/fastapi/exception_handlers.py": 8,
-      "python/fastapi/fastapi/exceptions.py": 6,
+      "python/fastapi/fastapi/exceptions.py": 5,
       "python/fastapi/fastapi/logger.py": 1,
-      "python/fastapi/fastapi/param_functions.py": 11,
+      "python/fastapi/fastapi/param_functions.py": 9,
       "python/fastapi/fastapi/params.py": 12,
       "python/fastapi/fastapi/requests.py": 1,
       "python/fastapi/fastapi/responses.py": 7,
-      "python/fastapi/fastapi/routing.py": 35,
+      "python/fastapi/fastapi/routing.py": 34,
       "python/fastapi/fastapi/sse.py": 4,
       "python/fastapi/fastapi/staticfiles.py": 1,
       "python/fastapi/fastapi/templating.py": 1,
@@ -2924,7 +2924,7 @@
       "python/fastapi/tests/test_strict_content_type_nested.py": 2,
       "python/fastapi/tests/test_strict_content_type_router_level.py": 2,
       "python/fastapi/tests/test_stringified_annotation_dependency.py": 7,
-      "python/fastapi/tests/test_stringified_annotation_dependency_py314.py": 5,
+      "python/fastapi/tests/test_stringified_annotation_dependency_py314.py": 4,
       "python/fastapi/tests/test_stringified_annotations_simple.py": 5,
       "python/fastapi/tests/test_swagger_ui_escape.py": 1,
       "python/fastapi/tests/test_swagger_ui_init_oauth.py": 2,
@@ -2944,40 +2944,40 @@
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 4,
       "python/fastapi/tests/test_ws_dependencies.py": 4,
       "python/fastapi/tests/test_ws_router.py": 5,
-      "python/fastapi/tests/utils.py": 3
+      "python/fastapi/tests/utils.py": 2
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
       "python/numpy/__init__.py": 0,
-      "python/numpy/_linalg.py": 13,
+      "python/numpy/_linalg.py": 12,
       "python/numpy/cfuncs.py": 4,
-      "python/numpy/core.py": 19,
+      "python/numpy/core.py": 15,
       "python/numpy/crackfortran.py": 13,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 3,
-      "python/numpy/genapi.py": 10,
+      "python/numpy/genapi.py": 8,
       "python/numpy/generate_numpy_api.py": 4,
       "python/numpy/generate_ufunc_api.py": 4,
       "python/numpy/generate_umath_doc.py": 5,
       "python/numpy/lapack_litemodule.c": 3,
-      "python/numpy/numpy_api.py": 4,
+      "python/numpy/numpy_api.py": 2,
       "python/numpy/symbolic.py": 4,
       "python/numpy/testutils.py": 6,
-      "python/numpy/ufunc_docstrings.py": 5,
+      "python/numpy/ufunc_docstrings.py": 1,
       "python/numpy/verify_c_api_version.py": 5
     },
     "python/twisted": {
-      "python/twisted/defer.py": 25,
+      "python/twisted/defer.py": 22,
       "python/twisted/http.py": 34,
-      "python/twisted/reflect.py": 14,
-      "python/twisted/transport.py": 26
+      "python/twisted/reflect.py": 12,
+      "python/twisted/transport.py": 25
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,
       "python/wtfpython/README.md": 2,
       "python/wtfpython/insert_ids.py": 1,
       "python/wtfpython/mixed_tabs_and_spaces.py": 0,
-      "python/wtfpython/notebook_generator.py": 4,
+      "python/wtfpython/notebook_generator.py": 3,
       "python/wtfpython/noxfile.py": 3
     },
     "rexx": {
@@ -3022,8 +3022,8 @@
       "ruby/rails/blob.rb": 4,
       "ruby/rails/generator.rb": 12,
       "ruby/rails/inbound_emails_controller.rb": 1,
-      "ruby/rails/metal.rb": 6,
-      "ruby/rails/routing.rb": 2
+      "ruby/rails/metal.rb": 2,
+      "ruby/rails/routing.rb": 1
     },
     "rust": {
       "rust/SOURCES.md": 0
@@ -3032,7 +3032,7 @@
       "rust/bevy/bevy_ecs_macros.rs": 31,
       "rust/bevy/bevy_ecs_query.rs": 55,
       "rust/bevy/bevy_ecs_table.rs": 6,
-      "rust/bevy/bevy_ecs_world.rs": 163,
+      "rust/bevy/bevy_ecs_world.rs": 151,
       "rust/bevy/bevy_reflect_path.rs": 9,
       "rust/bevy/bevy_render_phase.rs": 5,
       "rust/bevy/bevy_schedule_graph.rs": 8
@@ -3048,11 +3048,11 @@
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 17,
-      "rust/serde/serde_core_de_mod.rs": 28,
-      "rust/serde/serde_core_macros.rs": 5,
+      "rust/serde/serde_core_de_mod.rs": 9,
+      "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 42,
       "rust/serde/serde_internals_ast.rs": 7,
-      "rust/serde/serde_internals_attr.rs": 22,
+      "rust/serde/serde_internals_attr.rs": 21,
       "rust/serde/test_annotations.rs": 28
     },
     "rust/syn": {
@@ -3060,28 +3060,28 @@
       "rust/syn/bigint.rs": 4,
       "rust/syn/buffer.rs": 17,
       "rust/syn/classify.rs": 11,
-      "rust/syn/custom_keyword.rs": 6,
-      "rust/syn/custom_punctuation.rs": 9,
-      "rust/syn/data.rs": 29,
+      "rust/syn/custom_keyword.rs": 0,
+      "rust/syn/custom_punctuation.rs": 0,
+      "rust/syn/data.rs": 28,
       "rust/syn/derive.rs": 23
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 1,
       "rust/tokio/blocking.rs": 8,
-      "rust/tokio/builder.rs": 41,
+      "rust/tokio/builder.rs": 26,
       "rust/tokio/config.rs": 3,
       "rust/tokio/fuzz.rs": 1,
-      "rust/tokio/interval.rs": 19,
-      "rust/tokio/lib.rs": 32,
+      "rust/tokio/interval.rs": 12,
+      "rust/tokio/lib.rs": 28,
       "rust/tokio/maybe_done.rs": 10,
       "rust/tokio/tests.rs": 11,
-      "rust/tokio/tokio_mpsc_bounded.rs": 24,
-      "rust/tokio/tokio_named_pipe.rs": 44
+      "rust/tokio/tokio_mpsc_bounded.rs": 15,
+      "rust/tokio/tokio_named_pipe.rs": 29
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 5,
-      "rust/wasmtime/wasmtime_instance.rs": 43,
+      "rust/wasmtime/wasmtime_instance.rs": 39,
       "rust/wasmtime/wasmtime_isle_parser.rs": 6,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 28
     },
@@ -3249,7 +3249,7 @@
       "shell/illumos-gate/acct.sh": 0,
       "shell/illumos-gate/adbgen.sh": 0,
       "shell/illumos-gate/amt.sh": 0,
-      "shell/illumos-gate/arch.sh": 1,
+      "shell/illumos-gate/arch.sh": 0,
       "shell/illumos-gate/audio_clean.sh": 0,
       "shell/illumos-gate/audit_warn.sh": 0,
       "shell/illumos-gate/batch.sh": 0,
@@ -3346,7 +3346,7 @@
       "shell/reactos/COPYING": 0,
       "shell/reactos/CreateCabFile.sh": 0,
       "shell/reactos/autogen.sh": 0,
-      "shell/reactos/check_code_format.sh": 1,
+      "shell/reactos/check_code_format.sh": 0,
       "shell/reactos/codespell_changed_files.sh": 0,
       "shell/reactos/codespell_check.sh": 1,
       "shell/reactos/configure.sh": 0,
@@ -3416,7 +3416,7 @@
       "sql/SOURCES.md": 0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 101
+      "sql/baseline/schema.php": 94
     },
     "sql/mysql/mediawiki": {
       "sql/mysql/mediawiki/COPYING": 0,
@@ -3648,12 +3648,12 @@
       "typescript/assemblyscript/ast.ts": 6,
       "typescript/assemblyscript/compiler.ts": 14,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 9
+      "typescript/assemblyscript/parser.ts": 5
     },
     "typescript/fp-ts": {
-      "typescript/fp-ts/Either.ts": 38,
+      "typescript/fp-ts/Either.ts": 30,
       "typescript/fp-ts/HKT.ts": 0,
-      "typescript/fp-ts/TaskEither.ts": 40,
+      "typescript/fp-ts/TaskEither.ts": 31,
       "typescript/fp-ts/package.json": 0,
       "typescript/fp-ts/pipeable.ts": 24
     },

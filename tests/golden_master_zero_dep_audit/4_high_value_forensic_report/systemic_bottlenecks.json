@@ -12,7 +12,7 @@
         "state_mutation": 16.7982
       },
       {
-        "btw": 0.0001,
+        "btw": 0.0,
         "path": "python/fastapi/fastapi/routing.py",
         "score": 0.005,
         "state_mutation": 99.7525
@@ -38,66 +38,66 @@
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0627,
+        "close": 0.0617,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.769
+        "score": 3.712
       },
       {
-        "close": 0.0344,
+        "close": 0.0341,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.151
+        "score": 3.122
       },
       {
-        "close": 0.0325,
+        "close": 0.0322,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.944
+        "score": 2.909
       },
       {
-        "close": 0.0324,
+        "close": 0.0318,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.73
+        "score": 2.684
       },
       {
-        "close": 0.0319,
+        "close": 0.0315,
         "err": 70.9185,
         "path": "python/fastapi/fastapi/background.py",
-        "score": 2.264
+        "score": 2.236
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.938,
-        "score": 1393.8
+        "pr": 14.87,
+        "score": 1487.0
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 8.427,
-        "score": 842.7
-      },
-      {
-        "doc": 100.0,
-        "path": "python/fastapi/fastapi/responses.py",
-        "pr": 4.977,
-        "score": 497.7
-      },
-      {
-        "doc": 80.9524,
-        "path": "python/fastapi/fastapi/datastructures.py",
-        "pr": 5.628,
-        "score": 455.6
+        "pr": 5.744,
+        "score": 574.4
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.422,
-        "score": 442.2
+        "pr": 4.584,
+        "score": 458.4
+      },
+      {
+        "doc": 100.0,
+        "path": "scheme/racket/io.ss",
+        "pr": 3.941,
+        "score": 394.1
+      },
+      {
+        "doc": 50.0,
+        "path": "tcl/sqlite/tester.tcl",
+        "pr": 7.154,
+        "score": 357.7
       }
     ]
   }

@@ -281,7 +281,7 @@
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": 0,
       "assembly/nasm_testsuite/a64.asm": 0,
-      "assembly/nasm_testsuite/absolute.asm": 1,
+      "assembly/nasm_testsuite/absolute.asm": 0,
       "assembly/nasm_testsuite/addr64x.asm": 0,
       "assembly/nasm_testsuite/align13.asm": 0,
       "assembly/nasm_testsuite/align13s.asm": 0,
@@ -1340,10 +1340,10 @@
       "go/core/main.go": 0,
       "go/core/mgc.go": 2,
       "go/core/mutex.go": 1,
-      "go/core/proc.go": 3,
+      "go/core/proc.go": 2,
       "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
-      "go/core/value.go": 8
+      "go/core/value.go": 5
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0,
@@ -1731,11 +1731,11 @@
       "hlasm/che4z_hlasm/CCCCC.hlasm": 0,
       "hlasm/che4z_hlasm/code_action_1.hlasm": 0,
       "hlasm/che4z_hlasm/code_action_2.hlasm": 0,
-      "hlasm/che4z_hlasm/comments.hlasm": 1,
+      "hlasm/che4z_hlasm/comments.hlasm": 0,
       "hlasm/che4z_hlasm/factorial.hlasm": 0,
       "hlasm/che4z_hlasm/forward_dependency.hlasm": 0,
       "hlasm/che4z_hlasm/infinite.hlasm": 0,
-      "hlasm/che4z_hlasm/output.hlasm": 3,
+      "hlasm/che4z_hlasm/output.hlasm": 2,
       "hlasm/che4z_hlasm/remote.hlasm": 0,
       "hlasm/che4z_hlasm/remote2.hlasm": 0,
       "hlasm/che4z_hlasm/tutorial.hlasm": 0,
@@ -2158,7 +2158,7 @@
       "livecode/livecode/connect.livecodescript": 0,
       "livecode/livecode/constants.livecodescript": 0,
       "livecode/livecode/dashes.livecodescript": 0,
-      "livecode/livecode/date.lcb": 1,
+      "livecode/livecode/date.lcb": 0,
       "livecode/livecode/datetime.livecodescript": 0,
       "livecode/livecode/db_getters.livecodescript": 0,
       "livecode/livecode/default-values.lcb": 0,
@@ -2171,7 +2171,7 @@
       "livecode/livecode/engine.livecodescript": 0,
       "livecode/livecode/engine_builder.livecodescript": 0,
       "livecode/livecode/ext-urls.livecodescript": 0,
-      "livecode/livecode/file.lcb": 4,
+      "livecode/livecode/file.lcb": 1,
       "livecode/livecode/filters.livecodescript": 0,
       "livecode/livecode/foreign-aggregate.lcb": 0,
       "livecode/livecode/foreign-binding.lcb": 0,
@@ -2192,7 +2192,7 @@
       "livecode/livecode/java.livecodescript": 0,
       "livecode/livecode/lexical-scoping.lcb": 0,
       "livecode/livecode/line.lcb": 0,
-      "livecode/livecode/list.lcb": 1,
+      "livecode/livecode/list.lcb": 0,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
       "livecode/livecode/log.livecodescript": 11,
       "livecode/livecode/logic.lcb": 0,
@@ -2202,7 +2202,7 @@
       "livecode/livecode/network.livecodescript": 7,
       "livecode/livecode/printing.livecodescript": 0,
       "livecode/livecode/recursion.livecodescript": 0,
-      "livecode/livecode/repeat.livecodescript": 5,
+      "livecode/livecode/repeat.livecodescript": 0,
       "livecode/livecode/revdeploylibraryandroid.livecodescript": 0,
       "livecode/livecode/revdeploylibraryemscripten.livecodescript": 0,
       "livecode/livecode/revdeploylibraryios.livecodescript": 0,
@@ -2223,7 +2223,7 @@
       "lua/SOURCES.md": 0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 2,
+      "lua/cosmopolitan/all.lua": 1,
       "lua/cosmopolitan/api.lua": 9,
       "lua/cosmopolitan/attrib.lua": 1,
       "lua/cosmopolitan/big.lua": 0,
@@ -2402,7 +2402,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0,
-      "nix/ghostty/default.nix": 2,
+      "nix/ghostty/default.nix": 1,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
     },
@@ -2715,7 +2715,7 @@
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": 202,
+      "python/fastapi/fastapi/__init__.py": 199,
       "python/fastapi/fastapi/__main__.py": 0,
       "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 1,
@@ -2729,7 +2729,7 @@
       "python/fastapi/fastapi/param_functions.py": 2,
       "python/fastapi/fastapi/params.py": 3,
       "python/fastapi/fastapi/requests.py": 2,
-      "python/fastapi/fastapi/responses.py": 21,
+      "python/fastapi/fastapi/responses.py": 20,
       "python/fastapi/fastapi/routing.py": 6,
       "python/fastapi/fastapi/sse.py": 3,
       "python/fastapi/fastapi/staticfiles.py": 0,
@@ -2948,7 +2948,7 @@
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
-      "python/numpy/__init__.py": 8,
+      "python/numpy/__init__.py": 6,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 1,
@@ -3018,7 +3018,7 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 8,
+      "ruby/rails/base.rb": 7,
       "ruby/rails/blob.rb": 0,
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
@@ -3040,7 +3040,7 @@
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
       "rust/holylang/compile.rs": 0,
-      "rust/holylang/error.rs": 2,
+      "rust/holylang/error.rs": 1,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
@@ -3440,7 +3440,7 @@
       "sqlite/SOURCES.md": 0
     },
     "sqlite/dancer2_sqlite": {
-      "sqlite/dancer2_sqlite/entries.sql": 1,
+      "sqlite/dancer2_sqlite/entries.sql": 0,
       "sqlite/dancer2_sqlite/users.sql": 0
     },
     "sqlite/flask_tutorial_sqlite": {
@@ -3850,7 +3850,7 @@
       "zig/zls/mach/collision.zig": 0,
       "zig/zls/mach/graph.zig": 1,
       "zig/zls/mach/main.zig": 4,
-      "zig/zls/mach/module.zig": 3,
+      "zig/zls/mach/module.zig": 2,
       "zig/zls/mach/testing.zig": 24,
       "zig/zls/mach/win32.zig": 0
     }

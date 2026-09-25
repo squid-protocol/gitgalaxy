@@ -20,12 +20,12 @@
     "repos": "fmtlib/fmt"
   },
   "dart": {
-    "engine_edges": 674,
+    "engine_edges": 668,
     "files": 332,
     "fn": 35,
-    "fp": 6,
+    "fp": 0,
     "imports": 744,
-    "precision_pct": 99.1,
+    "precision_pct": 100.0,
     "recall_pct": 95.3,
     "repos": "dart-lang/http"
   },
@@ -70,12 +70,12 @@
     "repos": "expressjs/express"
   },
   "kotlin": {
-    "engine_edges": 211,
+    "engine_edges": 209,
     "files": 131,
     "fn": 18,
-    "fp": 2,
+    "fp": 0,
     "imports": 377,
-    "precision_pct": 99.1,
+    "precision_pct": 100.0,
     "recall_pct": 95.2,
     "repos": "square/kotlinpoet"
   },
@@ -90,12 +90,12 @@
     "repos": "luarocks/luarocks"
   },
   "objective-c": {
-    "engine_edges": 653,
+    "engine_edges": 652,
     "files": 261,
     "fn": 18,
-    "fp": 1,
+    "fp": 0,
     "imports": 671,
-    "precision_pct": 99.8,
+    "precision_pct": 100.0,
     "recall_pct": 97.3,
     "repos": "SDWebImage/SDWebImage"
   },
@@ -120,12 +120,12 @@
     "repos": "guzzle/guzzle"
   },
   "python": {
-    "engine_edges": 1874,
+    "engine_edges": 1859,
     "files": 1275,
     "fn": 22,
-    "fp": 16,
+    "fp": 1,
     "imports": 2009,
-    "precision_pct": 99.1,
+    "precision_pct": 99.9,
     "recall_pct": 98.9,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
   },
@@ -150,13 +150,13 @@
     "repos": "serde-rs/json"
   },
   "scala": {
-    "engine_edges": 489,
+    "engine_edges": 481,
     "files": 233,
-    "fn": 458,
-    "fp": 9,
+    "fn": 487,
+    "fp": 3,
     "imports": 1006,
-    "precision_pct": 98.2,
-    "recall_pct": 54.5,
+    "precision_pct": 99.4,
+    "recall_pct": 51.6,
     "repos": "circe/circe"
   },
   "shell": {
@@ -180,12 +180,12 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "typescript": {
-    "engine_edges": 564,
+    "engine_edges": 562,
     "files": 459,
     "fn": 0,
-    "fp": 2,
+    "fp": 0,
     "imports": 599,
-    "precision_pct": 99.6,
+    "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "colinhacks/zod"
   },

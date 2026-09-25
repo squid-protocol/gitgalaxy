@@ -39,6 +39,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Scala explicitly supports nested multi-line comments (/* /* */ */),
     # requiring depth-aware stripping to prevent premature termination.
     "lexical_family": "recursive_block",
+    # #3600: an import path is never a string literal here, so a `"""` block (a raw
+    # string / text block -- test fixtures full of example source) is blanked before
+    # `_dependency_capture` runs. Lazy with a fixed terminator: linear per block.
+    "import_capture_blank": r'"""[\s\S]*?"""',
     # #3595: a Scala import names a declaration by PACKAGE and NAME -- one file declares
     # many classes (circe's Error.scala holds DecodingFailure), an object member is its
     # object's file, and a wildcard of a package object (`io.circe.syntax._`) is that

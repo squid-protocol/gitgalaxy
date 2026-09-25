@@ -281,7 +281,7 @@
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": 10.02,
       "assembly/nasm_testsuite/a64.asm": 6.64,
-      "assembly/nasm_testsuite/absolute.asm": 5.86,
+      "assembly/nasm_testsuite/absolute.asm": 4.86,
       "assembly/nasm_testsuite/addr64x.asm": 15.3,
       "assembly/nasm_testsuite/align13.asm": 23.26,
       "assembly/nasm_testsuite/align13s.asm": 23.26,
@@ -3653,7 +3653,7 @@
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 347.76,
       "typescript/fp-ts/HKT.ts": 31.5,
-      "typescript/fp-ts/TaskEither.ts": 263.64,
+      "typescript/fp-ts/TaskEither.ts": 262.64,
       "typescript/fp-ts/package.json": 1.52,
       "typescript/fp-ts/pipeable.ts": 1022.64
     },

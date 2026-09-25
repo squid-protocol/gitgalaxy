@@ -1076,10 +1076,10 @@
       "cpp/NVDA/core.py": 8,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 1,
-      "cpp/NVDA/inProcess.cpp": 3,
+      "cpp/NVDA/inProcess.cpp": 2,
       "cpp/NVDA/nvdaControllerInternal.cpp": 0,
       "cpp/NVDA/readme.md": 1,
-      "cpp/NVDA/storage.cpp": 4
+      "cpp/NVDA/storage.cpp": 3
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 0,
@@ -2127,7 +2127,7 @@
       "livecode/livecode/accountsignuppasswordfieldbehaviorbuttonbehavior.livecodescript": 0,
       "livecode/livecode/arithmetic-commands.livecodescript": 0,
       "livecode/livecode/arithmetic.lcb": 0,
-      "livecode/livecode/array.lcb": 1,
+      "livecode/livecode/array.lcb": 0,
       "livecode/livecode/array.livecodescript": 0,
       "livecode/livecode/assert.lcb": 0,
       "livecode/livecode/assign-ops.lcb": 0,
@@ -2144,15 +2144,15 @@
       "livecode/livecode/builder_tool.livecodescript": 0,
       "livecode/livecode/builder_utilities.livecodescript": 0,
       "livecode/livecode/button.livecodescript": 0,
-      "livecode/livecode/byte.lcb": 1,
+      "livecode/livecode/byte.lcb": 0,
       "livecode/livecode/bytecode.lcb": 0,
       "livecode/livecode/canvas.livecodescript": 0,
       "livecode/livecode/case-senstive-db-type.livecodescript": 0,
-      "livecode/livecode/char.lcb": 1,
+      "livecode/livecode/char.lcb": 0,
       "livecode/livecode/char.livecodescript": 0,
       "livecode/livecode/clipmessages.livecodescript": 0,
       "livecode/livecode/code.livecodescript": 0,
-      "livecode/livecode/codeunit.lcb": 1,
+      "livecode/livecode/codeunit.lcb": 0,
       "livecode/livecode/combine.livecodescript": 0,
       "livecode/livecode/compound.livecodescript": 0,
       "livecode/livecode/connect.livecodescript": 0,
@@ -2192,7 +2192,7 @@
       "livecode/livecode/java.livecodescript": 0,
       "livecode/livecode/lexical-scoping.lcb": 0,
       "livecode/livecode/line.lcb": 0,
-      "livecode/livecode/list.lcb": 1,
+      "livecode/livecode/list.lcb": 0,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
       "livecode/livecode/log.livecodescript": 0,
       "livecode/livecode/logic.lcb": 0,
@@ -2422,18 +2422,18 @@
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 1,
-      "perl/bugzilla/Bug.pm": 3,
-      "perl/bugzilla/CGI.pm": 8,
-      "perl/bugzilla/DB.pm": 7,
-      "perl/bugzilla/Requirements.pm": 6
+      "perl/bugzilla/Bug.pm": 2,
+      "perl/bugzilla/CGI.pm": 2,
+      "perl/bugzilla/DB.pm": 2,
+      "perl/bugzilla/Requirements.pm": 2
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 42,
+      "perl/exiftool/ExifTool.pm": 2,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
       "perl/exiftool/RandomAccess.pm": 1,
-      "perl/exiftool/exiftool": 6
+      "perl/exiftool/exiftool": 3
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 1,
@@ -2450,7 +2450,7 @@
       "perl/spamassassin/Message.pm": 1,
       "perl/spamassassin/Parser.pm": 2,
       "perl/spamassassin/PerMsgStatus.pm": 2,
-      "perl/spamassassin/SpamAssassin.pm": 3
+      "perl/spamassassin/SpamAssassin.pm": 2
     },
     "php": {
       "php/SOURCES.md": 0
@@ -2495,7 +2495,7 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 0,
-      "php/wordpress/class-wp-query.php": 1,
+      "php/wordpress/class-wp-query.php": 0,
       "php/wordpress/formatting.php": 0,
       "php/wordpress/functions.php": 0,
       "php/wordpress/license.txt": 0,
@@ -2958,12 +2958,12 @@
       "python/numpy/genapi.py": 2,
       "python/numpy/generate_numpy_api.py": 4,
       "python/numpy/generate_ufunc_api.py": 4,
-      "python/numpy/generate_umath_doc.py": 3,
+      "python/numpy/generate_umath_doc.py": 2,
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 1,
       "python/numpy/symbolic.py": 1,
       "python/numpy/testutils.py": 0,
-      "python/numpy/ufunc_docstrings.py": 1,
+      "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 4
     },
     "python/twisted": {
@@ -3346,7 +3346,7 @@
       "shell/reactos/COPYING": 0,
       "shell/reactos/CreateCabFile.sh": 0,
       "shell/reactos/autogen.sh": 0,
-      "shell/reactos/check_code_format.sh": 1,
+      "shell/reactos/check_code_format.sh": 0,
       "shell/reactos/codespell_changed_files.sh": 0,
       "shell/reactos/codespell_check.sh": 0,
       "shell/reactos/configure.sh": 0,
@@ -3648,7 +3648,7 @@
       "typescript/assemblyscript/ast.ts": 0,
       "typescript/assemblyscript/compiler.ts": 0,
       "typescript/assemblyscript/package.json": 0,
-      "typescript/assemblyscript/parser.ts": 1
+      "typescript/assemblyscript/parser.ts": 0
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 0,

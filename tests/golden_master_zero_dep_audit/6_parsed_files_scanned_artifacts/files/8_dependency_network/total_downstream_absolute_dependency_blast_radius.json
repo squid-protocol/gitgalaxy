@@ -119,7 +119,7 @@
     "assembly/bootos": {
       "assembly/bootos/Makefile": 0,
       "assembly/bootos/counter.asm": 0,
-      "assembly/bootos/os.asm": 61
+      "assembly/bootos/os.asm": 60
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
@@ -281,7 +281,7 @@
     "assembly/nasm_testsuite": {
       "assembly/nasm_testsuite/a32offs.asm": 0,
       "assembly/nasm_testsuite/a64.asm": 0,
-      "assembly/nasm_testsuite/absolute.asm": 1,
+      "assembly/nasm_testsuite/absolute.asm": 0,
       "assembly/nasm_testsuite/addr64x.asm": 0,
       "assembly/nasm_testsuite/align13.asm": 0,
       "assembly/nasm_testsuite/align13s.asm": 0,
@@ -1340,10 +1340,10 @@
       "go/core/main.go": 0,
       "go/core/mgc.go": 0,
       "go/core/mutex.go": 2,
-      "go/core/proc.go": 1,
+      "go/core/proc.go": 0,
       "go/core/server.go": 0,
       "go/core/syscall_linux.go": 0,
-      "go/core/value.go": 3
+      "go/core/value.go": 0
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0,
@@ -1724,18 +1724,18 @@
       "hlasm/PROVENANCE.md": 0
     },
     "hlasm/che4z_hlasm": {
-      "hlasm/che4z_hlasm/A.hlasm": 4,
+      "hlasm/che4z_hlasm/A.hlasm": 3,
       "hlasm/che4z_hlasm/AAAAA.hlasm": 0,
-      "hlasm/che4z_hlasm/B.hlasm": 6,
+      "hlasm/che4z_hlasm/B.hlasm": 5,
       "hlasm/che4z_hlasm/BBBBB.hlasm": 0,
       "hlasm/che4z_hlasm/CCCCC.hlasm": 0,
       "hlasm/che4z_hlasm/code_action_1.hlasm": 0,
       "hlasm/che4z_hlasm/code_action_2.hlasm": 0,
-      "hlasm/che4z_hlasm/comments.hlasm": 1,
+      "hlasm/che4z_hlasm/comments.hlasm": 0,
       "hlasm/che4z_hlasm/factorial.hlasm": 0,
       "hlasm/che4z_hlasm/forward_dependency.hlasm": 0,
       "hlasm/che4z_hlasm/infinite.hlasm": 0,
-      "hlasm/che4z_hlasm/output.hlasm": 1,
+      "hlasm/che4z_hlasm/output.hlasm": 0,
       "hlasm/che4z_hlasm/remote.hlasm": 0,
       "hlasm/che4z_hlasm/remote2.hlasm": 0,
       "hlasm/che4z_hlasm/tutorial.hlasm": 0,
@@ -1849,7 +1849,7 @@
     },
     "html/wordpress_blocks": {
       "html/wordpress_blocks/LICENSE.txt": 0,
-      "html/wordpress_blocks/index.html": 1,
+      "html/wordpress_blocks/index.html": 0,
       "html/wordpress_blocks/page.html": 0,
       "html/wordpress_blocks/search.html": 0
     },
@@ -2158,7 +2158,7 @@
       "livecode/livecode/connect.livecodescript": 0,
       "livecode/livecode/constants.livecodescript": 0,
       "livecode/livecode/dashes.livecodescript": 0,
-      "livecode/livecode/date.lcb": 1,
+      "livecode/livecode/date.lcb": 0,
       "livecode/livecode/datetime.livecodescript": 9,
       "livecode/livecode/db_getters.livecodescript": 0,
       "livecode/livecode/default-values.lcb": 0,
@@ -2171,7 +2171,7 @@
       "livecode/livecode/engine.livecodescript": 0,
       "livecode/livecode/engine_builder.livecodescript": 0,
       "livecode/livecode/ext-urls.livecodescript": 0,
-      "livecode/livecode/file.lcb": 5,
+      "livecode/livecode/file.lcb": 1,
       "livecode/livecode/filters.livecodescript": 0,
       "livecode/livecode/foreign-aggregate.lcb": 0,
       "livecode/livecode/foreign-binding.lcb": 0,
@@ -2192,7 +2192,7 @@
       "livecode/livecode/java.livecodescript": 0,
       "livecode/livecode/lexical-scoping.lcb": 0,
       "livecode/livecode/line.lcb": 0,
-      "livecode/livecode/list.lcb": 3,
+      "livecode/livecode/list.lcb": 2,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
       "livecode/livecode/log.livecodescript": 3,
       "livecode/livecode/logic.lcb": 0,
@@ -2202,7 +2202,7 @@
       "livecode/livecode/network.livecodescript": 0,
       "livecode/livecode/printing.livecodescript": 0,
       "livecode/livecode/recursion.livecodescript": 0,
-      "livecode/livecode/repeat.livecodescript": 8,
+      "livecode/livecode/repeat.livecodescript": 0,
       "livecode/livecode/revdeploylibraryandroid.livecodescript": 0,
       "livecode/livecode/revdeploylibraryemscripten.livecodescript": 0,
       "livecode/livecode/revdeploylibraryios.livecodescript": 0,
@@ -2223,49 +2223,49 @@
       "lua/SOURCES.md": 0
     },
     "lua/cosmopolitan": {
-      "lua/cosmopolitan/all.lua": 2,
-      "lua/cosmopolitan/api.lua": 9,
-      "lua/cosmopolitan/attrib.lua": 3,
+      "lua/cosmopolitan/all.lua": 1,
+      "lua/cosmopolitan/api.lua": 8,
+      "lua/cosmopolitan/attrib.lua": 2,
       "lua/cosmopolitan/big.lua": 0,
       "lua/cosmopolitan/binarytrees.lua": 0,
-      "lua/cosmopolitan/bitwise.lua": 3,
-      "lua/cosmopolitan/bwcoercion.lua": 4,
+      "lua/cosmopolitan/bitwise.lua": 2,
+      "lua/cosmopolitan/bwcoercion.lua": 3,
       "lua/cosmopolitan/call-lua-module.lua": 0,
-      "lua/cosmopolitan/calls.lua": 3,
+      "lua/cosmopolitan/calls.lua": 2,
       "lua/cosmopolitan/closedsource.lua": 0,
-      "lua/cosmopolitan/closure.lua": 3,
-      "lua/cosmopolitan/code.lua": 4,
-      "lua/cosmopolitan/constructs.lua": 3,
-      "lua/cosmopolitan/coroutine.lua": 4,
+      "lua/cosmopolitan/closure.lua": 2,
+      "lua/cosmopolitan/code.lua": 2,
+      "lua/cosmopolitan/constructs.lua": 2,
+      "lua/cosmopolitan/coroutine.lua": 3,
       "lua/cosmopolitan/crashreport.lua": 0,
-      "lua/cosmopolitan/cstack.lua": 3,
-      "lua/cosmopolitan/db.lua": 3,
-      "lua/cosmopolitan/errors.lua": 19,
-      "lua/cosmopolitan/events.lua": 6,
+      "lua/cosmopolitan/cstack.lua": 2,
+      "lua/cosmopolitan/db.lua": 2,
+      "lua/cosmopolitan/errors.lua": 16,
+      "lua/cosmopolitan/events.lua": 5,
       "lua/cosmopolitan/fetch.lua": 0,
-      "lua/cosmopolitan/files.lua": 3,
+      "lua/cosmopolitan/files.lua": 2,
       "lua/cosmopolitan/finger.lua": 0,
       "lua/cosmopolitan/gc.lua": 2,
-      "lua/cosmopolitan/gengc.lua": 3,
+      "lua/cosmopolitan/gengc.lua": 2,
       "lua/cosmopolitan/gensvg.lua": 0,
-      "lua/cosmopolitan/goto.lua": 3,
+      "lua/cosmopolitan/goto.lua": 2,
       "lua/cosmopolitan/heavy.lua": 0,
       "lua/cosmopolitan/hitcounter.lua": 0,
       "lua/cosmopolitan/literals.lua": 0,
-      "lua/cosmopolitan/locals.lua": 3,
-      "lua/cosmopolitan/main.lua": 3,
+      "lua/cosmopolitan/locals.lua": 2,
+      "lua/cosmopolitan/main.lua": 2,
       "lua/cosmopolitan/math.lua": 0,
       "lua/cosmopolitan/maxmind.lua": 0,
       "lua/cosmopolitan/mymodule.lua": 1,
-      "lua/cosmopolitan/nextvar.lua": 3,
+      "lua/cosmopolitan/nextvar.lua": 2,
       "lua/cosmopolitan/opensource.lua": 0,
-      "lua/cosmopolitan/pm.lua": 3,
+      "lua/cosmopolitan/pm.lua": 2,
       "lua/cosmopolitan/printpayload.lua": 0,
       "lua/cosmopolitan/redbean-form.lua": 0,
       "lua/cosmopolitan/sort.lua": 0,
       "lua/cosmopolitan/strings.lua": 32,
-      "lua/cosmopolitan/tpack.lua": 3,
-      "lua/cosmopolitan/tracegc.lua": 5
+      "lua/cosmopolitan/tpack.lua": 2,
+      "lua/cosmopolitan/tracegc.lua": 4
     },
     "lua/darwin-xnu": {
       "lua/darwin-xnu/benchmark.lua": 0,
@@ -2313,7 +2313,7 @@
       "lua/pandoc/inlines-filter.lua": 0,
       "lua/pandoc/manfilter.lua": 0,
       "lua/pandoc/markdown-reader.lua": 0,
-      "lua/pandoc/math.lua": 22,
+      "lua/pandoc/math.lua": 17,
       "lua/pandoc/pandoc-format.lua": 0,
       "lua/pandoc/pandoc-image.lua": 0,
       "lua/pandoc/pandoc-json.lua": 0,
@@ -2339,9 +2339,9 @@
       "lua/redis/luac.lua": 0,
       "lua/redis/printf.lua": 0,
       "lua/redis/readonly.lua": 0,
-      "lua/redis/sort.lua": 18,
+      "lua/redis/sort.lua": 17,
       "lua/redis/strict.lua": 19,
-      "lua/redis/table.lua": 12,
+      "lua/redis/table.lua": 10,
       "lua/redis/trace-calls.lua": 0,
       "lua/redis/trace-globals.lua": 0,
       "lua/redis/xd.lua": 0
@@ -2402,7 +2402,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0,
-      "nix/ghostty/default.nix": 2,
+      "nix/ghostty/default.nix": 1,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
     },
@@ -3018,7 +3018,7 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 6,
+      "ruby/rails/base.rb": 5,
       "ruby/rails/blob.rb": 0,
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
@@ -3040,7 +3040,7 @@
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
       "rust/holylang/compile.rs": 0,
-      "rust/holylang/error.rs": 1,
+      "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
@@ -3105,7 +3105,7 @@
       "scheme/racket/cpnanopass.ss": 0,
       "scheme/racket/eval.c": 1,
       "scheme/racket/fun.c": 0,
-      "scheme/racket/io.ss": 47,
+      "scheme/racket/io.ss": 46,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
     },
@@ -3440,12 +3440,12 @@
       "sqlite/SOURCES.md": 0
     },
     "sqlite/dancer2_sqlite": {
-      "sqlite/dancer2_sqlite/entries.sql": 1,
+      "sqlite/dancer2_sqlite/entries.sql": 0,
       "sqlite/dancer2_sqlite/users.sql": 0
     },
     "sqlite/flask_tutorial_sqlite": {
       "sqlite/flask_tutorial_sqlite/LICENSE.txt": 0,
-      "sqlite/flask_tutorial_sqlite/data.sql": 1,
+      "sqlite/flask_tutorial_sqlite/data.sql": 0,
       "sqlite/flask_tutorial_sqlite/schema.sql": 0
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
@@ -3758,7 +3758,7 @@
     },
     "yaml/ansible/yaml_parsing/tasks": {
       "yaml/ansible/yaml_parsing/tasks/main.yml": 0,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 8
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 5
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": 0
@@ -3846,11 +3846,11 @@
     },
     "zig/zls/mach": {
       "zig/zls/mach/Core.zig": 0,
-      "zig/zls/mach/StringTable.zig": 2,
+      "zig/zls/mach/StringTable.zig": 1,
       "zig/zls/mach/collision.zig": 0,
-      "zig/zls/mach/graph.zig": 2,
-      "zig/zls/mach/main.zig": 33,
-      "zig/zls/mach/module.zig": 1,
+      "zig/zls/mach/graph.zig": 1,
+      "zig/zls/mach/main.zig": 32,
+      "zig/zls/mach/module.zig": 0,
       "zig/zls/mach/testing.zig": 23,
       "zig/zls/mach/win32.zig": 0
     }

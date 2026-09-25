@@ -15,24 +15,12 @@
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "TYPOSQUATTING THREAT: 'org/gradle/api/tasks/InputFiles' mimics 'org/gradle/api/tasks/InputFile'"
     },
-    "javascript/react": {
-      "javascript/react/build.js": "TYPOSQUATTING THREAT: 'modules' mimics 'module'"
-    },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "TYPOSQUATTING THREAT: 'math/Vector2.js' mimics 'math/Vector3.js'",
       "javascript/threejs/WebGLRenderer.js": "TYPOSQUATTING THREAT: 'math/Vector4.js' mimics 'math/Vector3.js'"
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": "TYPOSQUATTING THREAT: 'DSNC10/SDSNLOD2' mimics 'DSNC10/SDSNLOAD'"
-    },
-    "perl/bugzilla": {
-      "perl/bugzilla/CGI.pm": "TYPOSQUATTING THREAT: 'parameter' mimics 'parameters'"
-    },
-    "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": "TYPOSQUATTING THREAT: 'warning' mimics 'warnings'"
-    },
-    "perl/spamassassin": {
-      "perl/spamassassin/Message.pm": "TYPOSQUATTING THREAT: 'content' mimics 'context'"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/R0010301.pli": "TYPOSQUATTING THREAT: 'S001V0' mimics 'S001A0'",

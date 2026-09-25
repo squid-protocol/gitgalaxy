@@ -37,6 +37,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: (CORRECTION) While Kotlin uses // and /* */, it officially allows nested
     # block comments (/* /* */ */). Using standard C parsing would cause early termination here.
     "lexical_family": "standard_block",
+    # #3600: an import path is never a string literal here, so a `"""` block (a raw
+    # string / text block -- test fixtures full of example source) is blanked before
+    # `_dependency_capture` runs. Lazy with a fixed terminator: linear per block.
+    "import_capture_blank": r'"""[\s\S]*?"""',
     # #3596: a Kotlin import names a declaration by PACKAGE and NAME, and the file need
     # not be named after it. `a.b.Util.X` (an object member, a nested class) is Util's
     # file -- the same member retry as Java -- and `a.b.asName` (a top-level function or

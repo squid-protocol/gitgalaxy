@@ -15,7 +15,6 @@ compares the READER on one DB; a scanner change needs --rescan and a scan per si
 
 import argparse
 import contextlib
-import io
 import dataclasses
 import importlib.util
 import inspect
@@ -144,6 +143,21 @@ def joins(cls: type) -> List[str]:
     return sorted(valid_methods)
 
 
+@contextlib.contextmanager
+def _quiet_stdout():
+    """Silence file descriptor 1 -- a subprocess inherits it, so redirect_stdout is not enough."""
+    sys.stdout.flush()
+    saved, devnull = os.dup(1), os.open(os.devnull, os.O_WRONLY)
+    os.dup2(devnull, 1)
+    try:
+        yield
+    finally:
+        sys.stdout.flush()
+        os.dup2(saved, 1)
+        os.close(saved)
+        os.close(devnull)
+
+
 def load_base_galaxy_ir(base_ref: str) -> Any:
     """Loads galaxy_ir.py from the given git ref as a new module 'galaxy_ir_base'."""
     cmd = ["git", "show", f"{base_ref}:gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py"]
@@ -207,7 +221,7 @@ Note: this compares the READER (galaxy_ir.py) on the same DB; scanner changes ar
         db_path = cache_dir / f"{corpus_name}_galaxy_master.db"
 
         if args.rescan or not db_path.exists():
-            with contextlib.redirect_stdout(io.StringIO()):  # the scanner's banners
+            with _quiet_stdout():  # the scanner subprocess's banners
                 head_module.scan_to_db(repo_path, cache_dir)
 
         if not db_path.exists():

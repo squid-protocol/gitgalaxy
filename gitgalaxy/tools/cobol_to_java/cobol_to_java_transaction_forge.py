@@ -362,8 +362,7 @@ class CicsForge:
                     field_fact = {
                         "source": fact["source"],
                         "section": fact["section"],
-                        "ledger_field": fact["ledger_field"],
-                        "field_testing": fact["field_testing"],
+                        "item": f"{fact['name']} @{fact['offset']}+{fact['bytes']}",
                     }
                     field_var = java_identifier(fact["name"])
                     self.trace.record(file_path, f"{name}#{field_var}", "dto-field", [field_fact])

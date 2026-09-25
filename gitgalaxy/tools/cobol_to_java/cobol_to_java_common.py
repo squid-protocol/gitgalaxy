@@ -17,19 +17,45 @@ from dataclasses import dataclass, field
 
 @dataclass
 class TraceEntry:
-    file: str
-    symbol: str
+    """One generated artifact (#3650): its Java file and symbol, and the facts and TODOs behind it."""
+
+    file: str  # relative to the generated project root
+    symbol: str  # `Class`, `Class#method` or `Class#field`
     kind: str
-    facts: list[dict]
+    facts: list[dict]  # each: source (file[:line]), section, ledger_field, field_testing (+ detail)
     todos: list[str] = field(default_factory=list)
 
 
 class TraceLog:
-    def __init__(self) -> None:
+    """The traceability manifest the skeleton forges fill as they plan (#3650).
+
+    Facts name the skeleton `section` they came from; `record` fills in that section's
+    ledger field and its field-testing status from ONE source (`ledger_of`, the skeleton
+    exporter's section -> ledger field maps, and `confidence`, the shipped field-testing
+    record), so every citation is consistent. A symbol recorded twice is kept once, and a
+    class-level entry is named after its class."""
+
+    def __init__(self, ledger_of: dict[str, str] | None = None, confidence: dict | None = None) -> None:
         self.entries: list[TraceEntry] = []
+        self.ledger_of = ledger_of or {}
+        self.confidence = confidence or {}
+        self._seen: set[tuple[str, str, str]] = set()
+
+    def _fact(self, fact: dict) -> dict:
+        ledger = self.ledger_of.get(fact.get("section", ""), fact.get("ledger_field"))
+        rec = self.confidence.get(ledger or "", {})
+        status = status_text({"field_testing": rec.get("status", "untested"),
+                              "tested_on_public": rec.get("tested_on_public", 0),
+                              "tested_on_private": rec.get("tested_on_private", 0)})  # fmt: skip
+        return {**fact, "ledger_field": ledger, "field_testing": status}
 
     def record(self, file: str, symbol: str, kind: str, facts: list[dict], todos: list[str] | None = None) -> None:
-        self.entries.append(TraceEntry(file, symbol, kind, facts, list(todos or [])))
+        if symbol == "Class":
+            symbol = file.rsplit("/", 1)[-1].removesuffix(".java")
+        if (file, symbol, kind) in self._seen:
+            return
+        self._seen.add((file, symbol, kind))
+        self.entries.append(TraceEntry(file, symbol, kind, [self._fact(f) for f in facts], list(todos or [])))
 
     def as_dict(self, generated_from: dict) -> dict:
         sorted_entries = sorted(self.entries, key=lambda e: (e.file, e.symbol))

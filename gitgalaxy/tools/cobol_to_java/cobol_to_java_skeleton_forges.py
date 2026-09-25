@@ -16,6 +16,13 @@ import json
 from pathlib import Path
 from typing import TextIO
 
+from gitgalaxy.tools.cobol_to_cobol.skeleton_export import (
+    ESTATE_JOINS,
+    FILE_CHANNELS,
+    INTERFACE_FIELD,
+    PROGRAM_JOINS,
+    load_confidence,
+)
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, TraceLog, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
@@ -32,7 +39,11 @@ class SkeletonForges:
         estate_file = skeleton_dir / "estate.json"
         self.estate = json.loads(estate_file.read_text(encoding="utf-8")) if estate_file.is_file() else {}
         self.names = ClassNames()
-        self.trace = TraceLog()
+        # #3650: every fact cites its skeleton section's ledger field and field-testing status
+        ledger_of = {name: fld for name, (_, fld) in {**FILE_CHANNELS, **PROGRAM_JOINS}.items()}
+        ledger_of.update(ESTATE_JOINS)
+        ledger_of["interface"] = INTERFACE_FIELD
+        self.trace = TraceLog(ledger_of, load_confidence())
         self.cics = CicsForge(self.skeletons, package, target, self.names, trace=self.trace)
         self.calls = CallForge(self.skeletons, self.cics, package, target, trace=self.trace)
         self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names, trace=self.trace)

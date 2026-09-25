@@ -30,11 +30,11 @@
       "Examples": [
         "BNK1CCM/BNK1CCM (cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl:236)",
         "COACTUP/CACTUPA (cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl:1048)",
-        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:611)",
-        "COADM01/COADM1A (cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl:179)",
-        "COADM01/COADM1A (cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl:191)"
+        "COACTUP/CACTUPA (cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl:3602)",
+        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:583)",
+        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:611)"
       ],
-      "Gap Count": 81,
+      "Gap Count": 85,
       "Input": "BMS map sources"
     },
     {

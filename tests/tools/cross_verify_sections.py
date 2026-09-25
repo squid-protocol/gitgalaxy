@@ -1535,7 +1535,9 @@ TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry 
     (name the JSONTRANSFRM(...) value); qualifier the CHANNEL(...) value.
   A command naming none of these (SEND TEXT, WRITE OPERATOR, ASKTIME, ...) is not listed. A name or qualifier is a
   value only when the source fixes it: a literal (its text), or a data-name with a fixed value (COBOL: its VALUE
-  literal, else the one literal ever MOVEd into it; assembler: its DC constant); otherwise null. "record_clause" is
+  literal, else the one literal it can ever be MOVEd -- directly, or by a MOVE from another plain data-name, which
+  passes on that name's VALUE or its own MOVEd literals, followed at most three MOVEs deep; assembler: its DC
+  constant); otherwise null. "record_clause" is
   INTO if the command codes it, else FROM, else SET -- that precedence, not source order (a WEB CONVERSE codes both
   FROM and INTO: INTO) -- null if none; "record" that option's operand as written.
 

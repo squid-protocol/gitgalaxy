@@ -437,3 +437,66 @@ def test_transform_names_its_transformer_and_channel():
 def test_pli_web_commands_end_at_semicolon():
     op = _one(" EXEC CICS WEB SEND FROM(BUF) FROMLENGTH(L) MEDIATYPE('text/plain');\n X = 1;\n", "pli")
     assert _brief(op) == ("WEB SEND", "WEB", "write", None, "SERVER", "FROM", "BUF")
+
+
+# ---- MOVE chains (#3578) --------------------------------------------------------
+
+
+def test_a_name_moved_from_a_valued_name_resolves_through_it():
+    # CardDemo COACTUPC: SEND MAP(CCARD-NEXT-MAP) after MOVE LIT-THISMAP TO CCARD-NEXT-MAP.
+    op = _one(
+        "       01  LIT-THISMAP     PIC X(7) VALUE 'CACTUPA'.\n"
+        "       01  LIT-THISMAPSET  PIC X(8) VALUE 'COACTUP'.\n"
+        "       01  CCARD-NEXT-MAP     PIC X(7).\n"
+        "       01  CCARD-NEXT-MAPSET  PIC X(8).\n"
+        "           MOVE LIT-THISMAPSET         TO CCARD-NEXT-MAPSET\n"
+        "           MOVE LIT-THISMAP            TO CCARD-NEXT-MAP\n"
+        "           EXEC CICS SEND MAP(CCARD-NEXT-MAP) MAPSET(CCARD-NEXT-MAPSET)\n"
+        "                FROM(CACTUPAO) END-EXEC.\n"
+    )
+    assert (op["name"], op["resolution"], op["qualifier"]) == ("CACTUPA", "move", "COACTUP")
+
+
+def test_chains_stop_at_three_hops_and_at_cycles():
+    src = (
+        "           MOVE 'F1' TO A\n"
+        "           MOVE A TO B\n"
+        "           MOVE B TO C\n"
+        "           MOVE C TO D\n"
+        "           MOVE D TO E\n"
+        "           MOVE P TO Q\n"
+        "           MOVE Q TO P\n"
+        "           EXEC CICS READ FILE(D) INTO(R) END-EXEC.\n"
+        "           EXEC CICS READ FILE(E) INTO(R) END-EXEC.\n"
+        "           EXEC CICS READ FILE(Q) INTO(R) END-EXEC.\n"
+    )
+    assert [(op["name"], op["resolution"]) for op in _ops(src)] == [
+        ("F1", "move"),  # D <- C <- B <- A <- 'F1': three name hops
+        (None, "unresolved"),  # E is four hops away
+        (None, "unresolved"),  # P and Q only feed each other
+    ]
+
+
+def test_a_chain_that_can_hold_two_values_is_ambiguous_and_figuratives_are_not_sources():
+    ops = _ops(
+        "       01  FILE-A  PIC X(8) VALUE 'ACCTFILE'.\n"
+        "           MOVE 'CARDFILE' TO WS-FILE\n"
+        "           MOVE FILE-A TO WS-FILE\n"
+        "           MOVE SPACES TO WS-Q\n"
+        "           EXEC CICS READ FILE(WS-FILE) INTO(R) END-EXEC.\n"
+        "           EXEC CICS WRITEQ TS QUEUE(WS-Q) FROM(R) END-EXEC.\n"
+    )
+    assert [(op["name"], op["resolution"], op["candidates"]) for op in ops] == [
+        (None, "ambiguous", "ACCTFILE,CARDFILE"),
+        (None, "unresolved", None),
+    ]
+
+
+def test_a_subscripted_or_qualified_move_is_not_a_chain():
+    ops = _ops(
+        "       01  NAMES  VALUE 'X'.\n"
+        "           MOVE TAB(I) TO WS-F\n"
+        "           MOVE NAMES TO WS-G(2)\n"
+        "           EXEC CICS READ FILE(WS-F) INTO(R) END-EXEC.\n"
+    )
+    assert (ops[0]["name"], ops[0]["resolution"]) == (None, "unresolved")

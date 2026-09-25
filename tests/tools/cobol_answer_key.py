@@ -81,7 +81,7 @@ import random
 import re
 import sys
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 SCHEMA_VERSION = 1
 
@@ -2312,6 +2312,11 @@ _CICS_EXEC = re.compile(r"\bEXEC\s+CICS\b")
 _CICS_END = re.compile(r"\bEND-EXEC\b")
 _CICS_OPTION = re.compile(r"([A-Z][A-Z0-9-]*)\s*(\((?:[^()']|'[^']*'|\([^()]*\))*\))?")
 _CICS_MOVE = re.compile(rf"\bMOVE\s+(?:'([^'\n]*)'|\"([^\"\n]*)\")\s+TO\s+({NAME})")
+# #3578: `MOVE a TO b` between two plain data-names -- b can hold what a holds (a's VALUE,
+# else a's own MOVEd values), followed at most three hops. Figurative constants are values.
+_CICS_MOVE_NAME = re.compile(rf"\bMOVE\s+({NAME})\s+TO\s+({NAME})(?![A-Z0-9-]|\s*\()")
+_CICS_FIGURATIVE = {"SPACE", "SPACES", "ZERO", "ZEROS", "ZEROES", "LOW-VALUE", "LOW-VALUES", "HIGH-VALUE",
+                    "HIGH-VALUES", "QUOTE", "QUOTES", "NULL", "NULLS", "ALL", "FUNCTION", "LENGTH", "ADDRESS"}  # fmt: skip
 _CICS_FILE = {
     "READ": "read",
     "READNEXT": "read",
@@ -2366,15 +2371,37 @@ def _cics_value_of(src: Source, ident: str) -> Optional[str]:
     return ((m.group(1) if m.group(1) is not None else m.group(2)) or "").strip() or None
 
 
-def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
-    """Every EXEC CICS command in one COBOL source that names a resource, this
-    tool's own reading (see the section header)."""
-    src = _key_source(path)  # #3495: or an assembler source
+def _cics_moved(src: Any) -> Callable[[str], set[str]]:
+    """ident -> every literal it can be MOVEd in `src`: `MOVE 'LIT' TO ident`, and (#3578)
+    `MOVE other TO ident`, which passes on other's VALUE, else other's own MOVEd values,
+    followed at most three hops."""
     moves: dict[str, set[str]] = {}
     for m in _CICS_MOVE.finditer(src.raw_text):
         lit = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
         if lit:
             moves.setdefault(m.group(3), set()).add(lit)
+    moved_from: dict[str, set[str]] = {}
+    for m in _CICS_MOVE_NAME.finditer(src.raw_text):
+        if m.group(1) not in _CICS_FIGURATIVE and m.group(1) != m.group(2) and not m.group(1)[0].isdigit():
+            moved_from.setdefault(m.group(2), set()).add(m.group(1))
+
+    def held(ident: str, hops: int = 0, seen: Optional[set[str]] = None) -> set[str]:
+        seen = seen or {ident}
+        out = set(moves.get(ident, set()))
+        if hops < 3:
+            for other in moved_from.get(ident, set()) - seen:
+                value = _cics_value_of(src, other)
+                out |= {value} if value else held(other, hops + 1, seen | {other})
+        return out
+
+    return held
+
+
+def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
+    """Every EXEC CICS command in one COBOL source that names a resource, this
+    tool's own reading (see the section header)."""
+    src = _key_source(path)  # #3495: or an assembler source
+    held = _cics_moved(src)
 
     def resolve(operand: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
         if operand is None:
@@ -2387,7 +2414,7 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
         value = _cics_value_of(src, op)
         if value:
             return value, "value", None
-        found = moves.get(op, set())
+        found = held(op)
         if len(found) == 1:
             return next(iter(found)), "move", None
         if found:
@@ -2583,11 +2610,7 @@ def _key_string_globs(src: Source) -> dict[str, set[str]]:
 def cics_task_ops(path: Path) -> list[dict[str, Any]]:
     """Every CICS task-control command in one COBOL source, this tool's own reading."""
     src = _key_source(path)  # #3495: or an assembler source
-    moves: dict[str, set[str]] = {}
-    for m in _CICS_MOVE.finditer(src.raw_text):
-        lit = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
-        if lit:
-            moves.setdefault(m.group(3), set()).add(lit)
+    held = _cics_moved(src)  # #3578: + MOVE chains
     globs = _key_string_globs(src)
 
     def resolve(operand: Optional[str], built: bool) -> tuple[Optional[str], Optional[str], Optional[str]]:
@@ -2601,7 +2624,7 @@ def cics_task_ops(path: Path) -> list[dict[str, Any]]:
         value = _cics_value_of(src, op)
         if value:
             return value, "value", None
-        found = set(moves.get(op, set()))
+        found = held(op)
         if len(found) == 1 and not (built and globs.get(op)):
             return next(iter(found)), "move", None
         every = found | (globs.get(op, set()) if built else set())

@@ -53,8 +53,8 @@
     },
     "screens": {
       "Gaps": {
-        "dynamic map name": 4,
-        "missing BMS source": 81
+        "dynamic map name": 0,
+        "missing BMS source": 85
       },
       "Ratio": "50.9%",
       "Resolved": 88,

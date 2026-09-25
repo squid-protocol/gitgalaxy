@@ -2,13 +2,21 @@
 plumbing (a symbol type's merge never stales the other's shapes; verdicts move the
 validated numbers only as the credit geometry says)."""
 
+import importlib.util
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import graph_ledger as gl
 import import_graph_accuracy as iga
+
+# The scala truth side parses with tree-sitter; the full-suite job does not install it.
+needs_ts = pytest.mark.skipif(
+    importlib.util.find_spec("tree_sitter_language_pack") is None, reason="tree-sitter-language-pack not installed"
+)
 
 
 def test_import_cause_layers():
@@ -71,6 +79,7 @@ def test_merging_one_symbol_type_never_stales_the_other(tmp_path):
     assert {e["symbol_type"] for e in entries.values()} == {"call", "import"}
 
 
+@needs_ts
 def test_scala_import_is_not_a_declaration(tmp_path):
     """#3641: `import cats.data.OneAnd` in io.circe declared nothing named `cats`; indexing it
     as a declaration resolved every external `cats.*` import to every importing file."""
@@ -80,6 +89,7 @@ def test_scala_import_is_not_a_declaration(tmp_path):
     assert iga.scala_imports((tmp_path / "A.scala").read_bytes(), "A.scala", group) == [set()]
 
 
+@needs_ts
 def test_scala_package_wildcard_is_its_package_object_only(tmp_path):
     """Import contract C7: a whole-package wildcard is an edge to the package object, or none."""
     (tmp_path / "package.scala").write_text("package io\npackage object circe\n")
@@ -91,6 +101,7 @@ def test_scala_package_wildcard_is_its_package_object_only(tmp_path):
     assert got == [{"package.scala"}, set()]
 
 
+@needs_ts
 def test_scala_member_imports_never_cut_into_the_package(tmp_path):
     """#3641: `munit.FunSuite` (retried under io.circe) and `io.circe.optics.JsonPath` (optics not
     in the repo) are not the io.circe package object; `io.circe.syntax.EncoderOps` is syntax's."""

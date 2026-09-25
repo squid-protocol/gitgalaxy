@@ -136,12 +136,17 @@ def test_a_src_layout_package_is_found_under_its_source_root():
 def test_a_dotted_token_needs_its_package_path_even_for_a_lone_candidate():
     edges = _edges(
         [
-            ("src/luarocks/search.lua", "lua", ["luarocks.manif", "other.util"]),
+            ("src/luarocks/search.lua", "lua", ["luarocks.manif", "other.util", "test/all.lua"]),
+            ("src/luarocks/test/all.lua", "lua", []),
             ("src/luarocks/manif.lua", "lua", []),
             ("src/luarocks/util.lua", "lua", []),
         ]
     )
-    assert edges == {("src/luarocks/search.lua", "src/luarocks/manif.lua")}
+    # a token that already names a FILE (`dofile("test/all.lua")`) is not a dotted module path
+    assert edges == {
+        ("src/luarocks/search.lua", "src/luarocks/manif.lua"),
+        ("src/luarocks/search.lua", "src/luarocks/test/all.lua"),
+    }
 
 
 # ----------------------------------------------------------------------------- #3554

@@ -346,6 +346,7 @@ class NetworkRiskSensor:
 
         folded_hit = False
         match_cmp = token_as_path
+        matched_key = None
         candidates = None
 
         # Stage 1: direct key lookup — handles full-path, bare-filename and
@@ -359,6 +360,7 @@ class NetworkRiskSensor:
             candidates = resolution_map.get(key)
             if candidates:
                 match_cmp = cmp_context
+                matched_key = key
                 break
 
         # Stage 1c (#2540): case-insensitive-resolution languages retry the
@@ -374,6 +376,7 @@ class NetworkRiskSensor:
                     candidates = lang_map.get(key.lower())
                     if candidates:
                         match_cmp = cmp_context
+                        matched_key = key
                         break
 
         if not candidates:
@@ -384,8 +387,15 @@ class NetworkRiskSensor:
             # #3544: in a language whose import path IS the file path, a token
             # that spells a package path (`starlette.requests`) only names a
             # file ending in that path. The one local `requests.py` is somebody
-            # else's module, not a unique match.
-            if src_lang in MODULE_PATH_MIRROR_LANGS and "/" in match_cmp.strip("/"):
+            # else's module, not a unique match. Only a match made through the
+            # token's LAST SEGMENT is checked: a token that matched as a whole
+            # file name or path (`dofile("x.lua")`) already named its file.
+            if (
+                src_lang in MODULE_PATH_MIRROR_LANGS
+                and matched_key == bare_component
+                and bare_component != target_token
+                and "/" in match_cmp.strip("/")
+            ):
                 stem = self._stem_path(candidates[0])
                 cmp_path = match_cmp.strip("/")
                 if folded_hit:

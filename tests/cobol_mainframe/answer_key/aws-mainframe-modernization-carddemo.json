@@ -65529,10 +65529,16 @@
           "line": 50
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-transaction-type-db2/dcl/DCLTRCAT.dcl": {
@@ -65568,10 +65574,16 @@
           "line": 31
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl": {
@@ -65597,10 +65609,16 @@
           "line": 30
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -84101,10 +84119,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl": {
@@ -84214,10 +84238,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL": {
@@ -84295,10 +84325,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL": {
@@ -84392,10 +84428,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL": {
@@ -84505,10 +84547,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/jcl/CREADB21.jcl": {
@@ -84658,10 +84706,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl": {
@@ -84707,10 +84761,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/jcl/TRANEXTR.jcl": {
@@ -84812,10 +84872,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/ACCTFILE.jcl": {
@@ -84837,10 +84903,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CARDFILE.jcl": {
@@ -84862,10 +84934,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CBADMCDJ.jcl": {
@@ -84887,10 +84965,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CBEXPORT.jcl": {
@@ -84952,10 +85036,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CBIMPORT.jcl": {
@@ -85017,10 +85107,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/COMBTRAN.jcl": {
@@ -85066,10 +85162,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CREASTMT.JCL": {
@@ -85179,10 +85281,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/CUSTFILE.jcl": {
@@ -85204,10 +85312,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/DEFGDGD.jcl": {
@@ -85261,10 +85375,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/DISCGRP.jcl": {
@@ -85286,10 +85406,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/DUSRSECJ.jcl": {
@@ -85327,10 +85453,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/ESDSRRDS.jcl": {
@@ -85384,10 +85516,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/INTCALC.jcl": {
@@ -85449,10 +85587,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/INTRDRJ1.JCL": {
@@ -85482,10 +85626,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/INTRDRJ2.JCL": {
@@ -85507,10 +85657,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/POSTTRAN.jcl": {
@@ -85572,10 +85728,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/PRTCATBL.jcl": {
@@ -85605,10 +85767,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/READACCT.jcl": {
@@ -85678,10 +85846,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/READCARD.jcl": {
@@ -85703,10 +85877,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/READCUST.jcl": {
@@ -85728,10 +85908,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/READXREF.jcl": {
@@ -85753,10 +85939,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TCATBALF.jcl": {
@@ -85778,10 +85970,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TRANCATG.jcl": {
@@ -85803,10 +86001,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TRANFILE.jcl": {
@@ -85828,10 +86032,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TRANREPT.jcl": {
@@ -85909,10 +86119,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TRANTYPE.jcl": {
@@ -85934,10 +86150,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/TXT2PDF1.JCL": {
@@ -85967,10 +86189,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/WAITSTEP.jcl": {
@@ -85984,10 +86212,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/jcl/XREFFILE.jcl": {
@@ -86009,10 +86243,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/proc/REPROC.prc": {
@@ -86042,10 +86282,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/proc/TRANREPT.prc": {
@@ -86123,10 +86369,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/jcl/IMSMQCMP.jcl": {
@@ -86260,10 +86512,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/jcl/LISTCAT.jcl": {
@@ -86285,10 +86543,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/jcl/SORTTEST.jcl": {
@@ -86310,10 +86574,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/proc/BLDCIDB2.prc": {
@@ -86559,10 +86829,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/proc/BUILDBAT.prc": {
@@ -86664,10 +86940,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/proc/BUILDBMS.prc": {
@@ -86761,10 +87043,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "samples/proc/BUILDONL.prc": {
@@ -86898,10 +87186,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -94823,6 +95117,76 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo db2cols census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl",
+        "app/app-transaction-type-db2/dcl/DCLTRCAT.dcl",
+        "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl"
+      ],
+      "wide": false,
+      "suite": "db2cols",
+      "tasks": {
+        "db2cols": {
+          "agree": 31,
+          "asked": 31
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+        "app/jcl/CBADMCDJ.jcl",
+        "samples/jcl/IMSMQCMP.jcl",
+        "samples/proc/BLDCIDB2.prc"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 66,
+          "asked": 66
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+        "app/jcl/PRTCATBL.jcl",
+        "app/proc/REPROC.prc",
+        "samples/proc/BUILDBAT.prc",
+        "samples/proc/BUILDBMS.prc",
+        "samples/proc/BUILDONL.prc"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 57,
+          "asked": 59
+        }
+      },
+      "rulings": {
+        "dsns:app/jcl/PRTCATBL.jcl::STEP05R/PRC001.FILEIN@32=AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS[literal]": {
+          "verdict": "key_correct",
+          "why": "`//PRC001.FILEIN DD` / `//PRC001.FILEOUT DD` are OVERRIDE DDs (procstep-qualified names) of the PROC called at STEP05R. The key and the engine both scope override DDs out (jcl_dataset_bindings: 'override DDs (//STEP.DD) ... are out of scope -- the same contract the engine states'); the brief did not say so, and the reviewer listed them. Key correct under its contract; the brief now states the exclusion. Noted as a real scope limit: an override DD carries the effective dataset of the PROC step, and neither side records it."
+        },
+        "dsns:app/jcl/PRTCATBL.jcl::STEP05R/PRC001.FILEOUT@35=AWS.M2.CARDDEMO.TCATBALF.BKUP(+1)[literal]": {
+          "verdict": "key_correct",
+          "why": "`//PRC001.FILEIN DD` / `//PRC001.FILEOUT DD` are OVERRIDE DDs (procstep-qualified names) of the PROC called at STEP05R. The key and the engine both scope override DDs out (jcl_dataset_bindings: 'override DDs (//STEP.DD) ... are out of scope -- the same contract the engine states'); the brief did not say so, and the reviewer listed them. Key correct under its contract; the brief now states the exclusion. Noted as a real scope limit: an override DD carries the effective dataset of the PROC step, and neither side records it."
+        }
+      }
     }
   ],
   "file_control": {
@@ -111474,6 +111838,53 @@
       "asked": 313,
       "key_errors": 0,
       "upper_bound_95": 0.00953
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+          "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+          "app/jcl/CBADMCDJ.jcl",
+          "app/jcl/PRTCATBL.jcl",
+          "app/proc/REPROC.prc",
+          "samples/jcl/IMSMQCMP.jcl",
+          "samples/proc/BLDCIDB2.prc",
+          "samples/proc/BUILDBAT.prc",
+          "samples/proc/BUILDBMS.prc",
+          "samples/proc/BUILDONL.prc"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+            "app/jcl/CBADMCDJ.jcl",
+            "samples/jcl/IMSMQCMP.jcl",
+            "samples/proc/BLDCIDB2.prc"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+            "app/jcl/PRTCATBL.jcl",
+            "app/proc/REPROC.prc",
+            "samples/proc/BUILDBAT.prc",
+            "samples/proc/BUILDBMS.prc",
+            "samples/proc/BUILDONL.prc"
+          ]
+        }
+      ],
+      "asked": 125,
+      "key_errors": 0,
+      "upper_bound_95": 0.02368
     }
   },
   "symbolic_maps": {

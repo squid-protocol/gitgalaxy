@@ -7231,10 +7231,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/ASMALLOC.jcl": {
@@ -7320,10 +7326,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/PLIALLOC.jcl": {
@@ -7441,10 +7453,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/REXALLOC.jcl": {
@@ -7514,10 +7532,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/RUN.jcl": {
@@ -7715,10 +7739,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/RUNASAM1.jcl": {
@@ -7828,10 +7858,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCL/RUNPSAM1.jcl": {
@@ -7981,10 +8017,16 @@
           "status": "resolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     },
     "JCLPROC/COMPROC.jcl": {
@@ -8022,10 +8064,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     }
   },
@@ -8663,6 +8711,46 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "JCL/ALLOCATE.jcl",
+        "JCL/ASMALLOC.jcl",
+        "JCL/RUN.jcl",
+        "JCL/RUNPSAM1.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 66,
+          "asked": 66
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "JCL/PLIALLOC.jcl",
+        "JCL/REXALLOC.jcl",
+        "JCL/RUNASAM1.jcl",
+        "JCLPROC/COMPROC.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 39,
+          "asked": 39
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -11489,6 +11577,49 @@
       "key_errors": 2,
       "upper_bound_95": 0.0364,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "JCL/ALLOCATE.jcl",
+          "JCL/ASMALLOC.jcl",
+          "JCL/PLIALLOC.jcl",
+          "JCL/REXALLOC.jcl",
+          "JCL/RUN.jcl",
+          "JCL/RUNASAM1.jcl",
+          "JCL/RUNPSAM1.jcl",
+          "JCLPROC/COMPROC.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "JCL/ALLOCATE.jcl",
+            "JCL/ASMALLOC.jcl",
+            "JCL/RUN.jcl",
+            "JCL/RUNPSAM1.jcl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "JCL/PLIALLOC.jcl",
+            "JCL/REXALLOC.jcl",
+            "JCL/RUNASAM1.jcl",
+            "JCLPROC/COMPROC.jcl"
+          ]
+        }
+      ],
+      "asked": 105,
+      "key_errors": 0,
+      "upper_bound_95": 0.02813
     }
   },
   "symbolic_maps": {},

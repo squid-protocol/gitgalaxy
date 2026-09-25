@@ -191,7 +191,7 @@
             "truth": 31
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DD names": {
           "engine": {
@@ -263,7 +263,7 @@
             "truth": 306
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MOVE truncation": {
           "engine": {
@@ -1066,7 +1066,7 @@
             "truth": 24
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DD names": {
           "engine": {
@@ -1126,7 +1126,7 @@
             "truth": 138
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MOVE truncation": {
           "engine": {
@@ -1579,7 +1579,7 @@
             "truth": 101
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MOVE truncation": {
           "engine": {
@@ -2357,7 +2357,7 @@
             "truth": 102
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "MOVE truncation": {
           "engine": {
@@ -2714,7 +2714,7 @@
             "truth": 105
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "MOVE truncation": {
           "engine": {

@@ -73,6 +73,12 @@ keyed rows, in full:
     (symbolic maps are checked against IBM-generated copybooks instead:
      cobol_answer_key.py verify-symbolic)
 
+`dsns` (#3575) is a SAMPLED census of JCL members (symbolic DSNs first); `db2cols` (#3575) asks every
+DECLARE TABLE source, in full:
+
+    jcl_jobs          dsns_validated           each DD's DSN, symbols resolved, and its status
+    sql_tables        sql_tables_validated     each column's table, type, length, scale, nullability
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -2179,6 +2185,208 @@ def _sign_bms_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `dsns` suite (#3575): a SAMPLED census of JCL DD -> DSN resolution -----
+# ~800 DD bindings over five corpora, most of them literal. A seeded sample of JCL
+# members is read in full: members with a SYMBOLIC DSN first (the resolution rules are
+# what is being checked), then literal-only ones, up to DSN_SAMPLE_FACTS per corpus.
+# Compared through the key's own unit (cobol_answer_key.jcl_dsn_values:
+# `STEP/DD@line=RESOLVED[status]`).
+DSN_SAMPLE_FACTS = 150
+
+
+def dsns_plan(key: dict[str, Any], seed: int, budget: int = DSN_SAMPLE_FACTS) -> list[str]:
+    jobs = key.get("jcl_jobs", {})
+    symbolic = sorted(r for r, e in jobs.items() if any(b.get("status") != "literal" for b in e.get("bindings", [])))
+    literal = sorted(r for r, e in jobs.items() if e.get("bindings") and r not in symbolic)
+    rng = random.Random(seed)
+    rng.shuffle(symbolic)
+    rng.shuffle(literal)
+    chosen: list[str] = []
+    for rel in symbolic + literal[:2]:
+        if rel in literal[:2] or sum(len(jobs[c]["bindings"]) for c in chosen) < budget:
+            chosen.append(rel)
+    return sorted(chosen)
+
+
+def corpus_files_dsns(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("dsns", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_dsns(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    from cobol_answer_key import jcl_dsn_values  # noqa: PLC0415
+
+    jobs = key.get("jcl_jobs", {})
+    return {"dsns": {rel: sorted(jcl_dsn_values(jobs.get(rel, {}).get("bindings", []))) for rel in files}}
+
+
+def reviewer_facts_dsns(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    from cobol_answer_key import jcl_dsn_values  # noqa: PLC0415
+
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"dsns": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        rows = []
+        for x in (v or {}).get("bindings", []):
+            if isinstance(x, dict):
+                rows.append({"line": int(x.get("line") or 0), "step": _ws(x["step"]) if x.get("step") else None,
+                             "dd": _ws(x.get("dd")), "resolved": _ws(x["resolved"]) if x.get("resolved") else None,
+                             "status": _ws(x.get("status")).lower()})  # fmt: skip
+        out["dsns"][r] = jcl_dsn_values(rows)
+    return out
+
+
+def render_dsns(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "dsns", "batch": index, "of": of, "files": files, "facts": key_facts_dsns(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM z/OS JCL, as a second reviewer. Read the files
+yourself. They are all under the repository root {repo}; read only the files listed below. Do NOT edit or create any
+files except your answers file, and do not look for any existing answer key or analysis: the point is an independent
+reading. Line numbers are 1-based physical line numbers.
+
+READING RULES. A statement starts `//NAME OP operands` (NAME may be empty); `//*` lines are comments and lines not
+starting with `//` (in-stream data) are skipped. Only columns 1-71 count. A statement whose operand field ends with
+`,` continues on the next `//` line that has no name. Operands are KEY=VALUE separated by commas (a value in
+apostrophes may hold commas and blanks; parentheses nest). Each file is read ON ITS OWN: a PROC defined in another
+member is unknown here.
+
+For EACH file list, in "bindings", every DD statement coding DSN= or DSNAME=, EXCEPT a DSN starting with `&&` (a
+temporary dataset), `*` (a backward reference) or an apostrophe, and EXCEPT a DD whose name is qualified
+(`//PROCSTEP.DDNAME DD` -- an override of a DD inside a called PROC). One entry each:
+  "line"      the line the DD statement starts on
+  "step"      the name of the most recent EXEC statement (null before any EXEC, and reset to null by PROC / PEND)
+  "dd"        the DD name; an unnamed DD (a concatenation) takes the previous DD's name in the same step
+  "resolved"  the DSN with every symbol substituted, cut at the first blank or comma, UPPER-CASED -- or null when
+              the status below is unresolved or ambiguous
+  "status"    one of:
+    "literal"      the DSN contains no `&`
+    for a DD OUTSIDE any in-stream PROC:
+    "resolved"     every symbol has a value from a `// SET` statement coded EARLIER in the member
+    "unresolved"   otherwise
+    for a DD INSIDE an in-stream PROC (`//name PROC ...` to `// PEND`):
+      if NO step in this member EXECs that PROC (`EXEC name` or `EXEC PROC=name`):
+    "proc_default" every symbol resolves from: SETs coded before the PROC, then SETs inside the PROC before the
+                   DD, then the PROC statement's own KEY=VALUE defaults (a default with an empty value is not a value)
+    "unresolved"   otherwise
+      if one or more steps EXEC it: resolve once per calling step, with the SETs in force at that call, the PROC's
+      SETs and defaults, and the call's own KEY=VALUE overrides (not PGM, PROC, PARM, PARMDD, COND, REGION, REGIONX,
+      TIME, ACCT, ADDRSPC, DPRTY, PERFORM, RD, CCSID, DYNAMNBR, MEMLIMIT, TVSMSG, TVSAMCOM; an override with an
+      empty value IS a value):
+    "resolved"     every call resolves, all to the same DSN
+    "ambiguous"    every call resolves, to different DSNs
+    "unresolved"   any call leaves a symbol unresolved
+SYMBOLS. `&NAME` or `&NAME.` (the period ends the name and is dropped) -- NAME is 1-8 characters of A-Z 0-9 @ # $
+and does not start with a digit; a value may itself contain symbols (substitute again); a value written in
+apostrophes loses them. `&&` is not a symbol and leaves the DSN unresolved.
+A file with no such DD gets an empty list.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"bindings": [{{"line": 12, "step": "STEP01", "dd": "INFILE", "resolved": "PROD.CUST.DATA",
+   "status": "resolved"}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_dsns(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_dsns(key, files)["dsns"].items()}, max_items)
+
+
+def _sign_dsns_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                      by: str, at: str) -> None:  # fmt: skip
+    sc = key["sample_census"]["dsns"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("dsns", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        full = set(sc["plan"]["files"]) >= set(key.get("jcl_jobs", {}))
+        stamp = {"status": "validated", "tier": "cross_verified" if full else "sample_verified",
+                 "census": {"by": by, "at": at, "sampled": not full}}  # fmt: skip
+        for entry in key.get("jcl_jobs", {}).values():
+            entry["dsns_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
+# ---- the `db2cols` suite (#3575): DB2 DECLARE TABLE columns, in full --------------
+def corpus_files_db2cols(key: dict[str, Any]) -> list[str]:
+    return sorted(key.get("sql_tables", {}))
+
+
+def key_facts_db2cols(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    from cobol_answer_key import sql_column_keys  # noqa: PLC0415
+
+    tables = key.get("sql_tables", {})
+    return {"db2cols": {rel: sorted(sql_column_keys(tables.get(rel, {}).get("columns", []))) for rel in files}}
+
+
+def reviewer_facts_db2cols(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    from cobol_answer_key import sql_column_key  # noqa: PLC0415
+
+    def num(v: Any) -> Optional[int]:
+        return int(v) if isinstance(v, int) or (isinstance(v, str) and v.strip().isdigit()) else None
+
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"db2cols": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["db2cols"][r] = {
+            sql_column_key(
+                _ws(c.get("table")).replace(" ", ""),
+                _ws(c.get("name")),
+                _ws(c.get("sql_type")),
+                num(c.get("length")),
+                num(c.get("scale")),
+                bool(c.get("nullable")),
+            )  # fmt: skip
+            for c in (v or {}).get("columns", [])
+            if isinstance(c, dict)
+        }
+    return out
+
+
+def render_db2cols(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "db2cols", "batch": index, "of": of, "files": files,
+             "facts": key_facts_db2cols(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM DB2 table declarations embedded in COBOL (DCLGEN
+output / `EXEC SQL DECLARE ... TABLE`), as a second reviewer. Read the files yourself. They are all under the
+repository root {repo}; read only the files listed below. Do NOT edit or create any files except your answers file,
+and do not look for any existing answer key or analysis: the point is an independent reading.
+
+{FIXED_FORMAT_RULES}
+
+For EACH file list, in "columns", every column of every `EXEC SQL DECLARE <table> TABLE ( ... ) END-EXEC` in it
+(ignore commented-out lines), in declaration order, one entry each:
+  "table"     the table name as written after DECLARE, qualifier included (e.g. "CARDDEMO.AUTHFRDS"), upper-cased
+  "name"      the column name, upper-cased
+  "sql_type"  the data type keyword as written, upper-cased, without its length (e.g. "CHAR", "VARCHAR", "DECIMAL")
+  "length"    the first number in the type's parentheses as an integer, else null
+  "scale"     the second number in the type's parentheses as an integer, else null
+  "nullable"  false when the column says NOT NULL (with or without WITH DEFAULT), else true
+A file with no DECLARE TABLE gets an empty list.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"columns": [{{"table": "SCHEMA.T", "name": "COL_A", "sql_type": "DECIMAL", "length": 9,
+   "scale": 2, "nullable": false}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_db2cols(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_db2cols(key, files)["db2cols"].items()}, max_items)
+
+
 # ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
 # DSF's ~1,760 handler rows over 1,473 files: a seeded, stratified sample of files
 # (ON / REVERT / SIGNAL files, CICS-handler-only files, files with none) is read in
@@ -2471,6 +2679,10 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "records"
         else reviewer_facts_bms(answers, repo)
         if suite == "bms"
+        else reviewer_facts_dsns(answers, repo)
+        if suite == "dsns"
+        else reviewer_facts_db2cols(answers, repo)
+        if suite == "db2cols"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
         else reviewer_facts(answers, repo)
@@ -2539,8 +2751,10 @@ def sign(
         if truth.get("suite") == "resources"
         else {("csd_decks", "resources_validated")}
         if truth.get("suite") == "csd"
+        else {("sql_tables", "sql_tables_validated")}
+        if truth.get("suite") == "db2cols"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -2582,6 +2796,8 @@ def sign(
         _sign_records_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "bms":
         _sign_bms_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "dsns":
+        _sign_dsns_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
@@ -2665,6 +2881,8 @@ def main() -> int:
             "csd",
             "records",
             "bms",
+            "dsns",
+            "db2cols",
         ),
         default="channels",
     )
@@ -2691,6 +2909,8 @@ def main() -> int:
             "csd",
             "records",
             "bms",
+            "dsns",
+            "db2cols",
         ),
         default="channels",
     )
@@ -2731,6 +2951,10 @@ def main() -> int:
         if suite == "records"
         else corpus_files_bms(key)
         if suite == "bms"
+        else corpus_files_dsns(key)
+        if suite == "dsns"
+        else corpus_files_db2cols(key)
+        if suite == "db2cols"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -2775,6 +2999,12 @@ def main() -> int:
                 pr["plan"] = {"seed": args.seed, "strata": PLI_RES_SAMPLE, "files": pli_resources_plan(key, args.seed)}
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             files = corpus_files_pliresources(key)
+        if suite == "dsns":
+            dc = key.setdefault("sample_census", {}).setdefault("dsns", {})
+            if not dc.get("batches"):
+                dc["plan"] = {"seed": args.seed, "budget": DSN_SAMPLE_FACTS, "files": dsns_plan(key, args.seed)}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_dsns(key)
         if suite == "bms":
             bc = key.setdefault("sample_census", {}).setdefault("bms", {})
             if not bc.get("batches"):
@@ -2830,6 +3060,8 @@ def main() -> int:
             "csd": batches_csd,
             "records": batches_records,
             "bms": batches_bms,
+            "dsns": batches_dsns,
+            "db2cols": batches_db2cols,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -2849,6 +3081,8 @@ def main() -> int:
                 "csd": render_csd,
                 "records": render_records,
                 "bms": render_bms,
+                "dsns": render_dsns,
+                "db2cols": render_db2cols,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -2905,6 +3139,10 @@ def main() -> int:
         current = dict(truth, facts=key_facts_records(key, truth["files"]))
     elif truth.get("suite") == "bms":
         current = dict(truth, facts=key_facts_bms(key, truth["files"]))
+    elif truth.get("suite") == "dsns":
+        current = dict(truth, facts=key_facts_dsns(key, truth["files"]))
+    elif truth.get("suite") == "db2cols":
+        current = dict(truth, facts=key_facts_db2cols(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:

@@ -28379,10 +28379,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/asmmap.jcl": {
@@ -28476,10 +28482,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cdef121.jcl": {
@@ -28501,10 +28513,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cdef122.jcl": {
@@ -28526,10 +28544,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cdef123.jcl": {
@@ -28551,10 +28575,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cdef124.jcl": {
@@ -28576,10 +28606,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cdef125.jcl": {
@@ -28601,10 +28637,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/cobol.jcl": {
@@ -28770,10 +28812,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/db2bind.jcl": {
@@ -28795,10 +28843,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/db2cre.jcl": {
@@ -28820,10 +28874,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/db2del.jcl": {
@@ -28837,10 +28897,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/defdrep.jcl": {
@@ -28862,10 +28928,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/itpentr.jcl": {
@@ -28911,10 +28983,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/itpll.jcl": {
@@ -28936,10 +29014,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/itpstl.jcl": {
@@ -28977,10 +29061,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/sampcma.jcl": {
@@ -29106,10 +29196,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/sampncs.jcl": {
@@ -29131,10 +29227,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/samptsq.jcl": {
@@ -29156,10 +29258,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "base/cntl/sampwui.jcl": {
@@ -29317,10 +29425,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -43341,6 +43455,34 @@
       "key_errors": 0,
       "upper_bound_95": 0.01042,
       "note": "A first blind reading of ssmap.bms was discarded, not graded into the sign-off: its helper parser dropped every operand written on a continuation line (all of GENAPP's INITIAL= are), so 251 of its 286 items lacked INITIAL while position / length / ATTRB matched. A fresh reviewer with the same brief agreed 286/286."
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "base/cntl/adef121.jcl",
+          "base/cntl/cobol.jcl",
+          "base/cntl/itpstl.jcl",
+          "base/cntl/sampncs.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "base/cntl/adef121.jcl",
+            "base/cntl/cobol.jcl",
+            "base/cntl/itpstl.jcl",
+            "base/cntl/sampncs.jcl"
+          ]
+        }
+      ],
+      "asked": 30,
+      "key_errors": 0,
+      "upper_bound_95": 0.09503
     }
   },
   "cross_verification": [
@@ -44365,6 +44507,26 @@
         "bms": {
           "agree": 286,
           "asked": 286
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "base/cntl/adef121.jcl",
+        "base/cntl/cobol.jcl",
+        "base/cntl/itpstl.jcl",
+        "base/cntl/sampncs.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 30,
+          "asked": 30
         }
       },
       "rulings": {}

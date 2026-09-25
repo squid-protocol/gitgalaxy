@@ -12125,10 +12125,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/CSDZECS.jcl": {
@@ -12158,10 +12164,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/CSDZECSN.jcl": {
@@ -12191,10 +12203,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/CSDZECSR.jcl": {
@@ -12224,10 +12242,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/CSDZECSS.jcl": {
@@ -12257,10 +12281,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/DEFEXPR.jcl": {
@@ -12298,10 +12328,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/DEFZC##.jcl": {
@@ -12347,10 +12383,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/ZC##DC.jcl": {
@@ -12380,10 +12422,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "JCL/ZC##SD.jcl": {
@@ -12413,10 +12461,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -19842,6 +19896,30 @@
       "key_errors": 25,
       "upper_bound_95": 0.21972,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "JCL/DEFEXPR.jcl",
+          "JCL/ZC##SD.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "JCL/DEFEXPR.jcl",
+            "JCL/ZC##SD.jcl"
+          ]
+        }
+      ],
+      "asked": 7,
+      "key_errors": 0,
+      "upper_bound_95": 0.34816
     }
   },
   "cross_verification": [
@@ -20699,6 +20777,24 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "JCL/DEFEXPR.jcl",
+        "JCL/ZC##SD.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 7,
+          "asked": 7
+        }
+      },
+      "rulings": {}
     }
   ]
 }

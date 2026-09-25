@@ -50650,10 +50650,16 @@
           "line": 19
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_copy/CONTDB2.cpy": {
@@ -50689,10 +50695,16 @@
           "line": 10
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_copy/PROCDB2.cpy": {
@@ -50788,10 +50800,16 @@
           "line": 17
         }
       ],
-      "sql_tables_validated": false,
+      "sql_tables_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -56564,10 +56582,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/buildjcl/BATCH.jcl": {
@@ -56709,10 +56733,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/buildjcl/CICS.jcl": {
@@ -56854,10 +56884,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/buildjcl/MAPGEN.jcl": {
@@ -56919,10 +56955,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/buildjcl/TMP.jcl": {
@@ -57064,10 +57106,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/BTCHSQL.jcl": {
@@ -57081,10 +57129,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CREDB00.jcl": {
@@ -57098,10 +57152,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CREI101.jcl": {
@@ -57115,10 +57175,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CREI201.jcl": {
@@ -57132,10 +57198,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CREI301.jcl": {
@@ -57149,10 +57221,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRESG01.jcl": {
@@ -57166,10 +57244,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRESG02.jcl": {
@@ -57183,10 +57267,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRESG03.jcl": {
@@ -57200,10 +57290,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETB01.jcl": {
@@ -57217,10 +57313,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETB02.jcl": {
@@ -57234,10 +57336,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETB03.jcl": {
@@ -57251,10 +57359,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETS01.jcl": {
@@ -57268,10 +57382,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETS02.jcl": {
@@ -57285,10 +57405,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/CRETS03.jcl": {
@@ -57302,10 +57428,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DB2BIND.jcl": {
@@ -57423,10 +57555,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DROPDB2.jcl": {
@@ -57440,10 +57578,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPDB00.jcl": {
@@ -57457,10 +57601,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPI101.jcl": {
@@ -57474,10 +57624,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPI201.jcl": {
@@ -57491,10 +57647,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPI301.jcl": {
@@ -57508,10 +57670,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPSG01.jcl": {
@@ -57525,10 +57693,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPSG02.jcl": {
@@ -57542,10 +57716,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPSG03.jcl": {
@@ -57559,10 +57739,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTB01.jcl": {
@@ -57576,10 +57762,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTB02.jcl": {
@@ -57593,10 +57785,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTB03.jcl": {
@@ -57610,10 +57808,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTS01.jcl": {
@@ -57627,10 +57831,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTS02.jcl": {
@@ -57644,10 +57854,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/DRPTS03.jcl": {
@@ -57661,10 +57877,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/db2jcl/INSTDB2.jcl": {
@@ -57678,10 +57900,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/BANKDATA.jcl": {
@@ -57719,10 +57947,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREDB2L.jcl": {
@@ -57744,10 +57978,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL001.jcl": {
@@ -57769,10 +58009,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL002.jcl": {
@@ -57794,10 +58040,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL003.jcl": {
@@ -57811,10 +58063,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL004.jcl": {
@@ -57828,10 +58086,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL005.jcl": {
@@ -57845,10 +58109,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL006.jcl": {
@@ -57870,10 +58140,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL007.jcl": {
@@ -57895,10 +58171,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL008.jcl": {
@@ -57912,10 +58194,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL009.jcl": {
@@ -57937,10 +58225,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL010.jcl": {
@@ -57962,10 +58256,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/CREL011.jcl": {
@@ -57987,10 +58287,16 @@
           "status": "unresolved"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/HBANKCSD.jcl": {
@@ -58020,10 +58326,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/REPLCICS.jcl": {
@@ -58045,10 +58357,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "etc/install/base/installjcl/REPLSIP.jcl": {
@@ -58070,10 +58388,16 @@
           "status": "literal"
         }
       ],
-      "dsns_validated": false,
+      "dsns_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -66302,6 +66626,75 @@
         "bms": {
           "agree": 32,
           "asked": 32
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa db2cols census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_copy/ACCDB2.cpy",
+        "src/base/cobol_copy/CONTDB2.cpy",
+        "src/base/cobol_copy/PROCDB2.cpy"
+      ],
+      "wide": false,
+      "suite": "db2cols",
+      "tasks": {
+        "db2cols": {
+          "agree": 24,
+          "asked": 24
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "etc/install/base/buildjcl/BATCH.jcl",
+        "etc/install/base/buildjcl/CICS.jcl",
+        "etc/install/base/buildjcl/TMP.jcl",
+        "etc/install/base/db2jcl/DB2BIND.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 65,
+          "asked": 65
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "etc/install/base/buildjcl/ASMNCOPT.jcl",
+        "etc/install/base/buildjcl/MAPGEN.jcl",
+        "etc/install/base/installjcl/CREDB2L.jcl",
+        "etc/install/base/installjcl/CREL001.jcl",
+        "etc/install/base/installjcl/CREL002.jcl",
+        "etc/install/base/installjcl/CREL003.jcl",
+        "etc/install/base/installjcl/CREL004.jcl",
+        "etc/install/base/installjcl/CREL005.jcl",
+        "etc/install/base/installjcl/CREL006.jcl",
+        "etc/install/base/installjcl/CREL007.jcl",
+        "etc/install/base/installjcl/CREL008.jcl",
+        "etc/install/base/installjcl/CREL009.jcl",
+        "etc/install/base/installjcl/CREL010.jcl",
+        "etc/install/base/installjcl/CREL011.jcl"
+      ],
+      "wide": false,
+      "suite": "dsns",
+      "tasks": {
+        "dsns": {
+          "agree": 33,
+          "asked": 33
         }
       },
       "rulings": {}
@@ -78959,6 +79352,69 @@
       "asked": 333,
       "key_errors": 0,
       "upper_bound_95": 0.00896
+    },
+    "dsns": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "etc/install/base/buildjcl/ASMNCOPT.jcl",
+          "etc/install/base/buildjcl/BATCH.jcl",
+          "etc/install/base/buildjcl/CICS.jcl",
+          "etc/install/base/buildjcl/MAPGEN.jcl",
+          "etc/install/base/buildjcl/TMP.jcl",
+          "etc/install/base/db2jcl/DB2BIND.jcl",
+          "etc/install/base/installjcl/CREDB2L.jcl",
+          "etc/install/base/installjcl/CREL001.jcl",
+          "etc/install/base/installjcl/CREL002.jcl",
+          "etc/install/base/installjcl/CREL003.jcl",
+          "etc/install/base/installjcl/CREL004.jcl",
+          "etc/install/base/installjcl/CREL005.jcl",
+          "etc/install/base/installjcl/CREL006.jcl",
+          "etc/install/base/installjcl/CREL007.jcl",
+          "etc/install/base/installjcl/CREL008.jcl",
+          "etc/install/base/installjcl/CREL009.jcl",
+          "etc/install/base/installjcl/CREL010.jcl",
+          "etc/install/base/installjcl/CREL011.jcl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "etc/install/base/buildjcl/BATCH.jcl",
+            "etc/install/base/buildjcl/CICS.jcl",
+            "etc/install/base/buildjcl/TMP.jcl",
+            "etc/install/base/db2jcl/DB2BIND.jcl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa dsns census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "etc/install/base/buildjcl/ASMNCOPT.jcl",
+            "etc/install/base/buildjcl/MAPGEN.jcl",
+            "etc/install/base/installjcl/CREDB2L.jcl",
+            "etc/install/base/installjcl/CREL001.jcl",
+            "etc/install/base/installjcl/CREL002.jcl",
+            "etc/install/base/installjcl/CREL003.jcl",
+            "etc/install/base/installjcl/CREL004.jcl",
+            "etc/install/base/installjcl/CREL005.jcl",
+            "etc/install/base/installjcl/CREL006.jcl",
+            "etc/install/base/installjcl/CREL007.jcl",
+            "etc/install/base/installjcl/CREL008.jcl",
+            "etc/install/base/installjcl/CREL009.jcl",
+            "etc/install/base/installjcl/CREL010.jcl",
+            "etc/install/base/installjcl/CREL011.jcl"
+          ]
+        }
+      ],
+      "asked": 98,
+      "key_errors": 0,
+      "upper_bound_95": 0.03011
     }
   },
   "symbolic_maps": {

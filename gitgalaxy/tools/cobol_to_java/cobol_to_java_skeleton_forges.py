@@ -20,6 +20,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, CicsProgram, load_skeletons
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_uow_forge import UowForge
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
@@ -34,18 +35,22 @@ class SkeletonForges:
         self.cics = CicsForge(self.skeletons, package, target, self.names)
         self.calls = CallForge(self.skeletons, self.cics, package, target)
         self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names)
+        self.uow = UowForge(self.skeletons, package, target, self.names)
 
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
         """(java_dirs key, sub-directory) -> {class name: Java source}, every generated file."""
         repos = self.repos
         entities = {st.entity: repos.entity_source(st) for st in repos.stores}
         entities.update({st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite})
-        return {
+        out: dict[tuple[str, ...], dict[str, str]] = {
             ("entity", "vsam"): entities,
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
             ("dto", "contract"): self.cics.dto_sources(),
             ("base_pkg", "client"): self.calls.client_sources(),
         }
+        for where, files in self.uow.sources().items():  # #3621: exception + web packages
+            out.setdefault(where, {}).update(files)
+        return out
 
     def write(self, java_dirs: dict[str, Path], header: str) -> dict[str, int]:
         """Writes every generated file under the Spring Boot tree; returns what the stats count."""
@@ -77,6 +82,7 @@ class SkeletonForges:
             self.cics.service_extras(prog) if prog is not None else None,
             self.calls.service_extras(key),
             self.repos.service_extras(key),
+            self.uow.service_extras(key),
         )
 
     def write_audit(self, f: TextIO) -> None:
@@ -100,3 +106,11 @@ class SkeletonForges:
         )
         for label, why in repos.unmapped:
             f.write(f"      - {label}: {why}\n")
+
+        # UowForge audit
+        u = self.uow.counts
+        f.write(
+            f"  • Units of work (#3621)   : {u['services']} @Transactional services, {u['commits']} commit points, "
+            f"{u['rollbacks']} rollback points, {u['abends']} abends, {u['handlers']} handlers; "
+            f"{u['unchecked']} unchecked responses\n"
+        )

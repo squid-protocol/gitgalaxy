@@ -114,14 +114,19 @@ def status_text(section: dict | None) -> str:
 
 
 def merge_extras(*parts: dict | None) -> dict | None:
-    """One service's extras from the transaction and call forges."""
-    present: list[dict] = [p for p in parts if p and (p.get("imports") or p.get("fields") or p.get("methods"))]
+    """One service's extras from the skeleton forges: imports (deduplicated, sorted), injected
+    fields, methods, class `annotations` (deduplicated, in order) and `class_doc` lines (#3621)."""
+    keys = ("imports", "fields", "methods", "annotations", "class_doc")
+    present: list[dict] = [p for p in parts if p and any(p.get(k) for k in keys)]
     if not present:
         return None
-    imports = sorted({i for p in present for i in p.get("imports", [])})
-    fields = [f for p in present for f in p.get("fields", [])]
-    methods = [m for p in present for m in p.get("methods", [])]
-    return {"imports": imports, "fields": fields, "methods": methods}
+    return {
+        "imports": sorted({i for p in present for i in p.get("imports", [])}),
+        "fields": [f for p in present for f in p.get("fields", [])],
+        "methods": [m for p in present for m in p.get("methods", [])],
+        "annotations": list(dict.fromkeys(a for p in present for a in p.get("annotations", []))),
+        "class_doc": [line for p in present for line in p.get("class_doc", [])],
+    }
 
 
 class ClassNames:

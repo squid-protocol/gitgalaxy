@@ -68,8 +68,11 @@ def generate_service_skeleton(
     fields = extras.get("fields", [])
     java.extend(extras.get("imports", []))
     java.append("")
+    if extras.get("class_doc"):  # #3621: a class note, e.g. the program's response handling
+        java += ["/**", *(f" * {line}".rstrip() for line in extras["class_doc"]), " */"]
 
     java.append("@Service")
+    java.extend(extras.get("annotations", []))  # #3621: e.g. @Transactional
     if lombok:
         java.append("@RequiredArgsConstructor")
     java.append(f"public class {camel_prog}Service {{\n")

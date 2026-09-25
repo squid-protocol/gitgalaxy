@@ -91,8 +91,12 @@ def test_decorator_factory_on_a_nested_def_is_still_a_call():
 
 
 def test_default_argument_call_on_a_nested_header_is_still_a_call():
+    # Still a call (C1), and since #3642 (C8) it belongs to `inner`, whose parameter list it is
+    # written in -- the same attribution call_graph_accuracy.py's tree-sitter side makes.
     code = "def outer():\n    def inner(x=make()):\n        return x\n    return inner\n"
-    assert _calls("python", code)["outer"] == ["make"]
+    calls = _calls("python", code)
+    assert calls["outer"] == []
+    assert calls["inner"] == ["make"]
 
 
 def test_header_shaped_call_the_slicer_rejected_is_still_a_call():

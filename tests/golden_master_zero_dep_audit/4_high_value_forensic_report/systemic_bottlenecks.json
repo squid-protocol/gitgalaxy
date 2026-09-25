@@ -6,98 +6,98 @@
   "value": {
     "cascading_state_mutation": [
       {
+        "btw": 0.0003,
+        "path": "python/fastapi/fastapi/__init__.py",
+        "score": 0.005,
+        "state_mutation": 16.7982
+      },
+      {
+        "btw": 0.0001,
+        "path": "python/fastapi/fastapi/routing.py",
+        "score": 0.005,
+        "state_mutation": 99.7525
+      },
+      {
+        "btw": 0.0001,
+        "path": "python/fastapi/fastapi/applications.py",
+        "score": 0.004,
+        "state_mutation": 39.0154
+      },
+      {
+        "btw": 0.0,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "score": 0.001,
+        "state_mutation": 99.9681
+      },
+      {
         "btw": 0.0,
         "path": "dockerfile/moby/builder/dockerfile/copy.go",
-        "score": 0.002,
+        "score": 0.001,
         "state_mutation": 95.106
-      },
-      {
-        "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/internals.go",
-        "score": 0.002,
-        "state_mutation": 99.6514
-      },
-      {
-        "btw": 0.0,
-        "path": "python/twisted/http.py",
-        "score": 0.001,
-        "state_mutation": 100.0
-      },
-      {
-        "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/builder.go",
-        "score": 0.001,
-        "state_mutation": 99.8383
-      },
-      {
-        "btw": 0.0,
-        "path": "dockerfile/moby/builder/dockerfile/evaluator.go",
-        "score": 0.001,
-        "state_mutation": 98.7038
       }
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0124,
+        "close": 0.0618,
+        "err": 60.143,
+        "path": "python/fastapi/fastapi/__init__.py",
+        "score": 3.717
+      },
+      {
+        "close": 0.0344,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 1.137
+        "score": 3.151
       },
       {
-        "close": 0.0136,
-        "err": 78.3421,
-        "path": "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl",
-        "score": 1.068
+        "close": 0.0325,
+        "err": 90.4651,
+        "path": "python/fastapi/fastapi/datastructures.py",
+        "score": 2.937
       },
       {
-        "close": 0.0163,
-        "err": 62.0321,
-        "path": "assembly/bootos/os.asm",
-        "score": 1.008
+        "close": 0.0322,
+        "err": 84.3093,
+        "path": "python/fastapi/fastapi/routing.py",
+        "score": 2.711
       },
       {
-        "close": 0.0142,
-        "err": 56.49,
-        "path": "scheme/racket/io.ss",
-        "score": 0.803
-      },
-      {
-        "close": 0.0093,
-        "err": 79.8033,
-        "path": "lua/cosmopolitan/nextvar.lua",
-        "score": 0.743
+        "close": 0.0317,
+        "err": 70.9185,
+        "path": "python/fastapi/fastapi/background.py",
+        "score": 2.248
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.54,
-        "score": 1454.0
-      },
-      {
-        "doc": 100.0,
-        "path": "scheme/racket/io.ss",
-        "pr": 4.89,
-        "score": 489.0
-      },
-      {
-        "doc": 100.0,
-        "path": "javascript/jquery/core.js",
-        "pr": 4.723,
-        "score": 472.3
+        "pr": 13.86,
+        "score": 1386.0
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 4.622,
-        "score": 462.2
+        "pr": 8.669,
+        "score": 866.9
+      },
+      {
+        "doc": 80.9524,
+        "path": "python/fastapi/fastapi/datastructures.py",
+        "pr": 6.49,
+        "score": 525.381
       },
       {
         "doc": 100.0,
-        "path": "assembly/bootos/os.asm",
-        "pr": 3.975,
-        "score": 397.5
+        "path": "python/fastapi/fastapi/responses.py",
+        "pr": 4.918,
+        "score": 491.8
+      },
+      {
+        "doc": 100.0,
+        "path": "javascript/jquery/core.js",
+        "pr": 4.401,
+        "score": 440.1
       }
     ]
   }

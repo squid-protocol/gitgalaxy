@@ -119,7 +119,7 @@
     "assembly/bootos": {
       "assembly/bootos/Makefile": 0,
       "assembly/bootos/counter.asm": 1,
-      "assembly/bootos/os.asm": 49
+      "assembly/bootos/os.asm": 28
     },
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 0,
@@ -391,7 +391,7 @@
       "blueprint/ghostty/imgui-widget.blp": 0,
       "blueprint/ghostty/split-tree-split.blp": 0,
       "blueprint/ghostty/split-tree.blp": 0,
-      "blueprint/ghostty/window.blp": 1
+      "blueprint/ghostty/window.blp": 0
     },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": 0,
@@ -1041,7 +1041,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/codegen.c": 1,
       "cobol/gnucobol_internals/fileio.c": 0,
-      "cobol/gnucobol_internals/numeric.c": 2,
+      "cobol/gnucobol_internals/numeric.c": 1,
       "cobol/gnucobol_internals/parser.y": 2,
       "cobol/gnucobol_internals/scanner.l": 0,
       "cobol/gnucobol_internals/syn_misc.at": 0
@@ -1069,10 +1069,10 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 1,
-      "cpp/NVDA/__init__.py": 0,
-      "cpp/NVDA/braille.py": 2,
+      "cpp/NVDA/__init__.py": 1,
+      "cpp/NVDA/braille.py": 0,
       "cpp/NVDA/contributors.txt": 0,
-      "cpp/NVDA/copying.txt": 0,
+      "cpp/NVDA/copying.txt": 1,
       "cpp/NVDA/core.py": 0,
       "cpp/NVDA/ensureuv.ps1": 0,
       "cpp/NVDA/espeak.py": 0,
@@ -1228,7 +1228,7 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 1,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 12,
-      "dockerfile/moby/builder/dockerfile/copy.go": 10,
+      "dockerfile/moby/builder/dockerfile/copy.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 0,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 3,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 0,
@@ -1249,7 +1249,7 @@
       "dockerfile/moby/builder/dockerfile/internals_test.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 0,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 0,
-      "dockerfile/moby/builder/dockerfile/metrics.go": 6,
+      "dockerfile/moby/builder/dockerfile/metrics.go": 5,
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 6,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 1
     },
@@ -1301,12 +1301,12 @@
       "embedded_python/meow_turtle/app.py": 1,
       "embedded_python/meow_turtle/bldc_driver.py": 1,
       "embedded_python/meow_turtle/boot.py": 0,
-      "embedded_python/meow_turtle/diagnostics.py": 5,
-      "embedded_python/meow_turtle/logging.py": 15,
+      "embedded_python/meow_turtle/diagnostics.py": 4,
+      "embedded_python/meow_turtle/logging.py": 4,
       "embedded_python/meow_turtle/meowprotocol.py": 1,
       "embedded_python/meow_turtle/mpu6050.py": 0,
       "embedded_python/meow_turtle/ota.py": 1,
-      "embedded_python/meow_turtle/pio_programs.py": 1,
+      "embedded_python/meow_turtle/pio_programs.py": 0,
       "embedded_python/meow_turtle/sensors.py": 1,
       "embedded_python/meow_turtle/tester.py": 0,
       "embedded_python/meow_turtle/tsl2591.py": 0,
@@ -1714,11 +1714,11 @@
       "haskell/pandoc/COPYING.md": 0,
       "haskell/pandoc/COPYRIGHT": 0,
       "haskell/pandoc/Class.hs": 2,
-      "haskell/pandoc/Filter.hs": 3,
+      "haskell/pandoc/Filter.hs": 2,
       "haskell/pandoc/Options.hs": 2,
       "haskell/pandoc/Pandoc.hs": 2,
       "haskell/pandoc/Parsing.hs": 0,
-      "haskell/pandoc/Shared.hs": 6
+      "haskell/pandoc/Shared.hs": 5
     },
     "hlasm": {
       "hlasm/PROVENANCE.md": 0
@@ -2159,7 +2159,7 @@
       "livecode/livecode/constants.livecodescript": 0,
       "livecode/livecode/dashes.livecodescript": 0,
       "livecode/livecode/date.lcb": 1,
-      "livecode/livecode/datetime.livecodescript": 9,
+      "livecode/livecode/datetime.livecodescript": 0,
       "livecode/livecode/db_getters.livecodescript": 0,
       "livecode/livecode/default-values.lcb": 0,
       "livecode/livecode/docs_builder.livecodescript": 0,
@@ -2168,7 +2168,7 @@
       "livecode/livecode/edition_utilities.livecodescript": 0,
       "livecode/livecode/encoding.lcb": 0,
       "livecode/livecode/encrypt.livecodescript": 0,
-      "livecode/livecode/engine.livecodescript": 1,
+      "livecode/livecode/engine.livecodescript": 0,
       "livecode/livecode/engine_builder.livecodescript": 0,
       "livecode/livecode/ext-urls.livecodescript": 0,
       "livecode/livecode/file.lcb": 5,
@@ -2194,7 +2194,7 @@
       "livecode/livecode/line.lcb": 0,
       "livecode/livecode/list.lcb": 3,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
-      "livecode/livecode/log.livecodescript": 12,
+      "livecode/livecode/log.livecodescript": 11,
       "livecode/livecode/logic.lcb": 0,
       "livecode/livecode/map.lcb": 3,
       "livecode/livecode/math-foundation.lcb": 0,
@@ -2239,8 +2239,8 @@
       "lua/cosmopolitan/coroutine.lua": 6,
       "lua/cosmopolitan/crashreport.lua": 1,
       "lua/cosmopolitan/cstack.lua": 1,
-      "lua/cosmopolitan/db.lua": 3,
-      "lua/cosmopolitan/errors.lua": 35,
+      "lua/cosmopolitan/db.lua": 1,
+      "lua/cosmopolitan/errors.lua": 34,
       "lua/cosmopolitan/events.lua": 1,
       "lua/cosmopolitan/fetch.lua": 2,
       "lua/cosmopolitan/files.lua": 1,
@@ -2278,7 +2278,7 @@
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/cli.lua": 2,
-      "lua/freebsd-src/color.lua": 5,
+      "lua/freebsd-src/color.lua": 4,
       "lua/freebsd-src/config.lua": 5,
       "lua/freebsd-src/core.lua": 5,
       "lua/freebsd-src/drawer.lua": 2,
@@ -2288,7 +2288,7 @@
       "lua/freebsd-src/gfx-install.lua": 0,
       "lua/freebsd-src/gfx-orb.lua": 0,
       "lua/freebsd-src/gfx-orbbw.lua": 0,
-      "lua/freebsd-src/hook.lua": 4,
+      "lua/freebsd-src/hook.lua": 3,
       "lua/freebsd-src/loader.lua": 0,
       "lua/freebsd-src/menu.lua": 0,
       "lua/freebsd-src/password.lua": 1,
@@ -2304,7 +2304,7 @@
       "lua/pandoc/bytestring.lua": 0,
       "lua/pandoc/count_words.lua": 0,
       "lua/pandoc/creole.lua": 0,
-      "lua/pandoc/extensions.lua": 1,
+      "lua/pandoc/extensions.lua": 0,
       "lua/pandoc/extract-changes.lua": 0,
       "lua/pandoc/globals.lua": 0,
       "lua/pandoc/hello-world-doc.lua": 0,
@@ -2467,11 +2467,11 @@
     "php/laravel_core": {
       "php/laravel_core/Application.php": 0,
       "php/laravel_core/BladeCompiler.php": 0,
-      "php/laravel_core/Collection.php": 8,
+      "php/laravel_core/Collection.php": 5,
       "php/laravel_core/Container.php": 3,
       "php/laravel_core/Facade.php": 0,
       "php/laravel_core/LICENSE.md": 0,
-      "php/laravel_core/Model.php": 3,
+      "php/laravel_core/Model.php": 2,
       "php/laravel_core/Router.php": 0
     },
     "php/magento2": {
@@ -2707,7 +2707,7 @@
       "python/cython/CodeGeneration.py": 0,
       "python/cython/MemoryView.pxd": 0,
       "python/cython/MemoryView.pyx": 0,
-      "python/cython/Nodes.py": 0
+      "python/cython/Nodes.py": 1
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -2715,33 +2715,33 @@
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": 0,
+      "python/fastapi/fastapi/__init__.py": 200,
       "python/fastapi/fastapi/__main__.py": 0,
       "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 1,
       "python/fastapi/fastapi/cli.py": 2,
-      "python/fastapi/fastapi/concurrency.py": 2,
-      "python/fastapi/fastapi/datastructures.py": 8,
-      "python/fastapi/fastapi/encoders.py": 4,
+      "python/fastapi/fastapi/concurrency.py": 1,
+      "python/fastapi/fastapi/datastructures.py": 7,
+      "python/fastapi/fastapi/encoders.py": 3,
       "python/fastapi/fastapi/exception_handlers.py": 1,
-      "python/fastapi/fastapi/exceptions.py": 33,
+      "python/fastapi/fastapi/exceptions.py": 28,
       "python/fastapi/fastapi/logger.py": 1,
       "python/fastapi/fastapi/param_functions.py": 2,
       "python/fastapi/fastapi/params.py": 3,
-      "python/fastapi/fastapi/requests.py": 5,
-      "python/fastapi/fastapi/responses.py": 26,
-      "python/fastapi/fastapi/routing.py": 4,
+      "python/fastapi/fastapi/requests.py": 2,
+      "python/fastapi/fastapi/responses.py": 21,
+      "python/fastapi/fastapi/routing.py": 6,
       "python/fastapi/fastapi/sse.py": 3,
       "python/fastapi/fastapi/staticfiles.py": 0,
       "python/fastapi/fastapi/templating.py": 0,
-      "python/fastapi/fastapi/testclient.py": 185,
-      "python/fastapi/fastapi/types.py": 25,
+      "python/fastapi/fastapi/testclient.py": 183,
+      "python/fastapi/fastapi/types.py": 16,
       "python/fastapi/fastapi/utils.py": 3,
-      "python/fastapi/fastapi/websockets.py": 4
+      "python/fastapi/fastapi/websockets.py": 2
     },
     "python/fastapi/tests": {
       "python/fastapi/tests/__init__.py": 0,
-      "python/fastapi/tests/main.py": 0,
+      "python/fastapi/tests/main.py": 3,
       "python/fastapi/tests/test_additional_properties.py": 0,
       "python/fastapi/tests/test_additional_properties_bool.py": 0,
       "python/fastapi/tests/test_additional_response_extra.py": 0,
@@ -2944,31 +2944,31 @@
       "python/fastapi/tests/test_wrapped_method_forward_reference.py": 0,
       "python/fastapi/tests/test_ws_dependencies.py": 0,
       "python/fastapi/tests/test_ws_router.py": 0,
-      "python/fastapi/tests/utils.py": 2
+      "python/fastapi/tests/utils.py": 7
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
-      "python/numpy/__init__.py": 0,
+      "python/numpy/__init__.py": 7,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
-      "python/numpy/core.py": 0,
+      "python/numpy/core.py": 1,
       "python/numpy/crackfortran.py": 0,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 0,
-      "python/numpy/genapi.py": 4,
+      "python/numpy/genapi.py": 0,
       "python/numpy/generate_numpy_api.py": 0,
       "python/numpy/generate_ufunc_api.py": 0,
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 0,
-      "python/numpy/numpy_api.py": 3,
+      "python/numpy/numpy_api.py": 0,
       "python/numpy/symbolic.py": 0,
       "python/numpy/testutils.py": 0,
-      "python/numpy/ufunc_docstrings.py": 1,
+      "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 1,
-      "python/twisted/http.py": 12,
+      "python/twisted/defer.py": 0,
+      "python/twisted/http.py": 9,
       "python/twisted/reflect.py": 3,
       "python/twisted/transport.py": 2
     },
@@ -3018,7 +3018,7 @@
     "ruby/rails": {
       "ruby/rails/MIT-LICENSE": 0,
       "ruby/rails/Rakefile": 0,
-      "ruby/rails/base.rb": 11,
+      "ruby/rails/base.rb": 8,
       "ruby/rails/blob.rb": 0,
       "ruby/rails/generator.rb": 0,
       "ruby/rails/inbound_emails_controller.rb": 0,
@@ -3072,7 +3072,7 @@
       "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
       "rust/tokio/fuzz.rs": 0,
-      "rust/tokio/interval.rs": 1,
+      "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 1,
       "rust/tokio/maybe_done.rs": 0,
       "rust/tokio/tests.rs": 1,
@@ -3105,7 +3105,7 @@
       "scheme/racket/cpnanopass.ss": 0,
       "scheme/racket/eval.c": 2,
       "scheme/racket/fun.c": 1,
-      "scheme/racket/io.ss": 24,
+      "scheme/racket/io.ss": 18,
       "scheme/racket/schemify.rkt": 0,
       "scheme/racket/thread.rkt": 0
     },
@@ -3297,7 +3297,7 @@
       "shell/kubernetes/testcerts__gencerts.sh": 0,
       "shell/kubernetes/testdata__generate.sh": 0,
       "shell/kubernetes/update-codegen.sh": 0,
-      "shell/kubernetes/util.sh": 18
+      "shell/kubernetes/util.sh": 16
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -3441,7 +3441,7 @@
     },
     "sqlite/dancer2_sqlite": {
       "sqlite/dancer2_sqlite/entries.sql": 1,
-      "sqlite/dancer2_sqlite/users.sql": 1
+      "sqlite/dancer2_sqlite/users.sql": 0
     },
     "sqlite/flask_tutorial_sqlite": {
       "sqlite/flask_tutorial_sqlite/LICENSE.txt": 0,
@@ -3664,7 +3664,7 @@
       "typescript/playwright/SUPPORT.md": 0,
       "typescript/playwright/api.ts": 0,
       "typescript/playwright/bidiConnection.ts": 0,
-      "typescript/playwright/connection.ts": 1,
+      "typescript/playwright/connection.ts": 0,
       "typescript/playwright/crConnection.ts": 0,
       "typescript/playwright/dispatcher.ts": 0,
       "typescript/playwright/frames.ts": 0,
@@ -3683,7 +3683,7 @@
       "typescript/vscode/gulpfile.vscode.ts": 0,
       "typescript/vscode/instantiationService.ts": 0,
       "typescript/vscode/ipc.ts": 0,
-      "typescript/vscode/lifecycle.ts": 1,
+      "typescript/vscode/lifecycle.ts": 2,
       "typescript/vscode/package.json": 0,
       "typescript/vscode/vscode.d.ts": 0
     },
@@ -3831,9 +3831,9 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 2,
       "zig/zig/InternPool.zig": 4,
-      "zig/zig/Type.zig": 6,
+      "zig/zig/Type.zig": 5,
       "zig/zig/Zcu.zig": 4,
-      "zig/zig/main.zig": 0
+      "zig/zig/main.zig": 1
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 2,
@@ -3849,9 +3849,9 @@
       "zig/zls/mach/StringTable.zig": 1,
       "zig/zls/mach/collision.zig": 0,
       "zig/zls/mach/graph.zig": 1,
-      "zig/zls/mach/main.zig": 0,
+      "zig/zls/mach/main.zig": 4,
       "zig/zls/mach/module.zig": 4,
-      "zig/zls/mach/testing.zig": 25,
+      "zig/zls/mach/testing.zig": 24,
       "zig/zls/mach/win32.zig": 0
     }
   },

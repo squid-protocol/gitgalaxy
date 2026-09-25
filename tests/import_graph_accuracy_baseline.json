@@ -1,12 +1,12 @@
 {
   "c": {
-    "engine_edges": 794,
+    "engine_edges": 872,
     "files": 386,
-    "fn": 78,
+    "fn": 0,
     "fp": 1,
     "imports": 874,
     "precision_pct": 99.9,
-    "recall_pct": 91.1,
+    "recall_pct": 100.0,
     "repos": "libuv/libuv, redis/hiredis"
   },
   "cpp": {
@@ -30,43 +30,43 @@
     "repos": "spf13/cobra"
   },
   "java": {
-    "engine_edges": 1007,
+    "engine_edges": 1022,
     "files": 264,
-    "fn": 18,
-    "fp": 20,
-    "imports": 1011,
-    "precision_pct": 98.0,
-    "recall_pct": 98.2,
+    "fn": 0,
+    "fp": 0,
+    "imports": 1085,
+    "precision_pct": 100.0,
+    "recall_pct": 100.0,
     "repos": "google/gson"
   },
   "javascript": {
-    "engine_edges": 35,
+    "engine_edges": 63,
     "files": 141,
-    "fn": 33,
+    "fn": 0,
     "fp": 6,
     "imports": 63,
-    "precision_pct": 82.9,
-    "recall_pct": 47.6,
+    "precision_pct": 90.5,
+    "recall_pct": 100.0,
     "repos": "expressjs/express"
   },
   "lua": {
-    "engine_edges": 358,
+    "engine_edges": 351,
     "files": 173,
     "fn": 3,
-    "fp": 7,
+    "fp": 0,
     "imports": 354,
-    "precision_pct": 98.0,
+    "precision_pct": 100.0,
     "recall_pct": 99.2,
     "repos": "luarocks/luarocks"
   },
   "perl": {
-    "engine_edges": 2,
+    "engine_edges": 47,
     "files": 33,
-    "fn": 47,
-    "fp": 0,
+    "fn": 0,
+    "fp": 1,
     "imports": 49,
-    "precision_pct": 100.0,
-    "recall_pct": 4.1,
+    "precision_pct": 97.9,
+    "recall_pct": 100.0,
     "repos": "libwww-perl/HTTP-Message"
   },
   "php": {
@@ -80,23 +80,23 @@
     "repos": "guzzle/guzzle"
   },
   "python": {
-    "engine_edges": 1167,
+    "engine_edges": 1862,
     "files": 1275,
-    "fn": 841,
-    "fp": 122,
+    "fn": 42,
+    "fp": 20,
     "imports": 2009,
-    "precision_pct": 89.5,
-    "recall_pct": 58.1,
+    "precision_pct": 98.9,
+    "recall_pct": 97.9,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
   },
   "ruby": {
-    "engine_edges": 231,
+    "engine_edges": 239,
     "files": 106,
-    "fn": 9,
+    "fn": 1,
     "fp": 1,
     "imports": 239,
     "precision_pct": 99.6,
-    "recall_pct": 96.2,
+    "recall_pct": 99.6,
     "repos": "rack/rack"
   },
   "rust": {
@@ -110,23 +110,23 @@
     "repos": "serde-rs/json"
   },
   "typescript": {
-    "engine_edges": 53,
+    "engine_edges": 615,
     "files": 459,
-    "fn": 598,
-    "fp": 52,
+    "fn": 0,
+    "fp": 53,
     "imports": 599,
-    "precision_pct": 1.9,
-    "recall_pct": 0.2,
+    "precision_pct": 91.4,
+    "recall_pct": 100.0,
     "repos": "colinhacks/zod"
   },
   "zig": {
-    "engine_edges": 214,
+    "engine_edges": 252,
     "files": 91,
-    "fn": 57,
+    "fn": 16,
     "fp": 0,
     "imports": 272,
     "precision_pct": 100.0,
-    "recall_pct": 79.0,
+    "recall_pct": 94.1,
     "repos": "zigtools/zls"
   }
 }

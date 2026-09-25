@@ -2715,7 +2715,7 @@
       "python/fastapi/SECURITY.md": "Static: Literature & Documentation"
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": "file_cluster_2",
+      "python/fastapi/fastapi/__init__.py": "file_cluster_17",
       "python/fastapi/fastapi/__main__.py": "file_cluster_2",
       "python/fastapi/fastapi/applications.py": "file_cluster_5",
       "python/fastapi/fastapi/background.py": "file_cluster_5",

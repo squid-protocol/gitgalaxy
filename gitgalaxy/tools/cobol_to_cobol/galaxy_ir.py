@@ -140,7 +140,7 @@ import re
 import sqlite3
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -398,6 +398,9 @@ class EngineSqlStatement:
     cursor: Optional[str]
     host_variables: list
     line: int
+    # #3618: the statement text (comments stripped, whitespace collapsed, literals
+    # kept); None on a DB written before the column existed.
+    statement: Optional[str] = None
 
 
 @dataclass
@@ -2264,6 +2267,64 @@ class GalaxyIR:
                 row["via_cursor"] = sorted(row["via_cursor"])
                 row["lines"] = sorted(set(row["lines"]))
                 out.append(row)
+        return out
+
+    def db2_tables(self) -> list:
+        """Every DB2 table as one unit, its shape and every statement against it (#3618).
+
+        Keyed by the unqualified table name (`CARDDEMO.AUTHFRDS` and `AUTHFRDS` are
+        one table; `names` lists every spelling seen). `declared_in` / `line` /
+        `columns` come from the `EXEC SQL DECLARE ... TABLE` (#3344, usually a DCLGEN
+        member; None / [] when no DECLARE is in the repository; the first by path when
+        several). `statements`: one per embedded statement that names the table --
+        `file`, `line`, `verb`, `access`, `cursor`, `host_variables`, `statement`
+        (the text, #3618) -- plus, for a DECLARE CURSOR, `cursor_use`: the OPEN /
+        FETCH / CLOSE lines of that cursor in the same file. Facts only.
+        """
+        tables: dict[str, dict] = {}
+
+        def entry(name: str) -> dict:
+            key = name.upper().split(".")[-1]
+            e = tables.setdefault(
+                key,
+                {"table": key, "names": set(), "declared_in": None, "line": None, "columns": [], "statements": []},
+            )
+            e["names"].add(name.upper())
+            return e
+
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for t in f.sql_tables:
+                e = entry(t.name)
+                if e["declared_in"] is None:
+                    e["declared_in"], e["line"] = f.file_path, t.line
+                    e["columns"] = [asdict(c) for c in t.columns]
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            uses: dict[str, list] = {}
+            for st in f.sql_statements:
+                if st.verb in ("OPEN", "FETCH", "CLOSE") and st.cursor:
+                    uses.setdefault(st.cursor, []).append({"verb": st.verb, "line": st.line})
+            seen: set = set()
+            for st in f.sql_statements:
+                if not st.table or (st.ordinal, st.table) in seen:
+                    continue
+                seen.add((st.ordinal, st.table))
+                row = {
+                    "file": f.file_path,
+                    "line": st.line,
+                    "verb": st.verb,
+                    "access": st.access,
+                    "cursor": st.cursor,
+                    "host_variables": list(st.host_variables),
+                    "statement": st.statement,
+                }
+                if st.verb == "DECLARE CURSOR" and st.cursor:
+                    row["cursor_use"] = uses.get(st.cursor, [])
+                entry(st.table)["statements"].append(row)
+        out = []
+        for key in sorted(tables):
+            e = tables[key]
+            e["names"] = sorted(e["names"])
+            out.append(e)
         return out
 
     def queue_flows(self) -> list:
@@ -4780,9 +4841,10 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # #3446: embedded SQL statements. A pre-#3446 database has no such table,
         # so a missing table is "no data", never an error.
         if _has_table(cur, "sql_statement_data"):
-            for file_id, ordinal, verb, tname, access, cursor_name, host, line in cur.execute(
-                "SELECT file_id, stmt_ordinal, verb, table_name, access, cursor_name, host_variables, line_number "
-                "FROM sql_statement_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+            text_col = "statement_text" if _has_column(cur, "sql_statement_data", "statement_text") else "NULL"
+            for file_id, ordinal, verb, tname, access, cursor_name, host, line, statement in cur.execute(
+                "SELECT file_id, stmt_ordinal, verb, table_name, access, cursor_name, host_variables, line_number, "  # noqa: S608 -- text_col is one of two literals
+                f"{text_col} FROM sql_statement_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
                 (repo_name, commit_hash),
             ):
                 if file_id in by_id:
@@ -4795,6 +4857,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                             cursor_name,
                             [h for h in (host or "").split(",") if h],
                             int(line or 0),
+                            statement,
                         )
                     )
         # #3347: BMS screen-field layouts. A pre-#3347 database has no such table,

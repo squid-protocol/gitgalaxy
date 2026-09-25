@@ -1005,7 +1005,7 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
 
-def _nested_unit_spans(sats: list[Any], code: str) -> list[tuple[int, int]]:
+def _nested_unit_spans(sats: list[Any]) -> list[tuple[int, int]]:
     """#3642 (C8): the `[start_idx, end_idx)` span of every named unit in `sats`, sorted.
 
     Synthetic buckets (`Anonymous_Block`, `__global_context__`, ...) are not
@@ -8703,12 +8703,12 @@ class StructuralExtractor:
         that rescan. The shield changes lengths, so the rescan is done on the
         blanked source rather than by mapping offsets through it.
         """
-        units = _nested_unit_spans(sats, code)
+        units = _nested_unit_spans(sats)
         unit_starts = [u[0] for u in units]
         for sat, block, rules in scans:
             blanked = _blank_nested_units(units, unit_starts, code, sat, block)
             pattern = rules.get("calls_out")
-            if blanked is None or not hasattr(pattern, "finditer"):
+            if blanked is None or not isinstance(pattern, re.Pattern):
                 continue
             safe = self._apply_literal_shield(blanked, self.primary_lang_id)
             kept: dict[str, list[str]] = {}

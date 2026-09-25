@@ -661,6 +661,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -3422,6 +3428,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -9255,6 +9267,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11018,6 +11036,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11484,6 +11508,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     }
@@ -12410,10 +12440,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "JCL/ZC##SD.jcl": {
@@ -12435,10 +12471,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZC##.rdo": {
@@ -12652,10 +12694,16 @@
           "program": "ZECS001"
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZECS.rdo": {
@@ -12773,10 +12821,16 @@
           "program": "ZECSPLT"
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZECSN.rdo": {
@@ -12798,10 +12852,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZECSR.rdo": {
@@ -12823,10 +12883,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZECSS.rdo": {
@@ -12848,10 +12914,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "Source/CSDZECSX.rdo": {
@@ -12873,10 +12945,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -20401,6 +20479,89 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "JCL/CSDZECS.jcl",
+        "JCL/CSDZECSN.jcl",
+        "JCL/CSDZECSR.jcl",
+        "JCL/CSDZECSS.jcl",
+        "JCL/DEFEXPR.jcl",
+        "JCL/DEFZC##.jcl",
+        "JCL/ZC##DC.jcl",
+        "JCL/ZC##SD.jcl",
+        "Source/CSDZC##.rdo",
+        "Source/CSDZECS.rdo",
+        "Source/CSDZECSN.rdo",
+        "Source/CSDZECSR.rdo",
+        "Source/CSDZECSS.rdo",
+        "Source/CSDZECSX.rdo"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 13,
+          "asked": 26
+        }
+      },
+      "rulings": {
+        "csd:Source/CSDZC##.rdo::FILE(ZC@ID@FILE)@1 group=ZC@ID@ dsname=@ECS_HLQ@.ZC@ID@FILE.@ENVIRONMENT@ record_format=V": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::FILE(ZC@ID@KEY)@12 group=ZC@ID@ dsname=@ECS_HLQ@.ZC@ID@KEY.@ENVIRONMENT@ record_format=V": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANCLASS(TCLZC@ID@)@23 group=ZC@ID@": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANCLASS(TCLZD@ID@)@25 group=ZC@ID@": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANCLASS(TCLZR@ID@)@27 group=ZC@ID@": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANCLASS(TCLZX@ID@)@29 group=ZC@ID@": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANSACTION(ZC@ID@)@31 group=ZC@ID@ transid=ZC@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANSACTION(ZD@ID@)@39 group=ZC@ID@ transid=ZD@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANSACTION(ZR@ID@)@47 group=ZC@ID@ transid=ZR@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::TRANSACTION(ZX@ID@)@55 group=ZC@ID@ transid=ZX@ID@ program=ZECS000": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::URIMAP(ZC@ID@)@63 group=ZC@ID@ transid=ZC@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::URIMAP(ZC@ID@D)@67 group=ZC@ID@ transid=ZD@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        },
+        "csd:Source/CSDZC##.rdo::URIMAP(ZC@ID@R)@71 group=ZC@ID@ transid=ZR@ID@ program=ZECS001": {
+          "verdict": "key_correct",
+          "why": "The brief said a name may hold only 'A-Z, 0-9, @ # $', and the reviewer (flagging it as its own judgement call) skipped CSDZC##.rdo because its names are written in lower case (`ZC@id@`). CSD names are case-insensitive and the key -- like the engine -- applies the character check before upper-casing, so `ZC@id@` is letters and @ only: a valid name, kept as ZC@ID@. It is zECS's install-time template token (substituted per instance), unlike `<DB2SSID>`, whose `<>` no CICS name can hold; keeping it keeps the TRANSACTION -> ZECS001 / ZECS000 links. The brief now says letters of either case. Line, type, group and every attribute of the 13 rows are as the key records them in the source."
+        }
+      }
     },
     {
       "by": "claude-opus-5.5 blind reviewers (zecs records sampled census, #3575)",

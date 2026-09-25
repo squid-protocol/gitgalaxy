@@ -1197,6 +1197,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -3474,6 +3480,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -5135,6 +5147,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -6659,6 +6677,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -7337,6 +7361,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -8684,6 +8714,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -10194,6 +10230,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11504,6 +11546,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11878,6 +11926,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -16395,6 +16449,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -19244,6 +19304,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -21056,6 +21122,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -22396,6 +22468,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -23633,6 +23711,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -24069,6 +24153,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -24505,6 +24595,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -26178,6 +26274,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -26614,6 +26716,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -27514,6 +27622,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -28365,6 +28479,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -31373,6 +31493,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -32131,6 +32257,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -33240,6 +33372,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -34973,6 +35111,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -36258,6 +36402,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -46466,6 +46616,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -48377,6 +48533,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -48818,6 +48980,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -49612,6 +49780,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -49683,6 +49857,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -52142,6 +52322,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -54003,6 +54189,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -57263,6 +57455,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -57707,6 +57905,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -59198,6 +59402,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -59589,6 +59799,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -60318,6 +60534,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -60901,6 +61123,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -61840,6 +62068,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -62696,6 +62930,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -63055,6 +63295,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -63616,6 +63862,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -64177,6 +64429,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -64996,6 +65254,12 @@
         }
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     }
@@ -86695,10 +86959,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-transaction-type-db2/csd/CRDDEMOD.csd": {
@@ -86848,10 +87118,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-vsam-mq/csd/CRDDEMOM.csd": {
@@ -86937,10 +87213,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/csd/CARDDEMO.CSD": {
@@ -87970,10 +88252,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/jcl/CBADMCDJ.jcl": {
@@ -88699,10 +88987,16 @@
           "program": "COTSTP4C"
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -94170,6 +94464,59 @@
         "uow": {
           "agree": 0,
           "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/csd/CARDDEMO.CSD"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 64,
+          "asked": 64
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd",
+        "app/app-transaction-type-db2/csd/CRDDEMOD.csd",
+        "app/jcl/CBADMCDJ.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 65,
+          "asked": 65
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "app/app-vsam-mq/csd/CRDDEMOM.csd"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 5,
+          "asked": 5
         }
       },
       "rulings": {}

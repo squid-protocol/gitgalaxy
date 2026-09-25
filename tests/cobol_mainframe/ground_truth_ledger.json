@@ -173,7 +173,7 @@
             "truth": 134
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -420,7 +420,7 @@
             "tp": 26,
             "truth": 26
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": {
@@ -1048,7 +1048,7 @@
             "truth": 100
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -1509,7 +1509,7 @@
             "truth": 197
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -1732,7 +1732,7 @@
             "tp": 25,
             "truth": 25
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": null,
@@ -1886,14 +1886,22 @@
           "truth": "cross_verified"
         },
         "CICS resources": {
-          "engine": null,
+          "engine": {
+            "got": 3251,
+            "tp": 3251,
+            "truth": 3251
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CICS task control": {
-          "engine": null,
+          "engine": {
+            "got": 167,
+            "tp": 167,
+            "truth": 167
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CSD resources": {
           "engine": null,
@@ -2018,9 +2026,13 @@
           "truth": "draft"
         },
         "async children": {
-          "engine": null,
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "call targets": {
           "engine": {
@@ -2279,7 +2291,7 @@
             "truth": 26
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": null,
@@ -2494,7 +2506,7 @@
             "tp": 5,
             "truth": 5
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": null,

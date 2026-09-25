@@ -439,6 +439,24 @@ def test_pli_web_commands_end_at_semicolon():
     assert _brief(op) == ("WEB SEND", "WEB", "write", None, "SERVER", "FROM", "BUF")
 
 
+def test_a_pli_operand_continued_past_a_sequence_field_is_its_value():
+    # #3577, navikt/DSF R0010102: the MAPSET operand's `(` ends a line whose columns
+    # 73-80 hold a sequence number; the literal is on the next line.
+    src = "\n".join(
+        [
+            "    EXEC CICS RECEIVE MAP('S001011') MAPSET (".ljust(72) + "00001010",
+            "     'S001013') SET(BMSMAPBR);".ljust(72) + "00001020",
+            "    EXEC CICS SEND MAP(".ljust(72) + "00018110",
+            "                'S001014') MAPSET('S001013') ERASE MAPONLY;".ljust(72) + "00018120",
+        ]
+    )
+    ops = _ops(src, "pli")
+    assert [(o["verb"], o["name"], o["qualifier"], o["line"]) for o in ops] == [
+        ("RECEIVE", "S001011", "S001013", 1),
+        ("SEND", "S001014", "S001013", 3),
+    ]
+
+
 # ---- MOVE chains (#3578) --------------------------------------------------------
 
 

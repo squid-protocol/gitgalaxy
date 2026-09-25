@@ -950,6 +950,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -1680,6 +1686,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -2215,6 +2227,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -2751,6 +2769,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -3924,6 +3948,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -4446,6 +4476,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -5446,6 +5482,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -6095,6 +6137,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -6776,6 +6824,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -7287,6 +7341,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -7935,6 +7995,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -8566,6 +8632,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -9106,6 +9178,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -9971,6 +10049,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11341,6 +11425,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -11823,6 +11913,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -12480,6 +12576,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -13936,6 +14038,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -14366,6 +14474,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -14878,6 +14992,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -15101,6 +15221,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -15324,6 +15450,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -15547,6 +15679,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -15745,6 +15883,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -16546,6 +16690,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -17121,6 +17271,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -17673,6 +17829,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -18675,6 +18837,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -19266,6 +19434,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -20298,6 +20472,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     },
@@ -23844,6 +24024,12 @@
         "at": "2026-09-24"
       },
       "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      },
       "records_validated": true,
       "records_validated_tier": "sample_verified"
     }
@@ -29808,10 +29994,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/cntl/cdef122.jcl": {
@@ -30873,10 +31065,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/cntl/cdef123.jcl": {
@@ -32194,10 +32392,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/cntl/cdef124.jcl": {
@@ -32235,10 +32439,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/cntl/cdef125.jcl": {
@@ -32324,10 +32534,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -43958,6 +44174,59 @@
         "uow": {
           "agree": 0,
           "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "base/cntl/cdef123.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 82,
+          "asked": 82
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "base/cntl/cdef122.jcl",
+        "base/cntl/cdef124.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 68,
+          "asked": 68
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "base/cntl/cdef121.jcl",
+        "base/cntl/cdef125.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 47,
+          "asked": 47
         }
       },
       "rulings": {}

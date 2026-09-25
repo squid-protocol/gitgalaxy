@@ -1004,6 +1004,102 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
+# #3644 (C3): words that can stand before `name(` at the start of a C++ statement
+# without being the type of a declared variable (`return f(x)`, `new Foo(x)`).
+_DECLARATOR_NON_TYPES = frozenset(
+    {
+        "return", "else", "new", "delete", "throw", "case", "goto", "co_return", "co_await", "co_yield",
+        "sizeof", "alignof", "typedef", "using", "operator", "do", "not", "and", "or", "xor", "template",
+        "namespace", "public", "private", "protected", "friend", "virtual", "explicit", "default",
+    }
+)  # fmt: skip
+# Decl-specifiers that may precede the type (`static Foo foo(1)`).
+_DECLARATOR_SPECIFIERS = frozenset(
+    {"const", "static", "constexpr", "constinit", "thread_local", "volatile", "mutable", "inline", "register",
+     "typename", "struct", "class", "enum", "union", "extern"}
+)  # fmt: skip
+# A variable of a built-in type is initialised, not constructed: `int n(5)` calls nothing.
+_DECLARATOR_BUILTIN_TYPES = frozenset(
+    {"int", "char", "bool", "float", "double", "long", "short", "unsigned", "signed", "void", "auto",
+     "wchar_t", "char8_t", "char16_t", "char32_t", "size_t"}
+)  # fmt: skip
+_DECLARATOR_MAX_SCAN = 200
+
+
+def _ident_before(text: str, end: int) -> tuple[str, int]:
+    """The identifier ending at `end` (at most `_QUALIFIER_MAX_IDENT` chars) and its start."""
+    start = end
+    while start > 0 and end - start < _QUALIFIER_MAX_IDENT and (text[start - 1].isalnum() or text[start - 1] == "_"):
+        start -= 1
+    word = text[start:end]
+    return (word, start) if word and not word[0].isdigit() else ("", end)
+
+
+def _skip_blanks_back(text: str, i: int) -> int:
+    lo = max(0, i - _DECLARATOR_MAX_SCAN)
+    while i > lo and text[i - 1] in " \t\r\n":
+        i -= 1
+    return i
+
+
+def _declarator_type_callee(text: str, pos: int) -> Optional[tuple[str, int]]:
+    """#3644 (contract C3): is the `name(` at `pos` a C++ `Type var(args)` declaration?
+
+    Returns None when it is not (a call stays a call), `(type_leaf, its start)`
+    when it declares a variable of a class type -- the constructor called is the
+    type, `EditorProgress progress(...)` -> `EditorProgress`, `std::vector<int>
+    v(10)` -> `vector` -- and `("", -1)` when nothing is called: a built-in type
+    (`int n(5)`) or a pointer/reference declarator (`Foo* p(q)`). The type must
+    open a statement (after `;`, `{` or `}`, decl-specifiers allowed), so
+    `return f(x)` and `a = b(c)` are untouched. Every backward walk is bounded.
+    """
+    i = _skip_blanks_back(text, pos)
+    if i == 0:
+        return None
+    declarator_mark = False
+    while i > 0 and text[i - 1] in "*&" and pos - i < _DECLARATOR_MAX_SCAN:
+        declarator_mark = True
+        i = _skip_blanks_back(text, i - 1)
+    # A declarator is separated from its type (`Foo v(`, `Foo* p(`); `a->b(` and
+    # `a.b(` are member calls, and the `>` of `->` never closes a template.
+    if i == pos or text[max(i - 2, 0) : i] == "->":
+        return None
+    if i > 0 and text[i - 1] == ">":
+        depth, j = 0, i
+        while j > 0 and i - j < _DECLARATOR_MAX_SCAN:
+            ch = text[j - 1]
+            if ch in "();{}=\n":
+                return None
+            depth += ch == ">"
+            depth -= ch == "<"
+            j -= 1
+            if depth == 0:
+                break
+        if depth != 0:
+            return None
+        i = _skip_blanks_back(text, j)
+    type_leaf, type_start = _ident_before(text, i)
+    if not type_leaf or type_leaf in _DECLARATOR_NON_TYPES or type_leaf in _DECLARATOR_SPECIFIERS:
+        return None
+    k = type_start
+    for _ in range(_QUALIFIER_MAX_SEGMENTS):
+        if k >= 2 and text[k - 2 : k] == "::":
+            word, k2 = _ident_before(text, k - 2)
+            k = k2 if word else k - 2
+        else:
+            break
+    k = _skip_blanks_back(text, k)
+    for _ in range(4):
+        word, start = _ident_before(text, k)
+        if word not in _DECLARATOR_SPECIFIERS:
+            break
+        k = _skip_blanks_back(text, start)
+    if k > 0 and text[k - 1] not in ";{}":
+        return None
+    if declarator_mark or type_leaf in _DECLARATOR_BUILTIN_TYPES:
+        return "", -1
+    return type_leaf, type_start
+
 
 def _nested_unit_spans(sats: list[Any]) -> list[tuple[int, int]]:
     """#3642 (C8): the `[start_idx, end_idx)` span of every named unit in `sats`, sorted.
@@ -9113,15 +9209,39 @@ class StructuralExtractor:
                 # #3359: the annotation-free variant (java/kotlin/swift/dart/
                 # groovy/scala) gets the same check, #3377: so does ruby's.
                 decl_headers = _declaration_headers(rules.get("func_start"), safe_block)
+                # #3644 (C3): `Type var(args)` constructs a Type, not a call to
+                # `var`. Only in the body, so the unit's own `Status run(` header
+                # never becomes a call to its return type.
+                body_start = (
+                    safe_block.find("{")
+                    if self.languages.get(self.primary_lang_id, {}).get("calls_out_declarator_constructs")
+                    else -1
+                )
+                # #3644: a `Class::method` unit's own header and its recursion name
+                # the bare leaf, which the self-name filter below (qualified) never
+                # matches. Drop the leaf when it is unqualified or qualified by the
+                # unit's own class or `this`; `child->method(` stays a call.
+                unit_parts = _UNIT_NAME_SEPARATORS.split(name)
+                own_leaf = unit_parts[-1] if len(unit_parts) > 1 else None
+                own_qualifiers = {"", "this", "self", ".".join(unit_parts[:-1]), unit_parts[-2]} if own_leaf else set()
                 for m in invocation_pattern.finditer(safe_block):
                     callee = m.group(1)
-                    if _is_declaration_header(decl_headers, m):
+                    callee_pos = m.start(1)
+                    if 0 <= body_start < callee_pos:
+                        declared = _declarator_type_callee(safe_block, callee_pos)
+                        if declared is not None:
+                            if not declared[0]:
+                                continue
+                            callee, callee_pos = declared
+                    qualifier = _call_qualifier(safe_block, callee_pos)
+                    if callee == own_leaf and qualifier in own_qualifiers:
+                        continue
+                    if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):
                         header_only.add(callee)
                     else:
                         invoked.add(callee)
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
-                    qualifier = _call_qualifier(safe_block, m.start(1))
                     if qualifier not in seen:
                         seen.append(qualifier)
             else:

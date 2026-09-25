@@ -148,6 +148,35 @@ def _callee(node: Any) -> str | None:
     return None
 
 
+_UNIT_NAME_SEPARATORS = ("::", ".", "->")
+
+
+def _is_own_leaf_call(node: Any, callee: str, owner: str) -> bool:
+    """#3644: is this call recursion on a qualified unit (`Class::method` calling `method(`)?
+
+    `_pair` drops the unit's own name, but a C++ out-of-class unit is named
+    `Class::method` while its recursive call names the bare `method`. Mirrors the
+    engine: the leaf is dropped when the call is bare, `this->`/`self.`-qualified
+    or qualified by the unit's own class; `child->method(` is another object's
+    method and stays a call.
+    """
+    parts = [owner]
+    for sep in _UNIT_NAME_SEPARATORS:
+        parts = [p for part in parts for p in part.split(sep)]
+    if len(parts) < 2 or callee != parts[-1]:
+        return False
+    fn = node.child_by_field_name("function")
+    if fn is None or fn.type == "identifier":
+        return True
+    if fn.type in ("field_expression", "member_expression", "attribute"):
+        recv = fn.child_by_field_name("argument") or fn.child_by_field_name("object")
+        return recv is not None and recv.type in ("this", "self")
+    if fn.type == "qualified_identifier":
+        scope = fn.child_by_field_name("scope")
+        return scope is not None and scope.text.decode("utf-8", "replace") in parts[:-1]
+    return False
+
+
 _KEEP_TREE: list[Any] = [None]
 
 
@@ -161,7 +190,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
     func_types = spec["func_node_types"]
     non_calls = CONTRACT_NON_CALLS.get(lang, frozenset())
     out: list[tuple[str, int, set[str], Any]] = []
-    stack: list[tuple[Any, list[set[str]]]] = [(tree.root_node, [])]
+    stack: list[tuple[Any, list[tuple[str, set[str]]]]] = [(tree.root_node, [])]
     # iterative walk; `owners` is the chain of enclosing function call-sets
     while stack:
         node, owners = stack.pop()
@@ -172,11 +201,12 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
             if name:
                 calls: set[str] = set()
                 out.append((name, node.start_point[0] + 1, calls, node))
-                owners = [*owners, calls]
+                owners = [*owners, (name, calls)]
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
-            if name and name not in non_calls:
-                owners[-1].add(name)
+            owner, calls = owners[-1]
+            if name and name not in non_calls and not _is_own_leaf_call(node, name, owner):
+                calls.add(name)
         stack.extend((child, owners) for child in reversed(node.children))
     return out
 

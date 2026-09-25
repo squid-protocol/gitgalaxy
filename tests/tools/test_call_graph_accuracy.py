@@ -83,3 +83,16 @@ def test_c3_go_conversion_is_a_call():
 )
 def test_generic_callee_is_the_function_not_its_type_argument(lang, src, fn, callee):
     assert _calls(lang, src)[fn] == {callee}
+
+
+def test_cpp_qualified_unit_drops_its_own_leaf_recursion_only():
+    # #3644: `Node::walk` calling bare `walk(`, `this->walk(` or `Node::walk(` is recursion;
+    # `child->walk(` is another object's method and stays a call.
+    src = (
+        "int Node::walk(int a) {\n  walk(a - 1);\n  this->walk(a - 2);\n  Node::walk(0);\n"
+        "  return other(a);\n}\n"
+        "int Node::step(int a) {\n  return child->step(a);\n}\n"
+    )
+    got = _calls("cpp", src)
+    assert got["Node::walk"] == {"other"}
+    assert got["Node::step"] == {"step"}

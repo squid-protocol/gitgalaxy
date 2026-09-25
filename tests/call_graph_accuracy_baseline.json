@@ -9,22 +9,22 @@
     "tp": 12968
   },
   "cpp": {
-    "fn": 345,
-    "fp": 1039,
+    "fn": 52,
+    "fp": 280,
     "matched_functions": 1280,
     "parse_failures": 0,
-    "precision_pct": 87.7,
-    "recall_pct": 95.6,
-    "tp": 7425
+    "precision_pct": 96.5,
+    "recall_pct": 99.3,
+    "tp": 7683
   },
   "csharp": {
-    "fn": 62,
+    "fn": 5,
     "fp": 22,
     "matched_functions": 650,
     "parse_failures": 0,
     "precision_pct": 99.2,
-    "recall_pct": 97.6,
-    "tp": 2575
+    "recall_pct": 99.8,
+    "tp": 2632
   },
   "go": {
     "fn": 239,
@@ -90,12 +90,12 @@
     "tp": 6497
   },
   "typescript": {
-    "fn": 310,
+    "fn": 177,
     "fp": 23,
     "matched_functions": 2918,
     "parse_failures": 0,
     "precision_pct": 99.6,
-    "recall_pct": 95.1,
-    "tp": 6046
+    "recall_pct": 97.2,
+    "tp": 6179
   }
 }

@@ -12,7 +12,7 @@ import re
 from typing import Any
 
 from .._shared_patterns import (
-    CALLS_OUT_C_STYLE,
+    CALLS_OUT_C_STYLE_GENERIC,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_LLM_API,
@@ -65,7 +65,8 @@ DEFINITION: dict[str, Any] = {
     "bare_import_names_package": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
+        "calls_out": CALLS_OUT_C_STYLE_GENERIC,
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {

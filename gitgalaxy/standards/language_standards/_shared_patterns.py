@@ -156,6 +156,21 @@ CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 # pattern exactly like CALLS_OUT_C_STYLE (qualifier capture included).
 CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(r"(?<!@)\b([a-zA-Z_]\w*)\s*\(")
 
+# #3644 (contract C3): the C-style pattern for languages that write a type-argument
+# list between a callee and its `(` -- C++ `static_cast<int>(`,
+# `Object::cast_to<T>(`, `back_inserter<vector<wstring> >(`, TypeScript/C#
+# `new Array<T>()`. The list is optional, opens right after the name (no blank,
+# so a spaced comparison `a < b` never starts one), nests one level, stays on
+# one line, holds no `( ) ; { } = | ! ?` or quote, and ends in `>` then `(`.
+# Every quantifier is bounded and the two alternatives start on disjoint
+# characters (Rules 1-3). detector.py treats it exactly like CALLS_OUT_C_STYLE.
+_GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
+CALLS_OUT_C_STYLE_GENERIC = re.compile(
+    r"\b([a-zA-Z_]\w*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){1,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -190,7 +205,12 @@ CALLS_OUT_RUBY = re.compile(
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
-QUALIFIED_CALLS_OUT_PATTERNS = (CALLS_OUT_C_STYLE, CALLS_OUT_C_STYLE_NO_ANNOTATION, CALLS_OUT_RUBY)
+QUALIFIED_CALLS_OUT_PATTERNS = (
+    CALLS_OUT_C_STYLE,
+    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    CALLS_OUT_C_STYLE_GENERIC,
+    CALLS_OUT_RUBY,
+)
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)
 # Mapped to None to officially declare intentional blindness rather than extracting garbage.

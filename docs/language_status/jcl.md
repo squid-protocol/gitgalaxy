@@ -275,3 +275,25 @@ corpus repo (gate: 76 assertions), `python tools/language_deviations.py jcl` for
 vs-median band table, and the corpus's
 [findings_by_language.md#jcl](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#jcl) /
 [bias chart](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_variance_chart.svg).
+
+## 11. CICS / mainframe system facts (added 2026-09-25)
+
+The signals above count JCL constructs. The mainframe fact channels record what the jobs actually
+do. The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md), which has the tier legend and the caveats. For JCL:
+
+| fact | extractor | verification |
+|---|---|---|
+| job flow: step order, COND= / IF-ELSE, PROC calls (expanded in the reader), each DSN DD's DISP and GDG generation, dataset producer → consumer edges | `core/job_flow.py` (#3451) | cross_verified on five corpora: 558 (CardDemo), 410 (CBSA), 253 (GENAPP), 138 (zopeneditor-sample), 261 (zECS) |
+| DD names, input and output datasets per step | `core/mainframe_boundary.py` (#3201) | cross_verified |
+| PROC / SET symbol resolution of DSNs | `_jcl_resolve_datasets` (#3345) | draft: two independent readers agree, not blind-reviewed |
+| IDCAMS `DEFINE CLUSTER` / AIX / PATH | `core/file_control.py` (#3455) | cross_verified: CardDemo 24, CBSA 2, GENAPP 4 |
+| IMS region steps (`DFSRRC00`: program + PSB) | `core/ims_gen.py` (#3477) | cross_verified on CardDemo |
+| job submission to the internal reader (`SYSOUT=(x,INTRDR)`) | `core/job_submits.py` (#3448) | cross_verified on CardDemo (3 facts) |
+| CICS web-services assistant steps (DFHLS2WS / DFHLS2JS / DFHWS2LS / DFHJS2LS) | `core/web_services.py` (#3496) | cross_verified on GENAPP (18) |
+| CSD definitions run through DFHCSDUP in-stream | the csd reader (#3356) | draft |
+
+What JCL cannot tell you:
+- **Cross-job order** lives in the scheduler (CA-7, Control-M, TWS), not in JCL. The completeness
+  report asks for a scheduler export whenever a repository has more than one job.
+- **Symbolics set outside the repository** (installation PROCLIBs, the JES configuration) stay
+  unresolved and are reported as such.

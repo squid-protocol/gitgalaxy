@@ -362,7 +362,10 @@ guidance this pass added:
   before comparison. This was a test-harness bug, not a real disagreement — filed as
   [#1891](https://github.com/squid-protocol/gitgalaxy/issues/1891).
 
-### Where GitGalaxy has a real, confirmed defect
+### Where GitGalaxy had a real, confirmed defect (all four since fixed)
+
+*(Status 2026-09-25:* #1858, #1890, #1891 and #1892 are all closed. The text below is kept as the record
+of what this comparison found.)*
 
 - **`func_start`'s `LOCAL-STORAGE` false positive** (part of the 18-occurrence shape above): the
   `func_start` regex's reserved-word negative lookahead bans `WORKING-STORAGE` and `LINKAGE` as
@@ -473,3 +476,42 @@ Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.
 corpus repo (gate: 75 assertions), `python tools/language_deviations.py cobol` for the live
 vs-median band table, and the corpus's
 [findings_by_language.md#cobol](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#cobol).
+
+## 11. CICS / mainframe system facts (added 2026-09-25)
+
+Everything above is about **signals**, which count constructs. Since this snapshot, COBOL has gained
+the deepest set of **fact channels** in the engine, and each one is checked against an answer key.
+The fact channels record:
+- which program calls which, with its COMMAREA or channel;
+- which transaction runs which program;
+- which file, queue, map, container or web resource each `EXEC CICS` touches;
+- units of work and handlers;
+- DB2, IMS and MQ access;
+- record layouts;
+- field-level data movement.
+
+The full breakdown, per fact and per corpus with verification tiers, is in [cics_mainframe_facts.md](cics_mainframe_facts.md). In brief:
+
+- **Cross-verified** (every file blind-read by LLM reviewers, every disagreement ruled on) on up to
+  six corpora: program units, PROGRAM-IDs, call targets (including data-driven ones), copybook
+  resolution, CICS resource operations, task control, units of work, DB2 table access, IMS DL/I,
+  MQ, FILE-CONTROL, CALL USING contracts and file I/O moves.
+- **Sample-verified:** field-level data moves (MOVE / COMPUTE / STRING / …), about 12,600 facts
+  across six corpora.
+- **Draft** (two independent readers agree, no blind review): record layouts, BMS-generated
+  symbolic maps and DB2 `DECLARE TABLE` columns.
+- The engine matches the keys on every fact. The one exception is deliberate: its "dead" flag means
+  *unreferenced by name* ([unreferenced_by_name_contract.md](../unreferenced_by_name_contract.md)),
+  so it differs from the key's reachability answer.
+
+Honest limits:
+- **Sample code only:** every corpus is public sample or open-source code in fixed-format Enterprise
+  COBOL, and the engine was developed against the same corpora.
+- **Unmeasured:** free-format COBOL, other vendors' dialects and production-scale estates.
+- **Not supported:** macro-level CICS.
+- **Runtime-only names:** a program or resource name set at runtime stays unresolved, with its
+  candidates. It is never guessed.
+- **Unproven:** `INVOKE SERVICE`, `TRANSFORM` and TD-queue trigger starts have not met real code.
+- **The §5 limitation still stands** (a multi-line `PERFORM` target can look like a paragraph
+  header). The engine's units match the blind-censused keys exactly on all six corpora, so the shape
+  produced no phantom unit there. That shows it is rare in these corpora, not that it cannot happen.

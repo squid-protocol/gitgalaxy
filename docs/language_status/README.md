@@ -55,6 +55,15 @@ surface) and took jcl from 4th-worst of 46 to mid-pack. Write this section via t
 keyword-rosetta repo's `rosetta-language-sweep` skill once a language's rosetta issue gets a real
 sweep; the section template is in the `language-status` skill.
 
+**CICS / mainframe estates: read [`cics_mainframe_facts.md`](cics_mainframe_facts.md)** (added
+2026-09-25). The per-language docs cover structural signals. That page covers the mainframe
+**fact channels**: call graph, transactions, CICS resource operations, units of work, DB2 / IMS / MQ
+access and field lineage. For each it gives the verification tier (cross-verified, sample-verified
+or draft) per keyed corpus, the estate-completeness scores, and a plain list of what is unsupported
+or unproven. It also covers BMS and CSD, which have no signal doc of their own. `cobol.md`,
+`pli.md`, `hlasm.md` and `jcl.md` each have a §11 summarising their part (`db2_sql.md` §9,
+`java.md` §10).
+
 ## Signature-bearing languages (47)
 
 `LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`

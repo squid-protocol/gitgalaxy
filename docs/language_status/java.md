@@ -236,3 +236,16 @@ See [`docs/self_scan/tri_comparison_ledger.json`](../self_scan/tri_comparison_le
 (filtered to `java/`) and
 [`docs/self_scan/tri_comparison_points_of_interest.md`](../self_scan/tri_comparison_points_of_interest.md)
 for the full record.
+
+## 10. JCICS: Java on CICS (added 2026-09-25)
+
+Java that imports `com.ibm.cics.server` gets mainframe fact rows (#3497, `core/jcics.py`; see
+[cics_mainframe_facts.md](cics_mainframe_facts.md)):
+- `Program.link()` becomes a LINK call site, joining the Java code to the COBOL call graph;
+- KSDS / ESDS / RRDS file, TSQ / TDQ and channel / container operations are recorded;
+- names resolve from `setName` literals, constants and prefixes.
+
+Verification rests on **one corpus**: CBSA's Java, 36 facts, cross-verified. Beyond it:
+- names built at runtime stay unresolved;
+- JCICS classes wrapped in a project's own helper layer are not followed;
+- Liberty / JAX-RS endpoints in a CICS JVM server are not read as CICS entry points.

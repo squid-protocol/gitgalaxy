@@ -171,3 +171,20 @@ Pending: the `data/db2_sql/` control folder is authored on keyword-rosetta branc
 `corpus/db2sql-2511` (this change's companion PR, per `how_to_add_a_language.md`'s closing
 section). The fidelity-table re-pin (`FIDELITY_PROVENANCE` corpus_sha + language count)
 follows once that PR merges — pli is in the same waiting position.
+
+## 9. Embedded SQL in COBOL / PL/I: fact channels (added 2026-09-25)
+
+This doc covers standalone DB2 SQL / SQL PL files. **Embedded** `EXEC SQL` in COBOL and PL/I is
+read by two fact channels (see [cics_mainframe_facts.md](cics_mainframe_facts.md)):
+
+- **`core/db2_sql_statements.py` (#3446):** which program reads, inserts, updates or deletes which
+  table. A cursor's OPEN / FETCH is joined to its DECLARE. Cross-verified on CardDemo (13 facts),
+  CBSA (24) and GENAPP (21).
+- **`core/db2_declare_table.py` (#3344):** `DECLARE TABLE` / DCLGEN column schemas. Draft on
+  CardDemo (31) and CBSA (24): two independent readers agree, no blind review yet.
+
+Not covered:
+- dynamic SQL text built at runtime (`PREPARE` from a host variable), which gets no table fact;
+- stored-procedure bodies' table access, which is not joined to the calling COBOL program;
+- the BIND / plan → package mapping, which comes only from the CSD's DB2ENTRY / DB2TRAN, when the
+  CSD is present.

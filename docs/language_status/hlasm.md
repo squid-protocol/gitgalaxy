@@ -156,9 +156,35 @@ security lens's own detector covers hlasm).
 
 ## 6. Known gaps / follow-ups
 
-- No real-corpus HLASM in language-crucible; adding a genuine z/OS member set (e.g. a
-  CICS sample application's assembler parts) is a follow-up, mirroring the db2_sql note.
-- Continuation semantics (non-blank column 72, resume at column 16) are not modeled as
-  columns; multi-line macro invocations count once per statement only because the rules
-  anchor the first physical line. Adequate for counting, not for operand parsing.
+- ~~No real-corpus HLASM in language-crucible~~ — crucible v1.5.0 added `hlasm/zecs` (the zECS
+  CICS service's assembler) beside `che4z_hlasm` and `zopeneditor_sample` (22 files). *(2026-09-25)*
+- Continuation semantics (non-blank column 72, resume at column 16) are still not modeled by the
+  **signal** rules: a multi-line macro counts once per statement because the rules anchor on its
+  first physical line. **`EXEC CICS` statements are the exception**: `core/hlasm_cics.py` (#3495)
+  joins their continuations and parses the operands (§11).
 - `.mlc`/`.asmpgm` (other IBM DBB conventions) are unclaimed; add on demand.
+
+## 11. CICS / mainframe system facts (added 2026-09-25)
+
+The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md). What assembler gets:
+
+- **Command-level `EXEC CICS`** (#3495). `core/hlasm_cics.py` rewrites each assembler statement, with
+  its column-72 continuations joined, into the shape the COBOL walkers read. Assembler programs then
+  get the same channels as COBOL:
+  - call sites (LINK / XCTL / RETURN TRANSID);
+  - CICS resource operations;
+  - task control;
+  - units of work, handlers and ABENDs.
+
+  Operands resolve through `DC C'...'` constants. `OC v,v` and `CLC v,=F'n'` count as RESP checks.
+  `name DFHEIENT` opens a program unit that other programs' LINKs resolve to.
+- **Verification:** zECS's assembler programs are inside zECS's cross-verified counts: 61 CICS
+  resource operations, 7 task-control rows and 134 unit-of-work rows, blind-reviewed in full.
+- **IMS PSB / DBD macros** (`core/ims_gen.py`, #3477): cross-verified on CardDemo (39 facts,
+  together with the JCL region steps).
+- **Not supported:**
+  - **macro-level CICS** (`DFHPC`, `DFHFC`, `DFHTC`, … — the pre-command-level API);
+  - general macro expansion (a user macro that wraps `EXEC CICS` is not expanded);
+  - any fact beyond CICS, DLI and IMS definitions — for example, the register-level data flow of an
+    assembler program.
+- **Single-sourced:** HLASM CICS rests on one corpus (zECS, a small service).

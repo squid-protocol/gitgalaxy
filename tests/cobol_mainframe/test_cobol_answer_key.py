@@ -670,7 +670,7 @@ def test_cics_reader_reads_the_raw_file_independently(tmp_path):
 def test_cics_key_entries_are_drafts_until_signed_off(key_path):
     key = json.loads(key_path.read_text(encoding="utf-8"))
     for rel, entry in key.get("cics_resources", {}).items():
-        assert rel.lower().endswith(ak.CICS_EXTS + ak.HLASM_EXTS), rel  # #3495: HLASM hosts CICS too
+        assert rel.lower().endswith(ak.CICS_EXTS + ak.HLASM_EXTS + ak.PLI_EXTS), rel  # #3495 HLASM, #3577 PL/I
         assert isinstance(entry["cics_validated"], bool)
         assert entry["verification"]["status"] in ("draft", "validated")
         for op in entry["operations"]:

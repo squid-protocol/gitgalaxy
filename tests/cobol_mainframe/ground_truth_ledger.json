@@ -1886,14 +1886,22 @@
           "truth": "cross_verified"
         },
         "CICS resources": {
-          "engine": null,
+          "engine": {
+            "got": 3251,
+            "tp": 3251,
+            "truth": 3251
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CICS task control": {
-          "engine": null,
+          "engine": {
+            "got": 167,
+            "tp": 167,
+            "truth": 167
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CSD resources": {
           "engine": null,
@@ -2018,9 +2026,13 @@
           "truth": "draft"
         },
         "async children": {
-          "engine": null,
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "call targets": {
           "engine": {

@@ -1404,6 +1404,7 @@ def batches_jcics(key: dict[str, Any], files: list[str], max_items: int) -> list
 # every COBOL and HLASM source that issues EXEC CICS; for an HLASM source also its
 # task control and units of work (a COBOL source answers those in `channels`).
 HLASM_EXTS = (".asm", ".hlasm", ".assemble")
+PLI_EXTS = (".pli", ".pl1", ".plinc")  # == cobol_answer_key.PLI_EXTS
 RESOURCE_SECTIONS = {("cics_resources", "cics_validated")}
 HLASM_SECTIONS = {("cics_tasks", "cics_tasks_validated"), ("uow_handlers", "uow_validated")}
 
@@ -1453,6 +1454,33 @@ def reviewer_facts_resources(answers: dict[str, Any], repo: Path) -> dict[str, d
             out["tasks"][r] = {canon_task(x) for x in v.get("tasks", []) if isinstance(x, dict)}
             out["uow"][r] = {canon_uow(x) for x in v.get("uow", []) if isinstance(x, dict)}
     return out
+
+
+RESOURCES_CONTRACT = """TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry each: "line" (of `EXEC CICS`),
+"verb" (the command's first word -- for WEB / INVOKE / TRANSFORM its first two words, e.g. "WEB SEND"), "kind",
+"name", "qualifier", "record_clause", "record":
+  - kind CONTAINER: PUT / GET / MOVE / DELETE with a CONTAINER(...) option; name the container, qualifier the
+    CHANNEL(...) value.
+  - kind FILE: READ / READNEXT / READPREV / STARTBR / RESETBR / ENDBR / WRITE / REWRITE / DELETE / UNLOCK with a
+    FILE(...) or DATASET(...) option (not a DELETE CONTAINER); name that option's value, qualifier null.
+  - kind MAP: SEND / RECEIVE with a MAP(...) option; name the map, qualifier the MAPSET(...) value.
+  - kind QUEUE: WRITEQ / READQ / DELETEQ with QUEUE(...) or QNAME(...); name the queue, qualifier "TD" when the
+    command says TD, else "TS".
+  - kind CHANNEL: LINK / XCTL (qualifier the PROGRAM(...) value) or START / RETURN / RUN (qualifier the TRANSID(...)
+    value) with a CHANNEL(...) option; name the channel.
+  - kind WEB: WEB OPEN / CONVERSE / SEND / RECEIVE / CLOSE, and WEB READ / WRITE with an HTTPHEADER(...) option (not
+    WEB EXTRACT / PARSE / STARTBROWSE / READNEXT / ENDBROWSE, nor WEB READ FORMFIELD / QUERYPARM). name: for OPEN the
+    URIMAP(...) value, else HOST(...); for CONVERSE and SEND the URIMAP(...) value, else PATH(...); for READ / WRITE
+    the HTTPHEADER(...) value; for RECEIVE and CLOSE null. qualifier: "CLIENT" for OPEN, CONVERSE, CLOSE and any WEB
+    command coding SESSTOKEN(...), else "SERVER".
+  - kind SERVICE: INVOKE SERVICE(...) / INVOKE WEBSERVICE(...); name that value, qualifier the CHANNEL(...) value.
+  - kind TRANSFORM: TRANSFORM DATATOXML / XMLTODATA (name the XMLTRANSFORM(...) value) or DATATOJSON / JSONTODATA
+    (name the JSONTRANSFRM(...) value); qualifier the CHANNEL(...) value.
+  A command naming none of these (SEND TEXT, WRITE OPERATOR, ASKTIME, ...) is not listed. A name or qualifier is a
+  value only when the source fixes it: a literal (its text), or a data-name with a fixed value (COBOL: its VALUE
+  literal, else the one literal ever MOVEd into it; assembler: its DC constant); otherwise null. "record_clause" is
+  INTO if the command codes it, else FROM, else SET -- that precedence, not source order (a WEB CONVERSE codes both
+  FROM and INTO: INTO) -- null if none; "record" that option's operand as written."""
 
 
 def render_resources(
@@ -1513,32 +1541,7 @@ physical line numbers of the file. Ignore commented-out lines and text inside qu
 {FIXED_FORMAT_RULES}
 {asm_rules}
 For EACH file below answer TASK RESOURCES (a file with none gets an empty list):
-TASK RESOURCES -- every EXEC CICS command that names a CICS resource, one entry each: "line" (of `EXEC CICS`),
-"verb" (the command's first word -- for WEB / INVOKE / TRANSFORM its first two words, e.g. "WEB SEND"), "kind",
-"name", "qualifier", "record_clause", "record":
-  - kind CONTAINER: PUT / GET / MOVE / DELETE with a CONTAINER(...) option; name the container, qualifier the
-    CHANNEL(...) value.
-  - kind FILE: READ / READNEXT / READPREV / STARTBR / RESETBR / ENDBR / WRITE / REWRITE / DELETE / UNLOCK with a
-    FILE(...) or DATASET(...) option (not a DELETE CONTAINER); name that option's value, qualifier null.
-  - kind MAP: SEND / RECEIVE with a MAP(...) option; name the map, qualifier the MAPSET(...) value.
-  - kind QUEUE: WRITEQ / READQ / DELETEQ with QUEUE(...) or QNAME(...); name the queue, qualifier "TD" when the
-    command says TD, else "TS".
-  - kind CHANNEL: LINK / XCTL (qualifier the PROGRAM(...) value) or START / RETURN / RUN (qualifier the TRANSID(...)
-    value) with a CHANNEL(...) option; name the channel.
-  - kind WEB: WEB OPEN / CONVERSE / SEND / RECEIVE / CLOSE, and WEB READ / WRITE with an HTTPHEADER(...) option (not
-    WEB EXTRACT / PARSE / STARTBROWSE / READNEXT / ENDBROWSE, nor WEB READ FORMFIELD / QUERYPARM). name: for OPEN the
-    URIMAP(...) value, else HOST(...); for CONVERSE and SEND the URIMAP(...) value, else PATH(...); for READ / WRITE
-    the HTTPHEADER(...) value; for RECEIVE and CLOSE null. qualifier: "CLIENT" for OPEN, CONVERSE, CLOSE and any WEB
-    command coding SESSTOKEN(...), else "SERVER".
-  - kind SERVICE: INVOKE SERVICE(...) / INVOKE WEBSERVICE(...); name that value, qualifier the CHANNEL(...) value.
-  - kind TRANSFORM: TRANSFORM DATATOXML / XMLTODATA (name the XMLTRANSFORM(...) value) or DATATOJSON / JSONTODATA
-    (name the JSONTRANSFRM(...) value); qualifier the CHANNEL(...) value.
-  A command naming none of these (SEND TEXT, WRITE OPERATOR, ASKTIME, ...) is not listed. A name or qualifier is a
-  value only when the source fixes it: a literal (its text), or a data-name with a fixed value (COBOL: its VALUE
-  literal, else the one literal ever MOVEd into it; assembler: its DC constant); otherwise null. "record_clause" is
-  INTO if the command codes it, else FROM, else SET -- that precedence, not source order (a WEB CONVERSE codes both
-  FROM and INTO: INTO) -- null if none; "record" that option's operand as written.
-
+{RESOURCES_CONTRACT}
 Files:
 {listing}
 
@@ -1655,6 +1658,129 @@ def _sign_pli_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
         for entry in key.get("pli_calls", {}).values():
             entry["pli_calls_validated"] = True
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
+# ---- the `pliresources` suite (#3577): a SAMPLED census of PL/I CICS operations ----
+# navikt/DSF's ~3,400 CICS resource and task-control facts over ~310 files: a seeded,
+# stratified sample of files (task control, file / queue / container / channel / web,
+# map-only, and files with none) is read in full against the `resources` contract,
+# as `plicalls` does for call sites. Signed all at once, `sample_verified`.
+PLI_RES_SAMPLE = {"task": 8, "data": 12, "map": 8, "none": 6}
+
+
+def pli_resources_plan(key: dict[str, Any], seed: int) -> list[str]:
+    buckets: dict[str, list[str]] = {"task": [], "data": [], "map": [], "none": []}
+    res, tasks = key.get("cics_resources", {}), key.get("cics_tasks", {})
+    for rel in _pli_files(key):
+        kinds = {r["kind"] for r in res.get(rel, {}).get("operations", [])}
+        bucket = (
+            "task"
+            if tasks.get(rel, {}).get("operations")
+            else "data"
+            if kinds - {"MAP"}
+            else "map"
+            if kinds
+            else "none"
+        )
+        buckets[bucket].append(rel)
+    rng = random.Random(seed)
+    return sorted(f for b, n in PLI_RES_SAMPLE.items() for f in rng.sample(buckets[b], min(n, len(buckets[b]))))
+
+
+def corpus_files_pliresources(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("pli_resources", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_pliresources(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    per_channel = key_facts(key, files, wide=False)
+    res = key.get("cics_resources", {})
+    return {
+        "resources": {
+            rel: sorted({canon_resource(r) for r in res.get(rel, {}).get("operations", [])}) for rel in files
+        },
+        "tasks": {rel: per_channel["tasks"][rel] for rel in files},
+    }
+
+
+def reviewer_facts_pliresources(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"resources": {}, "tasks": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        v = v or {}
+        out["resources"][r] = {canon_resource(x) for x in v.get("resources", []) if isinstance(x, dict)}
+        out["tasks"][r] = {canon_task(x) for x in v.get("tasks", []) if isinstance(x, dict)}
+    return out
+
+
+def render_pliresources(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "pliresources", "batch": index, "of": of, "files": files,
+             "facts": key_facts_pliresources(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    anchor = "a data-name with a fixed value (COBOL:"
+    assert anchor in RESOURCES_CONTRACT, "the resources contract's name rule moved: update this brief"
+    contract = RESOURCES_CONTRACT.replace(
+        anchor,
+        "a data-name with a fixed value (PL/I: the string in the\n  INIT('...') of its CHARACTER DCL in the same file -- "
+        "a qualified name: its last part; COBOL:",
+    )
+    brief = f"""You are independently verifying facts about real IBM mainframe PL/I source code that runs under CICS,
+as a second reviewer. Read the files yourself. They are all under the repository root {repo}; read only the files
+listed below. Do NOT edit or create any files except your answers file, and do not look for any existing answer
+key or analysis of this code: the point is an independent reading. Line numbers are 1-based physical line numbers.
+
+PL/I READING RULES. `/* ... */` is a comment (it may span lines). A statement ends at `;` (outside a quoted
+'literal'), so an EXEC CICS command runs to its `;` -- there is no END-EXEC. Columns 73-80 of a line may hold a
+sequence field (e.g. `00001740`): never code, even when it sits inside a command continued onto the next line.
+Names are case-insensitive (answer them upper-cased) and may contain national letters (Æ Ø Å), digits, `_ @ # $`.
+Trailing blanks inside a literal are padding: drop them.
+
+For EACH file below answer TASK RESOURCES and TASK TASKS (a file with none gets empty lists):
+{contract}
+TASK TASKS -- CICS task-control commands: RUN, START, START ATTACH, FETCH CHILD, FETCH ANY, FREE CHILD, RETRIEVE,
+CANCEL, DELAY, POST, WAIT EVENT, WAIT EXTERNAL, WAITCICS, ENQ, DEQ. One entry each: "line" (of `EXEC CICS`), "verb",
+"target" (TRANSID for RUN/START/START ATTACH/CANCEL, RESOURCE for ENQ/DEQ) only when the source fixes it -- a
+literal or its CHARACTER DCL's INIT string -- else null; "channel" (CHANNEL(...) resolved the same way, else null);
+"token" (the operand of CHILD(...) / ANY(...) / REQID(...), else null); "record" (the FROM / INTO / SET operand as
+written, else null).
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"resources": [{{"line": 1, "verb": "READ", "kind": "FILE", "name": "F", "qualifier": null,
+                                     "record_clause": "INTO", "record": "R"}}],
+                      "tasks": [{{"line": 1, "verb": "START", "target": null, "channel": null, "token": null, "record": null}}]}},
+           ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_pliresources(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_pliresources(key, files)
+    return _pack({f: sum(len(facts[t].get(f, [])) for t in facts) for f in files}, max_items)
+
+
+def _sign_pli_resources_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any],
+                               rulings: dict[str, Any], by: str, at: str) -> None:  # fmt: skip
+    """Record a PL/I CICS-operation sample batch; once every planned file is signed, flag
+    every PL/I entry of cics_resources and cics_tasks `sample_verified` with the bound."""
+    sc = key["sample_census"]["pli_resources"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + sum(g["tasks"].get(t, {}).get("asked", 0) for t in ("resources", "tasks"))
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        stamp = {"status": "validated", "tier": "sample_verified", "census": {"by": by, "at": at, "sampled": True}}
+        for section, flag in (("cics_resources", "cics_validated"), ("cics_tasks", "cics_tasks_validated")):
+            for rel, entry in key.get(section, {}).items():
+                if rel.lower().endswith(PLI_EXTS):
+                    entry[flag] = True
+                    entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
 # ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
@@ -1941,6 +2067,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "plicalls"
         else reviewer_facts_pliuow(answers, repo)
         if suite == "pliuow"
+        else reviewer_facts_pliresources(answers, repo)
+        if suite == "pliresources"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
         else reviewer_facts(answers, repo)
@@ -2008,7 +2136,7 @@ def sign(
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -2042,6 +2170,8 @@ def sign(
         _sign_pli_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "pliuow":
         _sign_pli_uow_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "pliresources":
+        _sign_pli_resources_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
@@ -2121,6 +2251,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "pliresources",
         ),
         default="channels",
     )
@@ -2143,6 +2274,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "pliresources",
         ),
         default="channels",
     )
@@ -2175,6 +2307,8 @@ def main() -> int:
         if suite == "plicalls"
         else corpus_files_pliuow(key)
         if suite == "pliuow"
+        else corpus_files_pliresources(key)
+        if suite == "pliresources"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -2213,6 +2347,12 @@ def main() -> int:
                 (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
                 print(f"{d}: {len(ws)} windows, {sum(len(v) for v in truth['facts']['moves'].values())} key facts")
             return 0
+        if suite == "pliresources":
+            pr = key.setdefault("sample_census", {}).setdefault("pli_resources", {})
+            if not pr.get("batches"):
+                pr["plan"] = {"seed": args.seed, "strata": PLI_RES_SAMPLE, "files": pli_resources_plan(key, args.seed)}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_pliresources(key)
         if suite == "pliuow":
             pu = key.setdefault("sample_census", {}).setdefault("pli_uow", {})
             if not pu.get("batches"):
@@ -2252,6 +2392,7 @@ def main() -> int:
             "resources": batches_resources,
             "plicalls": batches_plicalls,
             "pliuow": batches_pliuow,
+            "pliresources": batches_pliresources,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -2267,6 +2408,7 @@ def main() -> int:
                 "resources": render_resources,
                 "plicalls": render_plicalls,
                 "pliuow": render_pliuow,
+                "pliresources": render_pliresources,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -2315,6 +2457,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
     elif truth.get("suite") == "pliuow":
         current = dict(truth, facts=key_facts_pliuow(key, truth["files"]))
+    elif truth.get("suite") == "pliresources":
+        current = dict(truth, facts=key_facts_pliresources(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:

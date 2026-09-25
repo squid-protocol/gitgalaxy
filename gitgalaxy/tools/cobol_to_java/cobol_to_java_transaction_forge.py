@@ -32,7 +32,9 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _java_field
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 DTO_SUBPACKAGE = "dto.cics"
-_EDITED = re.compile(r"[^9SVP()0-9]")  # a numeric PIC with editing symbols (Z , . + - CR DB B 0 /) is text
+# Checked after the `(n)` repeat counts are stripped, so anything but 9 S V P is an editing symbol
+# (Z , . + - * $ CR DB B / and the insertion 0): a numeric-edited PIC is display text.
+_EDITED = re.compile(r"[^9SVP]")
 
 
 def _digits_and_scale(pic: str) -> tuple[int, int]:

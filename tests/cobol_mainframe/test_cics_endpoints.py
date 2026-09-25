@@ -141,6 +141,9 @@ def test_program_interfaces_name_what_each_program_receives(scanned):
         ({"class": "P", "pic": "S9(9)V99"}, "BigDecimal"),
         ({"class": "9", "pic": "9(19)"}, "BigDecimal"),
         ({"class": "9", "pic": "ZZ,ZZ9.99"}, "String"),
+        ({"class": "9", "pic": "9990"}, "String"),  # the insertion 0 is an editing symbol
+        ({"class": "9", "pic": "9(3)0"}, "String"),
+        ({"class": "9", "pic": "S9(10)"}, "Long"),
         ({"class": "B", "pic": "S9(4)"}, "Integer"),
         ({"class": "F", "pic": None}, "Double"),
     ],

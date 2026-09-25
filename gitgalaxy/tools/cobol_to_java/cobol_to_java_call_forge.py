@@ -152,15 +152,16 @@ class CallForge:
     def _mismatch(self, passed: str | None, callee: str) -> str | None:
         """A note when the record a site passes is not the one the target was resolved to receive."""
         prog = self.cics.programs.get(callee)
-        receives = (prog.commarea or {}).get("record") if prog else None
-        if not passed or not receives:
+        commarea = prog.commarea if prog is not None else None
+        receives = commarea.get("record") if commarea else None
+        if not passed or not commarea or not receives:
             return None
         name = passed.split("(")[0].split(" OF ")[0].strip().upper()
         if name == receives.upper():
             return None
         return (
             f"TODO: this site passes {name}; {self.cls_of[callee].upper()} receives {receives} "
-            f"({prog.commarea['file']}) -- map one layout onto the other"
+            f"({commarea['file']}) -- map one layout onto the other"
         )
 
     def _has_link(self, key: str) -> bool:
@@ -378,10 +379,10 @@ class CallForge:
 
 def merge_extras(*parts: dict | None) -> dict | None:
     """One service's extras from the transaction and call forges."""
-    parts = tuple(p for p in parts if p and (p.get("imports") or p.get("fields") or p.get("methods")))
-    if not parts:
+    present: list[dict] = [p for p in parts if p and (p.get("imports") or p.get("fields") or p.get("methods"))]
+    if not present:
         return None
-    imports = sorted({i for p in parts for i in p.get("imports", [])})
-    fields = [f for p in parts for f in p.get("fields", [])]
-    methods = [m for p in parts for m in p.get("methods", [])]
+    imports = sorted({i for p in present for i in p.get("imports", [])})
+    fields = [f for p in present for f in p.get("fields", [])]
+    methods = [m for p in present for m in p.get("methods", [])]
     return {"imports": imports, "fields": fields, "methods": methods}

@@ -117,6 +117,9 @@ RESOLUTION RULES (the language's, never the engine's)
     python tests/tools/import_graph_accuracy.py --fetch-only   # clone the pinned repos (once)
     python tests/tools/import_graph_accuracy.py                # report
     python tests/tools/import_graph_accuracy.py --samples 5    # + example FP/FN
+    python tests/tools/import_graph_accuracy.py --buckets 3    # + FP/FN by cause, raw + validated
+    python tests/tools/import_graph_accuracy.py --ledger       # merge the shapes into the graph
+                                                               # comparison ledger (#3641)
     python tests/tools/import_graph_accuracy.py --ci           # gate vs the baseline
     python tests/tools/import_graph_accuracy.py --regenerate   # rewrite the baseline
 """
@@ -142,6 +145,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CORPUS = Path(os.environ.get("IMPORT_GRAPH_CORPUS_PATH", REPO_ROOT.parent / "import-graph-corpus"))
 MANIFEST = REPO_ROOT / "tests" / "import_graph_corpus.json"
 BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import graph_ledger as gl  # noqa: E402
 
 LANGS = (
     "python",
@@ -900,9 +906,9 @@ _SCAN = (
 )
 
 
-def scan_group(group_dir: Path, out_dir: Path) -> tuple[dict[str, str], set[tuple[str, str]]]:
-    """(file path -> engine language, {(src, dst) import edges}) for one group,
-    scanned in a subprocess pinned to THIS checkout (the console-script trap)."""
+def scan_group(group_dir: Path, out_dir: Path) -> tuple[dict[str, str], set[tuple[str, str]], dict[str, list[str]]]:
+    """(file path -> engine language, {(src, dst) import edges}, file path -> raw import tokens)
+    for one group, scanned in a subprocess pinned to THIS checkout (the console-script trap)."""
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env.update(PYTHONPATH=str(REPO_ROOT), GITGALAXY_DISABLE_GIT_HISTORY="1")
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -924,20 +930,102 @@ def scan_group(group_dir: Path, out_dir: Path) -> tuple[dict[str, str], set[tupl
             for s, d in conn.execute("SELECT src_file_id, dst_file_id FROM edge_data WHERE edge_kind = 'import'")
             if s in ids and d in ids and s != d
         }
+        raw = {p: _tokens(t) for p, t in conn.execute("SELECT file_path, raw_imports FROM file_data")}
     finally:
         conn.close()
-    return langs, edges
+    return langs, edges, raw
+
+
+def _tokens(raw: Optional[str]) -> list[str]:
+    """The file's pre-resolution import tokens (#3220), flattened to strings."""
+    try:
+        items = json.loads(raw or "[]")
+    except ValueError:
+        return []
+    return [str(x[0] if isinstance(x, list) and x else x) for x in items]
+
+
+# ----------------------------------------------------------------------------- disagreement causes
+
+
+def _stem(path: str) -> str:
+    """`src/a/Foo.test.ts` -> `foo`: the bare name a token would spell."""
+    return path.rsplit("/", 1)[-1].split(".", 1)[0].lower()
+
+
+def _token_tail(token: str) -> str:
+    """The last name a raw import token spells: `a.b.Foo` / `../foo.js` / `A\\B` / `pkg:x/y.dart` -> its stem."""
+    t = token.strip().strip("'\"<>")
+    for sep in ("\\", "::", ":"):
+        t = t.replace(sep, "/")
+    t = t.rstrip("/").rsplit("/", 1)[-1]
+    parts = [p for p in t.split(".") if p]
+    # `a.b.Foo` / `..a.foo` name Foo / foo; `foo.js` / `foo.h` name foo -- a source-file suffix.
+    if len(parts) > 1 and parts[-1].lower() in _SOURCE_SUFFIXES:
+        parts = parts[:-1]
+    return (parts[-1] if parts else t).lower()
+
+
+_SOURCE_SUFFIXES = frozenset(
+    "py pyi js mjs cjs jsx ts tsx mts cts h hh hpp hxx c cc cpp cxx m mm rb rs go php lua pl pm "
+    "dart kt kts scala hs sh bash sol zig java json".split()
+)
+
+
+def _names_declaration_in(token: str, path: str) -> bool:
+    """A dotted import of a DECLARATION (`com.x.metadata.isPrimary`, kotlin/scala/java) whose
+    package path is the target file's directory: captured, but the name is not the file's."""
+    parts = [p for p in token.strip().split(".") if p and p != "_"]
+    if len(parts) < 3:
+        return False
+    package = parts[:-1]
+    dirs = path.rsplit("/", 1)[0].split("/") if "/" in path else []
+    return len(dirs) >= len(package) and dirs[-len(package) :] == package
+
+
+_TEST_PATH = re.compile(r"(^|/)(tests?|spec|__tests__|testdata|fixtures?)(/|$)|[._-](test|spec)\.", re.I)
+
+
+def import_cause(kind: str, truth: set[str], union: set[str], tokens: list[str], has_edges: bool) -> str:
+    """Why one side has this import and the other does not, by LAYER: capture (no engine
+    token), resolution (a token, but no edge or the wrong file), or the truth side (a
+    multi-file answer, or no import the parser can see). Leads, not verdicts.
+
+    kind "fn": `truth` is one import statement's resolvable file set the engine hit none of.
+    kind "fp": `truth` is {the engine's wrong target}; `union` is every file the parser
+    resolved for that importer."""
+    tails = {_token_tail(t) for t in tokens}
+    if kind == "fn":
+        if len(truth) > 1:
+            return "fn:truth-names-several-files"
+        if any(_stem(p) in tails for p in truth):
+            return "fn:token-unresolved"
+        if any(_names_declaration_in(t, p) for t in tokens for p in truth):
+            return "fn:declaration-unresolved"
+        return "fn:capture-missed" if has_edges or tokens else "fn:capture-none-in-file"
+    (dst,) = truth
+    if not union:
+        return "fp:truth-sees-no-import-in-file"
+    if _stem(dst) in {_stem(p) for p in union}:
+        return "fp:same-name-other-path"
+    if _TEST_PATH.search(dst):
+        return "fp:target-is-test-file"
+    return "fp:target-not-imported"
 
 
 # ----------------------------------------------------------------------------- scoring
 
 
 def score_group(
-    group_dir: Path, langs: dict[str, str], edges: set[tuple[str, str]], wanted: tuple[str, ...]
+    group_dir: Path,
+    langs: dict[str, str],
+    edges: set[tuple[str, str]],
+    wanted: tuple[str, ...],
+    raw: Optional[dict[str, list[str]]] = None,
 ) -> dict[str, dict[str, Any]]:
     group = Group(langs, group_dir)
     per: dict[str, dict[str, Any]] = collections.defaultdict(
-        lambda: {"files": 0, "imports": 0, "found": 0, "edges": 0, "correct": 0, "fp": [], "fn": []}
+        lambda: {"files": 0, "imports": 0, "found": 0, "edges": 0, "correct": 0, "fp": [], "fn": [], "causes": []}
     )
     out_edges: dict[str, set[str]] = collections.defaultdict(set)
     for s, d in edges:
@@ -954,19 +1042,23 @@ def score_group(
         r["files"] += 1
         resolvable = [t for t in sets if t]
         mine = out_edges.get(rel, set())
+        tokens = (raw or {}).get(rel, [])
+        union = set().union(*resolvable) if resolvable else set()
         for t in resolvable:
             r["imports"] += 1
             if mine & t:
                 r["found"] += 1
             else:
-                r["fn"].append(f"{rel} -> {sorted(t)[0]}" + (f" (+{len(t) - 1})" if len(t) > 1 else ""))
-        union = set().union(*resolvable) if resolvable else set()
+                edge = f"{rel} -> {sorted(t)[0]}" + (f" (+{len(t) - 1})" if len(t) > 1 else "")
+                r["fn"].append(edge)
+                r["causes"].append((import_cause("fn", t, union, tokens, bool(mine)), rel, edge))
         for d in mine:
             r["edges"] += 1
             if d in union:
                 r["correct"] += 1
             else:
                 r["fp"].append(f"{rel} -> {d}")
+                r["causes"].append((import_cause("fp", {d}, union, tokens, True), rel, f"{rel} -> {d}"))
     return per
 
 
@@ -995,7 +1087,9 @@ def fetch(corpus: Path, entries: list[dict[str, str]]) -> None:
         print(f"import_graph_accuracy: fetched {e['repo']}@{e['commit'][:12]}")
 
 
-def measure(corpus: Path, langs: tuple[str, ...], jobs: int, samples: int) -> dict[str, dict[str, Any]]:
+def measure(
+    corpus: Path, langs: tuple[str, ...], jobs: int, samples: int, buckets: int = 0
+) -> dict[str, dict[str, Any]]:
     entries = [e for e in load_manifest() if e["language"] in langs]
     missing = [e["repo"] for e in entries if not (repo_dir(corpus, e) / ".git").is_dir()]
     if missing:
@@ -1005,8 +1099,8 @@ def measure(corpus: Path, langs: tuple[str, ...], jobs: int, samples: int) -> di
 
         def run(e: dict[str, str]) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
             d = repo_dir(corpus, e)
-            file_langs, edges = scan_group(d, Path(tmp) / d.name)
-            return e, score_group(d, file_langs, edges, (e["language"],))
+            file_langs, edges, raw = scan_group(d, Path(tmp) / d.name)
+            return e, score_group(d, file_langs, edges, (e["language"],), raw)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=jobs) as pool:
             for e, per in pool.map(run, entries):
@@ -1016,7 +1110,17 @@ def measure(corpus: Path, langs: tuple[str, ...], jobs: int, samples: int) -> di
                     continue
                 t = totals.setdefault(
                     lang,
-                    {"repos": [], "files": 0, "imports": 0, "found": 0, "edges": 0, "correct": 0, "fp": [], "fn": []},
+                    {
+                        "repos": [],
+                        "files": 0,
+                        "imports": 0,
+                        "found": 0,
+                        "edges": 0,
+                        "correct": 0,
+                        "fp": [],
+                        "fn": [],
+                        "causes": [],
+                    },
                 )
                 t["repos"].append(e["repo"])
                 for k in ("files", "imports", "found", "edges", "correct"):
@@ -1024,6 +1128,7 @@ def measure(corpus: Path, langs: tuple[str, ...], jobs: int, samples: int) -> di
                 name = e["repo"].split("/")[1]
                 t["fp"] += [f"{name}/{x}" for x in r["fp"]]
                 t["fn"] += [f"{name}/{x}" for x in r["fn"]]
+                t["causes"] += [(c, f"{name}/{rel}", f"{name}/{edge}") for c, rel, edge in r["causes"]]
     results = {}
     for lang in langs:
         t = totals.get(lang)
@@ -1040,7 +1145,18 @@ def measure(corpus: Path, langs: tuple[str, ...], jobs: int, samples: int) -> di
             "fn": t["imports"] - t["found"],
             "sample_fp": sorted(t["fp"])[:samples],
             "sample_fn": sorted(t["fn"])[:samples],
+            "correct": t["correct"],
+            "found": t["found"],
         }
+        if buckets:
+            counts = collections.Counter(c for c, _, _ in t["causes"])
+            examples: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
+            for c, rel, edge in sorted(t["causes"]):
+                if len(examples[c]) < buckets:
+                    examples[c].append({"file_path": rel, "name": edge, "line": None, "text": ""})
+            results[lang]["top_causes"] = [
+                {"cause": c, "count": k, "examples": examples[c]} for c, k in counts.most_common()
+            ]
     return results
 
 
@@ -1077,10 +1193,19 @@ def regressions(results: dict[str, dict[str, Any]], baseline: dict[str, dict[str
     return out
 
 
+# The ledger plumbing is shared with call_graph_accuracy.py (graph_ledger.py, #3641):
+# precision = correct edges / engine edges, recall = found imports / resolvable imports.
+COUNTS = ("correct", "fp", "found", "fn")
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("languages", nargs="*", help=f"default: {' '.join(LANGS)}")
     ap.add_argument("--samples", type=int, default=0, help="print N example FP/FN per language")
+    ap.add_argument("--buckets", type=int, default=0, help="classify every FP/FN by cause, N examples each")
+    ap.add_argument(
+        "--ledger", action="store_true", help="merge the discrepancy shapes into the graph comparison ledger"
+    )
     ap.add_argument("--jobs", type=int, default=max(1, min(8, (os.cpu_count() or 2))))
     ap.add_argument("--ci", action="store_true", help="fail on a drop beyond the baseline tolerance")
     ap.add_argument("--regenerate", action="store_true", help="rewrite the committed baseline")
@@ -1098,9 +1223,19 @@ def main(argv: Optional[list[str]] = None) -> int:
         fetch(CORPUS, [e for e in load_manifest() if e["language"] in langs])
         if a.fetch_only:
             return 0
-    results = measure(CORPUS, langs, a.jobs, a.samples)
+    buckets = max(a.buckets, gl.LEDGER_EXAMPLES) if a.ledger else a.buckets
+    results = measure(CORPUS, langs, a.jobs, a.samples, buckets)
     table = render(results)
     print(table)
+    if buckets:
+        print(gl.render_causes(results, COUNTS))
+        if a.ledger:
+            if a.languages:
+                print("import_graph_accuracy: --ledger merges every language; run it without a language list")
+                return 2
+            gl.merge(results, "import")
+            print(f"\nimport_graph_accuracy: shapes merged into {gl.LEDGER.relative_to(REPO_ROOT)}")
+        print("\n" + gl.render_validated(results, gl.validated(results, "import", COUNTS)))
     if a.samples:
         for lang, r in results.items():
             print(f"\n{lang}\n  FP: {r['sample_fp']}\n  FN: {r['sample_fn']}")
@@ -1114,7 +1249,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     if not measured:
         print("import_graph_accuracy: FAIL -- measured 0 languages (scan or corpus problem)")
         return 1
-    stripped = {k: {m: v for m, v in r.items() if not m.startswith("sample_")} for k, r in results.items()}
+    stripped = {
+        k: {m: v for m, v in r.items() if not m.startswith(("sample_", "top_")) and m not in ("correct", "found")}
+        for k, r in results.items()
+    }
     if a.regenerate:
         if a.languages:
             print("import_graph_accuracy: --regenerate rewrites every language; run it without a language list")

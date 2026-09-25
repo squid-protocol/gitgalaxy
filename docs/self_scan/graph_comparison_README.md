@@ -66,4 +66,20 @@ per-occurrence evidence, if ever needed, belongs in `gitgalaxy-raw-output`.
 Validate a shape by reading its recorded examples, then set `status`, `verdict`,
 `investigated_by`, `investigated_at` and (only when the geometry above allows it)
 `credit_tools` by hand. Never set them from a guess about whether a shape "should" hold.
-Imports (`import_graph_accuracy.py`) join the same ledger next.
+
+## Imports
+
+`import_graph_accuracy.py --buckets N` / `--ledger` put the import graph in the same ledger
+(symbol type `import`; both tools share `tests/tools/graph_ledger.py`, and each refreshes only its
+own symbol type's shapes). Precision counts engine edges, recall counts resolvable import
+statements. Import causes name the LAYER that disagrees:
+
+| cause | layer | meaning |
+|---|---|---|
+| `fn:capture-missed` / `fn:capture-none-in-file` | capture | no engine token for the import (none at all in the file) |
+| `fn:token-unresolved` | resolution | a token names the target file, but no edge |
+| `fn:declaration-unresolved` | resolution | a dotted token names a declaration in the target's package |
+| `fn:truth-names-several-files` | truth side | the parser's answer is several files (wildcard, package, duplicate) |
+| `fp:same-name-other-path` | resolution | the engine linked a same-named file at another path |
+| `fp:truth-sees-no-import-in-file` | capture / truth | the parser resolves no import in this file at all |
+| `fp:target-is-test-file` / `fp:target-not-imported` | resolution | the target is not among the importer's real imports |

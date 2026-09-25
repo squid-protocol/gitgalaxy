@@ -64,11 +64,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "call_graph_accuracy_baseline.json"
-LEDGER = REPO_ROOT / "docs" / "self_scan" / "graph_comparison_ledger.json"
-READERS = ("gitgalaxy", "tree_sitter")
-# Examples a ledger entry keeps per shape: enough to read a verdict from, small enough to commit.
-# The full list is always one `--buckets N` run away.
-LEDGER_EXAMPLES = 5
+sys.path.insert(0, str(TOOLS))
+import graph_ledger as gl  # noqa: E402
+
+LEDGER = gl.LEDGER
 
 # The languages #3329 scoped for qualifier capture, plus C and Rust: the
 # C-style invocation family where tree-sitter's call node is unambiguous.
@@ -376,93 +375,14 @@ def measure(crucible: Path, samples: int = 0, buckets: int = 0) -> dict[str, dic
     return results
 
 
-def render_causes(results: dict[str, dict[str, Any]], limit: int = 12) -> str:
-    """Per language, each disagreement cause with its share of that side (FP or FN)."""
-    out = []
-    for lang, r in results.items():
-        if "top_causes" not in r:
-            continue
-        out.append(f"\n### {lang}  (FP {r['fp']}, FN {r['fn']})")
-        for c in r["top_causes"][:limit]:
-            side = r["fp"] if c["cause"].startswith("fp:") else r["fn"]
-            share = f"{100 * c['count'] / side:.0f}%" if side else "-"
-            out.append(f"- {c['cause']}: {c['count']} ({share})")
-            out.extend(f"    {e['name']}  {e['text']}" for e in c["examples"])
-    return "\n".join(out)
-
-
 # ----------------------------------------------------------------------------- ledger
 
-
-def _side(cause: str) -> tuple[str, str]:
-    """(claiming reader, the other reader) for a cause label."""
-    return ("gitgalaxy", "tree_sitter") if cause.startswith("fp:") else ("tree_sitter", "gitgalaxy")
-
-
-def shape_groups(results: dict[str, dict[str, Any]]) -> dict[str, list[Any]]:
-    """Per language, one tri_comparison_reconcile.DiscrepancyGroup per cause shape."""
-    sys.path.insert(0, str(TOOLS))
-    from tri_comparison_reconcile import DiscrepancyExample, DiscrepancyGroup
-
-    out: dict[str, list[Any]] = {}
-    for lang, r in results.items():
-        groups = []
-        for c in r.get("top_causes", []):
-            claim, other = _side(c["cause"])
-            groups.append(
-                DiscrepancyGroup(
-                    language=lang,
-                    symbol_type="call",
-                    metric=c["cause"].split(":", 1)[1],
-                    agreeing_tools=frozenset({claim}),
-                    dissenting_tools=frozenset({other}),
-                    total_occurrences=c["count"],
-                    examples=[
-                        DiscrepancyExample(e["file_path"], e["name"], {claim: e["line"], other: None})
-                        for e in c["examples"]
-                    ],
-                )
-            )
-        out[lang] = groups
-    return out
+# The ledger plumbing is shared with import_graph_accuracy.py (graph_ledger.py).
+COUNTS = ("tp", "fp", "tp", "fn")
 
 
 def validated(results: dict[str, dict[str, Any]], ledger_path: Path = LEDGER) -> dict[str, dict[str, Any]]:
-    """Per language: precision/recall after the ledger's verdicts, and what is still open."""
-    sys.path.insert(0, str(TOOLS))
-    import tri_comparison_ledger as tl
-
-    entries = tl.load_ledger(ledger_path).get("entries", {})
-    out: dict[str, dict[str, Any]] = {}
-    for lang, groups in shape_groups(results).items():
-        r = results[lang]
-        tp, fp, fn, open_n, open_shapes = r["tp"], r["fp"], r["fn"], 0, 0
-        for g in groups:
-            entry = entries.get(g.shape_key)
-            if not entry or entry.get("status") != "validated":
-                open_n += g.total_occurrences
-                open_shapes += 1
-                continue
-            credit = set(entry.get("credit_tools") or [])
-            if "gitgalaxy" in g.agreeing_tools and "gitgalaxy" in credit:
-                tp, fp = tp + g.total_occurrences, fp - g.total_occurrences
-            elif "tree_sitter" in g.agreeing_tools and "tree_sitter" not in credit:
-                fn -= g.total_occurrences
-        out[lang] = {
-            "precision_pct": round(100.0 * tp / (tp + fp), 1) if tp + fp else None,
-            "recall_pct": round(100.0 * tp / (tp + fn), 1) if tp + fn else None,
-            "open_occurrences": open_n,
-            "open_shapes": open_shapes,
-        }
-    return out
-
-
-def merge_ledger(results: dict[str, dict[str, Any]], ledger_path: Path = LEDGER) -> None:
-    sys.path.insert(0, str(TOOLS))
-    import tri_comparison_ledger as tl
-
-    for lang, groups in shape_groups(results).items():
-        tl.merge_and_save(lang, groups, ledger_path)
+    return gl.validated(results, "call", COUNTS, ledger_path)
 
 
 def render(results: dict[str, dict[str, Any]]) -> str:
@@ -472,22 +392,6 @@ def render(results: dict[str, dict[str, Any]]) -> str:
             f"| {lang} | {r['matched_functions']} | {r['precision_pct']}% | {r['recall_pct']}% | "
             f"{r['tp']} | {r['fp']} | {r['fn']} |"
         )
-    return "\n".join(lines)
-
-
-def render_validated(results: dict[str, dict[str, Any]], v: dict[str, dict[str, Any]]) -> str:
-    lines = [
-        "| language | raw precision | raw recall | validated precision | validated recall | open shapes | open |",
-        "|---|---|---|---|---|---|---|",
-    ]
-    for lang, r in results.items():
-        x = v.get(lang, {})
-        star = "*" if x.get("open_shapes") else ""
-        lines.append(
-            f"| {lang} | {r['precision_pct']}% | {r['recall_pct']}% | {x.get('precision_pct')}%{star} | "
-            f"{x.get('recall_pct')}%{star} | {x.get('open_shapes', 0)} | {x.get('open_occurrences', 0)} |"
-        )
-    lines.append("\n`*` = a shape in this language has no verdict yet; the number is not a claim.")
     return "\n".join(lines)
 
 
@@ -518,15 +422,15 @@ def main(argv: list[str] | None = None) -> int:
     if not (CRUCIBLE / "data").is_dir():
         print(f"call_graph_accuracy: no crucible at {CRUCIBLE} (set LANGUAGE_CRUCIBLE_PATH)")
         return 2
-    buckets = max(a.buckets, LEDGER_EXAMPLES) if a.ledger else a.buckets
+    buckets = max(a.buckets, gl.LEDGER_EXAMPLES) if a.ledger else a.buckets
     results = measure(CRUCIBLE, a.samples, buckets)
     print(render(results))
     if buckets:
-        print(render_causes(results))
+        print(gl.render_causes(results, COUNTS))
         if a.ledger:
-            merge_ledger(results)
+            gl.merge(results, "call")
             print(f"\ncall_graph_accuracy: shapes merged into {LEDGER.relative_to(REPO_ROOT)}")
-        print("\n" + render_validated(results, validated(results)))
+        print("\n" + gl.render_validated(results, validated(results)))
     if a.samples:
         for lang, r in results.items():
             print(f"\n{lang}  FP: {r['top_fp']}\n{' ' * len(lang)}  FN: {r['top_fn']}")

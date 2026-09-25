@@ -912,6 +912,36 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "c/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "c",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "libuv/include/uv/darwin.h",
+          "name": "libuv/include/uv/darwin.h -> test/task.h",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "cpp/call/call_expression/compound_literal_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -2508,6 +2538,36 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "cpp/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "cpp",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "fmt/include/fmt/chrono.h",
+          "name": "fmt/include/fmt/chrono.h -> include/fmt/ostream.h",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "csharp/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -2909,6 +2969,70 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": null
+    },
+    "dart/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": "2026-09-25T18:15:04Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3641)",
+      "language": "dart",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 35,
+      "last_seen_examples": [
+        {
+          "file_path": "http/pkgs/flutter_http_example/lib/main.dart",
+          "name": "http/pkgs/flutter_http_example/lib/main.dart -> pkgs/flutter_http_example/lib/http_client_factory_web.dart",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "http/pkgs/http/lib/src/client.dart",
+          "name": "http/pkgs/http/lib/src/client.dart -> pkgs/http/lib/src/browser_client.dart",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "http/pkgs/http/lib/src/client.dart",
+          "name": "http/pkgs/http/lib/src/client.dart -> pkgs/http/lib/src/io_client.dart",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "http/pkgs/http/lib/src/multipart_file.dart",
+          "name": "http/pkgs/http/lib/src/multipart_file.dart -> pkgs/http/lib/src/multipart_file_io.dart",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "http/pkgs/http_client_conformance_tests/lib/src/abort_tests.dart",
+          "name": "http/pkgs/http_client_conformance_tests/lib/src/abort_tests.dart -> pkgs/http_client_conformance_tests/lib/src/abort_server_web.dart",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "GitGalaxy missed them: every occurrence is an alternative of a conditional import (`import 'client_stub.dart' if (dart.library.io) 'io_client.dart'`, http/lib/src/client.dart:14) -- the repo has exactly 35 `if (dart.` alternatives; only the first URI is captured. Engine defect #3648."
     },
     "go/call/call_expression/func_literal+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -3414,6 +3538,66 @@
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "call",
+      "verdict": null
+    },
+    "go/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "go",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "cobra/doc/man_examples_test.go",
+          "name": "cobra/doc/man_examples_test.go -> doc/cmd_test.go (+8)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "go/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "go",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "cobra/cobra_test.go",
+          "name": "cobra/cobra_test.go -> cobra.go",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
       "verdict": null
     },
     "java/call/inner-named-method_declaration/agree[gitgalaxy]_vs[tree_sitter]": {
@@ -4332,6 +4516,240 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "kotlin/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": "2026-09-25T18:15:04Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3641)",
+      "language": "kotlin",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 17,
+      "last_seen_examples": [
+        {
+          "file_path": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt",
+          "name": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt -> interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/specs/KmTypes.kt",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt",
+          "name": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt -> interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/specs/KmTypes.kt",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt",
+          "name": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt -> interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/specs/KmTypes.kt",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt",
+          "name": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ElementsClassInspector.kt -> interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/util.kt",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ReflectiveClassInspector.kt",
+          "name": "kotlinpoet/interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/classinspectors/ReflectiveClassInspector.kt -> interop/kotlin-metadata/src/main/kotlin/com/squareup/kotlinpoet/metadata/specs/KmTypes.kt",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "declaration-unresolved",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "GitGalaxy missed them: the imports name extension PROPERTIES (`internal val KmConstructor.isPrimary`, metadata/util.kt; KmTypes.kt) -- declared-name resolution (#3596) indexes functions and classes only. Engine defect #3648."
+    },
+    "kotlin/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "kotlin",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "kotlinpoet/interop/ksp/test-processor/src/main/kotlin/com/squareup/kotlinpoet/ksp/test/processor/TestProcessor.kt",
+          "name": "kotlinpoet/interop/ksp/test-processor/src/main/kotlin/com/squareup/kotlinpoet/ksp/test/processor/TestProcessor.kt -> interop/ksp/src/main/kotlin/com/squareup/kotlinpoet/ksp/Modifiers.kt (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "lua/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "luarocks/binary/all_in_one",
+          "name": "luarocks/binary/all_in_one -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "luarocks/src/bin/luarocks",
+          "name": "luarocks/src/bin/luarocks -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "luarocks/src/bin/luarocks-admin",
+          "name": "luarocks/src/bin/luarocks-admin -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "objective-c/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [
+        "tree_sitter"
+      ],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": "2026-09-25T18:15:04Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3641)",
+      "language": "objective-c",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 18,
+      "last_seen_examples": [
+        {
+          "file_path": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h",
+          "name": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h -> SDWebImage/Core/SDWebImageCompat.h (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h",
+          "name": "SDWebImage/SDWebImage/Private/NSBezierPath+SDRoundedCorners.h -> SDWebImage/Core/UIImage+Transform.h (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.h",
+          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.h -> SDWebImage/Core/SDWebImageCompat.h (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m",
+          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m -> SDWebImage/Core/UIImage+ExtendedCacheData.h (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m",
+          "name": "SDWebImage/SDWebImage/Private/SDAssociatedObject.m -> SDWebImage/Core/UIImage+ForceDecode.h (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "GitGalaxy missed them: the two-file truth sets are one file -- SDWebImage/include/SDWebImage/*.h are symlinks to SDWebImage/Core/*.h; the resolver counts the symlink as a second candidate, calls the import ambiguous and draws no edge. Engine defect #3648."
+    },
+    "perl/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "perl",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "HTTP-Message/lib/HTTP/Config.pm",
+          "name": "HTTP-Message/lib/HTTP/Config.pm -> lib/HTTP/Request.pm",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "php/call/engine-attributes-to-another-function/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -5144,6 +5562,52 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "php/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "php",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "guzzle/tests/BodySummarizerTest.php",
+          "name": "guzzle/tests/BodySummarizerTest.php -> src/Utils.php",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "guzzle/tests/Handler/EncodedBodyStreamTest.php",
+          "name": "guzzle/tests/Handler/EncodedBodyStreamTest.php -> src/Utils.php",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "guzzle/tests/HttplugIntegrationTest.php",
+          "name": "guzzle/tests/HttplugIntegrationTest.php -> src/ClientInterface.php",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "python/call/call/attribute/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -5676,6 +6140,66 @@
       "symbol_type": "call",
       "verdict": null
     },
+    "python/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "python",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "flask/examples/javascript/js_example/__init__.py",
+          "name": "flask/examples/javascript/js_example/__init__.py -> examples/javascript/js_example/views.py",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "python/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "python",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "fastapi/tests/test_tutorial/test_generate_clients/test_tutorial004.py",
+          "name": "fastapi/tests/test_tutorial/test_generate_clients/test_tutorial004.py -> docs_src/generate_clients/tutorial004_py310.py",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
     "ruby/call/call/identifier/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
@@ -5861,6 +6385,66 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": "GitGalaxy wrong: generator.rb -- `correct`/`unescape`/`first` are called in check_fragment_identifiers but listed on the preceding extract_anchors; its span runs past its `end` (regex literal with an unbalanced quote). Engine defect #3646."
+    },
+    "ruby/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "ruby",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "rack/test/cgi/rackup_stub.rb",
+          "name": "rack/test/cgi/rackup_stub.rb -> lib/rack.rb",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "ruby/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "ruby",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "rack/Rakefile",
+          "name": "rack/Rakefile -> rack.gemspec",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
     },
     "rust/call/call_expression/generic_function+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -7281,6 +7865,382 @@
       "still_reproduces": true,
       "symbol_type": "call",
       "verdict": null
+    },
+    "scala/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 68,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala -> modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/NumberParsingBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/NumberParsingBenchmark.scala -> modules/jawn/shared/src/main/scala/io/circe/jawn/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala",
+          "name": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala",
+          "name": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "capture-missed",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "scala/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 9,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PointerBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PointerBenchmark.scala -> modules/core/shared/src/main/scala/io/circe/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/PrintingBenchmarkSpec.scala",
+          "name": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/PrintingBenchmarkSpec.scala -> modules/jawn/shared/src/main/scala/io/circe/jawn/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/generic/shared/src/main/scala-3/io/circe/generic/auto.scala",
+          "name": "circe/modules/generic/shared/src/main/scala-3/io/circe/generic/auto.scala -> modules/core/shared/src/main/scala/io/circe/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/AutoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/AutoDerivedSuite.scala -> modules/generic/shared/src/test/scala-2/io/circe/generic/AutoDerivedSuite.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala -> modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "declaration-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "scala/import/same-name-other-path/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala",
+          "name": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala -> modules/tests/shared/src/main/scala/io/circe/tests/examples/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "same-name-other-path",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "scala/import/target-is-test-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/tests/jvm/src/test/scala/io/circe/jawn/JawnParserSuite.scala",
+          "name": "circe/modules/tests/jvm/src/test/scala/io/circe/jawn/JawnParserSuite.scala -> modules/tests/shared/src/main/resources/io/circe/tests/examples/glossary.json",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-is-test-file",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "scala/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/literal/src/test/scala/io/circe/literal/interpolator/JsonInterpolatorSuite.scala",
+          "name": "circe/modules/literal/src/test/scala/io/circe/literal/interpolator/JsonInterpolatorSuite.scala -> modules/jawn/shared/src/main/scala/io/circe/jawn/JawnParser.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "target-not-imported",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "scala/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 410,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala -> modules/generic/shared/src/main/scala-2/io/circe/generic/semiauto.scala (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/GenericDerivationBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/GenericDerivationBenchmark.scala -> modules/generic/shared/src/main/scala-2/io/circe/generic/semiauto.scala (+1)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/JsonObjectEqualityBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/JsonObjectEqualityBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/AtBenchmark.scala (+9)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PrintingBenchmark.scala",
+          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PrintingBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/AtBenchmark.scala (+9)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/FoldingBenchmarkSpec.scala",
+          "name": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/FoldingBenchmarkSpec.scala -> modules/benchmark/src/test/scala-2/io/circe/benchmark/GenericDerivationBenchmarkSpec.scala (+6)",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-names-several-files",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "solidity/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "solidity",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 2,
+      "last_seen_examples": [
+        {
+          "file_path": "openzeppelin-contracts/scripts/upgradeable/alias/Initializable.sol",
+          "name": "openzeppelin-contracts/scripts/upgradeable/alias/Initializable.sol -> contracts/proxy/utils/Initializable.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "openzeppelin-contracts/scripts/upgradeable/alias/UUPSUpgradeable.sol",
+          "name": "openzeppelin-contracts/scripts/upgradeable/alias/UUPSUpgradeable.sol -> contracts/proxy/utils/UUPSUpgradeable.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "token-unresolved",
+      "status": "unvalidated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "solidity/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:14:38Z",
+      "investigated_at": "2026-09-25T18:15:04Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3641)",
+      "language": "solidity",
+      "last_reconciled_at": "2026-09-25T18:17:42Z",
+      "last_seen_count": 24,
+      "last_seen_examples": [
+        {
+          "file_path": "openzeppelin-contracts/fv/harnesses/AccessControlDefaultAdminRulesHarness.sol",
+          "name": "openzeppelin-contracts/fv/harnesses/AccessControlDefaultAdminRulesHarness.sol -> contracts/access/extensions/AccessControlDefaultAdminRules.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "openzeppelin-contracts/fv/harnesses/AccessControlHarness.sol",
+          "name": "openzeppelin-contracts/fv/harnesses/AccessControlHarness.sol -> contracts/access/AccessControl.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "openzeppelin-contracts/fv/harnesses/AccessManagedHarness.sol",
+          "name": "openzeppelin-contracts/fv/harnesses/AccessManagedHarness.sol -> contracts/access/manager/AccessManaged.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "openzeppelin-contracts/fv/harnesses/AccessManagedHarness.sol",
+          "name": "openzeppelin-contracts/fv/harnesses/AccessManagedHarness.sol -> contracts/access/manager/IAccessManager.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "openzeppelin-contracts/fv/harnesses/AccessManagerHarness.sol",
+          "name": "openzeppelin-contracts/fv/harnesses/AccessManagerHarness.sol -> contracts/access/manager/AccessManager.sol",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "GitGalaxy wrong: fv/harnesses/*.sol import `../patched/...sol`, a build-generated directory absent from the repo; the parser rightly resolves nothing, the engine falls back to the same-named contracts/... file the import does not name. Engine defect #3648."
     },
     "typescript/call/call_expression/call_expression+generic/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

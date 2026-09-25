@@ -19,10 +19,16 @@ on:
     paths:
       - "gitgalaxy/core/detector.py"
       - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/core/network_risk_sensor.py"
+      - "gitgalaxy/galaxyscope.py"
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/call_graph_accuracy.py"
+      - "tests/tools/import_graph_accuracy.py"
+      - "tests/tools/graph_ledger.py"
       - "tests/tools/tri_comparison_ledger.py"
       - "tests/call_graph_accuracy_baseline.json"
+      - "tests/import_graph_accuracy_baseline.json"
+      - "tests/import_graph_corpus.json"
 
 permissions:
   contents: read
@@ -38,7 +44,7 @@ jobs:
     if: |
       !startsWith(github.event.head_commit.message, 'docs: auto-update graph comparison data')
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
@@ -77,12 +83,22 @@ jobs:
           fi
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
-      - name: Refresh the graph comparison ledger
+      - name: Refresh the graph comparison ledger (calls)
         env:
           GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/call_graph_accuracy.py --ledger
+
+      # Same pinned repos as graph-accuracy-audit.yml. Each tool refreshes only its own
+      # symbol type's shapes (graph_ledger.merge), so the two steps never stale each other.
+      - name: Refresh the graph comparison ledger (imports)
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
+        run: |
+          cd gitgalaxy
+          python tests/tools/import_graph_accuracy.py --fetch --ledger
 
       - name: Open PR with the refreshed ledger
         id: graph-comparison-history-pr
@@ -94,10 +110,10 @@ jobs:
           title: "docs: auto-update graph comparison data"
           body: |
             Automated refresh of `docs/self_scan/graph_comparison_ledger.json` from the latest
-            call-graph measurement on `main` (#3641): last_seen_count / last_seen_examples /
+            call- and import-graph measurements on `main` (#3641): last_seen_count / last_seen_examples /
             still_reproduces on existing shapes, and new `unvalidated` entries for newly-observed
             shapes. Never touches a validated entry's `status` / `verdict` / `credit_tools`, nor
-            `tests/call_graph_accuracy_baseline.json`.
+            the raw baselines.
           branch: auto/graph-comparison-history
           delete-branch: true
           add-paths: |

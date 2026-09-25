@@ -14,7 +14,7 @@ import tree_sitter_accuracy_audit as audit
 
 
 def _calls(lang, src):
-    return {name: calls for name, _, calls in cga.ts_functions(src.encode(), lang, audit)}
+    return {name: calls for name, _, calls, _node in cga.ts_functions(src.encode(), lang, audit)}
 
 
 def test_python_callees_rightmost_and_nested_attribution():
@@ -34,8 +34,17 @@ def test_java_constructor_and_method():
 
 def test_pairing_drops_recursion_and_needs_nearby_lines():
     gg = [("run", 1, ["run", "save"]), ("far", 50, ["x"])]
-    ts = [("run", 2, {"run", "save", "load"}), ("far", 10, {"x"})]
-    assert cga._pair(gg, ts) == [("run", {"save"}, {"save", "load"})]
+    ts = [("run", 2, {"run", "save", "load"}, "run-node"), ("far", 10, {"x"}, "far-node")]
+    assert cga._pair(gg, ts) == [("run", {"save"}, {"save", "load"}, "run-node")]
+
+
+def test_cause_labels_inner_function_calls_and_non_calls():
+    """--buckets: a call tree-sitter gives to an inner function, and a name that is no call."""
+    src = b"def outer(x):\n    def inner():\n        save(x)\n    return inner\n"
+    fns = {n: node for n, _, _, node in cga.ts_functions(src, "python", audit)}
+    assert cga._cause("fp", "save", fns["outer"], "python", audit, False)[0] == ("fp:inner-named-function_definition")
+    assert cga._cause("fp", "x", fns["outer"], "python", audit, False)[0].startswith("fp:not-a-call-in-ts:")
+    assert cga._cause("fp", "nowhere", fns["outer"], "python", audit, False)[0] == "fp:outside-ts-function"
 
 
 def test_regressions_respect_the_tolerance():

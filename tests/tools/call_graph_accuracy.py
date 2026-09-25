@@ -27,6 +27,7 @@ WHAT IS COMPARED
 
     python tests/tools/call_graph_accuracy.py                # report
     python tests/tools/call_graph_accuracy.py --samples 8    # + top FP/FN names
+    python tests/tools/call_graph_accuracy.py --buckets 3    # + FP/FN by CAUSE, 3 examples each
     python tests/tools/call_graph_accuracy.py --ci           # gate vs the baseline
     python tests/tools/call_graph_accuracy.py --regenerate   # rewrite the baseline
 """
@@ -122,15 +123,19 @@ def _callee(node: Any) -> str | None:
     return None
 
 
-def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, set[str]]]:
-    """(name, start_line, callee names) for every function tree-sitter finds."""
+_KEEP_TREE: list[Any] = [None]
+
+
+def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, set[str], Any]]:
+    """(name, start_line, callee names, node) for every function tree-sitter finds."""
     import tree_sitter_language_pack
 
     spec = audit.NODE_MAPS[lang]
     tree = tree_sitter_language_pack.get_parser(spec["ts_lang"]).parse(source)
+    _KEEP_TREE[0] = tree  # the returned nodes are only valid while their tree lives
     func_types = spec["func_node_types"]
     non_calls = CONTRACT_NON_CALLS.get(lang, frozenset())
-    out: list[tuple[str, int, set[str]]] = []
+    out: list[tuple[str, int, set[str], Any]] = []
     stack: list[tuple[Any, list[set[str]]]] = [(tree.root_node, [])]
     # iterative walk; `owners` is the chain of enclosing function call-sets
     while stack:
@@ -139,7 +144,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
             name = audit._get_node_name(node)
             calls: set[str] = set()
             if name:
-                out.append((name, node.start_point[0] + 1, calls))
+                out.append((name, node.start_point[0] + 1, calls, node))
             owners = [*owners, calls]
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
@@ -188,12 +193,12 @@ def engine_functions(crucible: Path) -> dict[tuple[str, str], list[tuple[str, in
 
 
 def _pair(
-    gg: list[tuple[str, int, list[str]]], ts: list[tuple[str, int, set[str]]]
-) -> list[tuple[str, set[str], set[str]]]:
+    gg: list[tuple[str, int, list[str]]], ts: list[tuple[str, int, set[str], Any]]
+) -> list[tuple[str, set[str], set[str], Any]]:
     """Match functions by name, then nearest start line within the slack."""
-    by_name: dict[str, list[tuple[int, set[str]]]] = collections.defaultdict(list)
-    for name, line, calls in ts:
-        by_name[name].append((line, calls))
+    by_name: dict[str, list[tuple[int, set[str], Any]]] = collections.defaultdict(list)
+    for name, line, calls, node in ts:
+        by_name[name].append((line, calls, node))
     pairs = []
     for name, line, calls in gg:
         cands = by_name.get(name)
@@ -202,12 +207,80 @@ def _pair(
         i = min(range(len(cands)), key=lambda k: abs(cands[k][0] - line))
         if abs(cands[i][0] - line) > _LINE_SLACK:
             continue
-        _, ts_calls = cands.pop(i)
-        pairs.append((name, set(calls) - {name}, set(ts_calls) - {name}))
+        _, ts_calls, node = cands.pop(i)
+        pairs.append((name, set(calls) - {name}, set(ts_calls) - {name}, node))
     return pairs
 
 
-def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
+# ----------------------------------------------------------------------------- disagreement causes
+
+
+def _walk(node: Any):
+    stack = [node]
+    while stack:
+        n = stack.pop()
+        yield n
+        stack.extend(reversed(n.children))
+
+
+def _owner(node: Any, func_types: frozenset[str], top: Any) -> Any:
+    """The innermost function node enclosing `node`, stopping at `top`."""
+    p = node.parent
+    while p is not None and p.id != top.id:
+        if p.type in func_types:
+            return p
+        p = p.parent
+    return top
+
+
+def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewhere: bool) -> tuple[str, Any]:
+    """Why one side has `callee` in `fn` and the other does not, as a shape label.
+
+    `kind` is "fp" (engine only) or "fn" (tree-sitter only). Returns the label and
+    the node that exemplifies it (None when the name has no node in the function).
+    The labels are leads for a person to verify, not verdicts (CLAUDE.md's
+    comparative-correctness rule): a `ts-...` label says the ground truth side
+    may be the one that is wrong.
+    """
+    func_types = frozenset(audit.NODE_MAPS[lang]["func_node_types"])
+    calls = [n for n in _walk(fn) if n.type in CALL_NODE_TYPES and _callee(n) == callee]
+    if kind == "fp":
+        if callee in CONTRACT_NON_CALLS.get(lang, ()):
+            return "fp:contract-non-call", None
+        for n in calls:  # tree-sitter sees the call, but gives it to an inner function
+            inner = _owner(n, func_types, fn)
+            if inner.id != fn.id:
+                named = bool(audit._get_node_name(inner))
+                return (f"fp:inner-{'named' if named else 'anonymous'}-{inner.type}", n)
+        ids = [n for n in _walk(fn) if n.text == callee.encode() and not n.children]
+        if ids:
+            parent = ids[0].parent
+            grand = parent.parent if parent is not None else None
+            shape = f"{parent.type if parent else '?'}<{grand.type if grand else '?'}"
+            return f"fp:not-a-call-in-ts:{shape}", ids[0]
+        return "fp:outside-ts-function", None
+    if engine_elsewhere:
+        return "fn:engine-attributes-to-another-function", calls[0] if calls else None
+    if not calls:
+        return "fn:?", None
+    n = calls[0]
+    field = next((n.child_by_field_name(f) for f in _CALLEE_FIELDS if n.child_by_field_name(f) is not None), None)
+    shape = f"{n.type}/{field.type if field is not None else '-'}"
+    text = (field.text if field is not None else n.text).decode("utf-8", "replace")
+    flags = "".join(
+        f for f, hit in (("+generic", "<" in text), ("+bang", callee.endswith("!") or "!" in text[-2:])) if hit
+    )
+    return f"fn:{shape}{flags}", n
+
+
+def _example(src: bytes, path: str, node: Any) -> str:
+    if node is None:
+        return path
+    line = src.splitlines()[node.start_point[0]].decode("utf-8", "replace").strip()
+    return f"{path}:{node.start_point[0] + 1}: {line[:110]}"
+
+
+def measure(crucible: Path, samples: int = 0, buckets: int = 0) -> dict[str, dict[str, Any]]:
     sys.path.insert(0, str(TOOLS))
     import tree_sitter_accuracy_audit as audit
 
@@ -217,6 +290,8 @@ def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
         tp = fp = fn = funcs = parse_failures = 0
         fps: collections.Counter[str] = collections.Counter()
         fns: collections.Counter[str] = collections.Counter()
+        causes: collections.Counter[str] = collections.Counter()
+        examples: dict[str, list[str]] = collections.defaultdict(list)
         for (elang, path), gg in sorted(engine.items()):
             if elang != lang:
                 continue
@@ -228,13 +303,23 @@ def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
             except Exception:  # a parse failure is tree_sitter_accuracy_audit's to report
                 parse_failures += 1
                 continue
-            for _, mine, theirs in _pair(gg, ts):
+            source = src.read_bytes() if buckets else b""
+            engine_names = {c for _, _, calls in gg for c in calls}
+            for _, mine, theirs, node in _pair(gg, ts):
                 funcs += 1
                 tp += len(mine & theirs)
                 fp += len(mine - theirs)
                 fn += len(theirs - mine)
                 fps.update(mine - theirs)
                 fns.update(theirs - mine)
+                if not buckets:
+                    continue
+                for kind, names in (("fp", mine - theirs), ("fn", theirs - mine)):
+                    for callee in names:
+                        label, ex = _cause(kind, callee, node, lang, audit, callee in engine_names)
+                        causes[label] += 1
+                        if len(examples[label]) < buckets:
+                            examples[label].append(f"[{callee}] " + _example(source, path, ex))
         if not funcs:
             continue
         results[lang] = {
@@ -249,7 +334,26 @@ def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
         if samples:
             results[lang]["top_fp"] = fps.most_common(samples)
             results[lang]["top_fn"] = fns.most_common(samples)
+        if buckets:
+            results[lang]["top_causes"] = [
+                {"cause": c, "count": k, "examples": examples[c]} for c, k in causes.most_common()
+            ]
     return results
+
+
+def render_causes(results: dict[str, dict[str, Any]], limit: int = 12) -> str:
+    """Per language, each disagreement cause with its share of that side (FP or FN)."""
+    out = []
+    for lang, r in results.items():
+        if "top_causes" not in r:
+            continue
+        out.append(f"\n### {lang}  (FP {r['fp']}, FN {r['fn']})")
+        for c in r["top_causes"][:limit]:
+            side = r["fp"] if c["cause"].startswith("fp:") else r["fn"]
+            share = f"{100 * c['count'] / side:.0f}%" if side else "-"
+            out.append(f"- {c['cause']}: {c['count']} ({share})")
+            out.extend(f"    {e}" for e in c["examples"])
+    return "\n".join(out)
 
 
 def render(results: dict[str, dict[str, Any]]) -> str:
@@ -280,6 +384,7 @@ def regressions(results: dict[str, dict[str, Any]], baseline: dict[str, dict[str
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--samples", type=int, default=0, help="print the N most frequent FP/FN names per language")
+    ap.add_argument("--buckets", type=int, default=0, help="classify every FP/FN by cause, N examples each")
     ap.add_argument("--ci", action="store_true", help="fail on a drop beyond the baseline tolerance")
     ap.add_argument("--regenerate", action="store_true", help="rewrite the committed baseline")
     ap.add_argument("--json", metavar="PATH")
@@ -287,8 +392,10 @@ def main(argv: list[str] | None = None) -> int:
     if not (CRUCIBLE / "data").is_dir():
         print(f"call_graph_accuracy: no crucible at {CRUCIBLE} (set LANGUAGE_CRUCIBLE_PATH)")
         return 2
-    results = measure(CRUCIBLE, a.samples)
+    results = measure(CRUCIBLE, a.samples, a.buckets)
     print(render(results))
+    if a.buckets:
+        print(render_causes(results))
     if a.samples:
         for lang, r in results.items():
             print(f"\n{lang}  FP: {r['top_fp']}\n{' ' * len(lang)}  FN: {r['top_fn']}")

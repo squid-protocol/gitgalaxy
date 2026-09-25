@@ -57,6 +57,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     java_class_base,
     output_key,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
 )
@@ -144,7 +145,11 @@ public class {camel_name}Service {{
 
 
 def _write_skeleton_audit(
-    f, skeletons: dict, cics: Optional[CicsForge] = None, calls: Optional[CallForge] = None
+    f,
+    skeletons: dict,
+    cics: Optional[CicsForge] = None,
+    calls: Optional[CallForge] = None,
+    repos: Optional[RepositoryForge] = None,
 ) -> None:
     """#3614: which engine facts the generated project was built against, and how far each is proven."""
     fields: dict[str, dict] = {}
@@ -181,6 +186,14 @@ def _write_skeleton_audit(
             f"  • Service calls (#3616)    : {link} LINK, {xctl} XCTL, {call} CALL, {dispatch} data-driven dispatch, "
             f"{remote} remote; {len(calls.clients)} remote-region clients\n"
         )
+    if repos is not None:
+        f.write(
+            f"  • VSAM stores (#3617)      : {len(repos.stores)} entities + repositories "
+            f"({sum(1 for st in repos.stores if st.key is not None)} keyed by one field); "
+            f"{len(repos.unmapped)} not generated\n"
+        )
+        for label, why in repos.unmapped:
+            f.write(f"      - {label}: {why}\n")
     f.write("\n")
 
 
@@ -323,11 +336,24 @@ def main():
     skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
     # #3615: CICS programs get endpoints per entry transaction and COMMAREA / channel DTOs;
     # #3616: every program's LINK / XCTL / CALL targets become service-to-service calls.
-    cics = calls = None
+    cics = calls = repos = None
     if skeletons and target.features.services:
         loaded = load_skeletons(skeleton_dir)
         cics = CicsForge(loaded, args.pkg, target)
         calls = CallForge(loaded, cics, args.pkg, target)
+        estate_file = skeleton_dir / "estate.json"
+        estate = json.loads(estate_file.read_text(encoding="utf-8")) if estate_file.is_file() else {}
+        repos = RepositoryForge(estate, loaded, args.pkg, target)  # #3617: VSAM stores -> repositories
+        for sub, sources in (
+            (("entity", "vsam"), {st.entity: repos.entity_source(st) for st in repos.stores}),
+            (("entity", "vsam"), {st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite}),
+            (("repository", "vsam"), {st.repository: repos.repository_source(st) for st in repos.stores}),
+        ):
+            out_dir = java_dirs[sub[0]] / sub[1]
+            for name, code in sources.items():
+                out_dir.mkdir(parents=True, exist_ok=True)
+                (out_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
+        stats["entities"] += len(repos.stores)
         contract_dir = java_dirs["dto"] / "contract"
         contract_dir.mkdir(parents=True, exist_ok=True)
         for name, code in cics.dto_sources().items():
@@ -373,6 +399,7 @@ def main():
                     extras = merge_extras(
                         cics.service_extras(cics_prog) if cics_prog is not None else None,
                         calls.service_extras(skeleton_key) if calls is not None and skeleton_key else None,
+                        repos.service_extras(skeleton_key) if repos is not None and skeleton_key else None,
                     )
                     service_code = generate_service_skeleton(
                         ir_state, args.pkg, unit_key=raw_prog_id, target=target, extras=extras
@@ -485,7 +512,7 @@ def main():
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
         if skeletons:
-            _write_skeleton_audit(f, skeletons, cics, calls)
+            _write_skeleton_audit(f, skeletons, cics, calls, repos)
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

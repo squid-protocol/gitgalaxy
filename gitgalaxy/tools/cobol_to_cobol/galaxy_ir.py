@@ -2785,6 +2785,218 @@ class GalaxyIR:
                 )
         return out
 
+    def vsam_stores(self) -> list:
+        """Every VSAM data store as one unit, CICS and batch together (#3617).
+
+        A store is a base cluster. Its IDCAMS DEFINE CLUSTER gives `organization`,
+        `key_offset` / `key_length` and `record_max`, with `defined_in` / `line`;
+        None when the repository holds no DEFINE (`defined` False). Its
+        `alternate_indexes` are each AIX RELATEd to it: `aix`, `paths` (PATH
+        names), key offset / length and `unique`. Its `cics_files` are the CSD
+        FILE definitions whose DSNAME is the cluster or one of its paths (`via`
+        names the path). Its `users` are the programs that touch it:
+          - `cics`: `program`, `name` (the CICS file), `via` (the AIX path, or
+            None), `verbs`, `lines`, `records` (each INTO / FROM area: `record`,
+            `file`, `layout`) and `ridflds` (each RIDFLD with its `offset` /
+            `length` in the program's record, None when not a field of it);
+          - `batch`: `program`, `name` (the SELECT), `dd`, `access_mode`,
+            `modes` (OPEN modes from the JCL lineage), `record_key` with its
+            `key_offset` / `key_length`, `alternate_keys`, and the FD record
+            (`records`, as above).
+        A CICS file with no CSD DSNAME in the repository is its own store,
+        `dataset` None and `name` the CICS file. Facts only: a key or layout
+        that is not known is None, never guessed.
+        """
+        defines: dict[str, list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for d in f.vsam_defines:
+                if d.name:
+                    defines.setdefault(d.name.upper(), []).append((d, f.file_path))
+
+        def first(name: str, kind: str):
+            return next(((d, w) for d, w in defines.get(name.upper(), []) if d.kind == kind), (None, None))
+
+        def base_of(dsn: str) -> tuple[str, Optional[str]]:
+            """(base cluster, the path it is opened through) for a dataset name."""
+            dsn = dsn.upper()
+            path, _ = first(dsn, "PATH")
+            if path is not None and path.related:
+                aix, _ = first(path.related, "AIX")
+                return ((aix.related or path.related).upper() if aix else path.related.upper()), dsn
+            aix, _ = first(dsn, "AIX")
+            if aix is not None and aix.related:
+                return aix.related.upper(), dsn
+            return dsn, None
+
+        stores: dict[str, dict] = {}
+
+        def store(key: str, dataset: Optional[str], name: Optional[str] = None) -> dict:
+            if key not in stores:
+                cluster, where = first(dataset, "CLUSTER") if dataset else (None, None)
+                stores[key] = {
+                    "dataset": dataset,
+                    "name": name,
+                    "defined": cluster is not None,
+                    "organization": cluster.organization if cluster else None,
+                    "key_offset": cluster.key_offset if cluster else None,
+                    "key_length": cluster.key_length if cluster else None,
+                    "record_max": cluster.record_max if cluster else None,
+                    "defined_in": where,
+                    "line": cluster.line if cluster else None,
+                    "alternate_indexes": [],
+                    "cics_files": [],
+                    "users": [],
+                }
+            return stores[key]
+
+        for name, entries in sorted(defines.items()):
+            for d, _where in entries:
+                if d.kind == "CLUSTER":
+                    store(name, name)
+        for name, entries in sorted(defines.items()):
+            for d, _where in entries:
+                if d.kind == "AIX" and d.related:
+                    paths = sorted(
+                        p
+                        for p, es in defines.items()
+                        for x, _ in es
+                        if x.kind == "PATH" and (x.related or "").upper() == name
+                    )
+                    store(d.related.upper(), d.related.upper())["alternate_indexes"].append(
+                        {
+                            "aix": name,
+                            "paths": paths,
+                            "key_offset": d.key_offset,
+                            "key_length": d.key_length,
+                            "unique": (d.unique_key or "").upper() == "UNIQUEKEY",
+                        }
+                    )
+
+        csd_files: dict[str, list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for r in f.csd_resources:
+                if r.resource_type == "FILE" and r.name:
+                    csd_files.setdefault(r.name.upper(), []).append((r, f.file_path))
+                    if r.dsname:
+                        base, via = base_of(r.dsname)
+                        store(base, base)["cics_files"].append(
+                            {
+                                "file": r.name.upper(),
+                                "dsname": r.dsname.upper(),
+                                "via": via,
+                                "group": r.group,
+                                "defined_in": f.file_path,
+                                "line": r.line,
+                            }
+                        )
+
+        def record_of(ef: EngineFile, name: Optional[str]) -> Optional[dict]:
+            item, _q = _operand_name(name)
+            found = self._find_item(ef, item, _q) if item else []
+            if not found:
+                return None
+            owner, it, extension = found[0]
+            layout = self.record_layout(owner, it, extension)
+            return {"record": it.name, "file": owner.file_path, "layout": layout}
+
+        # CICS: every EXEC CICS FILE command, per (program, file)
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            per: dict[str, dict] = {}
+            for op in f.cics_resources:
+                if op.kind != "FILE" or not op.name:
+                    continue
+                fname = op.name.upper()
+                u = per.setdefault(fname, {"verbs": set(), "lines": [], "records": {}, "ridflds": {}})
+                u["verbs"].add(op.verb)
+                u["lines"].append(op.line)
+                rec = record_of(f, op.record) if op.record else None
+                if rec:
+                    u["records"].setdefault((rec["file"], rec["record"]), rec)
+                m = re.search(r"\bRIDFLD\(([^)]*)\)", op.attributes or "")
+                if m:
+                    u["ridflds"].setdefault(m.group(1).strip().upper(), rec)
+            for fname, u in sorted(per.items()):
+                defs = [(r, w) for r, w in csd_files.get(fname, []) if r.dsname]
+                targets: list[tuple[Optional[str], Optional[str]]] = sorted({base_of(r.dsname) for r, _ in defs})
+                if not targets:
+                    targets = [(None, None)]
+                ridflds = []
+                for rid, rec in sorted(u["ridflds"].items()):
+                    offset, length = self._position_in(f, rid, (rec or {}).get("layout"))
+                    ridflds.append({"ridfld": rid, "offset": offset, "length": length})
+                for cluster, via in targets:
+                    store_key = cluster if cluster else f"CICS FILE {fname}"
+                    store(store_key, cluster, None if cluster else fname)["users"].append(
+                        {
+                            "kind": "cics",
+                            "program": f.file_path,
+                            "name": fname,
+                            "via": via,
+                            "verbs": sorted(u["verbs"]),
+                            "lines": sorted(u["lines"]),
+                            "records": list(u["records"].values()),
+                            "ridflds": ridflds,
+                        }
+                    )
+
+        # batch: every keyed SELECT, through the datasets the JCL binds its DD to
+        modes: dict[tuple[str, str], set] = {}
+        for e in self.dataset_lineage():
+            modes.setdefault((e["program"], (e["dd_name"] or "").upper()), set()).update(e["modes"] or [])
+        for v in self.vsam_files():
+            f = self.files[v["program"]]
+            fd = next((r for r in f.records if (r.fd_name or "").upper() == v["select"].upper()), None)
+            rec = None
+            if fd is not None:
+                rec = {"record": fd.name, "file": f.file_path, "layout": self.record_layout(f, fd)}
+            for ds in v["datasets"] or []:
+                base, via = base_of(ds)
+                store(base, base)["users"].append(
+                    {
+                        "kind": "batch",
+                        "program": v["program"],
+                        "name": v["select"],
+                        "via": via,
+                        "dd": v["dd"],
+                        "access_mode": v["access_mode"],
+                        "modes": sorted(modes.get((v["program"], (v["dd"] or "").upper()), set())),
+                        "record_key": v["record_key"],
+                        "key_offset": v["key_offset"],
+                        "key_length": v["key_length"],
+                        "alternate_keys": v["alternate_keys"],
+                        "records": [rec] if rec else [],
+                    }
+                )
+        return [stores[k] for k in sorted(stores)]
+
+    def _position_in(self, ef: EngineFile, operand: str, layout: Optional[dict]) -> tuple[Optional[int], Optional[int]]:
+        """(offset, length) of data item `operand` inside a record layout: an elementary
+        field by name, or a group whose own elementary fields appear, in order, as one
+        run of the record's (CBSA's RIDFLD CUSTOMER-KEY = SORTCODE + NUMBER). None
+        when the item is not part of that record."""
+        if not layout:
+            return None, None
+        fields = layout.get("fields", [])
+        name, qualifier = _operand_name(operand)
+        if not name:
+            return None, None
+        for fld in fields:
+            if (fld.get("name") or "").upper() == name.upper():
+                return fld["offset"], fld["bytes"]
+        found = self._find_item(ef, name, qualifier)
+        if not found:
+            return None, None
+        owner, item, extension = found[0]
+        sub = self.record_layout(owner, item, extension)
+        names = [(x.get("name") or "").upper() for x in sub.get("fields", [])]
+        if not names or sub.get("bytes") is None:
+            return None, None
+        rec_names = [(x.get("name") or "").upper() for x in fields]
+        for i in range(len(rec_names) - len(names) + 1):
+            if rec_names[i : i + len(names)] == names:
+                return fields[i]["offset"], sub["bytes"]
+        return None, None
+
     def _proc_steps(self, ef: EngineFile, proc: str) -> tuple[Optional[str], list]:
         """(defining file, STEP rows) of procedure `proc`: in-stream in `ef`, else the
         cataloged member of that name (a procedure member preferred)."""

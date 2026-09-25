@@ -17,6 +17,13 @@ Calls (#3616, `cobol_to_java_call_forge.py`):
 - Targets are injected as `ObjectProvider` because CICS screens XCTL in cycles.
 - A site passing a record other than the one the target receives gets a mapping TODO.
 
+VSAM (#3617, `cobol_to_java_repository_forge.py`):
+- `GalaxyIR.vsam_stores()` joins each base cluster: IDCAMS KEYS / RECORDSIZE / AIX / PATH, the CSD FILEs on it, the CICS users (verbs, INTO/FROM layouts, RIDFLD placed in the record, groups included via `_position_in`) and the batch users (SELECT, FD layout, OPEN modes).
+- It becomes one `entity.vsam` entity plus a `repository.vsam` repository. A group key becomes an `@EmbeddedId`. The layout is the one of RECORDSIZE, then the one whose fields carry the most keys.
+- Services get exactly the verbs (CICS) or OPEN modes (batch) each program uses.
+- A store used only by programs that are not converted (DSF's PL/I) is listed in the audit, not generated.
+- The installation-symbol DSNAMEs (`@BANK_PREFIX@`, `<USRHLQ>`) are NOT joined by guess to the CSD's concrete names.
+
 Program-ID lookups must go through `_program_index` / `_nearest_program` / `_program_file`. They skip CSD/BMS/JCL/DDL "program ids": the CSD deck used to shadow every program it DEFINEs.
 
 **Neither side is the oracle.** The answer key is.
@@ -113,6 +120,31 @@ Attribute every difference to one of the differential doc's four causes: old-par
 
 Update this table when an issue closes. The current scores live in the answer-key README, not here.
 
+## A new generator is a consumer audit (#3616 lesson)
+
+A generator that builds from a skeleton section is the first consumer that needs every
+attribute of that fact to be right. The answer keys check only what they compare. For
+example, the `dynamic call targets` key compares `L<line> VERB OPERAND -> PROGRAM`. The
+generator also needed `resolves_to`, which nothing checked: D022, 88 of 89 CardDemo
+candidates pointed at the CSD deck. So, for every join a new generator reads:
+
+1. **List the attributes it relies on**: the file links, layouts, keys, lengths and
+   modes that shape the Java, not just the ones it prints.
+2. **Check each against the key**: find what `cobol_answer_key.py` compares for that
+   ledger field. An attribute the key does not compare is unverified. Spot-check it on
+   the corpora, by diffing the join and reading the generated Java. If it matters, open
+   an issue to add it to the key.
+3. **Log what you find**: a wrong value is an engine defect. Log it in
+   `tests/cobol_mainframe/field_testing.json` (`found_by`: the generator; `severity:
+   attribute` when the keyed fact itself was right), fix it in the same PR, and diff
+   every IR join on the 6 corpora, main vs branch, to state the blast radius.
+4. **Say it in the PR**: an "attributes consumed" table, with each attribute marked
+   keyed / spot-checked / unverified.
+
+The compile matrix (`java_target_matrix.py --scan`) is the second check. Facts that
+contradict each other (two declarers, duplicate field names) fail compilation. A
+plausible but wrong fact compiles fine, which is why step 2 exists.
+
 ## Done means
 
 - `score` before → after in the PR description, for the column you moved and the column you didn't.
@@ -122,3 +154,4 @@ Update this table when an issue closes. The current scores live in the answer-ke
 - `tool_regex_redos.py --ci` passes, and any baseline entry you fixed is removed.
 - `docs/refraction_engine_differential.md` has an `## Update:` section if an attribution changed.
 - The ownership table above is still true.
+- A generator PR has its "attributes consumed" table (see the consumer audit above).

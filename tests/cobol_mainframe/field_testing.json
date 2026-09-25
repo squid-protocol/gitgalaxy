@@ -611,6 +611,10 @@
     "PL/I data moves": {
       "introduced": "#3542",
       "development_rounds": 6
+    },
+    "copybook layouts": {
+      "introduced": "#3602",
+      "development_rounds": 6
     }
   }
 }

@@ -63,6 +63,7 @@ counted in it (their fact counts are not recorded here).
 | PL/I record fields | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | TD trigger starts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | cics/sql | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
+| copybook layouts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 
 ## By round
 

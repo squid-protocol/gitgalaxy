@@ -12026,5 +12026,86 @@
     "files": 4,
     "keyed": 4,
     "seed": null
+  },
+  "copybook_layouts": {
+    "COPYBOOK/TRANREC.cpy": {
+      "units": [
+        "TRANSACTION-RECORD/TRAN-ACTION @21+8",
+        "TRANSACTION-RECORD/TRAN-CODE @0+6",
+        "TRANSACTION-RECORD/TRAN-FIELD-NAME @30+10",
+        "TRANSACTION-RECORD/TRAN-FIELD-SS @41+2",
+        "TRANSACTION-RECORD/TRAN-KEY @7+6",
+        "TRANSACTION-RECORD/TRAN-UPDATE-DATA @44+36"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "COPYLIB/DATETIME.cpy": {
+      "units": [
+        "SYSTEM-DATE-AND-TIME/CURRENT-DAY @4+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-HNDSEC @12+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-HOUR @6+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-MINUTE @8+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-MONTH @2+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-SECOND @10+2",
+        "SYSTEM-DATE-AND-TIME/CURRENT-YEAR @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "COPYLIB-MVS/REPTTOTL.cpy": {
+      "units": [
+        "REPORT-TOTALS/NUM-ADD-PROCESSED @15+5",
+        "REPORT-TOTALS/NUM-ADD-REQUESTS @10+5",
+        "REPORT-TOTALS/NUM-CRUNCH-PROCESSED @45+5",
+        "REPORT-TOTALS/NUM-CRUNCH-REQUESTS @40+5",
+        "REPORT-TOTALS/NUM-DELETE-PROCESSED @35+5",
+        "REPORT-TOTALS/NUM-DELETE-REQUESTS @30+5",
+        "REPORT-TOTALS/NUM-GEN-PROCESSED @65+5",
+        "REPORT-TOTALS/NUM-GEN-REQUESTS @60+5",
+        "REPORT-TOTALS/NUM-RPTALL-PROCESSED @55+5",
+        "REPORT-TOTALS/NUM-RPTALL-REQUESTS @50+5",
+        "REPORT-TOTALS/NUM-TRAN-ERRORS @5+5",
+        "REPORT-TOTALS/NUM-TRAN-RECS @0+5",
+        "REPORT-TOTALS/NUM-UPDATE-PROCESSED @25+5",
+        "REPORT-TOTALS/NUM-UPDATE-REQUESTS @20+5"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "multiroot/copybooks/trans/SAM2PAR5.cpy": {
+      "units": [
+        "CRUNCH-AVG/CRUNCH-AVG @0+16"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "multiroot/copybooks/trans/TRANREC.cpy": {
+      "units": [
+        "TRANSACTION-RECORD/TRAN-ACTION @21+8",
+        "TRANSACTION-RECORD/TRAN-CODE @0+6",
+        "TRANSACTION-RECORD/TRAN-FIELD-NAME @30+10",
+        "TRANSACTION-RECORD/TRAN-FIELD-SS @41+2",
+        "TRANSACTION-RECORD/TRAN-KEY @7+6",
+        "TRANSACTION-RECORD/TRAN-UPDATE-DATA @44+36"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

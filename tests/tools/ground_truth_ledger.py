@@ -104,6 +104,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "data moves": ("data_moves", "data_moves_validated"),
     "MOVE truncation": ("data_moves", "data_moves_validated"),
     "symbolic maps": ("symbolic_maps", "symbolic_validated"),
+    "copybook layouts": ("copybook_layouts", "layouts_validated"),
     "dynamic call targets": ("dynamic_targets", "dynamic_validated"),
     "web services": ("web_services", "web_validated"),
     "JCICS": ("jcics", "jcics_validated"),

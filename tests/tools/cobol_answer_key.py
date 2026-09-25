@@ -667,6 +667,8 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
             continue
         level = int(m.group(1))
         name = m.group(2).upper()
+        if name in ("THROUGH", "THRU"):
+            continue  # #3602: `1 THROUGH 12.` continues an 88's VALUES; a reserved word is no data name
         stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(text)
         window = text[m.end() : min(stop, m.end() + _DD_ENTRY_LIMIT)]
         ordinal = len(items)
@@ -5256,7 +5258,16 @@ def draft_symbolic_maps(repo: Path) -> dict[str, dict[str, Any]]:
 # REDEFINES starts where its target does, every 01 at 0), each named item is
 # `NAME @offset+bytes` -- the unit symbolic_map_units computes from the BMS source.
 def _pic_bytes(pic: str, usage: Optional[str]) -> int:
-    digits = sum(int(rep) if rep else 1 for ch, rep in re.findall(r"([XA9ZB0/,.+*$-])(?:\((\d+)\))?", pic.upper()))
+    p = pic.upper()
+    # #3602: CR / DB take two positions, N / G (national, DBCS) two bytes each, E one;
+    # S, V and P take none (SIGN SEPARATE is not in these estates).
+    national = sum(int(rep) if rep else 1 for rep in re.findall(r"[NG](?:\((\d+)\))?", p))
+    signs = 2 * len(re.findall(r"CR|DB", p))
+    p = re.sub(r"CR|DB", "", p)
+    digits = sum(int(rep) if rep else 1 for ch, rep in re.findall(r"([XA9ZB0/,.+*$E-])(?:\((\d+)\))?", p))
+    if national and not digits:
+        return 2 * national + signs
+    digits += signs
     u = (usage or "").upper()
     if u in ("COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL"):
         return 2 if digits <= 4 else 4 if digits <= 9 else 8
@@ -5296,6 +5307,93 @@ def copybook_layout_units(path: Path) -> set[str]:
 
     for root in kids.get(None, []):
         place(root, 0)
+    return out
+
+
+# #3602: copybook record layouts. Every COBOL copybook's records, laid out by the
+# same plain storage arithmetic, as `ROOT/NAME @offset+bytes` per named elementary
+# item with a PIC -- the engine's GalaxyIR.record_layout contract: a REDEFINES item
+# overlays storage and is skipped (its whole subtree), 66 / 88 entries are not
+# storage, items without a PIC (COMP-1 / COMP-2 / POINTER) are left out on both
+# sides, and an item inside an OCCURS group is listed once at its first occurrence.
+# A copybook that itself COPYs another member is not keyed: this reader does not
+# expand COPY, so it could not place what follows.
+# Storage of the items that take no PICTURE (Enterprise COBOL, 31-bit).
+_PICLESS_BYTES = {"POINTER": 4, "PROCEDURE-POINTER": 8, "FUNCTION-POINTER": 4, "INDEX": 4,
+                  "COMP-1": 4, "COMPUTATIONAL-1": 4, "COMP-2": 8, "COMPUTATIONAL-2": 8}  # fmt: skip
+_COPY_STMT = re.compile(r"^.{6}[ ]+COPY[ ]+[A-Z0-9]", re.I | re.M)
+
+
+def copybook_record_units(path: Path) -> Optional[set[str]]:
+    """`ROOT/NAME @offset+bytes` of a copybook's elementary PIC items, or None when it COPYs."""
+    text = path.read_text(encoding="utf-8", errors="ignore")
+    if _COPY_STMT.search(text):
+        return None
+    items = [it for it in _data_items(Source(path)) if it["level"] not in (66, 88)]
+    kids: dict[Optional[int], list[dict[str, Any]]] = {}
+    for it in items:
+        kids.setdefault(it["parent"], []).append(it)
+    sizes: dict[int, int] = {}
+
+    def size(it: dict[str, Any]) -> int:
+        if it["ordinal"] not in sizes:
+            if it.get("pic"):
+                own = _pic_bytes(it["pic"], it.get("usage"))
+            elif (it.get("usage") or "").upper() in _PICLESS_BYTES:
+                own = _PICLESS_BYTES[(it.get("usage") or "").upper()]
+            else:
+                own = sum(size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))
+            sizes[it["ordinal"]] = own * (it.get("occurs_max") or 1)
+        return sizes[it["ordinal"]]
+
+    out: set[str] = set()
+
+    def place(root: str, it: dict[str, Any], at: int) -> None:
+        if it.get("pic") and it["name"] != "FILLER":
+            out.add(f"{root}/{it['name']} @{at}+{size(it)}")
+        if it.get("pic"):
+            return  # COBOL gives an item with a PICTURE no subordinate storage items
+        cur = at
+        for c in kids.get(it["ordinal"], []):
+            if c.get("redefines"):
+                continue  # an overlay: not laid out (the engine's contract)
+            place(root, c, cur)
+            cur += size(c)
+
+    for root in kids.get(None, []):
+        if not root.get("redefines"):
+            place(root["name"], root, 0)
+    return out
+
+
+def draft_copybook_layouts(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3602: every COBOL copybook's record layout units (see copybook_record_units)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or p.suffix.lower() not in COPYBOOK_EXTS or ".git" in p.parts:
+            continue
+        units = copybook_record_units(p)
+        if units:
+            out[p.relative_to(repo).as_posix()] = {
+                "units": sorted(units),
+                "layouts_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
+
+
+def engine_copybook_units(ir: Any, rel: str) -> Optional[set[str]]:
+    """The engine's side of a copybook's layout units: GalaxyIR.record_layout per root."""
+    ef = ir.files.get(rel) if ir is not None else None
+    if ef is None:
+        return None
+    out: set[str] = set()
+    for root in ef.records:
+        if root.level in (66, 88) or root.redefines:
+            continue
+        for fld in ir.record_layout(ef, root)["fields"]:
+            if fld.get("pic") and fld.get("name") and fld["name"] != "FILLER":
+                out.add(f"{root.name}/{fld['name']} @{fld['offset']}+{fld['bytes']}")
     return out
 
 
@@ -5754,6 +5852,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # at byte offsets. Truth is this tool's own arithmetic; engine is
         # GalaxyIR.symbolic_map_layouts (generated copybook text, record parser).
         "symbolic maps",
+        # #3602: every copybook's records as `ROOT/NAME @offset+bytes` per elementary
+        # PIC item. Truth is this tool's own reader and storage arithmetic; engine is
+        # GalaxyIR.record_layout (record_data).
+        "copybook layouts",
         # #3492: READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT, as
         # written. Truth is this tool's own reader; engine is data_move_data.
         "file I/O moves",
@@ -6173,6 +6275,8 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_dyn.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
     engine_maps = ir.symbolic_map_layouts() if ir is not None else {}
+    for rel, k in key.get("copybook_layouts", {}).items():
+        add("copybook layouts", rel, set(k.get("units", [])), None, engine_copybook_units(ir, rel))
     for rel, k in key.get("symbolic_maps", {}).items():
         for mapset, units in k.get("layouts", {}).items():
             eng = engine_maps.get(mapset)
@@ -6391,6 +6495,9 @@ def main() -> int:
     fdp = sub.add_parser("add-file-defs")
     fdp.add_argument("repo", type=Path)
     fdp.add_argument("--key", type=Path, required=True)
+    cbl = sub.add_parser("add-copybook-layouts")  # #3602
+    cbl.add_argument("repo", type=Path)
+    cbl.add_argument("--key", type=Path, required=True)
     uw = sub.add_parser("add-uow")
     uw.add_argument("repo", type=Path)
     uw.add_argument("--key", type=Path, required=True)
@@ -6670,6 +6777,16 @@ def main() -> int:
         key["file_control"], key["vsam_defines"] = fc, vd
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(fc)} FILE-CONTROL programs, {len(vd)} IDCAMS JCL members -> {args.key}")
+        return 0
+    if args.cmd == "add-copybook-layouts":
+        # #3602: the add-pli discipline -- refresh drafts, keep signed-off files.
+        cl = {rel: e for rel, e in key.get("copybook_layouts", {}).items() if e.get("layouts_validated")}
+        for rel, entry in draft_copybook_layouts(repo).items():
+            if not cl.get(rel, {}).get("layouts_validated"):
+                cl[rel] = entry
+        key["copybook_layouts"] = cl
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(cl)} copybook layouts -> {args.key}")
         return 0
     if args.cmd == "add-uow":
         # #3453: the add-pli discipline -- refresh drafts, keep signed-off files.

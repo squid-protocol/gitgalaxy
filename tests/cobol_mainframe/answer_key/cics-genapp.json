@@ -44672,5 +44672,312 @@
       }
     }
   },
-  "jcics": {}
+  "jcics": {},
+  "copybook_layouts": {
+    "base/src/lgcmarea.cpy": {
+      "units": [
+        "CA-CUSTOMER-NUM/CA-CUSTOMER-NUM @0+10",
+        "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
+        "CA-REQUEST-SPECIFIC/CA-REQUEST-SPECIFIC @0+32482",
+        "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgpolicy.cpy": {
+      "units": [
+        "DB2-CLAIM/DB2-C-CAUSE @36+255",
+        "DB2-CLAIM/DB2-C-DATE @10+10",
+        "DB2-CLAIM/DB2-C-NUM @0+10",
+        "DB2-CLAIM/DB2-C-OBSERVATIONS @291+255",
+        "DB2-CLAIM/DB2-C-PAID @20+8",
+        "DB2-CLAIM/DB2-C-VALUE @28+8",
+        "DB2-COMMERCIAL/DB2-B-ADDRESS @0+255",
+        "DB2-COMMERCIAL/DB2-B-CRIMEPERIL @807+4",
+        "DB2-COMMERCIAL/DB2-B-CRIMEPREMIUM @811+8",
+        "DB2-COMMERCIAL/DB2-B-CUSTOMER @285+255",
+        "DB2-COMMERCIAL/DB2-B-FIREPERIL @795+4",
+        "DB2-COMMERCIAL/DB2-B-FIREPREMIUM @799+8",
+        "DB2-COMMERCIAL/DB2-B-FLOODPERIL @819+4",
+        "DB2-COMMERCIAL/DB2-B-FLOODPREMIUM @823+8",
+        "DB2-COMMERCIAL/DB2-B-LATITUDE @263+11",
+        "DB2-COMMERCIAL/DB2-B-LONGITUDE @274+11",
+        "DB2-COMMERCIAL/DB2-B-POSTCODE @255+8",
+        "DB2-COMMERCIAL/DB2-B-PROPTYPE @540+255",
+        "DB2-COMMERCIAL/DB2-B-REJECTREASON @847+255",
+        "DB2-COMMERCIAL/DB2-B-STATUS @843+4",
+        "DB2-COMMERCIAL/DB2-B-WEATHERPERIL @831+4",
+        "DB2-COMMERCIAL/DB2-B-WEATHERPREMIUM @835+8",
+        "DB2-CUSTOMER/DB2-DATEOFBIRTH @30+10",
+        "DB2-CUSTOMER/DB2-EMAIL-ADDRESS @112+100",
+        "DB2-CUSTOMER/DB2-FIRSTNAME @0+10",
+        "DB2-CUSTOMER/DB2-HOUSENAME @40+20",
+        "DB2-CUSTOMER/DB2-HOUSENUMBER @60+4",
+        "DB2-CUSTOMER/DB2-LASTNAME @10+20",
+        "DB2-CUSTOMER/DB2-PHONE-HOME @92+20",
+        "DB2-CUSTOMER/DB2-PHONE-MOBILE @72+20",
+        "DB2-CUSTOMER/DB2-POSTCODE @64+8",
+        "DB2-ENDOWMENT/DB2-E-EQUITIES @1+1",
+        "DB2-ENDOWMENT/DB2-E-FUNDNAME @3+10",
+        "DB2-ENDOWMENT/DB2-E-LIFEASSURED @21+31",
+        "DB2-ENDOWMENT/DB2-E-MANAGEDFUND @2+1",
+        "DB2-ENDOWMENT/DB2-E-PADDINGDATA @52+32611",
+        "DB2-ENDOWMENT/DB2-E-SUMASSURED @15+6",
+        "DB2-ENDOWMENT/DB2-E-TERM @13+2",
+        "DB2-ENDOWMENT/DB2-E-WITHPROFITS @0+1",
+        "DB2-HOUSE/DB2-H-BEDROOMS @15+3",
+        "DB2-HOUSE/DB2-H-HOUSENAME @26+20",
+        "DB2-HOUSE/DB2-H-HOUSENUMBER @46+4",
+        "DB2-HOUSE/DB2-H-POSTCODE @50+8",
+        "DB2-HOUSE/DB2-H-PROPERTYTYPE @0+15",
+        "DB2-HOUSE/DB2-H-VALUE @18+8",
+        "DB2-MOTOR/DB2-M-ACCIDENTS @71+6",
+        "DB2-MOTOR/DB2-M-CC @51+4",
+        "DB2-MOTOR/DB2-M-COLOUR @43+8",
+        "DB2-MOTOR/DB2-M-MAKE @0+15",
+        "DB2-MOTOR/DB2-M-MANUFACTURED @55+10",
+        "DB2-MOTOR/DB2-M-MODEL @15+15",
+        "DB2-MOTOR/DB2-M-PREMIUM @65+6",
+        "DB2-MOTOR/DB2-M-REGNUMBER @36+7",
+        "DB2-MOTOR/DB2-M-VALUE @30+6",
+        "DB2-POLICY/DB2-BROKERID @57+10",
+        "DB2-POLICY/DB2-BROKERSREF @67+10",
+        "DB2-POLICY/DB2-EXPIRYDATE @21+10",
+        "DB2-POLICY/DB2-ISSUEDATE @11+10",
+        "DB2-POLICY/DB2-LASTCHANGED @31+26",
+        "DB2-POLICY/DB2-PAYMENT @77+6",
+        "DB2-POLICY/DB2-POLICYNUMBER @1+10",
+        "DB2-POLICY/DB2-POLICYTYPE @0+1",
+        "WS-POLICY-LENGTHS/WS-CLAIM-LEN @12+2",
+        "WS-POLICY-LENGTHS/WS-COMM-LEN @10+2",
+        "WS-POLICY-LENGTHS/WS-CUSTOMER-LEN @0+2",
+        "WS-POLICY-LENGTHS/WS-ENDOW-LEN @4+2",
+        "WS-POLICY-LENGTHS/WS-FULL-CLAIM-LEN @22+2",
+        "WS-POLICY-LENGTHS/WS-FULL-COMM-LEN @20+2",
+        "WS-POLICY-LENGTHS/WS-FULL-ENDOW-LEN @14+2",
+        "WS-POLICY-LENGTHS/WS-FULL-HOUSE-LEN @16+2",
+        "WS-POLICY-LENGTHS/WS-FULL-MOTOR-LEN @18+2",
+        "WS-POLICY-LENGTHS/WS-HOUSE-LEN @6+2",
+        "WS-POLICY-LENGTHS/WS-MOTOR-LEN @8+2",
+        "WS-POLICY-LENGTHS/WS-POLICY-LEN @2+2",
+        "WS-POLICY-LENGTHS/WS-SUMRY-ENDOW-LEN @24+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/polloo2.cpy": {
+      "units": [
+        "REQUEST/CA-POLICY-DATA @55+32427",
+        "REQUEST/CA-POLICY-NUMBER @0+10",
+        "REQUEST/CA-POLICY-TYPE @10+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/pollook.cpy": {
+      "units": [
+        "REQUEST/CA-CUSTOMER-NUM @6+10",
+        "REQUEST/CA-REQUEST-ID @0+6",
+        "REQUEST/CA-REQUEST-SPECIFIC @16+32482"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soaic01.cpy": {
+      "units": [
+        "CA/CA-CUSTOMER-NUM @8+10",
+        "CA/CA-DOB @48+10",
+        "CA/CA-EMAIL-ADDRESS @133+100",
+        "CA/CA-FIRST-NAME @18+10",
+        "CA/CA-HOUSE-NAME @58+20",
+        "CA/CA-HOUSE-NUM @78+4",
+        "CA/CA-LAST-NAME @28+20",
+        "CA/CA-NUM-POLICIES @90+3",
+        "CA/CA-PHONE-HOME @113+20",
+        "CA/CA-PHONE-MOBILE @93+20",
+        "CA/CA-POLICY-DATA @233+30000",
+        "CA/CA-POSTCODE @82+8",
+        "CA/CA-REQUEST-ID @0+6",
+        "CA/CA-RETURN-CODE @6+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soaipb1.cpy": {
+      "units": [
+        "CA-B-ADDRESS/CA-B-ADDRESS @0+255",
+        "CA-B-CRIMEPERIL/CA-B-CRIMEPERIL @0+4",
+        "CA-B-CRIMEPREMIUM/CA-B-CRIMEPREMIUM @0+8",
+        "CA-B-CUSTOMER/CA-B-CUSTOMER @0+255",
+        "CA-B-FILLER/CA-B-FILLER @0+30000",
+        "CA-B-FIREPERIL/CA-B-FIREPERIL @0+4",
+        "CA-B-FIREPREMIUM/CA-B-FIREPREMIUM @0+8",
+        "CA-B-FLOODPERIL/CA-B-FLOODPERIL @0+4",
+        "CA-B-FLOODPREMIUM/CA-B-FLOODPREMIUM @0+8",
+        "CA-B-LATITUDE/CA-B-LATITUDE @0+11",
+        "CA-B-LONGITUDE/CA-B-LONGITUDE @0+11",
+        "CA-B-POSTCODE/CA-B-POSTCODE @0+8",
+        "CA-B-PROPTYPE/CA-B-PROPTYPE @0+255",
+        "CA-B-REJECTREASON/CA-B-REJECTREASON @0+255",
+        "CA-B-STATUS/CA-B-STATUS @0+4",
+        "CA-B-WEATHERPERIL/CA-B-WEATHERPERIL @0+4",
+        "CA-B-WEATHERPREMIUM/CA-B-WEATHERPREMIUM @0+8",
+        "CA-BROKERID/CA-BROKERID @0+10",
+        "CA-BROKERSREF/CA-BROKERSREF @0+10",
+        "CA-CUSTOMER-NUM/CA-CUSTOMER-NUM @0+10",
+        "CA-EXPIRY-DATE/CA-EXPIRY-DATE @0+10",
+        "CA-ISSUE-DATE/CA-ISSUE-DATE @0+10",
+        "CA-LASTCHANGED/CA-LASTCHANGED @0+26",
+        "CA-POLICY-NUM/CA-POLICY-NUM @0+10",
+        "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
+        "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soaipe1.cpy": {
+      "units": [
+        "CA-BROKERID/CA-BROKERID @0+10",
+        "CA-BROKERSREF/CA-BROKERSREF @0+10",
+        "CA-CUSTOMER-NUM/CA-CUSTOMER-NUM @0+10",
+        "CA-E-EQUITIES/CA-E-EQUITIES @0+1",
+        "CA-E-FUND-NAME/CA-E-FUND-NAME @0+10",
+        "CA-E-LIFE-ASSURED/CA-E-LIFE-ASSURED @0+31",
+        "CA-E-MANAGED-FUND/CA-E-MANAGED-FUND @0+1",
+        "CA-E-PADDING-DATA/CA-E-PADDING-DATA @0+30000",
+        "CA-E-SUM-ASSURED/CA-E-SUM-ASSURED @0+6",
+        "CA-E-TERM/CA-E-TERM @0+2",
+        "CA-E-WITH-PROFITS/CA-E-WITH-PROFITS @0+1",
+        "CA-EXPIRY-DATE/CA-EXPIRY-DATE @0+10",
+        "CA-ISSUE-DATE/CA-ISSUE-DATE @0+10",
+        "CA-LASTCHANGED/CA-LASTCHANGED @0+26",
+        "CA-PAYMENT/CA-PAYMENT @0+6",
+        "CA-POLICY-NUM/CA-POLICY-NUM @0+10",
+        "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
+        "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soaiph1.cpy": {
+      "units": [
+        "CA-BROKERID/CA-BROKERID @0+10",
+        "CA-BROKERSREF/CA-BROKERSREF @0+10",
+        "CA-CUSTOMER-NUM/CA-CUSTOMER-NUM @0+10",
+        "CA-EXPIRY-DATE/CA-EXPIRY-DATE @0+10",
+        "CA-H-BEDROOMS/CA-H-BEDROOMS @0+3",
+        "CA-H-FILLER/CA-H-FILLER @0+30000",
+        "CA-H-HOUSE-NAME/CA-H-HOUSE-NAME @0+20",
+        "CA-H-HOUSE-NUMBER/CA-H-HOUSE-NUMBER @0+4",
+        "CA-H-POSTCODE/CA-H-POSTCODE @0+8",
+        "CA-H-PROPERTY-TYPE/CA-H-PROPERTY-TYPE @0+15",
+        "CA-H-VALUE/CA-H-VALUE @0+8",
+        "CA-ISSUE-DATE/CA-ISSUE-DATE @0+10",
+        "CA-LASTCHANGED/CA-LASTCHANGED @0+26",
+        "CA-PAYMENT/CA-PAYMENT @0+6",
+        "CA-POLICY-NUM/CA-POLICY-NUM @0+10",
+        "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
+        "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soaipm1.cpy": {
+      "units": [
+        "CA-BROKERID/CA-BROKERID @0+10",
+        "CA-BROKERSREF/CA-BROKERSREF @0+10",
+        "CA-CUSTOMER-NUM/CA-CUSTOMER-NUM @0+10",
+        "CA-EXPIRY-DATE/CA-EXPIRY-DATE @0+10",
+        "CA-ISSUE-DATE/CA-ISSUE-DATE @0+10",
+        "CA-LASTCHANGED/CA-LASTCHANGED @0+26",
+        "CA-M-ACCIDENTS/CA-M-ACCIDENTS @0+6",
+        "CA-M-CC/CA-M-CC @0+4",
+        "CA-M-COLOUR/CA-M-COLOUR @0+8",
+        "CA-M-FILLER/CA-M-FILLER @0+30000",
+        "CA-M-MAKE/CA-M-MAKE @0+15",
+        "CA-M-MANUFACTURED/CA-M-MANUFACTURED @0+10",
+        "CA-M-MODEL/CA-M-MODEL @0+15",
+        "CA-M-PREMIUM/CA-M-PREMIUM @0+6",
+        "CA-M-REGNUMBER/CA-M-REGNUMBER @0+7",
+        "CA-M-VALUE/CA-M-VALUE @0+6",
+        "CA-PAYMENT/CA-PAYMENT @0+6",
+        "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
+        "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soavcii.cpy": {
+      "units": [
+        "COMMA-DATA/CUSTOMER-NUMBER @0+10"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soavcio.cpy": {
+      "units": [
+        "COMMA-DATA/COMMA-DATA-HIGH @14+10",
+        "COMMA-DATA/COMMA-DATA-TEXT @0+14"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soavpii.cpy": {
+      "units": [
+        "COMMA-DATA/CUST-NUM @1+10",
+        "COMMA-DATA/TYPE @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/soavpio.cpy": {
+      "units": [
+        "COMMA-DATA/COMMA-DATA-TEXT @0+11",
+        "COMMA-DATA/CUST-NUM @12+10",
+        "COMMA-DATA/POL-NUM @22+10",
+        "COMMA-DATA/TYPE @11+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

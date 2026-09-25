@@ -20796,5 +20796,42 @@
       },
       "rulings": {}
     }
-  ]
+  ],
+  "copybook_layouts": {
+    "Source/ZECSZFC.cpy": {
+      "units": [
+        "ZF-PREFIX/ZF-PREFIX @0+4",
+        "ZF-RECORD/ZF-ABS @16+8",
+        "ZF-RECORD/ZF-DATA @356+32000",
+        "ZF-RECORD/ZF-EXTRA @30+15",
+        "ZF-RECORD/ZF-KEY-IDN @0+6",
+        "ZF-RECORD/ZF-KEY-NC @6+2",
+        "ZF-RECORD/ZF-MEDIA @300+56",
+        "ZF-RECORD/ZF-SEGMENT @8+2",
+        "ZF-RECORD/ZF-SEGMENTS @28+2",
+        "ZF-RECORD/ZF-SUFFIX @10+2",
+        "ZF-RECORD/ZF-TTL @24+4",
+        "ZF-RECORD/ZF-ZEROES @12+4",
+        "ZF-RECORD/ZF-ZK-KEY @45+255"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECSZKC.cpy": {
+      "units": [
+        "ZK-RECORD/ZK-KEY @0+255",
+        "ZK-RECORD/ZK-SEGMENTS @264+1",
+        "ZK-RECORD/ZK-ZF-IDN @256+6",
+        "ZK-RECORD/ZK-ZF-NC @262+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

@@ -1302,6 +1302,55 @@ def test_jcics_reader_on_its_own(tmp_path):
     ]
 
 
+def _cpy(tmp_path, name, lines):
+    cpy = tmp_path / name
+    cpy.write_text("\n".join("       " + ln for ln in lines) + "\n", encoding="utf-8")
+    return cpy
+
+
+def test_copybook_record_units_follow_the_engine_layout_contract(tmp_path):
+    """#3602: `ROOT/NAME @offset+bytes` per elementary PIC item -- REDEFINES skipped,
+    no-PIC items take their storage (POINTER 4, COMP-2 8) but are not units, OCCURS
+    multiplies, an item under a PIC item is not storage, and an 88's `1 THROUGH 12.`
+    continuation is not a level-1 item."""
+    cpy = _cpy(tmp_path, "REC.cpy", [
+        "01  ACCT-REC.",
+        "    05 ACCT-ID       PIC 9(8).",
+        "    05 ACCT-PTR      POINTER.",
+        "    05 ACCT-RATE     COMP-2.",
+        "    05 ACCT-BAL      PIC S9(7)V99 COMP-3.",
+        "    05 ACCT-MONTH    PIC 99.",
+        "       88 VALID-MONTH VALUES",
+        "                           1 THROUGH 12.",
+        "    05 ACCT-HIST     OCCURS 3 TIMES.",
+        "       10 HIST-AMT   PIC 9(4) COMP.",
+        "    05 ACCT-DATE     PIC X(8).",
+        "    05 ACCT-DATE-N   REDEFINES ACCT-DATE PIC 9(8).",
+        "    05 ACCT-SIGN     PIC 9(3)CR.",
+        "    05 ACCT-NAME     PIC N(4).",
+        "01  ODD-REC.",
+        "    03 CA-NUM        PIC 9(10).",
+        "    05 CA-UNDER      PIC 9(10).",
+    ])  # fmt: skip
+    assert ak.copybook_record_units(cpy) == {
+        "ACCT-REC/ACCT-ID @0+8",
+        "ACCT-REC/ACCT-BAL @20+5",      # after POINTER (4) and COMP-2 (8)
+        "ACCT-REC/ACCT-MONTH @25+2",
+        "ACCT-REC/HIST-AMT @27+2",      # first occurrence; the group spans 3 x 2
+        "ACCT-REC/ACCT-DATE @33+8",     # REDEFINES ACCT-DATE-N is an overlay: not a unit
+        "ACCT-REC/ACCT-SIGN @41+5",     # 9(3) + CR
+        "ACCT-REC/ACCT-NAME @46+8",     # national: 2 bytes a position
+        "ODD-REC/CA-NUM @0+10",         # CA-UNDER sits under a PIC item: not storage
+    }  # fmt: skip
+
+
+def test_a_copybook_that_copies_is_not_keyed(tmp_path):
+    assert (
+        ak.copybook_record_units(_cpy(tmp_path, "OUTER.cpy", ["01 OUTER.", "   COPY INNER.", "   05 X PIC X."])) is None
+    )
+    assert "OUTER.cpy" not in ak.draft_copybook_layouts(tmp_path)
+
+
 def test_copybook_layout_units_lay_out_an_ibm_symbolic_map(tmp_path):
     """#3575: the oracle for symbolic maps -- IBM's DFHMAPS output read as storage."""
     cpy = tmp_path / "SMAP.cpy"

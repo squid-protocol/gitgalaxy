@@ -226,6 +226,15 @@
       "tested_on_private": 0,
       "tested_on_public": 0
     },
+    "copybook layouts": {
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 0,
+      "fresh_rounds": 0,
+      "status": "untested",
+      "tested_on_private": 0,
+      "tested_on_public": 0
+    },
     "copybook paths": {
       "clean_fresh_facts": 41,
       "clean_fresh_rounds": 2,

@@ -81423,5 +81423,684 @@
         }
       }
     }
+  },
+  "copybook_layouts": {
+    "src/base/cobol_copy/ABNDINFO.cpy": {
+      "units": [
+        "ABND-APPLID/ABND-APPLID @0+8",
+        "ABND-CODE/ABND-CODE @0+4",
+        "ABND-DATE/ABND-DATE @0+10",
+        "ABND-FREEFORM/ABND-FREEFORM @0+600",
+        "ABND-PROGRAM/ABND-PROGRAM @0+8",
+        "ABND-RESP2CODE/ABND-RESP2CODE @0+8",
+        "ABND-RESPCODE/ABND-RESPCODE @0+8",
+        "ABND-SQLCODE/ABND-SQLCODE @0+8",
+        "ABND-TIME/ABND-TIME @0+8",
+        "ABND-TRANID/ABND-TRANID @0+4",
+        "ABND-VSAM-KEY/ABND-TASKNO-KEY @8+4",
+        "ABND-VSAM-KEY/ABND-UTIME-KEY @0+8"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/ACCOUNT.cpy": {
+      "units": [
+        "ACCOUNT-DATA/ACCOUNT-ACTUAL-BALANCE @86+12",
+        "ACCOUNT-DATA/ACCOUNT-AVAILABLE-BALANCE @74+12",
+        "ACCOUNT-DATA/ACCOUNT-CUST-NO @4+10",
+        "ACCOUNT-DATA/ACCOUNT-EYE-CATCHER @0+4",
+        "ACCOUNT-DATA/ACCOUNT-INTEREST-RATE @36+6",
+        "ACCOUNT-DATA/ACCOUNT-LAST-STMT-DATE @58+8",
+        "ACCOUNT-DATA/ACCOUNT-NEXT-STMT-DATE @66+8",
+        "ACCOUNT-DATA/ACCOUNT-NUMBER @20+8",
+        "ACCOUNT-DATA/ACCOUNT-OPENED @42+8",
+        "ACCOUNT-DATA/ACCOUNT-OVERDRAFT-LIMIT @50+8",
+        "ACCOUNT-DATA/ACCOUNT-SORT-CODE @14+6",
+        "ACCOUNT-DATA/ACCOUNT-TYPE @28+8"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/ACCTCTRL.cpy": {
+      "units": [
+        "ACCOUNT-CONTROL-RECORD/ACCOUNT-CONTROL-EYE-CATCHER @0+4",
+        "ACCOUNT-CONTROL-RECORD/ACCOUNT-CONTROL-FAIL-CODE @45+1",
+        "ACCOUNT-CONTROL-RECORD/ACCOUNT-CONTROL-NUMBER @20+8",
+        "ACCOUNT-CONTROL-RECORD/ACCOUNT-CONTROL-SORT-CODE @14+6",
+        "ACCOUNT-CONTROL-RECORD/ACCOUNT-CONTROL-SUCCESS-FLAG @44+1",
+        "ACCOUNT-CONTROL-RECORD/LAST-ACCOUNT-NUMBER @36+8",
+        "ACCOUNT-CONTROL-RECORD/NUMBER-OF-ACCOUNTS @28+8"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/BANKMAP.cpy": {
+      "units": [
+        "BANKMAPI/ACCOUNTF @117+1",
+        "BANKMAPI/ACCOUNTI @124+10",
+        "BANKMAPI/ACCOUNTL @115+2",
+        "BANKMAPI/ACCTCTRLF @107+1",
+        "BANKMAPI/ACCTCTRLI @114+1",
+        "BANKMAPI/ACCTCTRLL @105+2",
+        "BANKMAPI/ACCTMSGF @389+1",
+        "BANKMAPI/ACCTMSGI @396+70",
+        "BANKMAPI/ACCTMSGL @387+2",
+        "BANKMAPI/B2BXCTRLF @194+1",
+        "BANKMAPI/B2BXCTRLI @201+1",
+        "BANKMAPI/B2BXCTRLL @192+2",
+        "BANKMAPI/B2BXFRF @204+1",
+        "BANKMAPI/B2BXFRI @211+10",
+        "BANKMAPI/B2BXFRL @202+2",
+        "BANKMAPI/B2BXMSGF @626+1",
+        "BANKMAPI/B2BXMSGI @633+70",
+        "BANKMAPI/B2BXMSGL @624+2",
+        "BANKMAPI/CLEACTRLF @223+1",
+        "BANKMAPI/CLEACTRLI @230+1",
+        "BANKMAPI/CLEACTRLL @221+2",
+        "BANKMAPI/CLEAMSGF @705+1",
+        "BANKMAPI/CLEAMSGI @712+70",
+        "BANKMAPI/CLEAMSGL @703+2",
+        "BANKMAPI/CLEARINGF @233+1",
+        "BANKMAPI/CLEARINGI @240+10",
+        "BANKMAPI/CLEARINGL @231+2",
+        "BANKMAPI/COMPANYF @14+1",
+        "BANKMAPI/COMPANYI @21+40",
+        "BANKMAPI/COMPANYL @12+2",
+        "BANKMAPI/CUSTCTRLF @78+1",
+        "BANKMAPI/CUSTCTRLI @85+1",
+        "BANKMAPI/CUSTCTRLL @76+2",
+        "BANKMAPI/CUSTMSGF @310+1",
+        "BANKMAPI/CUSTMSGI @317+70",
+        "BANKMAPI/CUSTMSGL @308+2",
+        "BANKMAPI/CUSTOMERF @88+1",
+        "BANKMAPI/CUSTOMERI @95+10",
+        "BANKMAPI/CUSTOMERL @86+2",
+        "BANKMAPI/NCOUCTRLF @281+1",
+        "BANKMAPI/NCOUCTRLI @288+1",
+        "BANKMAPI/NCOUCTRLL @279+2",
+        "BANKMAPI/NCOUMSGF @863+1",
+        "BANKMAPI/NCOUMSGI @870+70",
+        "BANKMAPI/NCOUMSGL @861+2",
+        "BANKMAPI/NCOUNTERF @291+1",
+        "BANKMAPI/NCOUNTERI @298+10",
+        "BANKMAPI/NCOUNTERL @289+2",
+        "BANKMAPI/PROCCTRLF @136+1",
+        "BANKMAPI/PROCCTRLI @143+1",
+        "BANKMAPI/PROCCTRLL @134+2",
+        "BANKMAPI/PROCMSGF @468+1",
+        "BANKMAPI/PROCMSGI @475+70",
+        "BANKMAPI/PROCMSGL @466+2",
+        "BANKMAPI/PROCTRANF @146+1",
+        "BANKMAPI/PROCTRANI @153+10",
+        "BANKMAPI/PROCTRANL @144+2",
+        "BANKMAPI/REJTCTRLF @165+1",
+        "BANKMAPI/REJTCTRLI @172+1",
+        "BANKMAPI/REJTCTRLL @163+2",
+        "BANKMAPI/REJTMSGF @547+1",
+        "BANKMAPI/REJTMSGI @554+70",
+        "BANKMAPI/REJTMSGL @545+2",
+        "BANKMAPI/REJTRANF @175+1",
+        "BANKMAPI/REJTRANI @182+10",
+        "BANKMAPI/REJTRANL @173+2",
+        "BANKMAPI/SODDCTRLF @252+1",
+        "BANKMAPI/SODDCTRLI @259+1",
+        "BANKMAPI/SODDCTRLL @250+2",
+        "BANKMAPI/SODDF @262+1",
+        "BANKMAPI/SODDI @269+10",
+        "BANKMAPI/SODDL @260+2",
+        "BANKMAPI/SODDMSGF @784+1",
+        "BANKMAPI/SODDMSGI @791+70",
+        "BANKMAPI/SODDMSGL @782+2",
+        "BANKMAPI/SORTCODEF @63+1",
+        "BANKMAPI/SORTCODEI @70+6",
+        "BANKMAPI/SORTCODEL @61+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/BNK1DDM.cpy": {
+      "units": [
+        "BNK1DDI/COMPANYF @14+1",
+        "BNK1DDI/COMPANYI @21+56",
+        "BNK1DDI/COMPANYL @12+2",
+        "BNK1DDI/DUMMYF @167+1",
+        "BNK1DDI/DUMMYI @174+1",
+        "BNK1DDI/DUMMYL @165+2",
+        "BNK1DDI/MESSAGEF @79+1",
+        "BNK1DDI/MESSAGEI @86+79",
+        "BNK1DDI/MESSAGEL @77+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CONTROLI.cpy": {
+      "units": [
+        "CONTROL-ACCOUNT-COUNT/CONTROL-ACCOUNT-COUNT @0+5",
+        "CONTROL-ACCOUNT-LAST/CONTROL-ACCOUNT-LAST @0+5",
+        "CONTROL-CUSTOMER-COUNT/CONTROL-CUSTOMER-COUNT @0+6",
+        "CONTROL-CUSTOMER-LAST/CONTROL-CUSTOMER-LAST @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CREACC.cpy": {
+      "units": [
+        "COMM-ACC-TYPE/COMM-ACC-TYPE @0+8",
+        "COMM-ACT-BAL/COMM-ACT-BAL @0+12",
+        "COMM-AVAIL-BAL/COMM-AVAIL-BAL @0+12",
+        "COMM-CUSTNO/COMM-CUSTNO @0+10",
+        "COMM-EYECATCHER/COMM-EYECATCHER @0+4",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-INT-RT/COMM-INT-RT @0+6",
+        "COMM-KEY/COMM-NUMBER @6+8",
+        "COMM-KEY/COMM-SORTCODE @0+6",
+        "COMM-LAST-STMT-DT/COMM-LAST-STMT-DT @0+8",
+        "COMM-NEXT-STMT-DT/COMM-NEXT-STMT-DT @0+8",
+        "COMM-OPENED/COMM-OPENED @0+8",
+        "COMM-OVERDR-LIM/COMM-OVERDR-LIM @0+8",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CRECUST.cpy": {
+      "units": [
+        "COMM-ADDRESS/COMM-ADDRESS @0+160",
+        "COMM-CREDIT-SCORE/COMM-CREDIT-SCORE @0+3",
+        "COMM-CS-REVIEW-DATE/COMM-CS-REVIEW-DATE @0+8",
+        "COMM-DATE-OF-BIRTH/COMM-DATE-OF-BIRTH @0+8",
+        "COMM-EYECATCHER/COMM-EYECATCHER @0+4",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-KEY/COMM-NUMBER @6+10",
+        "COMM-KEY/COMM-SORTCODE @0+6",
+        "COMM-NAME/COMM-NAME @0+60",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CUSTCTRL.cpy": {
+      "units": [
+        "CUSTOMER-CONTROL-RECORD/CUSTOMER-CONTROL-EYECATCHER @0+4",
+        "CUSTOMER-CONTROL-RECORD/CUSTOMER-CONTROL-FAIL-CODE @41+1",
+        "CUSTOMER-CONTROL-RECORD/CUSTOMER-CONTROL-NUMBER @10+10",
+        "CUSTOMER-CONTROL-RECORD/CUSTOMER-CONTROL-SORTCODE @4+6",
+        "CUSTOMER-CONTROL-RECORD/CUSTOMER-CONTROL-SUCCESS-FLAG @40+1",
+        "CUSTOMER-CONTROL-RECORD/LAST-CUSTOMER-NUMBER @30+10",
+        "CUSTOMER-CONTROL-RECORD/NUMBER-OF-CUSTOMERS @20+10"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CUSTMAP.cpy": {
+      "units": [
+        "CSTMAP1I/ADDR1F @115+1",
+        "CSTMAP1I/ADDR1I @122+60",
+        "CSTMAP1I/ADDR1L @113+2",
+        "CSTMAP1I/ADDR2F @184+1",
+        "CSTMAP1I/ADDR2I @191+60",
+        "CSTMAP1I/ADDR2L @182+2",
+        "CSTMAP1I/ADDR3F @253+1",
+        "CSTMAP1I/ADDR3I @260+40",
+        "CSTMAP1I/ADDR3L @251+2",
+        "CSTMAP1I/CUSTDOBF @302+1",
+        "CSTMAP1I/CUSTDOBI @309+10",
+        "CSTMAP1I/CUSTDOBL @300+2",
+        "CSTMAP1I/CUSTEYEF @14+1",
+        "CSTMAP1I/CUSTEYEI @21+4",
+        "CSTMAP1I/CUSTEYEL @12+2",
+        "CSTMAP1I/CUSTKEYF @27+1",
+        "CSTMAP1I/CUSTKEYI @34+10",
+        "CSTMAP1I/CUSTKEYL @25+2",
+        "CSTMAP1I/CUSTNAMEF @46+1",
+        "CSTMAP1I/CUSTNAMEI @53+60",
+        "CSTMAP1I/CUSTNAMEL @44+2"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CUSTOMER.cpy": {
+      "units": [
+        "CUSTOMER-RECORD/CUSTOMER-ADDRESS @80+160",
+        "CUSTOMER-RECORD/CUSTOMER-CREDIT-SCORE @248+3",
+        "CUSTOMER-RECORD/CUSTOMER-CS-REVIEW-DATE @251+8",
+        "CUSTOMER-RECORD/CUSTOMER-DATE-OF-BIRTH @240+8",
+        "CUSTOMER-RECORD/CUSTOMER-EYECATCHER @0+4",
+        "CUSTOMER-RECORD/CUSTOMER-NAME @20+60",
+        "CUSTOMER-RECORD/CUSTOMER-NUMBER @10+10",
+        "CUSTOMER-RECORD/CUSTOMER-SORTCODE @4+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/DELACC.cpy": {
+      "units": [
+        "DELACC-COMMAREA/DELACC-ACC-TYPE @28+8",
+        "DELACC-COMMAREA/DELACC-ACCNO @20+8",
+        "DELACC-COMMAREA/DELACC-ACTUAL-BAL @86+12",
+        "DELACC-COMMAREA/DELACC-AVAIL-BAL @74+12",
+        "DELACC-COMMAREA/DELACC-CUSTNO @4+10",
+        "DELACC-COMMAREA/DELACC-DEL-APPLID @102+8",
+        "DELACC-COMMAREA/DELACC-DEL-FAIL-CD @101+1",
+        "DELACC-COMMAREA/DELACC-DEL-SUCCESS @100+1",
+        "DELACC-COMMAREA/DELACC-EYE @0+4",
+        "DELACC-COMMAREA/DELACC-FAIL-CD @99+1",
+        "DELACC-COMMAREA/DELACC-INT-RATE @36+6",
+        "DELACC-COMMAREA/DELACC-LAST-STMT-DT @58+8",
+        "DELACC-COMMAREA/DELACC-NEXT-STMT-DT @66+8",
+        "DELACC-COMMAREA/DELACC-OPENED @42+8",
+        "DELACC-COMMAREA/DELACC-OVERDRAFT @50+8",
+        "DELACC-COMMAREA/DELACC-SCODE @14+6",
+        "DELACC-COMMAREA/DELACC-SUCCESS @98+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/DELACCZ.cpy": {
+      "units": [
+        "ACCOUNT-DETAILS/COMM-ACC-TYPE @28+8",
+        "ACCOUNT-DETAILS/COMM-ACCNO @20+8",
+        "ACCOUNT-DETAILS/COMM-ACTUAL-BAL @86+12",
+        "ACCOUNT-DETAILS/COMM-AVAIL-BAL @74+12",
+        "ACCOUNT-DETAILS/COMM-CUSTNO @4+10",
+        "ACCOUNT-DETAILS/COMM-EYE @0+4",
+        "ACCOUNT-DETAILS/COMM-INT-RATE @36+6",
+        "ACCOUNT-DETAILS/COMM-LAST-STMT-DT @58+8",
+        "ACCOUNT-DETAILS/COMM-NEXT-STMT-DT @66+8",
+        "ACCOUNT-DETAILS/COMM-OPENED @42+8",
+        "ACCOUNT-DETAILS/COMM-OVERDRAFT @50+8",
+        "ACCOUNT-DETAILS/COMM-SCODE @14+6",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-PCB-POINTER/COMM-PCB-POINTER @0+4",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1",
+        "CUSTOMER-FOUND/CUSTOMER-FOUND @0+1",
+        "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
+        "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/DELCUS.cpy": {
+      "units": [
+        "COMM-ADDR/COMM-ADDR @0+160",
+        "COMM-CREDIT-SCORE/COMM-CREDIT-SCORE @0+3",
+        "COMM-CS-REVIEW-DATE/COMM-CS-REVIEW-DATE @0+8",
+        "COMM-CUSTNO/COMM-CUSTNO @0+10",
+        "COMM-DEL-FAIL-CD/COMM-DEL-FAIL-CD @0+1",
+        "COMM-DEL-SUCCESS/COMM-DEL-SUCCESS @0+1",
+        "COMM-DOB/COMM-DOB @0+8",
+        "COMM-EYE/COMM-EYE @0+4",
+        "COMM-NAME/COMM-NAME @0+60",
+        "COMM-SCODE/COMM-SCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/GETCOMPY.cpy": {
+      "units": [
+        "GETCOMPANYOPERATION/COMPANY-NAME @0+40"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/GETSCODE.cpy": {
+      "units": [
+        "GETSORTCODEOPERATION/SORTCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQACC.cpy": {
+      "units": [
+        "INQACC-COMMAREA/INQACC-ACC-TYPE @28+8",
+        "INQACC-COMMAREA/INQACC-ACCNO @20+8",
+        "INQACC-COMMAREA/INQACC-ACTUAL-BAL @86+12",
+        "INQACC-COMMAREA/INQACC-AVAIL-BAL @74+12",
+        "INQACC-COMMAREA/INQACC-CUSTNO @4+10",
+        "INQACC-COMMAREA/INQACC-EYE @0+4",
+        "INQACC-COMMAREA/INQACC-INT-RATE @36+6",
+        "INQACC-COMMAREA/INQACC-LAST-STMT-DT @58+8",
+        "INQACC-COMMAREA/INQACC-NEXT-STMT-DT @66+8",
+        "INQACC-COMMAREA/INQACC-OPENED @42+8",
+        "INQACC-COMMAREA/INQACC-OVERDRAFT @50+8",
+        "INQACC-COMMAREA/INQACC-SCODE @14+6",
+        "INQACC-COMMAREA/INQACC-SUCCESS @98+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQACCCU.cpy": {
+      "units": [
+        "ACCOUNT-DETAILS/COMM-ACC-TYPE @28+8",
+        "ACCOUNT-DETAILS/COMM-ACCNO @20+8",
+        "ACCOUNT-DETAILS/COMM-ACTUAL-BAL @86+12",
+        "ACCOUNT-DETAILS/COMM-AVAIL-BAL @74+12",
+        "ACCOUNT-DETAILS/COMM-CUSTNO @4+10",
+        "ACCOUNT-DETAILS/COMM-EYE @0+4",
+        "ACCOUNT-DETAILS/COMM-INT-RATE @36+6",
+        "ACCOUNT-DETAILS/COMM-LAST-STMT-DT @58+8",
+        "ACCOUNT-DETAILS/COMM-NEXT-STMT-DT @66+8",
+        "ACCOUNT-DETAILS/COMM-OPENED @42+8",
+        "ACCOUNT-DETAILS/COMM-OVERDRAFT @50+8",
+        "ACCOUNT-DETAILS/COMM-SCODE @14+6",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1",
+        "CUSTOMER-FOUND/CUSTOMER-FOUND @0+1",
+        "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
+        "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQACCCZ.cpy": {
+      "units": [
+        "ACCOUNT-DETAILS/COMM-ACC-TYPE @28+8",
+        "ACCOUNT-DETAILS/COMM-ACCNO @20+8",
+        "ACCOUNT-DETAILS/COMM-ACTUAL-BAL @86+12",
+        "ACCOUNT-DETAILS/COMM-AVAIL-BAL @74+12",
+        "ACCOUNT-DETAILS/COMM-CUSTNO @4+10",
+        "ACCOUNT-DETAILS/COMM-EYE @0+4",
+        "ACCOUNT-DETAILS/COMM-INT-RATE @36+6",
+        "ACCOUNT-DETAILS/COMM-LAST-STMT-DT @58+8",
+        "ACCOUNT-DETAILS/COMM-NEXT-STMT-DT @66+8",
+        "ACCOUNT-DETAILS/COMM-OPENED @42+8",
+        "ACCOUNT-DETAILS/COMM-OVERDRAFT @50+8",
+        "ACCOUNT-DETAILS/COMM-SCODE @14+6",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-PCB-POINTER/COMM-PCB-POINTER @0+4",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1",
+        "CUSTOMER-FOUND/CUSTOMER-FOUND @0+1",
+        "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
+        "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQACCZ.cpy": {
+      "units": [
+        "INQACC-COMMAREA/INQACC-ACC-TYPE @28+8",
+        "INQACC-COMMAREA/INQACC-ACCNO @20+8",
+        "INQACC-COMMAREA/INQACC-ACTUAL-BAL @86+12",
+        "INQACC-COMMAREA/INQACC-AVAIL-BAL @74+12",
+        "INQACC-COMMAREA/INQACC-CUSTNO @4+10",
+        "INQACC-COMMAREA/INQACC-EYE @0+4",
+        "INQACC-COMMAREA/INQACC-INT-RATE @36+6",
+        "INQACC-COMMAREA/INQACC-LAST-STMT-DT @58+8",
+        "INQACC-COMMAREA/INQACC-NEXT-STMT-DT @66+8",
+        "INQACC-COMMAREA/INQACC-OPENED @42+8",
+        "INQACC-COMMAREA/INQACC-OVERDRAFT @50+8",
+        "INQACC-COMMAREA/INQACC-PCB1-POINTER @99+4",
+        "INQACC-COMMAREA/INQACC-SCODE @14+6",
+        "INQACC-COMMAREA/INQACC-SUCCESS @98+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQCUST.cpy": {
+      "units": [
+        "INQCUST-ADDR/INQCUST-ADDR @0+160",
+        "INQCUST-CREDIT-SCORE/INQCUST-CREDIT-SCORE @0+3",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-DD @0+2",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-MM @2+2",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-YYYY @4+4",
+        "INQCUST-CUSTNO/INQCUST-CUSTNO @0+10",
+        "INQCUST-DOB/INQCUST-DOB-DD @0+2",
+        "INQCUST-DOB/INQCUST-DOB-MM @2+2",
+        "INQCUST-DOB/INQCUST-DOB-YYYY @4+4",
+        "INQCUST-EYE/INQCUST-EYE @0+4",
+        "INQCUST-INQ-FAIL-CD/INQCUST-INQ-FAIL-CD @0+1",
+        "INQCUST-INQ-SUCCESS/INQCUST-INQ-SUCCESS @0+1",
+        "INQCUST-NAME/INQCUST-NAME @0+60",
+        "INQCUST-SCODE/INQCUST-SCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/INQCUSTZ.cpy": {
+      "units": [
+        "INQCUST-ADDR/INQCUST-ADDR @0+160",
+        "INQCUST-CREDIT-SCORE/INQCUST-CREDIT-SCORE @0+3",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-DD @0+2",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-MM @2+2",
+        "INQCUST-CS-REVIEW-DT/INQCUST-CS-REVIEW-YYYY @4+4",
+        "INQCUST-CUSTNO/INQCUST-CUSTNO @0+10",
+        "INQCUST-DOB/INQCUST-DOB-DD @0+2",
+        "INQCUST-DOB/INQCUST-DOB-MM @2+2",
+        "INQCUST-DOB/INQCUST-DOB-YYYY @4+4",
+        "INQCUST-EYE/INQCUST-EYE @0+4",
+        "INQCUST-INQ-FAIL-CD/INQCUST-INQ-FAIL-CD @0+1",
+        "INQCUST-INQ-SUCCESS/INQCUST-INQ-SUCCESS @0+1",
+        "INQCUST-NAME/INQCUST-NAME @0+60",
+        "INQCUST-PCB-POINTER/INQCUST-PCB-POINTER @0+4",
+        "INQCUST-SCODE/INQCUST-SCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/NEWACCNO.cpy": {
+      "units": [
+        "ACCOUNT-NUMBER/ACCOUNT-NUMBER @0+8",
+        "NEWACCNO-FAIL-CODE/NEWACCNO-FAIL-CODE @0+1",
+        "NEWACCNO-FUNCTION/NEWACCNO-FUNCTION @0+1",
+        "NEWACCNO-SUCCESS/NEWACCNO-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/NEWCUSNO.cpy": {
+      "units": [
+        "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
+        "NEWCUSNO-FAIL-CODE/NEWCUSNO-FAIL-CODE @0+1",
+        "NEWCUSNO-FUNCTION/NEWCUSNO-FUNCTION @0+1",
+        "NEWCUSNO-SUCCESS/NEWCUSNO-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/PAYDBCR.cpy": {
+      "units": [
+        "COMM-ACCNO/COMM-ACCNO @0+8",
+        "COMM-ACT-BAL/COMM-ACT-BAL @0+12",
+        "COMM-AMT/COMM-AMT @0+12",
+        "COMM-AV-BAL/COMM-AV-BAL @0+12",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-ORIGIN/COMM-APPLID @0+8",
+        "COMM-ORIGIN/COMM-FACILITY-NAME @16+8",
+        "COMM-ORIGIN/COMM-FACILTYPE @32+4",
+        "COMM-ORIGIN/COMM-NETWRK-ID @24+8",
+        "COMM-ORIGIN/COMM-USERID @8+8",
+        "COMM-SORTC/COMM-SORTC @0+6",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/PROCISRT.cpy": {
+      "units": [
+        "PROCISRT-COMMAREA/PROCISRT-DEBIT-ACCNO @5+8",
+        "PROCISRT-COMMAREA/PROCISRT-DEBIT-AMOUNT @19+12",
+        "PROCISRT-COMMAREA/PROCISRT-DEBIT-SORTCODE @13+6",
+        "PROCISRT-COMMAREA/PROCISRT-FUNCTION @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/PROCTRAN.cpy": {
+      "units": [
+        "PROC-TRAN-DATA/PROC-TRAN-AMOUNT @87+12",
+        "PROC-TRAN-DATA/PROC-TRAN-DATE @18+8",
+        "PROC-TRAN-DATA/PROC-TRAN-DESC @47+40",
+        "PROC-TRAN-DATA/PROC-TRAN-EYE-CATCHER @0+4",
+        "PROC-TRAN-DATA/PROC-TRAN-NUMBER @10+8",
+        "PROC-TRAN-DATA/PROC-TRAN-REF @32+12",
+        "PROC-TRAN-DATA/PROC-TRAN-SORT-CODE @4+6",
+        "PROC-TRAN-DATA/PROC-TRAN-TIME @26+6",
+        "PROC-TRAN-DATA/PROC-TRAN-TYPE @44+3"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/SORTCODE.cpy": {
+      "units": [
+        "SORTCODE/SORTCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/STCUSTNO.cpy": {
+      "units": [
+        "CUSTOMER-NUMBER-KEY/CNO-KEY @0+10"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/UPDACC.cpy": {
+      "units": [
+        "COMM-ACC-TYPE/COMM-ACC-TYPE @0+8",
+        "COMM-ACCNO/COMM-ACCNO @0+8",
+        "COMM-ACTUAL-BAL/COMM-ACTUAL-BAL @0+12",
+        "COMM-AVAIL-BAL/COMM-AVAIL-BAL @0+12",
+        "COMM-CUSTNO/COMM-CUSTNO @0+10",
+        "COMM-EYE/COMM-EYE @0+4",
+        "COMM-INT-RATE/COMM-INT-RATE @0+6",
+        "COMM-LAST-STMT-DT/COMM-LAST-STMT-DT @0+8",
+        "COMM-NEXT-STMT-DT/COMM-NEXT-STMT-DT @0+8",
+        "COMM-OPENED/COMM-OPENED @0+8",
+        "COMM-OVERDRAFT/COMM-OVERDRAFT @0+8",
+        "COMM-SCODE/COMM-SCODE @0+6",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/UPDCUST.cpy": {
+      "units": [
+        "COMM-ADDR/COMM-ADDR @0+160",
+        "COMM-CREDIT-SCORE/COMM-CREDIT-SCORE @0+3",
+        "COMM-CS-REVIEW-DATE/COMM-CS-REVIEW-DATE @0+8",
+        "COMM-CUSTNO/COMM-CUSTNO @0+10",
+        "COMM-DOB/COMM-DOB @0+8",
+        "COMM-EYE/COMM-EYE @0+4",
+        "COMM-NAME/COMM-NAME @0+60",
+        "COMM-SCODE/COMM-SCODE @0+6",
+        "COMM-UPD-FAIL-CD/COMM-UPD-FAIL-CD @0+1",
+        "COMM-UPD-SUCCESS/COMM-UPD-SUCCESS @0+1"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/XFRFUN.cpy": {
+      "units": [
+        "COMM-AMT/COMM-AMT @0+12",
+        "COMM-FACCNO/COMM-FACCNO @0+8",
+        "COMM-FACTBAL/COMM-FACTBAL @0+12",
+        "COMM-FAIL-CODE/COMM-FAIL-CODE @0+1",
+        "COMM-FAVBAL/COMM-FAVBAL @0+12",
+        "COMM-FSCODE/COMM-FSCODE @0+6",
+        "COMM-SUCCESS/COMM-SUCCESS @0+1",
+        "COMM-TACCNO/COMM-TACCNO @0+8",
+        "COMM-TACTBAL/COMM-TACTBAL @0+12",
+        "COMM-TAVBAL/COMM-TAVBAL @0+12",
+        "COMM-TSCODE/COMM-TSCODE @0+6"
+      ],
+      "layouts_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

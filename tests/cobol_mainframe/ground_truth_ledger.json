@@ -339,6 +339,15 @@
           },
           "truth": "cross_verified"
         },
+        "copybook layouts": {
+          "engine": {
+            "got": 2131,
+            "tp": 2131,
+            "truth": 2131
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "copybook paths": {
           "engine": {
             "got": 253,
@@ -1198,6 +1207,15 @@
           },
           "truth": "cross_verified"
         },
+        "copybook layouts": {
+          "engine": {
+            "got": 389,
+            "tp": 389,
+            "truth": 389
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "copybook paths": {
           "engine": {
             "got": 114,
@@ -1651,6 +1669,15 @@
           },
           "truth": "cross_verified"
         },
+        "copybook layouts": {
+          "engine": {
+            "got": 188,
+            "tp": 188,
+            "truth": 188
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "copybook paths": {
           "engine": {
             "got": 35,
@@ -2052,6 +2079,11 @@
           },
           "truth": "cross_verified"
         },
+        "copybook layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "copybook paths": {
           "engine": {
             "got": 0,
@@ -2425,6 +2457,15 @@
           },
           "truth": "cross_verified"
         },
+        "copybook layouts": {
+          "engine": {
+            "got": 17,
+            "tp": 17,
+            "truth": 17
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "copybook paths": {
           "engine": {
             "got": 6,
@@ -2789,6 +2830,15 @@
             "truth": 0
           },
           "truth": "cross_verified"
+        },
+        "copybook layouts": {
+          "engine": {
+            "got": 34,
+            "tp": 34,
+            "truth": 34
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "copybook paths": {
           "engine": {

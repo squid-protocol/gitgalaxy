@@ -32285,10 +32285,16 @@
           "line": 68
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgapvs01.cbl": {
@@ -32306,10 +32312,16 @@
           "line": 135
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgastat1.cbl": {
@@ -32363,10 +32375,16 @@
           "line": 115
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgdpvs01.cbl": {
@@ -32384,10 +32402,16 @@
           "line": 81
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgicvs01.cbl": {
@@ -32465,10 +32489,16 @@
           "line": 199
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgipvs01.cbl": {
@@ -32486,10 +32516,16 @@
           "line": 111
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgsetup.cbl": {
@@ -32579,10 +32615,16 @@
           "line": 171
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgstsq.cbl": {
@@ -32612,10 +32654,16 @@
           "line": 105
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgtestc1.cbl": {
@@ -32813,10 +32861,16 @@
           "line": 335
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgtestp1.cbl": {
@@ -32966,10 +33020,16 @@
           "line": 309
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgtestp2.cbl": {
@@ -33107,10 +33167,16 @@
           "line": 291
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgtestp3.cbl": {
@@ -33248,10 +33314,16 @@
           "line": 290
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgtestp4.cbl": {
@@ -33353,10 +33425,16 @@
           "line": 309
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgucvs01.cbl": {
@@ -33386,10 +33464,16 @@
           "line": 85
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgupvs01.cbl": {
@@ -33419,10 +33503,16 @@
           "line": 155
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "base/src/lgwebst5.cbl": {
@@ -33536,10 +33626,16 @@
           "line": 796
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -43676,6 +43772,85 @@
         "web": {
           "agree": 18,
           "asked": 18
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgastat1.cbl",
+        "base/src/lgtestc1.cbl",
+        "base/src/lgtestp1.cbl",
+        "base/src/lgtestp2.cbl",
+        "base/src/lgtestp3.cbl",
+        "base/src/lgwebst5.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 63,
+          "asked": 63
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp resources census, #3528)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipdb01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgtestp4.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/lgupvs01.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 31,
+          "asked": 31
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
         }
       },
       "rulings": {}

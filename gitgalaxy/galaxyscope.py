@@ -97,6 +97,8 @@ def missing_dependencies() -> dict[str, bool]:
 # existing FileNotFoundError/CalledProcessError handling at each call site
 # already covers that case unchanged.
 _GIT_BIN = shutil.which("git") or "git"
+# #3506: a scan holding any of these gets the mainframe skeleton-completeness report.
+_COMPLETENESS_LANGUAGES = frozenset({"cobol", "jcl", "bms", "csd"})
 
 logger = logging.getLogger("GalaxyScope")
 
@@ -1612,6 +1614,7 @@ class Orchestrator:
                 or self.config.get("SBOM_ONLY")
             )
             audit_output = "Skipped"
+            mainframe_completeness = None
 
             # ==========================================================
             # PHASE 12: ARCHIVAL & EXPORT ROUTING
@@ -1647,6 +1650,17 @@ class Orchestrator:
                         f"SQLITE_FAILURE: Could not generate native database. {e}",
                         exc_info=True,
                     )
+                else:
+                    # #3506: the mainframe skeleton's completeness, read back from the
+                    # DB just written, for the audit report and the LLM brief.
+                    try:
+                        mainframe_completeness = self._mainframe_completeness(
+                            repository_graph, db_output, session_meta.get("target")
+                        )
+                    except Exception as e:
+                        logger.error(
+                            f"COMPLETENESS_FAILURE: Could not score the mainframe skeleton. {e}", exc_info=True
+                        )
 
             # --- Phase 12.1: Audit Recorder (Forensic Log) ---
             if not exclusive_mode or self.config.get("AUDIT_ONLY"):
@@ -1663,6 +1677,7 @@ class Orchestrator:
                         forensic_report=report,
                         session_meta=session_meta,
                         output_path=audit_output,
+                        mainframe_completeness=mainframe_completeness,  # #3506
                     )
                 except Exception as e:
                     logger.error(
@@ -1684,6 +1699,7 @@ class Orchestrator:
                         output_dir=output_dir,
                         forensic_report=report,
                         call_resolution=self.fcall_stats,  # #3331
+                        mainframe_completeness=mainframe_completeness,  # #3506
                     )
                 except Exception as e:
                     logger.error(
@@ -3088,6 +3104,19 @@ class Orchestrator:
             print(" No regex telemetry collected.")
 
         print("=" * 75 + "\n")
+
+    @staticmethod
+    def _mainframe_completeness(repository_graph, db_path: str, repo_name: Optional[str]) -> Optional[dict]:
+        """GalaxyIR.completeness() of the scan just recorded (#3506), or None.
+
+        Only a scan holding COBOL, JCL, BMS or CSD has a mainframe skeleton to
+        score; every other scan returns before the IR is imported or loaded.
+        """
+        if not any(f.get("lang_id") in _COMPLETENESS_LANGUAGES for f in repository_graph or ()):
+            return None
+        from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
+
+        return load_galaxy_ir(Path(db_path), repo_name).completeness()
 
     def _get_git_audit(self) -> dict[str, str]:
         """

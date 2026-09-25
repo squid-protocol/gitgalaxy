@@ -155,7 +155,7 @@
             "truth": 107
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": {
@@ -1030,7 +1030,7 @@
             "truth": 75
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": {
@@ -1491,7 +1491,7 @@
             "truth": 94
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS task control": {
           "engine": {

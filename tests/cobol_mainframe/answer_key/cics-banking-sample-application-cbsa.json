@@ -59582,10 +59582,16 @@
           "line": 141
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
@@ -59639,10 +59645,16 @@
           "line": 1117
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
@@ -59696,10 +59708,16 @@
           "line": 772
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
@@ -59765,10 +59783,16 @@
           "line": 1441
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
@@ -59822,10 +59846,16 @@
           "line": 797
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
@@ -59879,10 +59909,16 @@
           "line": 980
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
@@ -59936,10 +59972,16 @@
           "line": 1564
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
@@ -59993,10 +60035,16 @@
           "line": 820
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
@@ -60050,10 +60098,16 @@
           "line": 1225
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/BNKMENU.cbl": {
@@ -60107,10 +60161,16 @@
           "line": 1129
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
@@ -60140,10 +60200,16 @@
           "line": 225
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
@@ -60173,10 +60239,16 @@
           "line": 225
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
@@ -60206,10 +60278,16 @@
           "line": 224
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
@@ -60239,10 +60317,16 @@
           "line": 227
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
@@ -60272,10 +60356,16 @@
           "line": 227
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -60413,10 +60503,16 @@
           "line": 1340
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
@@ -60446,10 +60542,16 @@
           "line": 178
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -60503,10 +60605,16 @@
           "line": 508
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/INQCUST.cbl": {
@@ -60608,10 +60716,16 @@
           "line": 656
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     },
     "src/base/cobol_src/UPDCUST.cbl": {
@@ -60641,10 +60755,16 @@
           "line": 294
         }
       ],
-      "cics_validated": false,
+      "cics_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -65623,6 +65743,84 @@
         "jcics": {
           "agree": 36,
           "asked": 36
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 58,
+          "asked": 58
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa resources census, #3528)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 17,
+          "asked": 17
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
         }
       },
       "rulings": {}

@@ -24,6 +24,8 @@ def test_declaration_prefix_lines_are_not_misanchored():
     assert saa.misanchored(["static int", "run(void) {"], 1, "run", "c") is False
     assert saa.misanchored(["template <typename T>", "T run(T x) {"], 1, "run", "cpp") is False
     assert saa.misanchored(["def run():"], 1, "run", "python") is False
+    assert saa.misanchored(["#[\\Override]", "public function run() {"], 1, "run", "php") is False
+    assert saa.misanchored(["int\t\t/* Return 1 on error */", "run(void) {"], 1, "run", "c") is False
 
 
 def test_unjudgeable_units_are_skipped():

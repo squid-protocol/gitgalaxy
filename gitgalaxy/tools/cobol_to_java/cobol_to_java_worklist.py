@@ -97,7 +97,6 @@ CATEGORIES = (
              "at run time, never from a file."),
 )  # fmt: skip
 UNCATEGORISED = Category("uncategorised", "Other TODOs", "review", (), "Read the TODO; it has no category yet.")
-_BY_ID = {c.id: c for c in (*CATEGORIES, UNCATEGORISED)}
 
 _TODO = re.compile(r"\bTODO\b:?\s*(.*)")
 _AI_TAG = re.compile(r"^(?:\[AI AGENT\]|AI AGENT\s*-)\s*")
@@ -270,9 +269,9 @@ def _where(it: dict) -> str:
 def render_markdown(wl: dict) -> str:
     s = wl["summary"]
     md = ["# Migration worklist", "",
-          "Every TODO the generators left in this project: where a fact was missing or two facts disagreed, "
-          "the Java says so instead of guessing. Each item names the fact it rests on (from "
-          "`traceability.json`) and a suggested resolution.", "",
+          ("Every TODO the generators left in this project: where a fact was missing or two facts disagreed, "
+           "the Java says so instead of guessing. Each item names the fact it rests on (from "
+           "`traceability.json`) and a suggested resolution."), "",
           f"**{s['items']} items** across {s['programs']} COBOL sources.", "",
           "| nature | items | what it takes |", "|---|---:|---|"]  # fmt: skip
     what = {"conflict": "two facts disagree: a person decides which one the Java follows",

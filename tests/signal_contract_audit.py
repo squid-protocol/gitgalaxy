@@ -52,7 +52,7 @@ import argparse
 import json
 import re
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -201,7 +201,9 @@ def render() -> str:
         "|---|---|---|---|---|---|---|",
     ]
     for name, c in sorted(sc.CONTRACTS.items(), key=lambda kv: (sc.PHASE_ORDER.index(kv[1].phase), kv[0])):
-        doc = f"[{Path(c.doc).name}]({Path('..') / c.doc})" if c.doc else ""
+        doc = (
+            f"[{PurePosixPath(c.doc).name}]({PurePosixPath('..') / c.doc})" if c.doc else ""
+        )  # `/` links on Windows too
         if c.issue:
             doc = (doc + " " if doc else "") + f"#{c.issue}"
         planted = "yes" if c.planted else ""
@@ -222,7 +224,9 @@ def render() -> str:
         "|---|---|---|---|",
     ]
     for name, c in sorted(sc.SCORE_CONTRACTS.items()):
-        doc = f"[{Path(c.doc).name}]({Path('..') / c.doc})" if c.doc else ""
+        doc = (
+            f"[{PurePosixPath(c.doc).name}]({PurePosixPath('..') / c.doc})" if c.doc else ""
+        )  # `/` links on Windows too
         if c.issue:
             doc = (doc + " " if doc else "") + f"#{c.issue}"
         lines.append(f"| `{name}` | {c.status} | {c.contract} | {doc} |")

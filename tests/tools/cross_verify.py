@@ -232,8 +232,10 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after, of this shape
 
 
 def _rel(path: str, repo: Path) -> str:
-    p = str(path)
-    root = str(repo).rstrip("/") + "/"
+    # Compared with `/` on every OS: on Windows `str(Path("/repo"))` has
+    # backslashes, and so do the answer paths, so a `/`-only root never matched.
+    p = str(path).replace("\\", "/")
+    root = str(repo).replace("\\", "/").rstrip("/") + "/"
     return p[len(root) :] if p.startswith(root) else p
 
 

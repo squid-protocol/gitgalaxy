@@ -5249,6 +5249,79 @@ def draft_symbolic_maps(repo: Path) -> dict[str, dict[str, Any]]:
     return out
 
 
+# #3575: an ORACLE for the layouts above -- IBM's own DFHMAPS output. Some estates
+# check in the generated symbolic-map copybooks (CardDemo's `cpy-bms`); read with
+# this tool's COBOL item reader and laid out by plain storage arithmetic (a PIC's
+# bytes, a group the sum of its non-REDEFINES children, OCCURS multiplies, a
+# REDEFINES starts where its target does, every 01 at 0), each named item is
+# `NAME @offset+bytes` -- the unit symbolic_map_units computes from the BMS source.
+def _pic_bytes(pic: str, usage: Optional[str]) -> int:
+    digits = sum(int(rep) if rep else 1 for ch, rep in re.findall(r"([XA9ZB0/,.+*$-])(?:\((\d+)\))?", pic.upper()))
+    u = (usage or "").upper()
+    if u in ("COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL"):
+        return 2 if digits <= 4 else 4 if digits <= 9 else 8
+    if u in ("COMP-3", "PACKED-DECIMAL"):
+        return digits // 2 + 1
+    return digits
+
+
+def copybook_layout_units(path: Path) -> set[str]:
+    """`NAME @offset+bytes` of every named item of a COBOL copybook (see above)."""
+    items = [it for it in _data_items(Source(path)) if it["level"] not in (66, 88)]
+    kids: dict[Optional[int], list[dict[str, Any]]] = {}
+    for it in items:
+        kids.setdefault(it["parent"], []).append(it)
+    sizes: dict[int, int] = {}
+
+    def size(it: dict[str, Any]) -> int:
+        if it["ordinal"] not in sizes:
+            own = _pic_bytes(it["pic"], it.get("usage")) if it.get("pic") else sum(
+                size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))  # fmt: skip
+            sizes[it["ordinal"]] = own * (it.get("occurs_max") or 1)
+        return sizes[it["ordinal"]]
+
+    out: set[str] = set()
+
+    def place(it: dict[str, Any], at: int) -> None:
+        if it["name"] != "FILLER":
+            out.add(f"{it['name']} @{at}+{size(it)}")
+        cur, where = at, {}
+        for c in kids.get(it["ordinal"], []):
+            if c.get("redefines"):
+                place(c, where.get(c["redefines"], cur))
+            else:
+                where[c["name"]] = cur
+                place(c, cur)
+                cur += size(c)
+
+    for root in kids.get(None, []):
+        place(root, 0)
+    return out
+
+
+def verify_symbolic_maps(key: dict[str, Any], repo: Path, at: str) -> tuple[int, list[str]]:
+    """Sign every keyed mapset whose IBM-generated copybook (`<MAPSET>.cpy` in a
+    `cpy-bms` directory) lays out exactly as the key computes; (signed, differences)."""
+    generated = {
+        p.stem.upper(): p for p in repo.rglob("*") if p.is_file() and "cpy-bms" in {x.lower() for x in p.parts}
+    }
+    signed, diffs = 0, []
+    for rel, entry in key.get("symbolic_maps", {}).items():
+        results = {ms: (generated.get(ms), set(units)) for ms, units in entry["layouts"].items()}
+        if not results or any(cpy is None for cpy, _ in results.values()):
+            continue
+        bad = [ms for ms, (cpy, units) in results.items() if copybook_layout_units(cpy) != units]
+        if bad:
+            diffs += [f"{rel}#{ms}" for ms in bad]
+            continue
+        entry["symbolic_validated"] = True
+        entry["verification"] = {"status": "validated", "tier": "cross_verified", "notes": [], "census": {
+            "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus", "at": at,
+            "copybooks": sorted(results[ms][0].relative_to(repo).as_posix() for ms in results)}}  # fmt: skip
+        signed += 1
+    return signed, diffs
+
+
 # ==============================================================================
 # Draft
 # ==============================================================================
@@ -6282,6 +6355,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    vs = sub.add_parser("verify-symbolic")  # #3575: sign symbolic maps against IBM's generated copybooks
+    vs.add_argument("repo", type=Path)
+    vs.add_argument("--key", type=Path, required=True)
     dlp = sub.add_parser("add-dli")
     dlp.add_argument("repo", type=Path)
     dlp.add_argument("--key", type=Path, required=True)
@@ -6462,6 +6538,14 @@ def main() -> int:
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {drafted} COMMAREA operands over {len(programs)} programs -> {args.key}")
         return 0
+    if args.cmd == "verify-symbolic":
+        from datetime import datetime, timezone  # noqa: PLC0415
+
+        at = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        signed, diffs = verify_symbolic_maps(key, repo, at)
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"signed {signed} BMS sources against IBM-generated copybooks; {len(diffs)} differ: {diffs[:5]}")
+        return 1 if diffs else 0
     if args.cmd == "add-cics":
         # #3351-#3354: the add-pli discipline -- refresh drafts, keep signed-off files.
         ops = key.get("cics_resources", {})

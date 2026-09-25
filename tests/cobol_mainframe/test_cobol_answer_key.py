@@ -1300,3 +1300,36 @@ def test_jcics_reader_on_its_own(tmp_path):
         "L5 LINK GETSCODE",
         "L7 CONTAINER CIPB read",
     ]
+
+
+def test_copybook_layout_units_lay_out_an_ibm_symbolic_map(tmp_path):
+    """#3575: the oracle for symbolic maps -- IBM's DFHMAPS output read as storage."""
+    cpy = tmp_path / "SMAP.cpy"
+    cpy.write_text(
+        "\n".join(
+            "       " + ln
+            for ln in (
+                "01  SMAPI.",
+                "    02  FILLER PIC X(12).",
+                "    02  NAMEL    COMP  PIC  S9(4).",
+                "    02  NAMEF    PICTURE X.",
+                "    02  FILLER REDEFINES NAMEF.",
+                "      03 NAMEA    PICTURE X.",
+                "    02  NAMEI  PIC X(8).",
+                "01  SMAPO REDEFINES SMAPI.",
+                "    02  FILLER PIC X(12).",
+                "    02  FILLER PICTURE X(3).",
+                "    02  NAMEO  PIC X(8).",
+            )
+        )
+        + "\n"
+    )
+    assert ak.copybook_layout_units(cpy) == {
+        "SMAPI @0+23", "NAMEL @12+2", "NAMEF @14+1", "NAMEA @14+1", "NAMEI @15+8",
+        "SMAPO @0+23", "NAMEO @15+8",
+    }  # fmt: skip
+    assert (ak._pic_bytes("S9(4)", "COMP"), ak._pic_bytes("S9(9)", "BINARY"), ak._pic_bytes("9(5)", "COMP-3")) == (
+        2,
+        4,
+        3,
+    )

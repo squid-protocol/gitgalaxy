@@ -137,7 +137,7 @@
             "truth": 1208
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CALL USING": {
           "engine": {
@@ -508,7 +508,7 @@
             "truth": 5307
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "units": {
           "engine": {
@@ -1012,7 +1012,7 @@
             "truth": 371
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "CALL USING": {
           "engine": {
@@ -1477,7 +1477,7 @@
             "truth": 286
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CALL USING": {
           "engine": null,

@@ -67198,10 +67198,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/bms/COPAU01.bms": {
@@ -68047,10 +68053,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/bms/COTRTLI.bms": {
@@ -69301,10 +69313,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/bms/COTRTUP.bms": {
@@ -69715,10 +69733,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COACTUP.bms": {
@@ -71674,10 +71698,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COACTVW.bms": {
@@ -73213,10 +73243,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COADM01.bms": {
@@ -73672,10 +73708,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COBIL00.bms": {
@@ -74071,10 +74113,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COCRDLI.bms": {
@@ -75190,10 +75238,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COCRDSL.bms": {
@@ -75694,10 +75748,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COCRDUP.bms": {
@@ -76243,10 +76303,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COMEN01.bms": {
@@ -76702,10 +76768,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/CORPT00.bms": {
@@ -77371,10 +77443,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COSGN00.bms": {
@@ -77965,10 +78043,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COTRN00.bms": {
@@ -79339,10 +79423,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COTRN01.bms": {
@@ -80218,10 +80308,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COTRN02.bms": {
@@ -81172,10 +81268,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COUSR00.bms": {
@@ -82546,10 +82648,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COUSR01.bms": {
@@ -83005,10 +83113,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COUSR02.bms": {
@@ -83479,10 +83593,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "app/bms/COUSR03.bms": {
@@ -83908,10 +84028,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -94629,6 +94755,74 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/bms/COPAU00.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 106,
+          "asked": 106
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "app/bms/COUSR00.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 91,
+          "asked": 91
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "app/app-transaction-type-db2/bms/COTRTLI.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 83,
+          "asked": 83
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 4,
+      "files": [
+        "app/bms/COCRDSL.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 33,
+          "asked": 33
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -111231,6 +111425,55 @@
       "key_errors": 12,
       "upper_bound_95": 0.10945,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": [
+          "app/app-authorization-ims-db2-mq/bms/COPAU00.bms",
+          "app/app-transaction-type-db2/bms/COTRTLI.bms",
+          "app/bms/COCRDSL.bms",
+          "app/bms/COUSR00.bms"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "app/app-authorization-ims-db2-mq/bms/COPAU00.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "app/bms/COUSR00.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 3,
+          "files": [
+            "app/app-transaction-type-db2/bms/COTRTLI.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 4,
+          "files": [
+            "app/bms/COCRDSL.bms"
+          ]
+        }
+      ],
+      "asked": 313,
+      "key_errors": 0,
+      "upper_bound_95": 0.00953
     }
   },
   "symbolic_maps": {
@@ -111799,10 +112042,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy"
+          ]
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/bms/COPAU01.bms": {
@@ -112055,10 +112306,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy"
+          ]
+        }
       }
     },
     "app/app-transaction-type-db2/bms/COTRTLI.bms": {
@@ -112428,10 +112687,18 @@
           "TRTYPEV @178+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy"
+          ]
+        }
       }
     },
     "app/app-transaction-type-db2/bms/COTRTUP.bms": {
@@ -112576,10 +112843,18 @@
           "TRTYPCDV @168+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy"
+          ]
+        }
       }
     },
     "app/bms/COACTUP.bms": {
@@ -113075,10 +113350,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COACTUP.CPY"
+          ]
+        }
       }
     },
     "app/bms/COACTVW.bms": {
@@ -113421,10 +113704,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COACTVW.CPY"
+          ]
+        }
       }
     },
     "app/bms/COADM01.bms": {
@@ -113614,10 +113905,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COADM01.CPY"
+          ]
+        }
       }
     },
     "app/bms/COBIL00.bms": {
@@ -113717,10 +114016,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COBIL00.CPY"
+          ]
+        }
       }
     },
     "app/bms/COCRDLI.bms": {
@@ -114135,10 +114442,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COCRDLI.CPY"
+          ]
+        }
       }
     },
     "app/bms/COCRDSL.bms": {
@@ -114283,10 +114598,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COCRDSL.CPY"
+          ]
+        }
       }
     },
     "app/bms/COCRDUP.bms": {
@@ -114449,10 +114772,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COCRDUP.CPY"
+          ]
+        }
       }
     },
     "app/bms/COMEN01.bms": {
@@ -114642,10 +114973,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COMEN01.CPY"
+          ]
+        }
       }
     },
     "app/bms/CORPT00.bms": {
@@ -114808,10 +115147,18 @@
           "YEARLYV @176+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/CORPT00.CPY"
+          ]
+        }
       }
     },
     "app/bms/COSGN00.bms": {
@@ -114920,10 +115267,18 @@
           "USERIDV @199+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COSGN00.CPY"
+          ]
+        }
       }
     },
     "app/bms/COTRN00.bms": {
@@ -115464,10 +115819,18 @@
           "TRNNAMEV @18+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COTRN00.CPY"
+          ]
+        }
       }
     },
     "app/bms/COTRN01.bms": {
@@ -115666,10 +116029,18 @@
           "TTYPCDV @237+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COTRN01.CPY"
+          ]
+        }
       }
     },
     "app/bms/COTRN02.bms": {
@@ -115868,10 +116239,18 @@
           "TTYPCDV @209+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COTRN02.CPY"
+          ]
+        }
       }
     },
     "app/bms/COUSR00.bms": {
@@ -116412,10 +116791,18 @@
           "UTYPE10V @1040+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COUSR00.CPY"
+          ]
+        }
       }
     },
     "app/bms/COUSR01.bms": {
@@ -116533,10 +116920,18 @@
           "USRTYPEV @252+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COUSR01.CPY"
+          ]
+        }
       }
     },
     "app/bms/COUSR02.bms": {
@@ -116654,10 +117049,18 @@
           "USRTYPEV @252+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COUSR02.CPY"
+          ]
+        }
       }
     },
     "app/bms/COUSR03.bms": {
@@ -116766,10 +117169,18 @@
           "USRTYPEV @237+1"
         ]
       },
-      "symbolic_validated": false,
+      "symbolic_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "tier": "cross_verified",
+        "notes": [],
+        "census": {
+          "by": "oracle: IBM DFHMAPS-generated symbolic-map copybooks checked into the corpus",
+          "at": "2026-09-25T12:22:48+00:00",
+          "copybooks": [
+            "app/cpy-bms/COUSR03.CPY"
+          ]
+        }
       }
     }
   },

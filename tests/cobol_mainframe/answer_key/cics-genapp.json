@@ -28330,10 +28330,16 @@
           "parent_ordinal": 252
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (cics-genapp bms full census, #3575; second reading)",
+          "at": "2026-09-25",
+          "sampled": false
+        }
       }
     }
   },
@@ -43312,6 +43318,29 @@
       "key_errors": 9,
       "upper_bound_95": 0.05426,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": [
+          "base/src/ssmap.bms"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewer (cics-genapp bms full census, #3575; second reading)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "base/src/ssmap.bms"
+          ]
+        }
+      ],
+      "asked": 286,
+      "key_errors": 0,
+      "upper_bound_95": 0.01042,
+      "note": "A first blind reading of ssmap.bms was discarded, not graded into the sign-off: its helper parser dropped every operand written on a continuation line (all of GENAPP's INITIAL= are), so 251 of its 286 items lacked INITIAL while position / length / ATTRB matched. A fresh reviewer with the same brief agreed 286/286."
     }
   },
   "cross_verification": [
@@ -44322,6 +44351,23 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewer (cics-genapp bms full census, #3575; second reading)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "base/src/ssmap.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 286,
+          "asked": 286
+        }
+      },
+      "rulings": {}
     }
   ],
   "web_services": {

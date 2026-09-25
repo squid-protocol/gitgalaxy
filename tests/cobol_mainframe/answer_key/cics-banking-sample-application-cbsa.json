@@ -51009,10 +51009,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1B2M.bms": {
@@ -51843,10 +51849,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1CAM.bms": {
@@ -52542,10 +52554,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1CCM.bms": {
@@ -53271,10 +53289,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1CDM.bms": {
@@ -53580,10 +53604,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1DAM.bms": {
@@ -54264,10 +54294,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1DCM.bms": {
@@ -54888,10 +54924,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1MAI.bms": {
@@ -55167,10 +55209,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1TFM.bms": {
@@ -55656,10 +55704,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     },
     "src/base/bms_src/BNK1UAM.bms": {
@@ -56445,10 +56499,16 @@
           "parent_ordinal": 1
         }
       ],
-      "fields_validated": false,
+      "fields_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
       }
     }
   },
@@ -66125,6 +66185,126 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "src/base/bms_src/BNK1B2M.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 55,
+          "asked": 55
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "src/base/bms_src/BNK1ACC.bms",
+        "src/base/bms_src/BNK1UAM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 66,
+          "asked": 66
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "src/base/bms_src/BNK1CCM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 48,
+          "asked": 48
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 4,
+      "files": [
+        "src/base/bms_src/BNK1CAM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 46,
+          "asked": 46
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 5,
+      "files": [
+        "src/base/bms_src/BNK1DAM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 45,
+          "asked": 45
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 6,
+      "files": [
+        "src/base/bms_src/BNK1DCM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 41,
+          "asked": 41
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 7,
+      "files": [
+        "src/base/bms_src/BNK1TFM.bms"
+      ],
+      "wide": false,
+      "suite": "bms",
+      "tasks": {
+        "bms": {
+          "agree": 32,
+          "asked": 32
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -78701,6 +78881,84 @@
       "key_errors": 36,
       "upper_bound_95": 0.28705,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "bms": {
+      "plan": {
+        "seed": 3452,
+        "budget": 300,
+        "files": [
+          "src/base/bms_src/BNK1ACC.bms",
+          "src/base/bms_src/BNK1B2M.bms",
+          "src/base/bms_src/BNK1CAM.bms",
+          "src/base/bms_src/BNK1CCM.bms",
+          "src/base/bms_src/BNK1DAM.bms",
+          "src/base/bms_src/BNK1DCM.bms",
+          "src/base/bms_src/BNK1TFM.bms",
+          "src/base/bms_src/BNK1UAM.bms"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "src/base/bms_src/BNK1B2M.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "src/base/bms_src/BNK1ACC.bms",
+            "src/base/bms_src/BNK1UAM.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 3,
+          "files": [
+            "src/base/bms_src/BNK1CCM.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 4,
+          "files": [
+            "src/base/bms_src/BNK1CAM.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 5,
+          "files": [
+            "src/base/bms_src/BNK1DAM.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 6,
+          "files": [
+            "src/base/bms_src/BNK1DCM.bms"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa bms sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 7,
+          "files": [
+            "src/base/bms_src/BNK1TFM.bms"
+          ]
+        }
+      ],
+      "asked": 333,
+      "key_errors": 0,
+      "upper_bound_95": 0.00896
     }
   },
   "symbolic_maps": {

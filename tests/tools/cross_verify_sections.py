@@ -66,6 +66,13 @@ keyed rows, in full:
     records           records_validated        line, level, name, PIC, USAGE, OCCURS, REDEFINES
                                                (tier sample_verified via records_validated_tier)
 
+`bms` (#3575) is a SAMPLED census of BMS sources (a full one when the plan covers them all):
+
+    bms_maps          fields_validated         mapsets, maps, and fields with POS / LENGTH / ATTRB /
+                                               PICIN / PICOUT / OCCURS / INITIAL
+    (symbolic maps are checked against IBM-generated copybooks instead:
+     cobol_answer_key.py verify-symbolic)
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -2041,6 +2048,137 @@ def _sign_records_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str
             entry["records_validated_tier"] = "sample_verified"
 
 
+# ---- the `bms` suite (#3575): a SAMPLED census of BMS screen fields -------------
+# ~1,900 DFHMSD / DFHMDI / DFHMDF items over CardDemo, CBSA and GENAPP: a seeded
+# sample of BMS sources (up to BMS_SAMPLE_FACTS per corpus) is read in full. Compared
+# through the key's own unit (cobol_answer_key.bms_layout_units): each mapset and
+# map, and each field with its owner, POS, LENGTH, ATTRB, PICIN / PICOUT, OCCURS and
+# INITIAL. The reviewer names each item's parent; the rows are rebuilt as the key's
+# items. Signed all at once, `sample_verified` (a full census when the plan covers
+# every source).
+BMS_SAMPLE_FACTS = 300
+
+
+def bms_plan(key: dict[str, Any], seed: int, budget: int = BMS_SAMPLE_FACTS) -> list[str]:
+    from cobol_answer_key import bms_layout_units  # noqa: PLC0415
+
+    sizes = {rel: len(bms_layout_units(e.get("fields", []))) for rel, e in sorted(key.get("bms_maps", {}).items())}
+    order = sorted(sizes)
+    random.Random(seed).shuffle(order)
+    chosen: list[str] = []
+    for rel in order:
+        if chosen and sum(sizes[c] for c in chosen) >= budget:
+            break
+        chosen.append(rel)
+    return sorted(chosen)
+
+
+def corpus_files_bms(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("bms", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_bms(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    from cobol_answer_key import bms_layout_units  # noqa: PLC0415
+
+    maps = key.get("bms_maps", {})
+    return {"bms": {rel: sorted(bms_layout_units(maps.get(rel, {}).get("fields", []))) for rel in files}}
+
+
+def _bms_items(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """A reviewer's rows as the key's items: ordinals, and parent_ordinal by parent name."""
+    items: list[dict[str, Any]] = []
+    last: dict[str, int] = {}
+    for r in rows:
+        kind = _ws(r.get("kind")).lower()
+        name = _ws(r["name"]) if r.get("name") else None
+        parent = last.get(_ws(r["parent"])) if r.get("parent") else None
+        it = {"kind": kind, "name": name, "ordinal": len(items), "parent_ordinal": parent}
+        for k in ("pos_line", "pos_column", "length", "occurs"):
+            v = r.get(k)
+            it[k] = int(v) if isinstance(v, int) or (isinstance(v, str) and v.strip().isdigit()) else None
+        attrb = r.get("attrb")
+        it["attrb"] = re.sub(r"\s+", "", str(attrb)).strip("()").upper() if attrb else None
+        for k in ("picin", "picout", "initial"):
+            it[k] = r.get(k) if r.get(k) not in ("",) else None
+        items.append(it)
+        if kind in ("mapset", "map") and name:
+            last[name] = it["ordinal"]
+    return items
+
+
+def reviewer_facts_bms(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    from cobol_answer_key import bms_layout_units  # noqa: PLC0415
+
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"bms": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        rows = [x for x in (v or {}).get("items", []) if isinstance(x, dict)]
+        out["bms"][r] = bms_layout_units(_bms_items(rows))
+    return out
+
+
+def render_bms(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "bms", "batch": index, "of": of, "files": files, "facts": key_facts_bms(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM CICS BMS map sources (the assembler macros DFHMSD,
+DFHMDI and DFHMDF that define 3270 screens), as a second reviewer. Read the files yourself. They are all under the
+repository root {repo}; read only the files listed below. Do NOT edit or create any files except your answers file,
+and do not look for any existing answer key or analysis: the point is an independent reading.
+
+READING RULES. A line starting with `*` is a comment. A statement whose column 72 is non-blank continues on the next
+line, whose text starts in column 16 (columns 73-80 are a sequence field, never part of the statement). A statement
+is `label MACRO operands`: the label (if any) is the item's name; operands are KEYWORD=value separated by commas.
+
+For EACH file list, in "items", every DFHMSD (kind "mapset"), DFHMDI (kind "map") and DFHMDF (kind "field") in
+source order -- EXCEPT a DFHMSD TYPE=FINAL, which is not listed -- one entry each:
+  "kind"       "mapset" | "map" | "field"
+  "name"       its label, upper-cased; null for an unlabelled DFHMDF (a screen literal)
+  "parent"     for a map: its mapset's name; for a field: the name of the map it follows (the mapset's, if no map
+               yet); null for a mapset
+  for a FIELD only (null for mapsets and maps, and null when the field does not code the operand):
+  "pos_line", "pos_column"  from POS=(line,column) (a POS written as a single number: both null)
+  "length"     LENGTH=n as an integer
+  "attrb"      ATTRB's value without its parentheses, e.g. "ASKIP,NORM" (as written, upper-cased)
+  "picin", "picout"  PICIN= / PICOUT= without the enclosing apostrophes
+  "occurs"     OCCURS=n as an integer
+  "initial"    INITIAL= text between the apostrophes, the continued lines joined, `''` read as one `'` and `&&`
+               as one `&`
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"items": [{{"kind": "mapset", "name": "COSGN00", "parent": null, "pos_line": null,
+   "pos_column": null, "length": null, "attrb": null, "picin": null, "picout": null, "occurs": null, "initial": null}},
+   {{"kind": "field", "name": null, "parent": "COSGN0A", "pos_line": 1, "pos_column": 1, "length": 5,
+   "attrb": "ASKIP,NORM", "picin": null, "picout": null, "occurs": null, "initial": "Tran:"}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_bms(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_bms(key, files)["bms"].items()}, max_items)
+
+
+def _sign_bms_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                     by: str, at: str) -> None:  # fmt: skip
+    sc = key["sample_census"]["bms"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("bms", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        full = set(sc["plan"]["files"]) >= set(key.get("bms_maps", {}))
+        tier = "cross_verified" if full else "sample_verified"
+        stamp = {"status": "validated", "tier": tier, "census": {"by": by, "at": at, "sampled": not full}}
+        for entry in key.get("bms_maps", {}).values():
+            entry["fields_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
 # ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
 # DSF's ~1,760 handler rows over 1,473 files: a seeded, stratified sample of files
 # (ON / REVERT / SIGNAL files, CICS-handler-only files, files with none) is read in
@@ -2331,6 +2469,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "csd"
         else reviewer_facts_records(answers, repo)
         if suite == "records"
+        else reviewer_facts_bms(answers, repo)
+        if suite == "bms"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
         else reviewer_facts(answers, repo)
@@ -2400,7 +2540,7 @@ def sign(
         else {("csd_decks", "resources_validated")}
         if truth.get("suite") == "csd"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -2440,6 +2580,8 @@ def sign(
         _sign_csd_transactions(key, by, at)
     if truth.get("suite") == "records":
         _sign_records_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "bms":
+        _sign_bms_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
@@ -2522,6 +2664,7 @@ def main() -> int:
             "pliresources",
             "csd",
             "records",
+            "bms",
         ),
         default="channels",
     )
@@ -2547,6 +2690,7 @@ def main() -> int:
             "pliresources",
             "csd",
             "records",
+            "bms",
         ),
         default="channels",
     )
@@ -2585,6 +2729,8 @@ def main() -> int:
         if suite == "csd"
         else corpus_files_records(key)
         if suite == "records"
+        else corpus_files_bms(key)
+        if suite == "bms"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -2629,6 +2775,12 @@ def main() -> int:
                 pr["plan"] = {"seed": args.seed, "strata": PLI_RES_SAMPLE, "files": pli_resources_plan(key, args.seed)}
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             files = corpus_files_pliresources(key)
+        if suite == "bms":
+            bc = key.setdefault("sample_census", {}).setdefault("bms", {})
+            if not bc.get("batches"):
+                bc["plan"] = {"seed": args.seed, "budget": BMS_SAMPLE_FACTS, "files": bms_plan(key, args.seed)}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_bms(key)
         if suite == "records":
             rc = key.setdefault("sample_census", {}).setdefault("records", {})
             if not rc.get("batches"):
@@ -2677,6 +2829,7 @@ def main() -> int:
             "pliresources": batches_pliresources,
             "csd": batches_csd,
             "records": batches_records,
+            "bms": batches_bms,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -2695,6 +2848,7 @@ def main() -> int:
                 "pliresources": render_pliresources,
                 "csd": render_csd,
                 "records": render_records,
+                "bms": render_bms,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -2749,6 +2903,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_csd(key, truth["files"]))
     elif truth.get("suite") == "records":
         current = dict(truth, facts=key_facts_records(key, truth["files"]))
+    elif truth.get("suite") == "bms":
+        current = dict(truth, facts=key_facts_bms(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:

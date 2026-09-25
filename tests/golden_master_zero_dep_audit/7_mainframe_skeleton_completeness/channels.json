@@ -1,0 +1,75 @@
+{
+  "path": [
+    "7. Mainframe Skeleton Completeness",
+    "Channels"
+  ],
+  "value": {
+    "IMS PSBs": {
+      "Gaps": {
+        "DL/I program with no PSB": 0
+      },
+      "Ratio": "N/A",
+      "Resolved": 0,
+      "System Names (Not Gaps)": 0,
+      "Total": 0
+    },
+    "batch entry": {
+      "Gaps": {
+        "batch program no JCL step runs": 285
+      },
+      "Ratio": "1.4%",
+      "Resolved": 4,
+      "System Names (Not Gaps)": 0,
+      "Total": 289
+    },
+    "copybooks": {
+      "Gaps": {
+        "missing copybook": 30
+      },
+      "Ratio": "90.6%",
+      "Resolved": 288,
+      "System Names (Not Gaps)": 1,
+      "Total": 318
+    },
+    "data flows": {
+      "Gaps": {
+        "unresolved operand": 3702
+      },
+      "Ratio": "87.5%",
+      "Resolved": 25906,
+      "System Names (Not Gaps)": 750,
+      "Total": 29608
+    },
+    "program calls": {
+      "Gaps": {
+        "dynamic target": 15,
+        "missing program": 259,
+        "non-COBOL program not linked": 0
+      },
+      "Ratio": "52.1%",
+      "Resolved": 298,
+      "System Names (Not Gaps)": 172,
+      "Total": 572
+    },
+    "screens": {
+      "Gaps": {
+        "dynamic map name": 4,
+        "missing BMS source": 81
+      },
+      "Ratio": "50.9%",
+      "Resolved": 88,
+      "System Names (Not Gaps)": 0,
+      "Total": 173
+    },
+    "transactions": {
+      "Gaps": {
+        "CICS program no transaction reaches": 9,
+        "transaction to a missing program": 16
+      },
+      "Ratio": "86.1%",
+      "Resolved": 155,
+      "System Names (Not Gaps)": 15,
+      "Total": 180
+    }
+  }
+}

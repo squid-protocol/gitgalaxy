@@ -210,11 +210,14 @@ class LLMRecorder:
         output_dir: str,
         forensic_report: Optional[dict[str, Any]] = None,
         call_resolution: Optional[dict[str, Any]] = None,
+        mainframe_completeness: Optional[dict[str, Any]] = None,
     ):
         """Generates the dual-output AI artifacts: Markdown and SQLite.
 
         `call_resolution` (#3331) is the call resolver's stats, rendered as the
-        brief's function-call resolution section (absent when None/empty)."""
+        brief's function-call resolution section (absent when None/empty).
+        `mainframe_completeness` (#3506) is GalaxyIR.completeness(), one line at
+        the end of the mainframe facts section (absent when None)."""
         if forensic_report is None:
             forensic_report = {}
 
@@ -272,6 +275,7 @@ class LLMRecorder:
             session_meta,
             forensic_report,
             call_resolution,
+            mainframe_completeness,
         )
 
         try:
@@ -455,6 +459,21 @@ class LLMRecorder:
         )
         lines.append("")
         return lines
+
+    @staticmethod
+    def _completeness_lines(report: Optional[dict[str, Any]]) -> list[str]:
+        """#3506: the mainframe skeleton's completeness score and its top three
+        missing inputs, in one line (the channel table is in the audit report)."""
+        if report is None:
+            return []
+        score = f"{report['score']:.0%}" if report["score"] is not None else "n/a (no channel has facts)"
+        top = sorted(report["missing_inputs"], key=lambda m: (-m["count"], m["input"]))[:3]
+        missing = "; ".join(f"{m['input']} ({m['count']} gaps)" for m in top) or "none"
+        return [
+            f"- **Mainframe skeleton completeness:** {score} (mean channel ratio; channel table in the audit "
+            f"report, section 7). Top missing inputs: {missing}.",
+            "",
+        ]
 
     def _call_resolution_lines(self, call_resolution: Optional[dict[str, Any]]) -> list[str]:
         """#3331: how many function calls the resolver linked, and how surely.
@@ -949,6 +968,7 @@ class LLMRecorder:
         session_meta: dict[str, Any],
         forensic_report: dict[str, Any],
         call_resolution: Optional[dict[str, Any]] = None,
+        mainframe_completeness: Optional[dict[str, Any]] = None,
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")
@@ -2010,6 +2030,7 @@ class LLMRecorder:
         # is absent from every non-mainframe brief.
         # ==============================================================================
         lines.extend(self._mainframe_facts_lines(parsed_files))
+        lines.extend(self._completeness_lines(mainframe_completeness))
 
         # --- 14. PROJECT IDIOM WRAPPERS (#3313 step 3) ---
         # Optional: renders only when the scan resolved at least one wrapper.

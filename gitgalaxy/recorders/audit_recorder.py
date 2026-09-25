@@ -96,6 +96,33 @@ class AuditRecorder:
             return round(value / default_scalar, 3)
         return value
 
+    @staticmethod
+    def _completeness_block(report):
+        """#3506: GalaxyIR.completeness() in the audit's labelled style -- the score,
+        each channel's resolved / total / system names and named gaps, and what to
+        ask the estate owner for (docs/mainframe_ingestion_checklist.md)."""
+
+        def pct(ratio):
+            return f"{ratio:.1%}" if ratio is not None else "N/A"
+
+        return {
+            "Score (Mean Channel Ratio)": pct(report["score"]),
+            "Channels": {
+                name: {
+                    "Resolved": ch["resolved"],
+                    "Total": ch["total"],
+                    "Ratio": pct(ch["ratio"]),
+                    "System Names (Not Gaps)": ch["system"],
+                    "Gaps": ch["gaps"],
+                }
+                for name, ch in report["channels"].items()
+            },
+            "Missing Inputs": [
+                {"Input": m["input"], "Gap Count": m["count"], "Examples": m["examples"]}
+                for m in report["missing_inputs"]
+            ],
+        }
+
     def _mainframe_facts_block(self, file_data):
         """The Named System Facts for one file (#3200/#3201/#3246/#3250/#3344/#3356), or {} if none.
 
@@ -504,10 +531,13 @@ class AuditRecorder:
         forensic_report,
         session_meta,
         output_path,
+        mainframe_completeness=None,
     ):
         """
         Transforms raw pipeline state into a verbose forensic compliance manifest.
         Memory-optimized to handle enterprise monorepos (10,000+ files) efficiently.
+        `mainframe_completeness` (#3506) is GalaxyIR.completeness() of the scan,
+        rendered as section 7 -- absent when None (every non-mainframe scan).
         """
         # 1. Forensic Traceability Anchor
         # Cryptographically binds this audit log to a specific moment in the source control history.
@@ -1049,6 +1079,8 @@ class AuditRecorder:
             "5. Unparsable Artifacts (Excluded Artifacts Queue)": pretty_unparsable,
             "6. Parsed Files (Scanned Artifacts)": pretty_directory_groups,
         }
+        if mainframe_completeness is not None:
+            mission_audit["7. Mainframe Skeleton Completeness"] = self._completeness_block(mainframe_completeness)
 
         target_path = Path(output_path)
 

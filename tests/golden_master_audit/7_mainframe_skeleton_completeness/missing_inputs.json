@@ -1,0 +1,70 @@
+{
+  "path": [
+    "7. Mainframe Skeleton Completeness",
+    "Missing Inputs"
+  ],
+  "value": [
+    {
+      "Examples": [
+        "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl",
+        "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl",
+        "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl",
+        "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl",
+        "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl"
+      ],
+      "Gap Count": 285,
+      "Input": "JCL and PROC libraries"
+    },
+    {
+      "Examples": [
+        "ADDAMT (jcl/cobol-programming-course/ADDAMT.jcl:12)",
+        "C$PARAMSIZE (cobol/gnucobol/CBL_OC_DUMP.cob:161)",
+        "CBL0001 (jcl/cobol-programming-course/CBL0001J.jcl:12)",
+        "CBL0001 (jcl/cobol-programming-course/CBL0003J.jcl:12)",
+        "CBL0002 (jcl/cobol-programming-course/CBL0002J.jcl:12)"
+      ],
+      "Gap Count": 275,
+      "Input": "application programs (source or load-module list)"
+    },
+    {
+      "Examples": [
+        "BNK1CCM/BNK1CCM (cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl:236)",
+        "COACTUP/CACTUPA (cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl:1048)",
+        "COACTVW/CACTVWA (cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl:611)",
+        "COADM01/COADM1A (cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl:179)",
+        "COADM01/COADM1A (cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl:191)"
+      ],
+      "Gap Count": 81,
+      "Input": "BMS map sources"
+    },
+    {
+      "Examples": [
+        "A (cobol/che-che4z_lsp_project_fixtures/TEST.CBL)",
+        "AST (cobol/che-che4z_lsp_project_fixtures/outline.cbl)",
+        "B (cobol/che-che4z_lsp_project_fixtures/TEST.CBL)",
+        "C (cobol/che-che4z_lsp_project_fixtures/TEST.CBL)",
+        "COPY003 (cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL)"
+      ],
+      "Gap Count": 30,
+      "Input": "copybook libraries"
+    },
+    {
+      "Examples": [
+        "cobol/cash-account-cobol/CASH00.cbl",
+        "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl",
+        "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl",
+        "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl",
+        "cobol/cics-java-jcics-samples/EC01.cbl"
+      ],
+      "Gap Count": 9,
+      "Input": "CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it"
+    },
+    {
+      "Examples": [
+        "cross-job order is not in the repository"
+      ],
+      "Gap Count": 120,
+      "Input": "scheduler export (CA-7 / Control-M / TWS)"
+    }
+  ]
+}

@@ -102,9 +102,12 @@ PINNED = {
     # #3576: DSF's 431 PL/I OPTIONS(MAIN) programs are scored: 310 are CICS (themselves or
     # through a %INCLUDEd member), 235 of them reached by a LINK / XCTL; with no CSD in the
     # repository the entry programs stay unreached, and with no JCL no batch main is run.
+    # #3600: 234/309 and 129 -- DSF keeps retired `/* %INCLUDE Rnnnnnnn; ... */` lines as
+    # comments, and one program counted as CICS only through such a comment. Imports are
+    # read from the code stream now, so it is the batch main its source says it is.
     "dsf": {
-        "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (235, 310), "screens": (0, 2421),
-        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 128),
+        "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (234, 309), "screens": (0, 2421),
+        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 129),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
     # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it

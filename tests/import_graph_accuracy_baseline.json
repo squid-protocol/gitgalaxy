@@ -19,6 +19,16 @@
     "recall_pct": 100.0,
     "repos": "fmtlib/fmt"
   },
+  "dart": {
+    "engine_edges": 566,
+    "files": 332,
+    "fn": 143,
+    "fp": 5,
+    "imports": 744,
+    "precision_pct": 99.1,
+    "recall_pct": 80.8,
+    "repos": "dart-lang/http"
+  },
   "go": {
     "engine_edges": 11,
     "files": 35,
@@ -28,6 +38,16 @@
     "precision_pct": 90.9,
     "recall_pct": 90.9,
     "repos": "spf13/cobra"
+  },
+  "haskell": {
+    "engine_edges": 138,
+    "files": 31,
+    "fn": 0,
+    "fp": 0,
+    "imports": 139,
+    "precision_pct": 100.0,
+    "recall_pct": 100.0,
+    "repos": "koalaman/shellcheck"
   },
   "java": {
     "engine_edges": 1022,
@@ -49,6 +69,16 @@
     "recall_pct": 100.0,
     "repos": "expressjs/express"
   },
+  "kotlin": {
+    "engine_edges": 147,
+    "files": 131,
+    "fn": 143,
+    "fp": 0,
+    "imports": 377,
+    "precision_pct": 100.0,
+    "recall_pct": 62.1,
+    "repos": "square/kotlinpoet"
+  },
   "lua": {
     "engine_edges": 351,
     "files": 173,
@@ -58,6 +88,16 @@
     "precision_pct": 100.0,
     "recall_pct": 99.2,
     "repos": "luarocks/luarocks"
+  },
+  "objective-c": {
+    "engine_edges": 653,
+    "files": 261,
+    "fn": 18,
+    "fp": 1,
+    "imports": 671,
+    "precision_pct": 99.8,
+    "recall_pct": 97.3,
+    "repos": "SDWebImage/SDWebImage"
   },
   "perl": {
     "engine_edges": 47,
@@ -108,6 +148,36 @@
     "precision_pct": 94.7,
     "recall_pct": 100.0,
     "repos": "serde-rs/json"
+  },
+  "scala": {
+    "engine_edges": 322,
+    "files": 233,
+    "fn": 674,
+    "fp": 2,
+    "imports": 1006,
+    "precision_pct": 99.4,
+    "recall_pct": 33.0,
+    "repos": "circe/circe"
+  },
+  "shell": {
+    "engine_edges": 24,
+    "files": 362,
+    "fn": 7,
+    "fp": 3,
+    "imports": 28,
+    "precision_pct": 87.5,
+    "recall_pct": 75.0,
+    "repos": "Bash-it/bash-it"
+  },
+  "solidity": {
+    "engine_edges": 834,
+    "files": 395,
+    "fn": 2,
+    "fp": 24,
+    "imports": 812,
+    "precision_pct": 97.1,
+    "recall_pct": 99.8,
+    "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "typescript": {
     "engine_edges": 564,

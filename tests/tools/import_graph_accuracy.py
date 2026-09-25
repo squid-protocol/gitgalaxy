@@ -80,6 +80,32 @@ RESOLUTION RULES (the language's, never the engine's)
               the file's own stem directory. A `#[path = "..."]` override is not
               read (such a `mod` is left unscored). `use` paths are not scored.
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
+  objective-c the C rule (`#import` is `#include` once); `@import Module;` is a
+              framework module, external.
+  dart        `package:p/x.dart` -> <p's pubspec.yaml directory>/lib/x.dart for a
+              package in the repo, else external; `dart:` is the SDK; any other
+              URI (import, export, part, part of) is relative to the file.
+  kotlin, scala
+              by PACKAGE and NAME, never by path: every file's package and its
+              top-level declarations are indexed, and `a.b.C` is a file declaring
+              C in package a.b. A member or nested import falls back to its
+              owner's file; `a.b.*` / `a.b._` is the package's files (or an
+              object's); Scala retries a name relative to each enclosing package.
+              A Java class is found by Java's rule (a/b/C.java).
+  haskell     `import A.B.C` -> a file ending in A/B/C.hs (.lhs, .hsc).
+  shell       `source p` / `. p`: relative to the file, else by suffix; a path
+              behind a variable (`"$DIR/lib/x.sh"`) keeps its literal tail and
+              matches by suffix.
+  solidity    `./`/`../` relative to the file; `@scope/pkg/x.sol` through a
+              package.json in the repo named @scope/pkg (npm remapping); else
+              from the project root; otherwise a dependency.
+
+  NOT HERE: COBOL. tree-sitter-cobol has no EXEC SQL / EXEC CICS rule, so its
+  error recovery swallows the COPY statements after one (CBSA's ACCTCTRL: one
+  ERROR node spans lines 85-127, taking three COPYs with it) -- it found 64 of
+  CBSA's ~148 COPY/INCLUDE statements. COBOL's copybook and call edges are scored
+  against the hand-verified answer keys instead (tests/cobol_mainframe/, gated by
+  ground_truth_ledger.py on every PR), a stronger truth than this parser gives.
 
   These are the rules a compiler or interpreter applies, minus configuration
   the corpus does not carry (include flags, tsconfig paths, GOPATH, @INC); where
@@ -117,7 +143,28 @@ CORPUS = Path(os.environ.get("IMPORT_GRAPH_CORPUS_PATH", REPO_ROOT.parent / "imp
 MANIFEST = REPO_ROOT / "tests" / "import_graph_corpus.json"
 BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 
-LANGS = ("python", "go", "c", "cpp", "java", "javascript", "typescript", "lua", "php", "zig", "ruby", "rust", "perl")
+LANGS = (
+    "python",
+    "go",
+    "c",
+    "cpp",
+    "java",
+    "javascript",
+    "typescript",
+    "lua",
+    "php",
+    "zig",
+    "ruby",
+    "rust",
+    "perl",
+    "objective-c",
+    "dart",
+    "kotlin",
+    "scala",
+    "haskell",
+    "shell",
+    "solidity",
+)
 
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
 TOLERANCE_PP = 0.5
@@ -560,6 +607,261 @@ def perl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+# ----------------------------------------------------------------------------- package-scoped JVM languages
+
+
+def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str, Any]:
+    """Kotlin / Scala: a declaration's file is found by PACKAGE and NAME, not by
+    path -- neither language ties the directory or the file name to what it
+    declares. Every file of the language is parsed once: its package, and the
+    names it declares at top level (classes, objects, traits, functions,
+    properties, type aliases; a Scala `package object p` adds package `pkg.p`)."""
+    key = "decl:" + lang
+    if key in group._cache:
+        return group._cache[key]
+    by_name: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+    by_pkg: dict[str, set[str]] = collections.defaultdict(set)
+    for f in group.files:
+        if not f.endswith(exts) or group.root is None:
+            continue
+        try:
+            src = (group.root / f).read_bytes()
+        except OSError:
+            continue
+        root = _ts_tree(lang, src)
+        pkg_parts: list[str] = []
+        names: list[tuple[str, str]] = []  # (package suffix, name)
+        for c in root.children:
+            t = c.type
+            if t in ("package_header", "package_clause"):
+                ident = next((x for x in c.children if x.type in ("identifier", "package_identifier")), None)
+                if ident is not None:
+                    # a backquoted segment (`io.circe.`export``) is the plain name
+                    pkg_parts += [p.strip("`") for p in re.split(r"[.\s]+", _text(ident, src)) if p.strip("`")]
+            elif t == "package_object":
+                n = c.child_by_field_name("name")
+                if n is not None:
+                    by_pkg[".".join([*pkg_parts, _text(n, src)])].add(f)
+                    names.append(("", _text(n, src)))
+            else:
+                n = c.child_by_field_name("name")
+                if n is None:
+                    n = next(
+                        (x for x in c.children if x.type in ("type_identifier", "simple_identifier", "identifier")),
+                        None,
+                    )
+                if n is None and t == "property_declaration":
+                    vd = next((x for x in c.children if x.type == "variable_declaration"), None)
+                    n = next((x for x in vd.children if x.type == "simple_identifier"), None) if vd else None
+                if n is not None and t.endswith(("declaration", "definition", "type_alias", "object")):
+                    names.append(("", _text(n, src)))
+        pkg = ".".join(pkg_parts)
+        by_pkg[pkg].add(f)
+        for _, name in names:
+            by_name[(pkg, name)].add(f)
+
+    def java_file(parts: list[str]) -> set[str]:
+        for cut in range(0, min(3, len(parts))):
+            head = parts[: len(parts) - cut]
+            hit = group.suffix("/".join(head) + ".java") if head else set()
+            if hit:
+                return hit
+        return set()
+
+    group._cache[key] = {"name": by_name, "pkg": by_pkg, "java": java_file}
+    return group._cache[key]
+
+
+def _jvm_resolve(index: dict[str, Any], parts: list[str], wildcard: bool, context: str) -> set[str]:
+    """`a.b.C` -> the files declaring C in package a.b; a member or nested import
+    (`a.b.C.member`, `a.b.C.Inner`) -> C's file; `a.b.*` -> package a.b's files
+    (or, for an object, its file). A name not found absolutely is retried under
+    each enclosing package of the importing file (Scala's relative imports)."""
+    prefixes = [""]
+    ctx = context.split(".") if context else []
+    prefixes += [".".join(ctx[:i]) for i in range(len(ctx), 0, -1)]
+    for prefix in prefixes:
+        full = ([*prefix.split(".")] if prefix else []) + parts
+        if wildcard:
+            hit = set(index["pkg"].get(".".join(full), ()))
+            if not hit and len(full) > 1:
+                hit = set(index["name"].get((".".join(full[:-1]), full[-1]), ()))
+            if hit:
+                return hit
+            continue
+        for cut in range(0, min(3, len(full) - 1)):
+            head = full[: len(full) - cut]
+            hit = index["name"].get((".".join(head[:-1]), head[-1]))
+            if hit:
+                return set(hit)
+    # A JVM language also imports Java classes, by Java's rule (a/b/C.java).
+    java = index["java"](parts)
+    return java
+
+
+def _jvm_package_of(index: dict[str, Any], rel: str) -> str:
+    return next((p for p, fs in index["pkg"].items() if rel in fs), "")
+
+
+def kotlin_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _jvm_decl_index(group, "kotlin", (".kt", ".kts"))
+    out = []
+    for n in _walk(_ts_tree("kotlin", src)):
+        if n.type != "import_header":
+            continue
+        ident = next((c for c in n.children if c.type == "identifier"), None)
+        if ident is None:
+            continue
+        parts = [_text(s, src) for s in ident.children if s.type == "simple_identifier"]
+        wildcard = any(c.type == "wildcard_import" for c in n.children)
+        out.append(_jvm_resolve(index, parts, wildcard, ""))
+    return out
+
+
+def scala_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    index = _jvm_decl_index(group, "scala", (".scala", ".sc"))
+    context = _jvm_package_of(index, rel)
+    out = []
+    for n in _walk(_ts_tree("scala", src)):
+        if n.type != "import_declaration":
+            continue
+        path = [_text(c, src) for c in n.children if c.type == "identifier"]
+        selectors = next((c for c in n.children if c.type == "namespace_selectors"), None)
+        if any(c.type == "namespace_wildcard" for c in n.children):
+            out.append(_jvm_resolve(index, path, True, context))
+        elif selectors is not None:
+            for s in selectors.children:
+                if s.type == "identifier":
+                    out.append(_jvm_resolve(index, [*path, _text(s, src)], False, context))
+                elif s.type == "arrow_renamed_identifier":
+                    first = next((x for x in s.children if x.type == "identifier"), None)
+                    if first is not None:
+                        out.append(_jvm_resolve(index, [*path, _text(first, src)], False, context))
+                elif s.type in ("namespace_wildcard", "wildcard"):
+                    out.append(_jvm_resolve(index, path, True, context))
+        elif path:
+            out.append(_jvm_resolve(index, path, False, context))
+    return out
+
+
+# ----------------------------------------------------------------------------- dart, haskell, shell, solidity
+
+
+def dart_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    """`package:p/x.dart` -> <p's pubspec directory>/lib/x.dart for a package in
+    this repo (a pubspec.yaml whose `name:` is p), else external; `dart:` is the
+    SDK; anything else is relative to the file. import, export, part, part of."""
+    if "pubspec" not in group._cache:
+        pkgs = {}
+        for spec in sorted(group.root.rglob("pubspec.yaml")) if group.root is not None else []:
+            try:
+                text = spec.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            m = re.search(r"^name:\s*([\w.]+)", text, re.M)
+            if m:
+                base = spec.parent.relative_to(group.root).as_posix()
+                pkgs[m.group(1)] = "" if base == "." else base
+        group._cache["pubspec"] = pkgs
+    pkgs = group._cache["pubspec"]
+    out = []
+    for n in _walk(_ts_tree("dart", src)):
+        if n.type != "uri":
+            continue
+        spec = _string_value(n, src)
+        if not spec or spec.startswith("dart:"):
+            continue
+        if spec.startswith("package:"):
+            name, _, rest = spec[len("package:") :].partition("/")
+            if name in pkgs:
+                out.append(group.exact(posixpath.join(pkgs[name], "lib", rest)))
+            continue
+        out.append(group.exact(posixpath.join(posixpath.dirname(rel), spec)))
+    return out
+
+
+def haskell_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    """`import A.B.C` -> a file ending in A/B/C.hs (.lhs, .hsc) under any source
+    directory (cabal's hs-source-dirs; the suffix accepts any)."""
+    out = []
+    for n in _walk(_ts_tree("haskell", src)):
+        if n.type != "import":
+            continue
+        mod = next((c for c in n.children if c.type == "module"), None)
+        if mod is not None:
+            tail = _text(mod, src).replace(".", "/")
+            out.append(set().union(*(group.suffix(tail + e) for e in (".hs", ".lhs", ".hsc"))))
+    return out
+
+
+_SHELL_EXPANSIONS = ("simple_expansion", "expansion", "command_substitution")
+
+
+def shell_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    """`source p` / `. p`: a literal path relative to the file's directory, else
+    any file ending in it. A path behind a variable (`"$DIR/lib/x.sh"`) keeps its
+    literal tail and matches by suffix -- the variable is configuration."""
+    out = []
+    for n in _walk(_ts_tree("bash", src)):
+        if n.type != "command":
+            continue
+        name = next((c for c in n.children if c.type == "command_name"), None)
+        if name is None or _text(name, src) not in ("source", "."):
+            continue
+        arg = next((c for c in n.children if c.type != "command_name"), None)
+        if arg is None:
+            continue
+        leaves = list(_walk(arg))
+        if any(x.type in _SHELL_EXPANSIONS for x in leaves):
+            literal = "".join(_text(x, src) for x in leaves if x.type in ("string_content", "word") and x is not arg)
+            tail = literal.strip("/").lstrip("./")
+            if "/" in literal and tail:
+                out.append(group.suffix(tail))
+            continue
+        spec = _string_value(arg, src) or _text(arg, src)
+        if not spec or spec.startswith("-"):
+            continue
+        local = group.exact(posixpath.join(posixpath.dirname(rel), spec))
+        out.append(local or group.suffix(spec.lstrip("./")))
+    return out
+
+
+def solidity_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
+    """`import "./x.sol"` relative to the file; `"@scope/pkg/x.sol"` through a
+    package.json in this repo named @scope/pkg (npm remapping), else from the
+    project root; otherwise a dependency."""
+    if "npm" not in group._cache:
+        names = {}
+        for pj in sorted(group.root.rglob("package.json")) if group.root is not None else []:
+            if "node_modules" in pj.parts:
+                continue
+            try:
+                name = json.loads(pj.read_text(encoding="utf-8", errors="replace")).get("name")
+            except (OSError, ValueError, AttributeError):
+                continue
+            if isinstance(name, str):
+                base = pj.parent.relative_to(group.root).as_posix()
+                names[name] = "" if base == "." else base
+        group._cache["npm"] = sorted(names.items(), key=lambda kv: -len(kv[0]))
+    out = []
+    for n in _walk(_ts_tree("solidity", src)):
+        if n.type != "import_directive":
+            continue
+        lit = next((c for c in n.children if c.type == "string"), None)
+        spec = _string_value(lit, src) if lit is not None else None
+        if not spec:
+            continue
+        if spec.startswith(("./", "../")):
+            out.append(group.exact(posixpath.join(posixpath.dirname(rel), spec)))
+            continue
+        pkg = next(((nm, d) for nm, d in group._cache["npm"] if spec.startswith(nm + "/")), None)
+        if pkg is not None:
+            out.append(group.exact(posixpath.join(pkg[1], spec[len(pkg[0]) + 1 :])))
+        else:
+            out.append(group.exact(spec))
+    return out
+
+
 EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "python": python_imports,
     "go": go_imports,
@@ -574,6 +876,13 @@ EXTRACTORS: dict[str, Callable[[bytes, str, Group], list[set[str]]]] = {
     "ruby": ruby_imports,
     "rust": rust_imports,
     "perl": perl_imports,
+    "objective-c": c_imports("objc"),
+    "dart": dart_imports,
+    "kotlin": kotlin_imports,
+    "scala": scala_imports,
+    "haskell": haskell_imports,
+    "shell": shell_imports,
+    "solidity": solidity_imports,
 }
 
 

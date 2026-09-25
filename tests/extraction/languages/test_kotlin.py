@@ -55,11 +55,20 @@ FUNCTION_CASES: dict[str, Any] = {
             "TargetFunc",
         ),  # nested generic bound -- was a real bug, now fixed
         ("fun String.TargetFunc(): Int {", "TargetFunc"),  # extension function
+        # #3608: generic and nullable receivers
+        ('public fun Collection<CodeBlock>.TargetFunc(separator: CharSequence = ", "): CodeBlock {', "TargetFunc"),
+        ("fun <T> List<T>.TargetFunc(): Int {", "TargetFunc"),
+        ("fun Map<String, Int>.TargetFunc() = 1", "TargetFunc"),
+        ("fun <K, V> Map<K, List<V>>.TargetFunc(x: Int): Int {", "TargetFunc"),
+        ("fun Map.Entry<K, V>.TargetFunc() {", "TargetFunc"),
+        ("fun String?.TargetFunc(): Int {", "TargetFunc"),
+        ("fun List<String>?.TargetFunc() {", "TargetFunc"),
         # Testing-framework-shaped functions that ARE real functions
         ("@Test\nfun TargetFunc() {", "TargetFunc"),  # JUnit @Test
     ],
     "invalid": [
         "class TargetFunc",  # class decl lookalike
+        "val TargetFunc = a < b",  # comparison, not a generic receiver
         "val TargetFunc =",  # val decl lookalike
         "if (TargetFunc)",  # if lookalike
     ],
@@ -109,6 +118,21 @@ def test_kotlin_func_start_redos_immunity():
     func_start = KOTLIN_RULES["func_start"]
     assert_redos_immune(func_start, "fun <T, U : " + "a" * 100000, timeout_sec=3.0)
     assert func_start.search("fun <T, U : Comparable<U>> Foo(x: T, y: U): T {")
+
+
+def test_kotlin_generic_receiver_extension_redos_immunity():
+    """#3608: the receiver's generic argument list is bounded, so an unclosed `<` stays linear."""
+    for key in ("func_start", "args"):
+        rule = KOTLIN_RULES[key]
+        assert_redos_immune(rule, "fun A<" + "a" * 100000, timeout_sec=3.0)
+        assert_redos_immune(rule, "fun A<" + "<a>" * 50000, timeout_sec=3.0)
+        assert_redos_immune(rule, "fun " + "A<b>?" * 30000, timeout_sec=3.0)
+
+
+def test_kotlin_args_generic_receiver_extension():
+    """#3608: `args` captures the parameter list of a generic-receiver extension."""
+    m = KOTLIN_RULES["args"].search("fun <K, V> Map<K, List<V>>.e(x: Int, y: V): Int {")
+    assert m and m.group(1) == "Map<K, List<V>>.e" and m.group(2) == "(x: Int, y: V)"
 
 
 def test_kotlin_func_start_known_limitation_raw_string_lookalike_still_matches_at_regex_level():

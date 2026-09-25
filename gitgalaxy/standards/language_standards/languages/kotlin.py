@@ -13,6 +13,12 @@ from typing import Any
 
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# An extension function's receiver type and its dot, shared by `args` and
+# `func_start`. #3608: the receiver can be generic (`Collection<CodeBlock>.`,
+# `Map<K, List<V>>.`) and nullable (`String?.`); the argument list uses the
+# one-level-nesting idiom, bounded so an unclosed `<` stays linear.
+_RECEIVER = r"(?:`[^`\n]{1,200}`|[\w.]+(?:<(?:[^<>]|<[^<>]{0,200}>){0,300}>)?\??)\."
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Kotlin 2.3.10 (K2 Compiler / Wasm / Java 25 Support)",
@@ -102,7 +108,9 @@ DEFINITION: dict[str, Any] = {
             # a bare trailing lambda (`list.forEach { item -> ... }`).
             # Name group added to the first alternative too, purely so
             # existing extraction tests keep passing.
-            r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*((?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\{[ \t\n]*([a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?)->",
+            r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*((?:"
+            + _RECEIVER
+            + r")?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\{[ \t\n]*([a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?)->",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -130,7 +138,9 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t\n]*){0,10}"
             r"(?:(?:public|private|protected|internal|open|override|abstract|final|suspend|inline|tailrec|infix|operator|external|expect|actual)[ \t\n]+){0,5}"
             r"(?:context\s*\([^)]*\)\s*)?"
-            r"(?:(?:\bfun\b)[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:(?:`[^`\n]{1,200}`|[\w.]+)\.)?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*)))?|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+            r"(?:(?:\bfun\b)[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:"
+            + _RECEIVER
+            + r")?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*)))?|(init)|(constructor))(?=[ \t\n]*[\(\{])",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)

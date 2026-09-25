@@ -747,7 +747,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             import_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_dependency_capture")
             if import_regex:
                 try:
-                    raw_imports.update(extract_raw_imports(import_regex, content_buffer, lang_defs.get(lang_id, {})))
+                    raw_imports.update(
+                        extract_raw_imports(import_regex, cast(str, content_buffer), lang_defs.get(lang_id, {}))
+                    )
                 except Exception:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)
 

@@ -173,7 +173,7 @@
             "truth": 134
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -420,7 +420,7 @@
             "tp": 26,
             "truth": 26
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": {
@@ -1048,7 +1048,7 @@
             "truth": 100
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -1509,7 +1509,7 @@
             "truth": 197
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": {
@@ -1732,7 +1732,7 @@
             "tp": 25,
             "truth": 25
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": null,
@@ -2279,7 +2279,7 @@
             "truth": 26
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table access": {
           "engine": null,
@@ -2494,7 +2494,7 @@
             "tp": 5,
             "truth": 5
           },
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "file I/O moves": {
           "engine": null,

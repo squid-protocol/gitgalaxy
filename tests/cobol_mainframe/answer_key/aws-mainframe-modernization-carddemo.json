@@ -1196,7 +1196,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
       "program_id": "COPAUA0C",
@@ -3471,7 +3477,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
       "program_id": "COPAUS0C",
@@ -5130,7 +5142,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
       "program_id": "COPAUS1C",
@@ -6652,7 +6670,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
       "program_id": "COPAUS2C",
@@ -7328,7 +7352,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
       "program_id": "DBUNLDGS",
@@ -8673,7 +8703,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
       "program_id": "PAUDBLOD",
@@ -10181,7 +10217,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
       "program_id": "PAUDBUNL",
@@ -11489,7 +11531,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
       "program_id": "COBTUPDT",
@@ -11861,7 +11909,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
       "program_id": "COTRTLIC",
@@ -16376,7 +16430,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
       "program_id": "COTRTUPC",
@@ -19223,7 +19283,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
       "program_id": "COACCT01",
@@ -21033,7 +21099,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
       "program_id": "CODATE01",
@@ -22371,7 +22443,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBACT01C.cbl": {
       "program_id": "CBACT01C",
@@ -23606,7 +23684,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBACT02C.cbl": {
       "program_id": "CBACT02C",
@@ -24040,7 +24124,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBACT03C.cbl": {
       "program_id": "CBACT03C",
@@ -24474,7 +24564,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBACT04C.cbl": {
       "program_id": "CBACT04C",
@@ -26145,7 +26241,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBCUS01C.cbl": {
       "program_id": "CBCUS01C",
@@ -26579,7 +26681,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBEXPORT.cbl": {
       "program_id": "CBEXPORT",
@@ -27477,7 +27585,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBIMPORT.cbl": {
       "program_id": "CBIMPORT",
@@ -28326,7 +28440,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBSTM03A.CBL": {
       "program_id": "CBSTM03A",
@@ -31332,7 +31452,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBSTM03B.CBL": {
       "program_id": "CBSTM03B",
@@ -32088,7 +32214,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBTRN01C.cbl": {
       "program_id": "CBTRN01C",
@@ -33195,7 +33327,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBTRN02C.cbl": {
       "program_id": "CBTRN02C",
@@ -34926,7 +35064,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CBTRN03C.cbl": {
       "program_id": "CBTRN03C",
@@ -36209,7 +36353,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COACTUPC.cbl": {
       "program_id": "COACTUPC",
@@ -46415,7 +46565,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COACTVWC.cbl": {
       "program_id": "COACTVWC",
@@ -48324,7 +48480,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COADM01C.cbl": {
       "program_id": "COADM01C",
@@ -48763,7 +48925,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COBIL00C.cbl": {
       "program_id": "COBIL00C",
@@ -49555,7 +49723,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COBSWAIT.cbl": {
       "program_id": "COBSWAIT",
@@ -49624,7 +49798,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COCRDLIC.cbl": {
       "program_id": "COCRDLIC",
@@ -52081,7 +52261,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COCRDSLC.cbl": {
       "program_id": "COCRDSLC",
@@ -53940,7 +54126,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COCRDUPC.cbl": {
       "program_id": "COCRDUPC",
@@ -57198,7 +57390,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COMEN01C.cbl": {
       "program_id": "COMEN01C",
@@ -57640,7 +57838,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CORPT00C.cbl": {
       "program_id": "CORPT00C",
@@ -59129,7 +59333,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COSGN00C.cbl": {
       "program_id": "COSGN00C",
@@ -59518,7 +59728,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COTRN00C.cbl": {
       "program_id": "COTRN00C",
@@ -60245,7 +60461,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COTRN01C.cbl": {
       "program_id": "COTRN01C",
@@ -60826,7 +61048,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COTRN02C.cbl": {
       "program_id": "COTRN02C",
@@ -61763,7 +61991,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COUSR00C.cbl": {
       "program_id": "COUSR00C",
@@ -62617,7 +62851,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COUSR01C.cbl": {
       "program_id": "COUSR01C",
@@ -62974,7 +63214,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COUSR02C.cbl": {
       "program_id": "COUSR02C",
@@ -63533,7 +63779,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/COUSR03C.cbl": {
       "program_id": "COUSR03C",
@@ -64092,7 +64344,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     },
     "app/cbl/CSUTLDTC.cbl": {
       "program_id": "CSUTLDTC",
@@ -64909,7 +65167,13 @@
           "at": "2026-09-24"
         }
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "transactions_validated": true,
+      "transactions_census": {
+        "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "at": "2026-09-25",
+        "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the cross-verified PROGRAM-ID (#3575)"
+      }
     }
   },
   "pli_programs": {},
@@ -86607,10 +86871,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-transaction-type-db2/csd/CRDDEMOD.csd": {
@@ -86760,10 +87030,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/app-vsam-mq/csd/CRDDEMOM.csd": {
@@ -86849,10 +87125,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/csd/CARDDEMO.CSD": {
@@ -87882,10 +88164,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     },
     "app/jcl/CBADMCDJ.jcl": {
@@ -88611,10 +88899,16 @@
           "program": "COTSTP4C"
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -94009,6 +94303,59 @@
         "uow": {
           "agree": 0,
           "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/csd/CARDDEMO.CSD"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 64,
+          "asked": 64
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/csd/CRDDEMO2.csd",
+        "app/app-transaction-type-db2/csd/CRDDEMOD.csd",
+        "app/jcl/CBADMCDJ.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 65,
+          "asked": 65
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "app/app-vsam-mq/csd/CRDDEMOM.csd"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 5,
+          "asked": 5
         }
       },
       "rulings": {}

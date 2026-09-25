@@ -59559,10 +59559,16 @@
           "program": null
         }
       ],
-      "resources_validated": false,
+      "resources_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa csd census, #3575)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa csd census, #3575)",
+          "at": "2026-09-25"
+        }
       }
     }
   },
@@ -65819,6 +65825,40 @@
           "asked": 0
         },
         "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "etc/install/base/installjcl/BANK.csd"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
+          "agree": 100,
+          "asked": 100
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa csd census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "etc/install/base/installjcl/HBANKCSD.jcl"
+      ],
+      "wide": false,
+      "suite": "csd",
+      "tasks": {
+        "csd": {
           "agree": 0,
           "asked": 0
         }

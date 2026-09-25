@@ -56,6 +56,11 @@ keyed rows, in full:
 
     jcics             jcics_validated          JCICS LINKs and file / queue / channel / container operations
 
+`csd` (#3575) is asked of every CSD deck (`.csd` / `.rdo`, or JCL running DFHCSDUP), in full:
+
+    csd_decks         resources_validated      each DEFINE with its key attributes; once every deck
+                                               is signed, programs' entry transactions (derived)
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -1657,6 +1662,121 @@ def _sign_pli_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `csd` suite (#3575): CSD resource definitions, in full -----------------
+# Every CSD deck (a `.csd` / `.rdo` member, or a JCL job running DFHCSDUP with its
+# SYSIN in-stream) is read in full: each DEFINE with its key attributes. Compared
+# through the key's own canonical form (cobol_answer_key.csd_resource_values). A
+# program's entry transactions are the censused TRANSACTION -> PROGRAM rows joined
+# to its cross-verified PROGRAM-ID, so once every deck of the corpus is signed the
+# programs' `transactions_validated` is stamped too, recorded as derived.
+def corpus_files_csd(key: dict[str, Any], repo: Path) -> list[str]:
+    from cobol_answer_key import is_csd_deck  # noqa: PLC0415 -- the key's own deck test
+
+    found = set(key.get("csd_decks", {}))
+    for p in repo.rglob("*"):
+        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".csd", ".rdo", ".jcl", ".prc"):
+            if is_csd_deck(p, p.read_text(encoding="utf-8", errors="ignore")):
+                found.add(p.relative_to(repo).as_posix())
+    return sorted(found)
+
+
+def _csd_row(r: dict[str, Any]) -> dict[str, Any]:
+    """A reviewer's row in the key's row shape: names upper-cased, sizes as integers."""
+    out: dict[str, Any] = {"line": int(r.get("line") or 0)}
+    for k in ("resource_type", "name", "group", "dsname", "ddname", "record_format", "queue_type", "plan",
+              "db2_entry", "transid", "program"):  # fmt: skip
+        v = r.get(k)
+        out[k] = str(v).strip().upper() if v not in (None, "") else None
+    for k in ("key_length", "record_size"):
+        v = r.get(k)
+        out[k] = int(v) if isinstance(v, int) or (isinstance(v, str) and v.strip().isdigit()) else None
+    return out
+
+
+def key_facts_csd(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    from cobol_answer_key import csd_resource_values  # noqa: PLC0415
+
+    decks = key.get("csd_decks", {})
+    return {"csd": {rel: sorted(csd_resource_values(decks.get(rel, {}).get("resources", []))) for rel in files}}
+
+
+def reviewer_facts_csd(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    from cobol_answer_key import csd_resource_values  # noqa: PLC0415
+
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"csd": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        rows = [_csd_row(x) for x in (v or {}).get("resources", []) if isinstance(x, dict)]
+        out["csd"][r] = set(csd_resource_values([x for x in rows if x["resource_type"] and x["name"]]))
+    return out
+
+
+def render_csd(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "csd", "batch": index, "of": of, "files": files, "facts": key_facts_csd(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM CICS resource definitions (CSD decks: the DFHCSDUP
+commands that define a CICS region's transactions, programs, files, queues, ...), as a second reviewer. Read the
+files yourself. They are all under the repository root {repo}; read only the files listed below. Do NOT edit or
+create any files except your answers file, and do not look for any existing answer key or analysis: the point is an
+independent reading. Line numbers are 1-based physical line numbers.
+
+A file is either a CSD deck, or a JCL job that runs DFHCSDUP with the commands in-stream after a `SYSIN DD *` line.
+READING RULES. A command starts with a line whose first word is DEFINE, DELETE, ALTER, ADD, REMOVE, LIST, UPGRADE
+or COPY, and continues on the following lines until the next such command, a blank line, a line starting with `*`,
+`//` or `/*`, or the end of the file. Only DEFINE commands are asked about. An operand is `KEYWORD(value)`; a value
+in apostrophes is the text between them (`''` is one apostrophe). Answer every value UPPER-CASED.
+
+For EACH file list, in "resources", every DEFINE command, one entry each:
+  "line"          the line the DEFINE is on
+  "resource_type" the keyword right after DEFINE (TRANSACTION, PROGRAM, FILE, TDQUEUE, DB2ENTRY, URIMAP, ...)
+  "name"          that keyword's value, upper-cased. SKIP the whole DEFINE if the name has any character other
+                  than a letter (either case), a digit, @ # $ (e.g. `<DB2SSID>`). A name such as `ZC@id@` is
+                  kept: it is letters and @ only (a template token, but a valid name)
+  "group"         GROUP(...)
+  "dsname"        DSNAME(...), else DSNAME01(...)
+  "ddname"        DDNAME(...)
+  "record_format" RECORDFORMAT(...)
+  "key_length"    KEYLENGTH(...) as an integer (null when not all digits)
+  "record_size"   RECORDSIZE(...) as an integer (null when not all digits)
+  "queue_type"    TYPE(...) -- only for a TDQUEUE, else null
+  "plan"          PLAN(...)
+  "db2_entry"     ENTRY(...) -- only for a DB2TRAN, else null
+  "transid"       for a TRANSACTION its own name; otherwise TRANSID(...), else TRANSACTION(...)
+  "program"       for a PROGRAM its own name; otherwise PROGRAM(...)
+An operand the DEFINE does not code is null. If a keyword appears twice, the first one counts. A file with no DEFINE
+gets an empty list.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"resources": [{{"line": 3, "resource_type": "TRANSACTION", "name": "ACCT", "group": "BANK",
+   "dsname": null, "ddname": null, "record_format": null, "key_length": null, "record_size": null,
+   "queue_type": null, "plan": null, "db2_entry": null, "transid": "ACCT", "program": "ACCTPGM"}}]}},
+   ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_csd(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_csd(key, files)["csd"].items()}, max_items)
+
+
+def _sign_csd_transactions(key: dict[str, Any], by: str, at: str) -> None:
+    """Once every CSD deck is signed, stamp the programs' entry transactions (derived)."""
+    decks = key.get("csd_decks", {})
+    if not decks or not all(e.get("resources_validated") for e in decks.values()):
+        return
+    for entry in key.get("programs", {}).values():
+        if "transactions" in entry and not entry.get("transactions_validated"):
+            entry["transactions_validated"] = True
+            entry["transactions_census"] = {
+                "by": by, "at": at, "derived": "censused CSD TRANSACTION -> PROGRAM rows joined to the "
+                "cross-verified PROGRAM-ID (#3575)"}  # fmt: skip
+
+
 # ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
 # DSF's ~1,760 handler rows over 1,473 files: a seeded, stratified sample of files
 # (ON / REVERT / SIGNAL files, CICS-handler-only files, files with none) is read in
@@ -1941,6 +2061,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "plicalls"
         else reviewer_facts_pliuow(answers, repo)
         if suite == "pliuow"
+        else reviewer_facts_csd(answers, repo)
+        if suite == "csd"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
         else reviewer_facts(answers, repo)
@@ -2007,6 +2129,8 @@ def sign(
         if truth.get("suite") == "jcics"
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
+        else {("csd_decks", "resources_validated")}
+        if truth.get("suite") == "csd"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
         if truth.get("suite") in ("plicalls", "pliuow", "plimoves")
         else {SECTIONS[t] for t in PER_FILE}
@@ -2042,6 +2166,8 @@ def sign(
         _sign_pli_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "pliuow":
         _sign_pli_uow_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "csd":
+        _sign_csd_transactions(key, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
@@ -2121,6 +2247,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "csd",
         ),
         default="channels",
     )
@@ -2143,6 +2270,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "csd",
         ),
         default="channels",
     )
@@ -2175,6 +2303,8 @@ def main() -> int:
         if suite == "plicalls"
         else corpus_files_pliuow(key)
         if suite == "pliuow"
+        else corpus_files_csd(key, repo)
+        if suite == "csd"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -2252,6 +2382,7 @@ def main() -> int:
             "resources": batches_resources,
             "plicalls": batches_plicalls,
             "pliuow": batches_pliuow,
+            "csd": batches_csd,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -2267,6 +2398,7 @@ def main() -> int:
                 "resources": render_resources,
                 "plicalls": render_plicalls,
                 "pliuow": render_pliuow,
+                "csd": render_csd,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -2315,6 +2447,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
     elif truth.get("suite") == "pliuow":
         current = dict(truth, facts=key_facts_pliuow(key, truth["files"]))
+    elif truth.get("suite") == "csd":
+        current = dict(truth, facts=key_facts_csd(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:

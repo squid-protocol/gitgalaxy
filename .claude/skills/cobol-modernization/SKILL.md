@@ -9,6 +9,16 @@ With `--galaxy-db/--scan` the refractor also writes `06_skeleton/` (#3614, `skel
 
 CICS programs (#3615, `cobol_to_java_transaction_forge.py`) are the first consumer of the skeleton. `GalaxyIR.program_interfaces()` resolves each program's COMMAREA layout: what the resolved callers pass, else its own fixed DFHCOMMAREA, else a stated gap. It also resolves its GET/PUT containers. From those, the forge generates `dto/cics/*` plus one endpoint per entry transaction, `/link` and `/channel`. Every class and field cites the fact and its field-testing status. Compile that path with `java_target_matrix.py --scan`; CI runs both paths.
 
+Calls (#3616, `cobol_to_java_call_forge.py`):
+- A resolved LINK/XCTL becomes `link<T>`/`xctl<T>`, calling the target's `handleLink`.
+- A resolved CALL becomes `call<T>(...)`, typed by the target's USING items (`program_interfaces().parameters`).
+- A data-driven site becomes `dispatch<Operand>L<line>`, a switch over the candidates.
+- A remote DPL LINK (`integration.remote_calls: http`) becomes a `<Region>RemoteClient`.
+- Targets are injected as `ObjectProvider` because CICS screens XCTL in cycles.
+- A site passing a record other than the one the target receives gets a mapping TODO.
+
+Program-ID lookups must go through `_program_index` / `_nearest_program` / `_program_file`. They skip CSD/BMS/JCL/DDL "program ids": the CSD deck used to shadow every program it DEFINEs.
+
 **Neither side is the oracle.** The answer key is.
 
 ## Read first (canonical, don't re-derive)

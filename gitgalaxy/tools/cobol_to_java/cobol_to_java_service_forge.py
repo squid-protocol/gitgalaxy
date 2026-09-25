@@ -36,7 +36,7 @@ def generate_service_skeleton(
     package_name: str,
     unit_key: Optional[str] = None,
     target: Optional[JavaTarget] = None,
-    extras: Optional[tuple[list[str], list[str]]] = None,
+    extras: Optional[dict] = None,
 ) -> str:
     """Generates the Spring Boot @Service skeleton and stages DAG dependencies.
 
@@ -44,8 +44,10 @@ def generate_service_skeleton(
     Omitted, the class is named from the IR's own file name as before, which two
     same-stemmed programs share.
 
-    `extras` (#3615): (import lines, method lines) a CICS program's endpoints need,
-    from the transaction forge; None leaves the service as before.
+    `extras` (#3615, #3616): what the verified skeleton adds -- `imports` (lines),
+    `fields` ((type, name) dependencies injected through the constructor) and
+    `methods` (lines): the handlers a CICS program's endpoints call and the calls it
+    makes to other programs. None leaves the service as before.
     """
     prog_id = program_key_from_ir(ir_state, unit_key) or "Unknown"
     camel_prog = java_class_base(prog_id, prefix="Legacy")
@@ -56,14 +58,15 @@ def generate_service_skeleton(
 
     java = []
     java.append(f"package {package_name}.service;\n")
-    lombok = (target or JavaTarget()).lombok  # #3613: the service injects nothing, so plain needs no constructor
+    lombok = (target or JavaTarget()).lombok
     java.append("import org.springframework.stereotype.Service;")
     if lombok:
         java.append("import lombok.RequiredArgsConstructor;")
     java.append("import org.slf4j.Logger;")
     java.append("import org.slf4j.LoggerFactory;")
-    if extras and extras[0]:
-        java.extend(extras[0])
+    extras = extras or {}
+    fields = extras.get("fields", [])
+    java.extend(extras.get("imports", []))
     java.append("")
 
     java.append("@Service")
@@ -72,6 +75,13 @@ def generate_service_skeleton(
     java.append(f"public class {camel_prog}Service {{\n")
 
     java.append(f"    private static final Logger log = LoggerFactory.getLogger({camel_prog}Service.class);\n")
+    if fields:
+        java.extend(f"    private final {jtype} {name};" for jtype, name in fields)
+        java.append("")
+        if not lombok:  # #3613 plain: the constructor injection Lombok would have generated
+            java.append(f"    public {camel_prog}Service({', '.join(f'{t} {n}' for t, n in fields)}) {{")
+            java.extend(f"        this.{name} = {name};" for _, name in fields)
+            java.append("    }\n")
 
     # ==========================================================================
     # DEFENSIVE DESIGN (APPLICATION CONTEXT SHIELD):
@@ -90,9 +100,9 @@ def generate_service_skeleton(
     java.append(f"    public void execute{camel_prog}(/* Parameters mapped from Controller */) {{")
     java.append(f'        log.info("Executing modernized business logic for {prog_id}");')
     java.append("        // TODO: [AI AGENT] Implement extracted business rules here.")
-    if extras and extras[1]:
+    if extras.get("methods"):
         java.append("    }\n")
-        java.extend(extras[1])
+        java.extend(extras["methods"])
         java.append("}")
     else:
         java.append("    }\n}")

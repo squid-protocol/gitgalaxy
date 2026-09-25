@@ -183,7 +183,7 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
     acct = (src / "controller/AcctinqController.java").read_text(encoding="utf-8")
     assert '@PostMapping("/link")' in acct and "LINK at cbl/MENU.cbl:8" in acct
     assert "public ResponseEntity<AcctCommarea> link(@RequestBody AcctCommarea request)" in acct
-    dto = (src / "dto/cics/AcctCommarea.java").read_text(encoding="utf-8")
+    dto = (src / "dto/contract/AcctCommarea.java").read_text(encoding="utf-8")
     assert "// CA-ACCT-ID: PIC 9(11), offset 0, 11 bytes (cpy/ACCTCOM.cpy)" in dto
     assert "private Long caAcctId;" in dto and "private BigDecimal caBalance;" in dto
     assert "private String caName;" in dto and "filler" not in dto.lower().split("*/")[1]
@@ -193,7 +193,7 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
 
     chan = (src / "controller/ChanpgmController.java").read_text(encoding="utf-8")
     assert "ResponseEntity<ChanpgmChannelOut> transactionCHAN(@RequestBody ChanpgmChannelIn request)" in chan
-    chan_in = (src / "dto/cics/ChanpgmChannelIn.java").read_text(encoding="utf-8")
+    chan_in = (src / "dto/contract/ChanpgmChannelIn.java").read_text(encoding="utf-8")
     assert "private ChanpgmWsReq reqData;" in chan_in and "CONTAINER(REQ.DATA)" in chan_in
 
     assert not (src / "controller/BatchController.java").exists()  # batch: the generic path, unchanged
@@ -204,7 +204,7 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
 
 def test_the_target_style_reaches_the_cics_dtos(scanned, tmp_path):
     _, src = _java(scanned, tmp_path, {"java": {"data_classes": "plain", "dto_style": "record"}})
-    dto = (src / "dto/cics/AcctCommarea.java").read_text(encoding="utf-8")
+    dto = (src / "dto/contract/AcctCommarea.java").read_text(encoding="utf-8")
     assert "public record AcctCommarea(" in dto and "lombok" not in dto
     acct = (src / "controller/AcctinqController.java").read_text(encoding="utf-8")
     assert "public AcctinqController(AcctinqService acctinqService)" in acct

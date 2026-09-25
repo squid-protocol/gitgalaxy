@@ -1479,7 +1479,7 @@ class GalaxyIR:
         program and side of a hand-coded EXEC CICS WEB exchange -- `file`, `side`
         (SERVER: a hand-written HTTP provider; CLIENT: an outbound session),
         `commands` and the resolved `endpoints` (URIMAP / HOST / PATH / header names)."""
-        by_pid = {pid.upper(): f.file_path for f in self.files.values() if f.is_program for pid in f.program_ids}
+        by_pid = self._program_index()
         copybooks: dict = {}
         for path, f in self.files.items():
             if f.language == "cobol" and not f.is_program:
@@ -1882,8 +1882,11 @@ class GalaxyIR:
         `containers` -- every GET / PUT CONTAINER naming a resolved container:
         `container`, `channel` (None = the current channel), `direction` (`in`
         for a GET, `out` for a PUT / MOVE), `record` (the INTO / FROM area) and
-        its `layout` (None when that area is not found). Facts only: nothing here
-        is inferred from names.
+        its `layout` (None when that area is not found).
+        `parameters` (#3616) -- the PROCEDURE DIVISION USING items in order, each
+        `position`, `name`, `mode` (REFERENCE / CONTENT / VALUE), `record`, `file`
+        and `layout` (None when the item is not found): what a CALL passes. Facts
+        only: nothing here is inferred from names.
         """
         incoming: dict[str, dict[tuple, dict]] = {}
         for row in self.commarea_contracts(language):
@@ -1955,7 +1958,27 @@ class GalaxyIR:
                         "line": op.line,
                     }
                 )
-            out[ef.file_path] = {"commarea": commarea, "commarea_gap": gap, "containers": containers}
+            parameters = []
+            entry = next((e for e in ef.entry_points if e.kind == "PROCEDURE"), None)
+            for position, raw in enumerate(entry.parameters if entry else [], 1):
+                mode, _, name = raw.rpartition(":")  # `CONTENT:X` / `VALUE:X`; reference by default
+                found = layout_of(ef, name)
+                parameters.append(
+                    {
+                        "position": position,
+                        "name": name,
+                        "mode": (mode or "REFERENCE").upper(),
+                        "record": found[1] if found else name,
+                        "file": found[0] if found else None,
+                        "layout": found[2] if found else None,
+                    }
+                )
+            out[ef.file_path] = {
+                "commarea": commarea,
+                "commarea_gap": gap,
+                "containers": containers,
+                "parameters": parameters,
+            }
         return out
 
     # ---- #3351-#3354: CICS resource joins ------------------------------------
@@ -2140,11 +2163,52 @@ class GalaxyIR:
         """
         return self._cics_ops_lineage("QUEUE", "tdqueue_datasets", "queue")
 
+    def _program_index(self) -> dict[str, str]:
+        """PROGRAM-ID (upper-cased) -> the file declaring it: executable sources only
+        (`_declares_programs`), the first by path when two do. A caller-relative lookup
+        is `_nearest_program`."""
+        out: dict[str, str] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            if _declares_programs(f):
+                for pid in f.program_ids:
+                    out.setdefault(pid.upper(), f.file_path)
+        return out
+
+    def _nearest_program(self, name: str, from_file: str) -> Optional[str]:
+        """The file declaring PROGRAM-ID `name` as seen from `from_file`: the only
+        declarer, else the one sharing the longest directory prefix with `from_file`
+        (zOE's COBOL/SAM1 -> COBOL/SAM2, not multiroot/sam/SAM2); None when none
+        declares it or the nearest are tied."""
+        hits = sorted(
+            f.file_path
+            for f in self.files.values()
+            if _declares_programs(f) and name.upper() in {p.upper() for p in f.program_ids}
+        )
+        if len(hits) <= 1:
+            return hits[0] if hits else None
+        home = Path(from_file).parent.parts
+
+        def shared(path: str) -> int:
+            n = 0
+            for a, b in zip(home, Path(path).parent.parts):
+                if a != b:
+                    break
+                n += 1
+            return n
+
+        best = max(shared(h) for h in hits)
+        nearest = [h for h in hits if shared(h) == best]
+        return nearest[0] if len(nearest) == 1 else None
+
     def _program_file(self, name: Optional[str]) -> Optional[str]:
         """The file declaring PROGRAM-ID `name`, when exactly one does."""
         if not name:
             return None
-        hits = [f.file_path for f in self.files.values() if name.upper() in {p.upper() for p in f.program_ids}]
+        hits = [
+            f.file_path
+            for f in self.files.values()
+            if _declares_programs(f) and name.upper() in {p.upper() for p in f.program_ids}
+        ]
         return hits[0] if len(hits) == 1 else None
 
     def _transaction_file(self, transid: Optional[str]) -> Optional[str]:
@@ -3141,7 +3205,6 @@ class GalaxyIR:
         `program`, `resolves_to` (its file, or None), `via` (value | table | moves) --
         and `other_sources`: items MOVEd into the operand whose content is not known
         here (a COMMAREA field such as CDEMO-FROM-PROGRAM: "back to the caller")."""
-        by_pid = {pid.upper(): f.file_path for f in self.files.values() if f.is_program for pid in f.program_ids}
         includers: dict = {}
         for f in self.files.values():
             for dep in f.copy_deps:
@@ -3184,7 +3247,7 @@ class GalaxyIR:
                             "verb": c.verb,
                             "operand": c.operand,
                             "candidates": [
-                                {"program": p, "resolves_to": by_pid.get(p.upper()), "via": via}
+                                {"program": p, "resolves_to": self._nearest_program(p, f.file_path), "via": via}
                                 for p, via in sorted(cands.items())
                             ],
                             "other_sources": sorted(others),
@@ -3676,10 +3739,7 @@ class GalaxyIR:
     def ims_program_psbs(self) -> dict:
         """Program file -> the PSB names it runs under: a JCL DFSRRC00 region step
         naming its PROGRAM-ID, and each EXEC DLI SCHD PSB resolved through VALUE."""
-        by_pid: dict[str, str] = {}
-        for f in self.files.values():
-            for pid in f.program_ids:
-                by_pid.setdefault(pid.upper(), f.file_path)
+        by_pid = self._program_index()
         out: dict[str, set] = {}
         for f in self.files.values():
             for g in f.ims_gen:
@@ -3788,6 +3848,17 @@ def _pic_positions(pic: str) -> Optional[list]:
 # a group, even with a USAGE of its own (`01 X USAGE DISPLAY.` applies to its
 # children) -- and even when the engine read a stray USAGE into it.
 _PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
+
+
+# Files whose class_data names are NOT programs: a CSD deck's DEFINE PROGRAM(...) entries, a
+# BMS mapset, a JCL job name, a DDL table. Indexing them as declarers made the CSD deck the
+# "file" of every program it defines (dynamic_call_targets) and made _program_file see two
+# declarers and answer None.
+_NON_PROGRAM_LANGUAGES = frozenset({"csd", "bms", "jcl", "db2_sql"})
+
+
+def _declares_programs(f: "EngineFile") -> bool:
+    return f.is_program and f.language not in _NON_PROGRAM_LANGUAGES
 
 
 # #3498: languages a CALL / LINK can reach that the call resolver does not link to.

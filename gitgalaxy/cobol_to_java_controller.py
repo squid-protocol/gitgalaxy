@@ -49,6 +49,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
     generate_pom_xml,
     generate_settings_gradle,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
 )
@@ -142,7 +143,9 @@ public class {camel_name}Service {{
 """
 
 
-def _write_skeleton_audit(f, skeletons: dict, cics: Optional[CicsForge] = None) -> None:
+def _write_skeleton_audit(
+    f, skeletons: dict, cics: Optional[CicsForge] = None, calls: Optional[CallForge] = None
+) -> None:
     """#3614: which engine facts the generated project was built against, and how far each is proven."""
     fields: dict[str, dict] = {}
     for key, path in skeletons.items():
@@ -168,6 +171,15 @@ def _write_skeleton_audit(f, skeletons: dict, cics: Optional[CicsForge] = None) 
             f"  • CICS programs (#3615)    : {len(cics.programs)} -- {with_commarea} with a COMMAREA DTO, "
             f"{sum(len(p.transactions) for p in cics.programs.values())} transaction endpoints, "
             f"{len(cics.dtos)} COMMAREA / channel DTOs\n"
+        )
+    if calls is not None:
+        methods = [m for ex in calls.extras.values() for m in ex.methods if m.startswith("    public ")]
+        link, xctl, call, dispatch, remote = (
+            sum(1 for m in methods if f" {kind}" in m) for kind in ("link", "xctl", "call", "dispatch", "remote")
+        )
+        f.write(
+            f"  • Service calls (#3616)    : {link} LINK, {xctl} XCTL, {call} CALL, {dispatch} data-driven dispatch, "
+            f"{remote} remote; {len(calls.clients)} remote-region clients\n"
         )
     f.write("\n")
 
@@ -309,15 +321,26 @@ def main():
     # #3614: the refractor's verified skeletons (present when it ran with --scan / --galaxy-db)
     skeleton_dir = clean_room_path / "06_skeleton"
     skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
-    # #3615: CICS programs get endpoints per entry transaction and COMMAREA / channel DTOs
-    cics = CicsForge(load_skeletons(skeleton_dir), args.pkg, target) if skeletons else None
-    if cics is not None and target.features.rest_controllers:
-        cics_dto_dir = java_dirs["dto"] / "cics"
-        cics_dto_dir.mkdir(parents=True, exist_ok=True)
+    # #3615: CICS programs get endpoints per entry transaction and COMMAREA / channel DTOs;
+    # #3616: every program's LINK / XCTL / CALL targets become service-to-service calls.
+    cics = calls = None
+    if skeletons and target.features.services:
+        loaded = load_skeletons(skeleton_dir)
+        cics = CicsForge(loaded, args.pkg, target)
+        calls = CallForge(loaded, cics, args.pkg, target)
+        contract_dir = java_dirs["dto"] / "contract"
+        contract_dir.mkdir(parents=True, exist_ok=True)
         for name, code in cics.dto_sources().items():
-            (cics_dto_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
+            (contract_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
             stats["dtos"] += 1
-        print(f"  [+] Generated {len(cics.dtos)} CICS COMMAREA / channel DTOs for {len(cics.programs)} CICS programs")
+        client_dir = java_dirs["base_pkg"] / "client"
+        for name, code in calls.client_sources().items():
+            client_dir.mkdir(parents=True, exist_ok=True)
+            (client_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
+        print(
+            f"  [+] Generated {len(cics.dtos)} program-contract DTOs for {len(cics.programs)} CICS programs and "
+            f"{len(calls.clients)} remote-region clients"
+        )
 
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
@@ -339,14 +362,18 @@ def main():
 
                 safe_file_name = java_class_base(raw_prog_id)
                 cics_prog = None
-                if cics is not None and target.features.rest_controllers:
-                    cics_prog = cics.programs.get(output_key(ir_file, "_ir"))
-                    if cics_prog is not None and cics_prog.cls != safe_file_name:
-                        cics_prog = None  # a renamed key (legacy / legacy-service): keep the generic path
+                skeleton_key = output_key(ir_file, "_ir")
+                if calls is not None and calls.cls_of.get(skeleton_key) != safe_file_name:
+                    skeleton_key = None  # a renamed key (legacy / legacy-service): keep the generic path
+                if cics is not None and skeleton_key:
+                    cics_prog = cics.programs.get(skeleton_key)
 
                 # 3A. Generate the @Service Skeleton
                 if target.features.services:
-                    extras = cics.service_extras(cics_prog) if cics_prog is not None else None
+                    extras = merge_extras(
+                        cics.service_extras(cics_prog) if cics_prog is not None else None,
+                        calls.service_extras(skeleton_key) if calls is not None and skeleton_key else None,
+                    )
                     service_code = generate_service_skeleton(
                         ir_state, args.pkg, unit_key=raw_prog_id, target=target, extras=extras
                     )
@@ -359,7 +386,7 @@ def main():
                 # 3B. Generate the @RestController
                 lineage = ir_state.get("analysis", {}).get("lineage", {})
                 wants_api = lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")
-                if cics_prog is not None:
+                if cics_prog is not None and target.features.rest_controllers:
                     java_code = cics.controller(cics_prog)
                     if java_header:
                         java_code = java_header + java_code
@@ -458,7 +485,7 @@ def main():
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
         if skeletons:
-            _write_skeleton_audit(f, skeletons, cics)
+            _write_skeleton_audit(f, skeletons, cics, calls)
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

@@ -31,7 +31,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, j
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _java_field_name, render_dto_class
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
-DTO_SUBPACKAGE = "dto.cics"
+# The records programs exchange -- COMMAREA, channel containers (#3615), CALL USING parameters (#3616).
+DTO_SUBPACKAGE = "dto.contract"
 # Checked after the `(n)` repeat counts are stripped, so anything but 9 S V P is an editing symbol
 # (Z , . + - * $ CR DB B / and the insertion 0): a numeric-edited PIC is display text.
 _EDITED = re.compile(r"[^9SVP]")
@@ -121,7 +122,7 @@ class CicsProgram:
     path: str
     program_ids: list[str]
     transactions: list[dict] = field(default_factory=list)  # {transid, segment, method, definitions}
-    links: list[dict] = field(default_factory=list)  # incoming LINK / XCTL contract rows
+    links: list[dict] = field(default_factory=list)  # incoming LINK / XCTL sites: {caller, line, verb, via}
     commarea: dict | None = None
     commarea_dto: str | None = None
     commarea_gap: str | None = None
@@ -131,9 +132,26 @@ class CicsProgram:
     status: dict[str, str] = field(default_factory=dict)  # section -> field-testing text
 
 
+def incoming_links(skeleton: dict) -> list[dict]:
+    """Every LINK / XCTL that reaches this program: a resolved COMMAREA contract, or a
+    `navigation` row -- which includes the data-driven sites whose candidates name it (#3616)."""
+    sections = skeleton.get("sections", {})
+    path = skeleton["program"]["file"]
+    rows: dict[tuple, dict] = {}
+    for r in (sections.get("commarea_contracts") or {}).get("facts", []):
+        if r.get("callee") == path and r.get("verb") in ("LINK", "XCTL"):
+            rows.setdefault((r["caller"], r["line"]), {"caller": r["caller"], "line": r["line"], "verb": r["verb"],
+                                                       "via": "static"})  # fmt: skip
+    for r in (sections.get("navigation") or {}).get("facts", []):
+        if r.get("to") == path and r.get("verb") in ("LINK", "XCTL"):
+            rows.setdefault((r["from"], r["line"]), {"caller": r["from"], "line": r["line"], "verb": r["verb"],
+                                                     "via": r.get("via")})  # fmt: skip
+    return [rows[k] for k in sorted(rows)]
+
+
 def is_cics_program(skeleton: dict) -> bool:
     """A program the engine saw CICS evidence for: an entry transaction, an EXEC CICS resource,
-    a COMMAREA contract or a container."""
+    a COMMAREA contract, a container, or a LINK / XCTL reaching it."""
     sections = skeleton.get("sections", {})
     interface = (sections.get("interface") or {}).get("facts") or {}
     return bool(
@@ -141,6 +159,7 @@ def is_cics_program(skeleton: dict) -> bool:
         or (sections.get("cics_resources") or {}).get("facts")
         or (sections.get("commarea_contracts") or {}).get("facts")
         or interface.get("containers")
+        or incoming_links(skeleton)
     )
 
 
@@ -156,6 +175,7 @@ class CicsForge:
         self.package = package
         self.target = target or JavaTarget()
         self.program_files = {sk["program"]["file"] for sk in skeletons.values()}
+        self._file_cls = {sk["program"]["file"]: java_class_base(key) for key, sk in skeletons.items()}
         self.dtos: dict[str, Dto] = {}
         self._by_signature: dict[tuple, str] = {}
         self.programs = {key: self._plan(key, sk) for key, sk in sorted(skeletons.items()) if is_cics_program(sk)}
@@ -170,7 +190,10 @@ class CicsForge:
                 self.dtos[name].uses.append(use)
             return name
         shared = file not in self.program_files and not layout.get("extended") and record.upper() != "DFHCOMMAREA"
-        name = java_class_base(record) if shared else owner_cls + java_class_base(record)
+        # A copybook record is named alone; a program's own record after the program declaring it
+        # (MENU's WS-COMM -> MenuWsComm, whichever program receives it); an extended copy after its owner.
+        declarer = self._file_cls.get(file) if not layout.get("extended") else None
+        name = java_class_base(record) if shared else (declarer or owner_cls) + java_class_base(record)
         base, n = name, 1
         while name in self.dtos:
             n += 1
@@ -213,11 +236,7 @@ class CicsForge:
             used.add(seg)
             prog.transactions.append({"transid": transid, "segment": seg, "definitions": by_transid[transid]})
 
-        prog.links = [
-            row
-            for row in (sections.get("commarea_contracts") or {}).get("facts", [])
-            if row.get("callee") == path and row.get("verb") in ("LINK", "XCTL")
-        ]
+        prog.links = incoming_links(sk)
 
         interface = (sections.get("interface") or {}).get("facts") or {}
         record_status = prog.status.get("interface", "untested")
@@ -270,7 +289,7 @@ class CicsForge:
 
     # ---- Java ---------------------------------------------------------------
     def dto_sources(self) -> dict[str, str]:
-        """DTO class name -> Java source (package <pkg>.dto.cics)."""
+        """DTO class name -> Java source (package <pkg>.dto.contract)."""
         return {
             name: render_dto_class(
                 f"{self.package}.{DTO_SUBPACKAGE}", name, d.body, d.requires_list, self.target, javadoc=d.doc()
@@ -283,6 +302,17 @@ class CicsForge:
         if prog.commarea_dto:
             return prog.commarea_dto, prog.commarea_dto
         return None, None
+
+    def link_types(self, prog: CicsProgram) -> tuple[str | None, str | None]:
+        """(request, response) of the program's handleLink: its COMMAREA, else its channel."""
+        req, resp = self._body(prog)
+        if not req and prog.channel_in:
+            req, resp = prog.channel_in, prog.channel_out
+        return req, resp
+
+    @staticmethod
+    def has_link_handler(prog: CicsProgram) -> bool:
+        return bool(prog.links or not prog.transactions)
 
     def controller(self, prog: CicsProgram) -> str:
         t, pkg, cls = self.target, self.package, prog.cls
@@ -322,9 +352,7 @@ class CicsForge:
         if not t.lombok:
             java += [f"    public {cls}Controller({cls}Service {svc}) {{", f"        this.{svc} = {svc};", "    }\n"]
 
-        req, resp = self._body(prog)
-        if not req and prog.channel_in:
-            req, resp = prog.channel_in, prog.channel_out
+        req, resp = self.link_types(prog)
         for txn in prog.transactions:
             defs = "; ".join(
                 f"{d.get('defined_in')}:{d.get('line')}" + (f" group {d['group']}" if d.get("group") else "")
@@ -336,7 +364,11 @@ class CicsForge:
                                    json.dumps(txn["transid"]), req, resp)  # fmt: skip
         if prog.links or not prog.transactions:
             if prog.links:
-                sites = ", ".join(f"{r['verb']} at {r['caller']}:{r['line']}" for r in prog.links)
+                sites = ", ".join(
+                    f"{r['verb']} at {r['caller']}:{r['line']}"
+                    + ("" if r["via"] == "static" else f" (data-driven, {r['via']})")
+                    for r in prog.links
+                )
                 java.append(f"    /** Program-to-program entry: {sites}. */")
             else:
                 java.append("    /** Program-to-program entry: no CSD transaction enters this program. */")
@@ -360,11 +392,9 @@ class CicsForge:
         return [f"    public ResponseEntity<Void> {method}({params}) {{", f"        {svc}.{call}({args});",
                 "        return ResponseEntity.noContent().build();", "    }\n"]  # fmt: skip
 
-    def service_extras(self, prog: CicsProgram) -> tuple[list[str], list[str]]:
-        """(imports, methods) the program's @Service gains: the handlers its endpoints call."""
-        req, resp = self._body(prog)
-        if not req and prog.channel_in:
-            req, resp = prog.channel_in, prog.channel_out
+    def service_extras(self, prog: CicsProgram) -> dict:
+        """The imports and methods the program's @Service gains: the handlers its endpoints call."""
+        req, resp = self.link_types(prog)
         names = {n for n in (req, resp, prog.channel_in, prog.channel_out) if n}
         imports = [f"import {self.package}.{DTO_SUBPACKAGE}.{n};" for n in sorted(names)]
         methods: list[str] = []
@@ -382,11 +412,11 @@ class CicsForge:
 
         if prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")
-        if prog.links or not prog.transactions:
+        if self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):
             handler("handleChannel", None, prog.channel_in, prog.channel_out, "The program's channel.")
-        return imports, methods
+        return {"imports": imports, "fields": [], "methods": methods}
 
 
 def load_skeletons(skeleton_dir: Path) -> dict[str, dict[str, Any]]:

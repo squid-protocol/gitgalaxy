@@ -31,6 +31,7 @@ DATA_CLASSES = ("lombok", "plain")  # entities and DTOs: Lombok @Data, or explic
 DTO_STYLES = ("class", "record")  # a transient record (DFHCOMMAREA): a class, or a Java record
 DATABASES = ("postgresql", "db2", "oracle", "mysql", "h2")
 DDL_AUTO = ("none", "validate", "update", "create", "create-drop")
+REMOTE_CALLS = ("http", "local")  # a DPL LINK to another region: an HTTP client, or the in-process bean
 
 # Per database: (Maven groupId, artifactId) of the JDBC driver -- versions come from the
 # Spring Boot BOM -- the driver class, the Hibernate dialect, and a JDBC URL template.
@@ -97,12 +98,18 @@ class Features:
 
 
 @dataclass
+class Integration:
+    remote_calls: str = "http"  # #3616: a LINK the CSD routes to another region (REMOTESYSTEM / SYSID)
+
+
+@dataclass
 class JavaTarget:
     project: Project = field(default_factory=Project)
     java: Java = field(default_factory=Java)
     spring_boot: SpringBoot = field(default_factory=SpringBoot)
     database: Database = field(default_factory=Database)
     features: Features = field(default_factory=Features)
+    integration: Integration = field(default_factory=Integration)
 
     @property
     def lombok(self) -> bool:
@@ -115,7 +122,14 @@ class JavaTarget:
         return DATABASE_DRIVERS[self.database.engine]
 
 
-_SECTIONS = {"project": Project, "java": Java, "spring_boot": SpringBoot, "database": Database, "features": Features}
+_SECTIONS = {
+    "project": Project,
+    "java": Java,
+    "spring_boot": SpringBoot,
+    "database": Database,
+    "features": Features,
+    "integration": Integration,
+}
 
 
 def _check(target: JavaTarget) -> None:
@@ -133,6 +147,7 @@ def _check(target: JavaTarget) -> None:
         ("java.dto_style", j.dto_style, DTO_STYLES),
         ("database.engine", d.engine, DATABASES),
         ("database.ddl_auto", d.ddl_auto, DDL_AUTO),
+        ("integration.remote_calls", target.integration.remote_calls, REMOTE_CALLS),
     ):
         if value not in allowed:
             raise ConfigError(f"{key} {value!r} is not supported; choose one of {', '.join(map(str, allowed))}")
@@ -228,4 +243,8 @@ features:
   ebcdic_decoder: true                  # the EBCDIC / COMP-3 decoder utility
   mock_services: true                   # mock services for unresolved external calls
   agent_tickets: true                   # bounded AI-agent tickets for the business logic
+
+integration:
+  remote_calls: http                    # {" | ".join(REMOTE_CALLS)}  (a LINK the CSD routes to another region:
+                                        #   http = a RestTemplate client per region, local = call the bean in-process)
 """  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

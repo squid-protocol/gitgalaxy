@@ -1,0 +1,21 @@
+{
+  "about": "Pinned upstream repos for tests/tools/import_graph_accuracy.py. Import ground truth needs each repo's real directory tree (a Python package path, a relative ./x import, a PSR-4 namespace), which language-crucible's flattened samples do not keep. Each entry is fetched shallow at its commit; `language` is the one language scored in it. Bumping a commit moves the numbers: regenerate the baseline in the same PR.",
+  "repos": [
+    {"repo": "fastapi/fastapi", "commit": "50113da16fec53b66b80d75e80a89296de4fa5a5", "language": "python"},
+    {"repo": "pallets/flask", "commit": "d73fa1cdcbd8b1465c151db8924ba58b1dd14e35", "language": "python"},
+    {"repo": "encode/httpx", "commit": "b5addb64f0161ff6bfe94c124ef76f6a1fba5254", "language": "python"},
+    {"repo": "spf13/cobra", "commit": "adbc8813901bba65827259daa8e22ff94ec1f30e", "language": "go"},
+    {"repo": "redis/hiredis", "commit": "058ebcdf36c5b05b759c613564fb958ec363c90f", "language": "c"},
+    {"repo": "libuv/libuv", "commit": "9be264a4efa515dcb6ced36267dac7a03f308be3", "language": "c"},
+    {"repo": "fmtlib/fmt", "commit": "6d71f74624be5daa548073ff8e4e0c8aa5476010", "language": "cpp"},
+    {"repo": "google/gson", "commit": "854c8255b625cf1e13c701a83ea9ccb4caaa576a", "language": "java"},
+    {"repo": "expressjs/express", "commit": "9a34acf03cb818ff3f8bc40e44176e277a25cbb9", "language": "javascript"},
+    {"repo": "colinhacks/zod", "commit": "2bf7b0630d5378033e90bcee82cb32b0fe04628e", "language": "typescript"},
+    {"repo": "luarocks/luarocks", "commit": "2d2cc8eff2f03c23d142f8059146fb241dcf56b5", "language": "lua"},
+    {"repo": "guzzle/guzzle", "commit": "93939470950a9b11e2e84204166ef5e048c55fe4", "language": "php"},
+    {"repo": "zigtools/zls", "commit": "0ea69abdd8f50d81989c00b6a3b9cf8ced7f9522", "language": "zig"},
+    {"repo": "rack/rack", "commit": "a9833c8f3bd6b6d1e0ab35de00a1f1a16b5095f5", "language": "ruby"},
+    {"repo": "serde-rs/json", "commit": "afdf6fc67247dd7fa4fcde1381e6ecc6bcc7a30e", "language": "rust"},
+    {"repo": "libwww-perl/HTTP-Message", "commit": "e16da326d0dbb56162837233f8e8b0e1e55d2309", "language": "perl"}
+  ]
+}

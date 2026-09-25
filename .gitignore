@@ -123,6 +123,8 @@ museum_2/
 # ReDoS baseline (#3214): committed source, same reason.
 !tests/cobol_mainframe/corpora.json
 !tests/cobol_mainframe/tool_regex_redos_baseline.json
+# ...and the pinned import-graph accuracy corpus manifest (tests/tools/import_graph_accuracy.py).
+!tests/import_graph_corpus.json
 # ...and the refraction differential's unexplained-delta baseline (#3211).
 !tests/cobol_mainframe/refraction_differential_baseline.json
 # ...and the mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py).

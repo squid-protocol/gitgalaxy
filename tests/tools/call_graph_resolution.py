@@ -22,6 +22,8 @@ function PageRank uses) and the ambiguous ones (which it deliberately does not).
            on a unit the key proves dead.
 
     python tests/tools/call_graph_resolution.py python [--samples 5]
+    python tests/tools/call_graph_resolution.py python --ci           # gate vs the baseline
+    python tests/tools/call_graph_resolution.py python --regenerate   # rewrite the baseline
     python tests/tools/call_graph_resolution.py cobol      # needs mainframe_corpus.py fetch+scan
     python tests/tools/call_graph_resolution.py all --json out.json
 
@@ -45,6 +47,11 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
+BASELINE = REPO_ROOT / "tests" / "call_graph_resolution_baseline.json"
+# Gate tolerance, in percentage points, before --ci calls a drop a regression.
+TOLERANCE_PP = 0.5
+# The python metrics --ci gates (all higher-is-better).
+GATED = ("confident_precision_pct", "recall_pct", "resolution_recall_pct")
 CONFIDENT = ("class", "qualified", "file", "import", "unique")
 AMBIGUOUS = ("nearest", "unseen", "receiver")
 _LINE_SLACK = 3
@@ -283,12 +290,55 @@ def score_cobol() -> dict[str, Any]:
     return out
 
 
+def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
+    """The flat, baseline-able view of score_python's result."""
+    return {
+        "confident_precision_pct": py["confident"]["precision_pct"],
+        "confident_judged": py["confident"].get("agree", 0) + py["confident"].get("wrong", 0),
+        "ambiguous_precision_pct": py["ambiguous"]["precision_pct"],
+        "recall_pct": py["recall_pct"],
+        "resolution_recall_pct": py["resolution_recall_pct"],
+        "pyan_edges": py["pyan_edges"],
+    }
+
+
+def regressions(current: dict[str, Any], baseline: dict[str, Any]) -> list[str]:
+    return [
+        f"python: {m} {baseline[m]} -> {current.get(m)}"
+        for m in GATED
+        if baseline.get(m) is not None and (current.get(m) or 0.0) < baseline[m] - TOLERANCE_PP
+    ]
+
+
+def render(current: dict[str, Any]) -> str:
+    def pct(v: Any) -> str:
+        return "n/a" if v is None else f"{v}%"
+
+    return "\n".join(
+        [
+            "| language | reference | confident precision | ambiguous precision | recall | resolution recall |",
+            "|---|---|---|---|---|---|",
+            f"| python | pyan3 | {pct(current['confident_precision_pct'])} ({current['confident_judged']} judged) | "
+            f"{pct(current['ambiguous_precision_pct'])} | {pct(current['recall_pct'])} | "
+            f"{pct(current['resolution_recall_pct'])} |",
+        ]
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("mode", choices=("python", "cobol", "all"))
     ap.add_argument("--samples", type=int, default=5)
     ap.add_argument("--json", metavar="PATH")
+    ap.add_argument("--ci", action="store_true", help="python: fail on a drop beyond the baseline tolerance")
+    ap.add_argument("--regenerate", action="store_true", help="python: rewrite the committed baseline")
+    ap.add_argument("--summary", metavar="PATH", help="append the python table here (e.g. $GITHUB_STEP_SUMMARY)")
     a = ap.parse_args(argv)
+    if (a.ci or a.regenerate) and a.mode == "cobol":
+        print(
+            "call_graph_resolution: --ci/--regenerate gate the python mode (cobol is gated by the ground-truth ledger)"
+        )
+        return 2
     result: dict[str, Any] = {}
     if a.mode in ("python", "all"):
         result["python"] = score_python(a.samples)
@@ -297,6 +347,30 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "per_repo"} for k, v in result.items()}, indent=2))
     if a.json:
         Path(a.json).write_text(json.dumps(result, indent=2) + "\n")
+    if "python" not in result:
+        return 0
+    current = gated_metrics(result["python"])
+    print(render(current))
+    if a.summary:
+        with open(a.summary, "a", encoding="utf-8") as fh:
+            fh.write("### Call resolution (Level 2: engine links vs pyan3)\n\n" + render(current) + "\n\n")
+    # #2682: an audit that measured nothing must not pass.
+    if (a.ci or a.regenerate) and not current["confident_judged"]:
+        print("call_graph_resolution: FAIL -- no confident link was judged (scan, pyan or corpus problem)")
+        return 1
+    if a.regenerate:
+        BASELINE.write_text(json.dumps(current, indent=2, sort_keys=True) + "\n")
+        print(f"call_graph_resolution: baseline rewritten -> {BASELINE.relative_to(REPO_ROOT)}")
+        return 0
+    if a.ci:
+        if not BASELINE.exists():
+            print("call_graph_resolution: no baseline; run --regenerate")
+            return 1
+        bad = regressions(current, json.loads(BASELINE.read_text()))
+        if bad:
+            print("call_graph_resolution: REGRESSION\n  " + "\n  ".join(bad))
+            return 1
+        print("call_graph_resolution: OK -- no gated metric dropped beyond the baseline tolerance.")
     return 0
 
 

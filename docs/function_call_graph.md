@@ -98,8 +98,10 @@ A confident link is one the resolver chose, not one that was verified.
 `tests/tools/call_resolution_rates.py` tracks the confidence shares on
 language-crucible (`docs/self_scan/call_resolution_history.csv`). Correctness,
 meaning precision and recall of callee names and of resolved targets against
-tree-sitter and type-aware call graphs, is #3332. Until that is published, no
-README claim or badge uses these numbers (CLAUDE.md).
+tree-sitter and type-aware call graphs, is #3332. Both levels are gated per PR
+against committed baselines; see `docs/graph_accuracy.md`, which also covers the
+import graph. Until that is published, no README claim or badge uses these numbers
+(CLAUDE.md).
 
 ## Cost
 

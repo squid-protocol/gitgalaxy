@@ -1,0 +1,252 @@
+{
+  "abap": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 83
+  },
+  "ada": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 959
+  },
+  "agc_assembly": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 779
+  },
+  "apex": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 60
+  },
+  "assembly": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1090
+  },
+  "batch": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1
+  },
+  "bms": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 15
+  },
+  "c": {
+    "misanchored": 2,
+    "misanchored_pct": 0.1,
+    "units": 2593
+  },
+  "cobol": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1014
+  },
+  "cpp": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 233
+  },
+  "csd": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 42
+  },
+  "csharp": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 967
+  },
+  "css": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 158
+  },
+  "dart": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1711
+  },
+  "dockerfile": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 75
+  },
+  "embedded_python": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 135
+  },
+  "fortran": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 139
+  },
+  "go": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1294
+  },
+  "groovy": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 443
+  },
+  "haskell": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 142
+  },
+  "hlasm": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 3
+  },
+  "html": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 37
+  },
+  "java": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 735
+  },
+  "javascript": {
+    "misanchored": 3,
+    "misanchored_pct": 0.4,
+    "units": 823
+  },
+  "jcl": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 343
+  },
+  "kotlin": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 28
+  },
+  "livecode": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 964
+  },
+  "lua": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 516
+  },
+  "m4": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 39
+  },
+  "makefile": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 71
+  },
+  "matlab": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 23
+  },
+  "objective-c": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 154
+  },
+  "perl": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 934
+  },
+  "php": {
+    "misanchored": 380,
+    "misanchored_pct": 22.1,
+    "units": 1718
+  },
+  "pli": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 46
+  },
+  "powershell": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 73
+  },
+  "python": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 4145
+  },
+  "rexx": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 115
+  },
+  "ruby": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 250
+  },
+  "rust": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1930
+  },
+  "scala": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 541
+  },
+  "scheme": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 9
+  },
+  "shell": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 605
+  },
+  "solidity": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 105
+  },
+  "swift": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 132
+  },
+  "tcl": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 291
+  },
+  "typescript": {
+    "misanchored": 527,
+    "misanchored_pct": 18.1,
+    "units": 2913
+  },
+  "yacc": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 1181
+  },
+  "yaml": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 19
+  },
+  "zig": {
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
+    "units": 2750
+  }
+}

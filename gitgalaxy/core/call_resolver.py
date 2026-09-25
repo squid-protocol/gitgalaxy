@@ -463,6 +463,44 @@ def _imports_by_file(dependency_edges: Optional[list[dict[str, Any]]]) -> dict[s
     return out
 
 
+# Barrel files: a package's public face, which mostly re-exports what its
+# modules define (`from .param_functions import Depends as Depends` in a
+# package `__init__.py`, `export * from "./x"` in an `index.ts`). A caller that
+# imports the barrel can see what the barrel imports.
+_BARREL_BASENAMES = frozenset(
+    {"__init__.py", "index.js", "index.ts", "index.tsx", "index.jsx", "index.mjs", "index.cjs", "index.mts"}
+)
+# Barrels import barrels (`pkg/__init__.py` -> `pkg/sub/__init__.py`); follow at most this many.
+_BARREL_HOPS = 2
+
+
+def _with_reexports(imports: dict[str, set[str]]) -> dict[str, set[str]]:
+    """#3642 follow-up: each file's imports plus what the barrels among them import.
+
+    `from fastapi import Depends` resolves to `fastapi/__init__.py`, which only
+    re-exports `Depends` from `fastapi/param_functions.py`. Without this the
+    import step finds no definition in the barrel and the call falls through
+    to a repository-wide name search. Only barrel files are expanded, and only
+    `_BARREL_HOPS` deep, so importing an ordinary module never makes its own
+    imports visible.
+    """
+    out: dict[str, set[str]] = {}
+    for src, dsts in imports.items():
+        seen = set(dsts)
+        frontier = [d for d in dsts if posixpath.basename(d) in _BARREL_BASENAMES]
+        for _ in range(_BARREL_HOPS):
+            nxt = []
+            for barrel in frontier:
+                for d in imports.get(barrel, ()):
+                    if d != src and d not in seen:
+                        seen.add(d)
+                        if posixpath.basename(d) in _BARREL_BASENAMES:
+                            nxt.append(d)
+            frontier = nxt
+        out[src] = seen
+    return out
+
+
 def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[str]]:
     """(link group, class key) -> the names it inherits from, directly."""
     parents: dict[tuple[str, str], set[str]] = {}
@@ -710,7 +748,7 @@ def resolve_calls(
     # proximity depends only on the caller's directory, so the nearest pick for
     # a candidate set is shared by every caller in that directory
     cache: _Cache = {}
-    imports = _imports_by_file(dependency_edges)
+    imports = _with_reexports(_imports_by_file(dependency_edges))
     sites: list[dict[str, Any]] = []
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}

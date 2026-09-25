@@ -12,16 +12,16 @@
         "state_mutation": 16.7982
       },
       {
-        "btw": 0.0,
-        "path": "python/fastapi/fastapi/routing.py",
-        "score": 0.005,
-        "state_mutation": 99.7525
-      },
-      {
         "btw": 0.0001,
         "path": "python/fastapi/fastapi/applications.py",
         "score": 0.004,
         "state_mutation": 39.0154
+      },
+      {
+        "btw": 0.0,
+        "path": "python/fastapi/fastapi/routing.py",
+        "score": 0.004,
+        "state_mutation": 99.7525
       },
       {
         "btw": 0.0,
@@ -44,60 +44,60 @@
         "score": 3.712
       },
       {
-        "close": 0.0341,
+        "close": 0.0345,
         "err": 91.4708,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 3.122
+        "score": 3.155
       },
       {
-        "close": 0.0322,
+        "close": 0.0325,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.909
+        "score": 2.937
       },
       {
-        "close": 0.0318,
+        "close": 0.0324,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.684
+        "score": 2.731
       },
       {
-        "close": 0.0315,
-        "err": 70.9185,
-        "path": "python/fastapi/fastapi/background.py",
-        "score": 2.236
+        "close": 0.0406,
+        "err": 62.8504,
+        "path": "python/fastapi/fastapi/param_functions.py",
+        "score": 2.55
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.871,
-        "score": 1487.1
+        "pr": 14.789,
+        "score": 1478.9
+      },
+      {
+        "doc": 100.0,
+        "path": "python/fastapi/fastapi/param_functions.py",
+        "pr": 7.088,
+        "score": 708.8
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.744,
-        "score": 574.4
+        "pr": 5.821,
+        "score": 582.1
+      },
+      {
+        "doc": 80.9524,
+        "path": "python/fastapi/fastapi/datastructures.py",
+        "pr": 6.273,
+        "score": 507.814
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.584,
-        "score": 458.4
-      },
-      {
-        "doc": 100.0,
-        "path": "scheme/racket/io.ss",
-        "pr": 3.939,
-        "score": 393.9
-      },
-      {
-        "doc": 50.0,
-        "path": "tcl/sqlite/tester.tcl",
-        "pr": 7.155,
-        "score": 357.75
+        "pr": 4.558,
+        "score": 455.8
       }
     ]
   }

@@ -416,3 +416,72 @@ def test_a_redefinable_name_still_resolves():
     ]
     row = _site(resolve_calls(files)[0], "printf")
     assert (row["resolution"], row["dst_path"]) == ("unique", "redis/printf.lua")
+
+
+# ----------------------------------------------------------------------------- re-exports
+
+
+def _reexport_files(barrel="pkg/__init__.py"):
+    # `from pkg import Depends` lands on the barrel, which re-exports it from pkg/params.py;
+    # a same-named function elsewhere makes a repository-wide search tie.
+    return [
+        _file("pkg/params.py", "python", [_fn("Depends", 10)]),
+        _file(barrel, "python", []),
+        _file("other/params.py", "python", [_fn("Depends", 4)]),
+        _file("tests/test_x.py", "python", [_fn("test_it", 3, calls=["Depends"], quals={"Depends": [""]})]),
+    ]
+
+
+def test_a_barrel_re_export_is_an_import_link():
+    edges = [
+        {"src": "tests/test_x.py", "dst": "pkg/__init__.py"},
+        {"src": "pkg/__init__.py", "dst": "pkg/params.py"},
+    ]
+    row = _site(resolve_calls(_reexport_files(), edges)[0], "Depends")
+    assert (row["step"], row["resolution"], row["dst_path"], row["dst_line"]) == (
+        "import",
+        "scoped",
+        "pkg/params.py",
+        10,
+    )
+
+
+def test_an_ordinary_module_does_not_re_export_its_imports():
+    # Only barrels are followed: importing util.py does not make what util.py imports visible.
+    files = _reexport_files()
+    files.append(_file("pkg/util.py", "python", []))
+    edges = [
+        {"src": "tests/test_x.py", "dst": "pkg/util.py"},
+        {"src": "pkg/util.py", "dst": "pkg/params.py"},
+    ]
+    row = _site(resolve_calls(files, edges)[0], "Depends")
+    assert row["step"] != "import"
+
+
+def test_nested_barrels_are_followed_two_hops():
+    files = [
+        _file("pkg/sub/impl.py", "python", [_fn("make", 2)]),
+        _file("pkg/__init__.py", "python", []),
+        _file("pkg/sub/__init__.py", "python", []),
+        _file("elsewhere/impl.py", "python", [_fn("make", 2)]),
+        _file("app.py", "python", [_fn("run", 1, calls=["make"], quals={"make": [""]})]),
+    ]
+    edges = [
+        {"src": "app.py", "dst": "pkg/__init__.py"},
+        {"src": "pkg/__init__.py", "dst": "pkg/sub/__init__.py"},
+        {"src": "pkg/sub/__init__.py", "dst": "pkg/sub/impl.py"},
+    ]
+    row = _site(resolve_calls(files, edges)[0], "make")
+    assert (row["step"], row["dst_path"]) == ("import", "pkg/sub/impl.py")
+
+
+def test_a_typescript_index_barrel_is_followed():
+    files = [
+        _file("lib/core.ts", "typescript", [_fn("render", 5)]),
+        _file("lib/index.ts", "typescript", []),
+        _file("old/core.ts", "typescript", [_fn("render", 5)]),
+        _file("app.ts", "typescript", [_fn("main", 1, calls=["render"], quals={"render": [""]})]),
+    ]
+    edges = [{"src": "app.ts", "dst": "lib/index.ts"}, {"src": "lib/index.ts", "dst": "lib/core.ts"}]
+    row = _site(resolve_calls(files, edges)[0], "render")
+    assert (row["step"], row["dst_path"]) == ("import", "lib/core.ts")

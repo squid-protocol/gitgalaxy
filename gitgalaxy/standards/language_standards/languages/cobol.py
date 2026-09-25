@@ -232,6 +232,9 @@ DEFINITION: dict[str, Any] = {
             # confirmed false positive against real corpus source
             # (`cics-banking-sample-application-cbsa/BNKMENU.cbl:23`).
             r"SOURCE-COMPUTER|OBJECT-COMPUTER|"
+            # #3533: the rest of the ENVIRONMENT DIVISION's header paragraphs --
+            # navikt/DSF FRMERK `SPECIAL-NAMES.` / `C01 IS PAGE1.` read as a unit.
+            r"SPECIAL-NAMES|I-O-CONTROL|REPOSITORY|"
             # FILE-CONTROL is the INPUT-OUTPUT SECTION (ENVIRONMENT DIVISION) header
             # paragraph, never PROCEDURE DIVISION logic -- same reserved-header class
             # as INPUT-OUTPUT/CONFIGURATION beside it. The bare `FILE` entry above
@@ -283,7 +286,12 @@ DEFINITION: dict[str, Any] = {
             # like `0000-MAIN` still matches -- it has letters). Both confirmed FP
             # against language-crucible v1.2.0 (che-che4z_nist_ccvs85/DB1024.2.cbl:640,
             # NC1134.2.cbl:118).
-            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Za-z][A-Za-z0-9_-]*)"
+            # #3533: a procedure name may be all digits (navikt/DSF R001BYDL `0000.` /
+            # `9999.`) -- unlike a data name. At most 5 digits: a 6-digit (cols 1-6)
+            # or 8-digit (cols 73-80) sequence field before a lone period (CardDemo
+            # `045100 .`) is never one. A continued numeric VALUE line (`1000.`) does
+            # not begin a sentence, so the cobol_sentence_start filter drops it.
+            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Za-z][A-Za-z0-9_-]*|[0-9]{1,5}(?![0-9]))"
             # 6. THE IGNITION & TRAILING ANCHOR (Lookahead)
             # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
             # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.

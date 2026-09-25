@@ -45,6 +45,8 @@ COBOL_RULES = LANGUAGE_DEFINITIONS["cobol"]["rules"]
 # ==============================================================================
 FUNCTION_CASES: dict[str, Any] = {
     "valid": [
+        ("       0000.", "0000"),  # #3533: an all-digit procedure name (navikt/DSF R001BYDL)
+        ("       9999.", "9999"),
         ("       TargetFunc.", "TargetFunc"),  # carried-forward: fixed-format paragraph
         ("       TargetFunc SECTION.", "TargetFunc"),  # carried-forward: fixed-format section
         ("AB.", "AB"),  # free-format short name
@@ -56,6 +58,9 @@ FUNCTION_CASES: dict[str, Any] = {
         ("       MAIN-PARA SECTION 1.", "MAIN-PARA"),  # single-digit segment number
     ],
     "invalid": [
+        "       SPECIAL-NAMES.",  # #3533: an ENVIRONMENT DIVISION header paragraph
+        "045100 .",  # a sequence field before a lone period is no paragraph (<= 5 digits)
+        "      01680012.",
         "       01 TargetFunc.",  # carried-forward: data-division level number
         "           PERFORM TargetFunc.",  # carried-forward: PERFORM invocation, same line
         "       END-TargetFunc.",  # carried-forward: scope-terminator lookalike

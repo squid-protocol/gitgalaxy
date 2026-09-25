@@ -141,6 +141,8 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         return None
 
     # Focus only on the Data Division or raw Copybooks
+    # #3533: `PROCEDURE        DIVISION.` (navikt/DSF PLUKKFR) is the same header.
+    content = re.sub(r"PROCEDURE[ \t]+DIVISION", "PROCEDURE DIVISION", content)
     if "PROCEDURE DIVISION" in content:
         content = content.split("PROCEDURE DIVISION")[0]
         if "DATA DIVISION" in content:

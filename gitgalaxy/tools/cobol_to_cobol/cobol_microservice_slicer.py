@@ -52,6 +52,8 @@ def slice_business_logic(
     except Exception:
         return None
 
+    # #3533: `PROCEDURE        DIVISION.` (navikt/DSF PLUKKFR) is the same header.
+    content = re.sub(r"PROCEDURE[ \t]+DIVISION", "PROCEDURE DIVISION", content)
     if "PROCEDURE DIVISION" not in content:
         return None
 

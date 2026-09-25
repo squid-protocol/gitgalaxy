@@ -67623,19 +67623,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 75,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 54,
-          "Reflection Hits": 0,
-          "Start Line": 22,
-          "Structural Impact": 3.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 84,
           "Function Name": "1000-INICIO",
           "Input Parameters": 0,
@@ -67674,19 +67661,6 @@
         }
       ],
       "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 66,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 45,
-          "Reflection Hits": 0,
-          "Start Line": 22,
-          "Structural Impact": 3.2
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -67731,19 +67705,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 67,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 49,
-          "Reflection Hits": 0,
-          "Start Line": 19,
-          "Structural Impact": 3.5
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 79,
           "Function Name": "4000-FINAL",
           "Input Parameters": 0,
@@ -67782,19 +67743,6 @@
         }
       ],
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 32,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 19,
-          "Reflection Hits": 0,
-          "Start Line": 14,
-          "Structural Impact": 2.0
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -74807,21 +74755,7 @@
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": [],
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": [],
       "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": [],
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 48,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 31,
-          "Reflection Hits": 0,
-          "Start Line": 18,
-          "Structural Impact": 3.5
-        }
-      ],
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": [],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": [
         {
@@ -76431,19 +76365,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 27,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 19,
-          "Structural Impact": 1.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 33,
           "Function Name": "MAINLINE-PARAGRAPH",
           "Input Parameters": 0,
@@ -76469,19 +76390,6 @@
         }
       ],
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 27,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 9,
-          "Reflection Hits": 0,
-          "Start Line": 19,
-          "Structural Impact": 1.4
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -76537,19 +76445,6 @@
           "Reflection Hits": 0,
           "Start Line": 88,
           "Structural Impact": 5.9
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 68,
-          "Function Name": "Special-names",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 61,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 3.0
         },
         {
           "Control Flow Branches": 0,
@@ -94702,19 +94597,6 @@
           "Structural Impact": 5.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 209,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 193,
-          "Reflection Hits": 20,
-          "Start Line": 17,
-          "Structural Impact": 5.5
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "50.0%",
           "End Line": 242,
@@ -110711,19 +110593,6 @@
           "Structural Impact": 4.3
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 208,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 192,
-          "Reflection Hits": 20,
-          "Start Line": 17,
-          "Structural Impact": 4.0
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "28.6%",
           "End Line": 318,
@@ -111465,19 +111334,6 @@
           "Reflection Hits": 0,
           "Start Line": 233,
           "Structural Impact": 5.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 216,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 200,
-          "Reflection Hits": 20,
-          "Start Line": 17,
-          "Structural Impact": 5.5
         },
         {
           "Control Flow Branches": 4,
@@ -112624,19 +112480,6 @@
           "Reflection Hits": 0,
           "Start Line": 205,
           "Structural Impact": 5.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 188,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 172,
-          "Reflection Hits": 10,
-          "Start Line": 17,
-          "Structural Impact": 5.5
         },
         {
           "Control Flow Branches": 4,
@@ -151220,19 +151063,6 @@
           "Structural Impact": 4.4
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 224,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 197,
-          "Reflection Hits": 10,
-          "Start Line": 28,
-          "Structural Impact": 4.0
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "33.3%",
           "End Line": 308,
@@ -151766,19 +151596,6 @@
           "Reflection Hits": 0,
           "Start Line": 302,
           "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 212,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 181,
-          "Reflection Hits": 10,
-          "Start Line": 32,
-          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 2,
@@ -152574,19 +152391,6 @@
           "Reflection Hits": 0,
           "Start Line": 314,
           "Structural Impact": 4.4
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 224,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 168,
-          "Reflection Hits": 10,
-          "Start Line": 57,
-          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 2,
@@ -168240,19 +168044,6 @@
           "Structural Impact": 5.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 301,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 241,
-          "Reflection Hits": 10,
-          "Start Line": 61,
-          "Structural Impact": 5.0
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 319,
@@ -169113,19 +168904,6 @@
           "Structural Impact": 5.6
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 262,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 221,
-          "Reflection Hits": 10,
-          "Start Line": 42,
-          "Structural Impact": 5.0
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "42.9%",
           "End Line": 280,
@@ -169867,19 +169645,6 @@
           "Reflection Hits": 0,
           "Start Line": 320,
           "Structural Impact": 5.6
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 272,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 227,
-          "Reflection Hits": 10,
-          "Start Line": 46,
-          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 3,
@@ -170720,19 +170485,6 @@
       ],
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": [
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
-          "End Line": 51,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 23,
-          "Reflection Hits": 0,
-          "Start Line": 29,
-          "Structural Impact": 3.2
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "66.7%",
           "End Line": 72,
@@ -171287,19 +171039,6 @@
         }
       ],
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 40,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 16,
-          "Reflection Hits": 0,
-          "Start Line": 25,
-          "Structural Impact": 1.8
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -173645,19 +173384,6 @@
           "Reflection Hits": 0,
           "Start Line": 72,
           "Structural Impact": 3.2
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 56,
-          "Function Name": "I-O-CONTROL",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 28,
-          "Reflection Hits": 0,
-          "Start Line": 29,
-          "Structural Impact": 2.4
         },
         {
           "Control Flow Branches": 1,
@@ -184826,19 +184552,6 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 44,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 33,
-          "Reflection Hits": 0,
-          "Start Line": 12,
-          "Structural Impact": 2.7
-        },
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
           "End Line": 48,
           "Function Name": "100-MOVE-DATA",
           "Input Parameters": 0,
@@ -184918,19 +184631,6 @@
         }
       ],
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 18,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 11,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 1.6
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
@@ -185615,19 +185315,6 @@
         }
       ],
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": [
-        {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 106,
-          "Function Name": "SPECIAL-NAMES",
-          "Input Parameters": 0,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 99,
-          "Reflection Hits": 0,
-          "Start Line": 8,
-          "Structural Impact": 6.0
-        },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",

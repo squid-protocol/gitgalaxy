@@ -1576,19 +1576,16 @@
         "Interface Declarations": 3
       },
       "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": {
-        "I/O & Config Routines": 1,
         "Interface Declarations": 3
       },
       "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": {
-        "I/O & Config Routines": 1,
         "Interface Declarations": 3
       },
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": {
-        "I/O & Config Routines": 1,
         "Interface Declarations": 3
       },
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": {
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 2,
         "Interface Declarations": 5
       }
     },
@@ -1791,9 +1788,7 @@
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": {},
       "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": {},
       "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": {},
-      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": {
-        "I/O & Config Routines": 1
-      },
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": {},
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": {},
       "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": {
         "Interface Declarations": 3
@@ -1929,16 +1924,16 @@
         "State Mutators": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": {
-        "Interface Declarations": 3
+        "Interface Declarations": 2
       },
       "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": {
-        "Interface Declarations": 3
+        "Interface Declarations": 2
       },
       "cobol/che-che4z_lsp_project_fixtures/outline.cbl": {
         "Interface Declarations": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": {
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 1,
         "Interface Declarations": 1
       },
       "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": {},
@@ -2192,7 +2187,7 @@
       },
       "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 25,
+        "I/O & Config Routines": 24,
         "Interface Declarations": 28,
         "State Mutators": 3
       },
@@ -2289,19 +2284,19 @@
       },
       "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 26,
+        "I/O & Config Routines": 25,
         "Interface Declarations": 31,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 41,
+        "I/O & Config Routines": 40,
         "Interface Declarations": 44,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 43,
+        "I/O & Config Routines": 42,
         "Interface Declarations": 46,
         "State Mutators": 3
       },
@@ -2601,20 +2596,20 @@
       "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": {
         "Compute Cores": 1,
         "Defensive Guards": 4,
-        "I/O & Config Routines": 10,
+        "I/O & Config Routines": 9,
         "Interface Declarations": 24,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": {
         "Compute Cores": 1,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 24,
+        "I/O & Config Routines": 23,
         "Interface Declarations": 33,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 28,
+        "I/O & Config Routines": 27,
         "Interface Declarations": 39,
         "State Mutators": 3
       },
@@ -2724,19 +2719,19 @@
       },
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 40,
+        "I/O & Config Routines": 39,
         "Interface Declarations": 19,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 30,
+        "I/O & Config Routines": 29,
         "Interface Declarations": 23,
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": {
         "Compute Cores": 1,
-        "I/O & Config Routines": 34,
+        "I/O & Config Routines": 33,
         "Interface Declarations": 26,
         "State Mutators": 3
       },
@@ -2748,7 +2743,7 @@
         "Interface Declarations": 5
       },
       "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": {
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 2
       },
       "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": {
@@ -2765,7 +2760,7 @@
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": {
-        "I/O & Config Routines": 2
+        "I/O & Config Routines": 1
       },
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": {
         "Compute Cores": 1,
@@ -2780,7 +2775,7 @@
         "State Mutators": 3
       },
       "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": {
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 2,
         "Interface Declarations": 2,
         "State Mutators": 1
       }
@@ -3097,7 +3092,6 @@
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": {},
       "cobol/cobol-check/src_main_cobol_ALPHA.CBL": {},
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": {
-        "I/O & Config Routines": 1,
         "Interface Declarations": 1
       },
       "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": {
@@ -3106,7 +3100,7 @@
       },
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": {
         "I/O & Config Routines": 1,
-        "Interface Declarations": 2
+        "Interface Declarations": 1
       },
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": {
         "I/O & Config Routines": 3,
@@ -3145,7 +3139,6 @@
         "I/O & Config Routines": 1
       },
       "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": {
-        "I/O & Config Routines": 1,
         "Interface Declarations": 1
       },
       "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": {},

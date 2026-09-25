@@ -5391,12 +5391,15 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
     copybooks inlined as the refractor does. Lives here, beside the other COBOL
     readers, so the harness and the scorer share one implementation without
     importing each other (#3211: refraction_differential is the harness on top)."""
-    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import resolve_copybooks, unit_headers
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
+        resolve_copybooks,
+        split_procedure_division,
+        unit_headers,
+    )
 
     content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
-    if "PROCEDURE DIVISION" not in content:
-        return set()
-    return set(unit_headers(content.split("PROCEDURE DIVISION", 1)[1]))
+    split = split_procedure_division(content)
+    return set(unit_headers(split[1])) if split else set()
 
 
 def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:

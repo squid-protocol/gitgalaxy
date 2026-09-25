@@ -16,9 +16,6 @@ public class PlukkfrnPrintRec1 {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "FELTKODE")
-    private String feltkode;
-
     @Column(name = "TRK_NR")
     private Integer trkNr;
 
@@ -45,9 +42,6 @@ public class PlukkfrnPrintRec1 {
 
     @Column(name = "UT_ADDR")
     private String utAddr;
-
-    @Column(name = "PRINT1")
-    private String print1;
 
     @Column(name = "TELLER1")
     private Integer teller1;

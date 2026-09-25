@@ -33,7 +33,10 @@
       "unexplained": 0
     },
     "dsf": {
-      "by_cause": {},
+      "by_cause": {
+        "entry_point": 2,
+        "stated_absence": 7
+      },
       "note": null,
       "unexplained": 0
     },
@@ -94,13 +97,11 @@
     },
     "dsf": {
       "by_cause": {
-        "area_b_header": 8,
-        "entry_point": 9,
-        "stated_absence": 49,
-        "unexplained": 18
+        "entry_point": 12,
+        "stated_absence": 51
       },
-      "note": "The 18 unexplained are #3533's COBOL unit defects in DSF's 7 GML programs: 13 PLUKKFR/PLUKKFRN/FO04D1X1 paragraphs only the DB has (the forge loses them after 'PROCEDURE        DIVISION.'), and 5 all-digit R001BYDL paragraphs only the forge has (0000. / 9999. -- the engine misses numeric names). Expected to reach 0 with #3533.",
-      "unexplained": 18
+      "note": null,
+      "unexplained": 0
     },
     "zecs": {
       "by_cause": {

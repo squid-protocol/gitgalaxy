@@ -88,6 +88,10 @@ _TAIL_PERFORM = re.compile(rf"{_V}PERFORM ({_NAME})(?: (?:THRU|THROUGH) ({_NAME}
 # A header whose separator period sits on the next line (#3419 shape, CardDemo
 # COTRTLIC `2000-SEND-MAP` / `     .`): the name alone, no period.
 _UNIT_HEADER_OPEN = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"[ \t]*$")
+# #3533: a header with its first statement on the same line -- navikt/DSF
+# FO04D1X1 `006550 B.  DISPLAY PARAM, ' PARAM ER GALT'.` (legal COBOL: the
+# paragraph's sentences may start right after its period). Group 3 is that code.
+_UNIT_HEADER_INLINE = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"\.[ \t]+(\S.*)$")
 _CICS_TERMINAL = re.compile(r"EXEC\s+CICS\s+(?:RETURN|XCTL|ABEND)\b")
 # CICS transfers control to these labels itself (an abend, a condition, an
 # attention key), so a unit named in one is reached with no PERFORM or GO TO.
@@ -232,9 +236,18 @@ def procedure_units(proc_div: str) -> list[dict]:
             nxt = next((c for c in (_code_area(x) for x in body[j + 1 :]) if c is not None and c.strip()), "")
             if open_header and nxt.strip().startswith(".") and not _NOT_A_PARAGRAPH.fullmatch(open_header.group(1)):
                 name, header, skip_period_line = open_header.group(1), open_header, nxt.strip() == "."
+        inline = None
+        if name is None:
+            inline = _UNIT_HEADER_INLINE.match(line)
+            if inline and not _NOT_A_PARAGRAPH.fullmatch(inline.group(1)):
+                name, header = inline.group(1), inline
+            else:
+                inline = None
         if name is not None:
             kind = "section" if header and header.group(2) else "paragraph"
             units.append({"name": name, "kind": kind, "body": []})
+            if inline:  # the header line's own statement opens the unit's body
+                units[-1]["body"].append(inline.group(3))
         else:
             units[-1]["body"].append(code)
     if not "".join(units[0]["body"]).strip():
@@ -244,9 +257,27 @@ def procedure_units(proc_div: str) -> list[dict]:
     return units
 
 
+def split_procedure_division(content: str) -> Optional[tuple[str, str]]:
+    """(text before, text after) the PROCEDURE DIVISION header, or None. #3533: any
+    run of blanks may separate the two words (navikt/DSF PLUKKFR writes
+    `PROCEDURE        DIVISION.`)."""
+    m = re.search(r"PROCEDURE[ \t]+DIVISION", content)
+    return (content[: m.start()], content[m.end() :]) if m else None
+
+
 def unit_headers(proc_div: str) -> list[str]:
     """Names of the paragraphs and sections of an upper-cased PROCEDURE DIVISION."""
     return [u["name"] for u in procedure_units(proc_div) if u["name"]]
+
+
+_CONDITIONAL_PHRASE = re.compile(
+    r"(?<![A-Z0-9-])(?:(?:NOT\s+)?(?:AT\s+)?(?:END|END-OF-PAGE|EOP)|(?:NOT\s+)?INVALID\s+KEY"
+    r"|(?:NOT\s+)?(?:ON\s+)?(?:SIZE\s+ERROR|OVERFLOW|EXCEPTION))(?![A-Z0-9-])"
+)
+_PHRASE_SCOPE_END = re.compile(
+    r"\bEND-(?:READ|RETURN|WRITE|REWRITE|DELETE|START|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|CALL|STRING"
+    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY)\b"
+)
 
 
 def _unconditional_sentences(text: str) -> list[str]:
@@ -263,7 +294,11 @@ def _unconditional_sentences(text: str) -> list[str]:
             len(re.findall(opener, s)) == len(re.findall(closer, s))
             for opener, closer in ((rf"{_V}IF\b", r"\bEND-IF\b"), (rf"{_V}EVALUATE\b", r"\bEND-EVALUATE\b"))
         )
-        if balanced:
+        # #3533: an I/O or arithmetic statement's conditional phrase is an IF too --
+        # `READ INN-FR AT END GO TO SLUTT.` (navikt/DSF PLUKKFR) transfers only at end
+        # of file -- unless its own END- scope terminator closes it first.
+        phrases = list(_CONDITIONAL_PHRASE.finditer(s))
+        if balanced and (not phrases or _PHRASE_SCOPE_END.search(s, phrases[-1].end())):
             out.append(s)
     return out
 
@@ -462,12 +497,10 @@ def x_ray_dead_code(
     content = resolve_copybooks(raw_content, filepath, copybook_root, origin)
 
     # COBOL is strictly divided. We need to split the data from the execution.
-    if "PROCEDURE DIVISION" not in content:
+    split = split_procedure_division(content)
+    if split is None:
         return None
-
-    parts = content.split("PROCEDURE DIVISION", 1)
-    data_div = parts[0]
-    proc_div = parts[1]
+    data_div, proc_div = split
 
     # ==========================================
     # 1. ISOLATING UNUSED MEMORY ADDRESSES

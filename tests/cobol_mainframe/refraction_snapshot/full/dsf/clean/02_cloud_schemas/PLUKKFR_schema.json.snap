@@ -3,10 +3,6 @@
   "title": "PRINT_REC1",
   "type": "object",
   "properties": {
-    "FELTKODE": {
-      "type": "string",
-      "description": "Legacy PIC: X(2)"
-    },
     "TRK_NR": {
       "type": "integer",
       "description": "Legacy PIC: 9(4)"
@@ -42,10 +38,6 @@
     "UT_ADDR": {
       "type": "string",
       "description": "Legacy PIC: X(71)"
-    },
-    "PRINT1": {
-      "type": "string",
-      "description": "Legacy PIC: X(133)"
     },
     "TELLER1": {
       "type": "integer",

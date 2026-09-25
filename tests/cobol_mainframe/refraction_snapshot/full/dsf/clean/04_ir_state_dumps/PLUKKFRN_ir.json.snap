@@ -6,7 +6,19 @@
     "loc": 101
   },
   "analysis": {
-    "dead_code": null,
+    "dead_code": {
+      "program_id": "PLUKKFRN.cobol",
+      "total_vars": 16,
+      "orphaned_vars": [
+        "FELTKODE",
+        "INNFR1",
+        "PRINT1",
+        "TRKTR"
+      ],
+      "total_paras": 6,
+      "dead_paras": [],
+      "loc_saved": 4
+    },
     "lineage": {
       "program_id": "TELL-TRANS",
       "inputs": [
@@ -49,16 +61,12 @@
   "generation": {
     "schemas": {
       "table": "PRINT_REC1",
-      "sql": "CREATE TABLE PRINT_REC1 (\n    FELTKODE                       VARCHAR(2),\n    TRK_NR                         SMALLINT,\n    INN_FNR                        BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    NAVN                           VARCHAR(26),\n    INN_TRKNR                      SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    ADDR                           VARCHAR(71),\n    UT_TRKNR                       SMALLINT,\n    UT_FNR                         BIGINT,\n    UT_NAVN                        VARCHAR(26),\n    UT_ADDR                        VARCHAR(71),\n    PRINT1                         VARCHAR(133),\n    TELLER1                        INTEGER\n);",
+      "sql": "CREATE TABLE PRINT_REC1 (\n    TRK_NR                         SMALLINT,\n    INN_FNR                        BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    NAVN                           VARCHAR(26),\n    INN_TRKNR                      SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    ADDR                           VARCHAR(71),\n    UT_TRKNR                       SMALLINT,\n    UT_FNR                         BIGINT,\n    UT_NAVN                        VARCHAR(26),\n    UT_ADDR                        VARCHAR(71),\n    TELLER1                        INTEGER\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "PRINT_REC1",
         "type": "object",
         "properties": {
-          "FELTKODE": {
-            "type": "string",
-            "description": "Legacy PIC: X(2)"
-          },
           "TRK_NR": {
             "type": "integer",
             "description": "Legacy PIC: 9(4)"
@@ -94,10 +102,6 @@
           "UT_ADDR": {
             "type": "string",
             "description": "Legacy PIC: X(71)"
-          },
-          "PRINT1": {
-            "type": "string",
-            "description": "Legacy PIC: X(133)"
           },
           "TELLER1": {
             "type": "integer",

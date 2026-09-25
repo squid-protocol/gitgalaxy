@@ -95,6 +95,8 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
     # false dependencies. We mask out known dead paragraphs with spaces to
     # preserve the exact logic topology without triggering regex false positives.
     # ==========================================================================
+    # #3533: `PROCEDURE        DIVISION.` (navikt/DSF PLUKKFR) is the same header.
+    content = re.sub(r"PROCEDURE[ \t]+DIVISION", "PROCEDURE DIVISION", content)
     if "PROCEDURE DIVISION" in content:
         parts = content.split("PROCEDURE DIVISION")
         data_div = parts[0]

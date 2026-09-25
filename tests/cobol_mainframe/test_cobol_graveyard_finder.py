@@ -558,3 +558,33 @@ def test_an_exhaustive_evaluate_that_always_transfers_does_not_fall_through():
     )
     assert not _sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN 80 GO TO E2 END-EVALUATE")
     assert not _sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN OTHER MOVE 1 TO B END-EVALUATE")
+
+
+def test_dsf_shapes_procedure_division_spacing_inline_header_and_at_end(tmp_path):
+    """#3533 (navikt/DSF): `PROCEDURE        DIVISION.` is the header; `B.  DISPLAY ...`
+    opens unit B with its first statement; `READ ... AT END GO TO X.` is conditional,
+    so the paragraph after it is reached by fall-through."""
+    pgm = tmp_path / "PLUKK.cbl"
+    pgm.write_text(
+        "\n".join(
+            [
+                "       IDENTIFICATION DIVISION.",
+                "       PROGRAM-ID. PLUKK.",
+                "       PROCEDURE        DIVISION.",
+                "       LESE.",
+                "           READ INN-FR AT END GO TO SLUTT.",
+                "       TEST-TRKNR.",
+                "           IF A = B GO TO B.",
+                "           GO TO LESE.",
+                "       B.  DISPLAY 'FEIL'.",
+                "       SLUTT.",
+                "           STOP RUN.",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+    assert metrics["total_paras"] == 4
+    assert metrics["dead_paras"] == set()
+    split = graveyard_module.split_procedure_division("X PROCEDURE    DIVISION. Y")
+    assert split == ("X ", ". Y")

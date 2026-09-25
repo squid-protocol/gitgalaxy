@@ -108,6 +108,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "web services": ("web_services", "web_validated"),
     "JCICS": ("jcics", "jcics_validated"),
     "PL/I call sites": ("pli_calls", "pli_calls_validated"),
+    "PL/I data moves": ("pli_moves", "pli_moves_validated"),
     "file I/O moves": ("io_moves", "io_moves_validated"),
 }
 

@@ -97,6 +97,7 @@ from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import pli_cics_stream, pli_external_calls
+from gitgalaxy.core.pli_data_moves import pli_data_moves
 from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
@@ -2079,6 +2080,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "cics_resources": _cics_resources(code_stream, _pli_value_map(pli_records), "pli"),  # #3351-#3354
             "cics_tasks": _cics_tasks(code_stream, _pli_value_map(pli_records), [], "pli"),  # #3449
             "uow_handlers": _pli_uow_handlers(code_stream, _pli_value_map(pli_records)),  # #3491
+            "data_moves": pli_data_moves(code_stream),  # #3491 part 3
         }
     if dialect == "bms":
         # #3347: BMS map field layouts ride their own key (`screen_fields`), read

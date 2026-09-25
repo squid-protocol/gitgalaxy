@@ -8,6 +8,7 @@
 # through working storage into the COMMAREA or a DB column. One row per
 # source -> target pair of every data-moving statement:
 #
+#   (PL/I's assignment statement fills the same rows, verb ASSIGN: core/pli_data_moves.py, #3491)
 #   verb        MOVE | COMPUTE | ADD | SUBTRACT | MULTIPLY | DIVIDE | STRING |
 #               UNSTRING | INITIALIZE, and (#3492) the file-I/O verbs READ /
 #               RETURN (INTO) | WRITE / REWRITE / RELEASE (FROM) | ACCEPT

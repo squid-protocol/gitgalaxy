@@ -8536,6 +8536,60 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "PLI/MACSAMP.pli",
+        "PLI/PSAM1.pli",
+        "PLI/PSAM1LIB.pli"
+      ],
+      "wide": false,
+      "suite": "plimoves",
+      "tasks": {
+        "moves": {
+          "agree": 45,
+          "asked": 48
+        }
+      },
+      "rulings": {
+        "moves:PLI/MACSAMP.pli@111-122::L114 ASSIGN DOUBLE -> DBLRESULT": {
+          "verdict": "key_correct",
+          "why": "MACSAMP L114: DBLRESULT = DOUBLE(SCOREGET(3)); has no data item; DOUBLE is not a built-in, so by the contract the call reads as an array element named DOUBLE (canonically the same row a lone function call gives). DOUBLE and SCOREGET are preprocessor procedures -- the value is fixed at compile time, which no static contract row captures."
+        },
+        "moves:PLI/MACSAMP.pli@83-94::L86 ASSIGN I -> FIELD%;J": {
+          "verdict": "key_correct",
+          "why": "MACSAMP L86 sits in a %DO preprocessor loop: FIELD%;J is macro text generating FIELD1..FIELDn, not a PL/I name. By the contract a statement ends at ';', so the key reads 'J = I' after the '%;'; neither reading is a real data move of the expanded program (preprocessor-generated source is outside the static contract)."
+        },
+        "moves:PLI/MACSAMP.pli@83-94::L86 ASSIGN I -> J": {
+          "verdict": "key_correct",
+          "why": "MACSAMP L86 sits in a %DO preprocessor loop: FIELD%;J is macro text generating FIELD1..FIELDn, not a PL/I name. By the contract a statement ends at ';', so the key reads 'J = I' after the '%;'; neither reading is a real data move of the expanded program (preprocessor-generated source is outside the static contract)."
+        },
+        "moves:PLI/PSAM1.pli@142-153::L153 ASSIGN '1'B -> CUSTFILE_EOF": {
+          "verdict": "key_fixed",
+          "why": "PSAM1 L152-153: ON ENDFILE (CUSTFILE) CUSTFILE_EOF = '1'B; -- the on-unit's single statement is an assignment that runs when the condition fires. The key reader and the engine now read the action after an ON condition."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "PLI/PSAM1LIB.pli",
+        "PLI/PSAM2.pli"
+      ],
+      "wide": false,
+      "suite": "plimoves",
+      "tasks": {
+        "moves": {
+          "agree": 29,
+          "asked": 29
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -10456,8 +10510,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
-          "at": "2026-09-24",
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
           "sampled": true
         }
       }
@@ -10550,8 +10604,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
-          "at": "2026-09-24",
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
           "sampled": true
         }
       }
@@ -10603,8 +10657,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
-          "at": "2026-09-24",
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
           "sampled": true
         }
       }
@@ -10722,8 +10776,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
-          "at": "2026-09-24",
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
           "sampled": true
         }
       }
@@ -10777,8 +10831,8 @@
         "notes": [],
         "tier": "sample_verified",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
-          "at": "2026-09-24",
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
           "sampled": true
         }
       }
@@ -11000,11 +11054,53 @@
             "multiroot/sam/SAM2.cbl@123-134",
             "multiroot/sam/SAM2.cbl@155-164"
           ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "windows": [
+            "PLI/MACSAMP.pli@83-94",
+            "PLI/MACSAMP.pli@111-122",
+            "PLI/PSAM1.pli@22-33",
+            "PLI/PSAM1.pli@106-117",
+            "PLI/PSAM1.pli@142-153",
+            "PLI/PSAM1.pli@174-185",
+            "PLI/PSAM1.pli@190-201",
+            "PLI/PSAM1.pli@204-215",
+            "PLI/PSAM1.pli@216-227",
+            "PLI/PSAM1.pli@243-254",
+            "PLI/PSAM1.pli@267-278",
+            "PLI/PSAM1.pli@285-296",
+            "PLI/PSAM1.pli@307-318",
+            "PLI/PSAM1LIB.pli@1-12",
+            "PLI/PSAM1LIB.pli@58-69",
+            "PLI/PSAM1LIB.pli@70-81",
+            "PLI/PSAM1LIB.pli@106-117",
+            "PLI/PSAM1LIB.pli@164-175",
+            "PLI/PSAM1LIB.pli@185-196",
+            "PLI/PSAM1LIB.pli@204-215",
+            "PLI/PSAM1LIB.pli@217-228",
+            "PLI/PSAM1LIB.pli@233-244"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "windows": [
+            "PLI/PSAM1LIB.pli@256-267",
+            "PLI/PSAM1LIB.pli@274-285",
+            "PLI/PSAM1LIB.pli@297-308",
+            "PLI/PSAM2.pli@52-63",
+            "PLI/PSAM2.pli@64-75",
+            "PLI/PSAM2.pli@76-87"
+          ]
         }
       ],
-      "asked": 122,
-      "key_errors": 0,
-      "upper_bound_95": 0.02426
+      "asked": 199,
+      "key_errors": 1,
+      "upper_bound_95": 0.02221
     },
     "pli_calls": {
       "plan": {
@@ -11073,6 +11169,208 @@
       "asked": 8,
       "key_errors": 0,
       "upper_bound_95": 0.31234
+    },
+    "pli_moves": {
+      "plan": {
+        "seed": 3491,
+        "strata": {
+          "corr": 4,
+          "refmod": 4,
+          "literal": 12,
+          "item": 12,
+          "random": 8
+        },
+        "window": 12,
+        "windows": [
+          {
+            "file": "PLI/MACSAMP.pli",
+            "from": 83,
+            "to": 94
+          },
+          {
+            "file": "PLI/MACSAMP.pli",
+            "from": 111,
+            "to": 122
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 22,
+            "to": 33
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 106,
+            "to": 117
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 142,
+            "to": 153
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 174,
+            "to": 185
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 190,
+            "to": 201
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 204,
+            "to": 215
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 216,
+            "to": 227
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 243,
+            "to": 254
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 267,
+            "to": 278
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 285,
+            "to": 296
+          },
+          {
+            "file": "PLI/PSAM1.pli",
+            "from": 307,
+            "to": 318
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 1,
+            "to": 12
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 58,
+            "to": 69
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 70,
+            "to": 81
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 106,
+            "to": 117
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 164,
+            "to": 175
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 185,
+            "to": 196
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 204,
+            "to": 215
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 217,
+            "to": 228
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 233,
+            "to": 244
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 256,
+            "to": 267
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 274,
+            "to": 285
+          },
+          {
+            "file": "PLI/PSAM1LIB.pli",
+            "from": 297,
+            "to": 308
+          },
+          {
+            "file": "PLI/PSAM2.pli",
+            "from": 52,
+            "to": 63
+          },
+          {
+            "file": "PLI/PSAM2.pli",
+            "from": 64,
+            "to": 75
+          },
+          {
+            "file": "PLI/PSAM2.pli",
+            "from": 76,
+            "to": 87
+          }
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "windows": [
+            "PLI/MACSAMP.pli@83-94",
+            "PLI/MACSAMP.pli@111-122",
+            "PLI/PSAM1.pli@22-33",
+            "PLI/PSAM1.pli@106-117",
+            "PLI/PSAM1.pli@142-153",
+            "PLI/PSAM1.pli@174-185",
+            "PLI/PSAM1.pli@190-201",
+            "PLI/PSAM1.pli@204-215",
+            "PLI/PSAM1.pli@216-227",
+            "PLI/PSAM1.pli@243-254",
+            "PLI/PSAM1.pli@267-278",
+            "PLI/PSAM1.pli@285-296",
+            "PLI/PSAM1.pli@307-318",
+            "PLI/PSAM1LIB.pli@1-12",
+            "PLI/PSAM1LIB.pli@58-69",
+            "PLI/PSAM1LIB.pli@70-81",
+            "PLI/PSAM1LIB.pli@106-117",
+            "PLI/PSAM1LIB.pli@164-175",
+            "PLI/PSAM1LIB.pli@185-196",
+            "PLI/PSAM1LIB.pli@204-215",
+            "PLI/PSAM1LIB.pli@217-228",
+            "PLI/PSAM1LIB.pli@233-244"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "windows": [
+            "PLI/PSAM1LIB.pli@256-267",
+            "PLI/PSAM1LIB.pli@274-285",
+            "PLI/PSAM1LIB.pli@297-308",
+            "PLI/PSAM2.pli@52-63",
+            "PLI/PSAM2.pli@64-75",
+            "PLI/PSAM2.pli@76-87"
+          ]
+        }
+      ],
+      "asked": 77,
+      "key_errors": 1,
+      "upper_bound_95": 0.05614
     }
   },
   "symbolic_maps": {},
@@ -11315,5 +11613,169 @@
   "pli_calls_included": [
     "PRTHDG1",
     "TRANTOT"
-  ]
+  ],
+  "pli_moves": {
+    "PLI/MACSAMP.pli": {
+      "moves": [
+        "L114 ASSIGN DOUBLE -> DBLRESULT",
+        "L86 ASSIGN I -> J"
+      ],
+      "pli_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM1.pli": {
+      "moves": [
+        "L153 ASSIGN '1'B -> CUSTFILE_EOF",
+        "L156 ASSIGN '1'B -> TRANFILE_EOF",
+        "L176 ASSIGN 'PROGRAM STARTED' -> PROGRAM_STATUS",
+        "L177 ASSIGN DATETIME -> SYSTEM_DATE_AND_TIME(:)",
+        "L184 ASSIGN 1 -> BALANCE_FIRST_TIME_SW",
+        "L186 ASSIGN 'OPENING FILES  ' -> PROGRAM_STATUS",
+        "L196 ASSIGN 1 -> I",
+        "L198 ASSIGN 'READING TRAN RECORD' -> PROGRAM_STATUS",
+        "L206 ASSIGN NUM_TRANFILE_RECS -> NUM_TRANFILE_RECS",
+        "L207 ASSIGN 'WRITING TRAN REPORT' -> PROGRAM_STATUS",
+        "L212 ASSIGN '1'B -> TRAN_OK_FLAG",
+        "L217 ASSIGN 'PRINTING CUSTOMER REPORT' -> PROGRAM_STATUS",
+        "L218 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L219 ASSIGN NUM_PRINT_REQUESTS -> NUM_PRINT_REQUESTS",
+        "L227 ASSIGN NUM_CUSTFILE_RECS -> NUM_CUSTFILE_RECS",
+        "L230 ASSIGN NUM_CUSTOMER_RECS -> NUM_CUSTOMER_RECS",
+        "L236 ASSIGN NUM_DETAIL_LINES -> NUM_DETAIL_LINES",
+        "L242 ASSIGN NUM_PRINT_COMPLETED -> NUM_PRINT_COMPLETED",
+        "L246 ASSIGN 'PRINTING TOTALS REPORT' -> PROGRAM_STATUS",
+        "L247 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L248 ASSIGN NUM_TOTALS_REQUESTS -> NUM_TOTALS_REQUESTS",
+        "L250 ASSIGN NUM_PRINT_COMPLETED -> NUM_PRINT_COMPLETED",
+        "L253 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L256 ASSIGN NUM_TRAN_ERRORS -> NUM_TRAN_ERRORS",
+        "L269 ASSIGN BALANCE_TOTAL -> NUMA_7V2",
+        "L270 ASSIGN BALANCE_MAX -> NUMB_7V2",
+        "L271 ASSIGN BALANCE_AVG -> NUMC_7V2",
+        "L278 ASSIGN NUM_CUSTFILE_RECS -> NUMA_11",
+        "L279 ASSIGN NUM_CUSTOMER_RECS -> NUMB_11",
+        "L286 ASSIGN NUM_TRANSACTIONS -> NUMA_11",
+        "L287 ASSIGN NUM_TRANSACTIONS -> NUMB_11",
+        "L287 ASSIGN NUM_TRAN_ERRORS -> NUMB_11",
+        "L288 ASSIGN NUM_TRAN_ERRORS -> NUMC_11",
+        "L295 ASSIGN NUM_TOTALS_COMPLETED -> NUM_TOTALS_COMPLETED",
+        "L310 ASSIGN 'PROGRAM ENDING' -> PROGRAM_STATUS"
+      ],
+      "pli_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM1LIB.pli": {
+      "moves": [
+        "L143 ASSIGN '1'B -> CUSTFILE_EOF",
+        "L146 ASSIGN '1'B -> TRANFILE_EOF",
+        "L166 ASSIGN 'PROGRAM STARTED' -> PROGRAM_STATUS",
+        "L167 ASSIGN DATETIME -> SYSTEM_DATE_AND_TIME(:)",
+        "L174 ASSIGN 1 -> BALANCE_FIRST_TIME_SW",
+        "L176 ASSIGN 'OPENING FILES  ' -> PROGRAM_STATUS",
+        "L186 ASSIGN 1 -> I",
+        "L188 ASSIGN 'READING TRAN RECORD' -> PROGRAM_STATUS",
+        "L196 ASSIGN NUM_TRANFILE_RECS -> NUM_TRANFILE_RECS",
+        "L197 ASSIGN 'WRITING TRAN REPORT' -> PROGRAM_STATUS",
+        "L202 ASSIGN '1'B -> TRAN_OK_FLAG",
+        "L207 ASSIGN 'PRINTING CUSTOMER REPORT' -> PROGRAM_STATUS",
+        "L208 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L209 ASSIGN NUM_PRINT_REQUESTS -> NUM_PRINT_REQUESTS",
+        "L217 ASSIGN NUM_CUSTFILE_RECS -> NUM_CUSTFILE_RECS",
+        "L220 ASSIGN NUM_CUSTOMER_RECS -> NUM_CUSTOMER_RECS",
+        "L226 ASSIGN NUM_DETAIL_LINES -> NUM_DETAIL_LINES",
+        "L232 ASSIGN NUM_PRINT_COMPLETED -> NUM_PRINT_COMPLETED",
+        "L236 ASSIGN 'PRINTING TOTALS REPORT' -> PROGRAM_STATUS",
+        "L237 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L238 ASSIGN NUM_TOTALS_REQUESTS -> NUM_TOTALS_REQUESTS",
+        "L240 ASSIGN NUM_PRINT_COMPLETED -> NUM_PRINT_COMPLETED",
+        "L243 ASSIGN NUM_TRANSACTIONS -> NUM_TRANSACTIONS",
+        "L246 ASSIGN NUM_TRAN_ERRORS -> NUM_TRAN_ERRORS",
+        "L259 ASSIGN BALANCE_TOTAL -> NUMA_7V2",
+        "L260 ASSIGN BALANCE_MAX -> NUMB_7V2",
+        "L261 ASSIGN BALANCE_AVG -> NUMC_7V2",
+        "L268 ASSIGN NUM_CUSTFILE_RECS -> NUMA_11",
+        "L269 ASSIGN NUM_CUSTOMER_RECS -> NUMB_11",
+        "L276 ASSIGN NUM_TRANSACTIONS -> NUMA_11",
+        "L277 ASSIGN NUM_TRANSACTIONS -> NUMB_11",
+        "L277 ASSIGN NUM_TRAN_ERRORS -> NUMB_11",
+        "L278 ASSIGN NUM_TRAN_ERRORS -> NUMC_11",
+        "L285 ASSIGN NUM_TOTALS_COMPLETED -> NUM_TOTALS_COMPLETED",
+        "L300 ASSIGN 'PROGRAM ENDING' -> PROGRAM_STATUS"
+      ],
+      "pli_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
+      }
+    },
+    "PLI/PSAM2.pli": {
+      "moves": [
+        "L45 ASSIGN 'PROGRAM STARTED' -> PROGRAM_STATUS",
+        "L48 ASSIGN 'ZEROING STATS VARIABLES' -> PROGRAM_STATUS",
+        "L49 ASSIGN 0 -> BALANCE_COUNT",
+        "L50 ASSIGN 0 -> BALANCE_TOTAL",
+        "L51 ASSIGN 0 -> BALANCE_MIN",
+        "L52 ASSIGN 0 -> BALANCE_MAX",
+        "L53 ASSIGN 0 -> BALANCE_RANGE",
+        "L54 ASSIGN 0 -> BALANCE_AVG",
+        "L55 ASSIGN 0 -> BALANCE_FIRST_TIME_SW",
+        "L58 ASSIGN 'CALCULATING BALANCE STATS' -> PROGRAM_STATUS",
+        "L60 ASSIGN BALANCE_COUNT -> BALANCE_COUNT",
+        "L62 ASSIGN ACCT_BALANCE -> BALANCE_TOTAL",
+        "L62 ASSIGN BALANCE_TOTAL -> BALANCE_TOTAL",
+        "L64 ASSIGN BALANCE_COUNT -> BALANCE_AVG",
+        "L64 ASSIGN BALANCE_TOTAL -> BALANCE_AVG",
+        "L65 ASSIGN BALANCE_COUNT -> BALANCE_AVG",
+        "L65 ASSIGN BALANCE_TOTAL -> BALANCE_AVG",
+        "L67 ASSIGN ACCT_BALANCE -> BALANCE_MIN",
+        "L68 ASSIGN ACCT_BALANCE -> BALANCE_MAX",
+        "L69 ASSIGN 0 -> BALANCE_FIRST_TIME_SW",
+        "L72 ASSIGN ACCT_BALANCE -> BALANCE_MIN",
+        "L74 ASSIGN ACCT_BALANCE -> BALANCE_MAX",
+        "L77 ASSIGN BALANCE_MAX -> BALANCE_RANGE",
+        "L77 ASSIGN BALANCE_MIN -> BALANCE_RANGE",
+        "L79 ASSIGN 'PROGRAM ENDING' -> PROGRAM_STATUS"
+      ],
+      "pli_moves_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor PL/I data moves)",
+          "at": "2026-09-25",
+          "sampled": true
+        }
+      }
+    }
+  },
+  "pli_moves_scope": {
+    "files": 4,
+    "keyed": 4,
+    "seed": null
+  }
 }

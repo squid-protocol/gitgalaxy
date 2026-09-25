@@ -61,11 +61,20 @@ def _statement_end(code: str, start: int) -> int:
 # after two or more blanks, of up to 6 letters then 2-8 digits (`00001740`, DSF's
 # `R0015160`). A statement's own trailing number is preceded by one blank at most.
 _SEQUENCE_FIELD = re.compile(r"(?m)(?<=[ \t]{2})([A-Z@#$]{0,6}[0-9]{2,8})[ \t]*(?=\r?$)", re.I)
+# #3491 part 3: a field GLUED to the code before it -- code running to column 72, or
+# a line shifted left by a national letter that took two bytes of the EBCDIC record
+# (DSF `...;00000390`, `...(1,YRKE_IND - 1)00001640`, `...) THEN0000161`). Code never
+# runs from `;` `,` `)` a quote or an operator straight into a 5-8 digit number at the
+# end of a line, and a keyword never carries a digit tail.
+_GLUE_PUNCT = r"[;,)'!&*|=+\-<>^]"  # code that can never run into a number
+_GLUE_KEYWORD = r"(?<![\w@#$])(?:THEN|ELSE|END|DO)"  # a keyword never carries a digit tail
+_GLUED_SEQUENCE = re.compile(r"(?m)(" + _GLUE_PUNCT + "|" + _GLUE_KEYWORD + r")([0-9]{5,8})[ \t]*(?=\r?$)", re.I)
 
 
 def blank_sequence_fields(code_stream: str) -> str:
     """Columns 73-80 sequence fields replaced by blanks (offsets unchanged)."""
-    return _SEQUENCE_FIELD.sub(lambda m: " " * len(m.group(0)), code_stream)
+    code_stream = _SEQUENCE_FIELD.sub(lambda m: " " * len(m.group(0)), code_stream)
+    return _GLUED_SEQUENCE.sub(lambda m: m.group(1) + " " * (len(m.group(0)) - len(m.group(1))), code_stream)
 
 
 def pli_cics_stream(code_stream: str) -> str:

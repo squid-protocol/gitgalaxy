@@ -1758,6 +1758,144 @@ def _sign_pli_uow_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str
                 entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `plimoves` suite (#3491 part 3): a WINDOW sample of PL/I data moves ----
+# The key's pli_moves section (DSF: a seeded sample of files, ~1,500 rows; smaller
+# corpora: every PL/I file) is censused like COBOL's data moves: seeded 12-line
+# windows, stratified around BY NAME moves, pseudo-variable (partial) targets,
+# literal and item moves, plus random windows that may hold nothing. The reviewer
+# lists every assignment row whose statement starts inside each window.
+PLI_MOVE_WINDOWS = {"corr": 4, "refmod": 4, "literal": 12, "item": 12, "random": 8}
+
+
+def _pli_move_kind(fact: str) -> str:
+    body = fact.split(" ", 2)[2]  # after `L<n> ASSIGN`
+    if body.startswith("CORR "):
+        return "corr"
+    if body.endswith("(:)"):
+        return "refmod"
+    return "literal" if body[:1] in "'-+0123456789" else "item"
+
+
+def pli_moves_plan(key: dict[str, Any], repo: Path, seed: int) -> list[dict[str, Any]]:
+    rng = random.Random(seed)
+    pm = key.get("pli_moves", {})
+    by_kind: dict[str, list[tuple[str, int]]] = {k: [] for k in PLI_MOVE_WINDOWS}
+    for rel, entry in sorted(pm.items()):
+        for fact in entry.get("moves", []):
+            by_kind[_pli_move_kind(fact)].append((rel, _line_of(fact)))
+    lengths = {rel: len((repo / rel).read_text(encoding="utf-8", errors="ignore").split("\n")) for rel in pm}
+    by_kind["random"] = [(rel, n) for rel, total in sorted(lengths.items()) for n in range(1, total + 1, WINDOW)]
+    windows: list[dict[str, Any]] = []
+    for kind, n in PLI_MOVE_WINDOWS.items():
+        pool = by_kind[kind][:]
+        rng.shuffle(pool)
+        taken = 0
+        for rel, line in pool:
+            if taken >= n:
+                break
+            lo = max(1, line - 3)
+            w = {"file": rel, "from": lo, "to": lo + WINDOW - 1}
+            if any(x["file"] == rel and not (w["to"] < x["from"] or w["from"] > x["to"]) for x in windows):
+                continue
+            windows.append(w)
+            taken += 1
+    return sorted(windows, key=lambda w: (w["file"], w["from"]))
+
+
+def key_facts_plimoves(key: dict[str, Any], windows: list[dict[str, Any]]) -> dict[str, dict[str, list[str]]]:
+    pm = key.get("pli_moves", {})
+    out: dict[str, list[str]] = {}
+    for w in windows:
+        moves = pm.get(w["file"], {}).get("moves", [])
+        out[_wid(w)] = sorted({_ws(m) for m in moves if w["from"] <= _line_of(m) <= w["to"]})
+    return {"moves": out}
+
+
+def reviewer_facts_plimoves(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, set[str]] = {}
+    for wid, v in (answers.get("windows") or {}).items():
+        w = wid[len(root) :] if wid.startswith(root) else wid
+        out[w] = {canon_move(x) for x in (v or {}).get("moves") or [] if isinstance(x, dict)}
+    return {"moves": out}
+
+
+def render_plimoves(
+    key: dict[str, Any], repo: Path, windows: list[dict[str, Any]], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    files = sorted({w["file"] for w in windows})
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "plimoves", "batch": index, "of": of, "files": files, "windows": windows,
+             "facts": key_facts_plimoves(key, windows)}  # fmt: skip
+    listing = "\n".join(f"  {_wid(w)}   ({repo / w['file']}, lines {w['from']}-{w['to']})" for w in windows)
+    brief = f"""You are independently verifying facts about real IBM mainframe PL/I source code, as a second
+reviewer. Read the files yourself. They are all under the repository root {repo}; read only the files listed below.
+Do NOT edit or create any files except your answers file, and do not look for any existing answer key or analysis of
+this code: the point is an independent reading. Line numbers are 1-based physical line numbers.
+
+PL/I READING RULES. `/* ... */` is a comment (it may span lines). A statement ends at `;` (outside a quoted
+'literal'). Columns 73-80 of a line may hold a sequence field (e.g. `00001740`, sometimes glued to the code before
+it): never code. Names are case-insensitive (answer them upper-cased) and may contain national letters (Æ Ø Å).
+
+TASK MOVES. For each WINDOW below (a file and a line range), list every data move of every ASSIGNMENT statement
+whose first line lies in the window -- the statement's line is the line its target starts on (labels, THEN, ELSE,
+OTHERWISE and WHEN(...) may precede it on that line). An assignment is `target[, target...] = expression;`. Not an
+assignment: a `%` preprocessor statement, `DO I = 1 TO N` loop control, a comparison inside IF / WHEN / SELECT.
+One entry per (source, target) pair, {{"line", "verb": "ASSIGN", "source", "target", "corresponding",
+"target_refmod"}}:
+  - the sources are the DATA ITEMS of the expression, each once, in order of appearance. A data item is written as
+    its qualified name WITHOUT subscripts (`A.B(I).C` -> "A.B.C"; `P->X` -> "X"); an array subscript's contents are
+    not sources. A built-in function (SUBSTR, LENGTH, INDEX, TRIM, TRANSLATE, VERIFY, DATE, MOD, MAX, MIN, UNSPEC,
+    ADDR, NULL, HIGH, LOW, REPEAT, ...) is not a source, but every data item in its arguments is. DFHRESP(x) /
+    DFHVALUE(x) is one source written "DFHRESP(X)" / "DFHVALUE(X)";
+  - an expression with no data item gives one entry: its literal as written (a string with its quotes, e.g.
+    "'ABC'", or a number, e.g. "-1") when it is a single (optionally signed) literal, or the built-in's name (e.g.
+    "DATE") when it is a single built-in call; otherwise no entry;
+  - each target is a qualified name without subscripts; `SUBSTR(A, ...) = ...` (or UNSPEC / STRING / REAL / IMAG /
+    ONCHAR / ONSOURCE as a target) assigns A in part: target "A" with "target_refmod": true;
+  - `A = B, BY NAME;` -> "corresponding": true (else false);
+  - `X += e` (or -=, *=, /=, ||=, **=): X itself is a source too, listed first.
+
+Windows:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (window ids exactly as listed above):
+{{"windows": {{"<window id>": {{"moves": [{{"line": 1, "verb": "ASSIGN", "source": "A.B", "target": "C",
+                                        "corresponding": false, "target_refmod": false}}]}}, ...every window...}}}}
+"""
+    return brief, truth
+
+
+def batches_plimoves(key: dict[str, Any], windows: list[dict[str, Any]], max_items: int) -> list[list[dict[str, Any]]]:
+    facts = key_facts_plimoves(key, windows)["moves"]
+    out: list[list[dict[str, Any]]] = [[]]
+    load = 0
+    for w in windows:
+        n = 1 + len(facts[_wid(w)])
+        if out[-1] and load + n > max_items:
+            out.append([])
+            load = 0
+        out[-1].append(w)
+        load += n
+    return out
+
+
+def _sign_pli_moves_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                           by: str, at: str) -> None:  # fmt: skip
+    sc = key["sample_census"]["pli_moves"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"],
+                                         "windows": [_wid(w) for w in truth["windows"]]})  # fmt: skip
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("moves", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {w for b in sc["batches"] for w in b["windows"]}
+    if all(_wid(w) in done for w in sc["plan"]["windows"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        stamp = {"status": "validated", "tier": "sample_verified", "census": {"by": by, "at": at, "sampled": True}}
+        for entry in key.get("pli_moves", {}).values():
+            entry["pli_moves_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1792,6 +1930,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "plicalls"
         else reviewer_facts_pliuow(answers, repo)
         if suite == "pliuow"
+        else reviewer_facts_plimoves(answers, repo)
+        if suite == "plimoves"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1857,7 +1997,7 @@ def sign(
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1891,6 +2031,8 @@ def sign(
         _sign_pli_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "pliuow":
         _sign_pli_uow_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "plimoves":
+        _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
 
 
@@ -1921,6 +2063,12 @@ def _sign_sample(
 
 def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> dict[str, Any]:
     recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
+    if suite == "plimoves":  # every planned window signed
+        plan = key.get("sample_census", {}).get("pli_moves", {})
+        done_w = {w for b in plan.get("batches", []) for w in b["windows"]}
+        missing = [_wid(w) for w in plan.get("plan", {}).get("windows", []) if _wid(w) not in done_w]
+        total = len(plan.get("plan", {}).get("windows", []))
+        return {"files": [total - len(missing), total], "wide": bool(plan.get("plan")), "missing": missing}
     if suite == "lineage":
         # IMS: every ims_gen entry; data moves: every planned window.
         files = sorted(key.get("ims_gen", {}))
@@ -1961,6 +2109,7 @@ def main() -> int:
             "resources",
             "plicalls",
             "pliuow",
+            "plimoves",
         ),
         default="channels",
     )
@@ -1982,6 +2131,7 @@ def main() -> int:
             "resources",
             "plicalls",
             "pliuow",
+            "plimoves",
         ),
         default="channels",
     )
@@ -2035,6 +2185,23 @@ def main() -> int:
                               "included": sorted(key.get("pli_calls_included", []))}  # fmt: skip
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             files = corpus_files_plicalls(key)
+        if suite == "plimoves":
+            sm = key.setdefault("sample_census", {}).setdefault("pli_moves", {})
+            if not sm.get("batches"):
+                sm["plan"] = {"seed": args.seed, "strata": PLI_MOVE_WINDOWS, "window": WINDOW,
+                              "windows": pli_moves_plan(key, repo, args.seed)}  # fmt: skip
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            done_w = {w for b in sm.get("batches", []) for w in b["windows"]}
+            todo = [w for w in sm["plan"]["windows"] if _wid(w) not in done_w]
+            groups = batches_plimoves(key, todo, args.max_items)
+            for i, ws in enumerate(groups, 1):
+                d = args.out / f"batch_{i:02d}"
+                d.mkdir(parents=True, exist_ok=True)
+                brief, truth = render_plimoves(key, staged, ws, i, len(groups))
+                (d / "brief.md").write_text(brief, encoding="utf-8")
+                (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
+                print(f"{d}: {len(ws)} windows, {sum(len(v) for v in truth['facts']['moves'].values())} key facts")
+            return 0
         if suite == "pliuow":
             pu = key.setdefault("sample_census", {}).setdefault("pli_uow", {})
             if not pu.get("batches"):
@@ -2137,6 +2304,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
     elif truth.get("suite") == "pliuow":
         current = dict(truth, facts=key_facts_pliuow(key, truth["files"]))
+    elif truth.get("suite") == "plimoves":
+        current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

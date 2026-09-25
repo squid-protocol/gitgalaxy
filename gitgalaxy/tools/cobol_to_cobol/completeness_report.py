@@ -10,6 +10,8 @@
 #   python -m gitgalaxy.tools.cobol_to_cobol.completeness_report <master.db>
 #       [--repo NAME] [--json out.json] [--md out.md]
 # ==============================================================================
+from __future__ import annotations
+
 import argparse
 import json
 import sys

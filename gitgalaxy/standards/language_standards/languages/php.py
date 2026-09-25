@@ -304,8 +304,24 @@ DEFINITION: dict[str, Any] = {
             # [ THE PARENTHESIS SHIELD ]
             # PHP allows `require 'file.php'` and `require('file.php')`. The `\(?` safely
             # bridges both syntaxes while capturing the target path.
+            #
+            # [ THE STATEMENT ANCHOR (#3609) ]
+            # The bare `\b` let any `require`/`include`/`use` word start a
+            # capture that ran to the next `;`: `included`, `includes/x.php`,
+            # `'require_once'` as an array key, `->include(`, English prose in a
+            # string. And `include` was tried before `include_once`, so
+            # `include_once ABSPATH . 'x.php'` captured `_once ABSPATH . ...`.
+            # The keyword must now be a whole word in statement position: line
+            # start, or after `;` `{` `}` `=` `(` `,` `@` `&` `|` `)` (`if (...)
+            # require ...`), `return`, `else`, `echo`, `print` or `<?php`. The whole
+            # statement stays on one line, the expression bounded and never
+            # starting with a blank (no nested-whitespace backtracking). `use` imports
+            # sit at statement start too; a group-use list (`A\{B, C}`) may span
+            # lines, but its character class cannot reach past the `;`.
             # =====================================================================
-            r"\b(?:use[ \t\n]+(?:function[ \t\n]+|const[ \t\n]+)?([a-zA-Z0-9_\\]+(?:[ \t\n]*(?:as[ \t\n]+|[,{])[a-zA-Z0-9_\\ \t\n{},]+?)?)[ \t\n]*;|(?:require|require_once|include|include_once)[ \t\n]*\(?[ \t\n]*(?:['\"]([^'\"]+)['\"]|([^;]+?)[ \t\n]*(?=\)?\s*;)))",
+            r"(?:^|(?<=[;{}]))[ \t]*use[ \t\n]+(?:function[ \t\n]+|const[ \t\n]+)?([a-zA-Z0-9_\\]+(?:[ \t\n]*(?:as[ \t\n]+|[,{])[a-zA-Z0-9_\\ \t\n{},]+?)?)[ \t\n]*;"
+            r"|(?:^|(?<=[;{}=(,@&|)])|(?<=\breturn)|(?<=\belse)|(?<=\becho)|(?<=\bprint)|(?<=<\?php))[ \t]*(?:require|include)(?:_once)?\b"
+            r"[ \t]*(?:\([ \t]*)?(?:['\"]([^'\"\n]+)['\"]|([^;\n \t][^;\n]{0,299}?)[ \t]{0,40}(?=\)?[ \t]{0,40};))",
             re.M | re.I,
         ),
         # 25. ownership (Authorship Metadata)

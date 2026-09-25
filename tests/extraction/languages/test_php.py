@@ -8,6 +8,7 @@ if _EXTRACTION_DIR not in sys.path:
 import pytest
 from _extraction_harness import (  # noqa: E402 # type: ignore
     assert_invalid_no_match,
+    assert_redos_immune,
     assert_valid_dependency_match,
     assert_valid_match,
 )
@@ -218,6 +219,49 @@ def test_php_args():
 
     for payload, _ in xfail_invalid:
         pytest.param(payload, None, marks=pytest.mark.xfail(reason="No block shielding"))
+
+
+def test_php_dependency_capture_statement_anchor():
+    """#3609: only a whole-word `require`/`include`/`use` in statement position
+    starts a capture, and the captured expression stays on its line."""
+    from gitgalaxy.galaxyscope import extract_raw_imports
+
+    php = LANGUAGE_DEFINITIONS["php"]
+    capture = PHP_RULES["_dependency_capture"]
+    real = {
+        "include_once ABSPATH . 'wp-admin/includes/admin.php';": "ABSPATH . 'wp-admin/includes/admin.php'",
+        "$config = require __DIR__ . '/cfg.php';": "__DIR__ . '/cfg.php'",
+        "return require 'x.php';": "x.php",
+        "if ( ! defined('X') ) require_once 'y.php';": "y.php",
+        "} else include 'e.php';": "e.php",
+        "@include 'z.php';": "z.php",
+        "<?php require 'first.php';": "first.php",
+    }
+    for payload, token in real.items():
+        assert extract_raw_imports(capture, payload, php) == {token}, payload
+    junk = [
+        "$a = array( 'require' => 1, 'require_once' => 2 );",  # array keys
+        "$this->include($x);",  # method named include
+        "Foo::include('x');",  # static method named include
+        "$required = true;",
+        "$msg = 'please include the file; thanks';",  # prose in a string
+        "echo 'a file that should have been included here; ok';",
+        "$path = 'wp-includes/formatting.php'; $x = 1;",  # `includes/` path
+        "$f = function () use ($x) { return $x; };",  # closure use
+        "$m = $mode; // required\n$x = include_path();",
+    ]
+    for payload in junk:
+        assert extract_raw_imports(capture, payload, php) == set(), payload
+    # One line only: an unterminated include never swallows the next lines.
+    assert extract_raw_imports(capture, "include $a\n$b = 1;\n", php) == set()
+
+
+def test_php_dependency_capture_redos_immunity():
+    """#3609: the keyword's blanks, the expression and its trailing blanks are
+    bounded, so a long blank run or a long unterminated line stays linear."""
+    capture = PHP_RULES["_dependency_capture"]
+    for payload in ["require " + " " * 100000, "require (" + " " * 100000, "require " + "a " * 50000]:
+        assert_redos_immune(capture, payload, timeout_sec=3.0)
 
 
 def test_php_dependency_capture():

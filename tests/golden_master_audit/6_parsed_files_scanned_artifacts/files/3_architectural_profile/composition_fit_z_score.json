@@ -2457,7 +2457,7 @@
       "php/SOURCES.md": 0.0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 0.66,
+      "php/guzzle/Client.php": 0.654,
       "php/guzzle/CurlFactory.php": -0.44,
       "php/guzzle/CurlMultiHandler.php": 0.039,
       "php/guzzle/Middleware.php": 0.852,
@@ -2478,11 +2478,11 @@
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 0.074,
       "php/magento2/AbstractModel.php": 0.131,
-      "php/magento2/Application.php": 1.555,
+      "php/magento2/Application.php": 1.641,
       "php/magento2/Http.php": -0.238,
       "php/magento2/Interceptor.php": 1.502,
       "php/magento2/LICENSE.txt": 0.0,
-      "php/magento2/Mysql.php": -0.401,
+      "php/magento2/Mysql.php": -0.41,
       "php/magento2/ObjectManager.php": 0.779
     },
     "php/symfony": {
@@ -2496,12 +2496,12 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.192,
-      "php/wordpress/class-wp-query.php": 0.283,
-      "php/wordpress/formatting.php": 0.673,
-      "php/wordpress/functions.php": 0.589,
+      "php/wordpress/class-wp-query.php": 0.455,
+      "php/wordpress/formatting.php": 0.996,
+      "php/wordpress/functions.php": 0.485,
       "php/wordpress/license.txt": 0.0,
       "php/wordpress/plugin.php": 1.74,
-      "php/wordpress/wp-login.php": 1.859,
+      "php/wordpress/wp-login.php": 2.043,
       "php/wordpress/wp-settings.php": 1.833
     },
     "plaintext": {
@@ -3417,7 +3417,7 @@
       "sql/SOURCES.md": 0.0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 1.068
+      "sql/baseline/schema.php": 1.36
     },
     "sql/mysql/mediawiki": {
       "sql/mysql/mediawiki/COPYING": 0.0,

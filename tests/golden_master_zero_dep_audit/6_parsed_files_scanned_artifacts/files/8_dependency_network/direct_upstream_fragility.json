@@ -2457,7 +2457,7 @@
       "php/SOURCES.md": 0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 10,
+      "php/guzzle/Client.php": 9,
       "php/guzzle/CurlFactory.php": 10,
       "php/guzzle/CurlMultiHandler.php": 6,
       "php/guzzle/Middleware.php": 7,
@@ -2467,7 +2467,7 @@
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 33,
-      "php/laravel_core/BladeCompiler.php": 38,
+      "php/laravel_core/BladeCompiler.php": 35,
       "php/laravel_core/Collection.php": 13,
       "php/laravel_core/Container.php": 20,
       "php/laravel_core/Facade.php": 13,
@@ -2478,16 +2478,16 @@
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 6,
       "php/magento2/AbstractModel.php": 18,
-      "php/magento2/Application.php": 4,
+      "php/magento2/Application.php": 2,
       "php/magento2/Http.php": 9,
       "php/magento2/Interceptor.php": 1,
       "php/magento2/LICENSE.txt": 0,
-      "php/magento2/Mysql.php": 32,
+      "php/magento2/Mysql.php": 29,
       "php/magento2/ObjectManager.php": 0
     },
     "php/symfony": {
-      "php/symfony/Application.php": 74,
-      "php/symfony/ContainerBuilder.php": 41,
+      "php/symfony/Application.php": 46,
+      "php/symfony/ContainerBuilder.php": 40,
       "php/symfony/EventDispatcher.php": 2,
       "php/symfony/HttpKernel.php": 23,
       "php/symfony/Parser.php": 0,
@@ -2496,13 +2496,13 @@
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 3,
-      "php/wordpress/class-wp-query.php": 2,
-      "php/wordpress/formatting.php": 15,
-      "php/wordpress/functions.php": 58,
+      "php/wordpress/class-wp-query.php": 0,
+      "php/wordpress/formatting.php": 0,
+      "php/wordpress/functions.php": 7,
       "php/wordpress/license.txt": 0,
       "php/wordpress/plugin.php": 1,
-      "php/wordpress/wp-login.php": 7,
-      "php/wordpress/wp-settings.php": 329
+      "php/wordpress/wp-login.php": 2,
+      "php/wordpress/wp-settings.php": 323
     },
     "plaintext": {
       "plaintext/SOURCES.md": 0
@@ -3417,7 +3417,7 @@
       "sql/SOURCES.md": 0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 94
+      "sql/baseline/schema.php": 0
     },
     "sql/mysql/mediawiki": {
       "sql/mysql/mediawiki/COPYING": 0,

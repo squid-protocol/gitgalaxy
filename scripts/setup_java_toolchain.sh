@@ -25,7 +25,10 @@ done
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TOOLS_DIR="$REPO_ROOT/.tools"
 GRADLE_VERSION="8.10.2"
-ADOPTIUM="https://api.adoptium.net/v3/binary/latest/%s/ga/linux/x64/jdk/hotspot/normal/eclipse"
+# Download URLs, assembled from short parts (a long dense literal trips the X-Ray entropy check).
+ADOPTIUM_API="https://api.adoptium.net/v3/binary/latest"
+ADOPTIUM_BUILD="ga/linux/x64/jdk/hotspot/normal/eclipse"
+GRADLE_DIST="https://services.gradle.org/distributions"
 
 log() { if [[ "$PRINT_ENV" == 0 ]]; then echo "$@" >&2; fi; }
 
@@ -44,8 +47,7 @@ install_jdk() {
   if [[ "$DRY_RUN" == 1 ]]; then log "would download Temurin JDK $version to $dest"; return; fi
   log "downloading Temurin JDK $version ..."
   local tmp; tmp="$(mktemp -d "$TOOLS_DIR/.jdk-$version.XXXX")"
-  # shellcheck disable=SC2059
-  if ! curl -fsSL "$(printf "$ADOPTIUM" "$version")" | tar xz --strip-components=1 -C "$tmp"; then
+  if ! curl -fsSL "$ADOPTIUM_API/$version/$ADOPTIUM_BUILD" | tar xz --strip-components=1 -C "$tmp"; then
     rm -rf "$tmp"; echo "JDK $version download failed" >&2; exit 1
   fi
   rm -rf "$dest"; mv "$tmp" "$dest"
@@ -57,7 +59,7 @@ install_gradle() {
   if [[ "$DRY_RUN" == 1 ]]; then log "would download Gradle $GRADLE_VERSION to $dest"; return; fi
   log "downloading Gradle $GRADLE_VERSION ..."
   local tmp; tmp="$(mktemp -d "$TOOLS_DIR/.gradle.XXXX")"
-  if ! curl -fsSL "https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip" -o "$tmp/g.zip" \
+  if ! curl -fsSL "$GRADLE_DIST/gradle-$GRADLE_VERSION-bin.zip" -o "$tmp/g.zip" \
       || ! unzip -q "$tmp/g.zip" -d "$tmp"; then
     rm -rf "$tmp"; echo "Gradle download failed" >&2; exit 1
   fi

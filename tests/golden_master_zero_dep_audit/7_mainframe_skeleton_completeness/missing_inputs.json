@@ -12,7 +12,7 @@
         "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl",
         "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl"
       ],
-      "Gap Count": 281,
+      "Gap Count": 282,
       "Input": "JCL and PROC libraries"
     },
     {
@@ -56,7 +56,7 @@
         "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl",
         "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl"
       ],
-      "Gap Count": 11,
+      "Gap Count": 15,
       "Input": "CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it"
     },
     {

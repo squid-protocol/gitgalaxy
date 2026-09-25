@@ -92,19 +92,25 @@ PINNED = {
         "program calls": (95, 101), "copybooks": (29, 29), "transactions": (74, 74), "screens": (52, 52),
         "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
+    # #3576: PL/I main programs are scored too -- PSAM1 is run by RUNPSAM1.jcl; MACSAMP (the
+    # macro-preprocessor showcase) and PSAM1LIB (a library copy of PSAM1) are run by no step.
     "zopeneditor-sample": {
         "program calls": (8, 8), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),
-        "data flows": (327, 374), "IMS PSBs": (0, 0), "batch entry": (3, 3),
+        "data flows": (327, 374), "IMS PSBs": (0, 0), "batch entry": (4, 6),
     },
+    # #3576: DSF's 431 PL/I OPTIONS(MAIN) programs are scored: 310 are CICS (themselves or
+    # through a %INCLUDEd member), 235 of them reached by a LINK / XCTL; with no CSD in the
+    # repository the entry programs stay unreached, and with no JCL no batch main is run.
     "dsf": {
-        "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (0, 0), "screens": (0, 2421),
-        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 7),
+        "program calls": (6771, 6888), "copybooks": (0, 0), "transactions": (235, 310), "screens": (0, 2421),
+        "data flows": (149, 178), "IMS PSBs": (0, 1), "batch entry": (0, 128),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
     # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it
     # is a CICS program whose transaction the repository does not define.
     "zecs": {
-        "program calls": (2, 3), "copybooks": (6, 6), "transactions": (9, 10), "screens": (0, 0),
+        # #3576: + the assembler CICS programs: ZECS002 reached, ZECSNC defined in no CSD.
+        "program calls": (2, 3), "copybooks": (6, 6), "transactions": (10, 12), "screens": (0, 0),
         "data flows": (331, 331), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
 }  # fmt: skip

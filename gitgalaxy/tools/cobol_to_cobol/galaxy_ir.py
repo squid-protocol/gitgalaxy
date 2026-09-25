@@ -146,7 +146,9 @@ from typing import Optional
 
 # Subsystem hit columns carried per file. They are rule-hit counts, not block
 # counts: arch_io/arch_ipc mix EXEC SQL, EXEC DLI, CICS verbs and CALL.
-SIGNAL_COLUMNS = ("arch_io", "arch_ipc", "arch_ui_framework", "arch_concurrency", "def_listeners")
+# raw_arch_api (#3576): a PL/I file's `api` hit is its PROC OPTIONS(MAIN | FETCHABLE)
+# (or EXPORTS / label: ENTRY) -- what makes a PL/I member a program, not an include.
+SIGNAL_COLUMNS = ("arch_io", "arch_ipc", "arch_ui_framework", "arch_concurrency", "def_listeners", "raw_arch_api")
 
 # The IBM mainframe language family (#2516). hlasm is detected but is a
 # wrap-or-retire boundary, not a migration target (#3122 scope note 1).
@@ -1241,7 +1243,8 @@ class GalaxyIR:
                           non-COBOL program not linked (an engine gap)
           copybooks       COBOL COPY members answered by a copybook (or a generated
                           symbolic map, #3490); gap: missing copybook
-          transactions    CICS programs a transaction, a LINK / XCTL / START or a
+          transactions    CICS programs (COBOL, PL/I and command-level assembler,
+                          #3576) a transaction, a LINK / XCTL / START or a
                           web service (#3496) reaches, and CSD transactions whose
                           program exists;
                           gaps: CICS program no transaction reaches, transaction to
@@ -1250,7 +1253,8 @@ class GalaxyIR:
                           gaps: missing BMS source, dynamic map name
           data flows      data moves (#3452) with both operands resolved to storage
           IMS PSBs        DL/I programs whose PSB is defined in the repository
-          batch entry     batch main programs (no CICS, not CALLed) a JCL step runs
+          batch entry     batch main programs (COBOL and PL/I; no CICS, not CALLed)
+                          a JCL step runs
 
         `missing_inputs` turns the gaps into what to ask the estate owner for
         (docs/mainframe_ingestion_checklist.md): per input the gap count and up to
@@ -1259,6 +1263,13 @@ class GalaxyIR:
         """
         cobol = [f for f in self.files.values() if f.language == "cobol"]
         programs = [f for f in cobol if f.is_program]
+        # #3576: a PL/I program is a member with an entry point (PROC OPTIONS(MAIN), the pli
+        # `api` signal) -- not a %INCLUDE fragment -- and joins the transaction and batch
+        # channels like a COBOL one. A command-level CICS assembler program joins the
+        # transaction channel only: a CSECT is as often a link-edited subroutine as a batch
+        # main, so assembler is never scored as batch entry.
+        pli = [f for f in self.files.values() if f.language == "pli" and f.signals.get("raw_arch_api")]
+        hlasm = [f for f in self.files.values() if f.language == "hlasm" and f.is_program]
         channels: dict = {}
         examples: dict = {}
 
@@ -1332,8 +1343,26 @@ class GalaxyIR:
             prog = self._transaction_program(c.target) if c.target else None
             if prog:
                 reached.add(prog)
-        cics = [f for f in programs if f.cics_resources or f.cics_tasks or any(c.verb in _CONTRACT_VERBS for c in f.calls)
-                or any(r.name == "DFHCOMMAREA" for r in f.records)]  # fmt: skip
+
+        def issues_cics(f: EngineFile) -> bool:
+            return bool(f.cics_resources or f.cics_tasks or any(c.verb in _CONTRACT_VERBS for c in f.calls)
+                        or any(r.name == "DFHCOMMAREA" for r in f.records))  # fmt: skip
+
+        def pli_cics(f: EngineFile) -> bool:
+            """A PL/I program is CICS when it, or a member it %INCLUDEs, issues CICS."""
+            seen, todo = {f.file_path}, [f]
+            while todo:
+                g = todo.pop()
+                if issues_cics(g):
+                    return True
+                for p in g.copy_deps:
+                    if p not in seen and p in self.files:
+                        seen.add(p)
+                        todo.append(self.files[p])
+            return False
+
+        cics = [f for f in programs if issues_cics(f)] + [f for f in pli if pli_cics(f)]
+        cics += [f for f in hlasm if issues_cics(f)]
         ch = {"resolved": 0, "total": 0, "system": 0,
               "gaps": {"CICS program no transaction reaches": 0, "transaction to a missing program": 0}}  # fmt: skip
         for f in cics:
@@ -1398,11 +1427,13 @@ class GalaxyIR:
                     if step.get("program"):
                         run.add(step["program"].upper())
         called = {c.resolves_to for f in self.files.values() for c in f.calls if c.resolves_to and c.verb == "CALL"}
-        batch = [f for f in programs if f not in cics and f.file_path not in called]
+        batch = [f for f in programs + pli if f not in cics and f.file_path not in called]
         ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"batch program no JCL step runs": 0}}
         for f in batch:
             ch["total"] += 1
-            if any(pid.upper() in run for pid in f.program_ids):
+            # A PL/I load module is named after its member (#3491's resolver rule).
+            names = f.program_ids if f.language != "pli" else [Path(f.file_path).stem]
+            if any(pid.upper() in run for pid in names):
                 ch["resolved"] += 1
             else:
                 ch["gaps"]["batch program no JCL step runs"] += 1

@@ -193,7 +193,7 @@ spring:
     # TODO: Update these credentials for your target environment
     url: {url.format(db=db_name)}
     username: {t.database.username}
-    password: {t.database.password}
+    password: password
     driver-class-name: {driver_class}
 
   jpa:

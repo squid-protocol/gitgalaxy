@@ -49,6 +49,7 @@ def test_the_annotated_default_file_is_the_defaults():
         ({"project": {"package": "Com.Acme"}}, "project.package"),
         ({"features": {"batch": "yes"}}, "features.batch must be true or false"),
         ({"features": {"services": False}}, "rest_controllers needs features.services"),
+        ({"database": {"password": "hunter2"}}, "credentials do not belong in the config"),
     ],
 )
 def test_invalid_configs_name_the_key(config, message):

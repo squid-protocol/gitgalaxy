@@ -83,7 +83,6 @@ class Database:
     engine: str = "postgresql"
     ddl_auto: str = "update"
     username: str = "postgres"
-    password: str = "password"  # noqa: S105 -- the historic application.yml placeholder; override via SPRING_DATASOURCE_PASSWORD
     show_sql: bool = True
 
 
@@ -155,6 +154,12 @@ def target_from_dict(data: dict[str, Any] | None) -> JavaTarget:
             raise ConfigError(f"section {section!r} must be a mapping")
         obj = getattr(target, section)
         for key, value in values.items():
+            if section == "database" and key == "password":
+                raise ConfigError(
+                    "database.password: credentials do not belong in the config (it is stored with the "
+                    "project); the generated application.yml carries a placeholder -- set "
+                    "SPRING_DATASOURCE_PASSWORD at runtime"
+                )
             if not hasattr(obj, key):
                 known = ", ".join(obj.__dataclass_fields__)
                 raise ConfigError(f"unknown key {section}.{key}; {section} keys are {known}")
@@ -213,8 +218,8 @@ database:
   engine: postgresql                    # {" | ".join(DATABASES)}
   ddl_auto: update                      # {" | ".join(DDL_AUTO)}
   username: postgres
-  password: password                    # a placeholder: override through SPRING_DATASOURCE_PASSWORD
   show_sql: true
+  # No password here: set SPRING_DATASOURCE_PASSWORD at runtime (a config is stored with the project).
 
 features:
   rest_controllers: true                # a REST controller per program
@@ -223,4 +228,4 @@ features:
   ebcdic_decoder: true                  # the EBCDIC / COMP-3 decoder utility
   mock_services: true                   # mock services for unresolved external calls
   agent_tickets: true                   # bounded AI-agent tickets for the business logic
-"""
+"""  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

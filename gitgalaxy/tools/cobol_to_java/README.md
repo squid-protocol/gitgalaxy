@@ -71,7 +71,7 @@ cobol-to-java <staging dir> --config modernize.yaml
 | `project` | `package`, `group_id`, `artifact_id`, `version`, `description`, `header_file` |
 | `java` | `version` (17, 21), `build_tool` (maven, gradle), `data_classes` (lombok, plain), `dto_style` (class, record) |
 | `spring_boot` | `version` (any 3.x.y) |
-| `database` | `engine` (postgresql, db2, oracle, mysql, h2), `ddl_auto`, `username`, `password`, `show_sql` |
+| `database` | `engine` (postgresql, db2, oracle, mysql, h2), `ddl_auto`, `username`, `show_sql` (no password: set `SPRING_DATASOURCE_PASSWORD` at runtime) |
 | `features` | `rest_controllers`, `services`, `batch`, `ebcdic_decoder`, `mock_services`, `agent_tickets` |
 
 Every key is validated. An unknown key or an unsupported value stops the run with an error naming

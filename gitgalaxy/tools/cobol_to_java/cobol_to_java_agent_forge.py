@@ -13,13 +13,47 @@
 # dependencies as strict constraints, we force the LLM to generate pure,
 # side-effect-free @Service classes that rely on Spring's Dependency Injection (DI)
 # for external integration.
+#
+# #3614: when the refractor ran against the engine (--scan / --galaxy-db), the
+# program's verified skeleton (06_skeleton/<key>_skeleton.json) rides along as
+# `verified_skeleton`: the calls, contracts, resources, screens and transactions
+# the engine extracted, each tagged with its field-testing status. The agent
+# implements against those facts instead of inferring them from the slice.
 # ==============================================================================
 
 
 from typing import Optional
 
+# Data-level sections left out of a ticket: the agent translates one slice, and these run
+# to thousands of rows per program. They stay in the skeleton file the ticket names.
+_BULK_SECTIONS = ("records", "data_flows", "units")
 
-def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: Optional[dict] = None) -> dict:
+
+def ticket_skeleton(skeleton: dict, skeleton_file: Optional[str] = None) -> dict:
+    """The ticket's view of a program skeleton: its non-empty, non-bulk sections."""
+    sections = {
+        name: {
+            "field_testing": sec["field_testing"],
+            "tested_on_public": sec["tested_on_public"],
+            "tested_on_private": sec["tested_on_private"],
+            "facts": sec["facts"],
+        }
+        for name, sec in skeleton.get("sections", {}).items()
+        if sec.get("facts") and name not in _BULK_SECTIONS
+    }
+    view = {"program": skeleton.get("program", {}), "sections": sections}
+    if skeleton_file:
+        view["full_skeleton"] = skeleton_file
+    return view
+
+
+def generate_java_agent_ticket(
+    slice_json: dict,
+    prog_id: str,
+    ir_state: Optional[dict] = None,
+    skeleton: Optional[dict] = None,
+    skeleton_file: Optional[str] = None,
+) -> dict:
     """Generates a structured JSON task ticket for Java service generation."""
     target_var = slice_json.get("target_var", "UNKNOWN")
     rules = slice_json.get("business_rules", [])
@@ -56,5 +90,13 @@ def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: Optiona
             "'java_code' string."
         ),
     }
+    if skeleton:
+        ticket["context"]["verified_skeleton"] = ticket_skeleton(skeleton, skeleton_file)
+        ticket["system_prompt"] += (
+            " 'verified_skeleton' holds the facts GitGalaxy's engine extracted about this program: use its "
+            "calls, contracts, resources, screens and transactions as given, and do not invent others. A "
+            "section whose field_testing is not 'field-tested' is verified on reference estates but still "
+            "being field-tested: where the slice contradicts it, report that in 'diagnosis'."
+        )
 
     return ticket

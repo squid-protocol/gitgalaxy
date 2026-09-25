@@ -121,7 +121,7 @@ exclude = [
 
 # Ship the frozen archetype brains (JSON) so non-editable installs can classify.
 [tool.setuptools.package-data]
-"gitgalaxy.standards" = ["archetype_brains/*.json"]
+"gitgalaxy.standards" = ["archetype_brains/*.json", "fact_channel_confidence.json"]
 
 [tool.setuptools_scm]
 # This tells it to expect tags like "v2.0.5" instead of just "2.0.5"

@@ -45,6 +45,7 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
     load_galaxy_ir,
     scan_to_db,
 )
+from gitgalaxy.tools.cobol_to_cobol.skeleton_export import write_skeletons
 
 # ==============================================================================
 
@@ -515,6 +516,11 @@ def main():
     # Run the Zero-Trust JCL Audit
     audit_metrics = audit_zero_trust_jcls(jcl_dir, target_path)
 
+    # #3614: the engine's verified facts per program, for the code generators
+    skeletons_written = 0
+    if galaxy_ir is not None:
+        skeletons_written = write_skeletons(galaxy_ir, ir_keys, clean_dir / "06_skeleton")
+
     # --- NEW: Forge the Autonomous Agent Job Tickets ---
     agent_jobs_created = forge_agent_jobs(clean_dir, target_path, master_honesty_flags, ir_keys=ir_keys)
 
@@ -567,6 +573,7 @@ def main():
                     language, "detected, not yet migratable"
                 )
                 f.write(f"  • {language:<10}: {counts['files']} files, {counts['units']} units ({status})\n")
+            f.write(f"  • Verified skeletons (06_skeleton): {skeletons_written} programs + estate.json\n")
         f.write("\n==========================================================\n")
 
     print("=" * 70)

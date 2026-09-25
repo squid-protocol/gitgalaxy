@@ -140,6 +140,28 @@ public class {camel_name}Service {{
 """
 
 
+def _write_skeleton_audit(f, skeletons: dict) -> None:
+    """#3614: which engine facts the generated project was built against, and how far each is proven."""
+    fields: dict[str, dict] = {}
+    for key, path in skeletons.items():
+        for sec in json.loads(path.read_text(encoding="utf-8")).get("sections", {}).values():
+            if not sec.get("facts"):
+                continue
+            row = fields.setdefault(sec["ledger_field"], {**sec, "facts": 0, "programs": set()})
+            row["facts"] += len(sec["facts"])
+            row["programs"].add(key)
+    f.write("[2] VERIFIED SKELETON (engine facts, 06_skeleton)\n")
+    f.write("----------------------------------------------------------\n")
+    f.write(f"  • Programs with a skeleton : {len(skeletons)}\n")
+    f.write("  • Fact channel (ledger field)       facts  programs  field testing (public / private estates)\n")
+    for name, row in sorted(fields.items()):
+        f.write(
+            f"    {name:<32} {row['facts']:>6}  {len(row['programs']):>8}  {row['field_testing']} "
+            f"({row['tested_on_public']} / {row['tested_on_private']})\n"
+        )
+    f.write("  'open' = verified on the keyed reference corpora, still being field-tested on fresh estates.\n\n")
+
+
 def main():
     from gitgalaxy.licensing import enforce_licensing_guard
 
@@ -341,6 +363,9 @@ def main():
                 print(f"  [!] Failed to generate architecture from {ir_file.name}: {e}")
 
     # 4. Generate Autonomous AI Agent Tickets
+    # #3614: the refractor's verified skeletons (present when it ran with --scan / --galaxy-db)
+    skeleton_dir = clean_room_path / "06_skeleton"
+    skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
     slice_dir = clean_room_path / "05_microservice_slices"
     if target.features.agent_tickets and slice_dir.exists():
         for slice_file in sorted(slice_dir.glob("*_slice.json"), key=lambda p: p.name):
@@ -352,7 +377,15 @@ def main():
                 ir_file = ir_dir / f"{prog_id}_ir.json"
                 ir_state = json.loads(ir_file.read_text(encoding="utf-8")) if ir_file.exists() else None
 
-                ticket_json = generate_java_agent_ticket(slice_data, prog_id, ir_state)
+                skeleton_file = skeletons.get(prog_id)
+                skeleton = json.loads(skeleton_file.read_text(encoding="utf-8")) if skeleton_file else None
+                ticket_json = generate_java_agent_ticket(
+                    slice_data,
+                    prog_id,
+                    ir_state,
+                    skeleton=skeleton,
+                    skeleton_file=f"{clean_room_path.name}/06_skeleton/{skeleton_file.name}" if skeleton_file else None,
+                )
                 out_path = java_dirs["agent_jobs"] / f"{prog_id}_java_service_job.json"
                 out_path.write_text(json.dumps(ticket_json, indent=2), encoding="utf-8")
                 stats["agent_jobs"] += 1
@@ -387,6 +420,8 @@ def main():
         f.write(f"  • Transient DTOs Generated        : {stats['dtos']}\n")
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
+        if skeletons:
+            _write_skeleton_audit(f, skeletons)
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

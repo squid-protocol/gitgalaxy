@@ -20,6 +20,9 @@ def test_the_record_is_valid_and_the_report_is_current():
     assert ft.REPORT.read_text(encoding="utf-8") == ft.render(registry, ledger), (
         "stale: python tests/tools/field_testing.py report --write"
     )
+    assert ft.CONFIDENCE.read_text(encoding="utf-8") == ft.confidence(registry, ledger), (
+        "stale: python tests/tools/field_testing.py report --write"
+    )
 
 
 def _ledger(facts: dict[str, int], tier: str = "cross_verified") -> dict:

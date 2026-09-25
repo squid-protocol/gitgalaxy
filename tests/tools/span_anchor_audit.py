@@ -15,12 +15,12 @@ declaration, on lines that belong to other code (#3543).
 A unit is MIS-ANCHORED when the line its `start_line` names does not contain the
 unit's name, and every line from there down to the declaration (the first line,
 within a window, that does) is blank, a comment, or ENDS a previous construct:
-`{`, `}`, `,`, `;` or `*/`. That is the shape a `func_start` pattern leaves when
+`{`, `}`, `,` or `;` (a trailing comment ignored). That is the shape a `func_start` pattern leaves when
 its leading class swallows the newline before the declaration -- the span opens
 on the class/interface header, the previous member's `},` or a docblock's `*/`.
 
 What is NOT mis-anchored, by construction: a declaration that starts on an
-annotation, attribute, decorator, `template <...>` or C return-type line. Those
+annotation, attribute (`#[...]` included), decorator, `template <...>` or C return-type line. Those
 lines do not end a previous construct, and the repo counts them as part of the
 declaration (see docs/func_start_rule_contract.md).
 
@@ -59,19 +59,23 @@ MIN_GATED_UNITS = 20
 # How far below start_line the declaration may be (a long stripped docblock).
 WINDOW = 60
 
-_ENDS_CONSTRUCT = re.compile(r"(?:[{},;]|\*/)\s*$")
+_ENDS_CONSTRUCT = re.compile(r"[{},;]\s*$")
+_TRAILING_COMMENT = re.compile(r"\s*(?:/\*.*?\*/|//.*)$")
 _HASH_COMMENT_LANGS = frozenset({"python", "ruby", "perl", "shell", "php", "powershell", "r", "tcl", "elixir", "nim"})
 _IDENT = re.compile(r"[A-Za-z_$][\w$]*")
 
 
 def _is_filler(line: str, lang: str) -> bool:
-    """Blank, a comment, or a line that ends a previous construct."""
+    """Blank, a comment, or a line whose CODE ends a previous construct."""
     s = line.strip()
-    if not s or _ENDS_CONSTRUCT.search(s):
+    if not s:
         return True
-    if s.startswith(("//", "/*", "*")):
+    if s.startswith("#["):
+        return False  # a PHP 8 / Rust attribute: part of the declaration, not a comment
+    if s.startswith(("//", "/*", "*")) or (lang in _HASH_COMMENT_LANGS and s.startswith("#")):
         return True
-    return lang in _HASH_COMMENT_LANGS and s.startswith("#")
+    # `int /* Return 1 on mismatch */` is a C return-type line, not the end of a construct.
+    return bool(_ENDS_CONSTRUCT.search(_TRAILING_COMMENT.sub("", s)))
 
 
 def misanchored(lines: list[str], start_line: int, name: str, lang: str) -> Optional[bool]:

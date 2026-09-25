@@ -35,8 +35,8 @@
     "units": 15
   },
   "c": {
-    "misanchored": 2,
-    "misanchored_pct": 0.1,
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
     "units": 2593
   },
   "cobol": {
@@ -165,8 +165,8 @@
     "units": 934
   },
   "php": {
-    "misanchored": 380,
-    "misanchored_pct": 22.1,
+    "misanchored": 377,
+    "misanchored_pct": 21.9,
     "units": 1718
   },
   "pli": {

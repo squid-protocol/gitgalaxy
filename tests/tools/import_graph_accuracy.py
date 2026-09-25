@@ -75,8 +75,10 @@ RESOLUTION RULES (the language's, never the engine's)
               by name, not evaluated). std/builtin/root and dependencies are external.
   ruby        require_relative exact; require under a load-path root (a lib/, test/
               or spec/ directory, or the repo root).
-  rust        `mod a;` -> a.rs or a/mod.rs beside a mod.rs/lib.rs/main.rs, else in
-              the file's own stem directory. `use` paths are not scored.
+  rust        `mod a;` -> a.rs or a/mod.rs beside a mod.rs or crate root (lib/main/
+              build.rs, a file in tests/, examples/, benches/ or src/bin/), else in
+              the file's own stem directory. A `#[path = "..."]` override is not
+              read (such a `mod` is left unscored). `use` paths are not scored.
   perl        `use A::B` / `require A::B` -> a file ending in A/B.pm.
 
   These are the rules a compiler or interpreter applies, minus configuration
@@ -525,7 +527,10 @@ def ruby_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
 def rust_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     out = []
     d, name = posixpath.split(rel)
-    owner = d if name in ("mod.rs", "lib.rs", "main.rs") else posixpath.join(d, posixpath.splitext(name)[0])
+    # A mod.rs and a crate root (lib/main/build.rs, tests/, examples/, benches/, src/bin/) own their directory.
+    crate_root = posixpath.basename(d) in ("tests", "examples", "benches") or d == "src/bin" or d.endswith("/src/bin")
+    owns = name in ("mod.rs", "lib.rs", "main.rs", "build.rs") or crate_root
+    owner = d if owns else posixpath.join(d, posixpath.splitext(name)[0])
     for n in _walk(_ts_tree("rust", src)):
         if n.type == "mod_item" and not any(c.type == "declaration_list" for c in n.children):
             ident = next((c for c in n.children if c.type == "identifier"), None)

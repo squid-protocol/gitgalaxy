@@ -69,6 +69,10 @@ IMPORTER_DIR_FIRST_LANGS = frozenset(
     if definition.get("imports_resolve_from_importer_dir")
 )
 
+# #3545: a Python module token as the import statement spells it -- `a.b`,
+# `.a`, `..`, never a path. Bounded, linear: no nested quantifiers.
+_DOTTED_MODULE = re.compile(r"\.{0,16}(?:[A-Za-z_]\w{0,255}(?:\.[A-Za-z_]\w{0,255}){0,64})?")
+
 # #3552: an ESM import spells a TypeScript source by its EMITTED name
 # (`./x.js` for x.ts); the compiler maps it back to one of these.
 _ESM_EMITTED_EXTS = frozenset({".js", ".jsx", ".mjs", ".cjs"})
@@ -266,8 +270,10 @@ class NetworkRiskSensor:
 
         # #3545: Python resolves a module by its own rule (source roots and
         # package `__init__` files), never by a bare-stem search.
+        # A path- or file-name-shaped token (`src/lib.py`, `f1.py` -- a caller
+        # that already holds the file) keeps the name search below.
         init_file = src_def.get("package_init_file")
-        if init_file:
+        if init_file and _DOTTED_MODULE.fullmatch(target_token) and not target_token.endswith((".py", ".pyi")):
             return self._resolve_package_module(target_token, curr_path, resolution_map, init_file)
 
         # #3553/#3552: a `./`/`../` token -- and any token of a language that

@@ -285,12 +285,12 @@ do. The cross-language page is [cics_mainframe_facts.md](cics_mainframe_facts.md
 |---|---|---|
 | job flow: step order, COND= / IF-ELSE, PROC calls (expanded in the reader), each DSN DD's DISP and GDG generation, dataset producer → consumer edges | `core/job_flow.py` (#3451) | cross_verified on five corpora: 558 (CardDemo), 410 (CBSA), 253 (GENAPP), 138 (zopeneditor-sample), 261 (zECS) |
 | DD names, input and output datasets per step | `core/mainframe_boundary.py` (#3201) | cross_verified |
-| PROC / SET symbol resolution of DSNs | `_jcl_resolve_datasets` (#3345) | draft: two independent readers agree, not blind-reviewed |
+| PROC / SET symbol resolution of DSNs | `_jcl_resolve_datasets` (#3345) | cross_verified on zopeneditor-sample; sample_verified on CardDemo, CBSA, GENAPP, zECS (#3575). Override DDs (`//PROCSTEP.DD`) are out of scope |
 | IDCAMS `DEFINE CLUSTER` / AIX / PATH | `core/file_control.py` (#3455) | cross_verified: CardDemo 24, CBSA 2, GENAPP 4 |
 | IMS region steps (`DFSRRC00`: program + PSB) | `core/ims_gen.py` (#3477) | cross_verified on CardDemo |
 | job submission to the internal reader (`SYSOUT=(x,INTRDR)`) | `core/job_submits.py` (#3448) | cross_verified on CardDemo (3 facts) |
 | CICS web-services assistant steps (DFHLS2WS / DFHLS2JS / DFHWS2LS / DFHJS2LS) | `core/web_services.py` (#3496) | cross_verified on GENAPP (18) |
-| CSD definitions run through DFHCSDUP in-stream | the csd reader (#3356) | draft |
+| CSD definitions run through DFHCSDUP in-stream | the csd reader (#3356) | cross_verified: every deck, in full (#3575) |
 
 What JCL cannot tell you:
 - **Cross-job order** lives in the scheduler (CA-7, Control-M, TWS), not in JCL. The completeness

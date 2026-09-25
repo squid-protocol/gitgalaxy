@@ -180,8 +180,8 @@ read by two fact channels (see [cics_mainframe_facts.md](cics_mainframe_facts.md
 - **`core/db2_sql_statements.py` (#3446):** which program reads, inserts, updates or deletes which
   table. A cursor's OPEN / FETCH is joined to its DECLARE. Cross-verified on CardDemo (13 facts),
   CBSA (24) and GENAPP (21).
-- **`core/db2_declare_table.py` (#3344):** `DECLARE TABLE` / DCLGEN column schemas. Draft on
-  CardDemo (31) and CBSA (24): two independent readers agree, no blind review yet.
+- **`core/db2_declare_table.py` (#3344):** `DECLARE TABLE` / DCLGEN column schemas.
+  Cross-verified on CardDemo (31) and CBSA (24): every column blind-read in full (#3575).
 
 Not covered:
 - dynamic SQL text built at runtime (`PREPARE` from a host variable), which gets no table fact;

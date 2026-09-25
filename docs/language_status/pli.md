@@ -281,7 +281,7 @@ caveats. For PL/I:
 | field-level data moves (assignments, including BY NAME) | `core/pli_data_moves.py` (#3491) | sample_verified: 1,560 facts (DSF), 97 (zopeneditor-sample) |
 | units of work and handlers: ON / REVERT / SIGNAL, plus CICS SYNCPOINT / HANDLE / ABEND | `core/pli_on_units.py` + `core/uow_handlers.py` | sample_verified: 1,761 facts (DSF) |
 | DECLARE structures (record layouts) | `_pli_records` (#3250) | draft: 113 facts (zopeneditor-sample) |
-| CICS file / queue / map / container operations, task control | the COBOL walkers, with `;` as the terminator | **not keyed**: the answer key's CICS reader covers COBOL and HLASM only |
+| CICS file / queue / map / container operations, task control | the COBOL walkers over a sequence-field-blanked stream, with `;` as the terminator | sample_verified: 3,251 / 167 facts (DSF). The key reads PL/I too (#3577); 34 sampled files, 363 facts, 0 disagreements |
 | embedded DB2 statements and DECLARE TABLE | the COBOL readers | not keyed on a PL/I corpus |
 
 What that means in practice:

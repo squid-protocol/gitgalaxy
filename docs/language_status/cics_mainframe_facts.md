@@ -2,7 +2,10 @@
 
 Snapshot 2026-09-25, against `main` at the close of epics
 [#3445](https://github.com/squid-protocol/gitgalaxy/issues/3445) (mainframe fact channels) and
-[#3489](https://github.com/squid-protocol/gitgalaxy/issues/3489) (CICS estate gaps). Numbers are from
+[#3489](https://github.com/squid-protocol/gitgalaxy/issues/3489) (CICS estate gaps), refreshed after
+the follow-ups [#3575](https://github.com/squid-protocol/gitgalaxy/issues/3575) to
+[#3578](https://github.com/squid-protocol/gitgalaxy/issues/3578), which censused every field that
+was still draft. Numbers are from
 `tests/cobol_mainframe/ground_truth_ledger.json` and `tests/cobol_mainframe/test_completeness.py`.
 Re-run the commands in §7 before quoting them if this page looks old.
 
@@ -48,6 +51,20 @@ the corpora, and a new mismatch fails the build.
 | **sample_verified** (S) | As above, but reviewers read a seeded, stratified **sample**, because the field has thousands of facts. The ledger records the sample size, the disagreements and a 95% upper bound on the key's error rate. |
 | **draft** (d) | Only the two independent readers agree, the engine and the key's reader. No blind review has happened. Two readers written separately rarely share a mistake, but it can happen. Treat draft as unconfirmed. |
 
+**Oracle instead of reviewers.** Where the corpus carries IBM's own generated output, that output is
+the check. CardDemo's symbolic maps are compared unit for unit with the DFHMAPS copybooks checked
+into its `cpy-bms` (`cobol_answer_key.py verify-symbolic`), and they are marked cross_verified on
+that basis.
+
+**The censuses find real errors.** Every census compares whole rows, not just the names the ledger
+compares. In #3575 to #3578 they found:
+- an engine defect: PL/I operands continued past a sequence field lost their names;
+- a key defect: 1,229 record lines fell early, while the engine had them right;
+- three ambiguities in the reviewer brief, each fixed and written down.
+
+A sampled field's recorded error bound counts every key error the census found **before** the fix.
+It bounds the key as it was drafted, not as it is now.
+
 The engine agrees with the key on **every fact of every field on every corpus** (100% precision and
 recall), with one deliberate exception. The engine's "dead" flag means *unreferenced by name*. That
 is a different question from reachability, so it differs from the key's reachability answer by
@@ -88,10 +105,15 @@ column order of §3.
 | FILE-CONTROL / CALL USING | X 54 / 71 | X 1 / 22 | – | X 12 / 5 | – / X 1 | X 22 / 4 |
 | field-level data moves (MOVE / COMPUTE / …) | S 5,183 | S 5,182 | S 1,378 | S 323 | S 377 | S 140 |
 | file I/O moves (READ INTO / WRITE FROM / ACCEPT) | X 146 | – | – | X 63 | – | X 38 |
-| record layouts (DATA DIVISION items) | d 1,839 | d 1,851 | d 879 | d 163 | d 449 | d 294 |
+| record layouts (each program's own DATA DIVISION items: line, level, PIC, USAGE, OCCURS, REDEFINES) | S 1,839 | S 1,851 | S 879 | S 163 | S 449 | S 294 |
 
 **Not verified anywhere:** TD-queue trigger starts. The channel exists, but no keyed corpus defines
 one, so it has never met real code.
+
+**Not keyed at all: copybook record layouts.** The "record layouts" row covers the items written in
+each program's own DATA DIVISION. `COPY` members are not expanded, and copybook files are not keyed.
+The layouts modernization output depends on mostly live in copybooks, so they have no independent
+check yet ([#3602](https://github.com/squid-protocol/gitgalaxy/issues/3602)).
 
 ### PL/I
 
@@ -99,9 +121,9 @@ one, so it has never met real code.
 - **Data moves:** S 1,560 (DSF) and S 97 (zOE).
 - **Units of work:** ON / REVERT / SIGNAL plus the CICS commands, S 1,761 (DSF).
 - **DECLARE structures:** d 113 (zOE).
-- **CICS resource and task operations** are extracted through the same walker as COBOL, but are
-  **not keyed**. The answer key's CICS reader covers COBOL and HLASM sources only, so PL/I CICS
-  file, queue and map operations have no independent check yet.
+- **CICS resource and task operations:** S 3,251 / 167 (DSF). The answer key reads PL/I too
+  (#3577). A sampled census of 34 files and 363 facts found 0 disagreements. The same check found
+  and fixed an engine defect: an operand continued past a sequence field lost its name.
 - DSF is the only CICS PL/I corpus, one estate written in one house style. Treat PL/I CICS as
   sampled and single-sourced.
 
@@ -120,28 +142,35 @@ one, so it has never met real code.
 - **DD names and input / output datasets:** X.
 - **VSAM `DEFINE CLUSTER`:** X on CardDemo, CBSA and GENAPP.
 - **Web-services assistant steps** (DFHLS2WS / DFHWS2LS / …): X 18, on GENAPP only.
-- **PROC / SET symbol resolution of DSNs:** d.
+- **PROC / SET symbol resolution of DSNs:** X on zopeneditor-sample (every member), S on CardDemo,
+  CBSA, GENAPP and zECS. zECS's JCL is all literal, so its sample is thin.
+  **Override DDs** (`//PROCSTEP.DD DD`) are **out of scope** on both sides. An override carries the
+  PROC step's effective dataset, and today it is not recorded.
 - **Cross-job order** comes from the scheduler (CA-7, Control-M, TWS), not from source. The engine
   cannot see it and the completeness report asks for it.
 
 ### BMS (no structural doc)
 
-- **Screen fields:** d on CardDemo (1,208), CBSA (371) and GENAPP (286).
-- **COBOL symbolic maps generated from BMS:** d, but checked against something external. The
-  generated copybooks match all 21 of CardDemo's checked-in `cpy-bms` files line for line.
+- **Screen fields:** S on CardDemo (1,208) and CBSA (371), X on GENAPP (286, its one BMS source in
+  full).
+- **COBOL symbolic maps generated from BMS:** X on CardDemo, where all 21 mapsets (5,307 layout
+  units) match IBM's own generated copybooks. They stay d on CBSA and GENAPP, which ship no generated
+  copybooks to check against.
 
 ### CSD (no structural doc)
 
-- **Resource definitions of every type:** d on CardDemo, CBSA, GENAPP and zECS.
-- **The transaction → program map that joins the CSD to the code:** X on CBSA (14), d on
-  CardDemo, GENAPP and zECS.
+- **Resource definitions of every type:** X on CardDemo, CBSA, GENAPP and zECS (457 definitions,
+  every deck in full).
+- **The transaction → program map that joins the CSD to the code:** X on CardDemo, CBSA, GENAPP
+  and zECS. It is derived by joining the censused TRANSACTION → PROGRAM rows to the cross-verified
+  PROGRAM-IDs.
 - **Remote definitions** (REMOTESYSTEM / REMOTENAME) are joined for SYSID / DPL topology. They are
   proven on GENAPP only (23 remote programs), and are not keyed.
 
 ### DB2 SQL (embedded)
 
 - **Table access** (which program reads or writes which table): X on CardDemo, CBSA and GENAPP.
-- **`DECLARE TABLE` / DCLGEN columns:** d.
+- **`DECLARE TABLE` / DCLGEN columns:** X on CardDemo and CBSA (55 columns, in full).
 
 ### Java (JCICS)
 
@@ -164,31 +193,40 @@ inputs. Here are the pinned values:
 | corpus | score | what holds it back |
 |---|---|---|
 | cics-genapp | 99% | 6 of 101 program calls unresolved |
-| zopeneditor-sample | 97% | 47 of 374 data-flow operands unresolved |
-| zecs | 89% | ECS001's transaction is not defined in the repo's CSD; 1 of 3 program calls unresolved |
-| carddemo | 88% | 17 of 82 program calls unresolved, 11 of 73 transaction checks fail, 6 of 17 batch programs have no JCL step |
+| carddemo | 90% | 17 of 82 program calls unresolved, 11 of 73 transaction checks fail, 6 of 17 batch programs have no JCL step |
+| zopeneditor-sample | 89% | 47 of 374 data-flow operands unresolved; 2 PL/I mains (MACSAMP, PSAM1LIB) run by no JCL step |
+| zecs | 88% | ECS001 and the assembler ZECSNC have no transaction in the repo's CSD; 1 of 3 program calls unresolved |
 | cbsa | 80% | no JCL for its one batch program; 5 of 47 transaction checks and 8 of 150 program calls unresolved |
-| dsf | 36% | ships **no BMS, no JCL and no CSD**: 2,421 map commands and 7 batch programs cannot resolve |
+| dsf | 43% | ships **no BMS, no JCL and no CSD**: 2,421 map commands, 75 of 310 CICS programs and 128 batch mains cannot resolve |
 
 The score is a coarse mean of channel ratios. Read the channels, not the number. DSF shows why: its
-36% comes from missing inputs, not from the engine. With BMS, JCL and the CSD provided
+43% comes from missing inputs, not from the engine. With BMS, JCL and the CSD provided
 ([mainframe_ingestion_checklist.md](../mainframe_ingestion_checklist.md)), a complete estate should
 score like GENAPP.
 
-**The report is COBOL-centric.** Its transaction and batch-entry channels score COBOL programs.
-PL/I and assembler programs count only through their call sites, screens and data flows.
+**Which programs the report scores (#3576).**
+- **Transactions channel:** COBOL programs, PL/I main programs (a member with `PROC OPTIONS(MAIN)`,
+  CICS when it or a member it `%INCLUDE`s issues CICS), and command-level assembler CICS programs.
+- **Batch-entry channel:** COBOL and PL/I. A PL/I load module matches its JCL `EXEC PGM=` by member
+  name. Assembler never counts as batch, because a CSECT is as often a link-edited subroutine.
+- **Two scores went down when this landed:** zopeneditor and zECS. The engine didn't get worse; the
+  report started counting programs it used to leave out.
 
 ## 6. What GitGalaxy cannot do, or has not proven
 
 - **Macro-level CICS** (assembler or COBOL): not supported.
 - **Runtime-only values:** a program, file or queue name read from data, or built from something
-  other than a literal, `VALUE` or one `MOVE`d literal, is recorded as unresolved or ambiguous, with
-  its candidates. It is never guessed. Name resolution is one hop: a name moved from another
-  data-name is not chased.
+  other than a literal, `VALUE` or a `MOVE`d literal, is recorded as unresolved or ambiguous, with
+  its candidates. It is never guessed. A name moved from another plain data-name is followed up to
+  three MOVEs deep (#3578). A subscripted or qualified source is not followed.
 - **Scheduler order, RACF / security definitions, SIT and region configuration, and load-module
   lists:** none of these are in source. The completeness report names them as inputs to request.
-- **Proven on no real code:** `INVOKE SERVICE`, `TRANSFORM` and TD trigger starts. BMS, CSD, DSN
-  resolution, DB2 columns and record layouts are draft only (§2).
+- **Proven on no real code:** `INVOKE SERVICE`, `TRANSFORM` and TD trigger starts.
+- **Still draft:** symbolic maps on CBSA and GENAPP (no generated copybooks to check against), and
+  PL/I DECLARE structures (zopeneditor-sample).
+- **Not keyed at all:** copybook record layouts
+  ([#3602](https://github.com/squid-protocol/gitgalaxy/issues/3602)).
+- **Out of scope:** JCL override DDs.
 - **Single-corpus fields:** IMS, MQ, online→batch submission, JCICS, web-service definitions and
   SYSID topology each rest on one corpus.
 - **COBOL formats:** every measured corpus is fixed-format Enterprise COBOL. Free-format source and

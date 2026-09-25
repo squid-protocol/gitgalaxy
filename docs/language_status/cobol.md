@@ -495,11 +495,15 @@ The full breakdown, per fact and per corpus with verification tiers, is in [cics
 - **Cross-verified** (every file blind-read by LLM reviewers, every disagreement ruled on) on up to
   six corpora: program units, PROGRAM-IDs, call targets (including data-driven ones), copybook
   resolution, CICS resource operations, task control, units of work, DB2 table access, IMS DL/I,
-  MQ, FILE-CONTROL, CALL USING contracts and file I/O moves.
+  MQ, FILE-CONTROL, CALL USING contracts, file I/O moves, CSD definitions and entry transactions,
+  and DB2 `DECLARE TABLE` columns. On CardDemo this also covers the BMS-generated symbolic maps,
+  checked against IBM's own generated copybooks.
 - **Sample-verified:** field-level data moves (MOVE / COMPUTE / STRING / …), about 12,600 facts
-  across six corpora.
-- **Draft** (two independent readers agree, no blind review): record layouts, BMS-generated
-  symbolic maps and DB2 `DECLARE TABLE` columns.
+  across six corpora, and record layouts: each program's own DATA DIVISION items, compared as whole
+  rows.
+- **Not keyed:** copybook record layouts
+  ([#3602](https://github.com/squid-protocol/gitgalaxy/issues/3602)).
+- **Still draft:** symbolic maps on CBSA and GENAPP (no IBM output to check against).
 - The engine matches the keys on every fact. The one exception is deliberate: its "dead" flag means
   *unreferenced by name* ([unreferenced_by_name_contract.md](../unreferenced_by_name_contract.md)),
   so it differs from the key's reachability answer.

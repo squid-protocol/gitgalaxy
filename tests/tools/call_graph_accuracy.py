@@ -28,6 +28,22 @@ WHAT IS COMPARED
     python tests/tools/call_graph_accuracy.py                # report
     python tests/tools/call_graph_accuracy.py --samples 8    # + top FP/FN names
     python tests/tools/call_graph_accuracy.py --buckets 3    # + FP/FN by CAUSE, 3 examples each
+    python tests/tools/call_graph_accuracy.py --ledger       # merge the shapes into the ledger
+
+RECONCILED, NOT GRADED (#3641)
+  Like the structural tri-comparison (docs/self_scan/tri_comparison_README.md), a
+  disagreement is a discrepancy until someone reads the source. `--buckets` groups each
+  one into a SHAPE (language / `call` / cause label / which reader claims it), and
+  `--ledger` merges the shapes into docs/self_scan/graph_comparison_ledger.json through
+  tri_comparison_ledger.py -- the same module, schema and lifecycle, a separate file. A
+  validated entry moves the VALIDATED numbers with the ledger's own credit geometry:
+    agree[gitgalaxy]   credit gitgalaxy   -> GitGalaxy was right  (FP becomes TP)
+                       no credit          -> GitGalaxy was wrong  (stays FP)
+    agree[tree_sitter] credit tree_sitter -> GitGalaxy missed it  (stays FN)
+                       no credit          -> tree-sitter was wrong (leaves FN)
+  With two readers there is no consensus, so an unvalidated shape counts exactly as it
+  does raw: the validated numbers only ever move on a recorded verdict. The --ci gate
+  stays on the raw numbers.
     python tests/tools/call_graph_accuracy.py --ci           # gate vs the baseline
     python tests/tools/call_graph_accuracy.py --regenerate   # rewrite the baseline
 """
@@ -48,6 +64,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "call_graph_accuracy_baseline.json"
+LEDGER = REPO_ROOT / "docs" / "self_scan" / "graph_comparison_ledger.json"
+READERS = ("gitgalaxy", "tree_sitter")
 
 # The languages #3329 scoped for qualifier capture, plus C and Rust: the
 # C-style invocation family where tree-sitter's call node is unambiguous.
@@ -66,6 +84,7 @@ CALL_NODE_TYPES = frozenset(
         "nullsafe_member_call_expression",  # php
         "scoped_call_expression",  # php
         "macro_invocation",  # rust
+        "type_conversion_expression",  # go `[]byte(s)` -- a conversion is a call (C3)
     }
 )
 _CALLEE_FIELDS = ("function", "method", "name", "macro", "constructor", "type")
@@ -95,6 +114,10 @@ def _leaf_name(node: Any, depth: int = 0) -> str | None:
     """The rightmost identifier a callee expression names."""
     if node is None or depth > 8:
         return None
+    if node.type == "generic_function":  # rust `collect::<Vec<_>>()`: the function, not the type
+        return _leaf_name(node.child_by_field_name("function"), depth + 1)
+    if node.type in ("generic_name", "generic_type"):  # c# `OfType<T>()`, java `new HashMap<K, V>()`
+        return _leaf_name(node.named_children[0], depth + 1) if node.named_children else None
     if node.type in _QUALIFIED_TYPES:  # `ControlFlow::Continue`, `OS::get_singleton`
         child = node.child_by_field_name("name")
         return _leaf_name(child, depth + 1) if child is not None else None
@@ -142,10 +165,12 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
         node, owners = stack.pop()
         if node.type in func_types:
             name = audit._get_node_name(node)
-            calls: set[str] = set()
+            # C8 (#3641): an anonymous function is no unit of its own -- its calls stay with the
+            # enclosing named unit. Only a named function starts a new owner.
             if name:
+                calls: set[str] = set()
                 out.append((name, node.start_point[0] + 1, calls, node))
-            owners = [*owners, calls]
+                owners = [*owners, calls]
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
             if name and name not in non_calls:
@@ -223,11 +248,12 @@ def _walk(node: Any):
         stack.extend(reversed(n.children))
 
 
-def _owner(node: Any, func_types: frozenset[str], top: Any) -> Any:
-    """The innermost function node enclosing `node`, stopping at `top`."""
+def _owner(node: Any, func_types: frozenset[str], top: Any, audit: Any) -> Any:
+    """The innermost NAMED function node enclosing `node`, stopping at `top` (C8: an
+    anonymous function is part of the unit it is written in)."""
     p = node.parent
     while p is not None and p.id != top.id:
-        if p.type in func_types:
+        if p.type in func_types and audit._get_node_name(p):
             return p
         p = p.parent
     return top
@@ -248,10 +274,9 @@ def _cause(kind: str, callee: str, fn: Any, lang: str, audit: Any, engine_elsewh
         if callee in CONTRACT_NON_CALLS.get(lang, ()):
             return "fp:contract-non-call", None
         for n in calls:  # tree-sitter sees the call, but gives it to an inner function
-            inner = _owner(n, func_types, fn)
+            inner = _owner(n, func_types, fn, audit)
             if inner.id != fn.id:
-                named = bool(audit._get_node_name(inner))
-                return (f"fp:inner-{'named' if named else 'anonymous'}-{inner.type}", n)
+                return f"fp:inner-named-{inner.type}", n
         ids = [n for n in _walk(fn) if n.text == callee.encode() and not n.children]
         if ids:
             parent = ids[0].parent
@@ -291,7 +316,7 @@ def measure(crucible: Path, samples: int = 0, buckets: int = 0) -> dict[str, dic
         fps: collections.Counter[str] = collections.Counter()
         fns: collections.Counter[str] = collections.Counter()
         causes: collections.Counter[str] = collections.Counter()
-        examples: dict[str, list[str]] = collections.defaultdict(list)
+        examples: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
         for (elang, path), gg in sorted(engine.items()):
             if elang != lang:
                 continue
@@ -305,7 +330,7 @@ def measure(crucible: Path, samples: int = 0, buckets: int = 0) -> dict[str, dic
                 continue
             source = src.read_bytes() if buckets else b""
             engine_names = {c for _, _, calls in gg for c in calls}
-            for _, mine, theirs, node in _pair(gg, ts):
+            for fname, mine, theirs, node in _pair(gg, ts):
                 funcs += 1
                 tp += len(mine & theirs)
                 fp += len(mine - theirs)
@@ -319,7 +344,14 @@ def measure(crucible: Path, samples: int = 0, buckets: int = 0) -> dict[str, dic
                         label, ex = _cause(kind, callee, node, lang, audit, callee in engine_names)
                         causes[label] += 1
                         if len(examples[label]) < buckets:
-                            examples[label].append(f"[{callee}] " + _example(source, path, ex))
+                            examples[label].append(
+                                {
+                                    "file_path": path,
+                                    "name": f"{fname} -> {callee}",
+                                    "line": ex.start_point[0] + 1 if ex is not None else None,
+                                    "text": _example(source, path, ex),
+                                }
+                            )
         if not funcs:
             continue
         results[lang] = {
@@ -352,8 +384,82 @@ def render_causes(results: dict[str, dict[str, Any]], limit: int = 12) -> str:
             side = r["fp"] if c["cause"].startswith("fp:") else r["fn"]
             share = f"{100 * c['count'] / side:.0f}%" if side else "-"
             out.append(f"- {c['cause']}: {c['count']} ({share})")
-            out.extend(f"    {e}" for e in c["examples"])
+            out.extend(f"    {e['name']}  {e['text']}" for e in c["examples"])
     return "\n".join(out)
+
+
+# ----------------------------------------------------------------------------- ledger
+
+
+def _side(cause: str) -> tuple[str, str]:
+    """(claiming reader, the other reader) for a cause label."""
+    return ("gitgalaxy", "tree_sitter") if cause.startswith("fp:") else ("tree_sitter", "gitgalaxy")
+
+
+def shape_groups(results: dict[str, dict[str, Any]]) -> dict[str, list[Any]]:
+    """Per language, one tri_comparison_reconcile.DiscrepancyGroup per cause shape."""
+    sys.path.insert(0, str(TOOLS))
+    from tri_comparison_reconcile import DiscrepancyExample, DiscrepancyGroup
+
+    out: dict[str, list[Any]] = {}
+    for lang, r in results.items():
+        groups = []
+        for c in r.get("top_causes", []):
+            claim, other = _side(c["cause"])
+            groups.append(
+                DiscrepancyGroup(
+                    language=lang,
+                    symbol_type="call",
+                    metric=c["cause"].split(":", 1)[1],
+                    agreeing_tools=frozenset({claim}),
+                    dissenting_tools=frozenset({other}),
+                    total_occurrences=c["count"],
+                    examples=[
+                        DiscrepancyExample(e["file_path"], e["name"], {claim: e["line"], other: None})
+                        for e in c["examples"]
+                    ],
+                )
+            )
+        out[lang] = groups
+    return out
+
+
+def validated(results: dict[str, dict[str, Any]], ledger_path: Path = LEDGER) -> dict[str, dict[str, Any]]:
+    """Per language: precision/recall after the ledger's verdicts, and what is still open."""
+    sys.path.insert(0, str(TOOLS))
+    import tri_comparison_ledger as tl
+
+    entries = tl.load_ledger(ledger_path).get("entries", {})
+    out: dict[str, dict[str, Any]] = {}
+    for lang, groups in shape_groups(results).items():
+        r = results[lang]
+        tp, fp, fn, open_n, open_shapes = r["tp"], r["fp"], r["fn"], 0, 0
+        for g in groups:
+            entry = entries.get(g.shape_key)
+            if not entry or entry.get("status") != "validated":
+                open_n += g.total_occurrences
+                open_shapes += 1
+                continue
+            credit = set(entry.get("credit_tools") or [])
+            if "gitgalaxy" in g.agreeing_tools and "gitgalaxy" in credit:
+                tp, fp = tp + g.total_occurrences, fp - g.total_occurrences
+            elif "tree_sitter" in g.agreeing_tools and "tree_sitter" not in credit:
+                fn -= g.total_occurrences
+        out[lang] = {
+            "precision_pct": round(100.0 * tp / (tp + fp), 1) if tp + fp else None,
+            "recall_pct": round(100.0 * tp / (tp + fn), 1) if tp + fn else None,
+            "open_occurrences": open_n,
+            "open_shapes": open_shapes,
+        }
+    return out
+
+
+def merge_ledger(results: dict[str, dict[str, Any]], ledger_path: Path = LEDGER) -> None:
+    sys.path.insert(0, str(TOOLS))
+    import tri_comparison_ledger as tl
+
+    for lang, groups in shape_groups(results).items():
+        tl.merge_and_save(lang, groups, ledger_path)
 
 
 def render(results: dict[str, dict[str, Any]]) -> str:
@@ -363,6 +469,22 @@ def render(results: dict[str, dict[str, Any]]) -> str:
             f"| {lang} | {r['matched_functions']} | {r['precision_pct']}% | {r['recall_pct']}% | "
             f"{r['tp']} | {r['fp']} | {r['fn']} |"
         )
+    return "\n".join(lines)
+
+
+def render_validated(results: dict[str, dict[str, Any]], v: dict[str, dict[str, Any]]) -> str:
+    lines = [
+        "| language | raw precision | raw recall | validated precision | validated recall | open shapes | open |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for lang, r in results.items():
+        x = v.get(lang, {})
+        star = "*" if x.get("open_shapes") else ""
+        lines.append(
+            f"| {lang} | {r['precision_pct']}% | {r['recall_pct']}% | {x.get('precision_pct')}%{star} | "
+            f"{x.get('recall_pct')}%{star} | {x.get('open_shapes', 0)} | {x.get('open_occurrences', 0)} |"
+        )
+    lines.append("\n`*` = a shape in this language has no verdict yet; the number is not a claim.")
     return "\n".join(lines)
 
 
@@ -385,6 +507,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--samples", type=int, default=0, help="print the N most frequent FP/FN names per language")
     ap.add_argument("--buckets", type=int, default=0, help="classify every FP/FN by cause, N examples each")
+    ap.add_argument("--ledger", action="store_true", help="merge the discrepancy shapes into the ledger")
     ap.add_argument("--ci", action="store_true", help="fail on a drop beyond the baseline tolerance")
     ap.add_argument("--regenerate", action="store_true", help="rewrite the committed baseline")
     ap.add_argument("--json", metavar="PATH")
@@ -392,10 +515,15 @@ def main(argv: list[str] | None = None) -> int:
     if not (CRUCIBLE / "data").is_dir():
         print(f"call_graph_accuracy: no crucible at {CRUCIBLE} (set LANGUAGE_CRUCIBLE_PATH)")
         return 2
-    results = measure(CRUCIBLE, a.samples, a.buckets)
+    buckets = max(a.buckets, 10) if a.ledger else a.buckets
+    results = measure(CRUCIBLE, a.samples, buckets)
     print(render(results))
-    if a.buckets:
+    if buckets:
         print(render_causes(results))
+        if a.ledger:
+            merge_ledger(results)
+            print(f"\ncall_graph_accuracy: shapes merged into {LEDGER.relative_to(REPO_ROOT)}")
+        print("\n" + render_validated(results, validated(results)))
     if a.samples:
         for lang, r in results.items():
             print(f"\n{lang}  FP: {r['top_fp']}\n{' ' * len(lang)}  FN: {r['top_fn']}")

@@ -54,6 +54,10 @@ calls to `Foo` / `Some` / `uint32` / `Py_DECREF` / `AC_DEFUN`. The resolver matc
 class, type, variant or macro definition, or labels it `external`. A language whose indexing is
 spelled exactly like a call (matlab `x(1)`) cannot tell the two apart without types. That is an
 inherent limit, recorded per language, not something a rule fix can reach.
+A *pattern* is not a call, even though it is spelled like one (#3641, decided by Joe
+2026-09-25): rust `Data::Struct(x) =>` and `Ok(t) =>` in a `match`, and any destructuring
+pattern that only tests or binds, construct nothing. The same `Ok(t)` in an expression is a
+constructor call.
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract
@@ -84,6 +88,17 @@ literal is not a call. This is a documented exception to STREAM_CONTRACT corolla
 brace-quoted strings are the gap (#3359). A language with no by-name invocation form, or one where
 only an AST could tell (shell, markup, data, config), sets `CALLS_OUT_UNSUPPORTED` and records an
 empty list, never a heuristic.
+
+**C8 · A call belongs to the innermost named unit around it** (#3641, decided by Joe
+2026-09-25).
+- A call inside a nested *named* function belongs to that inner unit only, never also to the
+  outer one. This is C5 seen from the body side: the nested function is its own unit, so its
+  calls are its own.
+- A call inside an *anonymous* function (lambda, arrow function, closure, block, callback)
+  belongs to the enclosing named unit. An anonymous function cannot be called by name, so it
+  is never a unit of its own, and its body is part of the body it is written in.
+- Comparisons follow the same rule: `call_graph_accuracy.py` gives an anonymous function's
+  calls to its enclosing named function, never drops them.
 
 ## Fallback families
 

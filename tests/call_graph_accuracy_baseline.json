@@ -18,22 +18,22 @@
     "tp": 7425
   },
   "csharp": {
-    "fn": 73,
+    "fn": 62,
     "fp": 166,
     "matched_functions": 650,
     "parse_failures": 0,
     "precision_pct": 93.9,
-    "recall_pct": 97.2,
+    "recall_pct": 97.6,
     "tp": 2575
   },
   "go": {
-    "fn": 230,
-    "fp": 24,
+    "fn": 239,
+    "fp": 5,
     "matched_functions": 1294,
     "parse_failures": 0,
-    "precision_pct": 99.6,
-    "recall_pct": 96.5,
-    "tp": 6346
+    "precision_pct": 99.9,
+    "recall_pct": 96.4,
+    "tp": 6365
   },
   "java": {
     "fn": 35,
@@ -45,22 +45,22 @@
     "tp": 1911
   },
   "javascript": {
-    "fn": 52,
-    "fp": 540,
+    "fn": 56,
+    "fp": 327,
     "matched_functions": 619,
     "parse_failures": 0,
-    "precision_pct": 79.5,
+    "precision_pct": 87.6,
     "recall_pct": 97.6,
-    "tp": 2096
+    "tp": 2309
   },
   "php": {
-    "fn": 69,
-    "fp": 206,
+    "fn": 73,
+    "fp": 17,
     "matched_functions": 1717,
     "parse_failures": 0,
-    "precision_pct": 96.7,
-    "recall_pct": 98.9,
-    "tp": 6047
+    "precision_pct": 99.7,
+    "recall_pct": 98.8,
+    "tp": 6236
   },
   "python": {
     "fn": 92,
@@ -81,21 +81,21 @@
     "tp": 925
   },
   "rust": {
-    "fn": 692,
-    "fp": 933,
+    "fn": 696,
+    "fp": 935,
     "matched_functions": 1774,
     "parse_failures": 0,
     "precision_pct": 87.4,
-    "recall_pct": 90.4,
-    "tp": 6500
+    "recall_pct": 90.3,
+    "tp": 6498
   },
   "typescript": {
-    "fn": 243,
-    "fp": 889,
+    "fn": 307,
+    "fp": 384,
     "matched_functions": 2918,
     "parse_failures": 0,
-    "precision_pct": 86.2,
-    "recall_pct": 95.8,
-    "tp": 5544
+    "precision_pct": 94.0,
+    "recall_pct": 95.2,
+    "tp": 6049
   }
 }

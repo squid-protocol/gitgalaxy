@@ -53,3 +53,33 @@ def test_regressions_respect_the_tolerance():
     assert cga.regressions({"c": {"precision_pct": 89.0, "recall_pct": 80.0}}, base) == [
         "c: precision_pct 90.0 -> 89.0"
     ]
+
+
+def test_c8_anonymous_function_calls_belong_to_the_enclosing_unit():
+    """C8 (#3641): a callback is no unit of its own; its calls are the enclosing function's."""
+    got = _calls(
+        "javascript", "function run(xs) {\n  xs.forEach(function (x) { save(x); });\n  xs.map((y) => load(y));\n}\n"
+    )
+    assert got == {"run": {"forEach", "save", "map", "load"}}
+
+
+def test_c8_nested_named_function_keeps_its_own_calls():
+    got = _calls("python", "def outer(x):\n    def inner():\n        save(x)\n    return inner()\n")
+    assert got["outer"] == {"inner"} and got["inner"] == {"save"}
+
+
+def test_c3_go_conversion_is_a_call():
+    got = _calls("go", "package m\nfunc Run(s string) {\n  w([]byte(s))\n}\n")
+    assert got == {"Run": {"w", "byte"}}
+
+
+@pytest.mark.parametrize(
+    "lang, src, fn, callee",
+    [
+        ("rust", "fn run(xs: I) {\n  let v = xs.collect::<Vec<u8>>();\n}\n", "run", "collect"),
+        ("csharp", "class A {\n  void Run(object[] xs) {\n    xs.OfType<Location>();\n  }\n}\n", "Run", "OfType"),
+        ("java", "class A {\n  void run() {\n    Map m = new HashMap<String, Object>();\n  }\n}\n", "run", "HashMap"),
+    ],
+)
+def test_generic_callee_is_the_function_not_its_type_argument(lang, src, fn, callee):
+    assert _calls(lang, src)[fn] == {callee}

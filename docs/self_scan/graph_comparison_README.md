@@ -1,0 +1,60 @@
+# Graph comparison: calls and imports, reconciled like the tri-comparison
+
+The call graph and the import graph are compared against tree-sitter the way structural
+extraction is compared against tree-sitter and ctags ([`tri_comparison_README.md`](tri_comparison_README.md)):
+a disagreement is a **discrepancy**, not a GitGalaxy error, until someone reads the source and
+records a verdict (#3641). Decided 2026-09-25 by Joe:
+
+- **Same process, separate file.** Shapes live in `docs/self_scan/graph_comparison_ledger.json`,
+  written and read through `tests/tools/tri_comparison_ledger.py`: the same schema, lifecycle and
+  `credit_tools` geometry, and the same investigation guide
+  ([`how_to_investigate_a_discrepancy.md`](how_to_investigate_a_discrepancy.md)). The structural
+  ledger and its chart are untouched.
+- **A shape** is `language / call / cause / agree[claiming reader]_vs[other reader]`. The cause is
+  the syntactic label `call_graph_accuracy.py --buckets` assigns (`inner-named-function_definition`,
+  `not-a-call-in-ts:tuple_struct_pattern<match_pattern`, `call_expression/template_function+generic`,
+  ...), so one verdict covers every occurrence of one systematic cause.
+- **Two numbers per language.** *Raw* agreement keeps the `--ci` regression gate. *Validated*
+  precision and recall apply the verdicts, and are the only numbers to quote.
+
+## How a verdict moves the validated numbers
+
+| shape | verdict | effect |
+|---|---|---|
+| `agree[gitgalaxy]` (GitGalaxy-only call) | `credit_tools: ["gitgalaxy"]` | GitGalaxy was right: the FP becomes a TP |
+| | validated, no credit | GitGalaxy was wrong: stays an FP |
+| `agree[tree_sitter]` (tree-sitter-only call) | `credit_tools: ["tree_sitter"]` | GitGalaxy missed it: stays an FN |
+| | validated, no credit | tree-sitter was wrong: leaves the FN count |
+
+With two readers there is no consensus (the tri-comparison's third reader), so an **unvalidated**
+shape counts exactly as it does raw. The validated numbers only ever move on a recorded verdict,
+and a language with any open shape carries a `*`: its number is not a claim. When a third reader
+(a SCIP indexer, #3641 step 3) is added, the ctags model applies.
+
+## The contract the comparison scores against
+
+`docs/calls_out_rule_contract.md`. Two rulings shape the comparison itself:
+
+- **C8**: a call inside an anonymous function belongs to the enclosing named unit, and a call
+  inside a nested named function belongs to that unit only. The harness follows it: an anonymous
+  function never becomes an owner of calls (before 2026-09-25 it silently dropped them, which
+  read as 213 JavaScript and 505 TypeScript GitGalaxy "false positives").
+- **C3**: constructors, conversions and macros are calls; a pattern (`Ok(t) =>`) is not. The
+  harness counts go `type_conversion_expression` and names a generic call by its function, not its
+  type argument (`collect::<Vec<_>>()` is `collect`).
+
+A mechanical harness bug is fixed in code; a judgment about which reader is right is a ledger
+verdict, never a hard-coded exclusion.
+
+## Running it
+
+```sh
+python tests/tools/call_graph_accuracy.py --buckets 3   # raw + validated, causes with examples
+python tests/tools/call_graph_accuracy.py --ledger      # merge this run's shapes into the ledger
+python tests/tools/call_graph_accuracy.py --ci          # raw regression gate
+```
+
+Validate a shape by reading its recorded examples, then set `status`, `verdict`,
+`investigated_by`, `investigated_at` and (only when the geometry above allows it)
+`credit_tools` by hand. Never set them from a guess about whether a shape "should" hold.
+Imports (`import_graph_accuracy.py`) join the same ledger next.

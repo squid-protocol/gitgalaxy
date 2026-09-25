@@ -1069,7 +1069,7 @@
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 0,
-      "cpp/NVDA/__init__.py": 34,
+      "cpp/NVDA/__init__.py": 39,
       "cpp/NVDA/braille.py": 59,
       "cpp/NVDA/contributors.txt": 0,
       "cpp/NVDA/copying.txt": 0,
@@ -1222,9 +1222,9 @@
       "dockerfile/SOURCES.md": 0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": 14,
-      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 17,
-      "dockerfile/moby/builder/dockerfile/builder.go": 33,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": 4,
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 5,
+      "dockerfile/moby/builder/dockerfile/builder.go": 22,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 3,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 10,
@@ -1232,7 +1232,7 @@
       "dockerfile/moby/builder/dockerfile/copy_test.go": 6,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 4,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 9,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 22,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 21,
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 20,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 5,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 2,
@@ -1245,12 +1245,12 @@
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 5,
       "dockerfile/moby/builder/dockerfile/internals.go": 21,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": 7,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 9,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 21,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 7,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 17,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 12,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 4,
       "dockerfile/moby/builder/dockerfile/metrics.go": 1,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 14,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 13,
       "dockerfile/moby/builder/dockerfile/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext": {
@@ -1258,34 +1258,34 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 19,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 7,
       "dockerfile/moby/builder/remotecontext/filehash.go": 6,
-      "dockerfile/moby/builder/remotecontext/git.go": 11,
+      "dockerfile/moby/builder/remotecontext/git.go": 7,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 6,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 2,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 3,
       "dockerfile/moby/builder/remotecontext/remote.go": 10,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 21,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 9,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 9,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 9,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 18
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 8,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 15
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 14,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 12,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 21,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 9,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 12,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 17,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 8,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": 2,
-      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 2
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": 1
     },
     "dockerfile/moby/test_targets": {
       "dockerfile/moby/test_targets/daemon.Dockerfile": 53,
@@ -1338,20 +1338,20 @@
     "go/core": {
       "go/core/PATENTS": 0,
       "go/core/main.go": 35,
-      "go/core/mgc.go": 11,
+      "go/core/mgc.go": 6,
       "go/core/mutex.go": 1,
-      "go/core/proc.go": 17,
-      "go/core/server.go": 28,
+      "go/core/proc.go": 11,
+      "go/core/server.go": 25,
       "go/core/syscall_linux.go": 5,
-      "go/core/value.go": 10
+      "go/core/value.go": 9
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 28,
       "go/kubernetes/generic.go": 15,
-      "go/kubernetes/kubelet.go": 26,
+      "go/kubernetes/kubelet.go": 24,
       "go/kubernetes/options.go": 3,
-      "go/kubernetes/proxier.go": 39,
-      "go/kubernetes/replica_set.go": 39,
+      "go/kubernetes/proxier.go": 32,
+      "go/kubernetes/replica_set.go": 37,
       "go/kubernetes/scheduler.go": 40
     },
     "groovy/fineract_gradle_plugin": {
@@ -2707,7 +2707,7 @@
       "python/cython/CodeGeneration.py": 2,
       "python/cython/MemoryView.pxd": 0,
       "python/cython/MemoryView.pyx": 3,
-      "python/cython/Nodes.py": 20
+      "python/cython/Nodes.py": 29
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0,
@@ -2952,7 +2952,7 @@
       "python/numpy/_linalg.py": 13,
       "python/numpy/cfuncs.py": 4,
       "python/numpy/core.py": 19,
-      "python/numpy/crackfortran.py": 12,
+      "python/numpy/crackfortran.py": 13,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 3,
       "python/numpy/genapi.py": 10,
@@ -3812,7 +3812,7 @@
       "zig/bun/MimallocArena.zig": 2,
       "zig/bun/Parser.zig": 5,
       "zig/bun/comptime_string_map.zig": 2,
-      "zig/bun/napi.zig": 3
+      "zig/bun/napi.zig": 4
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 5,
@@ -3833,19 +3833,19 @@
       "zig/zig/InternPool.zig": 3,
       "zig/zig/Type.zig": 7,
       "zig/zig/Zcu.zig": 17,
-      "zig/zig/main.zig": 20
+      "zig/zig/main.zig": 25
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 4,
-      "zig/zls/DocumentStore.zig": 13,
-      "zig/zls/Server.zig": 27,
+      "zig/zls/DocumentScope.zig": 5,
+      "zig/zls/DocumentStore.zig": 14,
+      "zig/zls/Server.zig": 28,
       "zig/zls/analysis.zig": 12,
       "zig/zls/ast.zig": 2,
       "zig/zls/config_gen.zig": 1,
       "zig/zls/print_ast.zig": 2
     },
     "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 4,
+      "zig/zls/mach/Core.zig": 7,
       "zig/zls/mach/StringTable.zig": 1,
       "zig/zls/mach/collision.zig": 3,
       "zig/zls/mach/graph.zig": 2,

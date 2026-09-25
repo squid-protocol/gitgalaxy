@@ -2705,7 +2705,7 @@
     },
     "python/cython": {
       "python/cython/CodeGeneration.py": -18.75,
-      "python/cython/MemoryView.pxd": 2.31,
+      "python/cython/MemoryView.pxd": 2.39,
       "python/cython/MemoryView.pyx": 23.66,
       "python/cython/Nodes.py": 32.59
     },
@@ -2961,7 +2961,7 @@
       "python/numpy/generate_umath_doc.py": -279.96,
       "python/numpy/lapack_litemodule.c": -187.22,
       "python/numpy/numpy_api.py": -105.45,
-      "python/numpy/symbolic.py": -343.53,
+      "python/numpy/symbolic.py": -343.56,
       "python/numpy/testutils.py": -334.49,
       "python/numpy/ufunc_docstrings.py": -69.45,
       "python/numpy/verify_c_api_version.py": -292.87

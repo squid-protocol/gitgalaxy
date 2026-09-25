@@ -91,6 +91,12 @@ MODULE_PATH_MIRROR_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("import_path_mirrors_module_path")
 )
 
+# import-graph precision: a JS/TS path alias written in place of a relative path
+# (`@/components/Button`, `~/utils`, `#internal/x` subpath imports). Only such a
+# specifier -- or one of several segments -- can name a local file; a single bare
+# segment (`ejs`, `lodash`, `node:fs`) is a package. Anchored, fixed alternatives.
+_JS_ALIAS_PREFIX = re.compile(r"^(?:@/|~/|#)")
+
 # #3037/#3038: the deterministic work budget for each hop-count path metric.
 # Closeness and average path length share one search; betweenness and Louvain
 # modularity (#3039) each run their own.
@@ -279,7 +285,14 @@ class NetworkRiskSensor:
         # that already holds the file) keeps the name search below.
         init_file = src_def.get("package_init_file")
         if init_file and _DOTTED_MODULE.fullmatch(target_token) and not target_token.endswith((".py", ".pyi")):
-            return self._resolve_package_module(target_token, curr_path, resolution_map, init_file)
+            hit = self._resolve_package_module(target_token, curr_path, resolution_map, init_file)
+            # `from . import name` (recorded as `.name`) is the submodule when one
+            # exists, else a name the package's __init__ defines -- Python's own
+            # lookup order. Only a one-segment relative token can be that form.
+            dots = len(target_token) - len(target_token.lstrip("."))
+            if hit is None and dots and target_token[dots:].isidentifier():
+                hit = self._resolve_package_module(target_token[:dots], curr_path, resolution_map, init_file)
+            return hit
 
         # #3554: a body-less Rust `mod name;` (recorded as `./name`) names name.rs
         # or name/mod.rs in its owner's module directory -- and nothing else. One
@@ -294,10 +307,20 @@ class NetworkRiskSensor:
         # searches the importing file's directory first -- names a location.
         # Try it before the name search, which drops a name that repeats
         # elsewhere in the repo even though the location pins it.
-        if target_token.replace("\\", "/").startswith(("./", "../")) or src_lang in IMPORTER_DIR_FIRST_LANGS:
+        is_relative = target_token.replace("\\", "/").startswith(("./", "../"))
+        if is_relative or src_lang in IMPORTER_DIR_FIRST_LANGS:
             located = self._resolve_from_importer_dir(target_token, curr_path, resolution_map, src_lang, file_facts)
             if located is not None:
                 return located
+
+        # A JS/TS bare specifier names a package; only an aliased or multi-
+        # segment one that mirrors a real file path is local (see the flag).
+        if src_def.get("bare_import_names_package") and not is_relative and not target_token.startswith("/"):
+            return self._resolve_path_mirror(target_token, resolution_map, src_lang, file_facts)
+
+        # `#include <chrono>` names a file called exactly `chrono`, never chrono.h.
+        if src_def.get("include_names_file_literally") and not posixpath.splitext(target_token)[1]:
+            return self._resolve_literal_file(target_token, resolution_map)
 
         resolved = self._resolve_by_name(
             target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
@@ -536,6 +559,66 @@ class NetworkRiskSensor:
             if hit is not None:
                 return hit
         return None
+
+    def _resolve_path_mirror(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        src_lang: Optional[str],
+        file_facts: Optional[dict[str, tuple[str, bool]]],
+    ) -> Optional[str]:
+        """A JS/TS bare specifier's local file, or None (it names a package).
+
+        Less an alias prefix (`@/`, `~/`, `#`), the specifier must be the TAIL of
+        one file's path: `@/components/Button` -> src/components/Button.tsx, or
+        its `index` file. An un-aliased single segment (`ejs`, `lodash`) is always
+        a package -- the name search used to link it to express's
+        test/acceptance/ejs.js -- and `zod/mini` is not zod's fixtures/mini.ts
+        (that path does not end in `zod/mini`). An emitted `.js` spelling also
+        takes a TypeScript source (#3552); several matches draw no edge.
+        """
+        token = target_token.replace("\\", "/")
+        rest = _JS_ALIAS_PREFIX.sub("", token, count=1)
+        if rest == token and "/" not in token:
+            return None
+        rest = rest.strip("/")
+        ext = posixpath.splitext(rest)[1].lower()
+        if ext and ext not in _ESM_EMITTED_EXTS:
+            # `bootstrap/dist/css/bootstrap.css`: exactly that file name, at that path tail.
+            name = rest.rsplit("/", 1)[-1]
+            same = [c for c in dict.fromkeys(resolution_map.get(name, ())) if self._path_ends_with(c, rest)]
+            return same[0] if len(same) == 1 else None
+        allowed = _ESM_SOURCE_EXTS if ext else None
+        stem = _without_extension(rest) if ext else rest
+        for want in (stem, stem + "/index"):
+            name = want.rsplit("/", 1)[-1]
+            same = [
+                c
+                for c in dict.fromkeys(resolution_map.get(name, ()))
+                if self._path_ends_with(self._stem_path(c), want) and (allowed is None or c.lower().endswith(allowed))
+            ]
+            if len(same) > 1 and file_facts:
+                same = [c for c in same if (file_facts.get(c) or ("", False))[0] == src_lang] or same
+            if len(same) == 1:
+                return same[0]
+        return None
+
+    def _resolve_literal_file(self, target_token: str, resolution_map: dict[str, list[str]]) -> Optional[str]:
+        """The one file whose name is exactly the token's last segment and whose
+        path ends with the token (`<chrono>` -> .../chrono, `<QtCore/QString>`
+        -> .../QtCore/QString), or None. A same-stem `chrono.h` never matches."""
+        token = LEADING_RELATIVE_MARKER.sub("", target_token.replace("\\", "/")).strip("/")
+        if not token:
+            return None
+        name = token.rsplit("/", 1)[-1]
+        same = [c for c in dict.fromkeys(resolution_map.get(name, ())) if self._path_ends_with(c, token)]
+        return same[0] if len(same) == 1 else None
+
+    @staticmethod
+    def _path_ends_with(path: str, tail: str) -> bool:
+        """`path` is `tail`, or ends with `/tail` (whole segments only)."""
+        path = path.replace("\\", "/")
+        return path == tail or path.endswith("/" + tail)
 
     def _resolve_package_module(
         self,

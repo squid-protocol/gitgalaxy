@@ -1258,7 +1258,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 1,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 7,
       "dockerfile/moby/builder/remotecontext/filehash.go": 1,
-      "dockerfile/moby/builder/remotecontext/git.go": 0,
+      "dockerfile/moby/builder/remotecontext/git.go": 1,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 3,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 1,
@@ -1276,7 +1276,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 7,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 12,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 6,
@@ -2705,8 +2705,8 @@
     },
     "python/cython": {
       "python/cython/CodeGeneration.py": 3,
-      "python/cython/MemoryView.pxd": 15,
-      "python/cython/MemoryView.pyx": 12,
+      "python/cython/MemoryView.pxd": 0,
+      "python/cython/MemoryView.pyx": 0,
       "python/cython/Nodes.py": 0
     },
     "python/fastapi": {
@@ -2961,7 +2961,7 @@
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 8,
       "python/numpy/numpy_api.py": 0,
-      "python/numpy/symbolic.py": 34,
+      "python/numpy/symbolic.py": 0,
       "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0

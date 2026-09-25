@@ -1507,7 +1507,7 @@
     },
     "dockerfile/moby/builder/remotecontext": {
       "avg_exposures": {
-        "api_exposure": 4.74,
+        "api_exposure": 3.36,
         "churn": 0.0,
         "cognitive_load": 10.02,
         "concurrency": 0.0,
@@ -1518,7 +1518,7 @@
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 43.2,
-        "tech_debt": 64.84,
+        "tech_debt": 68.89,
         "verification": 14.33
       },
       "file_count": 12,
@@ -1545,7 +1545,7 @@
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "avg_exposures": {
-        "api_exposure": 8.42,
+        "api_exposure": 5.16,
         "churn": 0.0,
         "cognitive_load": 18.83,
         "concurrency": 1.34,
@@ -1556,7 +1556,7 @@
         "spec_match": 0.0,
         "stability": 45.0,
         "state_flux": 72.61,
-        "tech_debt": 53.78,
+        "tech_debt": 56.37,
         "verification": 8.96
       },
       "file_count": 10,
@@ -3863,22 +3863,22 @@
     },
     "python/cython": {
       "avg_exposures": {
-        "api_exposure": 21.82,
+        "api_exposure": 47.12,
         "churn": 0.0,
         "cognitive_load": 39.75,
         "concurrency": 3.32,
         "dead_code": 3.19,
-        "documentation": 97.33,
+        "documentation": 97.42,
         "safety_score": 81.03,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 57.75,
-        "tech_debt": 85.23,
-        "verification": 41.22
+        "tech_debt": 63.01,
+        "verification": 41.23
       },
       "file_count": 4,
-      "total_mass": 13447.68
+      "total_mass": 13469.68
     },
     "python/fastapi": {
       "avg_exposures": {
@@ -3939,22 +3939,22 @@
     },
     "python/numpy": {
       "avg_exposures": {
-        "api_exposure": 11.47,
+        "api_exposure": 14.46,
         "churn": 0.0,
         "cognitive_load": 35.03,
         "concurrency": 0.0,
         "dead_code": 5.45,
-        "documentation": 30.87,
+        "documentation": 31.06,
         "safety_score": 72.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 72.62,
-        "tech_debt": 20.33,
+        "tech_debt": 15.76,
         "verification": 40.92
       },
       "file_count": 18,
-      "total_mass": 16559.36
+      "total_mass": 16581.36
     },
     "python/twisted": {
       "avg_exposures": {

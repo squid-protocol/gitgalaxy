@@ -10,22 +10,22 @@
     "repos": "libuv/libuv, redis/hiredis"
   },
   "cpp": {
-    "engine_edges": 139,
+    "engine_edges": 134,
     "files": 69,
     "fn": 0,
-    "fp": 6,
+    "fp": 1,
     "imports": 134,
-    "precision_pct": 95.7,
+    "precision_pct": 99.3,
     "recall_pct": 100.0,
     "repos": "fmtlib/fmt"
   },
   "go": {
-    "engine_edges": 12,
+    "engine_edges": 11,
     "files": 35,
     "fn": 1,
-    "fp": 2,
+    "fp": 1,
     "imports": 11,
-    "precision_pct": 83.3,
+    "precision_pct": 90.9,
     "recall_pct": 90.9,
     "repos": "spf13/cobra"
   },
@@ -40,12 +40,12 @@
     "repos": "google/gson"
   },
   "javascript": {
-    "engine_edges": 63,
+    "engine_edges": 57,
     "files": 141,
     "fn": 0,
-    "fp": 6,
+    "fp": 0,
     "imports": 63,
-    "precision_pct": 90.5,
+    "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "expressjs/express"
   },
@@ -80,13 +80,13 @@
     "repos": "guzzle/guzzle"
   },
   "python": {
-    "engine_edges": 1862,
+    "engine_edges": 1874,
     "files": 1275,
-    "fn": 42,
-    "fp": 20,
+    "fn": 22,
+    "fp": 16,
     "imports": 2009,
-    "precision_pct": 98.9,
-    "recall_pct": 97.9,
+    "precision_pct": 99.1,
+    "recall_pct": 98.9,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
   },
   "ruby": {
@@ -110,23 +110,23 @@
     "repos": "serde-rs/json"
   },
   "typescript": {
-    "engine_edges": 615,
+    "engine_edges": 564,
     "files": 459,
     "fn": 0,
-    "fp": 53,
+    "fp": 2,
     "imports": 599,
-    "precision_pct": 91.4,
+    "precision_pct": 99.6,
     "recall_pct": 100.0,
     "repos": "colinhacks/zod"
   },
   "zig": {
-    "engine_edges": 252,
+    "engine_edges": 263,
     "files": 91,
-    "fn": 16,
+    "fn": 0,
     "fp": 0,
     "imports": 272,
     "precision_pct": 100.0,
-    "recall_pct": 94.1,
+    "recall_pct": 100.0,
     "repos": "zigtools/zls"
   }
 }

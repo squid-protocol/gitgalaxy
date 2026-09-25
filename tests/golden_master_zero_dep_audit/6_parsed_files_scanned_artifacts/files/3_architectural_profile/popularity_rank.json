@@ -63,7 +63,7 @@
       "ada/functional/functional-try-to_result.ads": 0,
       "ada/functional/functional-try.adb": 1,
       "ada/functional/functional-try.ads": 0,
-      "ada/functional/functional.ads": 3,
+      "ada/functional/functional.ads": 0,
       "ada/functional/test_framework.adb": 0,
       "ada/functional/test_framework.ads": 0,
       "ada/functional/test_try_map_to_result.adb": 6
@@ -1258,7 +1258,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 1,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
       "dockerfile/moby/builder/remotecontext/filehash.go": 1,
-      "dockerfile/moby/builder/remotecontext/git.go": 3,
+      "dockerfile/moby/builder/remotecontext/git.go": 2,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 2,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
@@ -1276,7 +1276,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 2,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 5,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 4,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
@@ -1339,7 +1339,7 @@
       "go/core/PATENTS": 0,
       "go/core/main.go": 0,
       "go/core/mgc.go": 2,
-      "go/core/mutex.go": 2,
+      "go/core/mutex.go": 1,
       "go/core/proc.go": 3,
       "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
@@ -1884,7 +1884,7 @@
       "javascript/react/ReactFiberBeginWork.js": 1,
       "javascript/react/ReactFiberWorkLoop.js": 1,
       "javascript/react/ReactFlightServer.js": 0,
-      "javascript/react/ReactSymbols.js": 3,
+      "javascript/react/ReactSymbols.js": 0,
       "javascript/react/build.js": 0
     },
     "javascript/threejs": {
@@ -2171,7 +2171,7 @@
       "livecode/livecode/engine.livecodescript": 0,
       "livecode/livecode/engine_builder.livecodescript": 0,
       "livecode/livecode/ext-urls.livecodescript": 0,
-      "livecode/livecode/file.lcb": 5,
+      "livecode/livecode/file.lcb": 4,
       "livecode/livecode/filters.livecodescript": 0,
       "livecode/livecode/foreign-aggregate.lcb": 0,
       "livecode/livecode/foreign-binding.lcb": 0,
@@ -2187,16 +2187,16 @@
       "livecode/livecode/installeruilicensecardbehavior.livecodescript": 0,
       "livecode/livecode/invoke.lcb": 0,
       "livecode/livecode/item.lcb": 0,
-      "livecode/livecode/iterator.lcb": 2,
+      "livecode/livecode/iterator.lcb": 0,
       "livecode/livecode/java.lcb": 0,
       "livecode/livecode/java.livecodescript": 0,
       "livecode/livecode/lexical-scoping.lcb": 0,
       "livecode/livecode/line.lcb": 0,
-      "livecode/livecode/list.lcb": 3,
+      "livecode/livecode/list.lcb": 1,
       "livecode/livecode/literal-evaluation.livecodescript": 0,
       "livecode/livecode/log.livecodescript": 11,
       "livecode/livecode/logic.lcb": 0,
-      "livecode/livecode/map.lcb": 3,
+      "livecode/livecode/map.lcb": 0,
       "livecode/livecode/math-foundation.lcb": 0,
       "livecode/livecode/math.lcb": 0,
       "livecode/livecode/network.livecodescript": 7,
@@ -2233,7 +2233,7 @@
       "lua/cosmopolitan/call-lua-module.lua": 0,
       "lua/cosmopolitan/calls.lua": 2,
       "lua/cosmopolitan/closedsource.lua": 0,
-      "lua/cosmopolitan/closure.lua": 6,
+      "lua/cosmopolitan/closure.lua": 5,
       "lua/cosmopolitan/code.lua": 1,
       "lua/cosmopolitan/constructs.lua": 1,
       "lua/cosmopolitan/coroutine.lua": 6,
@@ -2329,7 +2329,7 @@
       "lua/redis/bisect.lua": 0,
       "lua/redis/cf.lua": 0,
       "lua/redis/echo.lua": 0,
-      "lua/redis/env.lua": 1,
+      "lua/redis/env.lua": 0,
       "lua/redis/factorial.lua": 0,
       "lua/redis/fib.lua": 0,
       "lua/redis/fibfor.lua": 0,
@@ -2715,7 +2715,7 @@
       "python/fastapi/SECURITY.md": 0
     },
     "python/fastapi/fastapi": {
-      "python/fastapi/fastapi/__init__.py": 200,
+      "python/fastapi/fastapi/__init__.py": 202,
       "python/fastapi/fastapi/__main__.py": 0,
       "python/fastapi/fastapi/applications.py": 1,
       "python/fastapi/fastapi/background.py": 1,
@@ -2740,7 +2740,7 @@
       "python/fastapi/fastapi/websockets.py": 2
     },
     "python/fastapi/tests": {
-      "python/fastapi/tests/__init__.py": 0,
+      "python/fastapi/tests/__init__.py": 1,
       "python/fastapi/tests/main.py": 3,
       "python/fastapi/tests/test_additional_properties.py": 0,
       "python/fastapi/tests/test_additional_properties_bool.py": 0,
@@ -2948,7 +2948,7 @@
     },
     "python/numpy": {
       "python/numpy/LICENSE.txt": 0,
-      "python/numpy/__init__.py": 7,
+      "python/numpy/__init__.py": 8,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 0,
       "python/numpy/core.py": 1,
@@ -2961,7 +2961,7 @@
       "python/numpy/generate_umath_doc.py": 0,
       "python/numpy/lapack_litemodule.c": 0,
       "python/numpy/numpy_api.py": 0,
-      "python/numpy/symbolic.py": 0,
+      "python/numpy/symbolic.py": 1,
       "python/numpy/testutils.py": 0,
       "python/numpy/ufunc_docstrings.py": 0,
       "python/numpy/verify_c_api_version.py": 0
@@ -3040,7 +3040,7 @@
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
       "rust/holylang/compile.rs": 0,
-      "rust/holylang/error.rs": 3,
+      "rust/holylang/error.rs": 2,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
@@ -3297,7 +3297,7 @@
       "shell/kubernetes/testcerts__gencerts.sh": 0,
       "shell/kubernetes/testdata__generate.sh": 0,
       "shell/kubernetes/update-codegen.sh": 0,
-      "shell/kubernetes/util.sh": 16
+      "shell/kubernetes/util.sh": 15
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -3327,7 +3327,7 @@
     "shell/moby": {
       "shell/moby/check-config.sh": 0,
       "shell/moby/cli.sh": 0,
-      "shell/moby/dev.sh": 1,
+      "shell/moby/dev.sh": 0,
       "shell/moby/dockerd-rootless-setuptool.sh": 0,
       "shell/moby/dockerd-rootless.sh": 0,
       "shell/moby/dockerize-disk.sh": 0,
@@ -3378,7 +3378,7 @@
       "shell/serenity/SDLPoP__package.sh": 0,
       "shell/serenity/SDL_mixer__package.sh": 0,
       "shell/serenity/analyze-qemu-coverage.sh": 0,
-      "shell/serenity/builtin.sh": 14,
+      "shell/serenity/builtin.sh": 15,
       "shell/serenity/embedmap.sh": 0,
       "shell/serenity/install.sh": 0,
       "shell/serenity/package.sh": 0,
@@ -3761,7 +3761,7 @@
       "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 5
     },
     "yaml/black_action": {
-      "yaml/black_action/action.yml": 1
+      "yaml/black_action/action.yml": 0
     },
     "yaml/grafana_compose": {
       "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 0,
@@ -3769,7 +3769,7 @@
       "yaml/grafana_compose/local_cdn_docker-compose.yaml": 0
     },
     "yaml/moby_workflows": {
-      "yaml/moby_workflows/arm64.yml": 1,
+      "yaml/moby_workflows/arm64.yml": 0,
       "yaml/moby_workflows/bin-image.yml": 0,
       "yaml/moby_workflows/buildkit.yml": 0,
       "yaml/moby_workflows/ci.yml": 0,
@@ -3850,7 +3850,7 @@
       "zig/zls/mach/collision.zig": 0,
       "zig/zls/mach/graph.zig": 1,
       "zig/zls/mach/main.zig": 4,
-      "zig/zls/mach/module.zig": 4,
+      "zig/zls/mach/module.zig": 3,
       "zig/zls/mach/testing.zig": 24,
       "zig/zls/mach/win32.zig": 0
     }

@@ -1042,7 +1042,7 @@
       "cobol/gnucobol_internals/codegen.c": 0.446,
       "cobol/gnucobol_internals/fileio.c": 1.091,
       "cobol/gnucobol_internals/numeric.c": -0.088,
-      "cobol/gnucobol_internals/parser.y": 2.834,
+      "cobol/gnucobol_internals/parser.y": 2.853,
       "cobol/gnucobol_internals/scanner.l": 2.331,
       "cobol/gnucobol_internals/syn_misc.at": 0.464
     },
@@ -1222,9 +1222,9 @@
       "dockerfile/SOURCES.md": 0.0
     },
     "dockerfile/moby/builder/dockerfile": {
-      "dockerfile/moby/builder/dockerfile/buildargs.go": -0.198,
-      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 2.442,
-      "dockerfile/moby/builder/dockerfile/builder.go": 1.36,
+      "dockerfile/moby/builder/dockerfile/buildargs.go": -0.36,
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": 2.439,
+      "dockerfile/moby/builder/dockerfile/builder.go": 1.341,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": -0.48,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.553,
@@ -1245,12 +1245,12 @@
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.222,
       "dockerfile/moby/builder/dockerfile/internals.go": 0.535,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": -1.035,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 2.996,
-      "dockerfile/moby/builder/dockerfile/internals_test.go": 0.977,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 2.997,
+      "dockerfile/moby/builder/dockerfile/internals_test.go": 0.945,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": -0.02,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 3.076,
       "dockerfile/moby/builder/dockerfile/metrics.go": 1.059,
-      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.343,
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": 1.334,
       "dockerfile/moby/builder/dockerfile/utils_test.go": -0.461
     },
     "dockerfile/moby/builder/remotecontext": {
@@ -1258,29 +1258,29 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 0.316,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 1.652,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0.382,
-      "dockerfile/moby/builder/remotecontext/git.go": 1.861,
+      "dockerfile/moby/builder/remotecontext/git.go": 1.817,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0.498,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0.848,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0.126,
       "dockerfile/moby/builder/remotecontext/remote.go": 1.497,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.249,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 0.178,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 0.078,
       "dockerfile/moby/builder/remotecontext/utils_test.go": -0.476
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.418,
-      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0.936
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 0.411,
+      "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 0.92
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 0.508,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 1.595,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": -0.102,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 1.674,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1.167,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1.116,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0.0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1.213,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.039,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.243,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 1.196,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0.022,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0.189,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 0.437
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
@@ -1301,8 +1301,8 @@
       "embedded_python/meow_turtle/app.py": 0.07,
       "embedded_python/meow_turtle/bldc_driver.py": 0.404,
       "embedded_python/meow_turtle/boot.py": 0.162,
-      "embedded_python/meow_turtle/diagnostics.py": -0.079,
-      "embedded_python/meow_turtle/logging.py": -0.185,
+      "embedded_python/meow_turtle/diagnostics.py": -0.051,
+      "embedded_python/meow_turtle/logging.py": -0.218,
       "embedded_python/meow_turtle/meowprotocol.py": -0.191,
       "embedded_python/meow_turtle/mpu6050.py": -0.047,
       "embedded_python/meow_turtle/ota.py": -0.644,
@@ -1338,17 +1338,17 @@
     "go/core": {
       "go/core/PATENTS": 0.0,
       "go/core/main.go": 2.502,
-      "go/core/mgc.go": 2.508,
-      "go/core/mutex.go": 0.227,
-      "go/core/proc.go": 1.393,
-      "go/core/server.go": 0.836,
+      "go/core/mgc.go": 2.538,
+      "go/core/mutex.go": 0.154,
+      "go/core/proc.go": 1.345,
+      "go/core/server.go": 0.856,
       "go/core/syscall_linux.go": 0.621,
-      "go/core/value.go": 1.382
+      "go/core/value.go": 1.376
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": -0.568,
       "go/kubernetes/generic.go": 1.417,
-      "go/kubernetes/kubelet.go": -0.206,
+      "go/kubernetes/kubelet.go": -0.22,
       "go/kubernetes/options.go": 1.292,
       "go/kubernetes/proxier.go": 1.021,
       "go/kubernetes/replica_set.go": 1.578,
@@ -1881,10 +1881,10 @@
     },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 1.516,
-      "javascript/react/ReactFiberBeginWork.js": 0.414,
-      "javascript/react/ReactFiberWorkLoop.js": -0.327,
+      "javascript/react/ReactFiberBeginWork.js": 0.595,
+      "javascript/react/ReactFiberWorkLoop.js": -0.076,
       "javascript/react/ReactFlightServer.js": -0.205,
-      "javascript/react/ReactSymbols.js": 2.21,
+      "javascript/react/ReactSymbols.js": 1.983,
       "javascript/react/build.js": -0.175
     },
     "javascript/threejs": {
@@ -2187,16 +2187,16 @@
       "livecode/livecode/installeruilicensecardbehavior.livecodescript": -0.477,
       "livecode/livecode/invoke.lcb": 1.307,
       "livecode/livecode/item.lcb": -0.493,
-      "livecode/livecode/iterator.lcb": 3.886,
+      "livecode/livecode/iterator.lcb": 3.797,
       "livecode/livecode/java.lcb": -0.212,
       "livecode/livecode/java.livecodescript": 3.333,
       "livecode/livecode/lexical-scoping.lcb": 2.138,
       "livecode/livecode/line.lcb": -0.471,
-      "livecode/livecode/list.lcb": 0.707,
+      "livecode/livecode/list.lcb": 0.629,
       "livecode/livecode/literal-evaluation.livecodescript": 2.92,
       "livecode/livecode/log.livecodescript": 3.267,
       "livecode/livecode/logic.lcb": 0.141,
-      "livecode/livecode/map.lcb": 0.134,
+      "livecode/livecode/map.lcb": -0.054,
       "livecode/livecode/math-foundation.lcb": 0.065,
       "livecode/livecode/math.lcb": -0.071,
       "livecode/livecode/network.livecodescript": 2.525,
@@ -2231,9 +2231,9 @@
       "lua/cosmopolitan/bitwise.lua": 1.844,
       "lua/cosmopolitan/bwcoercion.lua": 0.997,
       "lua/cosmopolitan/call-lua-module.lua": -0.496,
-      "lua/cosmopolitan/calls.lua": 0.971,
+      "lua/cosmopolitan/calls.lua": 0.948,
       "lua/cosmopolitan/closedsource.lua": 0.0,
-      "lua/cosmopolitan/closure.lua": 1.311,
+      "lua/cosmopolitan/closure.lua": 1.288,
       "lua/cosmopolitan/code.lua": -0.192,
       "lua/cosmopolitan/constructs.lua": 1.647,
       "lua/cosmopolitan/coroutine.lua": 1.013,
@@ -2707,7 +2707,7 @@
       "python/cython/CodeGeneration.py": -0.526,
       "python/cython/MemoryView.pxd": -0.849,
       "python/cython/MemoryView.pyx": 0.03,
-      "python/cython/Nodes.py": 0.776
+      "python/cython/Nodes.py": 0.79
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": 0.0,
@@ -2723,7 +2723,7 @@
       "python/fastapi/fastapi/concurrency.py": 1.746,
       "python/fastapi/fastapi/datastructures.py": -0.074,
       "python/fastapi/fastapi/encoders.py": 1.367,
-      "python/fastapi/fastapi/exception_handlers.py": -0.619,
+      "python/fastapi/fastapi/exception_handlers.py": -0.674,
       "python/fastapi/fastapi/exceptions.py": 0.489,
       "python/fastapi/fastapi/logger.py": 0.0,
       "python/fastapi/fastapi/param_functions.py": 0.082,
@@ -2736,7 +2736,7 @@
       "python/fastapi/fastapi/templating.py": 0.0,
       "python/fastapi/fastapi/testclient.py": 0.0,
       "python/fastapi/fastapi/types.py": 0.509,
-      "python/fastapi/fastapi/utils.py": 0.355,
+      "python/fastapi/fastapi/utils.py": 0.33,
       "python/fastapi/fastapi/websockets.py": 0.0
     },
     "python/fastapi/tests": {
@@ -2952,7 +2952,7 @@
       "python/numpy/_linalg.py": 1.139,
       "python/numpy/cfuncs.py": 1.272,
       "python/numpy/core.py": 0.512,
-      "python/numpy/crackfortran.py": -0.313,
+      "python/numpy/crackfortran.py": -0.307,
       "python/numpy/cversions.txt": 0.0,
       "python/numpy/func2subr.py": 0.608,
       "python/numpy/genapi.py": 0.61,
@@ -2961,7 +2961,7 @@
       "python/numpy/generate_umath_doc.py": 1.151,
       "python/numpy/lapack_litemodule.c": 0.939,
       "python/numpy/numpy_api.py": -0.385,
-      "python/numpy/symbolic.py": 0.558,
+      "python/numpy/symbolic.py": 0.63,
       "python/numpy/testutils.py": 1.664,
       "python/numpy/ufunc_docstrings.py": 1.89,
       "python/numpy/verify_c_api_version.py": 0.671
@@ -3327,7 +3327,7 @@
     "shell/moby": {
       "shell/moby/check-config.sh": 1.802,
       "shell/moby/cli.sh": 0.199,
-      "shell/moby/dev.sh": 0.392,
+      "shell/moby/dev.sh": 0.312,
       "shell/moby/dockerd-rootless-setuptool.sh": 2.342,
       "shell/moby/dockerd-rootless.sh": 1.871,
       "shell/moby/dockerize-disk.sh": 3.226,
@@ -3812,7 +3812,7 @@
       "zig/bun/MimallocArena.zig": 0.33,
       "zig/bun/Parser.zig": 0.423,
       "zig/bun/comptime_string_map.zig": 0.559,
-      "zig/bun/napi.zig": 0.198
+      "zig/bun/napi.zig": 0.181
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0.518,
@@ -3833,24 +3833,24 @@
       "zig/zig/InternPool.zig": 0.2,
       "zig/zig/Type.zig": 0.449,
       "zig/zig/Zcu.zig": 0.885,
-      "zig/zig/main.zig": 0.282
+      "zig/zig/main.zig": 0.297
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 0.876,
-      "zig/zls/DocumentStore.zig": 1.392,
+      "zig/zls/DocumentStore.zig": 1.397,
       "zig/zls/Server.zig": -0.029,
       "zig/zls/analysis.zig": 0.826,
-      "zig/zls/ast.zig": 0.532,
+      "zig/zls/ast.zig": 0.488,
       "zig/zls/config_gen.zig": 0.02,
       "zig/zls/print_ast.zig": 1.197
     },
     "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": 1.11,
-      "zig/zls/mach/StringTable.zig": 0.711,
+      "zig/zls/mach/Core.zig": 1.1,
+      "zig/zls/mach/StringTable.zig": 0.692,
       "zig/zls/mach/collision.zig": 0.286,
-      "zig/zls/mach/graph.zig": 0.351,
+      "zig/zls/mach/graph.zig": 0.321,
       "zig/zls/mach/main.zig": 1.459,
-      "zig/zls/mach/module.zig": 0.313,
+      "zig/zls/mach/module.zig": 0.292,
       "zig/zls/mach/testing.zig": 0.525,
       "zig/zls/mach/win32.zig": 1.893
     }

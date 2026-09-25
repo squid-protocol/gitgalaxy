@@ -1224,7 +1224,7 @@
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": 2,
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": 3,
-      "dockerfile/moby/builder/dockerfile/builder.go": 4,
+      "dockerfile/moby/builder/dockerfile/builder.go": 3,
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 2,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 1,
@@ -1258,7 +1258,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 3,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 6,
       "dockerfile/moby/builder/remotecontext/filehash.go": 1,
-      "dockerfile/moby/builder/remotecontext/git.go": 7,
+      "dockerfile/moby/builder/remotecontext/git.go": 1,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 1,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 2,
@@ -1268,7 +1268,7 @@
       "dockerfile/moby/builder/remotecontext/utils_test.go": 3
     },
     "dockerfile/moby/builder/remotecontext/git": {
-      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 9,
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 2,
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": 4
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
@@ -1279,7 +1279,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 6,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 5,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 4,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 4,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 1
     },
@@ -1338,12 +1338,12 @@
     "go/core": {
       "go/core/PATENTS": 0,
       "go/core/main.go": 2,
-      "go/core/mgc.go": 2,
+      "go/core/mgc.go": 1,
       "go/core/mutex.go": 0,
-      "go/core/proc.go": 2,
+      "go/core/proc.go": 1,
       "go/core/server.go": 5,
       "go/core/syscall_linux.go": 1,
-      "go/core/value.go": 4
+      "go/core/value.go": 3
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 3,
@@ -2423,12 +2423,12 @@
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": 1,
       "perl/bugzilla/Bug.pm": 3,
-      "perl/bugzilla/CGI.pm": 9,
-      "perl/bugzilla/DB.pm": 8,
+      "perl/bugzilla/CGI.pm": 8,
+      "perl/bugzilla/DB.pm": 7,
       "perl/bugzilla/Requirements.pm": 6
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 43,
+      "perl/exiftool/ExifTool.pm": 42,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,
@@ -3048,7 +3048,7 @@
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 0,
-      "rust/serde/serde_core_de_mod.rs": 5,
+      "rust/serde/serde_core_de_mod.rs": 4,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
@@ -3836,7 +3836,7 @@
       "zig/zig/main.zig": 6
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 1,
+      "zig/zls/DocumentScope.zig": 2,
       "zig/zls/DocumentStore.zig": 4,
       "zig/zls/Server.zig": 5,
       "zig/zls/analysis.zig": 4,

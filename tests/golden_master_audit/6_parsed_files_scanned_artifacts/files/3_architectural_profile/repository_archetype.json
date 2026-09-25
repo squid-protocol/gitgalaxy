@@ -1115,7 +1115,7 @@
       "cpp/powertoys/centralized_kb_hook.cpp": "file_cluster_4",
       "cpp/powertoys/logger.cpp": "file_cluster_15",
       "cpp/powertoys/main.cpp": "file_cluster_6",
-      "cpp/powertoys/powertoy_module.h": "file_cluster_15"
+      "cpp/powertoys/powertoy_module.h": "file_cluster_11"
     },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "file_cluster_2",

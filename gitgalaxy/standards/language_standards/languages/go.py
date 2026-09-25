@@ -291,8 +291,25 @@ DEFINITION: dict[str, Any] = {
         "import": re.compile(r'^[ \t]*import[ \t]*(?:\(|(?:[A-Za-z_.]\w*[ \t]+)?"[^"\n]+")', re.M),
         # ---> THE FIX: Strictly bounded to valid Go import path characters <---
         # Prevents raw HTTP string literals in test files from being hallucinated as packages.
+        #
+        # #3554-followup (import-graph precision): the `import` keyword used to be
+        # OPTIONAL, so every line that merely STARTED with a quoted string was an
+        # import -- a test table's `"--help",`, `return "x"`'s neighbours, a struct
+        # literal's keys. cobra's completions_test.go "imported" `--help`, `apple`
+        # and `1`, one of which resolved to .github/workflows/test.yml. An import
+        # spec is now one of:
+        #   - `import [alias] "path"` on its own line,
+        #   - `import ( [alias] "path" )` on one line,
+        #   - a spec line of an `import ( ... )` block: nothing after the path but
+        #     a comment, and every following line up to the block's own `)` line
+        #     another spec, a blank or a comment line (a composite literal's
+        #     elements carry commas, so they never qualify).
+        # The lookahead is bounded ({0,1000} lines, each line class linear).
         "_dependency_capture": re.compile(
-            r'^[ \t]*(?:import\s+)?(?:\(\s*)?(?:[a-zA-Z0-9_.]+\s+)?["`]([a-zA-Z0-9_.\-/]+)["`]',
+            r'^[ \t]*import[ \t]+(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
+            r'|^[ \t]*import[ \t]*\([ \t]*(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*\)'
+            r'|^[ \t]*(?:import[ \t]*\([ \t]*)?(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
+            r'(?=(?:\n[ \t]*(?:(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`][^"`\n]{1,256}["`][ \t]*)?(?://[^\n]{0,500})?){0,1000}\n[ \t]*\))',
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

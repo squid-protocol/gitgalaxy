@@ -84,6 +84,9 @@ DEFINITION: dict[str, Any] = {
     # `a.b` is a/b.py or the package a/b/__init__.py under a source root, and a package name
     # binds its __init__.py. A top-level key, not in `rules` (#2806).
     "package_init_file": "__init__.py",
+    # `_dependency_capture` groups (dots, names...) of `from <dots> import a, b`:
+    # galaxyscope records each name as `<dots>a` (see the rule's comment).
+    "relative_import_groups": (1, 2, 3),
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
@@ -335,7 +338,15 @@ DEFINITION: dict[str, Any] = {
             r"(?:^|;)[ \t]*(?:from[ \t]+[a-zA-Z0-9_.]+[ \t]+import\b|import[ \t]+[a-zA-Z_.])|\b__import__[ \t]*\(|\bimportlib\.import_module[ \t]*\(",
             re.M,
         ),
+        # import-graph precision: `from . import cli` imports the SUBMODULE cli
+        # (pkg/cli.py), but the module part alone is `.`, which bound the edge to the
+        # package's __init__.py and missed cli.py. The first alternative captures the
+        # dots (group 1) and the imported names (group 2 parenthesized, group 3 on
+        # one line); galaxyscope joins them into `.cli` tokens via the top-level
+        # `relative_import_groups` key. Its first non-empty group is still the dots,
+        # so every other reader sees exactly the old token.
         "_dependency_capture": re.compile(
+            r"\bfrom[ \t]+(\.{1,16})[ \t]+import[ \t]*(?:\(([\w \t\n,]{1,4000})\)|([A-Za-z_][\w \t,]{0,1000}))|"
             r"\bfrom[ \t]+([a-zA-Z0-9_.]+)[ \t]+import\b|"
             r"\bimport[ \t]+([a-zA-Z0-9_.]+(?:[ \t]*,[ \t]*[a-zA-Z0-9_.]+)*)|"
             r"\b(?:__import__|importlib\.import_module)\s*\(\s*['\"]([a-zA-Z0-9_.]+)['\"]",

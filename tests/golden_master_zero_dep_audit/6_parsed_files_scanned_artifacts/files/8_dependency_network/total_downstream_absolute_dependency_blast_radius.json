@@ -1258,7 +1258,7 @@
       "dockerfile/moby/builder/remotecontext/detect.go": 0,
       "dockerfile/moby/builder/remotecontext/detect_test.go": 0,
       "dockerfile/moby/builder/remotecontext/filehash.go": 0,
-      "dockerfile/moby/builder/remotecontext/git.go": 1,
+      "dockerfile/moby/builder/remotecontext/git.go": 0,
       "dockerfile/moby/builder/remotecontext/lazycontext.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 0,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 0,
@@ -1276,7 +1276,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 1,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 0,
@@ -2233,7 +2233,7 @@
       "lua/cosmopolitan/call-lua-module.lua": 0,
       "lua/cosmopolitan/calls.lua": 3,
       "lua/cosmopolitan/closedsource.lua": 0,
-      "lua/cosmopolitan/closure.lua": 7,
+      "lua/cosmopolitan/closure.lua": 3,
       "lua/cosmopolitan/code.lua": 4,
       "lua/cosmopolitan/constructs.lua": 3,
       "lua/cosmopolitan/coroutine.lua": 4,
@@ -2329,7 +2329,7 @@
       "lua/redis/bisect.lua": 0,
       "lua/redis/cf.lua": 0,
       "lua/redis/echo.lua": 0,
-      "lua/redis/env.lua": 1,
+      "lua/redis/env.lua": 0,
       "lua/redis/factorial.lua": 0,
       "lua/redis/fib.lua": 0,
       "lua/redis/fibfor.lua": 0,
@@ -3040,7 +3040,7 @@
     "rust/holylang": {
       "rust/holylang/ast.rs": 0,
       "rust/holylang/compile.rs": 0,
-      "rust/holylang/error.rs": 3,
+      "rust/holylang/error.rs": 1,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
       "rust/holylang/semantic.rs": 0,
@@ -3378,7 +3378,7 @@
       "shell/serenity/SDLPoP__package.sh": 0,
       "shell/serenity/SDL_mixer__package.sh": 0,
       "shell/serenity/analyze-qemu-coverage.sh": 0,
-      "shell/serenity/builtin.sh": 22,
+      "shell/serenity/builtin.sh": 23,
       "shell/serenity/embedmap.sh": 0,
       "shell/serenity/install.sh": 0,
       "shell/serenity/package.sh": 3,
@@ -3445,7 +3445,7 @@
     },
     "sqlite/flask_tutorial_sqlite": {
       "sqlite/flask_tutorial_sqlite/LICENSE.txt": 0,
-      "sqlite/flask_tutorial_sqlite/data.sql": 2,
+      "sqlite/flask_tutorial_sqlite/data.sql": 1,
       "sqlite/flask_tutorial_sqlite/schema.sql": 0
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
@@ -3761,7 +3761,7 @@
       "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 9
     },
     "yaml/black_action": {
-      "yaml/black_action/action.yml": 2
+      "yaml/black_action/action.yml": 0
     },
     "yaml/grafana_compose": {
       "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 0,
@@ -3769,7 +3769,7 @@
       "yaml/grafana_compose/local_cdn_docker-compose.yaml": 0
     },
     "yaml/moby_workflows": {
-      "yaml/moby_workflows/arm64.yml": 2,
+      "yaml/moby_workflows/arm64.yml": 0,
       "yaml/moby_workflows/bin-image.yml": 0,
       "yaml/moby_workflows/buildkit.yml": 0,
       "yaml/moby_workflows/ci.yml": 0,
@@ -3846,11 +3846,11 @@
     },
     "zig/zls/mach": {
       "zig/zls/mach/Core.zig": 0,
-      "zig/zls/mach/StringTable.zig": 4,
+      "zig/zls/mach/StringTable.zig": 2,
       "zig/zls/mach/collision.zig": 0,
-      "zig/zls/mach/graph.zig": 4,
-      "zig/zls/mach/main.zig": 38,
-      "zig/zls/mach/module.zig": 3,
+      "zig/zls/mach/graph.zig": 2,
+      "zig/zls/mach/main.zig": 36,
+      "zig/zls/mach/module.zig": 1,
       "zig/zls/mach/testing.zig": 23,
       "zig/zls/mach/win32.zig": 0
     }

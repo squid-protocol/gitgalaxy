@@ -203,8 +203,18 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: all 3 are `@`-prefixed builtins -- same leading-\b
         # bug. None ever matched.
         "import": re.compile(r"@import\b|@cImport\b|@cInclude\b"),
+        # import-graph precision (zls recall 94.1%): `@import` is an expression, not
+        # only a declaration -- `try @import("features/goto.zig").handler(...)`
+        # inside a switch arm is how zls's Server.zig reaches most feature files.
+        # The anchor at line start is kept, but what may precede `@import` on the
+        # line is now any code without a quote or a comment opener (`//`, `/*`),
+        # or a complete string literal (`.@"textDocument/hover" => try
+        # @import(...)`). A quote that opens a string never closed before
+        # `@import`, a comment, and a backslash (a `\\` multiline-string line
+        # such as zls's test fixtures) still reject the line. Each step consumes one char or one whole literal:
+        # linear, bounded.
         "_dependency_capture": re.compile(
-            r"(?:^[ \t]*(?:(?:pub[ \t]+)?const[ \t]+(?:@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t]*=[ \t]*|_[ \t]*=[ \t]*)?@import|(?:^[ \t]*(?:const[ \t]+(?:@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t]*=[ \t]*)?@cImport[ \t\n]*\{[ \t\n]*)?@cInclude|[ \t]*@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
+            r"(?:^(?:[^\"\n/\\]|/(?![/*])|\"(?:[^\"\\\n]|\\.){0,1000}\"){0,400}?(?<![\w@])@import|(?:^[ \t]*(?:const[ \t]+(?:@\"[^\"]+\"|[a-zA-Z_]\w*)[ \t]*=[ \t]*)?@cImport[ \t\n]*\{[ \t\n]*)?@cInclude|[ \t]*@cInclude)[ \t\n]*\([ \t\n]*['\"]([^'\"]+)['\"]",
             re.M,
         ),
         # 25. ownership: Authorship indicators in comments.

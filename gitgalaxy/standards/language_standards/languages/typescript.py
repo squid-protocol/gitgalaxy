@@ -57,6 +57,12 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # import-graph precision: a BARE specifier (`ejs`, `redis`, `zod/mini`, `node:fs`)
+    # names a package, resolved from node_modules or a workspace -- never the local
+    # file that happens to share its name (express's test/acceptance/ejs.js, zod's
+    # mini.ts fixture). network_risk_sensor.py resolves one only when its path, less
+    # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
+    "bare_import_names_package": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

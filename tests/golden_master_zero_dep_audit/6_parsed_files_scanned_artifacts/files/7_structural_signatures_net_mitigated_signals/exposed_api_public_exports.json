@@ -2705,8 +2705,8 @@
     },
     "python/cython": {
       "python/cython/CodeGeneration.py": 3,
-      "python/cython/MemoryView.pxd": 0,
-      "python/cython/MemoryView.pyx": 13,
+      "python/cython/MemoryView.pxd": 15,
+      "python/cython/MemoryView.pyx": 20,
       "python/cython/Nodes.py": 554
     },
     "python/fastapi": {
@@ -2961,7 +2961,7 @@
       "python/numpy/generate_umath_doc.py": 3,
       "python/numpy/lapack_litemodule.c": 11,
       "python/numpy/numpy_api.py": 1,
-      "python/numpy/symbolic.py": 57,
+      "python/numpy/symbolic.py": 79,
       "python/numpy/testutils.py": 17,
       "python/numpy/ufunc_docstrings.py": 1,
       "python/numpy/verify_c_api_version.py": 4

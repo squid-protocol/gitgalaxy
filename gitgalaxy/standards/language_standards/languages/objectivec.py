@@ -52,6 +52,10 @@ DEFINITION: dict[str, Any] = {
     # #3553: `#import "x.h"` is searched in the importing file's own directory first
     # (network_risk_sensor.py tries dirname(importer)/x.h before a name search).
     "imports_resolve_from_importer_dir": True,
+    # import-graph precision: an include names a file LITERALLY. An extensionless one
+    # (`<chrono>`, `<ostream>`, `<QString>`) is a file with no extension, never a
+    # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
+    "include_names_file_literally": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"\b([a-zA-Z_]\w*)(?=\s*\(|:)"),

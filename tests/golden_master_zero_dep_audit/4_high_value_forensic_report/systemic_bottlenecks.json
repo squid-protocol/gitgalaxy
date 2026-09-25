@@ -25,23 +25,23 @@
       },
       {
         "btw": 0.0,
-        "path": "python/fastapi/fastapi/exceptions.py",
-        "score": 0.001,
-        "state_mutation": 99.9681
-      },
-      {
-        "btw": 0.0,
         "path": "dockerfile/moby/builder/dockerfile/copy.go",
         "score": 0.001,
         "state_mutation": 95.106
+      },
+      {
+        "btw": 0.0,
+        "path": "dockerfile/moby/builder/dockerfile/internals.go",
+        "score": 0.001,
+        "state_mutation": 99.6514
       }
     ],
     "fragile_dependency_chain": [
       {
-        "close": 0.0618,
+        "close": 0.0627,
         "err": 60.143,
         "path": "python/fastapi/fastapi/__init__.py",
-        "score": 3.717
+        "score": 3.769
       },
       {
         "close": 0.0344,
@@ -53,51 +53,51 @@
         "close": 0.0325,
         "err": 90.4651,
         "path": "python/fastapi/fastapi/datastructures.py",
-        "score": 2.937
+        "score": 2.944
       },
       {
-        "close": 0.0322,
+        "close": 0.0324,
         "err": 84.3093,
         "path": "python/fastapi/fastapi/routing.py",
-        "score": 2.711
+        "score": 2.73
       },
       {
-        "close": 0.0317,
+        "close": 0.0319,
         "err": 70.9185,
         "path": "python/fastapi/fastapi/background.py",
-        "score": 2.248
+        "score": 2.264
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 13.856,
-        "score": 1385.6
+        "pr": 13.866,
+        "score": 1386.6
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 8.667,
-        "score": 866.7
-      },
-      {
-        "doc": 80.9524,
-        "path": "python/fastapi/fastapi/datastructures.py",
-        "pr": 6.489,
-        "score": 525.3
+        "pr": 8.387,
+        "score": 838.7
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/responses.py",
-        "pr": 4.917,
-        "score": 491.7
+        "pr": 4.954,
+        "score": 495.4
+      },
+      {
+        "doc": 80.9524,
+        "path": "python/fastapi/fastapi/datastructures.py",
+        "pr": 5.6,
+        "score": 453.333
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.4,
-        "score": 440.0
+        "pr": 4.403,
+        "score": 440.3
       }
     ]
   }

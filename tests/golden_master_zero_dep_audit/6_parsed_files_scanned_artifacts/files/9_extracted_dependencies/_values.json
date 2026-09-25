@@ -2748,8 +2748,13 @@
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": [],
       "cpp/NVDA/__init__.py": [
-        ".",
+        ".VisualStudio",
+        ".chromium",
         ".excel",
+        ".spartanEdge",
+        ".sysListView32",
+        ".web",
+        ".winConsoleUIA",
         ".wordDocument",
         "NVDAObjects",
         "NVDAObjects.behaviors",
@@ -2924,7 +2929,7 @@
       ],
       "cpp/NVDA/ensureuv.ps1": [],
       "cpp/NVDA/espeak.py": [
-        ".",
+        "._espeak",
         "collections",
         "languageHandler",
         "logHandler",
@@ -4216,34 +4221,12 @@
     },
     "dockerfile/moby/builder/dockerfile": {
       "dockerfile/moby/builder/dockerfile/buildargs.go": [
-        "ALL_PROXY",
-        "FTP_PROXY",
-        "HTTPS_PROXY",
-        "HTTP_PROXY",
-        "NO_PROXY",
-        "all_proxy",
         "fmt",
-        "ftp_proxy",
-        "http_proxy",
-        "https_proxy",
         "io",
         "maps",
-        "no_proxy",
         "sort"
       ],
       "dockerfile/moby/builder/dockerfile/buildargs_test.go": [
-        "ArgFromMeta",
-        "ArgFromMetaOverridden",
-        "ArgNoDefaultInDockerfileFromOptions",
-        "ArgNoDefaultInMetaFromOptions",
-        "ArgNotUsedInDockerfile",
-        "ArgOverriddenByOptions",
-        "ArgWithDefaultInDockerfile",
-        "HTTPS_PROXY",
-        "HTTP_PROXY",
-        "ThisArgIsNotUsed",
-        "ThisArgIsUsed",
-        "all_proxy",
         "bytes",
         "gotest.tools/v3/assert",
         "gotest.tools/v3/assert/cmp",
@@ -4252,11 +4235,7 @@
       ],
       "dockerfile/moby/builder/dockerfile/builder.go": [
         "bytes",
-        "cmd",
         "context",
-        "entrypoint",
-        "env",
-        "expose",
         "fmt",
         "github.com/containerd/log",
         "github.com/containerd/platforms",
@@ -4274,16 +4253,9 @@
         "github.com/opencontainers/image-spec/specs-go/v1",
         "github.com/pkg/errors",
         "golang.org/x/sync/syncmap",
-        "healthcheck",
         "io",
-        "label",
-        "onbuild",
         "sort",
-        "stopsignal",
-        "strings",
-        "user",
-        "volume",
-        "workdir"
+        "strings"
       ],
       "dockerfile/moby/builder/dockerfile/builder_unix.go": [],
       "dockerfile/moby/builder/dockerfile/builder_windows.go": [
@@ -4376,8 +4348,7 @@
         "runtime",
         "sort",
         "strconv",
-        "strings",
-        "tcp"
+        "strings"
       ],
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": [
         "bytes",
@@ -4519,9 +4490,7 @@
         "github.com/moby/sys/user",
         "gotest.tools/v3/assert",
         "gotest.tools/v3/assert/cmp",
-        "group",
         "os",
-        "passwd",
         "path/filepath",
         "testing"
       ],
@@ -4540,13 +4509,9 @@
         "gotest.tools/v3/assert",
         "gotest.tools/v3/assert/cmp",
         "gotest.tools/v3/skip",
-        "label1",
-        "label2",
-        "one",
         "os",
         "runtime",
-        "testing",
-        "two"
+        "testing"
       ],
       "dockerfile/moby/builder/dockerfile/internals_windows.go": [
         "bytes",
@@ -4572,7 +4537,6 @@
         "github.com/docker/go-metrics"
       ],
       "dockerfile/moby/builder/dockerfile/mockbackend_test.go": [
-        "abcdef",
         "context",
         "encoding/json",
         "github.com/moby/moby/api/types/container",
@@ -4645,17 +4609,13 @@
         "os"
       ],
       "dockerfile/moby/builder/remotecontext/git.go": [
-        "action",
         "context",
-        "error",
         "github.com/containerd/log",
         "github.com/moby/go-archive",
         "github.com/moby/go-archive/compression",
         "github.com/moby/moby/v2/daemon/builder",
         "github.com/moby/moby/v2/daemon/builder/remotecontext/git",
-        "module",
-        "os",
-        "url"
+        "os"
       ],
       "dockerfile/moby/builder/remotecontext/lazycontext.go": [
         "encoding/hex",
@@ -4687,17 +4647,6 @@
         "net/url"
       ],
       "dockerfile/moby/builder/remotecontext/remote_test.go": [
-        "application/bzip2",
-        "application/gzip",
-        "application/json",
-        "application/octet",
-        "application/octet-stream",
-        "application/tar",
-        "application/x-bzip2",
-        "application/x-gzip",
-        "application/x-tar",
-        "application/x-xz",
-        "application/xz",
         "bytes",
         "github.com/moby/moby/v2/daemon/builder",
         "gotest.tools/v3/assert",
@@ -4706,8 +4655,7 @@
         "net/http",
         "net/http/httptest",
         "net/url",
-        "testing",
-        "text/plain"
+        "testing"
       ],
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": [
         "github.com/moby/go-archive",
@@ -4728,7 +4676,6 @@
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "dockerfile/moby/builder/remotecontext/git/gitutils.go": [
-        "git",
         "github.com/moby/sys/symlink",
         "github.com/pkg/errors",
         "net/http",
@@ -4740,10 +4687,8 @@
       ],
       "dockerfile/moby/builder/remotecontext/git/gitutils_test.go": [
         "bytes",
-        "false",
         "fmt",
         "github.com/google/go-cmp/cmp",
-        "github.com/moby/moby/v2",
         "gotest.tools/v3/assert",
         "gotest.tools/v3/assert/cmp",
         "net/http",
@@ -4755,8 +4700,7 @@
         "path/filepath",
         "runtime",
         "strings",
-        "testing",
-        "true"
+        "testing"
       ]
     },
     "dockerfile/moby/builder/remotecontext/internal/tarsum": {
@@ -4786,8 +4730,6 @@
         "hash",
         "io",
         "path",
-        "sha256",
-        "sha512",
         "strings"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": [],
@@ -4808,11 +4750,7 @@
         "io",
         "os",
         "strings",
-        "testing",
-        "user.KEY1",
-        "user.NOT",
-        "user.key1",
-        "user.key2"
+        "testing"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": [
         "archive/tar",
@@ -4820,14 +4758,9 @@
         "io",
         "sort",
         "strconv",
-        "strings",
-        "tarsum",
-        "tarsum.dev",
-        "tarsum.v1"
+        "strings"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": [
-        "SCHILY.xattr.user.foo",
-        "SCHILY.xattr.user.paxonly",
         "archive/tar",
         "errors",
         "fmt",
@@ -4835,9 +4768,7 @@
         "gotest.tools/v3/assert/cmp",
         "slices",
         "strings",
-        "testing",
-        "user.foo",
-        "user.xattronly"
+        "testing"
       ],
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": [
         "io"
@@ -4849,7 +4780,6 @@
         "strings"
       ],
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": [
-        "github.com/moby/moby/v2",
         "testing"
       ]
     },
@@ -5272,26 +5202,17 @@
         "runtime"
       ],
       "go/core/mgc.go": [
-        "bss",
-        "data",
-        "heap",
         "internal/cpu",
         "internal/goarch",
         "internal/goexperiment",
         "internal/runtime/atomic",
         "internal/runtime/gc",
-        "other",
-        "stack",
         "unsafe"
       ],
       "go/core/mutex.go": [
         "internal/sync"
       ],
       "go/core/proc.go": [
-        "386",
-        "aix",
-        "arm",
-        "arm64",
         "internal/abi",
         "internal/cpu",
         "internal/goarch",
@@ -5302,12 +5223,9 @@
         "internal/runtime/sys",
         "internal/strconv",
         "internal/stringslite",
-        "loong64",
-        "riscv64",
         "unsafe"
       ],
       "go/core/server.go": [
-        "/",
         "bufio",
         "bytes",
         "context",
@@ -5315,8 +5233,6 @@
         "errors",
         "fmt",
         "golang.org/x/net/http/httpguts",
-        "h2",
-        "http/1.1",
         "internal/godebug",
         "io",
         "log",
@@ -5344,7 +5260,6 @@
         "unsafe"
       ],
       "go/core/value.go": [
-        "closure",
         "errors",
         "internal/abi",
         "internal/goarch",
@@ -5424,8 +5339,6 @@
         "k8s.io/kubernetes/pkg/kubelet/apis/config",
         "k8s.io/kubernetes/pkg/kubelet/metrics",
         "k8s.io/utils/net",
-        "kubelet-client",
-        "kubelet-server",
         "math",
         "net",
         "sort",
@@ -5438,15 +5351,9 @@
         "net"
       ],
       "go/kubernetes/proxier.go": [
-        "--ctstate",
-        "-A",
-        "-j",
-        "-m",
-        "-s",
         "bytes",
         "context",
         "errors",
-        "filterRules",
         "fmt",
         "io",
         "k8s.io/api/core/v1",
@@ -5470,7 +5377,6 @@
         "k8s.io/kubernetes/pkg/util/iptables",
         "k8s.io/kubernetes/pkg/util/kernel",
         "k8s.io/utils/net",
-        "natRules",
         "net",
         "strconv",
         "strings",
@@ -5512,8 +5418,6 @@
         "k8s.io/utils/clock",
         "k8s.io/utils/ptr",
         "reflect",
-        "replicaset",
-        "replicaset_controller",
         "sort",
         "strings",
         "sync",
@@ -11962,19 +11866,28 @@
         "struct"
       ],
       "python/cython/Nodes.py": [
-        ".",
-        "..",
-        "...",
+        "...statement",
         "..Utils",
+        "..pkg",
+        ".Buffer",
         ".Builtin",
         ".Code",
+        ".DebugFlags",
         ".Errors",
         ".ExprNodes",
+        ".Future",
+        ".MemoryView",
+        ".ModuleNode",
+        ".Naming",
+        ".Options",
         ".ParseTreeTransforms",
         ".PyrexTypes",
         ".Pythran",
         ".StringEncoding",
         ".Symtab",
+        ".TypeSlots",
+        ".UtilNodes",
+        ".module",
         "copy",
         "cython",
         "enum",
@@ -13528,7 +13441,7 @@
         "warnings"
       ],
       "python/numpy/cfuncs.py": [
-        ".",
+        ".__version__",
         ".capi_maps",
         "copy",
         "sys"
@@ -13555,8 +13468,9 @@
         "warnings"
       ],
       "python/numpy/crackfortran.py": [
-        ".",
+        ".__version__",
         ".auxfuncs",
+        ".symbolic",
         "charset_normalizer",
         "codecs",
         "copy",
@@ -17230,6 +17144,7 @@
         "std"
       ],
       "zig/bun/napi.zig": [
+        "../bun.js/node/buffer.zig",
         "../work_pool.zig",
         "bun",
         "std"
@@ -17402,10 +17317,15 @@
         "codegen/llvm/bindings.zig",
         "crash_report.zig",
         "dev.zig",
+        "fmt.zig",
         "introspect.zig",
         "libs/mingw.zig",
         "libs/wasi_libc.zig",
         "link.zig",
+        "print_env.zig",
+        "print_targets.zig",
+        "print_zir.zig",
+        "print_zoir.zig",
         "std",
         "target.zig",
         "tracy.zig"
@@ -17414,6 +17334,7 @@
     "zig/zls": {
       "zig/zls/DocumentScope.zig": [
         "ast.zig",
+        "builtin",
         "offsets.zig",
         "std",
         "tracy"
@@ -17427,6 +17348,7 @@
         "analysis.zig",
         "build_runner/shared.zig",
         "builtin",
+        "features/diagnostics.zig",
         "lsp",
         "offsets.zig",
         "std",
@@ -17457,6 +17379,7 @@
         "features/selection_range.zig",
         "features/semantic_tokens.zig",
         "features/signature_help.zig",
+        "features/workspace_symbols.zig",
         "lsp",
         "offsets.zig",
         "std",
@@ -17492,6 +17415,9 @@
       "zig/zls/mach/Core.zig": [
         "build-options",
         "builtin",
+        "core/Darwin.zig",
+        "core/Linux.zig",
+        "core/Windows.zig",
         "main.zig",
         "std"
       ],

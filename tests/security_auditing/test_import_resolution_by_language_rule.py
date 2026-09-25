@@ -221,3 +221,65 @@ def test_a_rust_mod_the_tree_cannot_place_draws_no_edge():
         ]
     )
     assert edges == set()
+
+
+# ----------------------------------------------------------------------------- import-graph precision
+
+
+def test_an_extensionless_include_names_an_extensionless_file():
+    # fmt: `#include <chrono>` is the standard header, never fmt's own chrono.h.
+    edges = _edges(
+        [
+            ("test/perf.cc", "cpp", ["chrono", "ostream", "fmt/format.h", "QtCore/QString"]),
+            ("include/fmt/chrono.h", "cpp", []),
+            ("include/fmt/ostream.h", "cpp", []),
+            ("include/fmt/format.h", "cpp", []),
+            ("vendor/QtCore/QString", "cpp", []),
+        ]
+    )
+    assert edges == {("test/perf.cc", "include/fmt/format.h"), ("test/perf.cc", "vendor/QtCore/QString")}
+
+
+def test_a_bare_js_specifier_is_a_package_not_a_same_named_file():
+    edges = _edges(
+        [
+            ("examples/ejs/index.js", "javascript", ["ejs", "express", "node:path", "../../lib/express"]),
+            ("test/acceptance/ejs.js", "javascript", []),
+            ("lib/express.js", "javascript", []),
+            ("packages/bench/jit.ts", "typescript", ["zod/mini", "zod/v4/core"]),
+            ("packages/integration/fixtures/mini.ts", "typescript", []),
+            ("packages/zod/src/v4/core/core.ts", "typescript", []),
+        ]
+    )
+    assert edges == {("examples/ejs/index.js", "lib/express.js")}
+
+
+def test_an_aliased_or_path_shaped_specifier_mirrors_a_real_file():
+    edges = _edges(
+        [
+            ("src/pages/home.tsx", "typescript", ["@/components/Button", "~/utils", "#internal/db.js", "lib/api"]),
+            ("src/components/Button.tsx", "typescript", []),
+            ("src/utils/index.ts", "typescript", []),
+            ("src/internal/db.ts", "typescript", []),
+            ("src/lib/api.ts", "typescript", []),
+            ("other/Button.tsx", "typescript", []),
+        ]
+    )
+    assert edges == {
+        ("src/pages/home.tsx", "src/components/Button.tsx"),
+        ("src/pages/home.tsx", "src/utils/index.ts"),
+        ("src/pages/home.tsx", "src/internal/db.ts"),
+        ("src/pages/home.tsx", "src/lib/api.ts"),
+    }
+
+
+def test_from_dot_import_name_is_the_submodule_else_the_package():
+    # galaxyscope records `from . import cli, Flask` as `.cli`, `.Flask`.
+    edges = _edges(
+        [
+            ("src/flask/__init__.py", "python", []),
+            ("src/flask/cli.py", "python", []),
+            ("src/flask/app.py", "python", [".cli", ".Flask"]),
+        ]
+    )
+    assert edges == {("src/flask/app.py", "src/flask/cli.py"), ("src/flask/app.py", "src/flask/__init__.py")}

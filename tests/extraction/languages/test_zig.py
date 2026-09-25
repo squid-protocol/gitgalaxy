@@ -180,11 +180,17 @@ DEPENDENCY_VALID = [
     ('_ = @import("std");', "std"),
     ('const \nstd\n=\n@import\n(\n"std"\n)\n;', "std"),
     ('pub const @"weird import" = @import("weird-name.zig");', "weird-name.zig"),
+    # import-graph precision: `@import` used as an expression (zls Server.zig)
+    ('        .@"textDocument/hover" => try @import("features/hover.zig").hover(s),', "features/hover.zig"),
+    ('    const n = a / b + @import("util.zig").k;', "util.zig"),
 ]
 
 DEPENDENCY_INVALID = [
     '"@import(\\"std\\")"',
     '// const std = @import("std");',
+    '    x = y; // try @import("gone.zig")',
+    '/* @import("c.zig") */',
+    '        \\\\const Config = @import("Config.zig");',  # a line of a `\\` multiline string
 ]
 
 

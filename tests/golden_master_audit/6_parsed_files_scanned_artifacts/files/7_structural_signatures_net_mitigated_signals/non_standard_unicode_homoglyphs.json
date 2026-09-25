@@ -2428,7 +2428,7 @@
       "perl/bugzilla/Requirements.pm": 0
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 1,
+      "perl/exiftool/ExifTool.pm": 2,
       "perl/exiftool/META.json": 0,
       "perl/exiftool/Makefile.PL": 0,
       "perl/exiftool/README": 0,

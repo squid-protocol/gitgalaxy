@@ -254,9 +254,17 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ('import fmt "fmt"', "fmt"),
         ('import _ "database/sql/driver"', "database/sql/driver"),  # blank import
         ('import . "fmt"', "fmt"),  # dot import
+        ('import ("fmt")', "fmt"),  # one-line block
+        ('import (\n\t"os"\n\n\t// comment\n\tstr "strings" // why\n)', "os"),  # gofmt block
     ],
     "invalid": [
         'var importPath = "foo"',
+        # import-graph precision: a line that merely starts with a quoted string is
+        # not an import spec -- cobra's completions_test.go "imported" `--help`.
+        'args := []string{\n\t"--help",\n\t"apple",\n}',
+        'run(\n\t"a",\n\t"b")',
+        'x := map[string]int{\n\t"a": 1,\n}',
+        'return fmt.Sprintf(\n\t"%s", x,\n)',
     ],
     "pathological": [
         (

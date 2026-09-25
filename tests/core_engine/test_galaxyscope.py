@@ -489,6 +489,31 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         )
 
     # ==============================================================================
+    # TEST 8.55: A RELATIVE IMPORT IS NEVER A TYPOSQUAT (import-graph precision)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_typosquatting_radar_skips_relative_imports(self, mock_logger):
+        """
+        `from . import Options` is recorded as `.Options` (python's
+        relative_import_groups). It names a sibling module, never a package, so
+        it must not reach the typosquat radar as an external import mimicking
+        the `Option` anchor -- cython's Nodes.py was flagged exactly so.
+        """
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {"python": {"relative_import_groups": (1, 2, 3), "rules": {}}}
+        scope = Orchestrator(".", self.mock_config)
+        scope.ram_cache = {
+            "src/a.py": {"lang_id": "python", "raw_imports": {"Option"}},
+            "src/b.py": {"lang_id": "python", "raw_imports": {"Option"}},
+            "src/c.py": {"lang_id": "python", "raw_imports": {"Option"}},
+            "src/nodes.py": {"lang_id": "python", "raw_imports": {".Options"}},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        scope._resolve_dependency_graph()
+
+        self.assertNotIn("sec_homoglyphs", scope.ram_cache["src/nodes.py"].get("equations", {}))
+
+    # ==============================================================================
     # TEST 8.6: THE CONTEXTUAL BASELINE FIX READS A CASE-FOLDED EDGE (#2871)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.logger")

@@ -143,7 +143,7 @@ def test_kotlin_and_scala_resolve_by_package_and_declared_name(tmp_path):
     assert iga.kotlin_imports(kt, "src/X.kt", g) == [
         {"src/Names.kt"},
         {"src/other/Util.kt"},
-        {"src/other/Util.kt"},
+        set(),  # import contract C7: a package wildcard is its package object's edge, and kotlin has none
         {"java/com/acme/Legacy.java"},  # a JVM language imports Java classes by Java's rule
     ]
     sc = b"package io.circe\nimport io.circe.{ Json, Decoder => D }\nimport io.circe.export.Exported\nimport syntax._\n"

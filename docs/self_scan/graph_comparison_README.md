@@ -83,3 +83,9 @@ statements. Import causes name the LAYER that disagrees:
 | `fp:same-name-other-path` | resolution | the engine linked a same-named file at another path |
 | `fp:truth-sees-no-import-in-file` | capture / truth | the parser resolves no import in this file at all |
 | `fp:target-is-test-file` / `fp:target-not-imported` | resolution | the target is not among the importer's real imports |
+
+The truth side follows `docs/import_rule_contract.md`: a whole-package wildcard expects its
+package object's edge or none (C7), and a build-variant copy is the importer's own variant (C8).
+Two scala truth-side bugs fixed with C7 held most of scala's old 51.6% recall: every top-level
+`import_declaration` was indexed as a declaration of its first name, and member imports cut back
+into the enclosing package -- together 410 "missed" imports that were never GitGalaxy's.

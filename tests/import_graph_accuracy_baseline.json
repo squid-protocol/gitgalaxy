@@ -152,11 +152,11 @@
   "scala": {
     "engine_edges": 481,
     "files": 233,
-    "fn": 487,
-    "fp": 3,
-    "imports": 1006,
-    "precision_pct": 99.4,
-    "recall_pct": 51.6,
+    "fn": 34,
+    "fp": 6,
+    "imports": 521,
+    "precision_pct": 98.8,
+    "recall_pct": 93.5,
     "repos": "circe/circe"
   },
   "shell": {

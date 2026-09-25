@@ -106,6 +106,25 @@ reading (manifest-recorded since the corpus was locked); sqlite `.read` /
 args' token (`[EFB]BANK=`) and an addressing directive — out of both the
 count and the capture. markdown records the stated absence (None).
 
+**C7 · A whole-package wildcard is an edge to the package's own file, or to nothing**
+(#3641, decided by Joe 2026-09-25). `import io.circe._` / `import a.b.*` makes every declaration
+of the package available; which files the importer really needs depends on the names it uses,
+and an AST-free engine does not track use. So the edge is to the package's own file when it has
+one (a Scala `package object`, the resolver's #3595 rule) and otherwise there is none -- never
+one edge per file of the package, which would hand a 40-file package 40 edges per importer and
+tilt PageRank and blast radius toward big packages. A wildcard over an object's members
+(`a.b.C._`) is an edge to C's file, as any named import is. The graph comparison
+(`import_graph_accuracy.py`) scores Scala and Kotlin by this rule; Java and Go, where the
+engine's edge already lands inside the package and nothing disagrees, keep the "any file of the
+package" scoring.
+
+**C8 · A build variant resolves to the importer's own variant** (#3641, decided by Joe
+2026-09-25). When the same file exists in parallel source trees for different builds
+(`scala-2/` and `scala-3/`, `jvm/` and `js/`, a symlinked `include/` copy of `Core/`), the
+import means the copy the importer's own build compiles: the candidate that shares the
+importer's variant directory. Several such copies are one choice, not an ambiguity that draws no
+edge.
+
 ## Deliberate duals and deferred residue
 
 - **dockerfile `FROM`** (class_start) and **html `<link href>`** (io) — kept,

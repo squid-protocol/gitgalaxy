@@ -924,7 +924,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2550,7 +2550,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2984,7 +2984,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -3552,7 +3552,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3582,7 +3582,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4530,7 +4530,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 17,
       "last_seen_examples": [
         {
@@ -4592,7 +4592,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "kotlin",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4622,7 +4622,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -4670,7 +4670,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -4732,7 +4732,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5574,7 +5574,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6152,7 +6152,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6182,7 +6182,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6398,7 +6398,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6428,7 +6428,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7878,17 +7878,9 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
-      "last_seen_count": 68,
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 10,
       "last_seen_examples": [
-        {
-          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
-          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala -> modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/NumberParsingBenchmark.scala",
           "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/NumberParsingBenchmark.scala -> modules/jawn/shared/src/main/scala/io/circe/jawn/package.scala",
@@ -7898,14 +7890,6 @@
           }
         },
         {
-          "file_path": "circe/modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala",
-          "name": "circe/modules/benchmark/src/main/scala-3/io/circe/benchmark/DerivesBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
           "file_path": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala",
           "name": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
           "readings": {
@@ -7916,6 +7900,22 @@
         {
           "file_path": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala",
           "name": "circe/modules/core/shared/src/main/scala/io/circe/Decoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/core/shared/src/main/scala/io/circe/MapDecoder.scala",
+          "name": "circe/modules/core/shared/src/main/scala/io/circe/MapDecoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/core/shared/src/main/scala/io/circe/NonEmptySeqDecoder.scala",
+          "name": "circe/modules/core/shared/src/main/scala/io/circe/NonEmptySeqDecoder.scala -> modules/core/shared/src/main/scala/io/circe/Error.scala",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -7940,28 +7940,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
-      "last_seen_count": 9,
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 8,
       "last_seen_examples": [
-        {
-          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PointerBenchmark.scala",
-          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PointerBenchmark.scala -> modules/core/shared/src/main/scala/io/circe/package.scala",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/PrintingBenchmarkSpec.scala",
           "name": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/PrintingBenchmarkSpec.scala -> modules/jawn/shared/src/main/scala/io/circe/jawn/package.scala",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "circe/modules/generic/shared/src/main/scala-3/io/circe/generic/auto.scala",
-          "name": "circe/modules/generic/shared/src/main/scala-3/io/circe/generic/auto.scala -> modules/core/shared/src/main/scala/io/circe/package.scala",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -7978,6 +7962,22 @@
         {
           "file_path": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala",
           "name": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala -> modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/AutoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/AutoDerivedSuite.scala -> modules/generic/shared/src/test/scala-0/io/circe/generic/AutoDerivedSuite.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala -> modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -8002,12 +8002,20 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
-      "last_seen_count": 1,
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 2,
       "last_seen_examples": [
         {
-          "file_path": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala",
-          "name": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala -> modules/tests/shared/src/main/scala/io/circe/tests/examples/package.scala",
+          "file_path": "circe/modules/tests/shared/src/test/scala-3/io/circe/ConfiguredDerivesSuite.scala",
+          "name": "circe/modules/tests/shared/src/test/scala-3/io/circe/ConfiguredDerivesSuite.scala -> modules/core/shared/src/main/scala-3/io/circe/derivation/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/tests/shared/src/test/scala-3/io/circe/ConfiguredEnumDerivesSuites.scala",
+          "name": "circe/modules/tests/shared/src/test/scala-3/io/circe/ConfiguredEnumDerivesSuites.scala -> modules/core/shared/src/main/scala-3/io/circe/derivation/package.scala",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -8032,12 +8040,20 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
-      "last_seen_count": 1,
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 2,
       "last_seen_examples": [
         {
           "file_path": "circe/modules/tests/jvm/src/test/scala/io/circe/jawn/JawnParserSuite.scala",
           "name": "circe/modules/tests/jvm/src/test/scala/io/circe/jawn/JawnParserSuite.scala -> modules/tests/shared/src/main/resources/io/circe/tests/examples/glossary.json",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala",
+          "name": "circe/modules/tests/shared/src/test/scala/io/circe/CodecSuites.scala -> modules/tests/shared/src/main/scala/io/circe/tests/examples/package.scala",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -8062,7 +8078,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8084,16 +8100,18 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-09-25T18:40:28Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
-      "last_seen_count": 410,
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 16,
       "last_seen_examples": [
         {
           "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/Foo.scala",
@@ -8112,24 +8130,24 @@
           }
         },
         {
-          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/JsonObjectEqualityBenchmark.scala",
-          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/JsonObjectEqualityBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/AtBenchmark.scala (+9)",
+          "file_path": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-0/io/circe/generic/SemiautoDerivedSuite.scala -> modules/generic/shared/src/main/scala-2/io/circe/generic/semiauto.scala (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PrintingBenchmark.scala",
-          "name": "circe/modules/benchmark/src/main/scala-2/io/circe/benchmark/PrintingBenchmark.scala -> modules/benchmark/src/main/scala-2/io/circe/benchmark/AtBenchmark.scala (+9)",
+          "file_path": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala",
+          "name": "circe/modules/generic/shared/src/test/scala-2/io/circe/generic/SemiautoDerivedSuite.scala -> modules/generic/shared/src/main/scala-2/io/circe/generic/semiauto.scala (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
           }
         },
         {
-          "file_path": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/FoldingBenchmarkSpec.scala",
-          "name": "circe/modules/benchmark/src/test/scala-2/io/circe/benchmark/FoldingBenchmarkSpec.scala -> modules/benchmark/src/test/scala-2/io/circe/benchmark/GenericDerivationBenchmarkSpec.scala (+6)",
+          "file_path": "circe/modules/hygiene/jvm/src/main/scala-2/io/circe/hygiene/HygieneTests.scala",
+          "name": "circe/modules/hygiene/jvm/src/main/scala-2/io/circe/hygiene/HygieneTests.scala -> modules/generic/shared/src/main/scala-2/io/circe/generic/semiauto.scala (+1)",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -8137,6 +8155,36 @@
         }
       ],
       "metric": "truth-names-several-files",
+      "status": "validated",
+      "still_reproduces": true,
+      "symbol_type": "import",
+      "verdict": "GitGalaxy missed them: every recorded example is a build-variant pair (semiauto.scala under both scala-2/ and scala-3/); by import contract C8 the import means the importer's own variant, but the resolver calls the pair ambiguous and draws no edge. (Before #3641's harness fixes this shape held 410 statements -- external `cats.*`/`scala.*` imports mis-resolved by the truth side's own declaration index.) Engine defect #3665."
+    },
+    "scala/import/truth-sees-no-import-in-file/agree[gitgalaxy]_vs[tree_sitter]": {
+      "agreeing_tools": [
+        "gitgalaxy"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "tree_sitter"
+      ],
+      "first_seen_at": "2026-09-25T18:40:28Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "scala",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
+      "last_seen_count": 1,
+      "last_seen_examples": [
+        {
+          "file_path": "circe/modules/core/shared/src/main/scala-3/io/circe/Derivation.scala",
+          "name": "circe/modules/core/shared/src/main/scala-3/io/circe/Derivation.scala -> modules/core/shared/src/main/scala-3/io/circe/derivation/package.scala",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "truth-sees-no-import-in-file",
       "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "import",
@@ -8154,7 +8202,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8192,7 +8240,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-09-25T18:31:29Z",
+      "last_reconciled_at": "2026-09-25T18:40:28Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {

@@ -627,6 +627,7 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
         return group._cache[key]
     by_name: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
     by_pkg: dict[str, set[str]] = collections.defaultdict(set)
+    pkg_object: dict[str, set[str]] = collections.defaultdict(set)  # package -> its `package object` file
     for f in group.files:
         if not f.endswith(exts) or group.root is None:
             continue
@@ -648,6 +649,7 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
                 n = c.child_by_field_name("name")
                 if n is not None:
                     by_pkg[".".join([*pkg_parts, _text(n, src)])].add(f)
+                    pkg_object[".".join([*pkg_parts, _text(n, src)])].add(f)
                     names.append(("", _text(n, src)))
             else:
                 n = c.child_by_field_name("name")
@@ -659,7 +661,13 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
                 if n is None and t == "property_declaration":
                     vd = next((x for x in c.children if x.type == "variable_declaration"), None)
                     n = next((x for x in vd.children if x.type == "simple_identifier"), None) if vd else None
-                if n is not None and t.endswith(("declaration", "definition", "type_alias", "object")):
+                # An import is not a declaration, though scala's node is `import_declaration`:
+                # indexing it made every file importing `cats.x` "declare" `cats` (#3641).
+                if (
+                    n is not None
+                    and t != "import_declaration"
+                    and t.endswith(("declaration", "definition", "type_alias", "object"))
+                ):
                     names.append(("", _text(n, src)))
         pkg = ".".join(pkg_parts)
         by_pkg[pkg].add(f)
@@ -674,14 +682,16 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
                 return hit
         return set()
 
-    group._cache[key] = {"name": by_name, "pkg": by_pkg, "java": java_file}
+    group._cache[key] = {"name": by_name, "pkg": by_pkg, "pkg_object": pkg_object, "java": java_file}
     return group._cache[key]
 
 
 def _jvm_resolve(index: dict[str, Any], parts: list[str], wildcard: bool, context: str) -> set[str]:
     """`a.b.C` -> the files declaring C in package a.b; a member or nested import
-    (`a.b.C.member`, `a.b.C.Inner`) -> C's file; `a.b.*` -> package a.b's files
-    (or, for an object, its file). A name not found absolutely is retried under
+    (`a.b.C.member`, `a.b.C.Inner`) -> C's file; `a.b.*` / `a.b._` -> package
+    a.b's OWN file, its `package object`, and nothing when it has none (import
+    contract C7, #3641: a whole-package wildcard is no edge to every file of the
+    package); for an object (`a.b.C._`), C's file. A name not found absolutely is retried under
     each enclosing package of the importing file (Scala's relative imports)."""
     prefixes = [""]
     ctx = context.split(".") if context else []
@@ -689,14 +699,23 @@ def _jvm_resolve(index: dict[str, Any], parts: list[str], wildcard: bool, contex
     for prefix in prefixes:
         full = ([*prefix.split(".")] if prefix else []) + parts
         if wildcard:
-            hit = set(index["pkg"].get(".".join(full), ()))
-            if not hit and len(full) > 1:
+            if ".".join(full) in index["pkg"]:
+                return set(index["pkg_object"].get(".".join(full), ()))
+            hit: set[str] = set()
+            if len(full) > 1:
                 hit = set(index["name"].get((".".join(full[:-1]), full[-1]), ()))
             if hit:
                 return hit
             continue
-        for cut in range(0, min(3, len(full) - 1)):
+        # A member or nested import drops trailing names to reach the declaring object:
+        # `a.b.C.member` / `a.b.C.Inner.member` -> C, `a.b.pkgobj.Member` -> the package
+        # object. Never into the enclosing-package prefix (`munit.FunSuite` retried under
+        # io.circe must not become `io.circe`), and two names only down to a type (`C`), not
+        # to a lowercase package (`io.circe.optics.JsonPath` is not in object io.circe) (#3641).
+        for cut in range(0, min(3, len(parts))):
             head = full[: len(full) - cut]
+            if cut == 2 and not head[-1][:1].isupper():
+                break
             hit = index["name"].get((".".join(head[:-1]), head[-1]))
             if hit:
                 return set(hit)

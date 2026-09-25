@@ -1,6 +1,7 @@
 """import_graph_accuracy.py: the parser side resolves each language's imports by
 the language's own rule, and the gate reads a DROP as a regression."""
 
+import importlib.util
 import json
 import sys
 from pathlib import Path
@@ -66,13 +67,9 @@ def test_manifest_pins_every_scored_language_to_a_full_commit():
     assert all(len(e["commit"]) == 40 and set(e["commit"]) <= set("0123456789abcdef") for e in repos)
 
 
-try:
-    import tree_sitter_language_pack  # noqa: F401
-
-    _HAS_TS = True
-except ImportError:
-    _HAS_TS = False
-needs_ts = pytest.mark.skipif(not _HAS_TS, reason="tree-sitter-language-pack not installed")
+needs_ts = pytest.mark.skipif(
+    importlib.util.find_spec("tree_sitter_language_pack") is None, reason="tree-sitter-language-pack not installed"
+)
 
 
 @needs_ts

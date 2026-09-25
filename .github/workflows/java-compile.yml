@@ -1,0 +1,138 @@
+name: Generated Java Compiles
+
+# The COBOL -> Java generator (#3121): the Spring Boot projects `cobol-to-java`
+# writes must COMPILE, under every supported target config (#3613). Each job
+# refactors one pinned mainframe corpus (tests/cobol_mainframe/corpora.json),
+# generates the Java under a set of configs, and runs the real build (Maven, or
+# Gradle for the gradle rows) with JDK 17 and 21: tests/tools/java_target_matrix.py.
+# CardDemo runs every config; the other corpora run default / plain-records /
+# gradle, so the generator meets each corpus's shapes.
+#
+# Runs when the generator or what feeds it changes, on push to main, weekly
+# (dependency drift on Maven Central), and on demand.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gitgalaxy/cobol_to_java_controller.py"
+      - "gitgalaxy/cobol_refractor_controller.py"
+      - "gitgalaxy/tools/cobol_to_java/**"
+      - "gitgalaxy/tools/cobol_to_cobol/**"
+      - "gitgalaxy/standards/yaml_reader.py"
+      - "tests/tools/java_target_matrix.py"
+      - "tests/cobol_mainframe/corpora.json"
+      - ".github/workflows/java-compile.yml"
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/cobol_to_java_controller.py"
+      - "gitgalaxy/cobol_refractor_controller.py"
+      - "gitgalaxy/tools/cobol_to_java/**"
+      - "gitgalaxy/tools/cobol_to_cobol/**"
+      - "gitgalaxy/standards/yaml_reader.py"
+      - "tests/tools/java_target_matrix.py"
+      - "tests/cobol_mainframe/corpora.json"
+      - ".github/workflows/java-compile.yml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  compile:
+    name: compile (${{ matrix.corpus }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - corpus: aws-mainframe-modernization-carddemo
+            configs: ""  # every config in java_target_matrix.MATRIX
+          - corpus: cics-banking-sample-application-cbsa
+            configs: "default plain-records gradle"
+          - corpus: cics-genapp
+            configs: "default plain-records gradle"
+          - corpus: zopeneditor-sample
+            configs: "default plain-records gradle"
+          - corpus: zecs
+            configs: "default plain-records gradle"
+          - corpus: dsf
+            configs: "default plain-records gradle"
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Setup JDK 17 and 21
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: java-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
+          restore-keys: java-compile-m2-
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Generate and compile
+        env:
+          CORPUS: ${{ matrix.corpus }}
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          cd gitgalaxy
+          export JDK_17="$JAVA_HOME_17_X64" JDK_21="$JAVA_HOME_21_X64" JAVA_HOME="$JAVA_HOME_17_X64"
+          ONLY=()
+          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
+            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            --work "$RUNNER_TEMP/java_matrix" \
+            --m2 "$HOME/.m2/repository" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            "${ONLY[@]}"

@@ -107,11 +107,18 @@ def main() -> int:
     ap.add_argument("--work", type=Path, default=None)
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--m2", type=Path, default=Path.home() / ".m2" / "repository")
+    ap.add_argument(
+        "--summary", type=Path, default=None, help="append a Markdown results table (e.g. $GITHUB_STEP_SUMMARY)"
+    )
     args = ap.parse_args()
+    unknown = sorted(set(args.only or []) - set(MATRIX))
+    if unknown:
+        ap.error(f"unknown config(s) {unknown}; configs are {', '.join(MATRIX)}")
     work = args.work or Path(tempfile.mkdtemp(prefix="java_matrix_"))
     work.mkdir(parents=True, exist_ok=True)
     clean = refactor(args.corpus.resolve(), work)
     failed = 0
+    rows = [f"### Generated Java compiles: {args.corpus.name}", "", "| config | result |", "|---|---|"]
     for name, config in MATRIX.items():
         if args.only and name not in args.only:
             continue
@@ -120,6 +127,11 @@ def main() -> int:
         ok, errors = build(project, version, args.m2)
         failed += not ok
         print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"\n{errors}" if errors and not ok else ""), flush=True)
+        detail = "" if ok else " -- " + " / ".join(errors.splitlines()[:3]).replace("|", "/")
+        rows.append(f"| `{name}` | {'PASS' if ok else 'FAIL'}{detail} |")
+    if args.summary:
+        with args.summary.open("a", encoding="utf-8") as fh:
+            fh.write("\n".join(rows) + "\n\n")
     return 1 if failed else 0
 
 

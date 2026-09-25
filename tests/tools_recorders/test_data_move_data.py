@@ -12,11 +12,14 @@ SESSION = {
 }
 MOVES = [
     {"verb": "MOVE", "source": "CUSTNAMI", "source_kind": "item", "target": "COMM-NAME OF UPDCUST-COMMAREA",
-     "corresponding": False, "source_refmod": False, "target_refmod": False, "line": 1130},
+     "corresponding": False, "source_refmod": False, "target_refmod": False, "line": 1130,
+     "source_refmod_text": None, "target_refmod_text": None},
     {"verb": "MOVE", "source": "DFHCOMMAREA", "source_kind": "item", "target": "WS-COMM",
-     "corresponding": False, "source_refmod": True, "target_refmod": False, "line": 212},
+     "corresponding": False, "source_refmod": True, "target_refmod": False, "line": 212,
+     "source_refmod_text": "1:EIBCALEN", "target_refmod_text": None},
     {"verb": "INITIALIZE", "source": None, "source_kind": None, "target": "UPDCUST-COMMAREA",
-     "corresponding": False, "source_refmod": False, "target_refmod": False, "line": 1126},
+     "corresponding": False, "source_refmod": False, "target_refmod": False, "line": 1126,
+     "source_refmod_text": None, "target_refmod_text": None},
 ]  # fmt: skip
 UNIVERSE = [{"path": "cbl/BNK1DCS.cbl", "lang_id": "cobol", "raw_imports": [], "data_moves": MOVES}]
 

@@ -26,6 +26,8 @@ VSAM (#3617, `cobol_to_java_repository_forge.py`):
 
 The skeleton-driven forges share one pipeline (#3657). `cobol_to_java_skeleton_forges.SkeletonForges` plans every forge over the same skeletons and one `ClassNames` registry. It writes their files, merges each service's extras and writes the audit lines. The shared helpers live in `cobol_to_java_common.py`: type and identifier mapping, `status_text`, `merge_extras`. A new layer (#3618+) is a new forge registered in `SkeletonForges`; the controller does not change. Counts come from the forge's own counters, never from parsing generated text.
 
+COMMAREA unpack (#3655): the data-move extractor keeps each reference modification's text (`source_refmod_text` / `target_refmod_text`, new `data_move_data` columns). For an OPAQUE LINKAGE DFHCOMMAREA, `program_interfaces().commarea_unpack` evaluates the program's own `MOVE DFHCOMMAREA(start:length) TO record` statements into segments. When they tile the area, that is the COMMAREA (`basis: unpack`), and the forge emits a composite DTO with `fromPrefix(first)`. A declared DFHCOMMAREA (GENAPP's `COPY LGCMAREA`) is read through its own fields, and a move into a `PIC X(n)` is a copy (GENAPP's error dump), never an unpack.
+
 Program-ID lookups must go through `_program_index` / `_nearest_program` / `_program_file`. They skip CSD/BMS/JCL/DDL "program ids": the CSD deck used to shadow every program it DEFINEs.
 
 **Neither side is the oracle.** The answer key is.

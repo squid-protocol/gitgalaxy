@@ -75,6 +75,7 @@ class Dto:
     body: list[str]
     requires_list: bool
     uses: list[str] = field(default_factory=list)  # one line per program that receives it
+    methods: Any = None  # (is_record) -> method lines, e.g. a composite COMMAREA's fromPrefix (#3655)
 
     def doc(self) -> list[str]:
         return self.javadoc[:1] + self.uses + self.javadoc[1:]
@@ -93,6 +94,7 @@ class CicsProgram:
     commarea: dict | None = None
     commarea_dto: str | None = None
     commarea_gap: str | None = None
+    segment_dtos: list[str] = field(default_factory=list)  # an unpacked COMMAREA's parts, in offset order (#3655)
     channel_in: str | None = None
     channel_out: str | None = None
     containers: list[dict] = field(default_factory=list)
@@ -191,6 +193,52 @@ class CicsForge:
         doc.append(f"Record fields field testing: {status}.")
         return doc
 
+    def _unpacked_commarea(self, prog: CicsProgram, commarea: dict, status: str) -> str:
+        """#3655: the COMMAREA as the program itself reads it -- a DTO per unpacked record,
+        and, for two or more, a composite whose fields are those DTOs in offset order, with
+        `fromPrefix(first)` for callers that pass only the leading record."""
+        cls = prog.cls
+        for sg in commarea["segments"]:
+            doc = self._record_doc(sg["record"], sg["file"], sg["layout"], status)
+            end = sg["offset"] + sg["bytes"] - 1
+            use = (f"Bytes {sg['offset']}-{end} of the COMMAREA {cls} reads: MOVE DFHCOMMAREA"
+                   f"{'(' + sg['refmod'] + ')' if sg.get('refmod') else ''} at {prog.path}:{sg['line']}.")  # fmt: skip
+            prog.segment_dtos.append(self._dto_for(sg["record"], sg["file"], sg["layout"], cls, doc, use))
+        if len(prog.segment_dtos) == 1:
+            return prog.segment_dtos[0]
+        name = f"{cls}Commarea"
+        base, n = name, 1
+        while name in self.dtos or name in self.names:
+            n += 1
+            name = f"{base}{n}"
+        self.names.claim(name)
+        body: list[str] = []
+        fields: list[str] = []
+        for sg, dto in zip(commarea["segments"], prog.segment_dtos):
+            var = java_identifier(sg["record"])
+            fields.append(var)
+            body.append(f"    // DFHCOMMAREA({sg.get('refmod') or 'whole'}) at line {sg['line']}: offset {sg['offset']}, "
+                        f"{sg['bytes']} bytes -> {sg['record']} ({sg['file']})")  # fmt: skip
+            body.append(f"    private {dto} {var};\n")
+        first_type, first = prog.segment_dtos[0], fields[0]
+
+        def methods(is_record: bool) -> list[str]:
+            head = [f"    /** A caller that passes only {commarea['segments'][0]['record']} (the leading "
+                    f"{commarea['segments'][0]['bytes']} bytes): the rest is not supplied. */",
+                    f"    public static {name} fromPrefix({first_type} {first}) {{"]  # fmt: skip
+            if is_record:
+                args = ", ".join([first, *["null"] * (len(fields) - 1)])
+                return [*head, f"        return new {name}({args});", "    }"]
+            return [*head, f"        {name} commarea = new {name}();", f"        commarea.{first} = {first};",
+                    "        return commarea;", "    }"]  # fmt: skip
+
+        lines = ", ".join(f"{sg['line']}" for sg in commarea["segments"])
+        doc = [f"The COMMAREA {cls} reads, as {prog.path} unpacks DFHCOMMAREA at lines {lines}: "
+               f"{' + '.join(sg['record'] for sg in commarea['segments'])} = {commarea['bytes']} bytes.",
+               f"Record fields field testing: {status}."]  # fmt: skip
+        self.dtos[name] = Dto(name, doc, body, False, methods=methods)
+        return name
+
     # ---- planning -----------------------------------------------------------
     def _plan(self, key: str, sk: dict) -> CicsProgram:
         sections = sk.get("sections", {})
@@ -216,7 +264,10 @@ class CicsForge:
         interface = (sections.get("interface") or {}).get("facts") or {}
         record_status = prog.status.get("interface", "untested")
         commarea = interface.get("commarea")
-        if commarea:
+        if commarea and commarea.get("basis") == "unpack":
+            prog.commarea = commarea
+            prog.commarea_dto = self._unpacked_commarea(prog, commarea, record_status)
+        elif commarea:
             prog.commarea = commarea
             doc = self._record_doc(commarea["record"], commarea["file"], commarea, record_status)
             if commarea.get("basis") == "caller_record":
@@ -267,7 +318,13 @@ class CicsForge:
         """DTO class name -> Java source (package <pkg>.dto.contract)."""
         return {
             name: render_dto_class(
-                f"{self.package}.{DTO_SUBPACKAGE}", name, d.body, d.requires_list, self.target, javadoc=d.doc()
+                f"{self.package}.{DTO_SUBPACKAGE}",
+                name,
+                d.body,
+                d.requires_list,
+                self.target,
+                javadoc=d.doc(),
+                methods=d.methods,
             )
             for name, d in sorted(self.dtos.items())
         }

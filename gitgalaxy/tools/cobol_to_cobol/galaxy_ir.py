@@ -701,6 +701,10 @@ class EngineDataMove:
     source_refmod: bool
     target_refmod: bool
     line: int
+    # #3655: the reference modifications as written (`1:LENGTH OF X`); None without
+    # one, and on a DB written before the columns existed.
+    source_refmod_text: Optional[str] = None
+    target_refmod_text: Optional[str] = None
 
 
 _WEB_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container", "binding",
@@ -1865,6 +1869,93 @@ class GalaxyIR:
                     entry["mismatches"] += _layout_mismatches(caller_layout, callee_layout)
         return out
 
+    def _length_expr(self, ef: EngineFile, expr: str) -> Optional[int]:
+        """The value of a reference-modification operand: integers, `LENGTH OF item` (its
+        byte width, COPY-expanded), `+` and `-`. None for anything else -- `EIBCALEN`, a data
+        name -- whose value is only known at run time."""
+        total, sign = 0, 1
+        tokens = re.findall(r"LENGTH\s+OF\s+[A-Z0-9][A-Z0-9-]*(?:\s+(?:OF|IN)\s+[A-Z0-9][A-Z0-9-]*)*|[0-9]+|[+-]|\S+",
+                            expr.upper())  # fmt: skip
+        expect_term = True
+        for tok in tokens:
+            if tok in "+-" and not expect_term:
+                sign, expect_term = (1 if tok == "+" else -1), True
+                continue
+            if not expect_term:
+                return None
+            if tok.isdigit():
+                value = int(tok)
+            elif tok.startswith("LENGTH"):
+                name, qualifier = _operand_name(re.sub(r"^LENGTH\s+OF\s+", "", tok))
+                found = self._find_item(ef, name, qualifier) if name else []
+                if not found:
+                    return None
+                owner, item, extension = found[0]
+                value = self.record_layout(owner, item, extension)["bytes"]
+                if value is None:
+                    return None
+            else:
+                return None
+            total += sign * value
+            expect_term = False
+        return None if expect_term else total
+
+    def _commarea_unpack(self, ef: EngineFile) -> Optional[dict]:
+        """How program `ef` reads its own DFHCOMMAREA (#3655): every `MOVE DFHCOMMAREA
+        [(start:length)] TO record`, as `segments` (`offset`, `bytes`, `record`, `file`,
+        `layout`, `line`, `refmod`) in offset order. A length of `EIBCALEN` (whatever the
+        caller passed) is the receiving record's width. `tiled` is True when the segments
+        cover the area from offset 0 without a gap or an overlap -- then they ARE the
+        COMMAREA's layout. None when the program never moves out of DFHCOMMAREA.
+
+        Only an OPAQUE area is read this way: a LINKAGE DFHCOMMAREA that declares its own
+        fields (GENAPP's `COPY LGCMAREA`) is read through them, so a MOVE out of it is a
+        copy -- GENAPP dumps `DFHCOMMAREA(1:90)` into an error message -- and `opaque` is
+        False. And a segment's receiving item must be a group record: moving into one
+        elementary `PIC X(n)` is a copy, not a reading."""
+        own = self._dfhcommarea(ef)
+        area = (own.name if own else "DFHCOMMAREA").upper()
+        own_fields = self.record_layout(ef, own)["fields"] if own is not None else []
+        opaque = len(own_fields) <= 1  # absent, or one (usually OCCURS ... DEPENDING ON EIBCALEN) item
+        segments: dict[tuple, dict] = {}
+        for m in ef.data_moves:
+            if m.verb != "MOVE" or (m.source or "").upper() != area or m.target_refmod:
+                continue
+            name, qualifier = _operand_name(m.target)
+            found = self._find_item(ef, name, qualifier) if name else []
+            if not found:
+                continue
+            owner, item, extension = found[0]
+            if _is_elementary(item):
+                continue  # a PIC X(n) receiving field: a copy of the bytes, not a record
+            layout = self.record_layout(owner, item, extension)
+            width = layout["bytes"]
+            offset, length = 0, width
+            if m.source_refmod_text:
+                start_s, _, len_s = m.source_refmod_text.partition(":")
+                start = self._length_expr(ef, start_s)
+                if start is None:
+                    continue  # a start known only at run time: not a fixed segment
+                offset = start - 1
+                given = self._length_expr(ef, len_s) if len_s.strip() else None
+                length = given if given is not None else width
+            if length is None or width is None or length != width:
+                continue  # a partial or unknown-width move is not a record-shaped segment
+            segments.setdefault((offset, item.name), {
+                "offset": offset, "bytes": length, "record": item.name, "file": owner.file_path,
+                "layout": layout, "line": m.line, "refmod": m.source_refmod_text,
+            })  # fmt: skip
+        if not segments:
+            return None
+        ordered = [segments[k] for k in sorted(segments)]
+        pos, tiled = 0, opaque
+        for sg in ordered:
+            if sg["offset"] != pos:
+                tiled = False
+                break
+            pos += sg["bytes"]
+        return {"segments": ordered, "tiled": tiled, "opaque": opaque, "bytes": pos if tiled else None}
+
     def program_interfaces(self, language: str = "cobol") -> dict[str, dict]:
         """What each CICS program receives and hands back (#3615), per program file.
 
@@ -1883,6 +1974,12 @@ class GalaxyIR:
         `container`, `channel` (None = the current channel), `direction` (`in`
         for a GET, `out` for a PUT / MOVE), `record` (the INTO / FROM area) and
         its `layout` (None when that area is not found).
+        #3655: `commarea_unpack` -- how the program reads its own DFHCOMMAREA
+        (`_commarea_unpack`: `segments`, `tiled`, `opaque`, `bytes`); when the segments tile the
+        area, `commarea.basis` is `unpack` and `commarea.segments` lists them, ahead of
+        the caller-record and own-DFHCOMMAREA rules. `inbound` -- every site that can
+        enter the program, resolved (`via` static) or data-driven (`via` value / table /
+        moves), with the record it `passes`.
         `parameters` (#3616) -- the PROCEDURE DIVISION USING items in order, each
         `position`, `name`, `mode` (REFERENCE / CONTENT / VALUE), `record`, `file`
         and `layout` (None when the item is not found): what a CALL passes. Facts
@@ -1896,6 +1993,39 @@ class GalaxyIR:
             key = (rec["file"], rec["name"])
             slot = incoming.setdefault(row["callee"], {}).setdefault(key, {"sources": [], "commarea": row["commarea"]})
             slot["sources"].append({"caller": row["caller"], "line": row["line"], "verb": row["verb"]})
+        # #3655: every site that can enter a program -- resolved or data-driven (a menu table's
+        # XCTL) -- with the record it passes. Data-driven sites do not choose the layout (a
+        # candidate is not a resolution); they are reported as `inbound`.
+        inbound: dict[str, list] = {}
+        for row in self.commarea_contracts(language):
+            if row["callee"]:
+                inbound.setdefault(row["callee"], []).append(
+                    {
+                        "caller": row["caller"],
+                        "line": row["line"],
+                        "verb": row["verb"],
+                        "via": "static",
+                        "passes": (row["caller_record"] or {}).get("name"),
+                        "bytes": (row["caller_record"] or {}).get("bytes"),
+                    }
+                )
+        passed_at = {(f.file_path, c.line, c.verb): c.commarea for f in self.files.values() for c in f.calls}
+        for d in self.dynamic_call_targets():
+            if d["verb"] not in ("LINK", "XCTL"):
+                continue
+            for cand in d["candidates"]:
+                if cand["resolves_to"]:
+                    name, _q = _operand_name(passed_at.get((d["file"], d["line"], d["verb"])))
+                    inbound.setdefault(cand["resolves_to"], []).append(
+                        {
+                            "caller": d["file"],
+                            "line": d["line"],
+                            "verb": d["verb"],
+                            "via": cand["via"],
+                            "passes": name,
+                            "bytes": None,
+                        }
+                    )
 
         def layout_of(ef: EngineFile, operand: Optional[str]) -> Optional[tuple]:
             name, qualifier = _operand_name(operand)
@@ -1912,6 +2042,7 @@ class GalaxyIR:
         out: dict[str, dict] = {}
         for ef in self.programs(language):
             commarea, gap = None, None
+            unpack = self._commarea_unpack(ef)
             options = []
             for (file, name), slot in incoming.get(ef.file_path, {}).items():
                 caller = self.files.get(slot["sources"][0]["caller"])
@@ -1922,7 +2053,29 @@ class GalaxyIR:
                 usable = layout["bytes"] is not None and not layout["variable"]
                 options.append((not usable, -len(slot["sources"]), file, name, layout, slot["sources"]))
             options.sort(key=lambda o: o[:4])
-            if options:
+            if unpack and unpack["tiled"]:
+                # The program's own reading of DFHCOMMAREA wins: it says which bytes are which record.
+                commarea = {
+                    "record": "DFHCOMMAREA",
+                    "file": ef.file_path,
+                    "basis": "unpack",
+                    "sources": [s for o in options for s in o[5]],
+                    "alternatives": [
+                        {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5]} for o in options
+                    ],
+                    "segments": unpack["segments"],
+                    "bytes": unpack["bytes"],
+                    "variable": False,
+                    "extended": False,
+                    "unexpanded": [u for sg in unpack["segments"] for u in sg["layout"].get("unexpanded", [])],
+                    "copybooks": sorted({c for sg in unpack["segments"] for c in sg["layout"].get("copybooks", [])}),
+                    "fields": [
+                        {**fld, "offset": fld["offset"] + sg["offset"]}
+                        for sg in unpack["segments"]
+                        for fld in sg["layout"].get("fields", [])
+                    ],
+                }
+            elif options:
                 _, _, file, name, layout, sources = options[0]
                 commarea = {"record": name, "file": file, "basis": "caller_record", "sources": sources, **layout}
                 commarea["alternatives"] = [
@@ -1976,6 +2129,8 @@ class GalaxyIR:
             out[ef.file_path] = {
                 "commarea": commarea,
                 "commarea_gap": gap,
+                "commarea_unpack": unpack,
+                "inbound": sorted(inbound.get(ef.file_path, []), key=lambda r: (r["caller"], r["line"])),
                 "containers": containers,
                 "parameters": parameters,
             }
@@ -4630,9 +4785,15 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                     by_id[row[0]].web_services.append(EngineWebService(**fields, line=int(row[-1] or 0)))
         # #3452: field-level data movement. A pre-#3452 database has none.
         if _has_table(cur, "data_move_data"):
+            texts = (
+                "source_refmod_text, target_refmod_text"
+                if _has_column(cur, "data_move_data", "source_refmod_text")
+                else "NULL, NULL"
+            )
             for row in cur.execute(
-                "SELECT file_id, verb, source, source_kind, target, corresponding, source_refmod, target_refmod, "
-                "line_number FROM data_move_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                "SELECT file_id, verb, source, source_kind, target, corresponding, source_refmod, target_refmod, "  # noqa: S608 -- texts is one of two literals
+                f"line_number, {texts} FROM data_move_data WHERE repo_name = ? AND commit_hash = ? "
+                "ORDER BY file_id, id",
                 (repo_name, commit_hash),
             ):
                 if row[0] in by_id:
@@ -4646,6 +4807,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                             source_refmod=bool(row[6]),
                             target_refmod=bool(row[7]),
                             line=int(row[8] or 0),
+                            source_refmod_text=row[9],
+                            target_refmod_text=row[10],
                         )
                     )
         # #3477: IMS PSB / DBD macros and region steps. A pre-#3477 database has none.

@@ -15,12 +15,12 @@
     },
     "batch entry": {
       "Gaps": {
-        "batch program no JCL step runs": 285
+        "batch program no JCL step runs": 281
       },
       "Ratio": "1.4%",
       "Resolved": 4,
       "System Names (Not Gaps)": 0,
-      "Total": 289
+      "Total": 285
     },
     "copybooks": {
       "Gaps": {
@@ -63,13 +63,13 @@
     },
     "transactions": {
       "Gaps": {
-        "CICS program no transaction reaches": 9,
+        "CICS program no transaction reaches": 11,
         "transaction to a missing program": 16
       },
-      "Ratio": "86.1%",
-      "Resolved": 155,
+      "Ratio": "85.4%",
+      "Resolved": 158,
       "System Names (Not Gaps)": 15,
-      "Total": 180
+      "Total": 185
     }
   }
 }

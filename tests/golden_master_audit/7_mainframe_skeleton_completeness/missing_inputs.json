@@ -12,7 +12,7 @@
         "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl",
         "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl"
       ],
-      "Gap Count": 285,
+      "Gap Count": 281,
       "Input": "JCL and PROC libraries"
     },
     {
@@ -50,13 +50,13 @@
     },
     {
       "Examples": [
+        "cobol/Z-SMS-Gateway/SENDSMS.cbl",
         "cobol/cash-account-cobol/CASH00.cbl",
         "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl",
         "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl",
-        "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl",
-        "cobol/cics-java-jcics-samples/EC01.cbl"
+        "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl"
       ],
-      "Gap Count": 9,
+      "Gap Count": 11,
       "Input": "CSD extract (DFHCSDUP LIST / CICSPlex SM), or the web / API layer that LINKs it"
     },
     {

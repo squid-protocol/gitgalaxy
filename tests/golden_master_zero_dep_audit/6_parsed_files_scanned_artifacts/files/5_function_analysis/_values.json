@@ -326300,6 +326300,7 @@
           "Structural Impact": 1.2
         }
       ],
+      "javascript/threejs/Nodes.js": [],
       "javascript/threejs/WebGLProgram.js": [
         {
           "Control Flow Branches": 189,

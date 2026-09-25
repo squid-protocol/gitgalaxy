@@ -1301,6 +1301,9 @@
     "javascript/react": {
       "javascript/react/ReactSymbols.js": "None Detected"
     },
+    "javascript/threejs": {
+      "javascript/threejs/Nodes.js": "None Detected"
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": "None Detected",
       "jcl/cash-account-cobol/DEFKSDS.jcl": "None Detected"

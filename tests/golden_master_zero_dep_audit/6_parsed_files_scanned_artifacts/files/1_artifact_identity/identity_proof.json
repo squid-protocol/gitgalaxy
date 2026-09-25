@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "Single Indicator (Ext: .js)",
       "javascript/threejs/GLTFLoader.js": "Single Indicator (Ext: .js)",
       "javascript/threejs/Matrix4.js": "Single Indicator (Ext: .js)",
+      "javascript/threejs/Nodes.js": "Single Indicator (Ext: .js)",
       "javascript/threejs/WebGLProgram.js": "Single Indicator (Ext: .js)",
       "javascript/threejs/WebGLRenderer.js": "Single Indicator (Ext: .js)"
     },

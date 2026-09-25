@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "Unknown Architect",
       "javascript/threejs/GLTFLoader.js": "Unknown Architect",
       "javascript/threejs/Matrix4.js": "Unknown Architect",
+      "javascript/threejs/Nodes.js": "Unknown Architect",
       "javascript/threejs/WebGLProgram.js": "Unknown Architect",
       "javascript/threejs/WebGLRenderer.js": "Unknown Architect"
     },

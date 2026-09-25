@@ -120,13 +120,13 @@
     "repos": "guzzle/guzzle"
   },
   "python": {
-    "engine_edges": 1859,
-    "files": 1275,
-    "fn": 22,
+    "engine_edges": 1914,
+    "files": 1276,
+    "fn": 1,
     "fp": 1,
-    "imports": 2009,
+    "imports": 2099,
     "precision_pct": 99.9,
-    "recall_pct": 98.9,
+    "recall_pct": 100.0,
     "repos": "encode/httpx, fastapi/fastapi, pallets/flask"
   },
   "ruby": {
@@ -180,11 +180,11 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "typescript": {
-    "engine_edges": 562,
-    "files": 459,
+    "engine_edges": 629,
+    "files": 460,
     "fn": 0,
     "fp": 0,
-    "imports": 599,
+    "imports": 666,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "colinhacks/zod"

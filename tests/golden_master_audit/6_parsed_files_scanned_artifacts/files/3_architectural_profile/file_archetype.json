@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "N/A",
       "javascript/threejs/GLTFLoader.js": "N/A",
       "javascript/threejs/Matrix4.js": "N/A",
+      "javascript/threejs/Nodes.js": "N/A",
       "javascript/threejs/WebGLProgram.js": "N/A",
       "javascript/threejs/WebGLRenderer.js": "N/A"
     },

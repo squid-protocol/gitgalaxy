@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": 4,
       "javascript/threejs/GLTFLoader.js": 51,
       "javascript/threejs/Matrix4.js": 89,
+      "javascript/threejs/Nodes.js": 0,
       "javascript/threejs/WebGLProgram.js": 9,
       "javascript/threejs/WebGLRenderer.js": 21
     },

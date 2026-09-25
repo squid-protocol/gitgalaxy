@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": -0.127,
       "javascript/threejs/GLTFLoader.js": -0.397,
       "javascript/threejs/Matrix4.js": 1.141,
+      "javascript/threejs/Nodes.js": 0.886,
       "javascript/threejs/WebGLProgram.js": -0.572,
       "javascript/threejs/WebGLRenderer.js": 0.604
     },

@@ -2590,22 +2590,22 @@
     },
     "javascript/threejs": {
       "avg_exposures": {
-        "api_exposure": 1.87,
+        "api_exposure": 4.36,
         "churn": 0.0,
-        "cognitive_load": 58.69,
-        "concurrency": 25.29,
-        "dead_code": 3.33,
-        "documentation": 49.6,
-        "safety_score": 83.68,
+        "cognitive_load": 54.15,
+        "concurrency": 21.68,
+        "dead_code": 2.85,
+        "documentation": 42.52,
+        "safety_score": 71.73,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 99.9,
-        "tech_debt": 62.68,
-        "verification": 80.0
+        "state_flux": 85.63,
+        "tech_debt": 56.11,
+        "verification": 68.9
       },
-      "file_count": 6,
-      "total_mass": 8170.3
+      "file_count": 7,
+      "total_mass": 8327.1
     },
     "jcl/cash-account-cobol": {
       "avg_exposures": {

@@ -2772,14 +2772,6 @@
       "Size": "10636 bytes"
     },
     {
-      "Diagnostic Reason": "Packed Payload Guard (Impossible Density: 3.32 hits/line)",
-      "Discovery Proof": "Single Indicator (Ext: .js)",
-      "Forensic Category": "Excluded Artifact",
-      "Identity Confidence": "91.0%",
-      "Path": "javascript/threejs/Nodes.js",
-      "Size": "9925 bytes"
-    },
-    {
       "Diagnostic Reason": "Zero-Density Threshold (LOC: 57, Signals: 0)",
       "Discovery Proof": "Single Indicator (Ext: .jcl)",
       "Forensic Category": "Excluded Artifact",

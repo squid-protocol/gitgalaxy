@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "Tabs",
       "javascript/threejs/GLTFLoader.js": "Tabs",
       "javascript/threejs/Matrix4.js": "Tabs",
+      "javascript/threejs/Nodes.js": "Neutral / No Indentation",
       "javascript/threejs/WebGLProgram.js": "Tabs",
       "javascript/threejs/WebGLRenderer.js": "Tabs"
     },

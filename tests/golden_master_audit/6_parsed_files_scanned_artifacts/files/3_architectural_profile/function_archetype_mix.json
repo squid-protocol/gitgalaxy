@@ -5770,6 +5770,7 @@
         "Many-Argument Workhorses": 12,
         "Parameter Forwarders": 15
       },
+      "javascript/threejs/Nodes.js": {},
       "javascript/threejs/WebGLProgram.js": {
         "Callbacks & Closures": 4,
         "Compute Cores": 2,

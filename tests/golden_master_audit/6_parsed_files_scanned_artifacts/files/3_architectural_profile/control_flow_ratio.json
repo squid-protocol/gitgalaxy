@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "13.5%",
       "javascript/threejs/GLTFLoader.js": "24.0%",
       "javascript/threejs/Matrix4.js": "6.7%",
+      "javascript/threejs/Nodes.js": "97.9%",
       "javascript/threejs/WebGLProgram.js": "36.7%",
       "javascript/threejs/WebGLRenderer.js": "31.3%"
     },

@@ -5182,32 +5182,34 @@
     },
     "javascript/threejs": {
       "Average Risk Exposures": {
-        "API Exposure": "1.87%",
-        "Cognitive Load Exposure": "58.69%",
-        "Commented Logic Exposure": "3.33%",
-        "Concurrency Exposure": "25.29%",
-        "Documentation Exposure": "49.6%",
-        "Error & Exception Exposure": "83.68%",
+        "API Exposure": "4.36%",
+        "Cognitive Load Exposure": "54.15%",
+        "Commented Logic Exposure": "2.85%",
+        "Concurrency Exposure": "21.68%",
+        "Documentation Exposure": "42.52%",
+        "Error & Exception Exposure": "71.73%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
-        "State Flux Exposure": "99.9%",
-        "Tech Debt Exposure": "62.68%",
-        "Testing Exposure": "80.0%",
+        "State Flux Exposure": "85.63%",
+        "Tech Debt Exposure": "56.11%",
+        "Testing Exposure": "68.9%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 8170.3,
+      "Directory Group Magnitude": 8327.1,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_10": "16.7%",
-        "file_cluster_15": "50.0%",
-        "file_cluster_4": "33.3%"
+        "file_cluster_10": "14.3%",
+        "file_cluster_15": "42.9%",
+        "file_cluster_2": "14.3%",
+        "file_cluster_4": "28.6%"
       },
-      "File Count": 6,
+      "File Count": 7,
       "Files": [
         "javascript/threejs/BufferGeometry.js",
         "javascript/threejs/Editor.js",
         "javascript/threejs/GLTFLoader.js",
         "javascript/threejs/Matrix4.js",
+        "javascript/threejs/Nodes.js",
         "javascript/threejs/WebGLProgram.js",
         "javascript/threejs/WebGLRenderer.js"
       ]

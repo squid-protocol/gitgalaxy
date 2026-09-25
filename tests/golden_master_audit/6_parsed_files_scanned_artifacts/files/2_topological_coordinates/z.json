@@ -89,14 +89,14 @@
       "apex/SOURCES.md": -9206.26
     },
     "apex/apex-recipes": {
-      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -2457.96,
-      "apex/apex-recipes/LICENSE.md": -3522.7,
-      "apex/apex-recipes/QueueableRecipes.cls": -3313.68,
-      "apex/apex-recipes/SOQLRecipes.cls": -2572.32,
-      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -3003.84,
-      "apex/apex-recipes/SOQLRecipes_Tests.cls": -2939.34,
-      "apex/apex-recipes/project-scratch-def.json": -2974.33,
-      "apex/apex-recipes/sfdx-project.json": -2727.16
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": -9184.54,
+      "apex/apex-recipes/LICENSE.md": -10249.28,
+      "apex/apex-recipes/QueueableRecipes.cls": -10040.26,
+      "apex/apex-recipes/SOQLRecipes.cls": -9298.9,
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": -9730.42,
+      "apex/apex-recipes/SOQLRecipes_Tests.cls": -9665.92,
+      "apex/apex-recipes/project-scratch-def.json": -9700.91,
+      "apex/apex-recipes/sfdx-project.json": -9453.74
     },
     "assembly": {
       "assembly/SOURCES.md": -2308.7
@@ -377,11 +377,11 @@
       "batch/SOURCES.md": 10596.03
     },
     "batch/cpython/Tools/buildbot": {
-      "batch/cpython/Tools/buildbot/clean.bat": -9703.24
+      "batch/cpython/Tools/buildbot/clean.bat": -9707.72
     },
     "batch/cpython/Tools/msi": {
-      "batch/cpython/Tools/msi/build.bat": -1192.7,
-      "batch/cpython/Tools/msi/buildrelease.bat": -1294.61
+      "batch/cpython/Tools/msi/build.bat": -1194.42,
+      "batch/cpython/Tools/msi/buildrelease.bat": -1296.33
     },
     "blueprint": {
       "blueprint/SOURCES.md": 1604.89
@@ -590,9 +590,9 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": 9786.79
     },
     "cobol/che-che4z-lsp-for-cobol": {
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -4794.83,
-      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -5000.53,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -4470.04
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -4796.12,
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -5001.82,
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -4471.33
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": 5419.33,
@@ -1039,12 +1039,12 @@
       "cobol/gnucobol/xfhfcd3.cpy": 3364.09
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/codegen.c": 10886.39,
-      "cobol/gnucobol_internals/fileio.c": 10489.17,
-      "cobol/gnucobol_internals/numeric.c": 11395.26,
-      "cobol/gnucobol_internals/parser.y": 11270.52,
-      "cobol/gnucobol_internals/scanner.l": 11071.48,
-      "cobol/gnucobol_internals/syn_misc.at": 10587.09
+      "cobol/gnucobol_internals/codegen.c": -3002.78,
+      "cobol/gnucobol_internals/fileio.c": -3400.0,
+      "cobol/gnucobol_internals/numeric.c": -2493.91,
+      "cobol/gnucobol_internals/parser.y": -2618.65,
+      "cobol/gnucobol_internals/scanner.l": -2817.69,
+      "cobol/gnucobol_internals/syn_misc.at": -3302.08
     },
     "cobol/zECS": {
       "cobol/zECS/ECS001.cbl": 9554.49,
@@ -1055,17 +1055,17 @@
       "cobol/zECS/ZECSZKC.cpy": 9091.86
     },
     "cobol/zopeneditor-sample": {
-      "cobol/zopeneditor-sample/CUSTCOPY.cpy": -9281.75,
-      "cobol/zopeneditor-sample/DATETIME.cpy": -9170.0,
-      "cobol/zopeneditor-sample/REPTTOTL.cpy": -9162.51,
-      "cobol/zopeneditor-sample/SAM1.cbl": -9041.31,
-      "cobol/zopeneditor-sample/SAM2.cbl": -8883.84,
-      "cobol/zopeneditor-sample/SAM2PAR5.cpy": -9568.06,
-      "cobol/zopeneditor-sample/SAM2PARM.cpy": -8697.05,
-      "cobol/zopeneditor-sample/TRANREC.cpy": -8733.66
+      "cobol/zopeneditor-sample/CUSTCOPY.cpy": 9.54,
+      "cobol/zopeneditor-sample/DATETIME.cpy": 121.29,
+      "cobol/zopeneditor-sample/REPTTOTL.cpy": 128.78,
+      "cobol/zopeneditor-sample/SAM1.cbl": 249.98,
+      "cobol/zopeneditor-sample/SAM2.cbl": 407.45,
+      "cobol/zopeneditor-sample/SAM2PAR5.cpy": -276.77,
+      "cobol/zopeneditor-sample/SAM2PARM.cpy": 594.24,
+      "cobol/zopeneditor-sample/TRANREC.cpy": 557.63
     },
     "cpp": {
-      "cpp/SOURCES.md": -586.53
+      "cpp/SOURCES.md": -587.44
     },
     "cpp/NVDA": {
       "cpp/NVDA/CODE_OF_CONDUCT.md": 1899.24,
@@ -1100,22 +1100,22 @@
       "cpp/godot/variant.h": 7131.08
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 8795.34,
-      "cpp/mlir/glob_lit_test.bzl": 9069.41,
-      "cpp/mlir/mlir_bridge_rollout_policy.cc": 8631.96,
-      "cpp/mlir/mlir_graph_optimization_pass.cc": 8940.45,
-      "cpp/mlir/stablehlo.cc": 9450.1,
-      "cpp/mlir/tf_mlir_opt_main.cc": 8376.79,
-      "cpp/mlir/tf_tfl_translate.cc": 8300.65
+      "cpp/mlir/flatbuffer_export.cc": 534.19,
+      "cpp/mlir/glob_lit_test.bzl": 808.26,
+      "cpp/mlir/mlir_bridge_rollout_policy.cc": 370.8,
+      "cpp/mlir/mlir_graph_optimization_pass.cc": 679.3,
+      "cpp/mlir/stablehlo.cc": 1188.94,
+      "cpp/mlir/tf_mlir_opt_main.cc": 115.63,
+      "cpp/mlir/tf_tfl_translate.cc": 39.5
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 5172.77,
-      "cpp/powertoys/FancyZones.h": 4871.57,
-      "cpp/powertoys/ImageResizerExt.cpp": 4886.46,
-      "cpp/powertoys/centralized_kb_hook.cpp": 4432.28,
-      "cpp/powertoys/logger.cpp": 5233.16,
-      "cpp/powertoys/main.cpp": 5132.66,
-      "cpp/powertoys/powertoy_module.h": 5668.79
+      "cpp/powertoys/FancyZones.cpp": 8117.28,
+      "cpp/powertoys/FancyZones.h": 7816.07,
+      "cpp/powertoys/ImageResizerExt.cpp": 7830.96,
+      "cpp/powertoys/centralized_kb_hook.cpp": 7376.78,
+      "cpp/powertoys/logger.cpp": 8177.67,
+      "cpp/powertoys/main.cpp": 8077.16,
+      "cpp/powertoys/powertoy_module.h": 8613.29
     },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": 790.4,
@@ -1169,12 +1169,12 @@
       "css/gutenberg_css_modules/tabs.module.css": 4955.55
     },
     "css/mediawiki_resources": {
-      "css/mediawiki_resources/COPYING": -759.05,
-      "css/mediawiki_resources/apihelp.css": -1051.87,
-      "css/mediawiki_resources/apisandbox.css": -750.07,
-      "css/mediawiki_resources/diff.styles.print.css": -483.64,
-      "css/mediawiki_resources/mediawiki.action.history.css": -514.97,
-      "css/mediawiki_resources/toc.css": -1078.57
+      "css/mediawiki_resources/COPYING": -760.28,
+      "css/mediawiki_resources/apihelp.css": -1053.1,
+      "css/mediawiki_resources/apisandbox.css": -751.29,
+      "css/mediawiki_resources/diff.styles.print.css": -484.86,
+      "css/mediawiki_resources/mediawiki.action.history.css": -516.19,
+      "css/mediawiki_resources/toc.css": -1079.8
     },
     "css/odoo": {
       "css/odoo/control_panel_mobile.css": 651.38,
@@ -1193,10 +1193,10 @@
       "css/threejs_app_ui/threejs-lessons.css": 11735.49
     },
     "css/wordpress": {
-      "css/wordpress/LICENSE.txt": -9303.08
+      "css/wordpress/LICENSE.txt": -9306.57
     },
     "dart": {
-      "dart/SOURCES.md": -10254.18
+      "dart/SOURCES.md": -10256.19
     },
     "dart/flutter": {
       "dart/flutter/editable_text.dart": -3774.23,
@@ -1333,7 +1333,7 @@
       "fortran/wrf/wrf_timeseries.F": -5283.87
     },
     "go": {
-      "go/SOURCES.md": -10046.82
+      "go/SOURCES.md": -10073.96
     },
     "go/core": {
       "go/core/PATENTS": -6407.66,
@@ -1346,13 +1346,13 @@
       "go/core/value.go": -5615.3
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 10983.17,
-      "go/kubernetes/generic.go": 10925.71,
-      "go/kubernetes/kubelet.go": 10285.56,
-      "go/kubernetes/options.go": 11152.96,
-      "go/kubernetes/proxier.go": 10748.72,
-      "go/kubernetes/replica_set.go": 10109.55,
-      "go/kubernetes/scheduler.go": 10476.43
+      "go/kubernetes/csi_plugin.go": -4447.73,
+      "go/kubernetes/generic.go": -4505.19,
+      "go/kubernetes/kubelet.go": -5145.34,
+      "go/kubernetes/options.go": -4277.94,
+      "go/kubernetes/proxier.go": -4682.18,
+      "go/kubernetes/replica_set.go": -5321.35,
+      "go/kubernetes/scheduler.go": -4954.47
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": 2465.15,
@@ -1753,9 +1753,9 @@
       "hlo/SOURCES.md": -4189.78
     },
     "hlo/xla/gpu_emitters": {
-      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -873.81,
-      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -727.57,
-      "hlo/xla/gpu_emitters/side_output.hlo": -551.65
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": -874.13,
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": -727.89,
+      "hlo/xla/gpu_emitters/side_output.hlo": -551.98
     },
     "html": {
       "html/SOURCES.md": -10618.07
@@ -1768,8 +1768,8 @@
       "html/angular_adev_templates/update.component.html": -6032.54
     },
     "html/baseline": {
-      "html/baseline/control_polyglot.html": -10185.42,
-      "html/baseline/control_standard.html": -10088.07
+      "html/baseline/control_polyglot.html": -10187.33,
+      "html/baseline/control_standard.html": -10089.98
     },
     "html/cesium_sandcastle": {
       "html/cesium_sandcastle/CesiumViewer_index.html": 2888.9,
@@ -1880,25 +1880,26 @@
       "javascript/jquery/tokenize.js": -6971.76
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": -9731.2,
-      "javascript/react/ReactFiberBeginWork.js": -9940.58,
-      "javascript/react/ReactFiberWorkLoop.js": -9378.79,
-      "javascript/react/ReactFlightServer.js": -9665.21,
-      "javascript/react/ReactSymbols.js": -10009.51,
-      "javascript/react/build.js": -9241.08
+      "javascript/react/BabelPlugin.ts": 4831.61,
+      "javascript/react/ReactFiberBeginWork.js": 4622.23,
+      "javascript/react/ReactFiberWorkLoop.js": 5184.03,
+      "javascript/react/ReactFlightServer.js": 4897.6,
+      "javascript/react/ReactSymbols.js": 4553.3,
+      "javascript/react/build.js": 5321.73
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": -8796.89,
-      "javascript/threejs/Editor.js": -8973.62,
-      "javascript/threejs/GLTFLoader.js": -8682.03,
-      "javascript/threejs/Matrix4.js": -8481.41,
-      "javascript/threejs/WebGLProgram.js": -9196.63,
-      "javascript/threejs/WebGLRenderer.js": -8599.18
+      "javascript/threejs/BufferGeometry.js": -1357.05,
+      "javascript/threejs/Editor.js": -1533.78,
+      "javascript/threejs/GLTFLoader.js": -1242.19,
+      "javascript/threejs/Matrix4.js": -1041.57,
+      "javascript/threejs/Nodes.js": -943.94,
+      "javascript/threejs/WebGLProgram.js": -1756.79,
+      "javascript/threejs/WebGLRenderer.js": -1159.34
     },
     "jcl/cash-account-cobol": {
-      "jcl/cash-account-cobol/DB2BIND.jcl": -2392.95,
-      "jcl/cash-account-cobol/DB2DDL.jcl": -2626.21,
-      "jcl/cash-account-cobol/DEFKSDS.jcl": -3049.53
+      "jcl/cash-account-cobol/DB2BIND.jcl": -2393.28,
+      "jcl/cash-account-cobol/DB2DDL.jcl": -2626.54,
+      "jcl/cash-account-cobol/DEFKSDS.jcl": -3049.86
     },
     "jcl/cics-banking-sample-application-cbsa": {
       "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": -2610.97,
@@ -2097,12 +2098,12 @@
       "json/SOURCES.md": -6073.21
     },
     "json/baseline": {
-      "json/baseline/control-package.json": -9977.43
+      "json/baseline/control-package.json": -10003.32
     },
     "json/kafka/message": {
-      "json/kafka/message/DescribeTransactionsResponse.json": -138.54,
-      "json/kafka/message/SaslAuthenticateRequest.json": -727.36,
-      "json/kafka/message/VoteRequest.json": -176.38
+      "json/kafka/message/DescribeTransactionsResponse.json": -138.61,
+      "json/kafka/message/SaslAuthenticateRequest.json": -727.43,
+      "json/kafka/message/VoteRequest.json": -176.45
     },
     "kotlin": {
       "kotlin/SOURCES.md": -10189.53
@@ -2350,15 +2351,15 @@
       "m4/SOURCES.md": -6526.19
     },
     "m4/curl": {
-      "m4/curl/COPYING": -10099.95,
-      "m4/curl/configure.ac": -10518.42
+      "m4/curl/COPYING": -10100.39,
+      "m4/curl/configure.ac": -10518.87
     },
     "m4/curl/m4": {
-      "m4/curl/m4/curl-confopts.m4": -9162.91,
-      "m4/curl/m4/curl-mbedtls.m4": -9837.95,
-      "m4/curl/m4/curl-sysconfig.m4": -9717.03,
-      "m4/curl/m4/xc-am-iface.m4": -9213.76,
-      "m4/curl/m4/zz40-xc-ovr.m4": -9503.08
+      "m4/curl/m4/curl-confopts.m4": -9190.46,
+      "m4/curl/m4/curl-mbedtls.m4": -9865.5,
+      "m4/curl/m4/curl-sysconfig.m4": -9744.58,
+      "m4/curl/m4/xc-am-iface.m4": -9241.31,
+      "m4/curl/m4/zz40-xc-ovr.m4": -9530.63
     },
     "m4/gnucobol": {
       "m4/gnucobol/COPYING": 10934.03,
@@ -2375,13 +2376,13 @@
       "matlab/SOURCES.md": 8174.49
     },
     "matlab/eeglab": {
-      "matlab/eeglab/README.md": 1068.74,
-      "matlab/eeglab/eeg_eval.m": 613.34,
-      "matlab/eeglab/eeglab.m": 624.7,
-      "matlab/eeglab/eegobj.m": 413.37,
-      "matlab/eeglab/pop_loadset.m": 1099.61,
-      "matlab/eeglab/runica.m": 875.87,
-      "matlab/eeglab/supergui.m": 249.49
+      "matlab/eeglab/README.md": -8563.12,
+      "matlab/eeglab/eeg_eval.m": -9018.52,
+      "matlab/eeglab/eeglab.m": -9007.16,
+      "matlab/eeglab/eegobj.m": -9218.49,
+      "matlab/eeglab/pop_loadset.m": -8532.25,
+      "matlab/eeglab/runica.m": -8755.99,
+      "matlab/eeglab/supergui.m": -9382.37
     },
     "mlir": {
       "mlir/SOURCES.md": 7578.36
@@ -2391,7 +2392,7 @@
       "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": -9488.79
     },
     "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
-      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": 2708.27
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": 2708.33
     },
     "nix": {
       "nix/SOURCES.md": -8331.81
@@ -2428,12 +2429,12 @@
       "perl/bugzilla/Requirements.pm": 8225.45
     },
     "perl/exiftool": {
-      "perl/exiftool/ExifTool.pm": 2075.77,
-      "perl/exiftool/META.json": 2545.12,
-      "perl/exiftool/Makefile.PL": 2186.02,
-      "perl/exiftool/README": 1912.89,
-      "perl/exiftool/RandomAccess.pm": 1667.18,
-      "perl/exiftool/exiftool": 2586.61
+      "perl/exiftool/ExifTool.pm": 10851.75,
+      "perl/exiftool/META.json": 11321.09,
+      "perl/exiftool/Makefile.PL": 10961.99,
+      "perl/exiftool/README": 10688.86,
+      "perl/exiftool/RandomAccess.pm": 10443.15,
+      "perl/exiftool/exiftool": 11362.59
     },
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": -9918.79,
@@ -2456,13 +2457,13 @@
       "php/SOURCES.md": 5342.77
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": -5340.89,
-      "php/guzzle/CurlFactory.php": -4882.36,
-      "php/guzzle/CurlMultiHandler.php": -4597.01,
-      "php/guzzle/Middleware.php": -5161.38,
-      "php/guzzle/Pool.php": -4151.89,
-      "php/guzzle/RequestException.php": -4832.42,
-      "php/guzzle/StreamHandler.php": -4574.59
+      "php/guzzle/Client.php": -10070.0,
+      "php/guzzle/CurlFactory.php": -9611.46,
+      "php/guzzle/CurlMultiHandler.php": -9326.11,
+      "php/guzzle/Middleware.php": -9890.49,
+      "php/guzzle/Pool.php": -8881.0,
+      "php/guzzle/RequestException.php": -9561.53,
+      "php/guzzle/StreamHandler.php": -9303.69
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 8078.64,
@@ -2485,13 +2486,13 @@
       "php/magento2/ObjectManager.php": -8417.24
     },
     "php/symfony": {
-      "php/symfony/Application.php": 9550.45,
-      "php/symfony/ContainerBuilder.php": 10266.27,
-      "php/symfony/EventDispatcher.php": 10030.14,
-      "php/symfony/HttpKernel.php": 9805.2,
-      "php/symfony/Parser.php": 10725.87,
-      "php/symfony/Request.php": 10070.66,
-      "php/symfony/Router.php": 10771.6
+      "php/symfony/Application.php": -1631.27,
+      "php/symfony/ContainerBuilder.php": -915.45,
+      "php/symfony/EventDispatcher.php": -1151.58,
+      "php/symfony/HttpKernel.php": -1376.53,
+      "php/symfony/Parser.php": -455.85,
+      "php/symfony/Request.php": -1111.06,
+      "php/symfony/Router.php": -410.12
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -5156.28,
@@ -2507,10 +2508,10 @@
       "plaintext/SOURCES.md": -9486.24
     },
     "plaintext/ansible": {
-      "plaintext/ansible/requirements.txt": -5046.27
+      "plaintext/ansible/requirements.txt": -5047.59
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
-      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -10567.15
+      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": -10567.59
     },
     "plaintext/cpython/Tools/unittestgui": {
       "plaintext/cpython/Tools/unittestgui/README.txt": 6551.27
@@ -2685,15 +2686,15 @@
       "proto/SOURCES.md": 9596.24
     },
     "proto/tensorflow/framework": {
-      "proto/tensorflow/framework/dataset.proto": 11255.67,
-      "proto/tensorflow/framework/graph.proto": 10522.13,
-      "proto/tensorflow/framework/tensor.proto": 10788.53
+      "proto/tensorflow/framework/dataset.proto": 11257.39,
+      "proto/tensorflow/framework/graph.proto": 10523.84,
+      "proto/tensorflow/framework/tensor.proto": 10790.25
     },
     "protobuf": {
       "protobuf/SOURCES.md": 4297.94
     },
     "protobuf/baseline": {
-      "protobuf/baseline/control.proto": -3238.44
+      "protobuf/baseline/control.proto": -3238.77
     },
     "python": {
       "python/SOURCES.md": -8752.34
@@ -2710,9 +2711,9 @@
       "python/cython/Nodes.py": 9772.39
     },
     "python/fastapi": {
-      "python/fastapi/CONTRIBUTING.md": -9921.79,
-      "python/fastapi/README.md": -9946.5,
-      "python/fastapi/SECURITY.md": -10249.81
+      "python/fastapi/CONTRIBUTING.md": -9934.86,
+      "python/fastapi/README.md": -9959.56,
+      "python/fastapi/SECURITY.md": -10262.88
     },
     "python/fastapi/fastapi": {
       "python/fastapi/fastapi/__init__.py": -2676.6,
@@ -2967,10 +2968,10 @@
       "python/numpy/verify_c_api_version.py": -7294.06
     },
     "python/twisted": {
-      "python/twisted/defer.py": -9571.04,
-      "python/twisted/http.py": -9578.82,
-      "python/twisted/reflect.py": -9137.64,
-      "python/twisted/transport.py": -10125.91
+      "python/twisted/defer.py": -9573.07,
+      "python/twisted/http.py": -9580.85,
+      "python/twisted/reflect.py": -9139.67,
+      "python/twisted/transport.py": -10127.94
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 4065.65,
@@ -2984,13 +2985,13 @@
       "rexx/PROVENANCE.md": -3311.24
     },
     "rexx/hercules_hyperion": {
-      "rexx/hercules_hyperion/cmpsc.rexx": -4986.15,
-      "rexx/hercules_hyperion/hbasic1.rexx": -5265.34,
-      "rexx/hercules_hyperion/hcommand.rexx": -4775.95,
-      "rexx/hercules_hyperion/hexecio.rexx": -4413.16,
-      "rexx/hercules_hyperion/hlinein.rexx": -5260.26,
-      "rexx/hercules_hyperion/hrecurs.rexx": -5423.81,
-      "rexx/hercules_hyperion/sample.rexx": -4643.6
+      "rexx/hercules_hyperion/cmpsc.rexx": -8721.46,
+      "rexx/hercules_hyperion/hbasic1.rexx": -9000.66,
+      "rexx/hercules_hyperion/hcommand.rexx": -8511.27,
+      "rexx/hercules_hyperion/hexecio.rexx": -8148.48,
+      "rexx/hercules_hyperion/hlinein.rexx": -8995.58,
+      "rexx/hercules_hyperion/hrecurs.rexx": -9159.12,
+      "rexx/hercules_hyperion/sample.rexx": -8378.91
     },
     "rexx/ibm_z_zos": {
       "rexx/ibm_z_zos/bpxget.rexx": -8888.49,
@@ -3016,54 +3017,54 @@
       "ruby/SOURCES.md": 10406.64
     },
     "ruby/rails": {
-      "ruby/rails/MIT-LICENSE": -267.09,
-      "ruby/rails/Rakefile": 430.87,
-      "ruby/rails/base.rb": 288.65,
-      "ruby/rails/blob.rb": -254.92,
-      "ruby/rails/generator.rb": 204.45,
-      "ruby/rails/inbound_emails_controller.rb": 102.17,
-      "ruby/rails/metal.rb": 486.02,
-      "ruby/rails/routing.rb": 749.52
+      "ruby/rails/MIT-LICENSE": 9688.6,
+      "ruby/rails/Rakefile": 10386.55,
+      "ruby/rails/base.rb": 10244.33,
+      "ruby/rails/blob.rb": 9700.77,
+      "ruby/rails/generator.rb": 10160.13,
+      "ruby/rails/inbound_emails_controller.rb": 10057.85,
+      "ruby/rails/metal.rb": 10441.7,
+      "ruby/rails/routing.rb": 10705.21
     },
     "rust": {
       "rust/SOURCES.md": 2691.47
     },
     "rust/bevy": {
-      "rust/bevy/bevy_ecs_macros.rs": -9412.13,
-      "rust/bevy/bevy_ecs_query.rs": -9944.13,
-      "rust/bevy/bevy_ecs_table.rs": -9566.92,
-      "rust/bevy/bevy_ecs_world.rs": -9552.42,
-      "rust/bevy/bevy_reflect_path.rs": -9947.19,
-      "rust/bevy/bevy_render_phase.rs": -8985.01,
-      "rust/bevy/bevy_schedule_graph.rs": -9266.6
+      "rust/bevy/bevy_ecs_macros.rs": 4423.12,
+      "rust/bevy/bevy_ecs_query.rs": 3891.12,
+      "rust/bevy/bevy_ecs_table.rs": 4268.33,
+      "rust/bevy/bevy_ecs_world.rs": 4282.83,
+      "rust/bevy/bevy_reflect_path.rs": 3888.06,
+      "rust/bevy/bevy_render_phase.rs": 4850.24,
+      "rust/bevy/bevy_schedule_graph.rs": 4568.65
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": 8272.95,
-      "rust/holylang/compile.rs": 7820.67,
-      "rust/holylang/error.rs": 7734.84,
-      "rust/holylang/main.rs": 8430.95,
-      "rust/holylang/parser.rs": 8300.04,
-      "rust/holylang/semantic.rs": 7793.2,
-      "rust/holylang/transpiler.rs": 7621.38
+      "rust/holylang/ast.rs": -4736.95,
+      "rust/holylang/compile.rs": -5189.24,
+      "rust/holylang/error.rs": -5275.07,
+      "rust/holylang/main.rs": -4578.96,
+      "rust/holylang/parser.rs": -4709.86,
+      "rust/holylang/semantic.rs": -5216.7,
+      "rust/holylang/transpiler.rs": -5388.52
     },
     "rust/serde": {
-      "rust/serde/serde_core_de_impls.rs": -8902.83,
-      "rust/serde/serde_core_de_mod.rs": -9261.62,
-      "rust/serde/serde_core_macros.rs": -8549.1,
-      "rust/serde/serde_derive_de.rs": -9540.7,
-      "rust/serde/serde_internals_ast.rs": -9268.69,
-      "rust/serde/serde_internals_attr.rs": -9199.51,
-      "rust/serde/test_annotations.rs": -8835.06
+      "rust/serde/serde_core_de_impls.rs": 2431.65,
+      "rust/serde/serde_core_de_mod.rs": 2072.86,
+      "rust/serde/serde_core_macros.rs": 2785.38,
+      "rust/serde/serde_derive_de.rs": 1793.78,
+      "rust/serde/serde_internals_ast.rs": 2065.79,
+      "rust/serde/serde_internals_attr.rs": 2134.97,
+      "rust/serde/test_annotations.rs": 2499.42
     },
     "rust/syn": {
-      "rust/syn/LICENSE-APACHE": -1489.71,
-      "rust/syn/bigint.rs": -1220.88,
-      "rust/syn/buffer.rs": -903.1,
-      "rust/syn/classify.rs": -822.22,
-      "rust/syn/custom_keyword.rs": -1389.26,
-      "rust/syn/custom_punctuation.rs": -579.27,
-      "rust/syn/data.rs": -830.15,
-      "rust/syn/derive.rs": -1563.73
+      "rust/syn/LICENSE-APACHE": -9598.07,
+      "rust/syn/bigint.rs": -9329.23,
+      "rust/syn/buffer.rs": -9011.46,
+      "rust/syn/classify.rs": -8930.58,
+      "rust/syn/custom_keyword.rs": -9497.61,
+      "rust/syn/custom_punctuation.rs": -8687.62,
+      "rust/syn/data.rs": -8938.51,
+      "rust/syn/derive.rs": -9672.09
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 9712.59,
@@ -3089,16 +3090,16 @@
       "scala/SOURCES.md": -9983.04
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": -723.77,
-      "scala/kafka/KafkaApis.scala": -1401.96,
-      "scala/kafka/KafkaRaftManager.scala": -1473.95,
-      "scala/kafka/LogManager.scala": -856.6,
-      "scala/kafka/Partition.scala": -1798.56,
-      "scala/kafka/ReplicaManager.scala": -1262.74,
-      "scala/kafka/SocketServer.scala": -1314.0
+      "scala/kafka/Kafka.scala": 9446.63,
+      "scala/kafka/KafkaApis.scala": 8768.44,
+      "scala/kafka/KafkaRaftManager.scala": 8696.45,
+      "scala/kafka/LogManager.scala": 9313.8,
+      "scala/kafka/Partition.scala": 8371.84,
+      "scala/kafka/ReplicaManager.scala": 8907.66,
+      "scala/kafka/SocketServer.scala": 8856.4
     },
     "scheme": {
-      "scheme/SOURCES.md": -1692.2
+      "scheme/SOURCES.md": -1693.5
     },
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 4794.06,
@@ -3110,7 +3111,7 @@
       "scheme/racket/thread.rkt": 4138.81
     },
     "shell": {
-      "shell/SOURCES.md": 10207.12
+      "shell/SOURCES.md": 10208.09
     },
     "shell/ansible": {
       "shell/ansible/COPYING": 2401.79,
@@ -3401,7 +3402,7 @@
       "shell/sqlite/warnings-clang.sh": -976.81
     },
     "solidity": {
-      "solidity/SOURCES.md": 928.08
+      "solidity/SOURCES.md": 928.46
     },
     "solidity/openzeppelin": {
       "solidity/openzeppelin/AccessControl.sol": 6455.58,
@@ -3413,7 +3414,7 @@
       "solidity/openzeppelin/StorageSlot.sol": 6761.06
     },
     "sql": {
-      "sql/SOURCES.md": -10323.54
+      "sql/SOURCES.md": -10324.71
     },
     "sql/baseline": {
       "sql/baseline/schema.php": 316.05
@@ -3432,9 +3433,9 @@
       "sql/postgresql/sqlmap/dns_request.sql": 7888.97
     },
     "sql/sqlite": {
-      "sql/sqlite/000-mandelbrot.sql": -2285.69,
-      "sql/sqlite/001-sudoku.sql": -1594.05,
-      "sql/sqlite/dotcmd01.sql": -1790.33
+      "sql/sqlite/000-mandelbrot.sql": -2287.17,
+      "sql/sqlite/001-sudoku.sql": -1595.53,
+      "sql/sqlite/dotcmd01.sql": -1791.82
     },
     "sqlite": {
       "sqlite/SOURCES.md": 73.83
@@ -3444,9 +3445,9 @@
       "sqlite/dancer2_sqlite/users.sql": -10050.84
     },
     "sqlite/flask_tutorial_sqlite": {
-      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -10839.44,
-      "sqlite/flask_tutorial_sqlite/data.sql": -10183.13,
-      "sqlite/flask_tutorial_sqlite/schema.sql": -10530.58
+      "sqlite/flask_tutorial_sqlite/LICENSE.txt": -10842.68,
+      "sqlite/flask_tutorial_sqlite/data.sql": -10186.37,
+      "sqlite/flask_tutorial_sqlite/schema.sql": -10533.81
     },
     "sqlite/mediawiki_sqlite_alterpatches": {
       "sqlite/mediawiki_sqlite_alterpatches/COPYING": -8039.04,
@@ -3537,31 +3538,31 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": -6896.86
     },
     "swift": {
-      "swift/SOURCES.md": 11522.08
+      "swift/SOURCES.md": 11523.77
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 4295.66,
-      "swift/alamofire/Alamofire.podspec": 3832.9,
-      "swift/alamofire/Package.swift": 4665.77,
-      "swift/alamofire/ParameterEncoder.swift": 4707.38,
-      "swift/alamofire/Request.swift": 4571.26,
-      "swift/alamofire/Response.swift": 3816.57,
-      "swift/alamofire/Session.swift": 4082.1
+      "swift/alamofire/AFError.swift": 10681.05,
+      "swift/alamofire/Alamofire.podspec": 10218.29,
+      "swift/alamofire/Package.swift": 11051.16,
+      "swift/alamofire/ParameterEncoder.swift": 11092.77,
+      "swift/alamofire/Request.swift": 10956.65,
+      "swift/alamofire/Response.swift": 10201.96,
+      "swift/alamofire/Session.swift": 10467.49
     },
     "tabular": {
-      "tabular/SOURCES.md": -842.72
+      "tabular/SOURCES.md": -843.15
     },
     "tabular/baseline": {
       "tabular/baseline/control_standard.csv": -8990.1,
       "tabular/baseline/control_standard.tsv": -8870.49
     },
     "tabular/csv_erp": {
-      "tabular/csv_erp/LICENSE.txt": -9923.51,
-      "tabular/csv_erp/ir.model.access.csv": -9509.57,
-      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10137.51
+      "tabular/csv_erp/LICENSE.txt": -9924.69,
+      "tabular/csv_erp/ir.model.access.csv": -9510.75,
+      "tabular/csv_erp/test.translation.import.model1-translated.csv": -10138.69
     },
     "tabular/devsecops_payloads": {
-      "tabular/devsecops_payloads/weaponized_export.csv": 11209.6
+      "tabular/devsecops_payloads/weaponized_export.csv": 11210.97
     },
     "tabular/tsv_genomics": {
       "tabular/tsv_genomics/B.cell_eQTL.tsv": -10827.85
@@ -3624,7 +3625,7 @@
       "tcl/sqlite_rtree/LICENSE.md": -10158.01
     },
     "td": {
-      "td/SOURCES.md": -10355.31
+      "td/SOURCES.md": -10368.16
     },
     "td/tensorflow/compiler/mlir/tfrt": {
       "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": -8388.36,
@@ -3635,7 +3636,7 @@
       "td/tensorflow/core/ir/ops.td": -7063.24
     },
     "text": {
-      "text/SOURCES.md": 2239.37
+      "text/SOURCES.md": 2239.44
     },
     "text/baseline": {
       "text/baseline/control-readme.md": 7519.42
@@ -3692,7 +3693,7 @@
       "typescript/zod/tsconfig.json": -4477.65
     },
     "xml": {
-      "xml/SOURCES.md": -2900.78
+      "xml/SOURCES.md": -2901.13
     },
     "xml/apex": {
       "xml/apex/CanTheUser_Tests.cls": 1532.16,
@@ -3703,9 +3704,9 @@
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": 1535.27
     },
     "xml/jenkins": {
-      "xml/jenkins/XStreamDOMTest.data1.xml": 1993.24,
-      "xml/jenkins/XStreamDOMTest.data2.xml": 2119.6,
-      "xml/jenkins/excludesFilter.xml": 1560.83
+      "xml/jenkins/XStreamDOMTest.data1.xml": 1993.3,
+      "xml/jenkins/XStreamDOMTest.data2.xml": 2119.66,
+      "xml/jenkins/excludesFilter.xml": 1560.89
     },
     "xml/odoo": {
       "xml/odoo/__manifest__.py": 11522.31
@@ -3716,23 +3717,23 @@
       "xml/odoo/views/views.xml": 11432.54
     },
     "xml/powertoys": {
-      "xml/powertoys/App.xaml.cs": -9480.8,
-      "xml/powertoys/MainWindow.xaml.cs": -9488.42
+      "xml/powertoys/App.xaml.cs": -9485.44,
+      "xml/powertoys/MainWindow.xaml.cs": -9493.07
     },
     "xml/springboot": {
       "xml/springboot/LICENSE.txt": -7780.73
     },
     "xml/springboot/build-info": {
-      "xml/springboot/build-info/pom.xml": -10122.87
+      "xml/springboot/build-info/pom.xml": -10123.22
     },
     "xml/springboot/getting-started": {
-      "xml/springboot/getting-started/pom.xml": 5578.14
+      "xml/springboot/getting-started/pom.xml": 5579.15
     },
     "xml/springboot/resources": {
       "xml/springboot/resources/pom.xml": 8845.67
     },
     "yacc": {
-      "yacc/SOURCES.md": -10786.45
+      "yacc/SOURCES.md": -10789.61
     },
     "yacc/freebsd": {
       "yacc/freebsd/COPYRIGHT": 3681.12,
@@ -3743,7 +3744,7 @@
       "yaml/SOURCES.md": 4410.51
     },
     "yaml/ansible": {
-      "yaml/ansible/COPYING": 4797.19
+      "yaml/ansible/COPYING": 4799.26
     },
     "yaml/ansible/blocks": {
       "yaml/ansible/blocks/block_fail_tasks.yml": 8487.48,
@@ -3754,7 +3755,7 @@
       "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": 9805.08
     },
     "yaml/ansible/yaml_parsing": {
-      "yaml/ansible/yaml_parsing/playbook.yml": -5207.57
+      "yaml/ansible/yaml_parsing/playbook.yml": -5208.72
     },
     "yaml/ansible/yaml_parsing/tasks": {
       "yaml/ansible/yaml_parsing/tasks/main.yml": -5899.82,
@@ -3764,9 +3765,9 @@
       "yaml/black_action/action.yml": -5944.96
     },
     "yaml/grafana_compose": {
-      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 1376.79,
-      "yaml/grafana_compose/frontend-service_docker-compose.yaml": 1043.4,
-      "yaml/grafana_compose/local_cdn_docker-compose.yaml": 709.55
+      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": 1377.28,
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": 1043.88,
+      "yaml/grafana_compose/local_cdn_docker-compose.yaml": 710.03
     },
     "yaml/moby_workflows": {
       "yaml/moby_workflows/arm64.yml": -9555.24,
@@ -3782,9 +3783,9 @@
       "yaml/moby_workflows/windows-2025.yml": -8816.52
     },
     "yaml/serenity_composite_actions": {
-      "yaml/serenity_composite_actions/cache-restore_action.yml": 9858.64,
-      "yaml/serenity_composite_actions/cache-save_action.yml": 9385.1,
-      "yaml/serenity_composite_actions/setup_action.yml": 9749.62
+      "yaml/serenity_composite_actions/cache-restore_action.yml": 9859.62,
+      "yaml/serenity_composite_actions/cache-save_action.yml": 9386.08,
+      "yaml/serenity_composite_actions/setup_action.yml": 9750.6
     },
     "yaml/sqlmap_openapi": {
       "yaml/sqlmap_openapi/sqlmapapi.yaml": -1473.42

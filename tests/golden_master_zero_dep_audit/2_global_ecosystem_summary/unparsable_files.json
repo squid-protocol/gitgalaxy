@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 348,
+    "ambig_file_count": 347,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -59,9 +59,6 @@
       },
       ".jcl": {
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
-      },
-      ".js": {
-        "Packed Payload Guard (Impossible Density: 3.32 hits/line)": 1
       },
       ".json": {
         "Blocked (Static Asset Blob without Intent: 2488 LOC)": 1

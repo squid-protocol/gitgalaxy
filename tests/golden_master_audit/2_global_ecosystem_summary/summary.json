@@ -4,13 +4,13 @@
     "summary"
   ],
   "value": {
-    "Percent_Visible": 90.2,
+    "Percent_Visible": 90.3,
     "dominant_language": "c",
     "file_composition_distribution": {
       "Callbacks & Closures Files": 56,
       "Compute Cores Files": 74,
       "Data / Markup / Trivial": 622,
-      "Declarative / Non-Code": 726,
+      "Declarative / Non-Code": 727,
       "Encapsulated Accessors Files": 57,
       "Generic / Templated Code Files": 65,
       "Interface Declarations Files": 410,
@@ -23,10 +23,10 @@
       "Type Conversions Files": 11
     },
     "repo_composition_archetype": "Hub-Coupled Monorepo",
-    "repo_composition_z": 5.54,
+    "repo_composition_z": 5.541,
     "total_files": 3568,
-    "total_loc": 914738,
-    "verified_files": 3220,
+    "total_loc": 914878,
+    "verified_files": 3221,
     "volatility_index": 0.0
   }
 }

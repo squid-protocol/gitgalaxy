@@ -406,3 +406,40 @@ def test_included_source_member_is_not_a_data_dump():
         verified, unparsable = auditor.audit([member(lang, popularity)])
         assert verified == [], (lang, popularity)
         assert "Zero-Density Threshold" in unparsable[0]["reason"]
+
+
+# ==============================================================================
+# TEST 3.1: AN IMPORT MANIFEST IS NOT A PACKED PAYLOAD (#3583)
+# ==============================================================================
+def test_auditor_keeps_an_import_manifest(auditor):
+    """flask's src/flask/__init__.py is 39 lines of `from .x import Y as Y`: one
+    import and three boundaries per line (~4 hits/line). It was relegated as a
+    packed payload, so no edge could land on the package root."""
+    manifest = {
+        "path": "src/flask/__init__.py",
+        "name": "__init__.py",
+        "lang_id": "python",
+        "coding_loc": 39,
+        "total_loc": 39,
+        "size_bytes": 2072,  # ~53 chars/line
+        "equations": {"import": 39, "structural_boundaries": 117},
+        "telemetry": {"identity_lock_tier": 0},
+    }
+    verified, unparsable = auditor.audit([manifest])
+    assert [f["path"] for f in verified] == ["src/flask/__init__.py"] and not unparsable
+
+
+def test_auditor_still_relegates_imports_on_packed_lines(auditor):
+    """A manifest-shaped import count on long, packed lines is still a payload."""
+    packed = {
+        "path": "loader.py",
+        "name": "loader.py",
+        "lang_id": "python",
+        "coding_loc": 40,
+        "total_loc": 40,
+        "size_bytes": 40 * 900,  # 900 chars/line
+        "equations": {"import": 40, "structural_boundaries": 120},
+        "telemetry": {"identity_lock_tier": 0},
+    }
+    verified, unparsable = auditor.audit([packed])
+    assert not verified and "Packed Payload Guard" in unparsable[0]["reason"]

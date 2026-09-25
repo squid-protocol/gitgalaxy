@@ -1892,6 +1892,7 @@
       "javascript/threejs/Editor.js": "Large Core Modules (2)",
       "javascript/threejs/GLTFLoader.js": "Large Core Modules (2)",
       "javascript/threejs/Matrix4.js": "Large Core Modules (3)",
+      "javascript/threejs/Nodes.js": "Declarative / Non-Code",
       "javascript/threejs/WebGLProgram.js": "Large Core Modules (2)",
       "javascript/threejs/WebGLRenderer.js": "Large Core Modules (3)"
     },

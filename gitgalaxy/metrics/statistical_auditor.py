@@ -118,6 +118,22 @@ class StatisticalAuditor:
         tally = artifact.get("mitigation_telemetry")
         return weighted_view(artifact.get("equations", {}), tally if isinstance(tally, dict) else {})
 
+    # #3583: an import manifest -- a package `__init__.py` or index file that is
+    # nothing but re-exports (`from .app import Flask as Flask`, x60) -- scores
+    # ~4 signal hits per line (the import plus its `from`/`import`/`as`
+    # boundaries) and read as a packed payload. A payload is the opposite shape:
+    # few, long lines. A file whose code lines are >= 80% import statements, at
+    # an ordinary line length, is a manifest.
+    MANIFEST_IMPORT_SHARE = 0.8
+    MANIFEST_MAX_AVG_LINE = 120
+
+    def _is_import_manifest(self, artifact: dict[str, Any]) -> bool:
+        imports = self._scored_equations(artifact).get("import", 0)
+        coding = max(artifact.get("coding_loc", 0), 1)
+        physical = max(artifact.get("total_loc", coding), 1)
+        avg_line = artifact.get("size_bytes", 0) / physical
+        return imports >= self.MANIFEST_IMPORT_SHARE * coding and avg_line <= self.MANIFEST_MAX_AVG_LINE
+
     def audit(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Executes statistical gating to identify data-dumps and structural outliers."""
         import os  # Required for extension splitting in Consensus Engine
@@ -469,7 +485,7 @@ class StatisticalAuditor:
                 # Normal human code rarely sustains > 1.5 logic hits per physical line.
                 # If a file sustains > 3.0 across 30+ lines, it is mathematically guaranteed
                 # to be minified, obfuscated, or packed with embedded binaries.
-                elif loc > 30 and rho > 3.0 and not is_minified:
+                elif loc > 30 and rho > 3.0 and not is_minified and not self._is_import_manifest(artifact):
                     is_outlier = True
                     relegation_reason = f"Packed Payload Guard (Impossible Density: {rho:.2f} hits/line)"
 

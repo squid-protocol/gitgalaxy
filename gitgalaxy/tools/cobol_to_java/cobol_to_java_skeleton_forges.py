@@ -18,6 +18,7 @@ from typing import TextIO
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, merge_extras
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import Db2Forge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, CicsProgram, load_skeletons
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_uow_forge import UowForge
@@ -36,6 +37,7 @@ class SkeletonForges:
         self.calls = CallForge(self.skeletons, self.cics, package, target)
         self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names)
         self.uow = UowForge(self.skeletons, package, target, self.names)
+        self.db2 = Db2Forge(self.estate, self.skeletons, package, target, self.names)  # #3618
 
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
         """(java_dirs key, sub-directory) -> {class name: Java source}, every generated file."""
@@ -47,6 +49,7 @@ class SkeletonForges:
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
             ("dto", "contract"): self.cics.dto_sources(),
             ("base_pkg", "client"): self.calls.client_sources(),
+            **self.db2.sources(),
         }
         for where, files in self.uow.sources().items():  # #3621: exception + web packages
             out.setdefault(where, {}).update(files)
@@ -83,6 +86,7 @@ class SkeletonForges:
             self.calls.service_extras(key),
             self.repos.service_extras(key),
             self.uow.service_extras(key),
+            self.db2.service_extras(key),
         )
 
     def write_audit(self, f: TextIO) -> None:
@@ -106,8 +110,11 @@ class SkeletonForges:
         )
         for label, why in repos.unmapped:
             f.write(f"      - {label}: {why}\n")
-
-        # UowForge audit
+        d = self.db2.counts
+        f.write(
+            f"  • DB2 tables (#3618)       : {d['tables']} repositories ({d['rows']} with DECLAREd row classes), "
+            f"{d['statements']} statements as written; {d['positioned']} positioned (TODO)\n"
+        )
         u = self.uow.counts
         f.write(
             f"  • Units of work (#3621)   : {u['services']} @Transactional services, {u['commits']} commit points, "

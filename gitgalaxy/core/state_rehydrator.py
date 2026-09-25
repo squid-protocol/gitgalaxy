@@ -563,13 +563,20 @@ class StateRehydrator:
 
                 # #3446: embedded SQL statements, aliased back to the payload keys.
                 # A pre-#3446 baseline has no table and restores nothing.
+                # #3618: the statement text; a pre-#3618 DB has no such column.
+                stmt_col = (
+                    "ss.statement_text AS statement"
+                    if _has_table(cursor, "sql_statement_data")
+                    and _has_column(cursor, "sql_statement_data", "statement_text")
+                    else "NULL AS statement"
+                )
                 sql_statements_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "sql_statement_data",
-                    'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '
-                    'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line '
+                    'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '  # noqa: S608 -- stmt_col is one of two literals
+                    f'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line, {stmt_col} '
                     "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id",
                     lambda r: {
@@ -580,6 +587,7 @@ class StateRehydrator:
                         "cursor": r["cursor"],
                         "host_variables": r["host_variables"],
                         "line": int(r["line"] or 0),
+                        "statement": r["statement"],
                     },
                 )
 

@@ -20,6 +20,7 @@ STMTS = [
         "cursor": "ACC-CURSOR",
         "host_variables": "HV-SORT",
         "line": 66,
+        "statement": "DECLARE ACC-CURSOR CURSOR FOR SELECT * FROM ACCOUNT ORDER BY :HV-SORT",  # #3618
     },
     {
         "ordinal": 2,
@@ -29,6 +30,7 @@ STMTS = [
         "cursor": "ACC-CURSOR",
         "host_variables": None,
         "line": 270,
+        "statement": "OPEN ACC-CURSOR",
     },
     {
         "ordinal": 3,
@@ -38,6 +40,7 @@ STMTS = [
         "cursor": None,
         "host_variables": "HV-A,HV-B",
         "line": 900,
+        "statement": "INSERT INTO PROCTRAN VALUES (:HV-A, :HV-B)",
     },
 ]
 UNIVERSE = [

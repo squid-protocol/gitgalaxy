@@ -13,7 +13,9 @@
 #     EXEC SQL <statement> ;               (PL/I)
 #
 # and emits one row per (statement, table): the verb, the access the statement
-# makes to the table, the cursor it declares or uses, and its host variables.
+# makes to the table, the cursor it declares or uses, its host variables, and
+# (#3618) the statement text itself -- comments stripped, whitespace collapsed,
+# literals kept -- so a generator can carry the program's own SQL.
 # It rides out of `mainframe_boundary.extract_boundary` as `sql_statements` and
 # lands in `sql_statement_data`.
 #
@@ -272,6 +274,7 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
             wco = _WHERE_CURRENT_OF.search(body)
             cursor = wco.group(1).upper() if wco else None
         host = list(dict.fromkeys(h.upper() for h in _HOST_VAR.findall(_blank_literals(raw))))
+        statement = _WS.sub(" ", raw).strip()
         ordinal += 1
         line = _line_of(m.start())
         tables: list[tuple[Optional[str], Optional[str]]] = list(_tables(body, verb.split()[0])) or [(None, None)]
@@ -285,6 +288,7 @@ def extract_sql_statements(code_stream: str, dialect: str = "cobol") -> list[dic
                     "cursor": cursor,
                     "host_variables": ",".join(host) or None,
                     "line": line,
+                    "statement": statement,
                 }
             )
     return out

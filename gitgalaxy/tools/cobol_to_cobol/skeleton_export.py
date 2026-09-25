@@ -95,7 +95,8 @@ ESTATE_JOINS = {
     "mq_flows": "MQ calls",
     "remote_resources": "CICS resources",
     "ims_segment_access": "IMS segment access",
-    "vsam_stores": "VSAM defines",  # #3617: each cluster with its CSD files, AIXs and CICS + batch users
+    "vsam_stores": "VSAM defines",
+    "db2_tables": "DB2 table access",  # #3618: each table's DECLARE + every statement against it  # #3617: each cluster with its CSD files, AIXs and CICS + batch users
 }
 
 

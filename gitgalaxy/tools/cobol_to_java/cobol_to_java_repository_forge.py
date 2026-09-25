@@ -147,7 +147,7 @@ class RepositoryForge:
                 if u.get("key_offset") is not None:
                     seen[(u["key_offset"], u["key_length"])] = seen.get((u["key_offset"], u["key_length"]), 0) + 1
             if seen:
-                (offset, length), _n = sorted(seen.items(), key=lambda kv: (-kv[1], kv[0]))[0]
+                offset, length = min(seen, key=lambda k: (-seen[k], k))  # the most used; ties by position
                 source = "the programs' RIDFLD / RECORD KEY"
 
         # The layout, of the records the programs use: the one of the cluster's RECORDSIZE; then

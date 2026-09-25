@@ -9,6 +9,7 @@ Runs, in order, and prints one PASS / FAIL / SKIP table (exit 1 on any FAIL):
   ruff-audit           tests/ruff_audit.py --ci
   mypy-audit           tests/mypy_audit.py --ci
   dead-key-audit       tests/dead_key_audit.py --ci
+  xray                 the X-Ray Inspector (binary_anomaly_detector: dense literals, disguised binaries)
   field-testing        tests/tools/field_testing.py check
   refraction-snapshot  tests/tools/refraction_snapshot.py check
   with --java:
@@ -125,6 +126,9 @@ GATES = [
     Gate("ruff-audit", lambda ctx: [ctx.python_exe, "tests/ruff_audit.py", "--ci"]),
     Gate("mypy-audit", lambda ctx: [ctx.python_exe, "tests/mypy_audit.py", "--ci"]),
     Gate("dead-key-audit", lambda ctx: [ctx.python_exe, "tests/dead_key_audit.py", "--ci"]),
+    Gate(
+        "xray", lambda ctx: [ctx.python_exe, "-m", "gitgalaxy.tools.supply_chain_security.binary_anomaly_detector", "."]
+    ),
     Gate("field-testing", lambda ctx: [ctx.python_exe, "tests/tools/field_testing.py", "check"]),
     Gate("refraction-snapshot", lambda ctx: [ctx.python_exe, "tests/tools/refraction_snapshot.py", "check"]),
     Gate(

@@ -312,6 +312,17 @@ def main():
             stats[stat] += n
         print(f"  [+] {forges.summary()}")
 
+        skeleton_version = None
+        for p in skeletons.values():
+            s_data = json.loads(p.read_text(encoding="utf-8"))
+            if "version" in s_data:
+                skeleton_version = s_data["version"]
+                break
+        trace_data = forges.trace.as_dict({"clean_room": clean_room_path.name, "skeleton_version": skeleton_version})
+        (java_out_dir / "traceability.json").write_text(
+            json.dumps(trace_data, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
+
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
     if ir_dir.exists():

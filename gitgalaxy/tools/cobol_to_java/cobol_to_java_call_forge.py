@@ -30,7 +30,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_type, status_text
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import TraceLog, java_path, java_type, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE, CicsForge
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
@@ -78,10 +78,11 @@ class CallForge:
     """Plans every program's outbound calls, the handlers its callers need, and the remote clients."""
 
     def __init__(self, skeletons: dict[str, dict], cics: CicsForge, package: str,
-                 target: JavaTarget | None = None) -> None:  # fmt: skip
+                 target: JavaTarget | None = None, trace: TraceLog | None = None) -> None:  # fmt: skip
         self.cics = cics
         self.package = package
         self.target = target or JavaTarget()
+        self.trace = trace
         self.skeletons = skeletons
         self.key_of = {sk["program"]["file"]: key for key, sk in skeletons.items()}
         self.cls_of = {key: java_class_base(key) for key in skeletons}
@@ -240,6 +241,23 @@ class CallForge:
                 else:
                     ex.methods += self._delegate(f"{verb.lower()}{target}", ref, "handleLink", req, resp)
                 self.counts[verb.lower()] += 1
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{s.get('file', path)}:{s['line']}",
+                            "section": "calls",
+                            "ledger_field": "calls",
+                            "field_testing": status["calls"],
+                        }
+                        for s in sites
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                        f"{self.cls_of[key]}Service#{verb.lower()}{target}",
+                        f"service-{verb.lower()}",
+                        facts,
+                        gaps,
+                    )
             else:
                 self._need_call_handler(callee)
                 params = self.params(callee)
@@ -254,6 +272,23 @@ class CallForge:
                     "    }\n",
                 ]
                 self.counts["call"] += 1
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{s.get('file', path)}:{s['line']}",
+                            "section": "calls",
+                            "ledger_field": "calls",
+                            "field_testing": status["calls"],
+                        }
+                        for s in sites
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                        f"{self.cls_of[key]}Service#call{target}",
+                        "service-call",
+                        facts,
+                        [],
+                    )
 
         for d in (sections.get("dynamic_call_targets") or {}).get("facts", []):
             if d.get("file") == path and d.get("verb") in (*_LINK_VERBS, "CALL"):
@@ -328,6 +363,22 @@ class CallForge:
         ex.methods += ["            default:",
                        f'                throw new IllegalArgumentException("{where}: no known target " + program);',
                        "        }", "    }\n"]  # fmt: skip
+        if self.trace:
+            facts = [
+                {
+                    "source": f"{d['file']}:{d['line']}",
+                    "section": "dynamic_call_targets",
+                    "ledger_field": "dynamic_call_targets",
+                    "field_testing": status,
+                }
+            ]
+            self.trace.record(
+                java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                f"{self.cls_of[key]}Service#{method}",
+                "dispatch",
+                facts,
+                [],
+            )
 
     # ---- remote regions -----------------------------------------------------
     @staticmethod
@@ -373,8 +424,27 @@ class CallForge:
                           f"{c.get('line')}: the CSD routes it to region "
                           f"{region} (distributed program link).")  # fmt: skip
         ex.methods.append(f"     *  Remote calls field testing: {status}. */")
-        ex.methods += self._delegate(f"remote{java_class_base(program)}L{c['line']}", field_name, name, req, resp)
+        method_name = f"remote{java_class_base(program)}L{c['line']}"
+        ex.methods += self._delegate(method_name, field_name, name, req, resp)
         self.counts["remote"] += 1
+        if self.trace:
+            facts = [
+                {
+                    "source": f"{c.get('file', '')}:{c['line']}",
+                    "section": "remote_calls",
+                    "ledger_field": "remote_calls",
+                    "field_testing": status,
+                }
+            ]
+            self.trace.record(
+                java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                f"{self.cls_of[key]}Service#{method_name}",
+                "remote",
+                facts,
+                [],
+            )
+            self.trace.record(java_path(self.package, "client", cls), f"{cls}#{name}", "remote-client", facts, [])
+            self.trace.record(java_path(self.package, "client", cls), "Class", "remote-client", facts, [])
 
     def client_sources(self) -> dict[str, str]:
         """Remote client class name -> Java source (package <pkg>.client)."""

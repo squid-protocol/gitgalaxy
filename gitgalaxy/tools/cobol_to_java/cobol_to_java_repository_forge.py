@@ -27,7 +27,14 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, java_identifier, java_type, status_text
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
+    ClassNames,
+    TraceLog,
+    java_identifier,
+    java_path,
+    java_type,
+    status_text,
+)
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _accessors, _declared_fields
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
@@ -89,10 +96,11 @@ class RepositoryForge:
     """Plans every VSAM store once, then the repository methods each program needs."""
 
     def __init__(self, estate: dict, skeletons: dict[str, dict], package: str,
-                 target: JavaTarget | None = None, names: ClassNames | None = None) -> None:  # fmt: skip
+                 target: JavaTarget | None = None, names: ClassNames | None = None, trace: TraceLog | None = None) -> None:  # fmt: skip
         self.package = package
         self.names = names if names is not None else ClassNames()  # shared with the other forges
         self.target = target or JavaTarget()
+        self.trace = trace
         section = (estate.get("sections") or {}).get("vsam_stores") or {}
         self.status = status_text(section)
         self.key_of = {sk["program"]["file"]: key for key, sk in skeletons.items()}
@@ -250,6 +258,19 @@ class RepositoryForge:
 
     # ---- Java: entity + repository -------------------------------------------
     def entity_source(self, st: Store) -> str:
+        if self.trace:
+            facts = [
+                {
+                    "source": f"{st.raw.get('defined_in')}:{st.raw.get('line')}" if st.raw.get("defined_in") else "",
+                    "section": "vsam_stores",
+                    "ledger_field": "vsam_stores",
+                    "field_testing": self.status,
+                }
+            ]
+            todos = [st.key_note] if "TODO" in st.key_note else []
+            self.trace.record(
+                java_path(self.package, ENTITY_SUBPACKAGE, st.entity), "Class", "vsam-entity", facts, todos
+            )
         t = self.target
         pkg = f"{self.package}.{ENTITY_SUBPACKAGE}"
         raw = st.raw
@@ -321,6 +342,16 @@ class RepositoryForge:
         """The @Embeddable key class of a group key, or None."""
         if not st.composite:
             return None
+        if self.trace:
+            facts = [
+                {
+                    "source": f"{st.raw.get('defined_in')}:{st.raw.get('line')}" if st.raw.get("defined_in") else "",
+                    "section": "vsam_stores",
+                    "ledger_field": "vsam_stores",
+                    "field_testing": self.status,
+                }
+            ]
+            self.trace.record(java_path(self.package, ENTITY_SUBPACKAGE, st.key_type), "Class", "vsam-key", facts, [])
         t = self.target
         pkg = f"{self.package}.{ENTITY_SUBPACKAGE}"
         java = [f"package {pkg};\n", "import jakarta.persistence.*;", "import java.io.Serializable;",
@@ -354,6 +385,18 @@ class RepositoryForge:
         return st.key.java if st.key is not None else None
 
     def repository_source(self, st: Store) -> str:
+        if self.trace:
+            facts = [
+                {
+                    "source": f"{st.raw.get('defined_in')}:{st.raw.get('line')}" if st.raw.get("defined_in") else "",
+                    "section": "vsam_stores",
+                    "ledger_field": "vsam_stores",
+                    "field_testing": self.status,
+                }
+            ]
+            self.trace.record(
+                java_path(self.package, REPOSITORY_SUBPACKAGE, st.repository), "Class", "vsam-repository", facts, []
+            )
         pkg = f"{self.package}.{REPOSITORY_SUBPACKAGE}"
         java = [f"package {pkg};\n",
                 "import org.springframework.data.domain.Pageable;",
@@ -407,6 +450,24 @@ class RepositoryForge:
             java += [f"    /** Alternate index {alt['aix']} (path {paths}) on {f.cobol}, "
                      f"{'unique' if alt.get('unique') else 'non-unique'}. */",
                      f"    {ret} findBy{cap}({f.jtype} {f.java});\n"]  # fmt: skip
+            if self.trace:
+                facts = [
+                    {
+                        "source": f"{st.raw.get('defined_in')}:{st.raw.get('line')}"
+                        if st.raw.get("defined_in")
+                        else "",
+                        "section": "vsam_stores",
+                        "ledger_field": "alternate_indexes",
+                        "field_testing": self.status,
+                    }
+                ]
+                self.trace.record(
+                    java_path(self.package, REPOSITORY_SUBPACKAGE, st.repository),
+                    f"{st.repository}#findBy{cap}",
+                    "repository-finder",
+                    facts,
+                    [],
+                )
         java.append("}")
         return "\n".join(java)
 
@@ -497,6 +558,32 @@ class RepositoryForge:
         for method, body in fresh:
             taken.add(method)
             ex["methods"] += body
+            if self.trace:
+                facts = [
+                    {
+                        "source": f"{user['program']}:{line}",
+                        "section": "vsam_stores",
+                        "ledger_field": "users",
+                        "field_testing": self.status,
+                    }
+                    for line in user.get("lines", [])
+                ]
+                if not facts:
+                    facts = [
+                        {
+                            "source": f"{user['program']}",
+                            "section": "vsam_stores",
+                            "ledger_field": "users",
+                            "field_testing": self.status,
+                        }
+                    ]
+                self.trace.record(
+                    java_path(self.package, "service", f"{self.cls_of[key]}Service"),
+                    f"{self.cls_of[key]}Service#{method}",
+                    "service-file-op",
+                    facts,
+                    notes,
+                )
         ex["names"] = taken
 
     @staticmethod

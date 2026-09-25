@@ -29,8 +29,10 @@ from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     ClassNames,
+    TraceLog,
     container_var,
     java_identifier,
+    java_path,
     java_type,
     status_text,
 )
@@ -76,6 +78,7 @@ class Dto:
     requires_list: bool
     uses: list[str] = field(default_factory=list)  # one line per program that receives it
     methods: Any = None  # (is_record) -> method lines, e.g. a composite COMMAREA's fromPrefix (#3655)
+    facts: list[dict] = field(default_factory=list)
 
     def doc(self) -> list[str]:
         return self.javadoc[:1] + self.uses + self.javadoc[1:]
@@ -99,6 +102,7 @@ class CicsProgram:
     channel_out: str | None = None
     containers: list[dict] = field(default_factory=list)
     status: dict[str, str] = field(default_factory=dict)  # section -> field-testing text
+    sections: dict[str, Any] = field(default_factory=dict)
 
 
 def incoming_links(skeleton: dict) -> list[dict]:
@@ -146,10 +150,12 @@ class CicsForge:
         package: str,
         target: JavaTarget | None = None,
         names: ClassNames | None = None,
+        trace: TraceLog | None = None,
     ) -> None:
         self.package = package
         self.names = names if names is not None else ClassNames()  # shared with the other forges
         self.target = target or JavaTarget()
+        self.trace = trace
         self.program_files = {sk["program"]["file"] for sk in skeletons.values()}
         self._file_cls = {sk["program"]["file"]: java_class_base(key) for key, sk in skeletons.items()}
         self.dtos: dict[str, Dto] = {}
@@ -176,7 +182,20 @@ class CicsForge:
             name = f"{base}{n}"
         self.names.claim(name)
         body, requires_list = _field_lines(layout)
-        self.dtos[name] = Dto(name, javadoc, body, requires_list, [use] if use else [])
+        dto_facts = [
+            {
+                "source": f.get("file"),
+                "section": "interface",
+                "ledger_field": "commarea",
+                "field_testing": "untested",
+                "name": f.get("name"),
+                "offset": f.get("offset"),
+                "bytes": f.get("bytes"),
+            }
+            for f in layout.get("fields", [])
+            if f.get("name") and f.get("name").upper() != "FILLER"
+        ]
+        self.dtos[name] = Dto(name, javadoc, body, requires_list, [use] if use else [], facts=dto_facts)
         self._by_signature[signature] = name
         return name
 
@@ -246,6 +265,7 @@ class CicsForge:
         path = sk["program"]["file"]
         prog = CicsProgram(key, cls, path, list(sk["program"].get("program_ids", [])))
         prog.status = {name: status_text(sec) for name, sec in sections.items()}
+        prog.sections = sections
 
         by_transid: dict[str, list[dict]] = {}
         for row in (sections.get("entry_transactions") or {}).get("facts", []):
@@ -316,8 +336,9 @@ class CicsForge:
     # ---- Java ---------------------------------------------------------------
     def dto_sources(self) -> dict[str, str]:
         """DTO class name -> Java source (package <pkg>.dto.contract)."""
-        return {
-            name: render_dto_class(
+        sources = {}
+        for name, d in sorted(self.dtos.items()):
+            sources[name] = render_dto_class(
                 f"{self.package}.{DTO_SUBPACKAGE}",
                 name,
                 d.body,
@@ -326,8 +347,27 @@ class CicsForge:
                 javadoc=d.doc(),
                 methods=d.methods,
             )
-            for name, d in sorted(self.dtos.items())
-        }
+            if self.trace:
+                file_path = java_path(self.package, DTO_SUBPACKAGE, name)
+                # DTO class facts
+                class_facts = [
+                    {"source": use, "section": "interface", "ledger_field": "commarea", "field_testing": "untested"}
+                    for use in d.uses
+                ]
+                self.trace.record(file_path, "Class", "commarea-dto", class_facts)
+
+                # DTO fields
+                for fact in d.facts:
+                    # name @offset+bytes and its copybook file
+                    field_fact = {
+                        "source": fact["source"],
+                        "section": fact["section"],
+                        "ledger_field": fact["ledger_field"],
+                        "field_testing": fact["field_testing"],
+                    }
+                    field_var = java_identifier(fact["name"])
+                    self.trace.record(file_path, f"{name}#{field_var}", "dto-field", [field_fact])
+        return sources
 
     def _body(self, prog: CicsProgram) -> tuple[str | None, str | None]:
         """(request type, response type) of a transaction / link endpoint."""
@@ -385,6 +425,16 @@ class CicsForge:
             java += [f"    public {cls}Controller({cls}Service {svc}) {{", f"        this.{svc} = {svc};", "    }\n"]
 
         req, resp = self.link_types(prog)
+        todos = []
+        if prog.commarea:
+            for alt in prog.commarea.get("alternatives", []):
+                sites = ", ".join(f"{s['caller']}:{s['line']}" for s in alt["sources"])
+                todos.append(
+                    f"TODO: callers also pass {alt['record']} ({alt['file']}, {alt['bytes']} bytes) at {sites}."
+                )
+        elif prog.commarea_gap:
+            todos.append(f"TODO: no COMMAREA layout: {prog.commarea_gap}.")
+
         for txn in prog.transactions:
             defs = "; ".join(
                 f"{d.get('defined_in')}:{d.get('line')}" + (f" group {d['group']}" if d.get("group") else "")
@@ -394,6 +444,23 @@ class CicsForge:
             java.append(f'    @PostMapping("/transactions/{txn["segment"]}")')
             java += self._endpoint(f"transaction{txn['segment']}", svc, "handleTransaction",
                                    json.dumps(txn["transid"]), req, resp)  # fmt: skip
+            if self.trace:
+                facts = [
+                    {
+                        "source": f"{d.get('defined_in')}:{d.get('line')}",
+                        "section": "entry_transactions",
+                        "ledger_field": "entry_transactions",
+                        "field_testing": prog.status.get("entry_transactions", "untested"),
+                    }
+                    for d in txn["definitions"]
+                ]
+                self.trace.record(
+                    java_path(self.package, "controller", f"{cls}Controller"),
+                    f"{cls}Controller#transaction{txn['segment']}",
+                    "controller-endpoint",
+                    facts,
+                    todos,
+                )
         if prog.links or not prog.transactions:
             if prog.links:
                 sites = ", ".join(
@@ -406,10 +473,36 @@ class CicsForge:
                 java.append("    /** Program-to-program entry: no CSD transaction enters this program. */")
             java.append('    @PostMapping("/link")')
             java += self._endpoint("link", svc, "handleLink", None, req, resp)
+            if self.trace:
+                facts = [
+                    {
+                        "source": f"{r['caller']}:{r['line']}",
+                        "section": "commarea_contracts",
+                        "ledger_field": "link_xctl",
+                        "field_testing": "untested",
+                    }
+                    for r in prog.links
+                ]
+                self.trace.record(
+                    java_path(self.package, "controller", f"{cls}Controller"),
+                    f"{cls}Controller#link",
+                    "controller-endpoint",
+                    facts,
+                    todos,
+                )
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):
             java.append("    /** The program's channel: its GET CONTAINERs in, its PUT CONTAINERs out. */")
             java.append('    @PostMapping("/channel")')
             java += self._endpoint("channel", svc, "handleChannel", None, prog.channel_in, prog.channel_out)
+            if self.trace:
+                facts = []
+                self.trace.record(
+                    java_path(self.package, "controller", f"{cls}Controller"),
+                    f"{cls}Controller#channel",
+                    "controller-endpoint",
+                    facts,
+                    todos,
+                )
         java.append("}")
         return "\n".join(java)
 

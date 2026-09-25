@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import TextIO
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, merge_extras
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, TraceLog, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, CicsProgram, load_skeletons
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_uow_forge import UowForge
@@ -32,10 +32,11 @@ class SkeletonForges:
         estate_file = skeleton_dir / "estate.json"
         self.estate = json.loads(estate_file.read_text(encoding="utf-8")) if estate_file.is_file() else {}
         self.names = ClassNames()
-        self.cics = CicsForge(self.skeletons, package, target, self.names)
-        self.calls = CallForge(self.skeletons, self.cics, package, target)
-        self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names)
-        self.uow = UowForge(self.skeletons, package, target, self.names)
+        self.trace = TraceLog()
+        self.cics = CicsForge(self.skeletons, package, target, self.names, trace=self.trace)
+        self.calls = CallForge(self.skeletons, self.cics, package, target, trace=self.trace)
+        self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names, trace=self.trace)
+        self.uow = UowForge(self.skeletons, package, target, self.names, trace=self.trace)
 
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
         """(java_dirs key, sub-directory) -> {class name: Java source}, every generated file."""
@@ -113,4 +114,11 @@ class SkeletonForges:
             f"  • Units of work (#3621)   : {u['services']} @Transactional services, {u['commits']} commit points, "
             f"{u['rollbacks']} rollback points, {u['abends']} abends, {u['handlers']} handlers; "
             f"{u['unchecked']} unchecked responses\n"
+        )
+
+        n_artifacts = len(self.trace.entries)
+        n_facts = sum(len(e.facts) for e in self.trace.entries)
+        n_todos = sum(len(e.todos) for e in self.trace.entries)
+        f.write(
+            f"  • Traceability (#3650)    : {n_artifacts} artifacts, {n_facts} facts, {n_todos} TODOs -> traceability.json\n"
         )

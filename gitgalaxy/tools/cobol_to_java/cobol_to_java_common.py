@@ -12,6 +12,61 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass, field
+
+
+@dataclass
+class TraceEntry:
+    file: str
+    symbol: str
+    kind: str
+    facts: list[dict]
+    todos: list[str] = field(default_factory=list)
+
+
+class TraceLog:
+    def __init__(self) -> None:
+        self.entries: list[TraceEntry] = []
+
+    def record(self, file: str, symbol: str, kind: str, facts: list[dict], todos: list[str] | None = None) -> None:
+        self.entries.append(TraceEntry(file, symbol, kind, facts, list(todos or [])))
+
+    def as_dict(self, generated_from: dict) -> dict:
+        sorted_entries = sorted(self.entries, key=lambda e: (e.file, e.symbol))
+        by_kind: dict[str, int] = {}
+        for e in sorted_entries:
+            by_kind[e.kind] = by_kind.get(e.kind, 0) + 1
+        return {
+            "version": 1,
+            "generated_from": generated_from,
+            "artifacts": [
+                {
+                    "file": e.file,
+                    "symbol": e.symbol,
+                    "kind": e.kind,
+                    "facts": e.facts,
+                    "todos": e.todos,
+                }
+                for e in sorted_entries
+            ],
+            "summary": {
+                "artifacts": len(sorted_entries),
+                "facts": sum(len(e.facts) for e in sorted_entries),
+                "todos": sum(len(e.todos) for e in sorted_entries),
+                "by_kind": by_kind,
+            },
+        }
+
+
+def java_path(package: str, subpackage: str, cls: str) -> str:
+    parts = ["src", "main", "java"]
+    if package:
+        parts.extend(package.split("."))
+    if subpackage:
+        parts.extend(subpackage.split("."))
+    parts.append(f"{cls}.java")
+    return "/".join(parts)
+
 
 # COBOL variable names that are protected keywords in Java (or would start with a
 # digit); the field renderer sanitizes against these so the output always compiles.

@@ -21,17 +21,25 @@ from __future__ import annotations
 
 import re
 
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, status_text
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, TraceLog, java_path, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
 class UowForge:
-    def __init__(self, skeletons: dict[str, dict], package: str, target: JavaTarget, names: ClassNames) -> None:
+    def __init__(
+        self,
+        skeletons: dict[str, dict],
+        package: str,
+        target: JavaTarget,
+        names: ClassNames,
+        trace: TraceLog | None = None,
+    ) -> None:
         self.skeletons = skeletons
         self.package = package
         self.target = target
         self.names = names
+        self.trace = trace
         self.counts = {"services": 0, "commits": 0, "rollbacks": 0, "abends": 0, "handlers": 0, "unchecked": 0}
         # Planned once, like the other forges: service_extras only looks the result up.
         self.planned = {key: self._plan(key) for key in sorted(skeletons)}
@@ -245,6 +253,60 @@ class UowForge:
         uow_handlers = sections.get("uow_handlers", {}).get("facts", [])
         uow_handlers_sec = sections.get("uow_handlers", {})
 
+        if self.trace:
+            if is_cics:
+                t_facts = []
+                if sections.get("entry_transactions", {}).get("facts"):
+                    t_facts.append(
+                        {
+                            "source": path,
+                            "section": "entry_transactions",
+                            "ledger_field": "entry_transactions",
+                            "field_testing": status_text(sections.get("entry_transactions", {})),
+                        }
+                    )
+                if sections.get("cics_resources", {}).get("facts"):
+                    t_facts.append(
+                        {
+                            "source": path,
+                            "section": "cics_resources",
+                            "ledger_field": "cics_resources",
+                            "field_testing": status_text(sections.get("cics_resources", {})),
+                        }
+                    )
+                if sections.get("commarea_contracts", {}).get("facts"):
+                    t_facts.append(
+                        {
+                            "source": path,
+                            "section": "commarea_contracts",
+                            "ledger_field": "commarea_contracts",
+                            "field_testing": status_text(sections.get("commarea_contracts", {})),
+                        }
+                    )
+                self.trace.record(
+                    java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                    "Class",
+                    "transactional",
+                    t_facts,
+                    [],
+                )
+            elif has_commit or has_rollback:
+                t_facts = [
+                    {
+                        "source": path,
+                        "section": "units_of_work",
+                        "ledger_field": "units_of_work",
+                        "field_testing": status_text(uow_sec_info),
+                    }
+                ]
+                self.trace.record(
+                    java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                    "Class",
+                    "transactional",
+                    t_facts,
+                    [],
+                )
+
         # Also need RESP_CHECKS
         # "RESP checks and unchecked responses: no methods. Add a class-level documentation block"
 
@@ -272,6 +334,22 @@ class UowForge:
                     "    }",
                 ]
                 extras["methods"].append("\n".join(method_code) + "\n")
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{file_name}:{line}",
+                            "section": "units_of_work",
+                            "ledger_field": "units_of_work",
+                            "field_testing": status_text(uow_sec_info),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        f"{java_class_base(key)}Service#commitPointL{line}",
+                        "commit",
+                        facts,
+                        [],
+                    )
 
             elif kind == "ROLLBACK":
                 self.counts["rollbacks"] += 1
@@ -285,6 +363,22 @@ class UowForge:
                     "    }",
                 ]
                 extras["methods"].append("\n".join(method_code) + "\n")
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{file_name}:{line}",
+                            "section": "units_of_work",
+                            "ledger_field": "units_of_work",
+                            "field_testing": status_text(uow_sec_info),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        f"{java_class_base(key)}Service#rollbackL{line}",
+                        "rollback",
+                        facts,
+                        [],
+                    )
 
         # Now process ABENDs, HANDLE ABEND, HANDLE CONDITION, HANDLE AID from uow_handlers or error_handlers
         for h in uow_handlers:
@@ -326,6 +420,22 @@ class UowForge:
                     "    }",
                 ]
                 extras["methods"].append("\n".join(method_code) + "\n")
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{file_name}:{line}",
+                            "section": "uow_handlers",
+                            "ledger_field": "uow_handlers",
+                            "field_testing": status_text(uow_handlers_sec),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        f"{java_class_base(key)}Service#abend{sanitized_abcode}L{line}",
+                        "abend",
+                        facts,
+                        [],
+                    )
 
             elif kind == "HANDLE_ABEND":
                 self.counts["handlers"] += 1
@@ -340,6 +450,22 @@ class UowForge:
                     "    }",
                 ]
                 extras["methods"].append("\n".join(method_code) + "\n")
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{file_name}:{line}",
+                            "section": "uow_handlers",
+                            "ledger_field": "uow_handlers",
+                            "field_testing": status_text(uow_handlers_sec),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        f"{java_class_base(key)}Service#onAbendL{line}",
+                        "abend-handler",
+                        facts,
+                        [],
+                    )
 
             elif kind == "HANDLE_CONDITION":
                 self.counts["handlers"] += 1
@@ -357,6 +483,22 @@ class UowForge:
                     "    }",
                 ]
                 extras["methods"].append("\n".join(method_code) + "\n")
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{file_name}:{line}",
+                            "section": "uow_handlers",
+                            "ledger_field": "uow_handlers",
+                            "field_testing": status_text(uow_handlers_sec),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        f"{java_class_base(key)}Service#onCondition{sanitized_cond}L{line}",
+                        "condition-handler",
+                        facts,
+                        [],
+                    )
 
         class_doc_lines = []
         resp_checks = [h for h in uow_handlers if h.get("kind") == "RESP_CHECK"]
@@ -393,6 +535,22 @@ class UowForge:
                 unit = h.get("unit", "paragraph")
                 entries.append(f"TODO: the RESP of {verb} at line {line} (paragraph {unit}) is never tested")
                 self.counts["unchecked"] += 1
+                if self.trace:
+                    facts = [
+                        {
+                            "source": f"{path}:{line}",
+                            "section": "unchecked_responses",
+                            "ledger_field": "unchecked_responses",
+                            "field_testing": status_text(unchecked_sec_info),
+                        }
+                    ]
+                    self.trace.record(
+                        java_path(self.package, "service", f"{java_class_base(key)}Service"),
+                        "Class",
+                        "unchecked-response",
+                        facts,
+                        [f"TODO: the RESP of {verb} at line {line} (paragraph {unit}) is never tested"],
+                    )
 
             for i, entry in enumerate(entries):
                 if i < 30:

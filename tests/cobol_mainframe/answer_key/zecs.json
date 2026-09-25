@@ -20884,5 +20884,94 @@
         "notes": []
       }
     }
+  },
+  "refmod_spans": {
+    "Source/ECS001.cbl": {
+      "units": [
+        "L164 STRING TERM-LINES(1:I) -> BODY-DATA",
+        "L332 MOVE ECS-KEY -> PATH-NAME(PATH-NAME-LEN+1:)",
+        "L390 UNSTRING ECS-DATA(I:) -> TERM-LINES"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECS000.cbl": {
+      "units": [
+        "L649 MOVE 'D' -> URI-MAP(5:1)",
+        "L670 MOVE DEPLICATE -> WEB-PATH(1:10)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECS001.cbl": {
+      "units": [
+        "L1049 MOVE EIBDS(1:8) -> HTTP-FILE-ERROR(1:8)",
+        "L1114 MOVE ZF-DATA(1:ZF-LENGTH) -> CACHE-MESSAGE",
+        "L1146 MOVE ZF-DATA(1:ZF-LENGTH) -> CACHE-MESSAGE",
+        "L1165 MOVE EIBDS(1:8) -> HTTP-FILE-ERROR(1:8)",
+        "L1286 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)",
+        "L1304 MOVE THE-TOD(1:6) -> ZK-ZF-IDN",
+        "L1323 MOVE THE-TOD(1:6) -> ZK-ZF-IDN",
+        "L1346 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)",
+        "L1384 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)",
+        "L1496 MOVE CACHE-MESSAGE(1:ZF-LENGTH) -> ZF-DATA",
+        "L1511 MOVE EIBDS(1:8) -> HTTP-FILE-ERROR(1:8)",
+        "L1539 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)",
+        "L1848 MOVE REPLICATE -> WEB-PATH(1:10)",
+        "L502 UNSTRING WEB-PATH(1:WEB-PATH-LENGTH) -> URI-FIELD-00",
+        "L502 UNSTRING WEB-PATH(1:WEB-PATH-LENGTH) -> URI-FIELD-01",
+        "L502 UNSTRING WEB-PATH(1:WEB-PATH-LENGTH) -> URI-FIELD-02",
+        "L502 UNSTRING WEB-PATH(1:WEB-PATH-LENGTH) -> URI-FIELD-03",
+        "L502 UNSTRING WEB-PATH(1:WEB-PATH-LENGTH) -> URI-FIELD-04",
+        "L559 MOVE EIBTRNID(3:2) -> NC-TRANID(3:2)",
+        "L560 MOVE EIBTRNID(3:2) -> ZK-TRANID(3:2)",
+        "L561 MOVE EIBTRNID(3:2) -> ZF-TRANID(3:2)",
+        "L562 MOVE EIBTRNID(3:2) -> DC-TRANID(3:2)",
+        "L613 MOVE WEB-PATH(URI-PATH-POINTER:URI-PATH-LENGTH) -> URI-KEY(1:URI-PATH-LENGTH)",
+        "L700 UNSTRING WEB-QUERYSTRING(1:WEB-QUERYSTRING-LENGTH) -> QUERY-TEXT",
+        "L700 UNSTRING WEB-QUERYSTRING(1:WEB-QUERYSTRING-LENGTH) -> TTL-SECONDS",
+        "L747 UNSTRING WEB-QUERYSTRING(1:WEB-QUERYSTRING-LENGTH) -> CLEAR-TEXT",
+        "L747 UNSTRING WEB-QUERYSTRING(1:WEB-QUERYSTRING-LENGTH) -> QUERY-TEXT",
+        "L770 MOVE WEB-PATH(1:10) -> CA-URI-FIELD-01",
+        "L794 MOVE HTTP-HEADER-VALUE(7:24) -> CA-ENCODE",
+        "L944 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECS003.cbl": {
+      "units": [
+        "L192 MOVE EIBTRNID(3:2) -> DC-TRANID(3:2)",
+        "L192 MOVE EIBTRNID(3:2) -> ZF-TRANID(3:2)",
+        "L192 MOVE EIBTRNID(3:2) -> ZK-TRANID(3:2)",
+        "L376 MOVE 'R' -> URI-MAP(5:1)",
+        "L398 MOVE REPLICATE -> WEB-PATH(1:10)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECSPLT.cbl": {
+      "units": [
+        "L121 MOVE URI-PREFIX(3:2) -> TD-SUFFIX",
+        "L121 MOVE URI-PREFIX(3:2) -> ZX-SUFFIX"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

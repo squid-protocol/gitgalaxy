@@ -82175,5 +82175,192 @@
         "notes": []
       }
     }
+  },
+  "refmod_spans": {
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "units": [
+        "L1398 MOVE WS-CURRENT-DATE-DATA(1:8) -> WS-CURRENT-DATE-9",
+        "L385 UNSTRING PARM(1:PARM-LENGTH) -> END-KEY",
+        "L385 UNSTRING PARM(1:PARM-LENGTH) -> RANDOM-SEED",
+        "L385 UNSTRING PARM(1:PARM-LENGTH) -> START-KEY",
+        "L385 UNSTRING PARM(1:PARM-LENGTH) -> STEP-KEY",
+        "L555 MOVE WS-NEW-REVIEW-YYYYMMDD(1:4) -> CUSTOMER-CS-REVIEW-YEAR",
+        "L557 MOVE WS-NEW-REVIEW-YYYYMMDD(5:2) -> CUSTOMER-CS-REVIEW-MONTH",
+        "L559 MOVE WS-NEW-REVIEW-YYYYMMDD(7:2) -> CUSTOMER-CS-REVIEW-DAY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "units": [
+        "L934 MOVE SUBPGM-OPENED(1:2) -> OPENDDO",
+        "L935 MOVE SUBPGM-OPENED(3:2) -> OPENMMO",
+        "L936 MOVE SUBPGM-OPENED(5:4) -> OPENYYO",
+        "L937 MOVE SUBPGM-NEXT-STMT-DT(1:2) -> NSTMTDDO",
+        "L938 MOVE SUBPGM-NEXT-STMT-DT(3:2) -> NSTMTMMO",
+        "L939 MOVE SUBPGM-NEXT-STMT-DT(5:4) -> NSTMTYYO",
+        "L940 MOVE SUBPGM-LAST-STMT-DT(1:2) -> LSTMDDO",
+        "L941 MOVE SUBPGM-LAST-STMT-DT(3:2) -> LSTMMMO",
+        "L942 MOVE SUBPGM-LAST-STMT-DT(5:4) -> LSTMYYO"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCS.cbl": {
+      "units": [
+        "L1088 MOVE SUBPGM-CS-REVIEW-DATE(1:2) -> SCRDTDDO",
+        "L1090 MOVE SUBPGM-CS-REVIEW-DATE(3:2) -> SCRDTMMO",
+        "L1092 MOVE SUBPGM-CS-REVIEW-DATE(5:4) -> SCRDTYYO"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "units": [
+        "L1000 UNSTRING AMTI(1:AMTL) -> WS-AMOUNT-UNSTR",
+        "L1005 UNSTRING AMTI(WS-NUM-COUNT-TOTAL:AMTL) -> WS-AMOUNT-UNSTR",
+        "L1130 COMPUTE WS-AMOUNT-UNSTR(1:WS-AMOUNT-UNSTR-L) -> WS-AMOUNT-AS-FLOAT",
+        "L974 COMPUTE AMTI(1:AMTL) -> WS-AMOUNT-AS-FLOAT"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1TFN.cbl": {
+      "units": [
+        "L1003 COMPUTE AMTI(1:AMTL) -> WS-AMOUNT-AS-FLOAT",
+        "L1039 UNSTRING AMTI(1:AMTL) -> WS-AMOUNT-UNSTR",
+        "L1044 UNSTRING AMTI(WS-NUM-COUNT-TOTAL:AMTL) -> WS-AMOUNT-UNSTR",
+        "L1187 COMPUTE WS-AMOUNT-UNSTR(1:WS-AMOUNT-UNSTR-L) -> WS-AMOUNT-AS-FLOAT"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1UAC.cbl": {
+      "units": [
+        "L906 COMPUTE OVERDRI(1:OVERDRL) -> COMM-OVERDRAFT"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "units": [
+        "L1184 MOVE WS-FUTURE-DATE(1:4) -> ACCOUNT-NEXT-STMT-DATE(5:4)",
+        "L1185 MOVE WS-FUTURE-DATE(5:2) -> ACCOUNT-NEXT-STMT-DATE(3:2)",
+        "L1186 MOVE WS-FUTURE-DATE(7:2) -> ACCOUNT-NEXT-STMT-DATE(1:2)",
+        "L1188 MOVE WS-ORIG-DATE-DD -> ACCOUNT-OPENED(1:2)",
+        "L1189 MOVE WS-ORIG-DATE-MM -> ACCOUNT-OPENED(3:2)",
+        "L1190 MOVE WS-ORIG-DATE-YYYY -> ACCOUNT-OPENED(5:4)",
+        "L783 MOVE NCS-ACC-NO-DISP(9:8) -> HV-ACCOUNT-ACC-NO",
+        "L876 MOVE HV-ACCOUNT-LAST-STMT(1:2) -> STORED-LST-STMT(1:2)",
+        "L877 MOVE HV-ACCOUNT-LAST-STMT(4:2) -> STORED-LST-STMT(3:2)",
+        "L878 MOVE HV-ACCOUNT-LAST-STMT(7:4) -> STORED-LST-STMT(5:4)",
+        "L879 MOVE HV-ACCOUNT-NEXT-STMT(1:2) -> STORED-NXT-STMT(1:2)",
+        "L880 MOVE HV-ACCOUNT-NEXT-STMT(4:2) -> STORED-NXT-STMT(3:2)",
+        "L881 MOVE HV-ACCOUNT-NEXT-STMT(7:4) -> STORED-NXT-STMT(5:4)",
+        "L893 MOVE HV-ACCOUNT-OPENED-DAY(1:2) -> COMM-OPENED OF DFHCOMMAREA(1:2)",
+        "L895 MOVE HV-ACCOUNT-OPENED-MONTH(1:2) -> COMM-OPENED OF DFHCOMMAREA(3:2)",
+        "L897 MOVE HV-ACCOUNT-OPENED-YEAR(1:4) -> COMM-OPENED OF DFHCOMMAREA(5:4)",
+        "L899 MOVE HV-ACCOUNT-LAST-STMT-DAY(1:2) -> COMM-LAST-STMT-DT OF DFHCOMMAREA(1:2)",
+        "L901 MOVE HV-ACCOUNT-LAST-STMT-MONTH(1:2) -> COMM-LAST-STMT-DT OF DFHCOMMAREA(3:2)",
+        "L903 MOVE HV-ACCOUNT-LAST-STMT-YEAR(1:4) -> COMM-LAST-STMT-DT OF DFHCOMMAREA(5:4)",
+        "L905 MOVE HV-ACCOUNT-NEXT-STMT-DAY(1:2) -> COMM-NEXT-STMT-DT OF DFHCOMMAREA(1:2)",
+        "L907 MOVE HV-ACCOUNT-NEXT-STMT-MONTH(1:2) -> COMM-NEXT-STMT-DT OF DFHCOMMAREA(3:2)",
+        "L909 MOVE HV-ACCOUNT-NEXT-STMT-YEAR(1:4) -> COMM-NEXT-STMT-DT OF DFHCOMMAREA(5:4)",
+        "L960 MOVE STORED-CUSTNO -> HV-PROCTRAN-DESC(1:10)",
+        "L961 MOVE STORED-ACCTYPE -> HV-PROCTRAN-DESC(11:8)",
+        "L962 MOVE STORED-LST-STMT -> HV-PROCTRAN-DESC(19:8)",
+        "L963 MOVE STORED-NXT-STMT -> HV-PROCTRAN-DESC(27:8)",
+        "L964 MOVE SPACES -> HV-PROCTRAN-DESC(35:6)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "units": [
+        "L1096 MOVE CUSTOMER-DATE-OF-BIRTH(1:2) -> STORED-DOB(1:2)",
+        "L1097 MOVE '/' -> STORED-DOB(3:1)",
+        "L1098 MOVE CUSTOMER-DATE-OF-BIRTH(3:2) -> STORED-DOB(4:2)",
+        "L1099 MOVE '/' -> STORED-DOB(6:1)",
+        "L1100 MOVE CUSTOMER-DATE-OF-BIRTH(5:4) -> STORED-DOB(7:4)",
+        "L1160 MOVE STORED-SORTCODE -> HV-PROCTRAN-DESC(1:6)",
+        "L1161 MOVE STORED-CUSTNO -> HV-PROCTRAN-DESC(7:10)",
+        "L1162 MOVE STORED-NAME -> HV-PROCTRAN-DESC(17:14)",
+        "L1163 MOVE STORED-DOB -> HV-PROCTRAN-DESC(31:10)",
+        "L709 MOVE WS-CURRENT-DATE-DATA(1:8) -> WS-CURRENT-DATE-9",
+        "L734 MOVE WS-NEW-REVIEW-YYYYMMDD(1:4) -> COMM-CS-REVIEW-DATE(5:4)",
+        "L736 MOVE WS-NEW-REVIEW-YYYYMMDD(5:2) -> COMM-CS-REVIEW-DATE(3:2)",
+        "L738 MOVE WS-NEW-REVIEW-YYYYMMDD(7:2) -> COMM-CS-REVIEW-DATE(1:2)",
+        "L814 MOVE WS-CURRENT-DATE-DATA(1:8) -> WS-CURRENT-DATE-9",
+        "L838 MOVE WS-NEW-REVIEW-YYYYMMDD(1:4) -> COMM-CS-REVIEW-DATE(5:4)",
+        "L840 MOVE WS-NEW-REVIEW-YYYYMMDD(5:2) -> COMM-CS-REVIEW-DATE(3:2)",
+        "L842 MOVE WS-NEW-REVIEW-YYYYMMDD(7:2) -> COMM-CS-REVIEW-DATE(1:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "units": [
+        "L500 MOVE COMM-ORIGIN(1:14) -> HV-PROCTRAN-DESC",
+        "L513 MOVE COMM-ORIGIN(1:14) -> HV-PROCTRAN-DESC"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "units": [
+        "L464 MOVE CUSTOMER-DATE-OF-BIRTH(1:2) -> COMM-BIRTH-DAY OF DFHCOMMAREA",
+        "L464 MOVE CUSTOMER-DATE-OF-BIRTH(1:2) -> WS-STOREDC-DATE-OF-BIRTH(1:2)",
+        "L467 MOVE '/' -> WS-STOREDC-DATE-OF-BIRTH(3:1)",
+        "L468 MOVE CUSTOMER-DATE-OF-BIRTH(3:2) -> COMM-BIRTH-MONTH OF DFHCOMMAREA",
+        "L468 MOVE CUSTOMER-DATE-OF-BIRTH(3:2) -> WS-STOREDC-DATE-OF-BIRTH(4:2)",
+        "L471 MOVE '/' -> WS-STOREDC-DATE-OF-BIRTH(6:1)",
+        "L473 MOVE CUSTOMER-DATE-OF-BIRTH(5:4) -> COMM-BIRTH-YEAR OF DFHCOMMAREA",
+        "L473 MOVE CUSTOMER-DATE-OF-BIRTH(5:4) -> WS-STOREDC-DATE-OF-BIRTH(7:4)",
+        "L479 MOVE CUSTOMER-CS-REVIEW-DATE(1:2) -> COMM-CS-REVIEW-DD OF DFHCOMMAREA",
+        "L479 MOVE CUSTOMER-CS-REVIEW-DATE(1:2) -> WS-STOREDC-CS-REVIEW-DATE(1:2)",
+        "L482 MOVE '/' -> WS-STOREDC-CS-REVIEW-DATE(3:1)",
+        "L483 MOVE CUSTOMER-CS-REVIEW-DATE(3:2) -> COMM-CS-REVIEW-MM OF DFHCOMMAREA",
+        "L483 MOVE CUSTOMER-CS-REVIEW-DATE(3:2) -> WS-STOREDC-CS-REVIEW-DATE(4:2)",
+        "L486 MOVE '/' -> WS-STOREDC-CS-REVIEW-DATE(6:1)",
+        "L487 MOVE CUSTOMER-CS-REVIEW-DATE(5:4) -> COMM-CS-REVIEW-YYYY OF DFHCOMMAREA",
+        "L487 MOVE CUSTOMER-CS-REVIEW-DATE(5:4) -> WS-STOREDC-CS-REVIEW-DATE(7:4)",
+        "L627 MOVE WS-STOREDC-SORTCODE -> HV-PROCTRAN-DESC(1:6)",
+        "L628 MOVE WS-STOREDC-NUMBER -> HV-PROCTRAN-DESC(7:10)",
+        "L629 MOVE WS-STOREDC-NAME -> HV-PROCTRAN-DESC(17:14)",
+        "L630 MOVE WS-STOREDC-DATE-OF-BIRTH -> HV-PROCTRAN-DESC(31:10)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

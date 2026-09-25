@@ -1344,6 +1344,37 @@ def test_copybook_record_units_follow_the_engine_layout_contract(tmp_path):
     }  # fmt: skip
 
 
+def test_refmod_units_key_the_reference_modification_text(tmp_path):
+    """#3649: `L<line> VERB SOURCE(start:length) -> TARGET(start:length)`, one spelling on
+    both sides (spacing around + - : normalized); a subscript is not a refmod."""
+    src = tmp_path / "RM.cbl"
+    src.write_text(
+        "\n".join("       " + ln for ln in [
+            "IDENTIFICATION DIVISION.",
+            "PROGRAM-ID. RM.",
+            "PROCEDURE DIVISION.",
+            "    MOVE DFHCOMMAREA (LENGTH OF SHARED + 1 :",
+            "                      LENGTH OF WS-OWN) TO WS-OWN.",
+            "    MOVE WS-TAB (I) TO WS-X.",
+            "    MOVE WS-A TO WS-B (I) (2:3).",
+        ]) + "\n",
+        encoding="utf-8",
+    )  # fmt: skip
+    assert ak.refmod_units(ak.data_move_rows(src)) == {
+        "L4 MOVE DFHCOMMAREA(LENGTH OF SHARED+1:LENGTH OF WS-OWN) -> WS-OWN",
+        "L7 MOVE WS-A -> WS-B(2:3)",
+    }
+
+    class M:  # an EngineDataMove's relevant fields
+        line, verb, source, target = 4, "MOVE", "DFHCOMMAREA", "WS-OWN"
+        source_refmod_text, target_refmod_text = "LENGTH OF SHARED + 1:LENGTH OF WS-OWN", None
+
+    class Ef:
+        data_moves = [M()]
+
+    assert ak.engine_refmod_units(Ef()) == {"L4 MOVE DFHCOMMAREA(LENGTH OF SHARED+1:LENGTH OF WS-OWN) -> WS-OWN"}
+
+
 def test_ridfld_units_key_the_cics_file_key_operand(tmp_path):
     """#3649: `L<line> VERB FILE NAME RIDFLD=OPERAND`, from this tool's EXEC CICS reader;
     the engine side parses cics_resource_data.attributes, nested parentheses included."""

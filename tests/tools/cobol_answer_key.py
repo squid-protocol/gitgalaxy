@@ -4515,8 +4515,32 @@ def _mv_operands(
             if name in _MV_FIGURATIVE:
                 out.append((name, "figurative", False))
                 continue
-            out.append((name, "item", ":" in (m.group("paren") or "")))
+            out.append((name, "item", _refmod_text(m.group("paren") or "") or False))
     return [o for o in out if o[1] == "item"] if items_only else out
+
+
+def _refmod_text(parens: str) -> Optional[str]:
+    """The reference modification among an operand's parenthesized groups (`(I)(1:4)`):
+    the top-level group with a `:`, its text normalized (see _norm_refmod); None without."""
+    depth, start = 0, None
+    for i, ch in enumerate(parens):
+        if ch == "(":
+            depth += 1
+            if depth == 1:
+                start = i
+        elif ch == ")":
+            depth -= 1
+            if depth == 0 and start is not None:
+                inner = parens[start + 1 : i]
+                if ":" in inner:
+                    return _norm_refmod(inner)
+    return None
+
+
+def _norm_refmod(text: str) -> str:
+    """#3649: one spelling of a refmod, on both sides: whitespace collapsed, upper-cased, and
+    no space around + - * / : ( )."""
+    return re.sub(r"\s*([-+*/:()])\s*", r"\1", " ".join(text.split())).upper()
 
 
 def _mv_expression_items(text: str) -> list[tuple[str, str, bool]]:
@@ -4667,7 +4691,9 @@ def data_move_rows(path: Path, verbs: tuple = _MV_VERBS) -> list[dict[str, Any]]
         for a, t, corr in pairs(m.group(1), " " + body):
             rows.append({
                 "verb": m.group(1), "source": a[0] if a else None, "kind": a[1] if a else None, "target": t[0],
-                "corr": corr, "srm": bool(a and a[2]), "trm": t[2], "line": src.line_of(m.start()),
+                "corr": corr, "srm": bool(a and a[2]), "trm": bool(t[2]), "line": src.line_of(m.start()),
+                "srt": a[2] if a and isinstance(a[2], str) else None,
+                "trt": t[2] if isinstance(t[2], str) else None,
             })  # fmt: skip
     return rows
 
@@ -4679,6 +4705,50 @@ def data_move_keys(rows: list[dict[str, Any]]) -> set[str]:
         f"{'(:)' if r['srm'] else ''} -> {r['target'].upper()}{'(:)' if r['trm'] else ''}"
         for r in rows
     }
+
+
+# #3649: the reference modifications themselves -- how a CICS program unpacks its
+# COMMAREA (#3655) and every sub-field move. Its own field, so the reviewed
+# `data moves` units stay as they are.
+def refmod_units(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> VERB SOURCE[(START:LENGTH)] -> TARGET[(START:LENGTH)]` for each reference-modified move."""
+    return {
+        f"L{r['line']} {r['verb']} {(r['source'] or '-').upper()}{'(' + r['srt'] + ')' if r.get('srt') else ''}"
+        f" -> {r['target'].upper()}{'(' + r['trt'] + ')' if r.get('trt') else ''}"
+        for r in rows
+        if r.get("srt") or r.get("trt")
+    }
+
+
+def engine_refmod_units(ef: Any) -> set[str]:
+    rows = [
+        {
+            "line": m.line,
+            "verb": m.verb,
+            "source": m.source,
+            "target": m.target,
+            "srt": _norm_refmod(m.source_refmod_text) if m.source_refmod_text else None,
+            "trt": _norm_refmod(m.target_refmod_text) if m.target_refmod_text else None,
+        }  # fmt: skip
+        for m in ef.data_moves
+    ]
+    return refmod_units(rows)
+
+
+def draft_refmods(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3649: the refmod units of every COBOL source (the draft_data_moves file set)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts or p.suffix.lower() not in CICS_EXTS:
+            continue
+        units = refmod_units(data_move_rows(p))
+        if units:
+            out[p.relative_to(repo).as_posix()] = {
+                "units": sorted(units),
+                "refmods_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
 
 
 def engine_data_move_row(m: Any) -> dict[str, Any]:
@@ -5894,6 +5964,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # at byte offsets. Truth is this tool's own arithmetic; engine is
         # GalaxyIR.symbolic_map_layouts (generated copybook text, record parser).
         "symbolic maps",
+        # #3649: every reference-modified move's `start:length`, as written. Truth is
+        # this tool's own data-move reader; engine is data_move_data's refmod texts.
+        "refmod spans",
         # #3649: the RIDFLD operand of every EXEC CICS FILE command, as written.
         # Truth is this tool's own EXEC CICS reader; engine is cics_resource_data.attributes.
         "CICS RIDFLD",
@@ -6320,6 +6393,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_dyn.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
     engine_maps = ir.symbolic_map_layouts() if ir is not None else {}
+    for rel, k in key.get("refmod_spans", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add("refmod spans", rel, set(k.get("units", [])), None, engine_refmod_units(ef) if ef else None)
     for rel, k in key.get("cics_ridflds", {}).items():
         ef = ir.files.get(rel) if ir else None
         add("CICS RIDFLD", rel, set(k.get("units", [])), None, engine_ridfld_units(ef) if ef else None)
@@ -6543,6 +6619,9 @@ def main() -> int:
     fdp = sub.add_parser("add-file-defs")
     fdp.add_argument("repo", type=Path)
     fdp.add_argument("--key", type=Path, required=True)
+    rmp = sub.add_parser("add-refmods")  # #3649
+    rmp.add_argument("repo", type=Path)
+    rmp.add_argument("--key", type=Path, required=True)
     rfp = sub.add_parser("add-ridflds")  # #3649
     rfp.add_argument("repo", type=Path)
     rfp.add_argument("--key", type=Path, required=True)
@@ -6828,6 +6907,16 @@ def main() -> int:
         key["file_control"], key["vsam_defines"] = fc, vd
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(fc)} FILE-CONTROL programs, {len(vd)} IDCAMS JCL members -> {args.key}")
+        return 0
+    if args.cmd == "add-refmods":
+        # #3649: the add-pli discipline -- refresh drafts, keep signed-off files.
+        rm = {rel: e for rel, e in key.get("refmod_spans", {}).items() if e.get("refmods_validated")}
+        for rel, entry in draft_refmods(repo).items():
+            if not rm.get(rel, {}).get("refmods_validated"):
+                rm[rel] = entry
+        key["refmod_spans"] = rm
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(rm)} refmod files -> {args.key}")
         return 0
     if args.cmd == "add-ridflds":
         # #3649: the add-pli discipline -- refresh drafts, keep signed-off files.

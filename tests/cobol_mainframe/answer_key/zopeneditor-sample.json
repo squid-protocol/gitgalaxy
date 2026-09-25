@@ -12108,5 +12108,17 @@
       }
     }
   },
-  "cics_ridflds": {}
+  "cics_ridflds": {},
+  "refmod_spans": {
+    "multiroot/sam/SAM1.cbl": {
+      "units": [
+        "L513 MOVE TRANSACTION-RECORD(1:14) -> RPT-CRUNCH-CUST"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

@@ -45051,5 +45051,275 @@
         "notes": []
       }
     }
+  },
+  "refmod_spans": {
+    "base/src/lgacdb01.cbl": {
+      "units": [
+        "L315 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L321 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgacdb02.cbl": {
+      "units": [
+        "L212 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L218 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgacus01.cbl": {
+      "units": [
+        "L166 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L172 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgacvs01.cbl": {
+      "units": [
+        "L108 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L114 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgapdb01.cbl": {
+      "units": [
+        "L344 MOVE CA-E-PADDING-DATA -> WS-VARY-CHAR(1:WS-VARY-LEN)",
+        "L582 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L588 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgapol01.cbl": {
+      "units": [
+        "L156 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L162 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgapvs01.cbl": {
+      "units": [
+        "L175 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L181 MOVE DFHCOMMAREA(1:90) -> CA-DATA",
+        "L99 MOVE CA-REQUEST-ID(4:1) -> WF-REQUEST-ID"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgdpdb01.cbl": {
+      "units": [
+        "L232 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L238 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgdpol01.cbl": {
+      "units": [
+        "L173 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L179 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgdpvs01.cbl": {
+      "units": [
+        "L119 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L125 MOVE DFHCOMMAREA(1:90) -> CA-DATA",
+        "L77 MOVE CA-REQUEST-ID(4:1) -> WF-REQUEST-ID"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgicdb01.cbl": {
+      "units": [
+        "L232 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L238 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgicus01.cbl": {
+      "units": [
+        "L153 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L159 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgipdb01.cbl": {
+      "units": [
+        "L1017 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L1023 MOVE DFHCOMMAREA(1:90) -> CA-DATA",
+        "L408 MOVE DB2-ENDOW-FIXED -> CA-ENDOWMENT(1:WS-ENDOW-LEN)",
+        "L411 MOVE DB2-E-PADDINGDATA -> CA-E-PADDING-DATA(1:DB2-E-PADDING-LEN)",
+        "L417 MOVE 'FINAL' -> CA-E-PADDING-DATA(END-POLICY-POS:5)",
+        "L504 MOVE DB2-HOUSE -> CA-HOUSE(1:WS-HOUSE-LEN)",
+        "L508 MOVE 'FINAL' -> CA-H-FILLER(1:5)",
+        "L602 MOVE DB2-MOTOR -> CA-MOTOR(1:WS-MOTOR-LEN)",
+        "L606 MOVE 'FINAL' -> CA-M-FILLER(1:5)",
+        "L704 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)",
+        "L708 MOVE 'FINAL' -> CA-B-FILLER(1:5)",
+        "L809 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)",
+        "L813 MOVE 'FINAL' -> CA-B-FILLER(1:5)",
+        "L904 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)",
+        "L986 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgipol01.cbl": {
+      "units": [
+        "L126 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L132 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgipvs01.cbl": {
+      "units": [
+        "L108 MOVE WS-COMMAREA(1:1) -> PART-KEY-TYPE",
+        "L109 MOVE WS-COMMAREA(2:WS-RECV-LEN) -> PART-KEY-NUM"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgsetup.cbl": {
+      "units": [
+        "L134 MOVE WS-RECV-DATA(1:WS-RECV-LEN) -> LASTCUSTNUM"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgstsq.cbl": {
+      "units": [
+        "L84 MOVE WRITE-MSG-MSG(3:4) -> STSQ-EXT"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgucdb01.cbl": {
+      "units": [
+        "L209 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L215 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgucus01.cbl": {
+      "units": [
+        "L159 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L165 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgucvs01.cbl": {
+      "units": [
+        "L123 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L129 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgupdb01.cbl": {
+      "units": [
+        "L522 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L528 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgupol01.cbl": {
+      "units": [
+        "L188 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L194 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgupvs01.cbl": {
+      "units": [
+        "L102 MOVE CA-REQUEST-ID(4:1) -> WF-REQUEST-ID",
+        "L193 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
+        "L199 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

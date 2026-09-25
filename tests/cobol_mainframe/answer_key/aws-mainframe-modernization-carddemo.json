@@ -121288,5 +121288,478 @@
         "notes": []
       }
     }
+  },
+  "refmod_spans": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "units": [
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-ACQR-COUNTRY-CODE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-AUTH-DATE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-AUTH-TIME",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-AUTH-TYPE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-CARD-EXPIRY-DATE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-CARD-NUM",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-CATAGORY-CODE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-CITY",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-ID",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-NAME",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-STATE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MERCHANT-ZIP",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MESSAGE-SOURCE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-MESSAGE-TYPE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-POS-ENTRY-MODE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-PROCESSING-CODE",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> PA-RQ-TRANSACTION-ID",
+        "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> WS-TRANSACTION-AMT-AN",
+        "L868 MOVE WS-CUR-DATE-X6(1:5) -> WS-YYDDD"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
+      "units": [
+        "L200 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L527 MOVE PA-AUTH-ORIG-TIME(1:2) -> WS-AUTH-TIME(1:2)",
+        "L528 MOVE PA-AUTH-ORIG-TIME(3:2) -> WS-AUTH-TIME(4:2)",
+        "L529 MOVE PA-AUTH-ORIG-TIME(5:2) -> WS-AUTH-TIME(7:2)",
+        "L531 MOVE PA-AUTH-ORIG-DATE(1:2) -> WS-CURDATE-YY",
+        "L532 MOVE PA-AUTH-ORIG-DATE(3:2) -> WS-CURDATE-MM",
+        "L533 MOVE PA-AUTH-ORIG-DATE(5:2) -> WS-CURDATE-DD",
+        "L738 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L758 STRING CUST-MIDDLE-NAME(1:1) -> CNAMEO",
+        "L771 STRING CUST-ADDR-ZIP(1:5) -> ADDR002O"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
+      "units": [
+        "L171 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L297 MOVE PA-AUTH-ORIG-DATE(1:2) -> WS-CURDATE-YY",
+        "L298 MOVE PA-AUTH-ORIG-DATE(3:2) -> WS-CURDATE-MM",
+        "L299 MOVE PA-AUTH-ORIG-DATE(5:2) -> WS-CURDATE-DD",
+        "L303 MOVE PA-AUTH-ORIG-TIME(1:2) -> WS-AUTH-TIME(1:2)",
+        "L304 MOVE PA-AUTH-ORIG-TIME(3:2) -> WS-AUTH-TIME(4:2)",
+        "L305 MOVE PA-AUTH-ORIG-TIME(5:2) -> WS-AUTH-TIME(7:2)",
+        "L322 MOVE '-' -> AUTHRSNO(5:1)",
+        "L323 MOVE 'ERROR' -> AUTHRSNO(6:)",
+        "L326 MOVE '-' -> AUTHRSNO(5:1)",
+        "L327 MOVE DECL-DESC -> AUTHRSNO(6:)",
+        "L336 MOVE PA-CARD-EXPIRY-DATE(1:2) -> CRDEXPO(1:2)",
+        "L337 MOVE '/' -> CRDEXPO(3:1)",
+        "L338 MOVE PA-CARD-EXPIRY-DATE(3:2) -> CRDEXPO(4:2)",
+        "L345 MOVE PA-AUTH-FRAUD -> AUTHFRDO(1:1)",
+        "L346 MOVE '-' -> AUTHFRDO(2:1)",
+        "L347 MOVE PA-FRAUD-RPT-DATE -> AUTHFRDO(3:)",
+        "L420 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
+      "units": [
+        "L103 MOVE PA-AUTH-ORIG-DATE(1:2) -> WS-AUTH-YY",
+        "L104 MOVE PA-AUTH-ORIG-DATE(3:2) -> WS-AUTH-MM",
+        "L105 MOVE PA-AUTH-ORIG-DATE(5:2) -> WS-AUTH-DD",
+        "L108 MOVE WS-AUTH-TIME-AN(1:2) -> WS-AUTH-HH",
+        "L109 MOVE WS-AUTH-TIME-AN(3:2) -> WS-AUTH-MI",
+        "L110 MOVE WS-AUTH-TIME-AN(5:2) -> WS-AUTH-SS",
+        "L111 MOVE WS-AUTH-TIME-AN(7:3) -> WS-AUTH-SSS"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
+      "units": [
+        "L1307 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L1569 MOVE WS-INFO-MSG(1:WS-STRING-LEN) -> WS-STRING-OUT(WS-STRING-MID:WS-STRING-LEN)",
+        "L527 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L529 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L905 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
+      "units": [
+        "L1124 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L1258 MOVE WS-INFO-MSG(1:WS-STRING-LEN) -> WS-STRING-OUT(WS-STRING-MID:WS-STRING-LEN)",
+        "L1524 MOVE DCL-TR-DESCRIPTION-TEXT(1:DCL-TR-DESCRIPTION-LEN) -> TTUP-OLD-TTYP-TYPE-DESC",
+        "L376 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L378 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L563 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT01C.cbl": {
+      "units": [
+        "L289 MOVE VBRC-REC1 -> VBR-REC(1:WS-RECD-LEN)",
+        "L304 MOVE VBRC-REC2 -> VBR-REC(1:WS-RECD-LEN)",
+        "L416 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L423 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT02C.cbl": {
+      "units": [
+        "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT03C.cbl": {
+      "units": [
+        "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT04C.cbl": {
+      "units": [
+        "L638 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L645 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBCUS01C.cbl": {
+      "units": [
+        "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBIMPORT.cbl": {
+      "units": [
+        "L178 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(1:4)",
+        "L179 MOVE '-' -> WS-IMPORT-DATE(5:1)",
+        "L180 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(6:2)",
+        "L181 MOVE '-' -> WS-IMPORT-DATE(8:1)",
+        "L182 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(9:2)",
+        "L184 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(1:2)",
+        "L185 MOVE ':' -> WS-IMPORT-TIME(3:1)",
+        "L186 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(4:2)",
+        "L187 MOVE ':' -> WS-IMPORT-TIME(6:1)",
+        "L188 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(7:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBSTM03B.CBL": {
+      "units": [
+        "L189 MOVE LK-M03B-KEY(1:LK-M03B-KEY-LN) -> FD-CUST-ID",
+        "L214 MOVE LK-M03B-KEY(1:LK-M03B-KEY-LN) -> FD-ACCT-ID"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN01C.cbl": {
+      "units": [
+        "L479 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L486 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN02C.cbl": {
+      "units": [
+        "L717 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L724 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN03C.cbl": {
+      "units": [
+        "L636 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
+        "L643 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTUPC.cbl": {
+      "units": [
+        "L1011 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
+        "L2537 STRING ACUP-NEW-CUST-ADDR-ZIP(1:2) -> US-STATE-AND-FIRST-ZIP2",
+        "L2682 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L2829 MOVE ACUP-OLD-CUST-SSN-X(1:3) -> ACTSSN1O OF CACTUPAO",
+        "L2830 MOVE ACUP-OLD-CUST-SSN-X(4:2) -> ACTSSN2O OF CACTUPAO",
+        "L2831 MOVE ACUP-OLD-CUST-SSN-X(6:4) -> ACTSSN3O OF CACTUPAO",
+        "L2846 MOVE ACUP-OLD-CUST-PHONE-NUM-1(2:3) -> ACSPH1AO OF CACTUPAO",
+        "L2848 MOVE ACUP-OLD-CUST-PHONE-NUM-1(6:3) -> ACSPH1BO OF CACTUPAO",
+        "L2850 MOVE ACUP-OLD-CUST-PHONE-NUM-1(10:4) -> ACSPH1CO OF CACTUPAO",
+        "L2852 MOVE ACUP-OLD-CUST-PHONE-NUM-2(2:3) -> ACSPH2AO OF CACTUPAO",
+        "L2854 MOVE ACUP-OLD-CUST-PHONE-NUM-2(6:3) -> ACSPH2BO OF CACTUPAO",
+        "L2856 MOVE ACUP-OLD-CUST-PHONE-NUM-2(10:4) -> ACSPH2CO OF CACTUPAO",
+        "L3832 MOVE ACCT-OPEN-DATE(1:4) -> ACUP-OLD-OPEN-YEAR",
+        "L3833 MOVE ACCT-OPEN-DATE(6:2) -> ACUP-OLD-OPEN-MON",
+        "L3834 MOVE ACCT-OPEN-DATE(9:2) -> ACUP-OLD-OPEN-DAY",
+        "L3837 MOVE ACCT-EXPIRAION-DATE(1:4) -> ACUP-OLD-EXP-YEAR",
+        "L3838 MOVE ACCT-EXPIRAION-DATE(6:2) -> ACUP-OLD-EXP-MON",
+        "L3839 MOVE ACCT-EXPIRAION-DATE(9:2) -> ACUP-OLD-EXP-DAY",
+        "L3843 MOVE ACCT-REISSUE-DATE(1:4) -> ACUP-OLD-REISSUE-YEAR",
+        "L3844 MOVE ACCT-REISSUE-DATE(6:2) -> ACUP-OLD-REISSUE-MON",
+        "L3845 MOVE ACCT-REISSUE-DATE(9:2) -> ACUP-OLD-REISSUE-DAY",
+        "L3857 MOVE CUST-DOB-YYYY-MM-DD(1:4) -> ACUP-OLD-CUST-DOB-YEAR",
+        "L3858 MOVE CUST-DOB-YYYY-MM-DD(6:2) -> ACUP-OLD-CUST-DOB-MON",
+        "L3859 MOVE CUST-DOB-YYYY-MM-DD(9:2) -> ACUP-OLD-CUST-DOB-DAY",
+        "L888 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L890 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTVWC.cbl": {
+      "units": [
+        "L288 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L290 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L398 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
+        "L445 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L496 STRING CUST-SSN(1:3) -> ACSTSSNO OF CACTVWAO",
+        "L496 STRING CUST-SSN(4:2) -> ACSTSSNO OF CACTVWAO",
+        "L496 STRING CUST-SSN(6:4) -> ACSTSSNO OF CACTVWAO"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COADM01C.cbl": {
+      "units": [
+        "L126 MOVE OPTIONI OF COADM1AI(1:WS-IDX) -> WS-OPTION-X",
+        "L216 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L90 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COBIL00C.cbl": {
+      "units": [
+        "L111 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L264 MOVE WS-CUR-DATE-X10 -> WS-TIMESTAMP(01:10)",
+        "L265 MOVE WS-CUR-TIME-X08 -> WS-TIMESTAMP(12:08)",
+        "L330 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDLIC.cbl": {
+      "units": [
+        "L327 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L329 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L610 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
+        "L656 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDSLC.cbl": {
+      "units": [
+        "L274 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L276 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L398 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
+        "L441 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDUPC.cbl": {
+      "units": [
+        "L1066 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L1361 MOVE CARD-EXPIRAION-DATE(1:4) -> CCUP-OLD-EXPYEAR",
+        "L1363 MOVE CARD-EXPIRAION-DATE(6:2) -> CCUP-OLD-EXPMON",
+        "L1365 MOVE CARD-EXPIRAION-DATE(9:2) -> CCUP-OLD-EXPDAY",
+        "L1514 MOVE CARD-EXPIRAION-DATE(1:4) -> CCUP-OLD-EXPYEAR",
+        "L1515 MOVE CARD-EXPIRAION-DATE(6:2) -> CCUP-OLD-EXPMON",
+        "L1516 MOVE CARD-EXPIRAION-DATE(9:2) -> CCUP-OLD-EXPDAY",
+        "L396 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
+        "L398 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
+        "L550 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COMEN01C.cbl": {
+      "units": [
+        "L122 MOVE OPTIONI OF COMEN1AI(1:WS-IDX) -> WS-OPTION-X",
+        "L249 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L86 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CORPT00C.cbl": {
+      "units": [
+        "L176 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L620 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COSGN00C.cbl": {
+      "units": [
+        "L188 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN00C.cbl": {
+      "units": [
+        "L111 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L385 MOVE WS-TIMESTAMP-DT-YYYY(3:2) -> WS-CURDATE-YY",
+        "L578 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN01C.cbl": {
+      "units": [
+        "L254 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L98 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN02C.cbl": {
+      "units": [
+        "L119 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L563 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR00C.cbl": {
+      "units": [
+        "L114 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
+        "L573 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR01C.cbl": {
+      "units": [
+        "L225 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L82 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR02C.cbl": {
+      "units": [
+        "L307 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L94 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR03C.cbl": {
+      "units": [
+        "L254 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
+        "L94 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
+      ],
+      "refmods_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

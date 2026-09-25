@@ -619,6 +619,10 @@
     "CICS RIDFLD": {
       "introduced": "#3672",
       "development_rounds": 6
+    },
+    "refmod spans": {
+      "introduced": "#3649",
+      "development_rounds": 6
     }
   }
 }

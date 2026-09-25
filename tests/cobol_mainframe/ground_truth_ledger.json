@@ -519,6 +519,15 @@
           },
           "truth": "sample_verified"
         },
+        "refmod spans": {
+          "engine": {
+            "got": 174,
+            "tp": 174,
+            "truth": 174
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "symbolic maps": {
           "engine": {
             "got": 5307,
@@ -1388,6 +1397,15 @@
           },
           "truth": "sample_verified"
         },
+        "refmod spans": {
+          "engine": {
+            "got": 95,
+            "tp": 95,
+            "truth": 95
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "symbolic maps": {
           "engine": {
             "got": 1320,
@@ -1855,6 +1873,15 @@
           },
           "truth": "sample_verified"
         },
+        "refmod spans": {
+          "engine": {
+            "got": 61,
+            "tp": 61,
+            "truth": 61
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "symbolic maps": {
           "engine": {
             "got": 432,
@@ -2274,6 +2301,11 @@
           },
           "truth": "sample_verified"
         },
+        "refmod spans": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "symbolic maps": {
           "engine": null,
           "forge": null,
@@ -2661,6 +2693,15 @@
           },
           "truth": "sample_verified"
         },
+        "refmod spans": {
+          "engine": {
+            "got": 42,
+            "tp": 42,
+            "truth": 42
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "symbolic maps": {
           "engine": null,
           "forge": null,
@@ -3047,6 +3088,15 @@
             "truth": 163
           },
           "truth": "sample_verified"
+        },
+        "refmod spans": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "symbolic maps": {
           "engine": null,

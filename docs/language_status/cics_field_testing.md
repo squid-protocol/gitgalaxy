@@ -65,6 +65,7 @@ counted in it (their fact counts are not recorded here).
 | TD trigger starts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | cics/sql | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
+| refmod spans | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 
 ## By round
 

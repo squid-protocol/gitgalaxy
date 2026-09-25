@@ -251,6 +251,20 @@ files after a squash merge, blessing snapshots, running a blind census, and the 
 `answer-key-guard.yml` posts a semantic diff of key and ledger changes on PRs (`tests/tools/ground_truth_diff.py`).
 The runtime-interaction channels still to build (SQL, MQ, IMS, async CICS, JCL flow, lineage) are epic #3445.
 
+### Mainframe field testing (the defect log)
+
+**Every engine or forge defect found on a mainframe estate is logged in
+`tests/cobol_mainframe/field_testing.json`, in the same PR that finds or fixes it.** Estates include
+pinned corpora, censuses, the ledger, the refraction differential and customer scans. That file is
+the estate registry (public keyed corpora, and anonymised private estates) and the defect log.
+`tests/tools/field_testing.py report --write` renders
+`docs/language_status/cics_field_testing.md`: per ledger field, how many public and private estates
+tested it, and whether it is `field-tested`. That takes 2 fresh rounds after its last engine defect,
+carrying 300 facts. A round the channel was developed against is not fresh. CI fails when the record
+is invalid or the report is stale. A new corpus is a new round; a new channel needs a `fields` entry
+with its honest `development_rounds`; key errors are counted automatically. Quote coverage only
+from that report. The full protocol is in the `mainframe-ground-truth` skill ("Field testing").
+
 ## Testing conventions
 
 `tests/` has no `__init__.py` anywhere in this repo. A new test file that needs to import a

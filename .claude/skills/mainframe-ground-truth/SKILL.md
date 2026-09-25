@@ -1,6 +1,6 @@
 ---
 name: mainframe-ground-truth
-description: Work with the mainframe ground-truth system -- the hand-verified COBOL answer keys (tests/cobol_mainframe/answer_key/), the ground-truth ledger CI gate (tests/tools/ground_truth_ledger.py, mainframe-ground-truth.yml), and blind LLM cross-verification / census (tests/tools/cross_verify.py). Use when the ledger fails in CI ("NEW mismatch", "no longer reproduces", "UNTRIAGED", "scoreboard differs"), when adding a corpus or an answer-key section, when running or grading a blind review or census, when a snapshot or ledger conflicts after a squash merge, or when the user asks "how accurate is the COBOL extraction". Not for writing the extractor itself (add-fact-channel) or forge/refractor behaviour (cobol-modernization).
+description: Work with the mainframe ground-truth system -- the hand-verified COBOL answer keys (tests/cobol_mainframe/answer_key/), the ground-truth ledger CI gate (tests/tools/ground_truth_ledger.py, mainframe-ground-truth.yml), and blind LLM cross-verification / census (tests/tools/cross_verify.py). Use when the ledger fails in CI ("NEW mismatch", "no longer reproduces", "UNTRIAGED", "scoreboard differs"), when adding a corpus or an answer-key section, when running or grading a blind review or census, when a snapshot or ledger conflicts after a squash merge, when the user asks "how accurate is the COBOL extraction" or "how field-tested is X", and whenever an engine or forge defect is found on a mainframe / CICS estate (it must be logged in field_testing.json). Not for writing the extractor itself (add-fact-channel) or forge/refractor behaviour (cobol-modernization).
 ---
 
 **The answer key is the oracle. Neither the engine nor the forge is.** Every claim about COBOL
@@ -18,6 +18,7 @@ extraction accuracy comes from the ledger's scoreboard, never from "the output l
 | `tests/tools/cross_verify_sections.py` | the same blind census for the per-file fact-channel sections (SQL access, CICS tasks, MQ, units of work, job submissions, TD triggers): every COBOL file asked, empty ones too; signing sets each section's `*_validated` flag and `cross_verified` tier |
 | `.github/workflows/mainframe-ground-truth.yml` | every PR: fetch, scan, score and `check`; also runs `tests/cobol_mainframe/` with the corpora present |
 | `.github/workflows/answer-key-guard.yml` | flags PRs that change a key or the ledger, with a semantic diff of what moved |
+| `tests/cobol_mainframe/field_testing.json` + `tests/tools/field_testing.py` | the estate registry and defect log, and the per-field field-testing counters (see "Field testing" below) |
 
 Environment: `GITGALAXY_MAINFRAME_CORPORA=<main checkout>/.mainframe_corpora` (it's shared
 across worktrees; fetch once with `mainframe_corpus.py fetch`) and
@@ -82,6 +83,45 @@ python tests/tools/cross_verify.py coverage --corpus <c>        # must reach 100
 - **Grader normalisations** (same fact, different spelling): a verb the kind fixes, blanks inside COND / IF / WHERE text, a bare generation `1`, `INTO(X)` / `FROM(X)` for the operand X, a DL/I function code (GN) for its access (read).
 - **A reviewer can be right.** The files census found a real reader bug that engine and key shared: a `//*` comment inside a continued JCL statement (BUILDONL.prc) ended the statement in both. Rule it `key_fixed`, fix both readers with a test, refresh the key, then `sign`, which re-grades against the current key.
 - **Census gate.** `test_small_corpus_keys_are_fully_censused` fails for any program lacking `verification.census`. Small corpora are censused; for a corpus too large to census, use sampled confidence (rule of three, reset per category on each `key_fixed`) and add a matching gate.
+
+## Field testing: the defect protocol (every mainframe / CICS defect goes through here)
+
+`tests/cobol_mainframe/field_testing.json` is the memory the ledger lacks: the ledger forgets a
+defect once it is fixed. `tests/tools/field_testing.py report --write` turns it into
+`docs/language_status/cics_field_testing.md`: per ledger field, **tested on X public / Y private
+estates**, fresh rounds, engine defects, clean fresh rounds and facts, a 95% bound, and
+`field-tested` / `open` / `untested` with what an open field **needs**. `check` runs in CI
+(`test_field_testing.py`) and fails when the record is invalid or the report is stale.
+
+The rules. Apply them in the same PR as the change, not later:
+1. **Every engine or forge defect found on a mainframe estate gets a `defects` entry.** That
+   covers a pin, a census, the ledger, the refraction differential, or a customer scan. Give its
+   `estate`, `side` (engine / forge), `severity` (`fact` = a fact wrong, missing or extra;
+   `attribute` = a line number or label), the ledger `fields` it touches, the `issue` and
+   `fixed_by` PR, and a one-line summary. A defect is logged even when it is fixed in the PR that
+   found it.
+2. **Census-brief gaps** (a rule the brief did not state and the key and engine hold) get
+   `side: brief`.
+3. **Key errors are not logged.** `field_testing.py` counts them from the census rulings
+   (`key_fixed`). They are verification defects, not product ones, and never reset a field.
+4. **A newly keyed corpus is a new round.** Add an `estates` entry: `kind: public`, the next
+   `round`, `keyed_by`, date, languages.
+5. **A new channel or ledger field gets a `fields` entry.** Give its `introduced` PR and
+   `development_rounds`: how many of the round-ordered estates it was built or tuned against. Be
+   honest. An estate you looked at while writing the extractor is a development round. Only later
+   rounds are fresh, and only fresh rounds can make a field field-tested.
+6. **A private (customer) estate** gets an `estates` entry with `kind: private`, an anonymised
+   `label` (`private-01`), date and languages. Its `fields` list holds ONLY the ledger fields
+   actually checked against truth there (reviewed, not just scanned). Never add a url, ref, path,
+   program names or code. Defects found there are logged with anonymised summaries.
+7. **After any key, ledger or record change**, run `field_testing.py report --write`.
+8. **Quote coverage only from the generated report**, e.g. "units of work: tested on 6 public
+   estates, field-tested (3 clean fresh rounds, 2,111 facts)". Never say "field-tested" for a
+   field the report calls `open`.
+
+The stopping rule: CLEAN_ROUNDS (2) fresh rounds after the field's last engine defect, carrying
+CLEAN_FACTS (300) facts, which is a 95% bound of 1%. Growing the evidence means pinning more
+unseen corpora (with a census) or reviewing a private estate.
 
 ## COBOL reader traps that have bitten every reader (the key's, the forge's and the engine's)
 

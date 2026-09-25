@@ -383,6 +383,20 @@
       "summary": "A PL/I CICS operand continued past a columns 73-80 sequence field read the sequence number as its value (9 of 3,251 DSF operations lost a name)."
     },
     {
+      "id": "D022",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "side": "engine",
+      "fields": [
+        "dynamic call targets"
+      ],
+      "language": "cobol",
+      "severity": "attribute",
+      "found_by": "Java generator (#3616)",
+      "issue": 3616,
+      "fixed_by": "#3640",
+      "summary": "dynamic_call_targets and _program_file indexed CSD / BMS / JCL / DDL class_data names as program declarers: 88 of 89 CardDemo candidates resolved to the CSD deck instead of the COBOL source (the keyed candidate names were right)."
+    },
+    {
       "id": "B001",
       "estate": "zecs",
       "side": "brief",

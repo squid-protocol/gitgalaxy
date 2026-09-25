@@ -70,7 +70,7 @@ counted in it (their fact counts are not recorded here).
 |---|---|---|---|---|---|---|---|
 | 1 | zopeneditor-sample | public | 859 | 3 | 1 | 1 | 0 |
 | 2 | cics-banking-sample-application-cbsa | public | 3,142 | 37 | 0 | 1 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | public | 4,214 | 14 | 5 | 4 | 1 |
+| 3 | aws-mainframe-modernization-carddemo | public | 4,214 | 14 | 6 | 4 | 1 |
 | 4 | cics-genapp | public | 2,025 | 10 | 2 | 1 | 0 |
 | 5 | zecs | public | 1,182 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 1,406 | 4 | 5 | 1 | 0 |
@@ -100,6 +100,7 @@ counted in it (their fact counts are not recorded here).
 | D019 | 6 | engine | fact | units | #3533 / #3548 | SPECIAL-NAMES / I-O-CONTROL read as procedure units; all-digit paragraph names (0000., 9999.) missed. |
 | D020 | 6 | forge | fact | units, dead | #3533 / #3548 | The forge lost every paragraph after `PROCEDURE        DIVISION.` (multi-space) and missed inline headers; an AT END phrase counted as terminal. |
 | D021 | 6 | engine | fact | CICS resources, CICS task control | #3577 / #3582 | A PL/I CICS operand continued past a columns 73-80 sequence field read the sequence number as its value (9 of 3,251 DSF operations lost a name). |
+| D022 | 3 | engine | attribute | dynamic call targets | #3616 / #3640 | dynamic_call_targets and _program_file indexed CSD / BMS / JCL / DDL class_data names as program declarers: 88 of 89 CardDemo candidates resolved to the CSD deck instead of the COBOL source (the keyed candidate names were right). |
 | B001 | 5 | brief | attribute | CICS resources | #3512 / #3561 | The brief said record_clause is 'the first of INTO / FROM / SET' (meant: that precedence); WEB CONVERSE codes both. |
 | B002 | 5 | brief | fact | CSD resources | #3575 / #3584 | The brief's name rule said 'A-Z'; CSD names are case-insensitive (`ZC@id@`). |
 | B003 | 3 | brief | fact | JCL resolved DSNs | #3575 / #3601 | The brief did not say override DDs (//PROCSTEP.DD) are out of scope, as key and engine define them. |

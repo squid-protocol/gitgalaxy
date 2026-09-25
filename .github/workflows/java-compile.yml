@@ -6,7 +6,10 @@ name: Generated Java Compiles
 # generates the Java under a set of configs, and runs the real build (Maven, or
 # Gradle for the gradle rows) with JDK 17 and 21: tests/tools/java_target_matrix.py.
 # CardDemo runs every config; the other corpora run default / plain-records /
-# gradle, so the generator meets each corpus's shapes.
+# gradle, so the generator meets each corpus's shapes. Each set runs twice: from
+# the refactoring stage alone, and against an engine scan (--scan), where the
+# generator builds from the verified skeleton (#3614) -- CICS transaction
+# endpoints and COMMAREA / channel DTOs (#3615).
 #
 # Runs when the generator or what feeds it changes, on push to main, weekly
 # (dependency drift on Maven Central), and on demand.
@@ -20,6 +23,7 @@ on:
       - "gitgalaxy/tools/cobol_to_java/**"
       - "gitgalaxy/tools/cobol_to_cobol/**"
       - "gitgalaxy/standards/yaml_reader.py"
+      - "gitgalaxy/standards/fact_channel_confidence.json"
       - "tests/tools/java_target_matrix.py"
       - "tests/cobol_mainframe/corpora.json"
       - ".github/workflows/java-compile.yml"
@@ -31,6 +35,7 @@ on:
       - "gitgalaxy/tools/cobol_to_java/**"
       - "gitgalaxy/tools/cobol_to_cobol/**"
       - "gitgalaxy/standards/yaml_reader.py"
+      - "gitgalaxy/standards/fact_channel_confidence.json"
       - "tests/tools/java_target_matrix.py"
       - "tests/cobol_mainframe/corpora.json"
       - ".github/workflows/java-compile.yml"
@@ -133,6 +138,24 @@ jobs:
           PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --work "$RUNNER_TEMP/java_matrix" \
+            --m2 "$HOME/.m2/repository" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            "${ONLY[@]}"
+
+      - name: Generate and compile (engine scan, verified skeleton)
+        if: ${{ !cancelled() }}  # report both paths even when the first fails
+        env:
+          CORPUS: ${{ matrix.corpus }}
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          cd gitgalaxy
+          export JDK_17="$JAVA_HOME_17_X64" JDK_21="$JAVA_HOME_21_X64" JAVA_HOME="$JAVA_HOME_17_X64"
+          ONLY=()
+          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
+            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            --scan \
+            --work "$RUNNER_TEMP/java_matrix_scan" \
             --m2 "$HOME/.m2/repository" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"

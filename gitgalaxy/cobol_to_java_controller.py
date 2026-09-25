@@ -34,6 +34,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import (
     generate_java_agent_ticket,
@@ -67,6 +68,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
     generate_java_entity,
     is_transient_record,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, load_skeletons
 from gitgalaxy.tools.cobol_to_java.java_target import (
     DEFAULT_CONFIG,
     ConfigError,
@@ -140,13 +142,13 @@ public class {camel_name}Service {{
 """
 
 
-def _write_skeleton_audit(f, skeletons: dict) -> None:
+def _write_skeleton_audit(f, skeletons: dict, cics: Optional[CicsForge] = None) -> None:
     """#3614: which engine facts the generated project was built against, and how far each is proven."""
     fields: dict[str, dict] = {}
     for key, path in skeletons.items():
         for sec in json.loads(path.read_text(encoding="utf-8")).get("sections", {}).values():
-            if not sec.get("facts"):
-                continue
+            if not sec.get("facts") or not isinstance(sec["facts"], list):
+                continue  # the interface section is one mapping, reported by the CICS line below
             row = fields.setdefault(sec["ledger_field"], {**sec, "facts": 0, "programs": set()})
             row["facts"] += len(sec["facts"])
             row["programs"].add(key)
@@ -159,7 +161,15 @@ def _write_skeleton_audit(f, skeletons: dict) -> None:
             f"    {name:<32} {row['facts']:>6}  {len(row['programs']):>8}  {row['field_testing']} "
             f"({row['tested_on_public']} / {row['tested_on_private']})\n"
         )
-    f.write("  'open' = verified on the keyed reference corpora, still being field-tested on fresh estates.\n\n")
+    f.write("  'open' = verified on the keyed reference corpora, still being field-tested on fresh estates.\n")
+    if cics is not None:
+        with_commarea = sum(1 for p in cics.programs.values() if p.commarea_dto)
+        f.write(
+            f"  • CICS programs (#3615)    : {len(cics.programs)} -- {with_commarea} with a COMMAREA DTO, "
+            f"{sum(len(p.transactions) for p in cics.programs.values())} transaction endpoints, "
+            f"{len(cics.dtos)} COMMAREA / channel DTOs\n"
+        )
+    f.write("\n")
 
 
 def main():
@@ -296,6 +306,19 @@ def main():
             except Exception as e:  # noqa: PERF203 -- per-iteration isolation: skip a malformed file, keep generating the rest of the batch
                 print(f"  [!] Failed to generate entity from {schema_file.name}: {e}")
 
+    # #3614: the refractor's verified skeletons (present when it ran with --scan / --galaxy-db)
+    skeleton_dir = clean_room_path / "06_skeleton"
+    skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
+    # #3615: CICS programs get endpoints per entry transaction and COMMAREA / channel DTOs
+    cics = CicsForge(load_skeletons(skeleton_dir), args.pkg, target) if skeletons else None
+    if cics is not None and target.features.rest_controllers:
+        cics_dto_dir = java_dirs["dto"] / "cics"
+        cics_dto_dir.mkdir(parents=True, exist_ok=True)
+        for name, code in cics.dto_sources().items():
+            (cics_dto_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
+            stats["dtos"] += 1
+        print(f"  [+] Generated {len(cics.dtos)} CICS COMMAREA / channel DTOs for {len(cics.programs)} CICS programs")
+
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
     if ir_dir.exists():
@@ -315,10 +338,18 @@ def main():
                     raw_prog_id = "legacy-service"
 
                 safe_file_name = java_class_base(raw_prog_id)
+                cics_prog = None
+                if cics is not None and target.features.rest_controllers:
+                    cics_prog = cics.programs.get(output_key(ir_file, "_ir"))
+                    if cics_prog is not None and cics_prog.cls != safe_file_name:
+                        cics_prog = None  # a renamed key (legacy / legacy-service): keep the generic path
 
                 # 3A. Generate the @Service Skeleton
                 if target.features.services:
-                    service_code = generate_service_skeleton(ir_state, args.pkg, unit_key=raw_prog_id, target=target)
+                    extras = cics.service_extras(cics_prog) if cics_prog is not None else None
+                    service_code = generate_service_skeleton(
+                        ir_state, args.pkg, unit_key=raw_prog_id, target=target, extras=extras
+                    )
                     if java_header:
                         service_code = java_header + service_code
                     out_path_svc = java_dirs["service"] / f"{safe_file_name}Service.java"
@@ -328,7 +359,16 @@ def main():
                 # 3B. Generate the @RestController
                 lineage = ir_state.get("analysis", {}).get("lineage", {})
                 wants_api = lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")
-                if target.features.rest_controllers and lineage and wants_api:
+                if cics_prog is not None:
+                    java_code = cics.controller(cics_prog)
+                    if java_header:
+                        java_code = java_header + java_code
+                    (java_dirs["controller"] / f"{safe_file_name}Controller.java").write_text(
+                        java_code, encoding="utf-8"
+                    )
+                    stats["controllers"] += 1
+                    print(f"  [+] Generated CICS API: {safe_file_name}Controller.java")
+                elif target.features.rest_controllers and lineage and wants_api:
                     java_code = generate_rest_controller(ir_state, args.pkg, unit_key=raw_prog_id, target=target)
                     if java_header:
                         java_code = java_header + java_code
@@ -363,9 +403,6 @@ def main():
                 print(f"  [!] Failed to generate architecture from {ir_file.name}: {e}")
 
     # 4. Generate Autonomous AI Agent Tickets
-    # #3614: the refractor's verified skeletons (present when it ran with --scan / --galaxy-db)
-    skeleton_dir = clean_room_path / "06_skeleton"
-    skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
     slice_dir = clean_room_path / "05_microservice_slices"
     if target.features.agent_tickets and slice_dir.exists():
         for slice_file in sorted(slice_dir.glob("*_slice.json"), key=lambda p: p.name):
@@ -421,7 +458,7 @@ def main():
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
         if skeletons:
-            _write_skeleton_audit(f, skeletons)
+            _write_skeleton_audit(f, skeletons, cics)
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

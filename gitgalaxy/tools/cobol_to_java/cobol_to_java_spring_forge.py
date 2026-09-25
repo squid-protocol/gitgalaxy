@@ -351,8 +351,22 @@ def generate_java_dto(
     for col_name, col_data in properties.items():
         body.extend(_render_field(col_name, col_data, class_name, jpa=False))
 
+    return render_dto_class(f"{package_name}.dto", class_name, body, requires_list, t)
+
+
+def render_dto_class(
+    package: str,
+    class_name: str,
+    body: list[str],
+    requires_list: bool,
+    target: JavaTarget,
+    javadoc: Optional[list[str]] = None,
+) -> str:
+    """A DTO from its field lines (`_render_field` shape: `//` comments and `    private T name;`),
+    in the target's style: a Lombok class, a plain class with accessors, or a Java record."""
+    t = target
     java = []
-    java.append(f"package {package_name}.dto;\n")
+    java.append(f"package {package};\n")
     use_lombok = t.lombok and t.java.dto_style == "class"
     if use_lombok:
         java.append("import lombok.Data;")
@@ -361,6 +375,10 @@ def generate_java_dto(
     if requires_list:
         java.append("import java.util.List;")
     java.append("")
+    if javadoc:
+        java.append("/**")
+        java.extend(f" * {ln}".rstrip() for ln in javadoc)
+        java.append(" */")
 
     if t.java.dto_style == "record":
         # A record's components are its fields: each keeps its structural comments.

@@ -6,7 +6,10 @@ directory and run the real build (`mvn compile` or `gradle compileJava`). A conf
 passes only when the generated project compiles. Needs a JDK (JAVA_HOME, per Java
 version: JDK_17 / JDK_21 env vars override) plus Maven, and Gradle for the gradle rows.
 
-    python tests/tools/java_target_matrix.py <corpus dir> [--work DIR] [--only NAME ...]
+    python tests/tools/java_target_matrix.py <corpus dir> [--work DIR] [--only NAME ...] [--scan]
+
+--scan refactors against a fresh engine scan, so the generator also builds from the
+verified skeleton (#3614): CICS endpoints and COMMAREA / channel DTOs (#3615).
 
 The same runner is what #3121 puts in CI.
 """
@@ -54,12 +57,12 @@ def _jdk(version: int) -> str:
     return os.environ.get(f"JDK_{version}") or os.environ.get("JAVA_HOME", "")
 
 
-def refactor(corpus: Path, work: Path) -> Path:
+def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     from gitgalaxy import cobol_refractor_controller
 
     src = work / corpus.name
     shutil.copytree(corpus, src, ignore=shutil.ignore_patterns(".git"))
-    with patch("sys.argv", ["cobol-refractor", str(src)]):
+    with patch("sys.argv", ["cobol-refractor", str(src), *(["--scan"] if scan else [])]):
         cobol_refractor_controller.main()
     return next(work.glob(f"{corpus.name}_gitgalaxy_clean_*"))
 
@@ -107,6 +110,7 @@ def main() -> int:
     ap.add_argument("--work", type=Path, default=None)
     ap.add_argument("--only", nargs="*", default=None)
     ap.add_argument("--m2", type=Path, default=Path.home() / ".m2" / "repository")
+    ap.add_argument("--scan", action="store_true", help="refactor against an engine scan (the skeleton path)")
     ap.add_argument(
         "--summary", type=Path, default=None, help="append a Markdown results table (e.g. $GITHUB_STEP_SUMMARY)"
     )
@@ -116,9 +120,14 @@ def main() -> int:
         ap.error(f"unknown config(s) {unknown}; configs are {', '.join(MATRIX)}")
     work = args.work or Path(tempfile.mkdtemp(prefix="java_matrix_"))
     work.mkdir(parents=True, exist_ok=True)
-    clean = refactor(args.corpus.resolve(), work)
+    clean = refactor(args.corpus.resolve(), work, scan=args.scan)
     failed = 0
-    rows = [f"### Generated Java compiles: {args.corpus.name}", "", "| config | result |", "|---|---|"]
+    rows = [
+        f"### Generated Java compiles: {args.corpus.name}{' (engine scan)' if args.scan else ''}",
+        "",
+        "| config | result |",
+        "|---|---|",
+    ]
     for name, config in MATRIX.items():
         if args.only and name not in args.only:
             continue

@@ -77,6 +77,8 @@ PROGRAM_JOINS = {
     "ims_access_check": ("ims_access_check", "IMS access check"),
     "data_flows": ("data_flows", "data moves"),
 }
+# The program's interface (GalaxyIR.program_interfaces): the layouts are record_data, COPY-expanded.
+INTERFACE_FIELD = "record fields"
 # The row keys that name a program's file in a join row.
 _PROGRAM_KEYS = ("file", "program", "caller", "callee", "from", "to", "resolves_to", "submitter", "writer", "reader")
 # Estate-wide joins (no single owning program) written to estate.json.
@@ -138,6 +140,7 @@ class SkeletonExporter:
         self.ir = ir
         self.confidence = load_confidence() if confidence is None else confidence
         self._joins = {name: getattr(ir, method)() for name, (method, _) in PROGRAM_JOINS.items()}
+        self._interfaces = ir.program_interfaces()
 
     def program(self, ef: EngineFile) -> dict[str, Any]:
         path = ef.file_path
@@ -147,6 +150,10 @@ class SkeletonExporter:
         for name, (_, field) in PROGRAM_JOINS.items():
             rows = [row for row in self._joins[name] if _names(row, path)]
             sections[name] = _section(field, rows, self.confidence)
+        # #3615: the COMMAREA layout the program receives and the containers it reads / writes.
+        # One mapping, not rows: `facts` is the program_interfaces() entry.
+        interface = self._interfaces.get(path, {"commarea": None, "commarea_gap": None, "containers": []})
+        sections["interface"] = _section(INTERFACE_FIELD, interface, self.confidence)
         return {
             "skeleton_version": SKELETON_VERSION,
             "source": {"db": self.ir.db_path.name, "repo": self.ir.repo_name, "commit": self.ir.commit_hash},

@@ -1865,6 +1865,99 @@ class GalaxyIR:
                     entry["mismatches"] += _layout_mismatches(caller_layout, callee_layout)
         return out
 
+    def program_interfaces(self, language: str = "cobol") -> dict[str, dict]:
+        """What each CICS program receives and hands back (#3615), per program file.
+
+        `commarea` -- the layout the program's COMMAREA carries (record_layout
+        `fields` plus `record`, `file`, `bytes`, `variable`, and `extended` -- the
+        caller continues a copied record past its COPY, so the layout is that
+        program's, not the copybook's) and where it comes from:
+        `basis` is `caller_record` when a resolved LINK / XCTL / RETURN TRANSID
+        passes this program a record (`sources` lists those sites; when callers
+        pass different records the one most sites pass is chosen -- ties by file,
+        name -- and the rest are `alternatives`), else `dfhcommarea`, the program's
+        own fixed-length LINKAGE DFHCOMMAREA. None when neither is known, with
+        the reason in `commarea_gap`: a variable-length DFHCOMMAREA (`OCCURS ...
+        DEPENDING ON EIBCALEN`) no caller pairs with, or no DFHCOMMAREA at all.
+        `containers` -- every GET / PUT CONTAINER naming a resolved container:
+        `container`, `channel` (None = the current channel), `direction` (`in`
+        for a GET, `out` for a PUT / MOVE), `record` (the INTO / FROM area) and
+        its `layout` (None when that area is not found). Facts only: nothing here
+        is inferred from names.
+        """
+        incoming: dict[str, dict[tuple, dict]] = {}
+        for row in self.commarea_contracts(language):
+            rec = row["caller_record"]
+            if not row["callee"] or rec is None:
+                continue
+            key = (rec["file"], rec["name"])
+            slot = incoming.setdefault(row["callee"], {}).setdefault(key, {"sources": [], "commarea": row["commarea"]})
+            slot["sources"].append({"caller": row["caller"], "line": row["line"], "verb": row["verb"]})
+
+        def layout_of(ef: EngineFile, operand: Optional[str]) -> Optional[tuple]:
+            name, qualifier = _operand_name(operand)
+            found = self._find_item(ef, name, qualifier) if name else []
+            if not found:
+                return None
+            owner, item, extension = found[0]
+            return (
+                owner.file_path,
+                item.name,
+                {**self.record_layout(owner, item, extension), "extended": bool(extension)},
+            )
+
+        out: dict[str, dict] = {}
+        for ef in self.programs(language):
+            commarea, gap = None, None
+            options = []
+            for (file, name), slot in incoming.get(ef.file_path, {}).items():
+                caller = self.files.get(slot["sources"][0]["caller"])
+                found = layout_of(caller, slot["commarea"]) if caller is not None else None
+                if found is None:
+                    continue
+                _, _, layout = found
+                usable = layout["bytes"] is not None and not layout["variable"]
+                options.append((not usable, -len(slot["sources"]), file, name, layout, slot["sources"]))
+            options.sort(key=lambda o: o[:4])
+            if options:
+                _, _, file, name, layout, sources = options[0]
+                commarea = {"record": name, "file": file, "basis": "caller_record", "sources": sources, **layout}
+                commarea["alternatives"] = [
+                    {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5]} for o in options[1:]
+                ]
+            else:
+                own = self._dfhcommarea(ef)
+                if own is None:
+                    gap = "no LINKAGE DFHCOMMAREA, and no resolved caller passes this program a COMMAREA"
+                else:
+                    layout = self.record_layout(ef, own)
+                    if layout["variable"] or layout["bytes"] is None:
+                        gap = (
+                            "DFHCOMMAREA is variable-length or of unknown width, and no resolved LINK / XCTL / "
+                            "RETURN TRANSID passes this program a record"
+                        )
+                    else:
+                        commarea = {"record": own.name, "file": ef.file_path, "basis": "dfhcommarea", "sources": [],
+                                    "alternatives": [], **layout, "extended": False}  # fmt: skip
+            containers = []
+            for op in ef.cics_resources:
+                if op.kind != "CONTAINER" or not op.name or op.access not in ("read", "write", "move"):
+                    continue
+                found = layout_of(ef, op.record) if op.record else None
+                containers.append(
+                    {
+                        "container": op.name.upper(),
+                        "channel": (op.qualifier or "").upper() or None,
+                        "direction": "in" if op.access == "read" else "out",
+                        "verb": op.verb,
+                        "record": found[1] if found else op.record,
+                        "layout": found[2] if found else None,
+                        "line": op.line,
+                    }
+                )
+            out[ef.file_path] = {"commarea": commarea, "commarea_gap": gap, "containers": containers}
+        return out
+
     # ---- #3351-#3354: CICS resource joins ------------------------------------
     def cics_resource_users(self, kind: str) -> dict[str, dict[str, list]]:
         """Resource name -> access -> the files that touch it, for one CICS `kind`

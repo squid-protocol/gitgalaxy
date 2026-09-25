@@ -32,13 +32,20 @@ from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
 def generate_service_skeleton(
-    ir_state: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
+    ir_state: dict,
+    package_name: str,
+    unit_key: Optional[str] = None,
+    target: Optional[JavaTarget] = None,
+    extras: Optional[tuple[list[str], list[str]]] = None,
 ) -> str:
     """Generates the Spring Boot @Service skeleton and stages DAG dependencies.
 
     `unit_key` is the clean-room output key this IR was written under (#3221).
     Omitted, the class is named from the IR's own file name as before, which two
     same-stemmed programs share.
+
+    `extras` (#3615): (import lines, method lines) a CICS program's endpoints need,
+    from the transaction forge; None leaves the service as before.
     """
     prog_id = program_key_from_ir(ir_state, unit_key) or "Unknown"
     camel_prog = java_class_base(prog_id, prefix="Legacy")
@@ -54,7 +61,10 @@ def generate_service_skeleton(
     if lombok:
         java.append("import lombok.RequiredArgsConstructor;")
     java.append("import org.slf4j.Logger;")
-    java.append("import org.slf4j.LoggerFactory;\n")
+    java.append("import org.slf4j.LoggerFactory;")
+    if extras and extras[0]:
+        java.extend(extras[0])
+    java.append("")
 
     java.append("@Service")
     if lombok:
@@ -80,7 +90,12 @@ def generate_service_skeleton(
     java.append(f"    public void execute{camel_prog}(/* Parameters mapped from Controller */) {{")
     java.append(f'        log.info("Executing modernized business logic for {prog_id}");')
     java.append("        // TODO: [AI AGENT] Implement extracted business rules here.")
-    java.append("    }\n}")
+    if extras and extras[1]:
+        java.append("    }\n")
+        java.extend(extras[1])
+        java.append("}")
+    else:
+        java.append("    }\n}")
 
     return "\n".join(java)
 

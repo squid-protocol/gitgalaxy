@@ -5155,6 +5155,21 @@ class StructuralExtractor:
                 if lead != -1:
                     start_idx = lead
 
+            # #3543: a func_start that opens with a newline-inclusive class (TS/JS
+            # `[ \t\n]*`) or a consumed boundary character (PHP's `[^\w$]`, usually
+            # the previous line's `\n`) starts its match on the line BEFORE the
+            # declaration -- the class `{`, the previous member's `},`, a docblock's
+            # `*/`, or (when PRISM blanked a doc comment) several lines above it.
+            # Anchor the unit on the declaration's own line: skip to just past the
+            # last newline of the leading whitespace run. Indentation stays in the
+            # block; a match that does not open with a newline is untouched.
+            _ws = start_idx
+            while _ws < len(safe_code) and safe_code[_ws] in " \t\r\n":
+                _ws += 1
+            _nl = safe_code.rfind("\n", start_idx, _ws)
+            if _nl != -1:
+                start_idx = _nl + 1
+
             if lang_id == "dart" and start_idx < dart_arrow_body_end:
                 continue
 

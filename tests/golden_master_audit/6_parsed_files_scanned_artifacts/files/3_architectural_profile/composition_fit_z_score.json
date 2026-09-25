@@ -1890,7 +1890,7 @@
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": 0.214,
       "javascript/threejs/Editor.js": -0.157,
-      "javascript/threejs/GLTFLoader.js": -0.415,
+      "javascript/threejs/GLTFLoader.js": -0.465,
       "javascript/threejs/Matrix4.js": 1.141,
       "javascript/threejs/WebGLProgram.js": -0.604,
       "javascript/threejs/WebGLRenderer.js": 0.587
@@ -2496,10 +2496,10 @@
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": -0.108,
       "php/wordpress/class-wp-query.php": 0.12,
-      "php/wordpress/formatting.php": 0.618,
-      "php/wordpress/functions.php": 0.156,
+      "php/wordpress/formatting.php": 0.721,
+      "php/wordpress/functions.php": 0.563,
       "php/wordpress/license.txt": 0.0,
-      "php/wordpress/plugin.php": 1.337,
+      "php/wordpress/plugin.php": 1.554,
       "php/wordpress/wp-login.php": 1.881,
       "php/wordpress/wp-settings.php": 1.817
     },
@@ -3645,7 +3645,7 @@
     },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 0.0,
-      "typescript/assemblyscript/ast.ts": 1.182,
+      "typescript/assemblyscript/ast.ts": 0.713,
       "typescript/assemblyscript/compiler.ts": 0.253,
       "typescript/assemblyscript/package.json": 0.0,
       "typescript/assemblyscript/parser.ts": 1.442
@@ -3676,16 +3676,16 @@
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
-      "typescript/vscode/async.ts": -0.343,
-      "typescript/vscode/codeEditorWidget.ts": -0.692,
+      "typescript/vscode/async.ts": -0.355,
+      "typescript/vscode/codeEditorWidget.ts": -0.695,
       "typescript/vscode/eslint.config.js": 1.688,
-      "typescript/vscode/extHost.api.impl.ts": 0.088,
+      "typescript/vscode/extHost.api.impl.ts": -0.146,
       "typescript/vscode/gulpfile.vscode.ts": 1.038,
       "typescript/vscode/instantiationService.ts": -1.17,
-      "typescript/vscode/ipc.ts": -0.572,
-      "typescript/vscode/lifecycle.ts": -0.908,
+      "typescript/vscode/ipc.ts": -0.664,
+      "typescript/vscode/lifecycle.ts": -0.919,
       "typescript/vscode/package.json": 0.0,
-      "typescript/vscode/vscode.d.ts": 0.936
+      "typescript/vscode/vscode.d.ts": 0.938
     },
     "typescript/zod": {
       "typescript/zod/package.json": 0.0,

@@ -506,7 +506,7 @@
     },
     "cobol/Z-SMS-Gateway": {
       "cobol/Z-SMS-Gateway/BALANCE.cbl": -5284.09,
-      "cobol/Z-SMS-Gateway/HISTORY.cbl": -5927.66,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": -5927.67,
       "cobol/Z-SMS-Gateway/MESSAGES.cbl": -5778.42,
       "cobol/Z-SMS-Gateway/SENDSMS.cbl": -5428.76
     },
@@ -2498,7 +2498,7 @@
       "php/wordpress/class-wp-query.php": -5937.88,
       "php/wordpress/formatting.php": -5369.68,
       "php/wordpress/functions.php": -5736.74,
-      "php/wordpress/license.txt": -6301.26,
+      "php/wordpress/license.txt": -6301.27,
       "php/wordpress/plugin.php": -5743.63,
       "php/wordpress/wp-login.php": -5377.43,
       "php/wordpress/wp-settings.php": -5769.31

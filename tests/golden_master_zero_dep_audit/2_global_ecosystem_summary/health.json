@@ -5,7 +5,7 @@
   ],
   "value": {
     "avg_cognitive_load": 20.361,
-    "avg_documentation": 52.239,
+    "avg_documentation": 52.218,
     "avg_safety_score": 45.913,
     "avg_tech_debt": 26.463
   }

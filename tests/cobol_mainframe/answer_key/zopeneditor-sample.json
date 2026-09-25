@@ -906,7 +906,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 136
         },
         {
           "ordinal": 45,
@@ -1856,7 +1856,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "COBOL/SAM1LIB.cbl": {
       "program_id": "SAM1",
@@ -2087,7 +2089,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 91
         },
         {
           "ordinal": 2,
@@ -2375,7 +2377,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 117
+          "line": 121
         },
         {
           "ordinal": 20,
@@ -3325,7 +3327,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "COBOL/SAM2.cbl": {
       "program_id": "SAM2",
@@ -3535,7 +3539,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 9,
@@ -3557,7 +3561,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "multiroot/sam/SAM1.cbl": {
       "program_id": "SAM1",
@@ -4499,7 +4505,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 143
+          "line": 147
         },
         {
           "ordinal": 47,
@@ -5187,7 +5193,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 199
+          "line": 200
         },
         {
           "ordinal": 90,
@@ -5689,7 +5695,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "multiroot/sam/SAM2.cbl": {
       "program_id": "SAM2",
@@ -5907,7 +5915,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 9,
@@ -5929,7 +5937,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "method": {
@@ -8590,6 +8600,69 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "multiroot/sam/SAM1.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 60,
+          "asked": 60
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM2.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 62,
+          "asked": 62
+        }
+      },
+      "rulings": {
+        "records:COBOL/SAM2.cbl::L47 01 TRAN-OK PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "COBOL/SAM1LIB.cbl",
+        "multiroot/sam/SAM2.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 41,
+          "asked": 41
+        }
+      },
+      "rulings": {
+        "records:multiroot/sam/SAM2.cbl::L47 01 TRAN-OK PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
     }
   ],
   "file_control": {
@@ -11371,6 +11444,51 @@
       "asked": 77,
       "key_errors": 1,
       "upper_bound_95": 0.05614
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "COBOL/SAM1.cbl",
+          "COBOL/SAM1LIB.cbl",
+          "COBOL/SAM2.cbl",
+          "multiroot/sam/SAM1.cbl",
+          "multiroot/sam/SAM2.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "multiroot/sam/SAM1.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "COBOL/SAM1.cbl",
+            "COBOL/SAM2.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zopeneditor-sample records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 3,
+          "files": [
+            "COBOL/SAM1LIB.cbl",
+            "multiroot/sam/SAM2.cbl"
+          ]
+        }
+      ],
+      "asked": 163,
+      "key_errors": 2,
+      "upper_bound_95": 0.0364,
+      "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
     }
   },
   "symbolic_maps": {},

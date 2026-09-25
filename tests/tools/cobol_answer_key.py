@@ -145,7 +145,7 @@ _DATA_DIVISION = re.compile(r"\bDATA\s+DIVISION\b")
 _PROC_DIVISION = re.compile(r"\bPROCEDURE\s+DIVISION\b")
 _DD_SECTION = re.compile(r"\b(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)\s+SECTION\b")
 _DD_FD = re.compile(rf"^\s*(?:FD|SD)\s+({NAME})", re.M)
-_DD_LEVEL = re.compile(rf"^\s*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)
+_DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # #3575: a leading \s* ate blank lines
 _DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([-A-Z0-9(),.$/*+]+)")
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"

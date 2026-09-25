@@ -123,6 +123,18 @@ def test_truth_tier_is_the_weakest_verification_behind_a_field():
     assert gl.truth_tier(key, "dead") == "draft"
 
 
+def test_a_flag_may_carry_its_own_tier_below_the_entry():
+    """#3575: program records signed by a SAMPLED census report sample_verified, while
+    the program block (which backs units, calls, ...) stays cross_verified."""
+    ok = {"status": "validated", "tier": "cross_verified"}
+    key = {"programs": {p: {"verification": dict(ok), "records_validated": True} for p in ("P.cbl", "Q.cbl")}}
+    assert gl.truth_tier(key, "record fields") == "cross_verified"
+    for entry in key["programs"].values():
+        entry["records_validated_tier"] = "sample_verified"
+    assert gl.truth_tier(key, "record fields") == "sample_verified"
+    assert gl.truth_tier(key, "units") == "cross_verified"
+
+
 def test_ledger_tiers_mirror_the_key_tool():
     import cobol_answer_key as ak
 

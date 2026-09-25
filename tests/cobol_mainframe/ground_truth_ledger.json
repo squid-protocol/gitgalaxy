@@ -499,7 +499,7 @@
             "tp": 1839,
             "truth": 1839
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": {
@@ -1350,7 +1350,7 @@
             "tp": 1851,
             "truth": 1851
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": {
@@ -1799,7 +1799,7 @@
             "tp": 879,
             "truth": 879
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": {
@@ -2192,7 +2192,7 @@
             "tp": 294,
             "truth": 294
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": null,
@@ -2561,7 +2561,7 @@
             "tp": 449,
             "truth": 449
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": null,
@@ -2934,7 +2934,7 @@
             "tp": 163,
             "truth": 163
           },
-          "truth": "draft"
+          "truth": "sample_verified"
         },
         "symbolic maps": {
           "engine": null,

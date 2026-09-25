@@ -433,7 +433,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 58
+          "line": 59
         },
         {
           "ordinal": 21,
@@ -465,7 +465,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 23,
@@ -561,7 +561,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 70
+          "line": 71
         },
         {
           "ordinal": 29,
@@ -660,7 +660,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "Source/ZECS000.cbl": {
       "program_id": "ZECS000",
@@ -966,7 +968,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 22
+          "line": 26
         },
         {
           "ordinal": 1,
@@ -1190,7 +1192,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZCEXPIRE",
-          "line": 40
+          "line": 44
         },
         {
           "ordinal": 15,
@@ -1238,7 +1240,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 18,
@@ -1462,7 +1464,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 62
+          "line": 67
         },
         {
           "ordinal": 32,
@@ -1574,7 +1576,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 74
+          "line": 75
         },
         {
           "ordinal": 39,
@@ -1670,7 +1672,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 81
+          "line": 82
         },
         {
           "ordinal": 45,
@@ -1718,7 +1720,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "20",
-          "line": 85
+          "line": 86
         },
         {
           "ordinal": 48,
@@ -1734,7 +1736,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 49,
@@ -1798,7 +1800,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 92
+          "line": 93
         },
         {
           "ordinal": 53,
@@ -1862,7 +1864,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 98
         },
         {
           "ordinal": 57,
@@ -1910,7 +1912,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 60,
@@ -1958,7 +1960,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 105
+          "line": 106
         },
         {
           "ordinal": 63,
@@ -2006,7 +2008,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "READ  ",
-          "line": 114
+          "line": 115
         },
         {
           "ordinal": 66,
@@ -2070,7 +2072,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 70,
@@ -2198,7 +2200,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 78,
@@ -2390,7 +2392,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 141
+          "line": 142
         },
         {
           "ordinal": 90,
@@ -2582,7 +2584,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 154
+          "line": 159
         },
         {
           "ordinal": 102,
@@ -2614,7 +2616,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "/RESOURCES",
-          "line": 161
+          "line": 162
         },
         {
           "ordinal": 104,
@@ -2646,7 +2648,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "200",
-          "line": 164
+          "line": 165
         },
         {
           "ordinal": 106,
@@ -2678,7 +2680,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 108,
@@ -2870,7 +2872,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 180
+          "line": 181
         },
         {
           "ordinal": 120,
@@ -2950,7 +2952,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 186
+          "line": 187
         },
         {
           "ordinal": 125,
@@ -2966,7 +2968,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 188
+          "line": 189
         },
         {
           "ordinal": 126,
@@ -2998,7 +3000,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "A1",
-          "line": 191
+          "line": 192
         },
         {
           "ordinal": 128,
@@ -3046,7 +3048,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 195
+          "line": 196
         },
         {
           "ordinal": 131,
@@ -3174,7 +3176,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "160",
-          "line": 204
+          "line": 205
         },
         {
           "ordinal": 139,
@@ -3190,7 +3192,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "2",
-          "line": 206
+          "line": 207
         },
         {
           "ordinal": 140,
@@ -3222,7 +3224,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 209
+          "line": 210
         },
         {
           "ordinal": 142,
@@ -3350,7 +3352,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 218
+          "line": 219
         },
         {
           "ordinal": 150,
@@ -3366,7 +3368,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "40",
-          "line": 220
+          "line": 221
         },
         {
           "ordinal": 151,
@@ -3419,7 +3421,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "Source/ZECS001.cbl": {
       "program_id": "ZECS001",
@@ -4107,7 +4111,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 27
+          "line": 31
         },
         {
           "ordinal": 1,
@@ -4363,7 +4367,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZUIDSTCK",
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 17,
@@ -4395,7 +4399,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 51
         },
         {
           "ordinal": 19,
@@ -4443,7 +4447,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 56
         },
         {
           "ordinal": 22,
@@ -4475,7 +4479,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 59
+          "line": 60
         },
         {
           "ordinal": 24,
@@ -4491,7 +4495,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 25,
@@ -4555,7 +4559,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 66
+          "line": 67
         },
         {
           "ordinal": 29,
@@ -4635,7 +4639,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "1",
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 34,
@@ -4987,7 +4991,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "AUTHORIZATION",
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 56,
@@ -5019,7 +5023,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 98
+          "line": 99
         },
         {
           "ordinal": 58,
@@ -5067,7 +5071,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "27",
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 61,
@@ -5083,7 +5087,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "*",
-          "line": 104
+          "line": 105
         },
         {
           "ordinal": 62,
@@ -5115,7 +5119,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 107
+          "line": 108
         },
         {
           "ordinal": 64,
@@ -5163,7 +5167,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 111
+          "line": 112
         },
         {
           "ordinal": 67,
@@ -5291,7 +5295,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "200",
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 75,
@@ -5403,7 +5407,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 82,
@@ -5435,7 +5439,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 131
+          "line": 132
         },
         {
           "ordinal": 84,
@@ -5467,7 +5471,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 134
+          "line": 135
         },
         {
           "ordinal": 86,
@@ -5499,7 +5503,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 88,
@@ -5531,7 +5535,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 140
+          "line": 141
         },
         {
           "ordinal": 90,
@@ -5563,7 +5567,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "OK",
-          "line": 143
+          "line": 144
         },
         {
           "ordinal": 92,
@@ -5627,7 +5631,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 148
+          "line": 149
         },
         {
           "ordinal": 96,
@@ -5659,7 +5663,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "16",
-          "line": 151
+          "line": 152
         },
         {
           "ordinal": 98,
@@ -5723,7 +5727,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TEXT",
-          "line": 156
+          "line": 157
         },
         {
           "ordinal": 102,
@@ -5787,7 +5791,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 161
+          "line": 162
         },
         {
           "ordinal": 106,
@@ -5835,7 +5839,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 165
+          "line": 166
         },
         {
           "ordinal": 109,
@@ -5915,7 +5919,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 171
+          "line": 172
         },
         {
           "ordinal": 114,
@@ -5963,7 +5967,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 175
+          "line": 176
         },
         {
           "ordinal": 117,
@@ -6011,7 +6015,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 179
+          "line": 180
         },
         {
           "ordinal": 120,
@@ -6059,7 +6063,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 183
+          "line": 184
         },
         {
           "ordinal": 123,
@@ -6107,7 +6111,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 187
+          "line": 188
         },
         {
           "ordinal": 126,
@@ -6155,7 +6159,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 191
+          "line": 192
         },
         {
           "ordinal": 129,
@@ -6203,7 +6207,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 195
+          "line": 196
         },
         {
           "ordinal": 132,
@@ -6251,7 +6255,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 199
+          "line": 200
         },
         {
           "ordinal": 135,
@@ -6283,7 +6287,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 202
+          "line": 203
         },
         {
           "ordinal": 137,
@@ -6395,7 +6399,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 210
+          "line": 211
         },
         {
           "ordinal": 144,
@@ -6539,7 +6543,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 220
+          "line": 221
         },
         {
           "ordinal": 153,
@@ -6651,7 +6655,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 228
+          "line": 229
         },
         {
           "ordinal": 160,
@@ -6699,7 +6703,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 232
+          "line": 233
         },
         {
           "ordinal": 163,
@@ -6875,7 +6879,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZECS_CONTAINER",
-          "line": 244
+          "line": 245
         },
         {
           "ordinal": 174,
@@ -6907,7 +6911,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 247
+          "line": 248
         },
         {
           "ordinal": 176,
@@ -7067,7 +7071,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 258
+          "line": 259
         },
         {
           "ordinal": 186,
@@ -7147,7 +7151,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 264
+          "line": 265
         },
         {
           "ordinal": 191,
@@ -7163,7 +7167,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 266
+          "line": 267
         },
         {
           "ordinal": 192,
@@ -7211,7 +7215,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "READ   ",
-          "line": 270
+          "line": 271
         },
         {
           "ordinal": 195,
@@ -7291,7 +7295,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 276
+          "line": 277
         },
         {
           "ordinal": 200,
@@ -7419,7 +7423,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " NOSPACE",
-          "line": 285
+          "line": 286
         },
         {
           "ordinal": 208,
@@ -7435,7 +7439,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 287
+          "line": 288
         },
         {
           "ordinal": 209,
@@ -7563,7 +7567,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 296
+          "line": 297
         },
         {
           "ordinal": 217,
@@ -7803,7 +7807,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 312
+          "line": 313
         },
         {
           "ordinal": 232,
@@ -7995,7 +7999,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 325
+          "line": 326
         },
         {
           "ordinal": 244,
@@ -8123,7 +8127,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 334
+          "line": 338
         },
         {
           "ordinal": 252,
@@ -8171,7 +8175,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SELECT",
-          "line": 341
+          "line": 342
         },
         {
           "ordinal": 255,
@@ -8219,7 +8223,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 345
+          "line": 346
         },
         {
           "ordinal": 258,
@@ -8299,7 +8303,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 351
+          "line": 352
         },
         {
           "ordinal": 263,
@@ -8411,7 +8415,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 359
+          "line": 363
         },
         {
           "ordinal": 270,
@@ -8475,7 +8479,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 367
+          "line": 371
         },
         {
           "ordinal": 274,
@@ -8523,7 +8527,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 374
+          "line": 375
         },
         {
           "ordinal": 277,
@@ -8539,7 +8543,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 376
+          "line": 377
         },
         {
           "ordinal": 278,
@@ -8635,7 +8639,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 383
+          "line": 384
         },
         {
           "ordinal": 284,
@@ -8731,7 +8735,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "A1",
-          "line": 390
+          "line": 391
         },
         {
           "ordinal": 290,
@@ -8779,7 +8783,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 394
+          "line": 395
         },
         {
           "ordinal": 293,
@@ -8795,7 +8799,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 396
+          "line": 397
         },
         {
           "ordinal": 294,
@@ -8923,7 +8927,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "40",
-          "line": 405
+          "line": 406
         },
         {
           "ordinal": 302,
@@ -8955,7 +8959,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 408
+          "line": 409
         },
         {
           "ordinal": 304,
@@ -9003,7 +9007,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 412
+          "line": 413
         },
         {
           "ordinal": 307,
@@ -9051,7 +9055,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 416
+          "line": 417
         },
         {
           "ordinal": 310,
@@ -9099,7 +9103,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 430
+          "line": 431
         },
         {
           "ordinal": 313,
@@ -9195,7 +9199,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 437
+          "line": 438
         },
         {
           "ordinal": 319,
@@ -9227,7 +9231,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 445
+          "line": 451
         }
       ],
       "transactions": [
@@ -9250,7 +9254,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "Source/ZECS003.cbl": {
       "program_id": "ZECS003",
@@ -9408,7 +9414,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 28
+          "line": 32
         },
         {
           "ordinal": 1,
@@ -9520,7 +9526,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 39
+          "line": 40
         },
         {
           "ordinal": 8,
@@ -9552,7 +9558,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ADR",
-          "line": 42
+          "line": 43
         },
         {
           "ordinal": 10,
@@ -9584,7 +9590,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": ".",
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 12,
@@ -9616,7 +9622,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "X",
-          "line": 48
+          "line": 49
         },
         {
           "ordinal": 14,
@@ -9632,7 +9638,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 51
         },
         {
           "ordinal": 15,
@@ -9696,7 +9702,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 56
         },
         {
           "ordinal": 19,
@@ -9744,7 +9750,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 60
         },
         {
           "ordinal": 22,
@@ -9792,7 +9798,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 25,
@@ -9840,7 +9846,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "READ  ",
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 28,
@@ -9904,7 +9910,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 32,
@@ -10032,7 +10038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 40,
@@ -10208,7 +10214,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 98
+          "line": 99
         },
         {
           "ordinal": 51,
@@ -10384,7 +10390,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 110
+          "line": 115
         },
         {
           "ordinal": 62,
@@ -10416,7 +10422,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "/RESOURCES",
-          "line": 117
+          "line": 118
         },
         {
           "ordinal": 64,
@@ -10464,7 +10470,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "200",
-          "line": 121
+          "line": 122
         },
         {
           "ordinal": 67,
@@ -10480,7 +10486,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 68,
@@ -10560,7 +10566,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "A1",
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 73,
@@ -10608,7 +10614,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 133
+          "line": 134
         },
         {
           "ordinal": 76,
@@ -10752,7 +10758,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ZEROES",
-          "line": 143
+          "line": 144
         },
         {
           "ordinal": 85,
@@ -10768,7 +10774,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 145
+          "line": 146
         },
         {
           "ordinal": 86,
@@ -10896,7 +10902,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 154
+          "line": 155
         },
         {
           "ordinal": 94,
@@ -10912,7 +10918,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "40",
-          "line": 156
+          "line": 157
         },
         {
           "ordinal": 95,
@@ -10944,7 +10950,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TEXT/PLAIN",
-          "line": 159
+          "line": 160
         },
         {
           "ordinal": 97,
@@ -11011,7 +11017,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "Source/ZECSPLT.cbl": {
       "program_id": "ZECSPLT",
@@ -11102,7 +11110,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 23
+          "line": 28
         },
         {
           "ordinal": 1,
@@ -11150,7 +11158,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 31
+          "line": 32
         },
         {
           "ordinal": 4,
@@ -11198,7 +11206,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 35
+          "line": 36
         },
         {
           "ordinal": 7,
@@ -11214,7 +11222,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "4",
-          "line": 37
+          "line": 38
         },
         {
           "ordinal": 8,
@@ -11230,7 +11238,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 40
         },
         {
           "ordinal": 9,
@@ -11278,7 +11286,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "@TDQ@",
-          "line": 43
+          "line": 44
         },
         {
           "ordinal": 12,
@@ -11310,7 +11318,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 46
+          "line": 47
         },
         {
           "ordinal": 14,
@@ -11438,7 +11446,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 55
+          "line": 56
         },
         {
           "ordinal": 22,
@@ -11475,7 +11483,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "pli_programs": {},
@@ -19720,6 +19730,40 @@
       "asked": 246,
       "key_errors": 16,
       "upper_bound_95": 0.09593
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "Source/ECS001.cbl",
+          "Source/ZECS000.cbl",
+          "Source/ZECSPLT.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (zecs records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "Source/ZECS000.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (zecs records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "Source/ECS001.cbl",
+            "Source/ZECSPLT.cbl"
+          ]
+        }
+      ],
+      "asked": 152,
+      "key_errors": 25,
+      "upper_bound_95": 0.21972,
+      "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
     }
   },
   "cross_verification": [
@@ -20357,6 +20401,143 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "Source/ZECS000.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 111,
+          "asked": 111
+        }
+      },
+      "rulings": {
+        "records:Source/ZECS000.cbl::L105 01 ZK-LENGTH PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L114 01 FC-READ PIC=X(6) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L154 01 URI-MAP PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L161 01 RESOURCES PIC=X(10) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L164 01 HTTP-STATUS-200 PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L167 01 NUMBER-OF-SPACES PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L180 01 WEB-HTTPMETHOD PIC=X(10) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L186 01 WEB-HTTPVERSION PIC=X(15) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L188 01 WEB-HOST PIC=X(120) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L191 01 ACTIVE-SINGLE PIC=X(2) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L204 01 THE-OTHER-DC-LENGTH PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L206 01 TWO PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L209 01 URL-SCHEME-NAME PIC=X(16) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L218 01 WEB-PATH PIC=X(512) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L22 01 CURRENT-ABS PIC=S9(15) U=COMP-3 O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L220 01 CONVERSE-LENGTH PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L40 01 ZX-FCT PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L62 01 TTL-MILLISECONDS PIC=S9(15) U=COMP-3 O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L74 01 USERID PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECS000.cbl::L85 01 ZC-LENGTH PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (zecs records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "Source/ECS001.cbl",
+        "Source/ZECSPLT.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 41,
+          "asked": 41
+        }
+      },
+      "rulings": {
+        "records:Source/ZECSPLT.cbl::L23 01 ST-CODE PIC=X(2) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECSPLT.cbl::L35 01 URI-TRAN PIC=X(4) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECSPLT.cbl::L37 01 ZC-LENGTH PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECSPLT.cbl::L43 01 CSSL PIC=X(4) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:Source/ZECSPLT.cbl::L55 01 URI-PATH PIC=X(256) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
     }
   ]
 }

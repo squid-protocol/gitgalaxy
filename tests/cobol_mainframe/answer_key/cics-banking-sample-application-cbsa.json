@@ -90,7 +90,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 31
+          "line": 32
         },
         {
           "ordinal": 1,
@@ -138,7 +138,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 35
+          "line": 37
         },
         {
           "ordinal": 4,
@@ -154,7 +154,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 40
         },
         {
           "ordinal": 5,
@@ -170,7 +170,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 45
         },
         {
           "ordinal": 6,
@@ -266,7 +266,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 51
+          "line": 52
         },
         {
           "ordinal": 12,
@@ -330,7 +330,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 56
+          "line": 57
         },
         {
           "ordinal": 16,
@@ -362,7 +362,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 65
         },
         {
           "ordinal": 18,
@@ -490,7 +490,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 73
+          "line": 74
         },
         {
           "ordinal": 26,
@@ -586,7 +586,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 82
         },
         {
           "ordinal": 32,
@@ -698,7 +698,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 89
+          "line": 90
         },
         {
           "ordinal": 39,
@@ -762,7 +762,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 95
         },
         {
           "ordinal": 43,
@@ -810,7 +810,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 98
+          "line": 99
         },
         {
           "ordinal": 46,
@@ -826,7 +826,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 100
+          "line": 101
         },
         {
           "ordinal": 47,
@@ -842,7 +842,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 103
+          "line": 104
         },
         {
           "ordinal": 48,
@@ -858,7 +858,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 110
         },
         {
           "ordinal": 49,
@@ -1072,7 +1072,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/ACCTCTRL.cbl": {
       "program_id": "ACCTCTRL",
@@ -1308,7 +1310,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 36
+          "line": 37
         },
         {
           "ordinal": 6,
@@ -1356,7 +1358,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 40
+          "line": 43
         },
         {
           "ordinal": 9,
@@ -1372,7 +1374,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 44
+          "line": 45
         },
         {
           "ordinal": 10,
@@ -1404,7 +1406,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 12,
@@ -1420,7 +1422,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 51
         },
         {
           "ordinal": 13,
@@ -1532,7 +1534,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 58
+          "line": 59
         },
         {
           "ordinal": 20,
@@ -1596,7 +1598,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 24,
@@ -1612,7 +1614,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 65
+          "line": 66
         },
         {
           "ordinal": 25,
@@ -1628,7 +1630,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 67
+          "line": 68
         },
         {
           "ordinal": 26,
@@ -1644,7 +1646,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 69
+          "line": 70
         },
         {
           "ordinal": 27,
@@ -1676,7 +1678,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 29,
@@ -1724,7 +1726,7 @@
           "occurs_depending_on": null,
           "redefines": "ACCOUNT-KY2",
           "value": null,
-          "line": 76
+          "line": 77
         },
         {
           "ordinal": 32,
@@ -1740,7 +1742,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 78
+          "line": 79
         },
         {
           "ordinal": 33,
@@ -1756,7 +1758,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 81
         },
         {
           "ordinal": 34,
@@ -1788,7 +1790,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 88
+          "line": 89
         },
         {
           "ordinal": 36,
@@ -1820,7 +1822,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 91
+          "line": 94
         },
         {
           "ordinal": 38,
@@ -1948,7 +1950,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 46,
@@ -2044,7 +2046,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 111
         },
         {
           "ordinal": 52,
@@ -2140,7 +2142,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 117
+          "line": 118
         },
         {
           "ordinal": 58,
@@ -2156,7 +2158,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 59,
@@ -2178,7 +2180,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BANKDATA.cbl": {
       "program_id": "BANKDATA",
@@ -2479,7 +2483,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 77
         },
         {
           "ordinal": 2,
@@ -2527,7 +2531,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 82
         },
         {
           "ordinal": 5,
@@ -3055,7 +3059,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 122
+          "line": 124
         },
         {
           "ordinal": 38,
@@ -3103,7 +3107,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 127
+          "line": 128
         },
         {
           "ordinal": 41,
@@ -3119,7 +3123,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 42,
@@ -3183,7 +3187,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 134
+          "line": 135
         },
         {
           "ordinal": 46,
@@ -3231,7 +3235,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 138
+          "line": 139
         },
         {
           "ordinal": 49,
@@ -3247,7 +3251,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 140
+          "line": 141
         },
         {
           "ordinal": 50,
@@ -3311,7 +3315,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 54,
@@ -3375,7 +3379,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 154
+          "line": 155
         },
         {
           "ordinal": 58,
@@ -3439,7 +3443,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 161
+          "line": 162
         },
         {
           "ordinal": 62,
@@ -3503,7 +3507,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 168
+          "line": 169
         },
         {
           "ordinal": 66,
@@ -3567,7 +3571,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 174
+          "line": 175
         },
         {
           "ordinal": 70,
@@ -4191,7 +4195,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 214
+          "line": 216
         },
         {
           "ordinal": 109,
@@ -4207,7 +4211,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 217
+          "line": 218
         },
         {
           "ordinal": 110,
@@ -4223,7 +4227,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 219
+          "line": 220
         },
         {
           "ordinal": 111,
@@ -4287,7 +4291,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 226
+          "line": 227
         },
         {
           "ordinal": 115,
@@ -4303,7 +4307,7 @@
           "occurs_depending_on": null,
           "redefines": "RDATE",
           "value": null,
-          "line": 228
+          "line": 230
         },
         {
           "ordinal": 116,
@@ -4319,7 +4323,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 232
+          "line": 234
         },
         {
           "ordinal": 117,
@@ -4351,7 +4355,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 237
+          "line": 239
         },
         {
           "ordinal": 119,
@@ -4367,7 +4371,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "1",
-          "line": 241
+          "line": 242
         },
         {
           "ordinal": 120,
@@ -4383,7 +4387,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 243
+          "line": 245
         },
         {
           "ordinal": 121,
@@ -4447,7 +4451,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 252
+          "line": 253
         },
         {
           "ordinal": 125,
@@ -4511,7 +4515,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 260
+          "line": 262
         },
         {
           "ordinal": 129,
@@ -4575,7 +4579,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 269
+          "line": 270
         },
         {
           "ordinal": 133,
@@ -4591,7 +4595,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 271
+          "line": 272
         },
         {
           "ordinal": 134,
@@ -4607,7 +4611,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " ",
-          "line": 273
+          "line": 275
         },
         {
           "ordinal": 135,
@@ -4623,7 +4627,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 276
+          "line": 278
         },
         {
           "ordinal": 136,
@@ -4639,7 +4643,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 280
+          "line": 281
         },
         {
           "ordinal": 137,
@@ -4655,7 +4659,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 283
+          "line": 284
         },
         {
           "ordinal": 138,
@@ -4671,7 +4675,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 285
+          "line": 288
         },
         {
           "ordinal": 139,
@@ -4687,7 +4691,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 289
+          "line": 290
         },
         {
           "ordinal": 140,
@@ -4895,7 +4899,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 303
+          "line": 304
         },
         {
           "ordinal": 153,
@@ -4911,7 +4915,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 305
+          "line": 307
         },
         {
           "ordinal": 154,
@@ -5087,7 +5091,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 318
+          "line": 319
         },
         {
           "ordinal": 165,
@@ -5167,7 +5171,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 324
+          "line": 325
         },
         {
           "ordinal": 170,
@@ -5183,7 +5187,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 327
+          "line": 328
         },
         {
           "ordinal": 171,
@@ -5199,7 +5203,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 335
+          "line": 337
         },
         {
           "ordinal": 172,
@@ -5263,7 +5267,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " ",
-          "line": 341
+          "line": 343
         },
         {
           "ordinal": 176,
@@ -5375,7 +5379,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 351
+          "line": 352
         },
         {
           "ordinal": 183,
@@ -5391,7 +5395,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 359
+          "line": 360
         },
         {
           "ordinal": 184,
@@ -5429,7 +5433,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
       "program_id": "BNK1CAC",
@@ -5753,7 +5759,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 33
         },
         {
           "ordinal": 4,
@@ -5881,7 +5887,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 43
         },
         {
           "ordinal": 12,
@@ -5929,7 +5935,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 46
+          "line": 47
         },
         {
           "ordinal": 15,
@@ -6009,7 +6015,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 52
+          "line": 53
         },
         {
           "ordinal": 20,
@@ -6041,7 +6047,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 55
+          "line": 59
         },
         {
           "ordinal": 22,
@@ -6057,7 +6063,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 23,
@@ -6073,7 +6079,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 62
+          "line": 63
         },
         {
           "ordinal": 24,
@@ -6089,7 +6095,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 68
+          "line": 69
         },
         {
           "ordinal": 25,
@@ -6153,7 +6159,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 73
+          "line": 74
         },
         {
           "ordinal": 29,
@@ -6233,7 +6239,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 80
         },
         {
           "ordinal": 34,
@@ -6393,7 +6399,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 91
         },
         {
           "ordinal": 44,
@@ -6457,7 +6463,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 48,
@@ -6537,7 +6543,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 53,
@@ -6793,7 +6799,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 118
+          "line": 119
         },
         {
           "ordinal": 69,
@@ -6809,7 +6815,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 70,
@@ -6841,7 +6847,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 72,
@@ -6969,7 +6975,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 133
         },
         {
           "ordinal": 80,
@@ -7065,7 +7071,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 140
         },
         {
           "ordinal": 86,
@@ -7161,7 +7167,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 146
+          "line": 147
         },
         {
           "ordinal": 92,
@@ -7177,7 +7183,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 148
+          "line": 149
         },
         {
           "ordinal": 93,
@@ -7329,7 +7335,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
       "program_id": "BNK1CCA",
@@ -7613,7 +7621,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 28
+          "line": 29
         },
         {
           "ordinal": 1,
@@ -7661,7 +7669,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 33
         },
         {
           "ordinal": 4,
@@ -7789,7 +7797,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 41
+          "line": 42
         },
         {
           "ordinal": 12,
@@ -7837,7 +7845,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 15,
@@ -7917,7 +7925,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 51
+          "line": 52
         },
         {
           "ordinal": 20,
@@ -7949,7 +7957,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 54
+          "line": 58
         },
         {
           "ordinal": 22,
@@ -7965,7 +7973,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 60
         },
         {
           "ordinal": 23,
@@ -7981,7 +7989,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 24,
@@ -7997,7 +8005,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 68
         },
         {
           "ordinal": 25,
@@ -8061,7 +8069,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 29,
@@ -8125,7 +8133,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 33,
@@ -8237,7 +8245,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 85
+          "line": 86
         },
         {
           "ordinal": 40,
@@ -8381,7 +8389,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "INQACCCU",
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 49,
@@ -8413,7 +8421,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 99
+          "line": 100
         },
         {
           "ordinal": 51,
@@ -8477,7 +8485,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " ",
-          "line": 104
+          "line": 105
         },
         {
           "ordinal": 55,
@@ -8509,7 +8517,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "BNK1CCA DUMP NOW",
-          "line": 107
+          "line": 108
         },
         {
           "ordinal": 57,
@@ -8525,7 +8533,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 110
+          "line": 111
         },
         {
           "ordinal": 58,
@@ -8541,7 +8549,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 112
+          "line": 113
         },
         {
           "ordinal": 59,
@@ -8669,7 +8677,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 121
+          "line": 122
         },
         {
           "ordinal": 67,
@@ -8765,7 +8773,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 73,
@@ -8861,7 +8869,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 79,
@@ -8877,7 +8885,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 80,
@@ -9061,7 +9069,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
       "program_id": "BNK1CCS",
@@ -9442,7 +9452,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 31
+          "line": 32
         },
         {
           "ordinal": 3,
@@ -9490,7 +9500,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 35
+          "line": 36
         },
         {
           "ordinal": 6,
@@ -9666,7 +9676,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 17,
@@ -9746,7 +9756,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 54
         },
         {
           "ordinal": 22,
@@ -9778,7 +9788,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 56
+          "line": 60
         },
         {
           "ordinal": 24,
@@ -9794,7 +9804,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 25,
@@ -9810,7 +9820,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 26,
@@ -9826,7 +9836,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 69
+          "line": 70
         },
         {
           "ordinal": 27,
@@ -9890,7 +9900,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 74
+          "line": 75
         },
         {
           "ordinal": 31,
@@ -9954,7 +9964,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 80
         },
         {
           "ordinal": 35,
@@ -10002,7 +10012,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 83
+          "line": 84
         },
         {
           "ordinal": 38,
@@ -10162,7 +10172,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 95
         },
         {
           "ordinal": 48,
@@ -10178,7 +10188,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 96
+          "line": 97
         },
         {
           "ordinal": 49,
@@ -10242,7 +10252,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 53,
@@ -10498,7 +10508,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 118
+          "line": 119
         },
         {
           "ordinal": 69,
@@ -10514,7 +10524,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 70,
@@ -10530,7 +10540,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 122
+          "line": 123
         },
         {
           "ordinal": 71,
@@ -10658,7 +10668,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 131
+          "line": 132
         },
         {
           "ordinal": 79,
@@ -10754,7 +10764,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 138
+          "line": 139
         },
         {
           "ordinal": 85,
@@ -10850,7 +10860,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 145
+          "line": 146
         },
         {
           "ordinal": 91,
@@ -10866,7 +10876,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 92,
@@ -10998,7 +11008,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
       "program_id": "BNK1CRA",
@@ -11289,7 +11301,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 29
+          "line": 30
         },
         {
           "ordinal": 1,
@@ -11513,7 +11525,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 15,
@@ -11593,7 +11605,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 54
         },
         {
           "ordinal": 20,
@@ -11625,7 +11637,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 56
+          "line": 60
         },
         {
           "ordinal": 22,
@@ -11657,7 +11669,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 24,
@@ -11673,7 +11685,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 69
+          "line": 70
         },
         {
           "ordinal": 25,
@@ -11689,7 +11701,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 26,
@@ -11753,7 +11765,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 77
         },
         {
           "ordinal": 30,
@@ -11801,7 +11813,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 81
         },
         {
           "ordinal": 33,
@@ -11865,7 +11877,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 85
+          "line": 86
         },
         {
           "ordinal": 37,
@@ -11929,7 +11941,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 91
         },
         {
           "ordinal": 41,
@@ -11993,7 +12005,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 45,
@@ -12057,7 +12069,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 100
+          "line": 101
         },
         {
           "ordinal": 49,
@@ -12153,7 +12165,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 107
+          "line": 108
         },
         {
           "ordinal": 55,
@@ -12249,7 +12261,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 114
+          "line": 115
         },
         {
           "ordinal": 61,
@@ -12313,7 +12325,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 65,
@@ -12553,7 +12565,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 80,
@@ -12569,7 +12581,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 81,
@@ -12601,7 +12613,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 140
+          "line": 141
         },
         {
           "ordinal": 83,
@@ -12729,7 +12741,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 149
+          "line": 150
         },
         {
           "ordinal": 91,
@@ -12825,7 +12837,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 156
+          "line": 157
         },
         {
           "ordinal": 97,
@@ -12921,7 +12933,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 163
+          "line": 164
         },
         {
           "ordinal": 103,
@@ -12937,7 +12949,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 165
+          "line": 166
         },
         {
           "ordinal": 104,
@@ -13073,7 +13085,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
       "program_id": "BNK1DAC",
@@ -13395,7 +13409,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 28
+          "line": 29
         },
         {
           "ordinal": 1,
@@ -13443,7 +13457,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 33
         },
         {
           "ordinal": 4,
@@ -13619,7 +13633,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 15,
@@ -13699,7 +13713,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 51
+          "line": 52
         },
         {
           "ordinal": 20,
@@ -13731,7 +13745,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 54
+          "line": 58
         },
         {
           "ordinal": 22,
@@ -13747,7 +13761,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 60
         },
         {
           "ordinal": 23,
@@ -13763,7 +13777,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 24,
@@ -13779,7 +13793,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 68
         },
         {
           "ordinal": 25,
@@ -13843,7 +13857,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 29,
@@ -13907,7 +13921,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 33,
@@ -13971,7 +13985,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 82
+          "line": 83
         },
         {
           "ordinal": 37,
@@ -14323,7 +14337,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 107
+          "line": 108
         },
         {
           "ordinal": 59,
@@ -14595,7 +14609,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 125
+          "line": 126
         },
         {
           "ordinal": 76,
@@ -14627,7 +14641,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 78,
@@ -14675,7 +14689,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 133
         },
         {
           "ordinal": 81,
@@ -14691,7 +14705,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 134
+          "line": 135
         },
         {
           "ordinal": 82,
@@ -14723,7 +14737,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 84,
@@ -14851,7 +14865,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 146
+          "line": 147
         },
         {
           "ordinal": 92,
@@ -14947,7 +14961,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 153
+          "line": 154
         },
         {
           "ordinal": 98,
@@ -15043,7 +15057,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 160
+          "line": 161
         },
         {
           "ordinal": 104,
@@ -15059,7 +15073,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 162
+          "line": 163
         },
         {
           "ordinal": 105,
@@ -15075,7 +15089,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 106,
@@ -15410,7 +15424,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
       "program_id": "BNK1DCS",
@@ -15961,7 +15977,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 35
+          "line": 36
         },
         {
           "ordinal": 4,
@@ -16137,7 +16153,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 15,
@@ -16217,7 +16233,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 54
         },
         {
           "ordinal": 20,
@@ -16249,7 +16265,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 56
+          "line": 60
         },
         {
           "ordinal": 22,
@@ -16265,7 +16281,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 23,
@@ -16281,7 +16297,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 24,
@@ -16297,7 +16313,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 69
+          "line": 70
         },
         {
           "ordinal": 25,
@@ -16329,7 +16345,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 27,
@@ -16393,7 +16409,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 31,
@@ -16457,7 +16473,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 82
+          "line": 83
         },
         {
           "ordinal": 35,
@@ -16601,7 +16617,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 92
+          "line": 93
         },
         {
           "ordinal": 44,
@@ -16745,7 +16761,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 53,
@@ -16825,7 +16841,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 108
+          "line": 109
         },
         {
           "ordinal": 58,
@@ -16889,7 +16905,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 113
+          "line": 114
         },
         {
           "ordinal": 62,
@@ -16905,7 +16921,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 116
+          "line": 117
         },
         {
           "ordinal": 63,
@@ -16921,7 +16937,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 64,
@@ -16937,7 +16953,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 122
+          "line": 123
         },
         {
           "ordinal": 65,
@@ -17145,7 +17161,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " ",
-          "line": 136
+          "line": 137
         },
         {
           "ordinal": 78,
@@ -17193,7 +17209,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 142
+          "line": 143
         },
         {
           "ordinal": 81,
@@ -17321,7 +17337,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 151
+          "line": 152
         },
         {
           "ordinal": 89,
@@ -17417,7 +17433,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 158
+          "line": 159
         },
         {
           "ordinal": 95,
@@ -17513,7 +17529,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 165
+          "line": 166
         },
         {
           "ordinal": 101,
@@ -17529,7 +17545,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 102,
@@ -17858,7 +17874,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
       "program_id": "BNK1TFN",
@@ -18149,7 +18167,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 29
+          "line": 30
         },
         {
           "ordinal": 1,
@@ -18197,7 +18215,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 35
+          "line": 36
         },
         {
           "ordinal": 4,
@@ -18373,7 +18391,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 48
+          "line": 49
         },
         {
           "ordinal": 15,
@@ -18453,7 +18471,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 54
+          "line": 55
         },
         {
           "ordinal": 20,
@@ -18485,7 +18503,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 57
+          "line": 61
         },
         {
           "ordinal": 22,
@@ -18501,7 +18519,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 23,
@@ -18517,7 +18535,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 65
+          "line": 66
         },
         {
           "ordinal": 24,
@@ -18533,7 +18551,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 25,
@@ -18549,7 +18567,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 73
+          "line": 74
         },
         {
           "ordinal": 26,
@@ -18613,7 +18631,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 78
+          "line": 79
         },
         {
           "ordinal": 30,
@@ -18661,7 +18679,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 82
+          "line": 83
         },
         {
           "ordinal": 33,
@@ -18725,7 +18743,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 37,
@@ -18789,7 +18807,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 92
+          "line": 93
         },
         {
           "ordinal": 41,
@@ -18885,7 +18903,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 99
+          "line": 100
         },
         {
           "ordinal": 47,
@@ -18981,7 +18999,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 106
+          "line": 107
         },
         {
           "ordinal": 53,
@@ -19045,7 +19063,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 111
+          "line": 112
         },
         {
           "ordinal": 57,
@@ -19237,7 +19255,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 124
+          "line": 125
         },
         {
           "ordinal": 69,
@@ -19301,7 +19319,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 73,
@@ -19381,7 +19399,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 136
+          "line": 137
         },
         {
           "ordinal": 78,
@@ -19509,7 +19527,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 145
+          "line": 146
         },
         {
           "ordinal": 86,
@@ -19605,7 +19623,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 152
+          "line": 153
         },
         {
           "ordinal": 92,
@@ -19701,7 +19719,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 159
+          "line": 160
         },
         {
           "ordinal": 98,
@@ -19717,7 +19735,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 161
+          "line": 162
         },
         {
           "ordinal": 99,
@@ -19733,7 +19751,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 166
+          "line": 167
         },
         {
           "ordinal": 100,
@@ -19853,7 +19871,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
       "program_id": "BNK1UAC",
@@ -20175,7 +20195,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 29
+          "line": 30
         },
         {
           "ordinal": 1,
@@ -20223,7 +20243,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 33
+          "line": 34
         },
         {
           "ordinal": 4,
@@ -20351,7 +20371,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 44
         },
         {
           "ordinal": 12,
@@ -20399,7 +20419,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 15,
@@ -20479,7 +20499,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 54
         },
         {
           "ordinal": 20,
@@ -20511,7 +20531,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 56
+          "line": 60
         },
         {
           "ordinal": 22,
@@ -20527,7 +20547,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 23,
@@ -20543,7 +20563,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 24,
@@ -20559,7 +20579,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 69
+          "line": 71
         },
         {
           "ordinal": 25,
@@ -20575,7 +20595,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 26,
@@ -20607,7 +20627,7 @@
           "occurs_depending_on": null,
           "redefines": "WS-STUFF1",
           "value": null,
-          "line": 75
+          "line": 76
         },
         {
           "ordinal": 28,
@@ -20639,7 +20659,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 78
+          "line": 79
         },
         {
           "ordinal": 30,
@@ -20703,7 +20723,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 83
+          "line": 84
         },
         {
           "ordinal": 34,
@@ -20735,7 +20755,7 @@
           "occurs_depending_on": null,
           "redefines": "WS-STUFF5",
           "value": null,
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 36,
@@ -20767,7 +20787,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 89
+          "line": 90
         },
         {
           "ordinal": 38,
@@ -20815,7 +20835,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 93
+          "line": 94
         },
         {
           "ordinal": 41,
@@ -20863,7 +20883,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 98
         },
         {
           "ordinal": 44,
@@ -20927,7 +20947,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 48,
@@ -21039,7 +21059,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 110
+          "line": 111
         },
         {
           "ordinal": 55,
@@ -21103,7 +21123,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 115
+          "line": 116
         },
         {
           "ordinal": 59,
@@ -21167,7 +21187,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 63,
@@ -21391,7 +21411,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 77,
@@ -21407,7 +21427,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 78,
@@ -21423,7 +21443,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 140
         },
         {
           "ordinal": 79,
@@ -21439,7 +21459,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 141
+          "line": 142
         },
         {
           "ordinal": 80,
@@ -21471,7 +21491,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 144
+          "line": 145
         },
         {
           "ordinal": 82,
@@ -21503,7 +21523,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 84,
@@ -21631,7 +21651,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 156
+          "line": 157
         },
         {
           "ordinal": 92,
@@ -21727,7 +21747,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 163
+          "line": 165
         },
         {
           "ordinal": 98,
@@ -21823,7 +21843,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 171
+          "line": 172
         },
         {
           "ordinal": 104,
@@ -21839,7 +21859,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 173
+          "line": 174
         },
         {
           "ordinal": 105,
@@ -22165,7 +22185,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/BNKMENU.cbl": {
       "program_id": "BNKMENU",
@@ -22489,7 +22511,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 33
         },
         {
           "ordinal": 1,
@@ -22537,7 +22559,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 36
+          "line": 37
         },
         {
           "ordinal": 4,
@@ -22665,7 +22687,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 12,
@@ -22713,7 +22735,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 49
+          "line": 50
         },
         {
           "ordinal": 15,
@@ -22793,7 +22815,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 56
         },
         {
           "ordinal": 20,
@@ -22825,7 +22847,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SESSION ENDED",
-          "line": 58
+          "line": 62
         },
         {
           "ordinal": 22,
@@ -22841,7 +22863,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 23,
@@ -22857,7 +22879,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 65
+          "line": 66
         },
         {
           "ordinal": 24,
@@ -22873,7 +22895,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 25,
@@ -23001,7 +23023,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 81
         },
         {
           "ordinal": 33,
@@ -23097,7 +23119,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 89
         },
         {
           "ordinal": 39,
@@ -23193,7 +23215,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 45,
@@ -23209,7 +23231,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 98
         },
         {
           "ordinal": 46,
@@ -23225,7 +23247,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TO",
-          "line": 103
+          "line": 104
         }
       ],
       "transactions": [
@@ -23339,7 +23361,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
       "program_id": "CRDTAGY1",
@@ -23459,7 +23483,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 1,
@@ -23715,7 +23739,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 17,
@@ -23763,7 +23787,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 64
+          "line": 65
         },
         {
           "ordinal": 20,
@@ -23779,7 +23803,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 67
+          "line": 69
         },
         {
           "ordinal": 21,
@@ -23811,7 +23835,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 23,
@@ -23859,7 +23883,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 80
         },
         {
           "ordinal": 26,
@@ -23987,7 +24011,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 88
+          "line": 89
         },
         {
           "ordinal": 34,
@@ -24083,7 +24107,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 95
+          "line": 97
         },
         {
           "ordinal": 40,
@@ -24179,7 +24203,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 103
+          "line": 104
         },
         {
           "ordinal": 46,
@@ -24195,7 +24219,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 105
+          "line": 106
         }
       ],
       "transactions": [
@@ -24211,7 +24235,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
       "program_id": "CRDTAGY2",
@@ -24331,7 +24357,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 1,
@@ -24587,7 +24613,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 17,
@@ -24635,7 +24661,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 64
+          "line": 66
         },
         {
           "ordinal": 20,
@@ -24651,7 +24677,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 68
+          "line": 69
         },
         {
           "ordinal": 21,
@@ -24683,7 +24709,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 23,
@@ -24731,7 +24757,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 79
         },
         {
           "ordinal": 26,
@@ -24859,7 +24885,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 34,
@@ -24955,7 +24981,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 96
         },
         {
           "ordinal": 40,
@@ -25051,7 +25077,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 46,
@@ -25067,7 +25093,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 104
+          "line": 105
         }
       ],
       "transactions": [
@@ -25083,7 +25109,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
       "program_id": "CRDTAGY3",
@@ -25203,7 +25231,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 1,
@@ -25459,7 +25487,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 17,
@@ -25507,7 +25535,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 64
+          "line": 66
         },
         {
           "ordinal": 20,
@@ -25523,7 +25551,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 68
+          "line": 69
         },
         {
           "ordinal": 21,
@@ -25555,7 +25583,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 23,
@@ -25603,7 +25631,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 79
         },
         {
           "ordinal": 26,
@@ -25731,7 +25759,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 34,
@@ -25827,7 +25855,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 96
         },
         {
           "ordinal": 40,
@@ -25923,7 +25951,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 46,
@@ -25939,7 +25967,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 104
+          "line": 105
         }
       ],
       "transactions": [
@@ -25955,7 +25983,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
       "program_id": "CRDTAGY4",
@@ -26075,7 +26105,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 45
         },
         {
           "ordinal": 1,
@@ -26331,7 +26361,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 17,
@@ -26379,7 +26409,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 65
+          "line": 67
         },
         {
           "ordinal": 20,
@@ -26395,7 +26425,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 69
+          "line": 70
         },
         {
           "ordinal": 21,
@@ -26427,7 +26457,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 72
+          "line": 73
         },
         {
           "ordinal": 23,
@@ -26475,7 +26505,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 79
         },
         {
           "ordinal": 26,
@@ -26603,7 +26633,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 34,
@@ -26699,7 +26729,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 96
         },
         {
           "ordinal": 40,
@@ -26795,7 +26825,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 46,
@@ -26811,7 +26841,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 104
+          "line": 105
         }
       ],
       "transactions": [
@@ -26827,7 +26857,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
       "program_id": "CRDTAGY5",
@@ -26947,7 +26979,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 1,
@@ -27203,7 +27235,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 17,
@@ -27251,7 +27283,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 64
+          "line": 66
         },
         {
           "ordinal": 20,
@@ -27267,7 +27299,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 68
+          "line": 69
         },
         {
           "ordinal": 21,
@@ -27299,7 +27331,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 23,
@@ -27347,7 +27379,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 76
+          "line": 78
         },
         {
           "ordinal": 26,
@@ -27475,7 +27507,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 34,
@@ -27571,7 +27603,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 93
+          "line": 95
         },
         {
           "ordinal": 40,
@@ -27667,7 +27699,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 46,
@@ -27683,7 +27715,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 103
+          "line": 104
         }
       ],
       "transactions": [
@@ -27699,7 +27731,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CREACC.cbl": {
       "program_id": "CREACC",
@@ -28082,7 +28116,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 46
         },
         {
           "ordinal": 1,
@@ -28098,7 +28132,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 52
+          "line": 54
         },
         {
           "ordinal": 2,
@@ -28594,7 +28628,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 89
         },
         {
           "ordinal": 33,
@@ -28610,7 +28644,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 96
+          "line": 98
         },
         {
           "ordinal": 34,
@@ -28770,7 +28804,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 108
+          "line": 110
         },
         {
           "ordinal": 44,
@@ -28834,7 +28868,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 48,
@@ -28850,7 +28884,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 49,
@@ -28866,7 +28900,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 125
+          "line": 126
         },
         {
           "ordinal": 50,
@@ -28898,7 +28932,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 52,
@@ -28962,7 +28996,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 134
+          "line": 135
         },
         {
           "ordinal": 56,
@@ -28994,7 +29028,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 140
         },
         {
           "ordinal": 58,
@@ -29010,7 +29044,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 142
+          "line": 143
         },
         {
           "ordinal": 59,
@@ -29026,7 +29060,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 145
+          "line": 146
         },
         {
           "ordinal": 60,
@@ -29122,7 +29156,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 152
+          "line": 154
         },
         {
           "ordinal": 66,
@@ -29170,7 +29204,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 157
+          "line": 158
         },
         {
           "ordinal": 69,
@@ -29218,7 +29252,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 161
+          "line": 162
         },
         {
           "ordinal": 72,
@@ -29250,7 +29284,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 164
+          "line": 165
         },
         {
           "ordinal": 74,
@@ -29282,7 +29316,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 76,
@@ -29314,7 +29348,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ALL",
-          "line": 170
+          "line": 171
         },
         {
           "ordinal": 78,
@@ -29330,7 +29364,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 172
+          "line": 176
         },
         {
           "ordinal": 79,
@@ -29410,7 +29444,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 184
+          "line": 185
         },
         {
           "ordinal": 84,
@@ -29442,7 +29476,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "00",
-          "line": 189
+          "line": 190
         },
         {
           "ordinal": 86,
@@ -29458,7 +29492,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 191
+          "line": 194
         },
         {
           "ordinal": 87,
@@ -29474,7 +29508,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 195
+          "line": 196
         },
         {
           "ordinal": 88,
@@ -29490,7 +29524,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 197
+          "line": 198
         },
         {
           "ordinal": 89,
@@ -29506,7 +29540,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 199
+          "line": 200
         },
         {
           "ordinal": 90,
@@ -29634,7 +29668,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 208
+          "line": 209
         },
         {
           "ordinal": 98,
@@ -29666,7 +29700,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 211
+          "line": 212
         },
         {
           "ordinal": 100,
@@ -29762,7 +29796,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 218
+          "line": 219
         },
         {
           "ordinal": 106,
@@ -29826,7 +29860,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 223
+          "line": 224
         },
         {
           "ordinal": 110,
@@ -29842,7 +29876,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 225
+          "line": 226
         },
         {
           "ordinal": 111,
@@ -29922,7 +29956,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 231
+          "line": 232
         },
         {
           "ordinal": 116,
@@ -30018,7 +30052,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 238
+          "line": 239
         },
         {
           "ordinal": 122,
@@ -30034,7 +30068,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 240
+          "line": 241
         },
         {
           "ordinal": 123,
@@ -30130,7 +30164,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 247
+          "line": 248
         },
         {
           "ordinal": 129,
@@ -30146,7 +30180,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 249
+          "line": 250
         },
         {
           "ordinal": 130,
@@ -30194,7 +30228,7 @@
           "occurs_depending_on": null,
           "redefines": "ACCOUNT-KY3",
           "value": null,
-          "line": 253
+          "line": 254
         },
         {
           "ordinal": 133,
@@ -30210,7 +30244,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 255
+          "line": 256
         },
         {
           "ordinal": 134,
@@ -30226,7 +30260,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 258
+          "line": 259
         },
         {
           "ordinal": 135,
@@ -30242,7 +30276,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 262
+          "line": 263
         },
         {
           "ordinal": 136,
@@ -30258,7 +30292,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 264
+          "line": 265
         },
         {
           "ordinal": 137,
@@ -30274,7 +30308,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 267
+          "line": 269
         },
         {
           "ordinal": 138,
@@ -30370,7 +30404,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 275
+          "line": 276
         },
         {
           "ordinal": 144,
@@ -30386,7 +30420,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 277
+          "line": 278
         },
         {
           "ordinal": 145,
@@ -30458,7 +30492,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CRECUST.cbl": {
       "program_id": "CRECUST",
@@ -30802,7 +30838,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 56
+          "line": 59
         },
         {
           "ordinal": 1,
@@ -30818,7 +30854,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 65
+          "line": 67
         },
         {
           "ordinal": 2,
@@ -30978,7 +31014,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 82
+          "line": 83
         },
         {
           "ordinal": 12,
@@ -30994,7 +31030,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 85
+          "line": 86
         },
         {
           "ordinal": 13,
@@ -31010,7 +31046,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 14,
@@ -31058,7 +31094,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 91
+          "line": 92
         },
         {
           "ordinal": 17,
@@ -31074,7 +31110,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 93
+          "line": 94
         },
         {
           "ordinal": 18,
@@ -31170,7 +31206,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 100
+          "line": 101
         },
         {
           "ordinal": 24,
@@ -31234,7 +31270,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 108
+          "line": 109
         },
         {
           "ordinal": 28,
@@ -31250,7 +31286,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 111
+          "line": 112
         },
         {
           "ordinal": 29,
@@ -31346,7 +31382,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 118
+          "line": 120
         },
         {
           "ordinal": 35,
@@ -31394,7 +31430,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 38,
@@ -31426,7 +31462,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 126
+          "line": 127
         },
         {
           "ordinal": 40,
@@ -31458,7 +31494,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 42,
@@ -31490,7 +31526,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 133
         },
         {
           "ordinal": 44,
@@ -31506,7 +31542,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 140
         },
         {
           "ordinal": 45,
@@ -31586,7 +31622,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 148
+          "line": 149
         },
         {
           "ordinal": 50,
@@ -31618,7 +31654,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "00",
-          "line": 153
+          "line": 154
         },
         {
           "ordinal": 52,
@@ -31634,7 +31670,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 156
         },
         {
           "ordinal": 53,
@@ -31650,7 +31686,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 157
+          "line": 158
         },
         {
           "ordinal": 54,
@@ -31666,7 +31702,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 160
+          "line": 161
         },
         {
           "ordinal": 55,
@@ -31682,7 +31718,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 162
+          "line": 163
         },
         {
           "ordinal": 56,
@@ -31810,7 +31846,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 171
+          "line": 172
         },
         {
           "ordinal": 64,
@@ -31906,7 +31942,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 178
+          "line": 179
         },
         {
           "ordinal": 70,
@@ -31970,7 +32006,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 183
+          "line": 184
         },
         {
           "ordinal": 74,
@@ -32002,7 +32038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 186
+          "line": 187
         },
         {
           "ordinal": 76,
@@ -32050,7 +32086,7 @@
           "occurs_depending_on": null,
           "redefines": "CUSTOMER-KY2",
           "value": null,
-          "line": 190
+          "line": 191
         },
         {
           "ordinal": 79,
@@ -32066,7 +32102,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 193
+          "line": 194
         },
         {
           "ordinal": 80,
@@ -32194,7 +32230,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 202
+          "line": 203
         },
         {
           "ordinal": 88,
@@ -32242,7 +32278,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 206
+          "line": 207
         },
         {
           "ordinal": 91,
@@ -32290,7 +32326,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 210
+          "line": 211
         },
         {
           "ordinal": 94,
@@ -32354,7 +32390,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 215
+          "line": 216
         },
         {
           "ordinal": 98,
@@ -32418,7 +32454,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 220
+          "line": 221
         },
         {
           "ordinal": 102,
@@ -32434,7 +32470,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 222
+          "line": 223
         },
         {
           "ordinal": 103,
@@ -32690,7 +32726,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 244
+          "line": 245
         },
         {
           "ordinal": 119,
@@ -32738,7 +32774,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 249
+          "line": 250
         },
         {
           "ordinal": 122,
@@ -32754,7 +32790,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 251
+          "line": 252
         },
         {
           "ordinal": 123,
@@ -32850,7 +32886,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 258
+          "line": 259
         },
         {
           "ordinal": 129,
@@ -33026,7 +33062,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 270
+          "line": 271
         },
         {
           "ordinal": 140,
@@ -33138,7 +33174,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 279
+          "line": 280
         },
         {
           "ordinal": 147,
@@ -33154,7 +33190,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 281
+          "line": 282
         },
         {
           "ordinal": 148,
@@ -33170,7 +33206,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 283
+          "line": 284
         },
         {
           "ordinal": 149,
@@ -33202,7 +33238,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 286
+          "line": 287
         },
         {
           "ordinal": 151,
@@ -33250,7 +33286,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 292
+          "line": 293
         },
         {
           "ordinal": 154,
@@ -33330,7 +33366,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 300
+          "line": 301
         },
         {
           "ordinal": 159,
@@ -33506,7 +33542,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 314
+          "line": 315
         },
         {
           "ordinal": 170,
@@ -33666,7 +33702,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 325
+          "line": 326
         },
         {
           "ordinal": 180,
@@ -33810,7 +33846,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 341
+          "line": 342
         },
         {
           "ordinal": 189,
@@ -33826,7 +33862,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 343
+          "line": 344
         },
         {
           "ordinal": 190,
@@ -33856,7 +33892,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
       "program_id": "CUSTCTRL",
@@ -34012,7 +34050,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 28
+          "line": 29
         },
         {
           "ordinal": 1,
@@ -34076,7 +34114,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 36
+          "line": 38
         },
         {
           "ordinal": 5,
@@ -34108,7 +34146,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 40
+          "line": 41
         },
         {
           "ordinal": 7,
@@ -34140,7 +34178,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 44
         },
         {
           "ordinal": 9,
@@ -34156,7 +34194,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 46
+          "line": 50
         },
         {
           "ordinal": 10,
@@ -34268,7 +34306,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 57
+          "line": 58
         },
         {
           "ordinal": 17,
@@ -34332,7 +34370,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 62
+          "line": 63
         },
         {
           "ordinal": 21,
@@ -34348,7 +34386,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 64
+          "line": 65
         },
         {
           "ordinal": 22,
@@ -34364,7 +34402,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 66
+          "line": 67
         },
         {
           "ordinal": 23,
@@ -34380,7 +34418,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 68
+          "line": 69
         },
         {
           "ordinal": 24,
@@ -34412,7 +34450,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 26,
@@ -34460,7 +34498,7 @@
           "occurs_depending_on": null,
           "redefines": "CUSTOMER-KY2",
           "value": null,
-          "line": 75
+          "line": 76
         },
         {
           "ordinal": 29,
@@ -34476,7 +34514,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 30,
@@ -34492,7 +34530,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 80
         },
         {
           "ordinal": 31,
@@ -34524,7 +34562,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 87
+          "line": 88
         },
         {
           "ordinal": 33,
@@ -34556,7 +34594,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 94
         },
         {
           "ordinal": 35,
@@ -34684,7 +34722,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 43,
@@ -34780,7 +34818,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 111
         },
         {
           "ordinal": 49,
@@ -34876,7 +34914,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 117
+          "line": 118
         },
         {
           "ordinal": 55,
@@ -34892,7 +34930,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 56,
@@ -34914,7 +34952,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
       "program_id": "DBCRFUN",
@@ -35165,7 +35205,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 49
+          "line": 52
         },
         {
           "ordinal": 1,
@@ -35181,7 +35221,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 58
+          "line": 60
         },
         {
           "ordinal": 2,
@@ -35405,7 +35445,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 81
         },
         {
           "ordinal": 16,
@@ -35565,7 +35605,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 96
+          "line": 97
         },
         {
           "ordinal": 26,
@@ -35645,7 +35685,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 105
+          "line": 106
         },
         {
           "ordinal": 31,
@@ -35741,7 +35781,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 112
+          "line": 113
         },
         {
           "ordinal": 37,
@@ -35805,7 +35845,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 117
+          "line": 118
         },
         {
           "ordinal": 41,
@@ -35821,7 +35861,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 42,
@@ -35853,7 +35893,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 44,
@@ -35901,7 +35941,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 127
+          "line": 128
         },
         {
           "ordinal": 47,
@@ -35949,7 +35989,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 133
         },
         {
           "ordinal": 50,
@@ -36077,7 +36117,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 141
+          "line": 142
         },
         {
           "ordinal": 58,
@@ -36173,7 +36213,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 148
+          "line": 149
         },
         {
           "ordinal": 64,
@@ -36189,7 +36229,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 151
+          "line": 152
         },
         {
           "ordinal": 65,
@@ -36301,7 +36341,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 161
+          "line": 166
         },
         {
           "ordinal": 72,
@@ -36317,7 +36357,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 73,
@@ -36333,7 +36373,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 170
+          "line": 171
         },
         {
           "ordinal": 74,
@@ -36349,7 +36389,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 172
+          "line": 173
         },
         {
           "ordinal": 75,
@@ -36381,7 +36421,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 175
+          "line": 176
         },
         {
           "ordinal": 77,
@@ -36397,7 +36437,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 177
+          "line": 178
         },
         {
           "ordinal": 78,
@@ -36493,7 +36533,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 184
+          "line": 185
         },
         {
           "ordinal": 84,
@@ -36509,7 +36549,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 186
+          "line": 187
         },
         {
           "ordinal": 85,
@@ -36525,7 +36565,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 189
+          "line": 190
         },
         {
           "ordinal": 86,
@@ -36578,7 +36618,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/DELACC.cbl": {
       "program_id": "DELACC",
@@ -36816,7 +36858,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 45
         },
         {
           "ordinal": 1,
@@ -36864,7 +36906,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 55
         },
         {
           "ordinal": 4,
@@ -37072,7 +37114,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 73
+          "line": 75
         },
         {
           "ordinal": 17,
@@ -37232,7 +37274,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 91
         },
         {
           "ordinal": 27,
@@ -37248,7 +37290,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 93
+          "line": 94
         },
         {
           "ordinal": 28,
@@ -37312,7 +37354,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 99
+          "line": 100
         },
         {
           "ordinal": 32,
@@ -37328,7 +37370,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 33,
@@ -37344,7 +37386,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 103
+          "line": 104
         },
         {
           "ordinal": 34,
@@ -37360,7 +37402,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 106
+          "line": 107
         },
         {
           "ordinal": 35,
@@ -37376,7 +37418,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 110
         },
         {
           "ordinal": 36,
@@ -37408,7 +37450,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 112
+          "line": 113
         },
         {
           "ordinal": 38,
@@ -37424,7 +37466,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 114
+          "line": 115
         },
         {
           "ordinal": 39,
@@ -37648,7 +37690,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 53,
@@ -37664,7 +37706,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 131
+          "line": 133
         },
         {
           "ordinal": 54,
@@ -37760,7 +37802,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 140
         },
         {
           "ordinal": 60,
@@ -37808,7 +37850,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 143
+          "line": 144
         },
         {
           "ordinal": 63,
@@ -37856,7 +37898,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 66,
@@ -37872,7 +37914,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 149
+          "line": 150
         },
         {
           "ordinal": 67,
@@ -37920,7 +37962,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 153
+          "line": 154
         },
         {
           "ordinal": 70,
@@ -37936,7 +37978,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 156
         },
         {
           "ordinal": 71,
@@ -37952,7 +37994,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 157
+          "line": 158
         },
         {
           "ordinal": 72,
@@ -37984,7 +38026,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 160
+          "line": 161
         },
         {
           "ordinal": 74,
@@ -38112,7 +38154,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 169
+          "line": 170
         },
         {
           "ordinal": 82,
@@ -38208,7 +38250,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 176
+          "line": 178
         },
         {
           "ordinal": 88,
@@ -38224,7 +38266,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 179
+          "line": 181
         },
         {
           "ordinal": 89,
@@ -38240,7 +38282,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 182
+          "line": 183
         },
         {
           "ordinal": 90,
@@ -38256,7 +38298,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 185
+          "line": 186
         },
         {
           "ordinal": 91,
@@ -38352,7 +38394,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 192
+          "line": 193
         },
         {
           "ordinal": 97,
@@ -38368,7 +38410,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 194
+          "line": 195
         }
       ],
       "transactions": [],
@@ -38382,7 +38424,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/DELCUS.cbl": {
       "program_id": "DELCUS",
@@ -38681,7 +38725,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 48
         },
         {
           "ordinal": 1,
@@ -38729,7 +38773,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 57
+          "line": 59
         },
         {
           "ordinal": 4,
@@ -38889,7 +38933,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 74
+          "line": 75
         },
         {
           "ordinal": 14,
@@ -38937,7 +38981,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 78
+          "line": 79
         },
         {
           "ordinal": 17,
@@ -38953,7 +38997,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 80
+          "line": 81
         },
         {
           "ordinal": 18,
@@ -38969,7 +39013,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 83
+          "line": 84
         },
         {
           "ordinal": 19,
@@ -38985,7 +39029,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 20,
@@ -39001,7 +39045,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 89
+          "line": 90
         },
         {
           "ordinal": 21,
@@ -39033,7 +39077,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 92
+          "line": 93
         },
         {
           "ordinal": 23,
@@ -39049,7 +39093,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 95
         },
         {
           "ordinal": 24,
@@ -39273,7 +39317,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 110
         },
         {
           "ordinal": 38,
@@ -39289,7 +39333,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 111
+          "line": 112
         },
         {
           "ordinal": 39,
@@ -39385,7 +39429,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 118
+          "line": 119
         },
         {
           "ordinal": 45,
@@ -39433,7 +39477,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 122
+          "line": 123
         },
         {
           "ordinal": 48,
@@ -39449,7 +39493,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 124
+          "line": 125
         },
         {
           "ordinal": 49,
@@ -39465,7 +39509,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 126
+          "line": 127
         },
         {
           "ordinal": 50,
@@ -39497,7 +39541,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 130
+          "line": 133
         },
         {
           "ordinal": 52,
@@ -39529,7 +39573,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 54,
@@ -39561,7 +39605,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 138
+          "line": 139
         },
         {
           "ordinal": 56,
@@ -39609,7 +39653,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 142
+          "line": 143
         },
         {
           "ordinal": 59,
@@ -39657,7 +39701,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 146
+          "line": 147
         },
         {
           "ordinal": 62,
@@ -39785,7 +39829,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 156
         },
         {
           "ordinal": 70,
@@ -39881,7 +39925,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 162
+          "line": 163
         },
         {
           "ordinal": 76,
@@ -39897,7 +39941,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 164
+          "line": 165
         },
         {
           "ordinal": 77,
@@ -39913,7 +39957,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 166
+          "line": 167
         },
         {
           "ordinal": 78,
@@ -39977,7 +40021,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 171
+          "line": 175
         },
         {
           "ordinal": 82,
@@ -40121,7 +40165,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 184
+          "line": 187
         },
         {
           "ordinal": 91,
@@ -40137,7 +40181,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 188
+          "line": 189
         },
         {
           "ordinal": 92,
@@ -40153,7 +40197,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 190
+          "line": 191
         },
         {
           "ordinal": 93,
@@ -40169,7 +40213,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 193
+          "line": 194
         },
         {
           "ordinal": 94,
@@ -40489,7 +40533,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 214
+          "line": 216
         },
         {
           "ordinal": 114,
@@ -40521,7 +40565,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "INQACCCU",
-          "line": 218
+          "line": 219
         },
         {
           "ordinal": 116,
@@ -40553,7 +40597,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 222
+          "line": 223
         },
         {
           "ordinal": 118,
@@ -40601,7 +40645,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 227
+          "line": 228
         },
         {
           "ordinal": 121,
@@ -40697,7 +40741,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 234
+          "line": 235
         },
         {
           "ordinal": 127,
@@ -40713,7 +40757,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 236
+          "line": 237
         },
         {
           "ordinal": 128,
@@ -40778,7 +40822,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/GETCOMPY.cbl": {
       "program_id": "GETCOMPY",
@@ -40843,7 +40889,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/GETSCODE.cbl": {
       "program_id": "GETSCODE",
@@ -40916,7 +40964,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/INQACC.cbl": {
       "program_id": "INQACC",
@@ -41198,7 +41248,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 44
+          "line": 46
         },
         {
           "ordinal": 1,
@@ -41406,7 +41456,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 14,
@@ -41454,7 +41504,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 90
+          "line": 91
         },
         {
           "ordinal": 17,
@@ -41470,7 +41520,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 92
+          "line": 93
         },
         {
           "ordinal": 18,
@@ -41486,7 +41536,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 19,
@@ -41710,7 +41760,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 110
+          "line": 111
         },
         {
           "ordinal": 33,
@@ -41726,7 +41776,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 112
+          "line": 113
         },
         {
           "ordinal": 34,
@@ -41822,7 +41872,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 40,
@@ -41870,7 +41920,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 123
+          "line": 124
         },
         {
           "ordinal": 43,
@@ -41918,7 +41968,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 127
+          "line": 128
         },
         {
           "ordinal": 46,
@@ -41966,7 +42016,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 131
+          "line": 132
         },
         {
           "ordinal": 49,
@@ -41982,7 +42032,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 133
+          "line": 134
         },
         {
           "ordinal": 50,
@@ -41998,7 +42048,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 51,
@@ -42014,7 +42064,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 137
+          "line": 138
         },
         {
           "ordinal": 52,
@@ -42030,7 +42080,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 140
+          "line": 144
         },
         {
           "ordinal": 53,
@@ -42158,7 +42208,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 157
+          "line": 158
         },
         {
           "ordinal": 61,
@@ -42174,7 +42224,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 159
+          "line": 160
         },
         {
           "ordinal": 62,
@@ -42222,7 +42272,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 163
+          "line": 164
         },
         {
           "ordinal": 65,
@@ -42270,7 +42320,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 167
+          "line": 168
         },
         {
           "ordinal": 68,
@@ -42286,7 +42336,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 169
+          "line": 170
         },
         {
           "ordinal": 69,
@@ -42414,7 +42464,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 178
+          "line": 179
         },
         {
           "ordinal": 77,
@@ -42510,7 +42560,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 185
+          "line": 186
         },
         {
           "ordinal": 83,
@@ -42606,7 +42656,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 192
+          "line": 193
         },
         {
           "ordinal": 89,
@@ -42622,7 +42672,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 194
+          "line": 195
         }
       ],
       "transactions": [],
@@ -42671,7 +42721,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/INQACCCU.cbl": {
       "program_id": "INQACCCU",
@@ -42948,7 +43000,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 43
+          "line": 45
         },
         {
           "ordinal": 1,
@@ -43156,7 +43208,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 58
+          "line": 59
         },
         {
           "ordinal": 14,
@@ -43268,7 +43320,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 96
         },
         {
           "ordinal": 21,
@@ -43332,7 +43384,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 100
+          "line": 101
         },
         {
           "ordinal": 25,
@@ -43348,7 +43400,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 26,
@@ -43364,7 +43416,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 105
+          "line": 106
         },
         {
           "ordinal": 27,
@@ -43588,7 +43640,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 120
+          "line": 121
         },
         {
           "ordinal": 41,
@@ -43636,7 +43688,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 124
+          "line": 125
         },
         {
           "ordinal": 44,
@@ -43732,7 +43784,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 131
+          "line": 132
         },
         {
           "ordinal": 50,
@@ -43780,7 +43832,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 135
+          "line": 136
         },
         {
           "ordinal": 53,
@@ -43828,7 +43880,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 141
         },
         {
           "ordinal": 56,
@@ -43876,7 +43928,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 144
+          "line": 145
         },
         {
           "ordinal": 59,
@@ -43892,7 +43944,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 60,
@@ -43908,7 +43960,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 149
+          "line": 150
         },
         {
           "ordinal": 61,
@@ -43924,7 +43976,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 151
+          "line": 152
         },
         {
           "ordinal": 62,
@@ -43940,7 +43992,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 153
+          "line": 154
         },
         {
           "ordinal": 63,
@@ -43956,7 +44008,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 156
+          "line": 157
         },
         {
           "ordinal": 64,
@@ -43972,7 +44024,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 159
+          "line": 160
         },
         {
           "ordinal": 65,
@@ -44100,7 +44152,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 168
+          "line": 169
         },
         {
           "ordinal": 73,
@@ -44196,7 +44248,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 175
+          "line": 177
         },
         {
           "ordinal": 79,
@@ -44292,7 +44344,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 183
+          "line": 184
         },
         {
           "ordinal": 85,
@@ -44308,7 +44360,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 185
+          "line": 186
         },
         {
           "ordinal": 86,
@@ -44366,7 +44418,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/INQCUST.cbl": {
       "program_id": "INQCUST",
@@ -44600,7 +44654,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 38
         },
         {
           "ordinal": 1,
@@ -44632,7 +44686,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 40
+          "line": 41
         },
         {
           "ordinal": 3,
@@ -44680,7 +44734,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 50
         },
         {
           "ordinal": 6,
@@ -44696,7 +44750,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 52
+          "line": 53
         },
         {
           "ordinal": 7,
@@ -44744,7 +44798,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 56
+          "line": 57
         },
         {
           "ordinal": 10,
@@ -44792,7 +44846,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 60
+          "line": 61
         },
         {
           "ordinal": 13,
@@ -44824,7 +44878,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 63
+          "line": 64
         },
         {
           "ordinal": 15,
@@ -44872,7 +44926,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 67
+          "line": 69
         },
         {
           "ordinal": 18,
@@ -44904,7 +44958,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 20,
@@ -44920,7 +44974,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 73
+          "line": 78
         },
         {
           "ordinal": 21,
@@ -45000,7 +45054,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 83
+          "line": 84
         },
         {
           "ordinal": 26,
@@ -45032,7 +45086,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "00",
-          "line": 86
+          "line": 87
         },
         {
           "ordinal": 28,
@@ -45048,7 +45102,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 88
+          "line": 90
         },
         {
           "ordinal": 29,
@@ -45160,7 +45214,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 98
         },
         {
           "ordinal": 36,
@@ -45224,7 +45278,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 102
+          "line": 103
         },
         {
           "ordinal": 40,
@@ -45240,7 +45294,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 104
+          "line": 105
         },
         {
           "ordinal": 41,
@@ -45304,7 +45358,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 109
+          "line": 110
         },
         {
           "ordinal": 45,
@@ -45368,7 +45422,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 114
+          "line": 115
         },
         {
           "ordinal": 49,
@@ -45384,7 +45438,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 116
+          "line": 117
         },
         {
           "ordinal": 50,
@@ -45416,7 +45470,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 52,
@@ -45432,7 +45486,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 122
+          "line": 123
         },
         {
           "ordinal": 53,
@@ -45448,7 +45502,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 124
+          "line": 125
         },
         {
           "ordinal": 54,
@@ -45496,7 +45550,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 57,
@@ -45512,7 +45566,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 130
+          "line": 131
         },
         {
           "ordinal": 58,
@@ -45640,7 +45694,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 139
+          "line": 140
         },
         {
           "ordinal": 66,
@@ -45736,7 +45790,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 146
+          "line": 147
         },
         {
           "ordinal": 72,
@@ -45832,7 +45886,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 153
+          "line": 154
         },
         {
           "ordinal": 78,
@@ -45848,7 +45902,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 156
         },
         {
           "ordinal": 79,
@@ -45885,7 +45939,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/UPDACC.cbl": {
       "program_id": "UPDACC",
@@ -46057,7 +46113,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 53
         },
         {
           "ordinal": 1,
@@ -46073,7 +46129,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 61
         },
         {
           "ordinal": 2,
@@ -46297,7 +46353,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 81
+          "line": 82
         },
         {
           "ordinal": 16,
@@ -46313,7 +46369,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 84
+          "line": 85
         },
         {
           "ordinal": 17,
@@ -46457,7 +46513,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 99
         },
         {
           "ordinal": 26,
@@ -46473,7 +46529,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 27,
@@ -46505,7 +46561,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 104
+          "line": 108
         },
         {
           "ordinal": 29,
@@ -46553,7 +46609,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 111
+          "line": 112
         },
         {
           "ordinal": 32,
@@ -46601,7 +46657,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 116
+          "line": 117
         },
         {
           "ordinal": 35,
@@ -46729,7 +46785,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 125
+          "line": 126
         },
         {
           "ordinal": 43,
@@ -46825,7 +46881,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 132
+          "line": 133
         },
         {
           "ordinal": 49,
@@ -46841,7 +46897,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 134
+          "line": 135
         },
         {
           "ordinal": 50,
@@ -46889,7 +46945,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 138
+          "line": 139
         },
         {
           "ordinal": 53,
@@ -46905,7 +46961,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 140
+          "line": 141
         },
         {
           "ordinal": 54,
@@ -47001,7 +47057,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 147
+          "line": 148
         },
         {
           "ordinal": 60,
@@ -47017,7 +47073,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 149
+          "line": 150
         },
         {
           "ordinal": 61,
@@ -47039,7 +47095,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/UPDCUST.cbl": {
       "program_id": "UPDCUST",
@@ -47196,7 +47254,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 44
+          "line": 47
         },
         {
           "ordinal": 1,
@@ -47212,7 +47270,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 48
+          "line": 50
         },
         {
           "ordinal": 2,
@@ -47356,7 +47414,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 62
+          "line": 64
         },
         {
           "ordinal": 11,
@@ -47372,7 +47430,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 66
+          "line": 67
         },
         {
           "ordinal": 12,
@@ -47404,7 +47462,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 69
+          "line": 73
         },
         {
           "ordinal": 14,
@@ -47452,7 +47510,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 76
+          "line": 77
         },
         {
           "ordinal": 17,
@@ -47468,7 +47526,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 78
+          "line": 79
         },
         {
           "ordinal": 18,
@@ -47500,7 +47558,7 @@
           "occurs_depending_on": null,
           "redefines": "WS-ORIG-DATE",
           "value": null,
-          "line": 81
+          "line": 82
         },
         {
           "ordinal": 20,
@@ -47596,7 +47654,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 88
+          "line": 89
         },
         {
           "ordinal": 26,
@@ -47692,7 +47750,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 95
+          "line": 96
         },
         {
           "ordinal": 32,
@@ -47708,7 +47766,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 97
+          "line": 98
         },
         {
           "ordinal": 33,
@@ -47820,7 +47878,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 105
+          "line": 106
         },
         {
           "ordinal": 40,
@@ -47884,7 +47942,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 110
+          "line": 111
         },
         {
           "ordinal": 44,
@@ -47932,7 +47990,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 114
+          "line": 115
         },
         {
           "ordinal": 47,
@@ -47948,7 +48006,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": " ",
-          "line": 116
+          "line": 117
         },
         {
           "ordinal": 48,
@@ -47980,7 +48038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 120
         },
         {
           "ordinal": 50,
@@ -48076,7 +48134,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 126
+          "line": 127
         },
         {
           "ordinal": 56,
@@ -48092,7 +48150,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 128
+          "line": 129
         },
         {
           "ordinal": 57,
@@ -48114,7 +48172,9 @@
       "transactions": [],
       "transactions_validated": true,
       "commareas": [],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "src/base/cobol_src/XFRFUN.cbl": {
       "program_id": "XFRFUN",
@@ -48507,7 +48567,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 63
+          "line": 65
         },
         {
           "ordinal": 1,
@@ -48731,7 +48791,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 84
+          "line": 86
         },
         {
           "ordinal": 15,
@@ -48891,7 +48951,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 101
+          "line": 102
         },
         {
           "ordinal": 25,
@@ -49003,7 +49063,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 112
+          "line": 113
         },
         {
           "ordinal": 32,
@@ -49099,7 +49159,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 119
+          "line": 124
         },
         {
           "ordinal": 38,
@@ -49115,7 +49175,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 126
+          "line": 127
         },
         {
           "ordinal": 39,
@@ -49131,7 +49191,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 129
+          "line": 130
         },
         {
           "ordinal": 40,
@@ -49163,7 +49223,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 132
+          "line": 137
         },
         {
           "ordinal": 42,
@@ -49211,7 +49271,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 140
+          "line": 145
         },
         {
           "ordinal": 45,
@@ -49259,7 +49319,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0",
-          "line": 149
+          "line": 150
         },
         {
           "ordinal": 48,
@@ -49307,7 +49367,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 156
         },
         {
           "ordinal": 51,
@@ -49435,7 +49495,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 164
+          "line": 165
         },
         {
           "ordinal": 59,
@@ -49531,7 +49591,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 171
+          "line": 172
         },
         {
           "ordinal": 65,
@@ -49547,7 +49607,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 173
+          "line": 174
         },
         {
           "ordinal": 66,
@@ -49563,7 +49623,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 176
+          "line": 177
         },
         {
           "ordinal": 67,
@@ -49595,7 +49655,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 179
+          "line": 180
         },
         {
           "ordinal": 69,
@@ -49643,7 +49703,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 191
+          "line": 192
         },
         {
           "ordinal": 72,
@@ -49739,7 +49799,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 199
+          "line": 200
         },
         {
           "ordinal": 78,
@@ -49755,7 +49815,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 203
+          "line": 204
         },
         {
           "ordinal": 79,
@@ -49803,7 +49863,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 208
+          "line": 209
         },
         {
           "ordinal": 82,
@@ -49851,7 +49911,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 213
+          "line": 214
         },
         {
           "ordinal": 85,
@@ -49899,7 +49959,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 217
+          "line": 218
         },
         {
           "ordinal": 88,
@@ -49947,7 +50007,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 222
+          "line": 223
         },
         {
           "ordinal": 91,
@@ -49995,7 +50055,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 227
+          "line": 228
         },
         {
           "ordinal": 94,
@@ -50027,7 +50087,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 230
+          "line": 231
         },
         {
           "ordinal": 96,
@@ -50155,7 +50215,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "N",
-          "line": 241
+          "line": 242
         },
         {
           "ordinal": 104,
@@ -50187,7 +50247,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 244
+          "line": 245
         },
         {
           "ordinal": 106,
@@ -50203,7 +50263,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 247
+          "line": 248
         },
         {
           "ordinal": 107,
@@ -50219,7 +50279,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 249
+          "line": 250
         },
         {
           "ordinal": 108,
@@ -50315,7 +50375,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "ABNDPROC",
-          "line": 256
+          "line": 257
         },
         {
           "ordinal": 114,
@@ -50331,7 +50391,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 258
+          "line": 259
         },
         {
           "ordinal": 115,
@@ -50347,7 +50407,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 263
+          "line": 264
         }
       ],
       "transactions": [],
@@ -50452,7 +50512,9 @@
           "datalength": null
         }
       ],
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "method": {
@@ -65824,6 +65886,205 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/GETSCODE.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 60,
+          "asked": 60
+        }
+      },
+      "rulings": {
+        "records:src/base/cobol_src/BNK1CCS.cbl::L118 01 COMPANY-NAME-FULL PIC=X(32) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L120 01 CURSOR-POSITION PIC=S9(4) U=BINARY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L122 01 WS-U-TIME PIC=S9(15) U=COMP-3 O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L145 01 WS-ABEND-PGM PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L56 01 END-OF-SESSION-MESSAGE PIC=X(13) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L61 01 RESPONSE-CODE PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L63 01 COMMUNICATION-AREA PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/BNK1CCS.cbl::L94 01 WS-ABCODE PIC=XXXX U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "src/base/cobol_src/INQCUST.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 56,
+          "asked": 56
+        }
+      },
+      "rulings": {
+        "records:src/base/cobol_src/INQCUST.cbl::L102 01 WS-DISP-CUST-NO-VAL PIC=S9(18) U=DISPLAY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L114 01 MY-ABEND-CODE PIC=XXXX U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L116 01 WS-STORM-DRAIN PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L119 01 SQLCODE-DISPLAY PIC=S9(8) U=DISPLAY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L122 01 WS-INVOKING-PROGRAM PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L128 01 WS-POINTER-NUMBER-DISPLAY PIC=9(8) U=DISPLAY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L130 01 WS-U-TIME PIC=S9(15) U=COMP-3 O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L153 01 WS-ABEND-PGM PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L37 77 SYSIDERR-RETRY PIC=999 U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L60 01 RANDOM-CUSTOMER PIC=9(10) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L63 01 EXIT-VSAM-READ PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L67 01 WS-V-RETRIED PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L71 01 WS-PROGRAM PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L83 03 NCS-CUST-NO-INC PIC=9(16) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/INQCUST.cbl::L86 03 NCS-CUST-NO-RESP PIC=XX U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "src/base/cobol_src/ACCTCTRL.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 42,
+          "asked": 42
+        }
+      },
+      "rulings": {
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L117 01 WS-ABEND-PGM PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L40 01 EXIT-DB2-READ PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L44 01 WS-V-RETRIED PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L47 01 SQLCODE-DISPLAY PIC=S9(8) U=DISPLAY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L63 01 WS-DISP-ACCT-NO-VAL PIC=S9(18) U=DISPLAY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L65 01 WS-ACCT-REC-LEN PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L67 01 NCS-UPDATED PIC=X U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L69 01 WS-EIBTASKN12 PIC=9(12) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L76 01 ACCOUNT-KY2-BYTES PIC=X(16) U=- O=- R=ACCOUNT-KY2": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L78 01 HIGHEST-ACCT-NUMBER PIC=9(10) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L80 01 WS-CICS-RESP PIC=S9(8) U=BINARY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L88 01 HV-NUMBER-OF-ACCOUNTS PIC=S9(8) U=BINARY O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:src/base/cobol_src/ACCTCTRL.cbl::L91 01 WS-U-TIME PIC=S9(15) U=COMP-3 O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
     }
   ],
   "file_control": {
@@ -78357,6 +78618,49 @@
           ]
         }
       ]
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "src/base/cobol_src/ACCTCTRL.cbl",
+          "src/base/cobol_src/BNK1CCS.cbl",
+          "src/base/cobol_src/GETSCODE.cbl",
+          "src/base/cobol_src/INQCUST.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "src/base/cobol_src/BNK1CCS.cbl",
+            "src/base/cobol_src/GETSCODE.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "src/base/cobol_src/INQCUST.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-banking-sample-application-cbsa records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 3,
+          "files": [
+            "src/base/cobol_src/ACCTCTRL.cbl"
+          ]
+        }
+      ],
+      "asked": 158,
+      "key_errors": 36,
+      "upper_bound_95": 0.28705,
+      "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
     }
   },
   "symbolic_maps": {

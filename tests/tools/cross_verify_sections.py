@@ -56,6 +56,11 @@ keyed rows, in full:
 
     jcics             jcics_validated          JCICS LINKs and file / queue / channel / container operations
 
+`records` (#3575) is a SAMPLED census of each program's own DATA DIVISION elementary fields:
+
+    records           records_validated        line, level, name, PIC, USAGE, OCCURS, REDEFINES
+                                               (tier sample_verified via records_validated_tier)
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -1659,6 +1664,137 @@ def _sign_pli_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `records` suite (#3575): a SAMPLED census of DATA DIVISION fields ------
+# The key's `records` are each program's own DATA DIVISION items (COPY members are
+# not expanded; copybook layouts are not keyed). ~5,500 elementary fields over the
+# six corpora, so a seeded sample of PROGRAMS is read in full: one per storage
+# section first (FILE / LINKAGE / LOCAL-STORAGE / WORKING-STORAGE), then random
+# programs until RECORD_SAMPLE_FACTS fields are covered. The comparison is the whole
+# elementary row -- line, level, name, PIC, USAGE, OCCURS, REDEFINES -- stronger
+# than the ledger's field-NAME comparison. Once every planned program is signed,
+# every program's `records_validated` is set with `records_validated_tier`
+# sample_verified (the program block's own tier backs other fields).
+RECORD_SAMPLE_FACTS = 150
+
+
+def _record_fields(entry: dict[str, Any]) -> list[dict[str, Any]]:
+    return [r for r in entry.get("records", []) if r.get("pic") and r.get("name") and r["name"] != "FILLER"
+            and r.get("level") not in (66, 88)]  # fmt: skip
+
+
+def _pic(v: Any) -> str:
+    return re.sub(r"\(0+(\d)", r"(\1", re.sub(r"\s+", "", str(v).upper())) if v else "-"
+
+
+def _usage(v: Any) -> str:
+    u = re.sub(r"^(?:USAGE\s+)?(?:IS\s+)?", "", _ws(v)) if v else ""
+    return re.sub(r"^COMPUTATIONAL", "COMP", u) or "-"
+
+
+def canon_record(r: dict[str, Any]) -> str:
+    occ = "-"
+    if r.get("occurs_max") or r.get("occurs_min") or r.get("occurs_depending_on"):
+        occ = f"{_d(r.get('occurs_min'))}-{_d(r.get('occurs_max'))}/{_d(r.get('occurs_depending_on'))}"
+    return (
+        f"L{int(r.get('line') or 0)} {int(r.get('level') or 0):02d} {_ws(r.get('name'))} PIC={_pic(r.get('pic'))} "
+        f"U={_usage(r.get('usage'))} O={occ} R={_d(r.get('redefines'))}"
+    )
+
+
+def records_plan(key: dict[str, Any], seed: int, budget: int = RECORD_SAMPLE_FACTS) -> list[str]:
+    progs = {rel: _record_fields(e) for rel, e in sorted(key.get("programs", {}).items())}
+    rng = random.Random(seed)
+    order = sorted(progs)
+    rng.shuffle(order)
+    chosen: list[str] = []
+    for section in ("FILE", "LINKAGE", "LOCAL-STORAGE", "WORKING-STORAGE"):
+        pick = next((p for p in order if any(r.get("section") == section for r in progs[p])), None)
+        if pick and pick not in chosen:
+            chosen.append(pick)
+    for p in order:
+        if sum(len(progs[c]) for c in chosen) >= budget:
+            break
+        if p not in chosen:
+            chosen.append(p)
+    return sorted(chosen)
+
+
+def corpus_files_records(key: dict[str, Any]) -> list[str]:
+    return list(key.get("sample_census", {}).get("records", {}).get("plan", {}).get("files", []))
+
+
+def key_facts_records(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    progs = key.get("programs", {})
+    return {"records": {rel: sorted({canon_record(r) for r in _record_fields(progs.get(rel, {}))}) for rel in files}}
+
+
+def reviewer_facts_records(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"records": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["records"][r] = {canon_record(x) for x in (v or {}).get("fields", []) if isinstance(x, dict)}
+    return out
+
+
+def render_records(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "records", "batch": index, "of": of, "files": files,
+             "facts": key_facts_records(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe COBOL source code, as a second reviewer.
+Read the files yourself. They are all under the repository root {repo}; read only the files listed below. Do NOT
+edit or create any files except your answers file, and do not look for any existing answer key or analysis of this
+code: the point is an independent reading. Line numbers are 1-based physical line numbers of the file.
+
+{FIXED_FORMAT_RULES}
+
+For EACH file list, in "fields", every ELEMENTARY DATA ITEM of its DATA DIVISION (FILE SECTION, WORKING-STORAGE,
+LOCAL-STORAGE and LINKAGE SECTION) that has a PICTURE / PIC clause and a name -- not FILLER (nor an unnamed item),
+not a level-66 RENAMES or level-88 condition name. Group items (no PIC) are not listed. Do NOT expand `COPY`
+statements: only items written in the file itself count. Ignore commented-out lines. One entry per item:
+  "line"       the line its level number is on
+  "level"      the level number (an integer: 1, 5, 10, 77, ...)
+  "name"       the data name, upper-cased
+  "pic"        the PICTURE string exactly as written (e.g. "X(08)", "S9(4)", "9(5)V99"), without PIC / IS
+  "usage"      its own USAGE as written, without USAGE / IS (e.g. "COMP-3", "COMP", "BINARY", "DISPLAY"), or null
+               when the item codes none (a group's USAGE is NOT inherited here)
+  "occurs_min" / "occurs_max"  its own OCCURS clause: `OCCURS 5` -> 5 / 5; `OCCURS 1 TO 50 DEPENDING ON N` -> 1 / 50;
+               null / null without one (an enclosing group's OCCURS is NOT inherited)
+  "occurs_depending_on"  the DEPENDING ON data name, else null
+  "redefines"  the data name in its own REDEFINES clause, else null
+A file with no such item gets an empty list.
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"fields": [{{"line": 42, "level": 5, "name": "WS-PGMNAME", "pic": "X(08)", "usage": null,
+   "occurs_min": null, "occurs_max": null, "occurs_depending_on": null, "redefines": null}}]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
+def batches_records(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_records(key, files)["records"].items()}, max_items)
+
+
+def _sign_records_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                         by: str, at: str) -> None:  # fmt: skip
+    sc = key["sample_census"]["records"]
+    sc.setdefault("batches", []).append({"by": by, "at": at, "batch": truth["batch"], "files": truth["files"]})
+    sc["asked"] = sc.get("asked", 0) + g["tasks"].get("records", {}).get("asked", 0)
+    sc["key_errors"] = sc.get("key_errors", 0) + sum(1 for r in rulings.values() if r.get("verdict") == "key_fixed")
+    done = {f for b in sc["batches"] for f in b["files"]}
+    if all(f in done for f in sc["plan"]["files"]):
+        sc["upper_bound_95"] = round(upper_bound_95(sc["key_errors"], sc["asked"]), 5)
+        for entry in key.get("programs", {}).values():
+            entry["records_validated"] = True
+            entry["records_validated_tier"] = "sample_verified"
+
+
 # ---- the `pliuow` suite (#3491 part 2): a SAMPLED census of PL/I units of work ----
 # DSF's ~1,760 handler rows over 1,473 files: a seeded, stratified sample of files
 # (ON / REVERT / SIGNAL files, CICS-handler-only files, files with none) is read in
@@ -1943,6 +2079,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "plicalls"
         else reviewer_facts_pliuow(answers, repo)
         if suite == "pliuow"
+        else reviewer_facts_records(answers, repo)
+        if suite == "records"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
         else reviewer_facts(answers, repo)
@@ -2010,7 +2148,7 @@ def sign(
         else RESOURCE_SECTIONS
         if truth.get("suite") == "resources"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "records")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -2044,6 +2182,8 @@ def sign(
         _sign_pli_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "pliuow":
         _sign_pli_uow_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "records":
+        _sign_records_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     return key
@@ -2123,6 +2263,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "records",
         ),
         default="channels",
     )
@@ -2145,6 +2286,7 @@ def main() -> int:
             "plicalls",
             "pliuow",
             "plimoves",
+            "records",
         ),
         default="channels",
     )
@@ -2177,6 +2319,8 @@ def main() -> int:
         if suite == "plicalls"
         else corpus_files_pliuow(key)
         if suite == "pliuow"
+        else corpus_files_records(key)
+        if suite == "records"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -2215,6 +2359,12 @@ def main() -> int:
                 (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
                 print(f"{d}: {len(ws)} windows, {sum(len(v) for v in truth['facts']['moves'].values())} key facts")
             return 0
+        if suite == "records":
+            rc = key.setdefault("sample_census", {}).setdefault("records", {})
+            if not rc.get("batches"):
+                rc["plan"] = {"seed": args.seed, "budget": RECORD_SAMPLE_FACTS, "files": records_plan(key, args.seed)}
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = corpus_files_records(key)
         if suite == "pliuow":
             pu = key.setdefault("sample_census", {}).setdefault("pli_uow", {})
             if not pu.get("batches"):
@@ -2254,6 +2404,7 @@ def main() -> int:
             "resources": batches_resources,
             "plicalls": batches_plicalls,
             "pliuow": batches_pliuow,
+            "records": batches_records,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -2269,6 +2420,7 @@ def main() -> int:
                 "resources": render_resources,
                 "plicalls": render_plicalls,
                 "pliuow": render_pliuow,
+                "records": render_records,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -2317,6 +2469,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_plicalls(key, truth["files"]))
     elif truth.get("suite") == "pliuow":
         current = dict(truth, facts=key_facts_pliuow(key, truth["files"]))
+    elif truth.get("suite") == "records":
+        current = dict(truth, facts=key_facts_records(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     else:

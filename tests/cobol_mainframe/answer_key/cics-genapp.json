@@ -160,7 +160,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -288,7 +288,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -400,7 +400,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 44
+          "line": 46
         },
         {
           "ordinal": 16,
@@ -576,7 +576,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 57
+          "line": 58
         },
         {
           "ordinal": 27,
@@ -704,7 +704,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 66
+          "line": 67
         },
         {
           "ordinal": 35,
@@ -848,7 +848,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 82
         },
         {
           "ordinal": 44,
@@ -896,7 +896,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 100
         },
         {
           "ordinal": 47,
@@ -928,7 +928,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 116
+          "line": 117
         }
       ],
       "transactions": [
@@ -949,7 +949,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgacdb02.cbl": {
       "program_id": "LGACDB02",
@@ -1064,7 +1066,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -1192,7 +1194,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -1272,7 +1274,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 14,
@@ -1448,7 +1450,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 56
         },
         {
           "ordinal": 25,
@@ -1496,7 +1498,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 77
         },
         {
           "ordinal": 28,
@@ -1544,7 +1546,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 94
+          "line": 95
         },
         {
           "ordinal": 31,
@@ -1677,7 +1679,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgacus01.cbl": {
       "program_id": "LGACUS01",
@@ -1807,7 +1811,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 18
+          "line": 23
         },
         {
           "ordinal": 1,
@@ -1935,7 +1939,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 34
         },
         {
           "ordinal": 9,
@@ -1983,7 +1987,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 39
         },
         {
           "ordinal": 12,
@@ -2079,7 +2083,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 18,
@@ -2127,7 +2131,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 55
         },
         {
           "ordinal": 21,
@@ -2191,7 +2195,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 68
+          "line": 69
         }
       ],
       "transactions": [],
@@ -2210,7 +2214,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgacvs01.cbl": {
       "program_id": "LGACVS01",
@@ -2307,7 +2313,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -2659,7 +2665,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 44
+          "line": 45
         },
         {
           "ordinal": 23,
@@ -2707,7 +2713,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0225",
-          "line": 48
+          "line": 49
         },
         {
           "ordinal": 26,
@@ -2744,7 +2750,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgapdb01.cbl": {
       "program_id": "LGAPDB01",
@@ -2902,7 +2910,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -3030,7 +3038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -3078,7 +3086,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 41
         },
         {
           "ordinal": 12,
@@ -3286,7 +3294,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 54
+          "line": 55
         },
         {
           "ordinal": 25,
@@ -3334,7 +3342,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 64
         },
         {
           "ordinal": 28,
@@ -3382,7 +3390,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 70
         },
         {
           "ordinal": 31,
@@ -3430,7 +3438,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 89
         },
         {
           "ordinal": 34,
@@ -3846,7 +3854,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 115
+          "line": 116
         },
         {
           "ordinal": 60,
@@ -3894,7 +3902,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 133
+          "line": 134
         }
       ],
       "transactions": [
@@ -3915,7 +3923,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgapol01.cbl": {
       "program_id": "LGAPOL01",
@@ -4032,7 +4042,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -4160,7 +4170,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -4208,7 +4218,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 41
         },
         {
           "ordinal": 12,
@@ -4304,7 +4314,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 18,
@@ -4368,7 +4378,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 58
         },
         {
           "ordinal": 22,
@@ -4416,7 +4426,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 69
+          "line": 70
         }
       ],
       "transactions": [],
@@ -4435,7 +4445,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgapvs01.cbl": {
       "program_id": "LGAPVS01",
@@ -4532,7 +4544,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -5348,7 +5360,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 74
+          "line": 75
         },
         {
           "ordinal": 52,
@@ -5396,7 +5408,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "PROGRAM LGAPVS01",
-          "line": 78
+          "line": 80
         },
         {
           "ordinal": 55,
@@ -5433,7 +5445,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgastat1.cbl": {
       "program_id": "LGASTAT1",
@@ -5483,7 +5497,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 14
+          "line": 16
         },
         {
           "ordinal": 1,
@@ -5915,7 +5929,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 44
+          "line": 46
         },
         {
           "ordinal": 28,
@@ -6080,7 +6094,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgdpdb01.cbl": {
       "program_id": "LGDPDB01",
@@ -6210,7 +6226,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -6338,7 +6354,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -6386,7 +6402,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 41
         },
         {
           "ordinal": 12,
@@ -6594,7 +6610,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 54
+          "line": 55
         },
         {
           "ordinal": 25,
@@ -6690,7 +6706,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 81
         },
         {
           "ordinal": 31,
@@ -6738,7 +6754,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 98
+          "line": 99
         }
       ],
       "transactions": [
@@ -6759,7 +6775,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgdpol01.cbl": {
       "program_id": "LGDPOL01",
@@ -6881,7 +6899,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 18
+          "line": 23
         },
         {
           "ordinal": 1,
@@ -7009,7 +7027,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 34
         },
         {
           "ordinal": 9,
@@ -7057,7 +7075,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 39
         },
         {
           "ordinal": 12,
@@ -7153,7 +7171,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 18,
@@ -7201,7 +7219,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 56
         },
         {
           "ordinal": 21,
@@ -7233,7 +7251,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGDPDB01",
-          "line": 58
+          "line": 59
         },
         {
           "ordinal": 23,
@@ -7268,7 +7286,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgdpvs01.cbl": {
       "program_id": "LGDPVS01",
@@ -7365,7 +7385,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -7829,7 +7849,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 52
+          "line": 53
         },
         {
           "ordinal": 30,
@@ -7877,7 +7897,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "PROGRAM LGDPVS01",
-          "line": 56
+          "line": 58
         },
         {
           "ordinal": 33,
@@ -7914,7 +7934,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgicdb01.cbl": {
       "program_id": "LGICDB01",
@@ -8042,7 +8064,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 19
+          "line": 24
         },
         {
           "ordinal": 1,
@@ -8170,7 +8192,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 33
+          "line": 35
         },
         {
           "ordinal": 9,
@@ -8218,7 +8240,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 38
+          "line": 40
         },
         {
           "ordinal": 12,
@@ -8394,7 +8416,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 51
+          "line": 52
         },
         {
           "ordinal": 23,
@@ -8442,7 +8464,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 58
         },
         {
           "ordinal": 26,
@@ -8490,7 +8512,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 71
         },
         {
           "ordinal": 29,
@@ -8522,7 +8544,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 90
+          "line": 91
         }
       ],
       "transactions": [
@@ -8543,7 +8565,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgicus01.cbl": {
       "program_id": "LGICUS01",
@@ -8678,7 +8702,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -8806,7 +8830,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -8854,7 +8878,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 41
         },
         {
           "ordinal": 12,
@@ -8950,7 +8974,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 18,
@@ -8998,7 +9022,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGICDB01",
-          "line": 51
+          "line": 52
         },
         {
           "ordinal": 21,
@@ -9014,7 +9038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 56
         },
         {
           "ordinal": 22,
@@ -9062,7 +9086,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 68
         }
       ],
       "transactions": [],
@@ -9081,7 +9105,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgicvs01.cbl": {
       "program_id": "LGICVS01",
@@ -9122,7 +9148,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 23
+          "line": 24
         },
         {
           "ordinal": 1,
@@ -9538,7 +9564,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 53
+          "line": 54
         },
         {
           "ordinal": 27,
@@ -9746,7 +9772,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 67
+          "line": 68
         },
         {
           "ordinal": 40,
@@ -9944,7 +9970,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgipdb01.cbl": {
       "program_id": "LGIPDB01",
@@ -10107,7 +10135,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 21
         },
         {
           "ordinal": 1,
@@ -10347,7 +10375,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 41
+          "line": 43
         },
         {
           "ordinal": 16,
@@ -10395,7 +10423,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 46
+          "line": 48
         },
         {
           "ordinal": 19,
@@ -10603,7 +10631,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 61
+          "line": 62
         },
         {
           "ordinal": 32,
@@ -10651,7 +10679,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 66
+          "line": 70
         },
         {
           "ordinal": 35,
@@ -10667,7 +10695,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 36,
@@ -10715,7 +10743,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 75
+          "line": 78
         },
         {
           "ordinal": 39,
@@ -10731,7 +10759,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 79
+          "line": 80
         },
         {
           "ordinal": 40,
@@ -10763,7 +10791,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 155
+          "line": 166
         },
         {
           "ordinal": 42,
@@ -11195,7 +11223,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 199
+          "line": 203
         },
         {
           "ordinal": 69,
@@ -11275,7 +11303,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 216
+          "line": 217
         },
         {
           "ordinal": 74,
@@ -11291,7 +11319,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 221
+          "line": 222
         }
       ],
       "transactions": [
@@ -11312,7 +11340,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgipol01.cbl": {
       "program_id": "LGIPOL01",
@@ -11437,7 +11467,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 20
+          "line": 25
         },
         {
           "ordinal": 1,
@@ -11565,7 +11595,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 34
+          "line": 36
         },
         {
           "ordinal": 9,
@@ -11613,7 +11643,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 39
+          "line": 41
         },
         {
           "ordinal": 12,
@@ -11709,7 +11739,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 47
+          "line": 48
         },
         {
           "ordinal": 18,
@@ -11757,7 +11787,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGIPDB01",
-          "line": 52
+          "line": 53
         },
         {
           "ordinal": 21,
@@ -11792,7 +11822,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgipvs01.cbl": {
       "program_id": "LGIPVS01",
@@ -11833,7 +11865,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 19
+          "line": 20
         },
         {
           "ordinal": 1,
@@ -12073,7 +12105,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 35
+          "line": 38
         },
         {
           "ordinal": 16,
@@ -12185,7 +12217,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 23,
@@ -12447,7 +12479,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgsetup.cbl": {
       "program_id": "LGSETUP",
@@ -12488,7 +12522,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 19
+          "line": 20
         },
         {
           "ordinal": 1,
@@ -12808,7 +12842,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 43
         },
         {
           "ordinal": 21,
@@ -13704,7 +13738,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 100
+          "line": 101
         },
         {
           "ordinal": 77,
@@ -13901,7 +13935,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgstsq.cbl": {
       "program_id": "LGSTSQ",
@@ -13942,7 +13978,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 16
+          "line": 17
         },
         {
           "ordinal": 1,
@@ -14054,7 +14090,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 24
+          "line": 25
         },
         {
           "ordinal": 8,
@@ -14262,7 +14298,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "SPACES",
-          "line": 38
+          "line": 39
         },
         {
           "ordinal": 21,
@@ -14329,7 +14365,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgtestc1.cbl": {
       "program_id": "LGTESTC1",
@@ -14498,7 +14536,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -14642,7 +14680,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 29
+          "line": 30
         },
         {
           "ordinal": 10,
@@ -14839,7 +14877,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgtestp1.cbl": {
       "program_id": "LGTESTP1",
@@ -15023,7 +15063,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TRANSACTION ENDED      ",
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -15060,7 +15100,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgtestp2.cbl": {
       "program_id": "LGTESTP2",
@@ -15244,7 +15286,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TRANSACTION ENDED      ",
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -15281,7 +15323,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgtestp3.cbl": {
       "program_id": "LGTESTP3",
@@ -15465,7 +15509,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TRANSACTION ENDED      ",
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -15502,7 +15546,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgtestp4.cbl": {
       "program_id": "LGTESTP4",
@@ -15661,7 +15707,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "TRANSACTION ENDED      ",
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -15698,7 +15744,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgucdb01.cbl": {
       "program_id": "LGUCDB01",
@@ -15836,7 +15884,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 22
         },
         {
           "ordinal": 1,
@@ -15980,7 +16028,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 36
         },
         {
           "ordinal": 10,
@@ -16188,7 +16236,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 49
+          "line": 51
         },
         {
           "ordinal": 23,
@@ -16236,7 +16284,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 54
+          "line": 56
         },
         {
           "ordinal": 26,
@@ -16412,7 +16460,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 67
+          "line": 68
         },
         {
           "ordinal": 37,
@@ -16460,7 +16508,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGUCVS01",
-          "line": 71
+          "line": 72
         },
         {
           "ordinal": 40,
@@ -16476,7 +16524,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 88
+          "line": 89
         }
       ],
       "transactions": [
@@ -16497,7 +16545,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgucus01.cbl": {
       "program_id": "LGUCUS01",
@@ -16619,7 +16669,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 18
+          "line": 23
         },
         {
           "ordinal": 1,
@@ -16747,7 +16797,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 34
         },
         {
           "ordinal": 9,
@@ -16795,7 +16845,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 39
         },
         {
           "ordinal": 12,
@@ -16891,7 +16941,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 18,
@@ -16939,7 +16989,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 56
         },
         {
           "ordinal": 21,
@@ -16987,7 +17037,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 59
+          "line": 62
         },
         {
           "ordinal": 24,
@@ -17035,7 +17085,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGUCDB01",
-          "line": 65
+          "line": 66
         },
         {
           "ordinal": 27,
@@ -17051,7 +17101,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         }
       ],
       "transactions": [],
@@ -17070,7 +17120,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgucvs01.cbl": {
       "program_id": "LGUCVS01",
@@ -17167,7 +17219,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -17535,7 +17587,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 45
+          "line": 46
         },
         {
           "ordinal": 24,
@@ -17583,7 +17635,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "0225",
-          "line": 49
+          "line": 50
         },
         {
           "ordinal": 27,
@@ -17620,7 +17672,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgupdb01.cbl": {
       "program_id": "LGUPDB01",
@@ -17783,7 +17837,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 22
         },
         {
           "ordinal": 1,
@@ -17927,7 +17981,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 34
         },
         {
           "ordinal": 10,
@@ -17975,7 +18029,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 39
         },
         {
           "ordinal": 13,
@@ -18183,7 +18237,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 52
+          "line": 53
         },
         {
           "ordinal": 26,
@@ -18231,7 +18285,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 57
+          "line": 63
         },
         {
           "ordinal": 29,
@@ -18279,7 +18333,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 66
+          "line": 69
         },
         {
           "ordinal": 32,
@@ -18327,7 +18381,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 86
         },
         {
           "ordinal": 35,
@@ -18535,7 +18589,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 105
+          "line": 109
         },
         {
           "ordinal": 48,
@@ -18599,7 +18653,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 149
+          "line": 150
         }
       ],
       "transactions": [
@@ -18620,7 +18674,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgupol01.cbl": {
       "program_id": "LGUPOL01",
@@ -18742,7 +18798,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 18
+          "line": 23
         },
         {
           "ordinal": 1,
@@ -18870,7 +18926,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 32
+          "line": 34
         },
         {
           "ordinal": 9,
@@ -18918,7 +18974,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 37
+          "line": 38
         },
         {
           "ordinal": 12,
@@ -18982,7 +19038,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 42
+          "line": 44
         },
         {
           "ordinal": 16,
@@ -19078,7 +19134,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 50
+          "line": 51
         },
         {
           "ordinal": 22,
@@ -19126,7 +19182,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 55
+          "line": 61
         },
         {
           "ordinal": 25,
@@ -19174,7 +19230,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "LGUPDB01",
-          "line": 64
+          "line": 65
         },
         {
           "ordinal": 28,
@@ -19190,7 +19246,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 72
+          "line": 73
         }
       ],
       "transactions": [],
@@ -19209,7 +19265,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgupvs01.cbl": {
       "program_id": "LGUPVS01",
@@ -19306,7 +19364,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -20154,7 +20212,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 77
+          "line": 78
         },
         {
           "ordinal": 54,
@@ -20202,7 +20260,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "PROGRAM LGUPVS01",
-          "line": 81
+          "line": 83
         },
         {
           "ordinal": 57,
@@ -20239,7 +20297,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     },
     "base/src/lgwebst5.cbl": {
       "program_id": "LGWEBST5",
@@ -20290,7 +20350,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": null,
-          "line": 17
+          "line": 18
         },
         {
           "ordinal": 1,
@@ -23106,7 +23166,7 @@
           "occurs_depending_on": null,
           "redefines": null,
           "value": "GENACUSTNUM",
-          "line": 196
+          "line": 197
         },
         {
           "ordinal": 177,
@@ -23783,7 +23843,9 @@
         "by": "claude-opus-5.5 blind census (every program read twice, blind; see cross_verification)",
         "at": "2026-09-24"
       },
-      "commareas_validated": false
+      "commareas_validated": false,
+      "records_validated": true,
+      "records_validated_tier": "sample_verified"
     }
   },
   "pli_programs": {},
@@ -42989,6 +43051,51 @@
       "asked": 319,
       "key_errors": 0,
       "upper_bound_95": 0.00935
+    },
+    "records": {
+      "plan": {
+        "seed": 3452,
+        "budget": 150,
+        "files": [
+          "base/src/lgacdb02.cbl",
+          "base/src/lgucdb01.cbl",
+          "base/src/lgucus01.cbl",
+          "base/src/lgupdb01.cbl",
+          "base/src/lgwebst5.cbl"
+        ]
+      },
+      "batches": [
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 1,
+          "files": [
+            "base/src/lgwebst5.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 2,
+          "files": [
+            "base/src/lgucdb01.cbl",
+            "base/src/lgupdb01.cbl"
+          ]
+        },
+        {
+          "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+          "at": "2026-09-25",
+          "batch": 3,
+          "files": [
+            "base/src/lgacdb02.cbl",
+            "base/src/lgucus01.cbl"
+          ]
+        }
+      ],
+      "asked": 281,
+      "key_errors": 9,
+      "upper_bound_95": 0.05426,
+      "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
     }
   },
   "cross_verification": [
@@ -43854,6 +43961,98 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "base/src/lgwebst5.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 171,
+          "asked": 171
+        }
+      },
+      "rulings": {
+        "records:base/src/lgwebst5.cbl::L17 01 COUNTVAL PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgwebst5.cbl::L196 01 GENACOUNT PIC=X(16) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "base/src/lgucdb01.cbl",
+        "base/src/lgupdb01.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 66,
+          "asked": 66
+        }
+      },
+      "rulings": {
+        "records:base/src/lgucdb01.cbl::L49 01 WS-ABSTIME PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgucdb01.cbl::L71 77 LGUCVS01 PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgupdb01.cbl::L105 77 IND-BROKERID PIC=S9(4) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgupdb01.cbl::L32 01 WS-ABSTIME PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (cics-genapp records sampled census, #3575)",
+      "at": "2026-09-25",
+      "batch": 3,
+      "files": [
+        "base/src/lgacdb02.cbl",
+        "base/src/lgucus01.cbl"
+      ],
+      "wide": false,
+      "suite": "records",
+      "tasks": {
+        "records": {
+          "agree": 44,
+          "asked": 44
+        }
+      },
+      "rulings": {
+        "records:base/src/lgacdb02.cbl::L34 01 WS-RESP PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgucus01.cbl::L32 01 WS-ABSTIME PIC=S9(8) U=COMP O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        },
+        "records:base/src/lgucus01.cbl::L65 01 LGUCDB01 PIC=X(8) U=- O=- R=-": {
+          "verdict": "key_fixed",
+          "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
+        }
+      }
     }
   ],
   "web_services": {

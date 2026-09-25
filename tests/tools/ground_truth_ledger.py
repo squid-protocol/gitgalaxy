@@ -138,8 +138,12 @@ def truth_tier(key: dict[str, Any], field: str) -> str:
     if not entries or any(e.get(flag) is not True for e in entries):
         return "draft"
     # A section sign-off flag carries no tier of its own: it inherits the entry's
-    # verification tier when present, else the one-model floor.
-    return _weakest([(e.get("verification") or {}).get("tier", "llm_verified") for e in entries])
+    # verification tier when present, else the one-model floor -- unless the flag
+    # names its own (`<flag>_tier`, #3575: program records signed by a SAMPLED census
+    # while the program block itself is cross_verified).
+    return _weakest(
+        [e.get(f"{flag}_tier") or (e.get("verification") or {}).get("tier", "llm_verified") for e in entries]
+    )
 
 
 def entry_key(side: str, field: str, pair: list[str], kind: str) -> str:

@@ -71,9 +71,11 @@ _KEYWORD_CASES = [
     ),
     (
         "typescript",
-        "function run(p: Promise<void>) {\n  const f = async () => { await go(); };\n  return p as (unknown);\n}\n",
+        # #3642 (C8): an anonymous callback, so `go` stays with `run`. Bound to a
+        # name (`const f = async () => ...`) it would be `f`'s call, not `run`'s.
+        "function run(p: Promise<void>) {\n  p.then(async () => { await go(); });\n  return p as (unknown);\n}\n",
         "run",
-        {"go"},
+        {"then", "go"},
         {"async", "as"},
     ),
     (

@@ -15,7 +15,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/numeric.c": {
         "Literal Sites": 1,
-        "Wrapped Sites": 9
+        "Wrapped Sites": 7
       }
     }
   },

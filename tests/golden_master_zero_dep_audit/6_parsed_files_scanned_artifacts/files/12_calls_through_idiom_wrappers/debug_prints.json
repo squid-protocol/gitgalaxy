@@ -3,7 +3,7 @@
     "c/cpython": {
       "c/cpython/ceval.c": {
         "Literal Sites": 13,
-        "Wrapped Sites": 52
+        "Wrapped Sites": 13
       },
       "c/cpython/dictobject.c": {
         "Literal Sites": 2,

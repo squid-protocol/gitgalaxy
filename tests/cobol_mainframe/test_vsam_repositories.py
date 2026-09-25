@@ -264,3 +264,161 @@ def test_one_class_name_registry_spans_the_forges(scanned):
     entities = [st.entity for st in shared.stores]
     assert "AcctRec" not in entities and "AcctAcctRec" in entities
     assert {"AcctAcctRecRepository", "FdTcatRecKey"} <= names.taken
+
+
+def test_symbolic_pattern():
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import _symbolic_pattern
+
+    pat = _symbolic_pattern("@BANK_PREFIX@.CUSTOMER")
+    assert pat.match("CBSA.CICSBSA.CUSTOMER")
+    assert pat.match("X.CUSTOMER")
+    assert not pat.match("CBSA.CUSTOMER.OLD")
+
+    pat2 = _symbolic_pattern("<USRHLQ>.GENAPP.KSDSCUST")
+    assert pat2.match("PROD.GENAPP.KSDSCUST")
+
+    pat3 = _symbolic_pattern("APP.ZC@ID@FILE")
+    assert pat3.match("APP.ZCABCFILE")
+    assert not pat3.match("APP.ZC.X.FILE")
+
+    pat4 = _symbolic_pattern("&HLQ..DATA")
+    assert pat4.match("PROD.DATA")
+    assert pat4.match("PROD.SUB.DATA")
+
+    assert _symbolic_pattern("PROD.DATA") is None
+
+    pat5 = _symbolic_pattern("@PFX@.SYS1.A+B")
+    assert pat5.match("PROD.SYS1.A+B")
+    assert not pat5.match("PROD.SYS1.A-B")
+
+
+def test_symbolic_merge(tmp_path):
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "jcl").mkdir()
+    (repo / "cbl").mkdir()
+    (repo / "csd").mkdir()
+
+    (repo / "jcl" / "DEF.jcl").write_text("""//DEF JOB
+//STEP1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN DD *
+  DEFINE CLUSTER(NAME(@PFX@.ACCT.KSDS) -
+         KEYS(8 0) RECORDSIZE(38 38) INDEXED)
+/*
+""")
+    (repo / "csd" / "APP.csd").write_text("""
+  DEFINE FILE(ACCTF) GROUP(APP)
+         DSNAME(PROD.APP.ACCT.KSDS)
+""")
+    (repo / "cbl" / "PROG.cbl").write_text("""       ID DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 ACCT-REC.
+          05 ACCT-ID PIC X(8).
+          05 FILLER PIC X(30).
+       PROCEDURE DIVISION.
+           EXEC CICS READ FILE('ACCTF') INTO(ACCT-REC)
+                     RIDFLD(ACCT-ID) END-EXEC.
+""")
+
+    db = scan_to_db(repo, tmp_path / "scan")
+    ir = load_galaxy_ir(db)
+    stores = ir.vsam_stores()
+
+    assert len(stores) == 1
+    acct = stores[0]
+    assert acct["dataset"] == "PROD.APP.ACCT.KSDS"
+    assert acct["organization"] == "INDEXED"
+    assert acct["key_offset"] == 0
+    assert acct["key_length"] == 8
+    assert acct["defined_by"]["match"] == "symbolic"
+
+
+def test_symbolic_conflict_rejected(tmp_path):
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "jcl").mkdir()
+    (repo / "cbl").mkdir()
+    (repo / "csd").mkdir()
+
+    (repo / "jcl" / "DEF.jcl").write_text("""//DEF JOB
+//STEP1 EXEC PGM=IDCAMS
+//SYSPRINT DD SYSOUT=*
+//SYSIN DD *
+  DEFINE CLUSTER(NAME(@PFX@.ACCT.KSDS) -
+         KEYS(4 12) RECORDSIZE(38 38) INDEXED)
+/*
+""")
+    (repo / "csd" / "APP.csd").write_text("""
+  DEFINE FILE(ACCTF) GROUP(APP)
+         DSNAME(PROD.APP.ACCT.KSDS)
+""")
+    (repo / "cbl" / "PROG.cbl").write_text("""       ID DIVISION.
+       PROGRAM-ID. PROG.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 ACCT-REC.
+          05 ACCT-ID PIC X(8).
+          05 FILLER PIC X(30).
+       PROCEDURE DIVISION.
+           EXEC CICS READ FILE('ACCTF') INTO(ACCT-REC)
+                     RIDFLD(ACCT-ID) END-EXEC.
+""")
+
+    db = scan_to_db(repo, tmp_path / "scan")
+    ir = load_galaxy_ir(db)
+    stores = ir.vsam_stores()
+
+    assert len(stores) == 2
+    sym_store = next(s for s in stores if s["dataset"] == "@PFX@.ACCT.KSDS")
+    concrete = next(s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS")
+
+    assert sym_store["defined"]
+    assert concrete["symbolic_candidate_rejected"]
+    assert "disagrees with KEYS(4 12)" in concrete["symbolic_candidate_rejected"]["why"]
+
+
+def _symbolic_estate(tmp_path, keys: str, recsize: str, ridfld: bool):
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl", "csd"):
+        (repo / d).mkdir(parents=True)
+    (repo / "jcl" / "DEF.jcl").write_text(
+        "//DEF JOB\n//STEP1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+        f"  DEFINE CLUSTER(NAME(@PFX@.ACCT.KSDS) -\n         KEYS({keys}) RECORDSIZE({recsize}) INDEXED)\n/*\n"
+    )
+    (repo / "csd" / "APP.csd").write_text("  DEFINE FILE(ACCTF) GROUP(APP)\n         DSNAME(PROD.APP.ACCT.KSDS)\n")
+    read = "RIDFLD(ACCT-ID) " if ridfld else ""
+    (repo / "cbl" / "PROG.cbl").write_text(
+        "       ID DIVISION.\n       PROGRAM-ID. PROG.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 ACCT-REC.\n          05 ACCT-ID PIC X(8).\n          05 FILLER PIC X(30).\n"
+        "       PROCEDURE DIVISION.\n"
+        f"           EXEC CICS READ FILE('ACCTF') INTO(ACCT-REC)\n                     {read}END-EXEC.\n"
+    )
+    return load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).vsam_stores()
+
+
+def test_a_record_shorter_than_recordsize_max_still_merges(tmp_path):
+    """VSAM allows a record shorter than the maximum (CBSA ABNDFILE: 678 of 681)."""
+    (store,) = _symbolic_estate(tmp_path, "8 0", "38 40", ridfld=True)
+    assert store["defined_by"]["match"] == "symbolic"
+    assert "program records of [38] bytes fit RECORDSIZE max 40" in store["defined_by"]["evidence"]
+
+
+def test_a_record_longer_than_recordsize_max_is_refused(tmp_path):
+    stores = _symbolic_estate(tmp_path, "8 0", "30 30", ridfld=True)
+    (concrete,) = [s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS"]
+    assert "exceeds RECORDSIZE max 30" in concrete["symbolic_candidate_rejected"]["why"]
+
+
+def test_the_name_pattern_alone_does_not_merge(tmp_path):
+    stores = _symbolic_estate(tmp_path, "8 0", "38 40", ridfld=False)  # no key, no exact size
+    (concrete,) = [s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS"]
+    assert concrete["symbolic_candidate_rejected"]["why"] == "no key or exact record size corroborates the name pattern"

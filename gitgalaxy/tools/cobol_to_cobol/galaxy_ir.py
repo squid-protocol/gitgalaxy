@@ -794,6 +794,33 @@ class EngineFile:
         return bool(self.program_ids)
 
 
+def _symbolic_pattern(dsn: str) -> Optional[re.Pattern]:
+    symbol_rx = re.compile(r"(@[^@.]+@|<[^>.]+>|&[^.]+\.?)")
+    if not symbol_rx.search(dsn):
+        return None
+    regex_parts = []
+    matches = list(symbol_rx.finditer(dsn))
+    last_idx = 0
+    for i, m in enumerate(matches):
+        start, end = m.span()
+        symbol_text = m.group(1)
+        regex_parts.append(re.escape(dsn[last_idx:start]))
+        is_first_qualifier = (
+            i == 0
+            and start == 0
+            and (
+                end == len(dsn) or (symbol_text.endswith(".") and end < len(dsn) and dsn[end] == ".") or dsn[end] == "."
+            )
+        )
+        if is_first_qualifier:
+            regex_parts.append(r"(?:[A-Z0-9@#$-]+\.)*[A-Z0-9@#$-]+")
+        else:
+            regex_parts.append(r"[A-Z0-9@#$-]+")
+        last_idx = end
+    regex_parts.append(re.escape(dsn[last_idx:]))
+    return re.compile("^" + "".join(regex_parts) + "$")
+
+
 @dataclass
 class GalaxyIR:
     db_path: Path
@@ -2959,8 +2986,15 @@ class GalaxyIR:
             `key_offset` / `key_length`, `alternate_keys`, and the FD record
             (`records`, as above).
         A CICS file with no CSD DSNAME in the repository is its own store,
-        `dataset` None and `name` the CICS file. Facts only: a key or layout
-        that is not known is None, never guessed.
+        `dataset` None and `name` the CICS file. `defined_by` says how the store's
+        DEFINE was found: `{"match": "exact"}`, None (no DEFINE), or -- #3656 -- a
+        CANDIDATE join `{"match": "symbolic", "pattern", "evidence"}`: an IDCAMS name
+        written with installation symbols (`@BANK_PREFIX@.CUSTOMER`, `<USRHLQ>.X`,
+        `&HLQ..X`) uniquely matching one concrete, undefined store, merged only when a
+        RIDFLD equals its KEYS or a program record equals its RECORDSIZE, and never when
+        a RIDFLD disagrees or every record exceeds the maximum. A refused candidate
+        leaves both stores and notes `symbolic_candidate_rejected` (`pattern`, `why`).
+        Facts only: a key or layout that is not known is None, never guessed.
         """
         defines: dict[str, list] = {}
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
@@ -3122,7 +3156,84 @@ class GalaxyIR:
                         "records": [rec] if rec else [],
                     }
                 )
-        return [stores[k] for k in sorted(stores)]
+
+        for s in stores.values():
+            if s.get("defined"):
+                s["defined_by"] = {"match": "exact"}
+            else:
+                s["defined_by"] = None
+
+        symbolic_stores = [
+            k for k, s in stores.items() if s.get("defined") and s.get("dataset") and _symbolic_pattern(s["dataset"])
+        ]
+        to_drop = set()
+
+        for sym_key in symbolic_stores:
+            sym = stores[sym_key]
+            pat = _symbolic_pattern(sym["dataset"])
+            if pat is None:
+                continue
+            candidates = [
+                k
+                for k, s in stores.items()
+                if not s.get("defined")
+                and s.get("dataset")
+                and not _symbolic_pattern(s["dataset"])
+                and pat.match(s["dataset"])
+            ]
+
+            if len(candidates) != 1:
+                continue
+
+            cand_key = candidates[0]
+            cand = stores[cand_key]
+            reject_reason = None
+            evidence: list = []
+            widths: set = set()
+            for u in cand["users"]:
+                for r in u.get("records", []):
+                    w = (r.get("layout") or {}).get("bytes")
+                    if w is not None:
+                        widths.add(w)
+                for r in u.get("ridflds", []) if u["kind"] == "cics" else []:
+                    offset, length = r.get("offset"), r.get("length")
+                    if None in (offset, length, sym.get("key_offset"), sym.get("key_length")):
+                        continue
+                    note = f"RIDFLD {r.get('ridfld')} at {offset}/{length}"
+                    if (offset, length) != (sym["key_offset"], sym["key_length"]):
+                        reject_reason = f"{note} disagrees with KEYS({sym['key_length']} {sym['key_offset']})"
+                    else:
+                        evidence.append(f"{note} equals KEYS({sym['key_length']} {sym['key_offset']})")
+            # VSAM record lengths: a record may be shorter than RECORDSIZE's maximum, never longer.
+            rmax = sym.get("record_max")
+            if not reject_reason and rmax is not None and widths:
+                if min(widths) > rmax:
+                    reject_reason = f"every program record ({sorted(widths)} bytes) exceeds RECORDSIZE max {rmax}"
+                elif rmax in widths:
+                    evidence.append(f"program record of {rmax} bytes equals RECORDSIZE max {rmax}")
+                else:
+                    evidence.append(f"program records of {sorted(widths)} bytes fit RECORDSIZE max {rmax}")
+            # The name pattern alone is not enough: a key or an exact record size must corroborate it.
+            if not reject_reason and not any("equals" in ev for ev in evidence):
+                reject_reason = "no key or exact record size corroborates the name pattern"
+            evidence = list(dict.fromkeys(evidence))
+
+            if reject_reason:
+                cand["symbolic_candidate_rejected"] = {"pattern": sym["dataset"], "why": reject_reason}
+            else:
+                cand["organization"] = sym.get("organization")
+                cand["key_offset"] = sym.get("key_offset")
+                cand["key_length"] = sym.get("key_length")
+                cand["record_max"] = sym.get("record_max")
+                cand["defined_in"] = sym.get("defined_in")
+                cand["line"] = sym.get("line")
+                cand["alternate_indexes"] = sym.get("alternate_indexes", [])
+                cand["defined"] = True
+
+                cand["defined_by"] = {"match": "symbolic", "pattern": sym["dataset"], "evidence": evidence}
+                to_drop.add(sym_key)
+
+        return [stores[k] for k in sorted(stores) if k not in to_drop]
 
     def _position_in(self, ef: EngineFile, operand: str, layout: Optional[dict]) -> tuple[Optional[int], Optional[int]]:
         """(offset, length) of data item `operand` inside a record layout: an elementary

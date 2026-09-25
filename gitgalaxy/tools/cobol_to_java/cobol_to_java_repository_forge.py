@@ -260,6 +260,11 @@ class RepositoryForge:
         java.append("/**")
         where = f"{raw['defined_in']}:{raw['line']}" if raw.get("defined_in") else "no IDCAMS DEFINE in the repository"
         java.append(f" * VSAM {raw.get('organization') or 'file'} {raw.get('dataset') or raw.get('name')} ({where}),")
+        defined_by = raw.get("defined_by") or {}
+        if defined_by.get("match") == "symbolic":
+            java.append(
+                f" * IDCAMS define matched by installation-symbol pattern {defined_by.get('pattern')} (a candidate join: {'; '.join(defined_by.get('evidence', []))})."
+            )
         java.append(f" * record {st.record} ({st.record_file}, {st.layout.get('bytes')} bytes"
                     f"{', RECORDSIZE ' + str(raw['record_max']) if raw.get('record_max') else ''}).")  # fmt: skip
         java.append(f" * Key: {st.key_note}.")

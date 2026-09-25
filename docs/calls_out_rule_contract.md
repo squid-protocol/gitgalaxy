@@ -89,7 +89,8 @@ empty list, never a heuristic.
 
 | family | pattern | languages |
 |---|---|---|
-| C-style | `CALLS_OUT_C_STYLE` `\b(name)\s*\(` | 27 languages, from ada to zig |
+| C-style | `CALLS_OUT_C_STYLE` `\b(name)\s*\(` | the C-family languages, from ada to zig |
+| Ruby | `CALLS_OUT_RUBY`: `obj.name`, `name(`, `name?`/`name!`, a statement-opening command (`puts x`); never a bare word (#3377) | ruby |
 | CALL verb | `CALLS_OUT_CALL_VERB` | assembly, fortran, pli, rexx, db2_sql |
 | command position | `CALLS_OUT_COMMAND_POSITION` + a keyword `_calls_out_ignore` | tcl, powershell, livecode |
 | lisp | `CALLS_OUT_LISP_FAMILY` | scheme |
@@ -158,7 +159,7 @@ fixed it: the census below predates that fix.
 | proto | blind | -- | -- | agrees (C7: declared blind) |
 | python | C-style | 3,750 | 9,820 | D (nested def, 380); K: `in (`, `not (`, `and (`, `or (`, `elif(`; B (`print`, `len`, `map`, `getattr`, ...) |
 | rexx | CALL verb | 115 | 90 | agrees (CALL) |
-| ruby | C-style | 132 | 111 | agrees; B (`super`) |
+| ruby | C-style | 132 | 111 | agrees; B (`super`). Since #3377 its own family: paren-less calls took Level-1 recall 34.4% -> 92.9% |
 | rust | C-style | 2,113 | 7,898 | K: `pub(crate)` 81, `let (a, b)` 68, `fn(` pointer types; D (nested `fn`, 78); variants `Some(`/`Ok(` are constructors (C3) |
 | scala | C-style | 541 | 3,434 | K: `case (` 55, `val (` 27; D (nested def, 72); A (`@deprecated(`) |
 | scheme | lisp | 83 | 3,480 | K: special forms `let*`/`let-values`/`case-lambda`/`syntax-case`/`define-record-type` and binding lists `((x 1))` |

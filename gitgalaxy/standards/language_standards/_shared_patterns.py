@@ -156,6 +156,42 @@ CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 # pattern exactly like CALLS_OUT_C_STYLE (qualifier capture included).
 CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(r"(?<!@)\b([a-zA-Z_]\w*)\s*\(")
 
+# #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
+# calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
+# names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
+# `?`/`!` included (never the `!=`/`=~` operators, nor a `name?:` hash label),
+# so detector.py runs it exactly like CALLS_OUT_C_STYLE (qualifier capture, C5
+# header check). A name is a call when it:
+#   - follows a receiver dot (`obj.name`, `obj&.name`, `"".name`, a leading-dot
+#     chain line) or `Mod::name` (lowercase, so never a constant);
+#   - is a non-keyword followed by `(` (`name(`, `name?(`), or ends in `?`/`!`
+#     (`quiet?`, `fetch!`): a local variable never does, so it is always a call;
+#   - opens a statement as a command with an argument (`puts x`, `raise Foo`,
+#     `command! ""`): a lowercase non-keyword, blanks, then an argument start,
+#     and not a modifier (`value if cond`) -- no `?` suffix there, so a ternary
+#     `ready ? a : b` is not a call.
+# A bare word with no dot, paren or argument (`foo`) is never matched: without
+# a symbol table Ruby cannot tell a local variable from a call (issue #3377).
+_RUBY_KEYWORD = (
+    r"(?:alias|and|begin|break|case|class|def|defined\?|do|else|elsif|end|ensure|false|for|if|in|module"
+    r"|next|nil|not|or|redo|rescue|retry|return|self|super|then|true|undef|unless|until|when|while|yield)"
+    r"(?![\w?!])"
+)
+_RUBY_CALLEE = r"[a-zA-Z_]\w*(?:[?!](?![=~:]))?"
+CALLS_OUT_RUBY = re.compile(
+    r"(?:(?<=[\w)\]}?!\"'`]\.)|(?<=[\w)\]}?!\"'`]&\.)|(?<=[ \t\n]\.)|(?<=\A\.)|(?<=\w::)(?=[a-z_])"
+    r"|(?<![@$.:])\b(?!" + _RUBY_KEYWORD + r")(?=" + _RUBY_CALLEE + r"[ \t]*\(|[a-zA-Z_]\w*[?!](?![=~:]))"
+    r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_]\w*!?[ \t]+"
+    r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[\w:\"'@$\[%]))"
+    r"(" + _RUBY_CALLEE + r")",
+    re.M,
+)
+
+# The invocation patterns detector.py treats as the C-style family: group 1 is
+# the callee, the receiver chain before it is its qualifier (#3329), and a
+# capture on a nested `func_start` header is a declaration (#3360).
+QUALIFIED_CALLS_OUT_PATTERNS = (CALLS_OUT_C_STYLE, CALLS_OUT_C_STYLE_NO_ANNOTATION, CALLS_OUT_RUBY)
+
 # Unsupported / AST-Required (Shell, Markup, Data, Config)
 # Mapped to None to officially declare intentional blindness rather than extracting garbage.
 CALLS_OUT_UNSUPPORTED = None

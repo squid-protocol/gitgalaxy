@@ -72,8 +72,8 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.87,
-        "score": 1487.0
+        "pr": 14.871,
+        "score": 1487.1
       },
       {
         "doc": 100.0,
@@ -90,14 +90,14 @@
       {
         "doc": 100.0,
         "path": "scheme/racket/io.ss",
-        "pr": 3.941,
-        "score": 394.1
+        "pr": 3.939,
+        "score": 393.9
       },
       {
         "doc": 50.0,
         "path": "tcl/sqlite/tester.tcl",
-        "pr": 7.154,
-        "score": 357.7
+        "pr": 7.155,
+        "score": 357.75
       }
     ]
   }

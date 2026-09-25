@@ -45,8 +45,7 @@ from gitgalaxy.standards.language_standards import (
     HTML_NONEXECUTABLE_SCRIPT_TAG,
 )
 from gitgalaxy.standards.language_standards._shared_patterns import (
-    CALLS_OUT_C_STYLE,
-    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    QUALIFIED_CALLS_OUT_PATTERNS,
 )
 
 HAS_TIKTOKEN = False
@@ -1989,7 +1988,15 @@ class StructuralExtractor:
             # is non-empty) so class_safe_stream/use_indentation_scoping are
             # never referenced uninitialized below.
             lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
-            use_indentation_scoping = self.primary_lang_id in ("python", "embedded_python", "yaml") or lang_family in (
+            # #3377: a Ruby class body closes with an `end` at the class's own
+            # indentation, so dedent finds it; the brace search stopped at the
+            # first `{` (a hash or a block) and left every method classless.
+            use_indentation_scoping = self.primary_lang_id in (
+                "python",
+                "embedded_python",
+                "yaml",
+                "ruby",
+            ) or lang_family in (
                 "single_line_only",
                 "multi_style_dash",
             )
@@ -9006,12 +9013,12 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if invocation_pattern is CALLS_OUT_C_STYLE or invocation_pattern is CALLS_OUT_C_STYLE_NO_ANNOTATION:
+            if any(invocation_pattern is p for p in QUALIFIED_CALLS_OUT_PATTERNS):
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
                 # once it knows the slicer really emitted that nested unit.
                 # #3359: the annotation-free variant (java/kotlin/swift/dart/
-                # groovy/scala) gets the same check.
+                # groovy/scala) gets the same check, #3377: so does ruby's.
                 decl_headers = _declaration_headers(rules.get("func_start"), safe_block)
                 for m in invocation_pattern.finditer(safe_block):
                     callee = m.group(1)

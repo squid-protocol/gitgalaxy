@@ -3142,7 +3142,7 @@
       "shell/brew/brew": 0,
       "shell/brew/brew.rb": 0,
       "shell/brew/cask.rb": 0,
-      "shell/brew/download_strategy.rb": 1,
+      "shell/brew/download_strategy.rb": 0,
       "shell/brew/formula.rb": 1,
       "shell/brew/formula_installer.rb": 0,
       "shell/brew/sandbox.rb": 0

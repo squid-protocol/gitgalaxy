@@ -193,6 +193,11 @@ def counters(registry: dict[str, Any], ledger: dict[str, Any]) -> list[dict[str,
     return rows
 
 
+def _bound(facts: int) -> str:
+    """The rule-of-three 95% upper bound on a per-fact defect rate after `facts` clean facts."""
+    return f"{300 / facts:.1f}%" if facts >= 3 else "-"
+
+
 def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:
     rows = counters(registry, ledger)
     out = [
@@ -224,7 +229,7 @@ def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:
         out.append(
             f"| {r['field']} | {r['public']} | {r['private']} | {r['fresh']} | {r['facts']:,} | {r['engine_defects']} | "
             f"{r['forge_defects']} | {r['clean_rounds']} | {r['clean_facts']:,} | "
-            f"{(f'{300 / r['clean_facts']:.1f}%' if r['clean_facts'] >= 3 else '-')} | {r['status']} | {r['needs']} |"
+            f"{_bound(r['clean_facts'])} | {r['status']} | {r['needs']} |"
         )
     out += ["", "## By round", "",
             "| round | estate | kind | facts reviewers checked | key errors | engine | forge | brief gaps |",

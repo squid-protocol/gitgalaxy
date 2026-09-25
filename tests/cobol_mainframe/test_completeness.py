@@ -80,8 +80,9 @@ def test_markdown_lists_every_channel_and_input(estate):
 # Channel (resolved, total) per corpus, at the pinned refs -- a change is either an
 # engine improvement (re-pin) or a regression.
 PINNED = {
+    # #3578: the five `SEND MAP(CCARD-NEXT-MAP)` maps, moved from LIT-THISMAP, now resolve.
     "aws-mainframe-modernization-carddemo": {
-        "program calls": (65, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
+        "program calls": (65, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (47, 47),
         "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (11, 17),
     },
     "cics-banking-sample-application-cbsa": {

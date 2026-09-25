@@ -115,8 +115,8 @@
     "units": 735
   },
   "javascript": {
-    "misanchored": 3,
-    "misanchored_pct": 0.4,
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
     "units": 823
   },
   "jcl": {
@@ -165,8 +165,8 @@
     "units": 934
   },
   "php": {
-    "misanchored": 377,
-    "misanchored_pct": 21.9,
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
     "units": 1718
   },
   "pli": {
@@ -230,8 +230,8 @@
     "units": 291
   },
   "typescript": {
-    "misanchored": 527,
-    "misanchored_pct": 18.1,
+    "misanchored": 0,
+    "misanchored_pct": 0.0,
     "units": 2913
   },
   "yacc": {

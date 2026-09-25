@@ -1149,8 +1149,15 @@ class Prism:
         def capture_lit(m: re.Match) -> str:
             # Save the literal into the Documentation stream
             lits.append(m.group(0).strip())
-            # Replace with a safe, empty string literal to preserve PHP array syntax
-            return '""'
+            # Replace with a safe, empty string literal to preserve PHP array syntax.
+            # #3555: keep the statement's `;` (the pattern consumes it with the
+            # closing label) and every newline the heredoc spanned. Collapsing the
+            # body to a bare `""` dropped them, so every line after a heredoc was
+            # numbered early -- wordpress/functions.php lost 10 lines, and each
+            # later function's start_line with them.
+            body = m.group(0)
+            terminator = ";" if body.rstrip().endswith(";") else ""
+            return '""' + terminator + "\n" * body.count("\n")
 
         # 1. Extract Heredoc/Nowdoc
         text = self.PHP_HEREDOC_PATTERN.sub(capture_lit, text)

@@ -88969,9 +88969,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89056,9 +89056,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89107,9 +89107,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89146,9 +89146,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89171,10 +89171,10 @@
           "verb": "SEND",
           "kind": "MAP",
           "access": "write",
-          "name": null,
-          "resolution": "unresolved",
+          "name": "CTRTUPA",
+          "resolution": "move",
           "candidates": null,
-          "qualifier": null,
+          "qualifier": "COTRTUP",
           "record_clause": "FROM",
           "record": "CTRTUPAO",
           "line": 1433
@@ -89185,9 +89185,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89212,9 +89212,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89237,10 +89237,10 @@
           "verb": "SEND",
           "kind": "MAP",
           "access": "write",
-          "name": null,
-          "resolution": "unresolved",
+          "name": "CACTUPA",
+          "resolution": "move",
           "candidates": null,
-          "qualifier": null,
+          "qualifier": "COACTUP",
           "record_clause": "FROM",
           "record": "CACTUPAO",
           "line": 3594
@@ -89335,9 +89335,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89348,10 +89348,10 @@
           "verb": "SEND",
           "kind": "MAP",
           "access": "write",
-          "name": null,
-          "resolution": "unresolved",
+          "name": "CACTVWA",
+          "resolution": "move",
           "candidates": null,
-          "qualifier": null,
+          "qualifier": "COACTVW",
           "record_clause": "FROM",
           "record": "CACTVWAO",
           "line": 583
@@ -89410,9 +89410,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89449,9 +89449,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89572,9 +89572,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89707,9 +89707,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89720,10 +89720,10 @@
           "verb": "SEND",
           "kind": "MAP",
           "access": "write",
-          "name": null,
-          "resolution": "unresolved",
+          "name": "CCRDSLA",
+          "resolution": "move",
           "candidates": null,
-          "qualifier": null,
+          "qualifier": "COCRDSL",
           "record_clause": "FROM",
           "record": "CCRDSLAO",
           "line": 569
@@ -89770,9 +89770,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89795,10 +89795,10 @@
           "verb": "SEND",
           "kind": "MAP",
           "access": "write",
-          "name": null,
-          "resolution": "unresolved",
+          "name": "CCRDUPA",
+          "resolution": "move",
           "candidates": null,
-          "qualifier": null,
+          "qualifier": "COCRDUP",
           "record_clause": "FROM",
           "record": "CCRDUPAO",
           "line": 1329
@@ -89845,9 +89845,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89884,9 +89884,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89947,9 +89947,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -89998,9 +89998,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90097,9 +90097,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90148,9 +90148,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90259,9 +90259,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90358,9 +90358,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90409,9 +90409,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90472,9 +90472,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -90535,9 +90535,9 @@
         "status": "validated",
         "notes": [],
         "tier": "cross_verified",
-        "cross_by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+        "cross_by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
         "census": {
-          "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+          "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
           "at": "2026-09-25"
         }
       }
@@ -94269,6 +94269,79 @@
     },
     {
       "by": "claude-opus-5.5 blind reviewers (aws-mainframe-modernization-carddemo resources census, #3528)",
+      "at": "2026-09-25",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl",
+        "app/cbl/COADM01C.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COCRDUPC.cbl",
+        "app/cbl/COMEN01C.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COSGN00C.cbl",
+        "app/cbl/COTRN01C.cbl",
+        "app/cbl/COUSR01C.cbl",
+        "app/cbl/COUSR02C.cbl",
+        "app/cbl/COUSR03C.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 46,
+          "asked": 46
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
+      "at": "2026-09-25",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COBIL00C.cbl",
+        "app/cbl/COCRDLIC.cbl",
+        "app/cbl/COTRN00C.cbl",
+        "app/cbl/COTRN02C.cbl",
+        "app/cbl/COUSR00C.cbl"
+      ],
+      "wide": false,
+      "suite": "resources",
+      "tasks": {
+        "resources": {
+          "agree": 61,
+          "asked": 61
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (carddemo resources census with MOVE chains, #3578)",
       "at": "2026-09-25",
       "batch": 2,
       "files": [

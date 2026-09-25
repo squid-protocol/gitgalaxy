@@ -1874,7 +1874,7 @@ def _cics_resources(code_stream: str, values: dict[str, str], dialect: str) -> l
         line_start = newlines[index - 1] + 1 if index else 0
         return _opens_inside_literal(code_stream, line_start, offset)
 
-    moves = cobol_move_literals(code_stream) if dialect == "cobol" else {}
+    moves = cobol_move_literals(code_stream, values) if dialect == "cobol" else {}  # #3578: + MOVE chains
     return extract_cics_resources(code_stream, values, moves, dialect, _shielded)
 
 
@@ -1896,7 +1896,7 @@ def _cics_tasks(
         line_start = newlines[index - 1] + 1 if index else 0
         return _opens_inside_literal(code_stream, line_start, offset)
 
-    moves = cobol_move_literals(code_stream) if dialect == "cobol" else {}
+    moves = cobol_move_literals(code_stream, values) if dialect == "cobol" else {}  # #3578: + MOVE chains
     pics: dict[str, str] = {}
     for r in records:
         if r.get("name") and r.get("pic"):

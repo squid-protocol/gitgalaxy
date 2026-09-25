@@ -3469,7 +3469,7 @@
         "cognitive_load": 27.0,
         "concurrency": 3.99,
         "dead_code": 2.49,
-        "documentation": 9.39,
+        "documentation": 0.0,
         "safety_score": 74.91,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -3479,7 +3479,7 @@
         "verification": 40.86
       },
       "file_count": 8,
-      "total_mass": 14695.86
+      "total_mass": 14696.86
     },
     "plaintext": {
       "avg_exposures": {
@@ -5350,7 +5350,7 @@
         "cognitive_load": 22.14,
         "concurrency": 0.0,
         "dead_code": 2.27,
-        "documentation": 34.54,
+        "documentation": 35.12,
         "safety_score": 44.14,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -5369,7 +5369,7 @@
         "cognitive_load": 3.49,
         "concurrency": 4.28,
         "dead_code": 0.0,
-        "documentation": 23.85,
+        "documentation": 24.07,
         "safety_score": 52.09,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
@@ -5426,7 +5426,7 @@
         "cognitive_load": 31.58,
         "concurrency": 39.26,
         "dead_code": 1.55,
-        "documentation": 54.21,
+        "documentation": 54.29,
         "safety_score": 57.97,
         "secrets_risk": 0.0,
         "spec_match": 0.0,

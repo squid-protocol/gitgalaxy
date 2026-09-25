@@ -1125,8 +1125,8 @@
       "csd/carddemo/PROVENANCE.md": 10806.11
     },
     "csd/cbsa": {
-      "csd/cbsa/BANK.csd": -9898.34,
-      "csd/cbsa/PROVENANCE.md": -10178.72
+      "csd/cbsa/BANK.csd": -9898.35,
+      "csd/cbsa/PROVENANCE.md": -10178.73
     },
     "csd/z_sms_gateway": {
       "csd/z_sms_gateway/PROVENANCE.md": -9813.26,
@@ -2498,8 +2498,8 @@
       "php/wordpress/class-wp-query.php": -9230.25,
       "php/wordpress/formatting.php": -9588.48,
       "php/wordpress/functions.php": -9293.34,
-      "php/wordpress/license.txt": -9523.6,
-      "php/wordpress/plugin.php": -9814.4,
+      "php/wordpress/license.txt": -9523.61,
+      "php/wordpress/plugin.php": -9814.41,
       "php/wordpress/wp-login.php": -8962.93,
       "php/wordpress/wp-settings.php": -8822.75
     },

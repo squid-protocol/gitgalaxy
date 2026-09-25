@@ -1,0 +1,194 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**32 items** across 31 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 31 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 31 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `src/base/cobol_src/ABNDPROC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/ACCTCTRL.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BANKDATA.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1CAC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1CCA.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1CCS.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1CRA.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1DAC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1DCS.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1TFN.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNK1UAC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/BNKMENU.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRDTAGY1.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRDTAGY2.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRDTAGY3.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRDTAGY4.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRDTAGY5.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CREACC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CRECUST.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/CUSTCTRL.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/DBCRFUN.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/DELACC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/DELCUS.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/GETCOMPY.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/GETSCODE.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/INQACC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/INQACCCU.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/INQCUST.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/UPDACC.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/UPDCUST.cbl` |  |  |  | 1 | 1 |
+| `src/base/cobol_src/XFRFUN.cbl` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`src/base/cobol_src/ABNDPROC.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/ACCTCTRL.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/AcctctrlService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BANKDATA.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/BankdataService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1CAC.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/Bnk1cacService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1CCA.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/Bnk1ccaService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1CCS.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/Bnk1ccsService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1CRA.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/Bnk1craService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1DAC.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/Bnk1dacService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1DCS.cbl`**
+
+- [ ] **WL-0009** `src/main/java/com/gitgalaxy/modernized/service/Bnk1dcsService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1TFN.cbl`**
+
+- [ ] **WL-0010** `src/main/java/com/gitgalaxy/modernized/service/Bnk1tfnService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNK1UAC.cbl`**
+
+- [ ] **WL-0011** `src/main/java/com/gitgalaxy/modernized/service/Bnk1uacService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/BNKMENU.cbl`**
+
+- [ ] **WL-0012** `src/main/java/com/gitgalaxy/modernized/service/BnkmenuService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRDTAGY1.cbl`**
+
+- [ ] **WL-0013** `src/main/java/com/gitgalaxy/modernized/service/Crdtagy1Service.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRDTAGY2.cbl`**
+
+- [ ] **WL-0014** `src/main/java/com/gitgalaxy/modernized/service/Crdtagy2Service.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRDTAGY3.cbl`**
+
+- [ ] **WL-0015** `src/main/java/com/gitgalaxy/modernized/service/Crdtagy3Service.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRDTAGY4.cbl`**
+
+- [ ] **WL-0016** `src/main/java/com/gitgalaxy/modernized/service/Crdtagy4Service.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRDTAGY5.cbl`**
+
+- [ ] **WL-0017** `src/main/java/com/gitgalaxy/modernized/service/Crdtagy5Service.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CREACC.cbl`**
+
+- [ ] **WL-0018** `src/main/java/com/gitgalaxy/modernized/service/CreaccService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CRECUST.cbl`**
+
+- [ ] **WL-0019** `src/main/java/com/gitgalaxy/modernized/service/CrecustService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/CUSTCTRL.cbl`**
+
+- [ ] **WL-0020** `src/main/java/com/gitgalaxy/modernized/service/CustctrlService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/DBCRFUN.cbl`**
+
+- [ ] **WL-0021** `src/main/java/com/gitgalaxy/modernized/service/DbcrfunService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/DELACC.cbl`**
+
+- [ ] **WL-0022** `src/main/java/com/gitgalaxy/modernized/service/DelaccService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/DELCUS.cbl`**
+
+- [ ] **WL-0023** `src/main/java/com/gitgalaxy/modernized/service/DelcusService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/GETCOMPY.cbl`**
+
+- [ ] **WL-0024** `src/main/java/com/gitgalaxy/modernized/service/GetcompyService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/GETSCODE.cbl`**
+
+- [ ] **WL-0025** `src/main/java/com/gitgalaxy/modernized/service/GetscodeService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/INQACC.cbl`**
+
+- [ ] **WL-0026** `src/main/java/com/gitgalaxy/modernized/service/InqaccService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/INQACCCU.cbl`**
+
+- [ ] **WL-0027** `src/main/java/com/gitgalaxy/modernized/service/InqacccuService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/INQCUST.cbl`**
+
+- [ ] **WL-0028** `src/main/java/com/gitgalaxy/modernized/service/InqcustService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/UPDACC.cbl`**
+
+- [ ] **WL-0029** `src/main/java/com/gitgalaxy/modernized/service/UpdaccService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/UPDCUST.cbl`**
+
+- [ ] **WL-0030** `src/main/java/com/gitgalaxy/modernized/service/UpdcustService.java:16`: Implement extracted business rules here
+
+**`src/base/cobol_src/XFRFUN.cbl`**
+
+- [ ] **WL-0031** `src/main/java/com/gitgalaxy/modernized/service/XfrfunService.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0032** `src/main/resources/application.yml:9`: Update these credentials for your target environment

@@ -1,0 +1,82 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**9 items** across 5 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 8 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Calls to other services](#interface-call) | port | 3 | Wire the called service (or a mock) in place of the placeholder. |
+| [Business logic to port](#business-logic) | port | 5 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `COBOL/SAM1.cbl` |  |  |  | 2 | 2 |
+| `COBOL/SAM1LIB.cbl` |  |  |  | 2 | 2 |
+| `multiroot/sam/SAM1.cbl` |  |  |  | 2 | 2 |
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `COBOL/SAM2.cbl` |  |  |  | 1 | 1 |
+| `multiroot/sam/SAM2.cbl` |  |  |  | 1 | 1 |
+
+<a id="interface-call"></a>
+## Calls to other services (port)
+
+_Resolution:_ Wire the called service (or a mock) in place of the placeholder.
+
+**`COBOL/SAM1.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java:15`: Implement or mock interface call to: Sam2Service
+
+**`COBOL/SAM1LIB.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/Sam1libService.java:15`: Implement or mock interface call to: Sam2Service
+
+**`multiroot/sam/SAM1.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam1Service.java:15`: Implement or mock interface call to: Sam2Service
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`COBOL/SAM1.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java:19`: Implement extracted business rules here
+
+**`COBOL/SAM1LIB.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/Sam1libService.java:19`: Implement extracted business rules here
+
+**`COBOL/SAM2.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/CobolSam2Service.java:16`: Implement extracted business rules here
+
+**`multiroot/sam/SAM1.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam1Service.java:19`: Implement extracted business rules here
+
+**`multiroot/sam/SAM2.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam2Service.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0009** `src/main/resources/application.yml:9`: Update these credentials for your target environment

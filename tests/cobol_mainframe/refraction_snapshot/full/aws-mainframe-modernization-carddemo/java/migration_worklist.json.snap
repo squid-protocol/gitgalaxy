@@ -1,0 +1,474 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    }
+  },
+  "generated_from": {
+    "clean_room": "aws-mainframe-modernization-carddemo_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbpaup0cService.java",
+      "id": "WL-0001",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Copaua0cService.java",
+      "id": "WL-0002",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Copaus0cService.java",
+      "id": "WL-0003",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Copaus1cService.java",
+      "id": "WL-0004",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Copaus2cService.java",
+      "id": "WL-0005",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CobtupdtService.java",
+      "id": "WL-0006",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CotrtlicService.java",
+      "id": "WL-0007",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CotrtupcService.java",
+      "id": "WL-0008",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Coacct01Service.java",
+      "id": "WL-0009",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-vsam-mq/cbl/COACCT01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Codate01Service.java",
+      "id": "WL-0010",
+      "line": 16,
+      "nature": "port",
+      "program": "app/app-vsam-mq/cbl/CODATE01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbact01cService.java",
+      "id": "WL-0011",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBACT01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbact02cService.java",
+      "id": "WL-0012",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBACT02C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbact03cService.java",
+      "id": "WL-0013",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBACT03C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbact04cService.java",
+      "id": "WL-0014",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBACT04C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbcus01cService.java",
+      "id": "WL-0015",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBCUS01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CbexportService.java",
+      "id": "WL-0016",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBEXPORT.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CbimportService.java",
+      "id": "WL-0017",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBIMPORT.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbtrn01cService.java",
+      "id": "WL-0018",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBTRN01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbtrn02cService.java",
+      "id": "WL-0019",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBTRN02C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cbtrn03cService.java",
+      "id": "WL-0020",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CBTRN03C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CoactupcService.java",
+      "id": "WL-0021",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COACTUPC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CoactvwcService.java",
+      "id": "WL-0022",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COACTVWC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Coadm01cService.java",
+      "id": "WL-0023",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COADM01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cobil00cService.java",
+      "id": "WL-0024",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COBIL00C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CobswaitService.java",
+      "id": "WL-0025",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COBSWAIT.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CocrdlicService.java",
+      "id": "WL-0026",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COCRDLIC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CocrdslcService.java",
+      "id": "WL-0027",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COCRDSLC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CocrdupcService.java",
+      "id": "WL-0028",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COCRDUPC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Comen01cService.java",
+      "id": "WL-0029",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COMEN01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Corpt00cService.java",
+      "id": "WL-0030",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CORPT00C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cosgn00cService.java",
+      "id": "WL-0031",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COSGN00C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cotrn00cService.java",
+      "id": "WL-0032",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COTRN00C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cotrn01cService.java",
+      "id": "WL-0033",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COTRN01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cotrn02cService.java",
+      "id": "WL-0034",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COTRN02C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cousr00cService.java",
+      "id": "WL-0035",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COUSR00C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cousr01cService.java",
+      "id": "WL-0036",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COUSR01C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cousr02cService.java",
+      "id": "WL-0037",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COUSR02C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Cousr03cService.java",
+      "id": "WL-0038",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/COUSR03C.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CsutldtcService.java",
+      "id": "WL-0039",
+      "line": 16,
+      "nature": "port",
+      "program": "app/cbl/CSUTLDTC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0040",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 39,
+      "configuration": 1
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 39,
+      "review": 1
+    },
+    "items": 40,
+    "programs": 39
+  },
+  "version": 1
+}

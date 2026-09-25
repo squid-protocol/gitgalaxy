@@ -1,0 +1,89 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    }
+  },
+  "generated_from": {
+    "clean_room": "cics-banking-sample-application-cbsa_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java",
+      "id": "WL-0001",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/ABNDPROC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/BankdataService.java",
+      "id": "WL-0002",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BANKDATA.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1cacService.java",
+      "id": "WL-0003",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1CAC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy1Service.java",
+      "id": "WL-0004",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0005",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 4,
+      "configuration": 1
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 4,
+      "review": 1
+    },
+    "items": 5,
+    "programs": 4
+  },
+  "version": 1
+}

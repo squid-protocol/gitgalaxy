@@ -1,0 +1,56 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    }
+  },
+  "generated_from": {
+    "clean_room": "dsf_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java",
+      "id": "WL-0001",
+      "line": 16,
+      "nature": "port",
+      "program": "src/GML/FRMERK.cobol",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0002",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 1,
+      "configuration": 1
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 1,
+      "review": 1
+    },
+    "items": 2,
+    "programs": 1
+  },
+  "version": 1
+}

@@ -39,7 +39,7 @@ class TraceLog:
         self.entries: list[TraceEntry] = []
         self.ledger_of = ledger_of or {}
         self.confidence = confidence or {}
-        self._seen: set[tuple[str, str, str]] = set()
+        self._seen: set[tuple] = set()
 
     def _fact(self, fact: dict) -> dict:
         ledger = self.ledger_of.get(fact.get("section", ""), fact.get("ledger_field"))
@@ -52,9 +52,11 @@ class TraceLog:
     def record(self, file: str, symbol: str, kind: str, facts: list[dict], todos: list[str] | None = None) -> None:
         if symbol == "Class":
             symbol = file.rsplit("/", 1)[-1].removesuffix(".java")
-        if (file, symbol, kind) in self._seen:
+        # the same symbol backed by other COBOL lines is another finding (#3651: a service's unchecked RESPs)
+        seen = (file, symbol, kind, tuple(f.get("source", "") for f in facts))
+        if seen in self._seen:
             return
-        self._seen.add((file, symbol, kind))
+        self._seen.add(seen)
         self.entries.append(TraceEntry(file, symbol, kind, [self._fact(f) for f in facts], list(todos or [])))
 
     def as_dict(self, generated_from: dict) -> dict:

@@ -1,0 +1,386 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    }
+  },
+  "generated_from": {
+    "clean_room": "cics-banking-sample-application-cbsa_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java",
+      "id": "WL-0001",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/ABNDPROC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/AcctctrlService.java",
+      "id": "WL-0002",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/ACCTCTRL.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/BankdataService.java",
+      "id": "WL-0003",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BANKDATA.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1cacService.java",
+      "id": "WL-0004",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1CAC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1ccaService.java",
+      "id": "WL-0005",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1CCA.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1ccsService.java",
+      "id": "WL-0006",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1CCS.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1craService.java",
+      "id": "WL-0007",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1CRA.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1dacService.java",
+      "id": "WL-0008",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1DAC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1dcsService.java",
+      "id": "WL-0009",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1DCS.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1tfnService.java",
+      "id": "WL-0010",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1TFN.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Bnk1uacService.java",
+      "id": "WL-0011",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNK1UAC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/BnkmenuService.java",
+      "id": "WL-0012",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/BNKMENU.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy1Service.java",
+      "id": "WL-0013",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy2Service.java",
+      "id": "WL-0014",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY2.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy3Service.java",
+      "id": "WL-0015",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY3.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy4Service.java",
+      "id": "WL-0016",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY4.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Crdtagy5Service.java",
+      "id": "WL-0017",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRDTAGY5.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CreaccService.java",
+      "id": "WL-0018",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CREACC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CrecustService.java",
+      "id": "WL-0019",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CRECUST.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CustctrlService.java",
+      "id": "WL-0020",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/CUSTCTRL.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/DbcrfunService.java",
+      "id": "WL-0021",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/DBCRFUN.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/DelaccService.java",
+      "id": "WL-0022",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/DELACC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/DelcusService.java",
+      "id": "WL-0023",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/DELCUS.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/GetcompyService.java",
+      "id": "WL-0024",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/GETCOMPY.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/GetscodeService.java",
+      "id": "WL-0025",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/GETSCODE.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/InqaccService.java",
+      "id": "WL-0026",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/INQACC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/InqacccuService.java",
+      "id": "WL-0027",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/INQACCCU.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/InqcustService.java",
+      "id": "WL-0028",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/INQCUST.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/UpdaccService.java",
+      "id": "WL-0029",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/UPDACC.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/UpdcustService.java",
+      "id": "WL-0030",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/UPDCUST.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/XfrfunService.java",
+      "id": "WL-0031",
+      "line": 16,
+      "nature": "port",
+      "program": "src/base/cobol_src/XFRFUN.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0032",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 31,
+      "configuration": 1
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 31,
+      "review": 1
+    },
+    "items": 32,
+    "programs": 31
+  },
+  "version": 1
+}

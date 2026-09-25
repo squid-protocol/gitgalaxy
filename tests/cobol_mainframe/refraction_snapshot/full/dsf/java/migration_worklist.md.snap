@@ -1,0 +1,74 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**8 items** across 7 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 7 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 7 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `src/GML/FO04D1X1.cobol` |  |  |  | 1 | 1 |
+| `src/GML/FO04F1X1.cobol` |  |  |  | 1 | 1 |
+| `src/GML/FRMERK.cobol` |  |  |  | 1 | 1 |
+| `src/GML/FRREDIG.cobol` |  |  |  | 1 | 1 |
+| `src/GML/PLUKKFR.cobol` |  |  |  | 1 | 1 |
+| `src/GML/PLUKKFRN.cobol` |  |  |  | 1 | 1 |
+| `src/GML/R001BYDL.cobol` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`src/GML/FO04D1X1.cobol`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/Fo04d1x1Service.java:16`: Implement extracted business rules here
+
+**`src/GML/FO04F1X1.cobol`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/Fo04f1x1Service.java:16`: Implement extracted business rules here
+
+**`src/GML/FRMERK.cobol`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java:16`: Implement extracted business rules here
+
+**`src/GML/FRREDIG.cobol`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/FrredigService.java:16`: Implement extracted business rules here
+
+**`src/GML/PLUKKFR.cobol`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/PlukkfrService.java:16`: Implement extracted business rules here
+
+**`src/GML/PLUKKFRN.cobol`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/PlukkfrnService.java:16`: Implement extracted business rules here
+
+**`src/GML/R001BYDL.cobol`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/R001bydlService.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0008** `src/main/resources/application.yml:9`: Update these credentials for your target environment

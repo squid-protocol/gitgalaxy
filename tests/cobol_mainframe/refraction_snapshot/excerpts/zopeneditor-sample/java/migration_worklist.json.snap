@@ -1,0 +1,139 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    },
+    "interface-call": {
+      "nature": "port",
+      "resolution": "Wire the called service (or a mock) in place of the placeholder.",
+      "title": "Calls to other services"
+    }
+  },
+  "generated_from": {
+    "clean_room": "zopeneditor-sample_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "interface-call",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java",
+      "id": "WL-0001",
+      "line": 15,
+      "nature": "port",
+      "program": "COBOL/SAM1.cbl",
+      "symbols": [],
+      "text": "Implement or mock interface call to: Sam2Service"
+    },
+    {
+      "category": "interface-call",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Sam1libService.java",
+      "id": "WL-0002",
+      "line": 15,
+      "nature": "port",
+      "program": "COBOL/SAM1LIB.cbl",
+      "symbols": [],
+      "text": "Implement or mock interface call to: Sam2Service"
+    },
+    {
+      "category": "interface-call",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam1Service.java",
+      "id": "WL-0003",
+      "line": 15,
+      "nature": "port",
+      "program": "multiroot/sam/SAM1.cbl",
+      "symbols": [],
+      "text": "Implement or mock interface call to: Sam2Service"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java",
+      "id": "WL-0004",
+      "line": 19,
+      "nature": "port",
+      "program": "COBOL/SAM1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Sam1libService.java",
+      "id": "WL-0005",
+      "line": 19,
+      "nature": "port",
+      "program": "COBOL/SAM1LIB.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/CobolSam2Service.java",
+      "id": "WL-0006",
+      "line": 16,
+      "nature": "port",
+      "program": "COBOL/SAM2.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam1Service.java",
+      "id": "WL-0007",
+      "line": 19,
+      "nature": "port",
+      "program": "multiroot/sam/SAM1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam2Service.java",
+      "id": "WL-0008",
+      "line": 16,
+      "nature": "port",
+      "program": "multiroot/sam/SAM2.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0009",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 5,
+      "configuration": 1,
+      "interface-call": 3
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 8,
+      "review": 1
+    },
+    "items": 9,
+    "programs": 5
+  },
+  "version": 1
+}

@@ -1,0 +1,74 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**7 items** across 5 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 6 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Calls to other services](#interface-call) | port | 1 | Wire the called service (or a mock) in place of the placeholder. |
+| [Business logic to port](#business-logic) | port | 5 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `Source/ZECS001.cbl` |  |  |  | 2 | 2 |
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `Source/ECS001.cbl` |  |  |  | 1 | 1 |
+| `Source/ZECS000.cbl` |  |  |  | 1 | 1 |
+| `Source/ZECS003.cbl` |  |  |  | 1 | 1 |
+| `Source/ZECSPLT.cbl` |  |  |  | 1 | 1 |
+
+<a id="interface-call"></a>
+## Calls to other services (port)
+
+_Resolution:_ Wire the called service (or a mock) in place of the placeholder.
+
+**`Source/ZECS001.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/Zecs001Service.java:15`: Implement or mock interface call to: ZuidstckService
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`Source/ECS001.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/Ecs001Service.java:16`: Implement extracted business rules here
+
+**`Source/ZECS000.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/Zecs000Service.java:16`: Implement extracted business rules here
+
+**`Source/ZECS001.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/Zecs001Service.java:19`: Implement extracted business rules here
+
+**`Source/ZECS003.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/Zecs003Service.java:16`: Implement extracted business rules here
+
+**`Source/ZECSPLT.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/ZecspltService.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0007** `src/main/resources/application.yml:9`: Update these credentials for your target environment

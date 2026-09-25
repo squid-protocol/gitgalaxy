@@ -1,0 +1,194 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**32 items** across 31 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 31 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 31 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `base/src/lgacdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgacdb02.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgacus01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgacvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgapdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgapol01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgapvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgastat1.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgdpdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgdpol01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgdpvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgicdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgicus01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgicvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgipdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgipol01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgipvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgsetup.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgstsq.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgtestc1.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgtestp1.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgtestp2.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgtestp3.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgtestp4.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgucdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgucus01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgucvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgupdb01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgupol01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgupvs01.cbl` |  |  |  | 1 | 1 |
+| `base/src/lgwebst5.cbl` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`base/src/lgacdb01.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/Lgacdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgacdb02.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/Lgacdb02Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgacus01.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/Lgacus01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgacvs01.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/Lgacvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgapdb01.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/Lgapdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgapol01.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/Lgapol01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgapvs01.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/Lgapvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgastat1.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/Lgastat1Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgdpdb01.cbl`**
+
+- [ ] **WL-0009** `src/main/java/com/gitgalaxy/modernized/service/Lgdpdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgdpol01.cbl`**
+
+- [ ] **WL-0010** `src/main/java/com/gitgalaxy/modernized/service/Lgdpol01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgdpvs01.cbl`**
+
+- [ ] **WL-0011** `src/main/java/com/gitgalaxy/modernized/service/Lgdpvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgicdb01.cbl`**
+
+- [ ] **WL-0012** `src/main/java/com/gitgalaxy/modernized/service/Lgicdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgicus01.cbl`**
+
+- [ ] **WL-0013** `src/main/java/com/gitgalaxy/modernized/service/Lgicus01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgicvs01.cbl`**
+
+- [ ] **WL-0014** `src/main/java/com/gitgalaxy/modernized/service/Lgicvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgipdb01.cbl`**
+
+- [ ] **WL-0015** `src/main/java/com/gitgalaxy/modernized/service/Lgipdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgipol01.cbl`**
+
+- [ ] **WL-0016** `src/main/java/com/gitgalaxy/modernized/service/Lgipol01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgipvs01.cbl`**
+
+- [ ] **WL-0017** `src/main/java/com/gitgalaxy/modernized/service/Lgipvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgsetup.cbl`**
+
+- [ ] **WL-0018** `src/main/java/com/gitgalaxy/modernized/service/LgsetupService.java:16`: Implement extracted business rules here
+
+**`base/src/lgstsq.cbl`**
+
+- [ ] **WL-0019** `src/main/java/com/gitgalaxy/modernized/service/LgstsqService.java:16`: Implement extracted business rules here
+
+**`base/src/lgtestc1.cbl`**
+
+- [ ] **WL-0020** `src/main/java/com/gitgalaxy/modernized/service/Lgtestc1Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgtestp1.cbl`**
+
+- [ ] **WL-0021** `src/main/java/com/gitgalaxy/modernized/service/Lgtestp1Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgtestp2.cbl`**
+
+- [ ] **WL-0022** `src/main/java/com/gitgalaxy/modernized/service/Lgtestp2Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgtestp3.cbl`**
+
+- [ ] **WL-0023** `src/main/java/com/gitgalaxy/modernized/service/Lgtestp3Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgtestp4.cbl`**
+
+- [ ] **WL-0024** `src/main/java/com/gitgalaxy/modernized/service/Lgtestp4Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgucdb01.cbl`**
+
+- [ ] **WL-0025** `src/main/java/com/gitgalaxy/modernized/service/Lgucdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgucus01.cbl`**
+
+- [ ] **WL-0026** `src/main/java/com/gitgalaxy/modernized/service/Lgucus01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgucvs01.cbl`**
+
+- [ ] **WL-0027** `src/main/java/com/gitgalaxy/modernized/service/Lgucvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgupdb01.cbl`**
+
+- [ ] **WL-0028** `src/main/java/com/gitgalaxy/modernized/service/Lgupdb01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgupol01.cbl`**
+
+- [ ] **WL-0029** `src/main/java/com/gitgalaxy/modernized/service/Lgupol01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgupvs01.cbl`**
+
+- [ ] **WL-0030** `src/main/java/com/gitgalaxy/modernized/service/Lgupvs01Service.java:16`: Implement extracted business rules here
+
+**`base/src/lgwebst5.cbl`**
+
+- [ ] **WL-0031** `src/main/java/com/gitgalaxy/modernized/service/Lgwebst5Service.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0032** `src/main/resources/application.yml:9`: Update these credentials for your target environment

@@ -15,4 +15,11 @@
   • REST Controllers Generated      : 1
   • AI Agent Tickets Generated      : 0
 
+[3] MIGRATION WORKLIST (migration_worklist.md / .json)
+----------------------------------------------------------
+  • Open items : 4 across 3 COBOL sources
+  • By nature  : conflict 0, fact-gap 0, review 1, port 3
+    Business logic to port                         3  (port)
+    Target configuration                           1  (review)
+
 ==========================================================

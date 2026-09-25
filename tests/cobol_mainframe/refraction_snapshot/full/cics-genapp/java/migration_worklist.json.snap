@@ -1,0 +1,386 @@
+{
+  "categories": {
+    "business-logic": {
+      "nature": "port",
+      "resolution": "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.",
+      "title": "Business logic to port"
+    },
+    "configuration": {
+      "nature": "review",
+      "resolution": "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.",
+      "title": "Target configuration"
+    }
+  },
+  "generated_from": {
+    "clean_room": "cics-genapp_gitgalaxy_clean_<TS>"
+  },
+  "items": [
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgacdb01Service.java",
+      "id": "WL-0001",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgacdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgacdb02Service.java",
+      "id": "WL-0002",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgacdb02.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgacus01Service.java",
+      "id": "WL-0003",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgacus01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgacvs01Service.java",
+      "id": "WL-0004",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgacvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgapdb01Service.java",
+      "id": "WL-0005",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgapdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgapol01Service.java",
+      "id": "WL-0006",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgapol01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgapvs01Service.java",
+      "id": "WL-0007",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgapvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgastat1Service.java",
+      "id": "WL-0008",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgastat1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgdpdb01Service.java",
+      "id": "WL-0009",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgdpdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgdpol01Service.java",
+      "id": "WL-0010",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgdpol01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgdpvs01Service.java",
+      "id": "WL-0011",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgdpvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgicdb01Service.java",
+      "id": "WL-0012",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgicdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgicus01Service.java",
+      "id": "WL-0013",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgicus01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgicvs01Service.java",
+      "id": "WL-0014",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgicvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgipdb01Service.java",
+      "id": "WL-0015",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgipdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgipol01Service.java",
+      "id": "WL-0016",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgipol01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgipvs01Service.java",
+      "id": "WL-0017",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgipvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/LgsetupService.java",
+      "id": "WL-0018",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgsetup.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/LgstsqService.java",
+      "id": "WL-0019",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgstsq.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgtestc1Service.java",
+      "id": "WL-0020",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgtestc1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgtestp1Service.java",
+      "id": "WL-0021",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgtestp1.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgtestp2Service.java",
+      "id": "WL-0022",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgtestp2.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgtestp3Service.java",
+      "id": "WL-0023",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgtestp3.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgtestp4Service.java",
+      "id": "WL-0024",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgtestp4.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgucdb01Service.java",
+      "id": "WL-0025",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgucdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgucus01Service.java",
+      "id": "WL-0026",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgucus01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgucvs01Service.java",
+      "id": "WL-0027",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgucvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgupdb01Service.java",
+      "id": "WL-0028",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgupdb01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgupol01Service.java",
+      "id": "WL-0029",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgupol01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgupvs01Service.java",
+      "id": "WL-0030",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgupvs01.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "business-logic",
+      "facts": [],
+      "file": "src/main/java/com/gitgalaxy/modernized/service/Lgwebst5Service.java",
+      "id": "WL-0031",
+      "line": 16,
+      "nature": "port",
+      "program": "base/src/lgwebst5.cbl",
+      "symbols": [],
+      "text": "Implement extracted business rules here"
+    },
+    {
+      "category": "configuration",
+      "facts": [],
+      "file": "src/main/resources/application.yml",
+      "id": "WL-0032",
+      "line": 9,
+      "nature": "review",
+      "program": "(project configuration)",
+      "symbols": [],
+      "text": "Update these credentials for your target environment"
+    }
+  ],
+  "summary": {
+    "by_category": {
+      "business-logic": 31,
+      "configuration": 1
+    },
+    "by_nature": {
+      "conflict": 0,
+      "fact-gap": 0,
+      "port": 31,
+      "review": 1
+    },
+    "items": 32,
+    "programs": 31
+  },
+  "version": 1
+}

@@ -1,0 +1,234 @@
+# Migration worklist
+
+Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
+
+**40 items** across 39 COBOL sources.
+
+| nature | items | what it takes |
+|---|---:|---|
+| conflict | 0 | two facts disagree: a person decides which one the Java follows |
+| fact-gap | 0 | a fact is missing: supply it and re-run |
+| review | 1 | the Java runs as generated: check it on the target |
+| port | 39 | business logic to write |
+
+## By category
+
+| category | nature | items | suggested resolution |
+|---|---|---:|---|
+| [Business logic to port](#business-logic) | port | 39 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
+| [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
+
+## By COBOL source
+
+| source | conflict | fact-gap | review | port | total |
+|---|---:|---:|---:|---:|---:|
+| `(project configuration)` |  |  | 1 |  | 1 |
+| `app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl` |  |  |  | 1 | 1 |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl` |  |  |  | 1 | 1 |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl` |  |  |  | 1 | 1 |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl` |  |  |  | 1 | 1 |
+| `app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl` |  |  |  | 1 | 1 |
+| `app/app-transaction-type-db2/cbl/COBTUPDT.cbl` |  |  |  | 1 | 1 |
+| `app/app-transaction-type-db2/cbl/COTRTLIC.cbl` |  |  |  | 1 | 1 |
+| `app/app-transaction-type-db2/cbl/COTRTUPC.cbl` |  |  |  | 1 | 1 |
+| `app/app-vsam-mq/cbl/COACCT01.cbl` |  |  |  | 1 | 1 |
+| `app/app-vsam-mq/cbl/CODATE01.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBACT01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBACT02C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBACT03C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBACT04C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBCUS01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBEXPORT.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBIMPORT.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBTRN01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBTRN02C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CBTRN03C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COACTUPC.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COACTVWC.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COADM01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COBIL00C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COBSWAIT.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COCRDLIC.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COCRDSLC.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COCRDUPC.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COMEN01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CORPT00C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COSGN00C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COTRN00C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COTRN01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COTRN02C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COUSR00C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COUSR01C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COUSR02C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/COUSR03C.cbl` |  |  |  | 1 | 1 |
+| `app/cbl/CSUTLDTC.cbl` |  |  |  | 1 | 1 |
+
+<a id="business-logic"></a>
+## Business logic to port (port)
+
+_Resolution:_ Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch.
+
+**`app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl`**
+
+- [ ] **WL-0001** `src/main/java/com/gitgalaxy/modernized/service/Cbpaup0cService.java:16`: Implement extracted business rules here
+
+**`app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl`**
+
+- [ ] **WL-0002** `src/main/java/com/gitgalaxy/modernized/service/Copaua0cService.java:16`: Implement extracted business rules here
+
+**`app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl`**
+
+- [ ] **WL-0003** `src/main/java/com/gitgalaxy/modernized/service/Copaus0cService.java:16`: Implement extracted business rules here
+
+**`app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl`**
+
+- [ ] **WL-0004** `src/main/java/com/gitgalaxy/modernized/service/Copaus1cService.java:16`: Implement extracted business rules here
+
+**`app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl`**
+
+- [ ] **WL-0005** `src/main/java/com/gitgalaxy/modernized/service/Copaus2cService.java:16`: Implement extracted business rules here
+
+**`app/app-transaction-type-db2/cbl/COBTUPDT.cbl`**
+
+- [ ] **WL-0006** `src/main/java/com/gitgalaxy/modernized/service/CobtupdtService.java:16`: Implement extracted business rules here
+
+**`app/app-transaction-type-db2/cbl/COTRTLIC.cbl`**
+
+- [ ] **WL-0007** `src/main/java/com/gitgalaxy/modernized/service/CotrtlicService.java:16`: Implement extracted business rules here
+
+**`app/app-transaction-type-db2/cbl/COTRTUPC.cbl`**
+
+- [ ] **WL-0008** `src/main/java/com/gitgalaxy/modernized/service/CotrtupcService.java:16`: Implement extracted business rules here
+
+**`app/app-vsam-mq/cbl/COACCT01.cbl`**
+
+- [ ] **WL-0009** `src/main/java/com/gitgalaxy/modernized/service/Coacct01Service.java:16`: Implement extracted business rules here
+
+**`app/app-vsam-mq/cbl/CODATE01.cbl`**
+
+- [ ] **WL-0010** `src/main/java/com/gitgalaxy/modernized/service/Codate01Service.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBACT01C.cbl`**
+
+- [ ] **WL-0011** `src/main/java/com/gitgalaxy/modernized/service/Cbact01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBACT02C.cbl`**
+
+- [ ] **WL-0012** `src/main/java/com/gitgalaxy/modernized/service/Cbact02cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBACT03C.cbl`**
+
+- [ ] **WL-0013** `src/main/java/com/gitgalaxy/modernized/service/Cbact03cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBACT04C.cbl`**
+
+- [ ] **WL-0014** `src/main/java/com/gitgalaxy/modernized/service/Cbact04cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBCUS01C.cbl`**
+
+- [ ] **WL-0015** `src/main/java/com/gitgalaxy/modernized/service/Cbcus01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBEXPORT.cbl`**
+
+- [ ] **WL-0016** `src/main/java/com/gitgalaxy/modernized/service/CbexportService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBIMPORT.cbl`**
+
+- [ ] **WL-0017** `src/main/java/com/gitgalaxy/modernized/service/CbimportService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBTRN01C.cbl`**
+
+- [ ] **WL-0018** `src/main/java/com/gitgalaxy/modernized/service/Cbtrn01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBTRN02C.cbl`**
+
+- [ ] **WL-0019** `src/main/java/com/gitgalaxy/modernized/service/Cbtrn02cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CBTRN03C.cbl`**
+
+- [ ] **WL-0020** `src/main/java/com/gitgalaxy/modernized/service/Cbtrn03cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COACTUPC.cbl`**
+
+- [ ] **WL-0021** `src/main/java/com/gitgalaxy/modernized/service/CoactupcService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COACTVWC.cbl`**
+
+- [ ] **WL-0022** `src/main/java/com/gitgalaxy/modernized/service/CoactvwcService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COADM01C.cbl`**
+
+- [ ] **WL-0023** `src/main/java/com/gitgalaxy/modernized/service/Coadm01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COBIL00C.cbl`**
+
+- [ ] **WL-0024** `src/main/java/com/gitgalaxy/modernized/service/Cobil00cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COBSWAIT.cbl`**
+
+- [ ] **WL-0025** `src/main/java/com/gitgalaxy/modernized/service/CobswaitService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COCRDLIC.cbl`**
+
+- [ ] **WL-0026** `src/main/java/com/gitgalaxy/modernized/service/CocrdlicService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COCRDSLC.cbl`**
+
+- [ ] **WL-0027** `src/main/java/com/gitgalaxy/modernized/service/CocrdslcService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COCRDUPC.cbl`**
+
+- [ ] **WL-0028** `src/main/java/com/gitgalaxy/modernized/service/CocrdupcService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COMEN01C.cbl`**
+
+- [ ] **WL-0029** `src/main/java/com/gitgalaxy/modernized/service/Comen01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CORPT00C.cbl`**
+
+- [ ] **WL-0030** `src/main/java/com/gitgalaxy/modernized/service/Corpt00cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COSGN00C.cbl`**
+
+- [ ] **WL-0031** `src/main/java/com/gitgalaxy/modernized/service/Cosgn00cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COTRN00C.cbl`**
+
+- [ ] **WL-0032** `src/main/java/com/gitgalaxy/modernized/service/Cotrn00cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COTRN01C.cbl`**
+
+- [ ] **WL-0033** `src/main/java/com/gitgalaxy/modernized/service/Cotrn01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COTRN02C.cbl`**
+
+- [ ] **WL-0034** `src/main/java/com/gitgalaxy/modernized/service/Cotrn02cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COUSR00C.cbl`**
+
+- [ ] **WL-0035** `src/main/java/com/gitgalaxy/modernized/service/Cousr00cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COUSR01C.cbl`**
+
+- [ ] **WL-0036** `src/main/java/com/gitgalaxy/modernized/service/Cousr01cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COUSR02C.cbl`**
+
+- [ ] **WL-0037** `src/main/java/com/gitgalaxy/modernized/service/Cousr02cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/COUSR03C.cbl`**
+
+- [ ] **WL-0038** `src/main/java/com/gitgalaxy/modernized/service/Cousr03cService.java:16`: Implement extracted business rules here
+
+**`app/cbl/CSUTLDTC.cbl`**
+
+- [ ] **WL-0039** `src/main/java/com/gitgalaxy/modernized/service/CsutldtcService.java:16`: Implement extracted business rules here
+
+<a id="configuration"></a>
+## Target configuration (review)
+
+_Resolution:_ Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file.
+
+**`(project configuration)`**
+
+- [ ] **WL-0040** `src/main/resources/application.yml:9`: Update these credentials for your target environment

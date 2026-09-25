@@ -142,8 +142,8 @@ candidates pointed at the CSD deck. So, for every join a new generator reads:
    an issue to add it to the key.
 3. **Log what you find**: a wrong value is an engine defect. Log it in
    `tests/cobol_mainframe/field_testing.json` (`found_by`: the generator; `severity:
-   attribute` when the keyed fact itself was right), fix it in the same PR, and diff
-   every IR join on the 6 corpora, main vs branch, to state the blast radius.
+   attribute` when the keyed fact itself was right), fix it in the same PR, and run
+   `python tests/tools/ir_join_diff.py --base origin/main` to state the blast radius.
 4. **Say it in the PR**: an "attributes consumed" table, with each attribute marked
    keyed / spot-checked / unverified.
 

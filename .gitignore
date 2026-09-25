@@ -18,6 +18,7 @@ env/
 .crucible_venvs/
 .ast_accuracy_corpus/
 .mainframe_corpora/
+.ir_join_diff_cache/
 # A language-crucible corpus checkout belongs in a SIBLING dir (../language-crucible),
 # never inside the repo -- an in-repo clone gets ingested by galaxyscope self-scans and
 # poisons the golden masters (see .claude/rules/golden-master-guidelines.md). Backstop

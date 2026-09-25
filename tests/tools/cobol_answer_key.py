@@ -2520,7 +2520,7 @@ def draft_cics(repo: Path) -> dict[str, dict[str, Any]]:
     off with `cics_validated` -- the records_validated precedent (#3246)."""
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS + PLI_EXTS and ".git" not in p.parts:
             rows = cics_resource_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
@@ -2741,7 +2741,7 @@ def draft_cics_tasks(repo: Path) -> dict[str, dict[str, Any]]:
     transids = {t for tx in _key_transactions(repo).values() for t in tx}
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
-        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS and ".git" not in p.parts:
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS + PLI_EXTS and ".git" not in p.parts:
             rows = cics_task_ops(p)
             if rows:
                 out[p.relative_to(repo).as_posix()] = {

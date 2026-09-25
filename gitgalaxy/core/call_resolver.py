@@ -455,6 +455,51 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
     return index
 
 
+# What a language calls a class's constructor, when it is a method (#3642
+# follow-up). A call that resolves to a class is linked to this method, so the
+# function graph sees `Foo(...)` reach `Foo.__init__`. Languages not listed
+# name the constructor after the class (java, c#, c++, dart); go, rust, c and
+# the rest have no constructor method at all, and keep the class as the target.
+_CONSTRUCTOR_NAMES: dict[str, tuple[str, ...]] = {
+    "python": ("__init__", "__new__"),
+    "embedded_python": ("__init__", "__new__"),
+    "javascript": ("constructor",),
+    "typescript": ("constructor",),
+    "kotlin": ("constructor",),
+    "php": ("__construct",),
+    "ruby": ("initialize",),
+    "swift": ("init",),
+}
+_CLASS_NAMED_CONSTRUCTOR_LANGS = frozenset({"java", "csharp", "cpp", "dart", "apex", "objective-c"})
+
+
+def _constructor_of(index: dict[tuple[str, str], "_Bucket"], cls: _Definition, lang: str) -> Optional[_Definition]:
+    """The constructor method of class definition `cls`, if the scan extracted one.
+
+    One in the class's own file, else one beside it with the same stem (a C++
+    `foo.h` class, its `Foo::Foo` in `foo.cpp`). Owner keys are bare class
+    names, so a constructor anywhere else may belong to another class of the
+    same name and is never taken. None when the class has no constructor of
+    its own (an inherited or implicit one): the call keeps the class.
+    """
+    leaf = _leaf(cls.name)[0]
+    names = _CONSTRUCTOR_NAMES.get(lang) or ((leaf,) if lang in _CLASS_NAMED_CONSTRUCTOR_LANGS else ())
+    group = _group(lang)
+    owner = _key(leaf, lang)
+    for n in names:
+        bucket = index.get((group, _key(n, lang)))
+        defs = [d for d in (bucket.by_owner.get(owner, []) if bucket else []) if d.kind == "function"]
+        if not defs:
+            continue
+        for d in defs:
+            if d.path == cls.path:
+                return d
+        for d in defs:
+            if d.dir == cls.dir and d.stem == cls.stem:
+                return d
+    return None
+
+
 def _imports_by_file(dependency_edges: Optional[list[dict[str, Any]]]) -> dict[str, set[str]]:
     out: dict[str, set[str]] = {}
     for e in dependency_edges or []:
@@ -745,6 +790,12 @@ def resolve_calls(
                     alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
+                cls = None
+                if dst is not None and dst.kind == "class":
+                    # A constructor call reaches the class's constructor method.
+                    ctor = _constructor_of(index, dst, lang)
+                    if ctor is not None:
+                        cls, dst = dst, ctor
                 if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                     continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
                 resolution = RESOLUTION_OF_STEP[step]
@@ -769,6 +820,9 @@ def resolve_calls(
                         "dst_name": dst.name if dst else None,
                         "dst_line": dst.line if dst else None,
                         "dst_kind": dst.kind if dst else None,
+                        # the class a constructor call named, when dst is its constructor
+                        "dst_class_path": cls.path if cls else None,
+                        "dst_class_name": cls.name if cls else None,
                     }
                 )
 

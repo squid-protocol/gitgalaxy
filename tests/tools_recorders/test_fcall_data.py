@@ -186,3 +186,13 @@ def test_brief_section_states_rates_and_caveat():
     assert "not that the choice was correct" in text
     assert "| php | 5 | 40.0% | 20.0% | 20.0% | 20.0% |" in text
     assert LLMRecorder.__new__(LLMRecorder)._call_resolution_lines({}) == []
+
+
+def test_a_constructor_call_links_the_constructor_and_keeps_the_class(tmp_path):
+    # #3642 follow-up: `new Store()` reaches Store's `__construct`, and the row still names the class.
+    files = _universe()
+    files[2]["functions"].append(_fn("__construct", 3, owner="Store"))
+    db = tmp_path / "f.db"
+    _record(db, files)
+    rows = [r for r in _rows(db, _SITES_SQL) if r[1] == "Store"]
+    assert rows == [("main", "Store", "unique", "lib/store.php", "__construct", "Store")]

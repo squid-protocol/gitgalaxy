@@ -2673,7 +2673,12 @@ class RecordKeeper:
                         func_key_to_id.get((dst_path, dst_name, int(site.get("dst_line") or 0)))
                         if dst_kind == "function"
                         else None,
-                        class_key_to_id.get((dst_path, dst_name)) if dst_kind == "class" else None,
+                        class_key_to_id.get((dst_path, dst_name))
+                        if dst_kind == "class"
+                        # a constructor call keeps the class it named beside its constructor
+                        else class_key_to_id.get((str(site.get("dst_class_path")), str(site.get("dst_class_name"))))
+                        if site.get("dst_class_name")
+                        else None,
                     )
                 )
             if fcall_rows:

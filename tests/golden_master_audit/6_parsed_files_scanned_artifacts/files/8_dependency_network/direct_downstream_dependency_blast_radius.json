@@ -1094,7 +1094,7 @@
       "cpp/godot/node.h": 1,
       "cpp/godot/object.cpp": 1,
       "cpp/godot/object.h": 5,
-      "cpp/godot/rendering_server_default.cpp": 1,
+      "cpp/godot/rendering_server_default.cpp": 2,
       "cpp/godot/rendering_server_default.h": 2,
       "cpp/godot/variant.cpp": 6,
       "cpp/godot/variant.h": 8

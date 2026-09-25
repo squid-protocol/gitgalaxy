@@ -416,3 +416,69 @@ def test_a_redefinable_name_still_resolves():
     ]
     row = _site(resolve_calls(files)[0], "printf")
     assert (row["resolution"], row["dst_path"]) == ("unique", "redis/printf.lua")
+
+
+# ----------------------------------------------------------------------------- constructors
+
+
+def _ctor_site(files, callee):
+    row = _site(resolve_calls(files)[0], callee)
+    return row["dst_kind"], row["dst_name"], row["dst_path"], row["dst_class_name"]
+
+
+def test_python_constructor_call_links_init():
+    files = [
+        _file("m.py", "python", [_fn("__init__", 3, owner="Store"), _fn("run", 9, calls=["Store"], quals={"Store": [""]})],
+              [{"name": "Store", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    assert _ctor_site(files, "Store") == ("function", "__init__", "m.py", "Store")
+
+
+def test_class_without_its_own_constructor_stays_the_class():
+    files = [
+        _file("m.py", "python", [_fn("run", 9, calls=["Plain"], quals={"Plain": [""]})],
+              [{"name": "Plain", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    assert _ctor_site(files, "Plain") == ("class", "Plain", "m.py", None)
+
+
+def test_typescript_constructor_and_java_class_named_constructor():
+    ts = [
+        _file("a.ts", "typescript", [_fn("constructor", 2, owner="Box"), _fn("main", 8, calls=["Box"], quals={"Box": [""]})],
+              [{"name": "Box", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    assert _ctor_site(ts, "Box") == ("function", "constructor", "a.ts", "Box")
+    java = [
+        _file("Box.java", "java", [_fn("Box", 3, owner="Box")], [{"name": "Box", "inheritance": [], "start_line": 1}]),
+        _file("Main.java", "java", [_fn("main", 2, calls=["Box"], quals={"Box": [""]})]),
+    ]
+    assert _ctor_site(java, "Box") == ("function", "Box", "Box.java", "Box")
+
+
+def test_cpp_out_of_class_constructor_beside_its_header():
+    files = [
+        _file("src/foo.h", "cpp", [], [{"name": "Foo", "inheritance": [], "start_line": 1}]),
+        _file("src/foo.cpp", "cpp", [_fn("Foo::Foo", 4)]),
+        _file("src/main.cpp", "cpp", [_fn("main", 1, calls=["Foo"], quals={"Foo": [""]})]),
+    ]
+    assert _ctor_site(files, "Foo") == ("function", "Foo::Foo", "src/foo.cpp", "Foo")
+
+
+def test_constructor_inside_itself_is_not_an_edge():
+    # `Foo()` written inside Foo's own constructor would link the constructor to itself: dropped.
+    files = [
+        _file("m.py", "python", [_fn("__init__", 3, owner="Foo", calls=["Foo"], quals={"Foo": [""]})],
+              [{"name": "Foo", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    assert [s for s in resolve_calls(files)[0] if s["callee"] == "Foo"] == []
+
+
+def test_a_same_named_class_elsewhere_does_not_lend_its_constructor():
+    # fastapi: tests/test_read_with_orm_mode.py's own `Person` (no __init__) must not reach
+    # tests/test_jsonable_encoder.py's `Person.__init__`.
+    files = [
+        _file("a.py", "python", [_fn("__init__", 3, owner="Person")], [{"name": "Person", "inheritance": [], "start_line": 1}]),
+        _file("b.py", "python", [_fn("run", 9, calls=["Person"], quals={"Person": [""]})],
+              [{"name": "Person", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    assert _ctor_site(files, "Person") == ("class", "Person", "b.py", None)

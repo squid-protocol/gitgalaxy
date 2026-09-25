@@ -3029,28 +3029,28 @@
       "rust/SOURCES.md": 0
     },
     "rust/bevy": {
-      "rust/bevy/bevy_ecs_macros.rs": 23,
-      "rust/bevy/bevy_ecs_query.rs": 41,
+      "rust/bevy/bevy_ecs_macros.rs": 31,
+      "rust/bevy/bevy_ecs_query.rs": 51,
       "rust/bevy/bevy_ecs_table.rs": 6,
-      "rust/bevy/bevy_ecs_world.rs": 156,
+      "rust/bevy/bevy_ecs_world.rs": 166,
       "rust/bevy/bevy_reflect_path.rs": 9,
       "rust/bevy/bevy_render_phase.rs": 5,
       "rust/bevy/bevy_schedule_graph.rs": 8
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": 5,
+      "rust/holylang/ast.rs": 14,
       "rust/holylang/compile.rs": 9,
       "rust/holylang/error.rs": 1,
       "rust/holylang/main.rs": 1,
-      "rust/holylang/parser.rs": 2,
-      "rust/holylang/semantic.rs": 10,
+      "rust/holylang/parser.rs": 7,
+      "rust/holylang/semantic.rs": 17,
       "rust/holylang/transpiler.rs": 11
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 19,
-      "rust/serde/serde_core_de_mod.rs": 28,
+      "rust/serde/serde_core_de_mod.rs": 31,
       "rust/serde/serde_core_macros.rs": 5,
-      "rust/serde/serde_derive_de.rs": 33,
+      "rust/serde/serde_derive_de.rs": 42,
       "rust/serde/serde_internals_ast.rs": 7,
       "rust/serde/serde_internals_attr.rs": 22,
       "rust/serde/test_annotations.rs": 28
@@ -3073,17 +3073,17 @@
       "rust/tokio/config.rs": 3,
       "rust/tokio/fuzz.rs": 1,
       "rust/tokio/interval.rs": 18,
-      "rust/tokio/lib.rs": 16,
+      "rust/tokio/lib.rs": 32,
       "rust/tokio/maybe_done.rs": 13,
       "rust/tokio/tests.rs": 11,
       "rust/tokio/tokio_mpsc_bounded.rs": 24,
       "rust/tokio/tokio_named_pipe.rs": 51
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": 3,
+      "rust/wasmtime/wasmtime_component_macro.rs": 5,
       "rust/wasmtime/wasmtime_instance.rs": 43,
       "rust/wasmtime/wasmtime_isle_parser.rs": 6,
-      "rust/wasmtime/wasmtime_pulley_interp.rs": 25
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 28
     },
     "scala": {
       "scala/SOURCES.md": 0

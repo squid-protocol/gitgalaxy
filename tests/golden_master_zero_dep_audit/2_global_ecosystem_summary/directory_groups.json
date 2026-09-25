@@ -4129,7 +4129,7 @@
     },
     "rust/holylang": {
       "avg_exposures": {
-        "api_exposure": 6.12,
+        "api_exposure": 6.37,
         "churn": 0.0,
         "cognitive_load": 19.04,
         "concurrency": 0.0,
@@ -4186,22 +4186,22 @@
     },
     "rust/tokio": {
       "avg_exposures": {
-        "api_exposure": 5.7,
+        "api_exposure": 12.4,
         "churn": 0.0,
         "cognitive_load": 14.99,
         "concurrency": 50.45,
         "dead_code": 31.58,
-        "documentation": 40.79,
+        "documentation": 40.78,
         "safety_score": 21.89,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 15.64,
-        "tech_debt": 55.01,
+        "tech_debt": 44.52,
         "verification": 21.57
       },
       "file_count": 12,
-      "total_mass": 1345.5
+      "total_mass": 1346.5
     },
     "rust/wasmtime": {
       "avg_exposures": {

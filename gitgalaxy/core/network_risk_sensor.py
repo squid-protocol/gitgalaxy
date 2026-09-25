@@ -73,7 +73,7 @@ IMPORTER_DIR_FIRST_LANGS = frozenset(
 # `.a`, `..`, never a path. Bounded, linear: no nested quantifiers.
 _DOTTED_MODULE = re.compile(r"\.{0,16}(?:[A-Za-z_]\w{0,255}(?:\.[A-Za-z_]\w{0,255}){0,64})?")
 
-# #3554: the bare module name of a Rust `mod name;` declaration.
+# #3554: the module name of a Rust `mod name;` declaration.
 _MODULE_NAME = re.compile(r"[A-Za-z_]\w{0,127}")
 _MODULE_TREE_OWNERS = frozenset({"mod.rs", "lib.rs", "main.rs", "build.rs"})
 _CRATE_ROOT_DIRS = frozenset({"tests", "examples", "benches"})
@@ -281,12 +281,14 @@ class NetworkRiskSensor:
         if init_file and _DOTTED_MODULE.fullmatch(target_token) and not target_token.endswith((".py", ".pyi")):
             return self._resolve_package_module(target_token, curr_path, resolution_map, init_file)
 
-        # #3554: a body-less Rust `mod name;` names name.rs or name/mod.rs in its
-        # owner's module directory. A bare module-name token tries that first.
-        if src_def.get("imports_follow_module_tree") and _MODULE_NAME.fullmatch(target_token):
-            owned = self._resolve_module_tree(target_token, curr_path)
-            if owned is not None:
-                return owned
+        # #3554: a body-less Rust `mod name;` (recorded as `./name`) names name.rs
+        # or name/mod.rs in its owner's module directory -- and nothing else. One
+        # the tree cannot place (a `#[path]` module, a file outside the scan) draws
+        # no edge: a name search would link it to any same-named file, any language.
+        if src_def.get("imports_follow_module_tree") and target_token.startswith("./"):
+            module = target_token[2:]
+            if _MODULE_NAME.fullmatch(module):
+                return self._resolve_module_tree(module, curr_path)
 
         # #3553/#3552: a `./`/`../` token -- and any token of a language that
         # searches the importing file's directory first -- names a location.

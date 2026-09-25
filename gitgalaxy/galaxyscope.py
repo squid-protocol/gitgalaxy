@@ -706,11 +706,18 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # orphaned-docs detection). The other inert skips (security lens,
             # named tokens, popularity census) stay skipped.
             import_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_dependency_capture")
+            # #3554: the capture group (1-based) that declares a LOCAL module (Rust
+            # `mod name;`). It is recorded as `./name`: never an external package.
+            local_group = lang_defs.get(lang_id, {}).get("local_module_capture_group")
             if import_regex:
                 try:
                     for match in import_regex.finditer(content_buffer):
-                        extracted_path = next((g for g in match.groups() if g), None)
-                        if extracted_path:
+                        group_no, extracted_path = next(
+                            ((i, g) for i, g in enumerate(match.groups(), 1) if g), (0, None)
+                        )
+                        if extracted_path and group_no == local_group:
+                            raw_imports.add("./" + extracted_path.strip())
+                        elif extracted_path:
                             # Handle comma-separated blocks and brackets (e.g., Rust/Scala: {A, B}, Python: a, b as c)
                             clean_group = extracted_path.replace("{", "").replace("}", "")
                             for item in clean_group.split(","):
@@ -2273,6 +2280,11 @@ class Orchestrator:
         )
 
         external_imports_tally = {}  # <--- NEW: Track external dependencies
+        local_module_langs = {
+            lid
+            for lid, ldef in self.config.get("LANGUAGE_DEFINITIONS", {}).items()
+            if isinstance(ldef, dict) and ldef.get("local_module_capture_group")
+        }
 
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
@@ -2363,7 +2375,11 @@ class Orchestrator:
                                 matched_internal = True
 
                 # ---> NEW: LOG EXTERNAL IMPORTS <---
-                if not matched_internal:
+                # #3554: a declared local module (`./name` from a language's
+                # `local_module_capture_group`) is never an external package.
+                if not matched_internal and not (
+                    raw_import.startswith("./") and str(meta.get("lang_id", "")).lower() in local_module_langs
+                ):
                     if clean_path not in external_imports_tally:
                         external_imports_tally[clean_path] = []
                     external_imports_tally[clean_path].append(rel_path)

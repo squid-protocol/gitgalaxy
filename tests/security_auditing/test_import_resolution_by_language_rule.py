@@ -187,15 +187,16 @@ def test_java_member_and_nested_imports_resolve_to_the_class_file(token):
 def test_rust_mod_declarations_follow_the_module_tree():
     # lib.rs/mod.rs own their directory; any other file owns <dir>/<stem>/ (Rust 2018).
     # `algorithm` repeats elsewhere in the repo -- the tree, not the name, decides.
+    # galaxyscope records a `mod name;` as `./name` (local_module_capture_group).
     edges = _edges(
         [
-            ("src/lib.rs", "rust", ["de", "lexical", "serde"]),
-            ("src/de.rs", "rust", ["read"]),
+            ("src/lib.rs", "rust", ["./de", "./lexical", "serde"]),
+            ("src/de.rs", "rust", ["./read"]),
             ("src/de/read.rs", "rust", []),
-            ("src/lexical/mod.rs", "rust", ["algorithm"]),
+            ("src/lexical/mod.rs", "rust", ["./algorithm"]),
             ("src/lexical/algorithm.rs", "rust", []),
             ("benches/algorithm.rs", "rust", []),
-            ("tests/test.rs", "rust", ["macros"]),  # an integration test is a crate root
+            ("tests/test.rs", "rust", ["./macros"]),  # an integration test is a crate root
             ("tests/macros/mod.rs", "rust", []),
         ]
     )
@@ -206,3 +207,17 @@ def test_rust_mod_declarations_follow_the_module_tree():
         ("src/lexical/mod.rs", "src/lexical/algorithm.rs"),
         ("tests/test.rs", "tests/macros/mod.rs"),
     }
+
+
+def test_a_rust_mod_the_tree_cannot_place_draws_no_edge():
+    # `mod util;` in a flattened corpus: util.rs is not in the tree. The same-named
+    # shell and Lua files elsewhere are not it, and neither is a sibling util.rs.
+    edges = _edges(
+        [
+            ("rust/io.rs", "rust", ["./util", "./fetch"]),
+            ("rust/util.rs", "rust", []),
+            ("shell/util.sh", "shell", []),
+            ("lua/fetch.lua", "lua", []),
+        ]
+    )
+    assert edges == set()

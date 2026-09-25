@@ -3029,7 +3029,7 @@
       "rust/SOURCES.md": 0.0
     },
     "rust/bevy": {
-      "rust/bevy/bevy_ecs_macros.rs": 1.938,
+      "rust/bevy/bevy_ecs_macros.rs": 1.958,
       "rust/bevy/bevy_ecs_query.rs": 1.633,
       "rust/bevy/bevy_ecs_table.rs": 0.625,
       "rust/bevy/bevy_ecs_world.rs": 1.093,
@@ -3038,19 +3038,19 @@
       "rust/bevy/bevy_schedule_graph.rs": 0.817
     },
     "rust/holylang": {
-      "rust/holylang/ast.rs": -0.326,
+      "rust/holylang/ast.rs": 0.057,
       "rust/holylang/compile.rs": -0.327,
       "rust/holylang/error.rs": -0.16,
       "rust/holylang/main.rs": 0.919,
-      "rust/holylang/parser.rs": -0.555,
-      "rust/holylang/semantic.rs": 0.389,
+      "rust/holylang/parser.rs": -0.56,
+      "rust/holylang/semantic.rs": 0.464,
       "rust/holylang/transpiler.rs": 0.562
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 0.901,
-      "rust/serde/serde_core_de_mod.rs": 0.497,
+      "rust/serde/serde_core_de_mod.rs": 0.511,
       "rust/serde/serde_core_macros.rs": 0.122,
-      "rust/serde/serde_derive_de.rs": -0.252,
+      "rust/serde/serde_derive_de.rs": -0.243,
       "rust/serde/serde_internals_ast.rs": -0.337,
       "rust/serde/serde_internals_attr.rs": -0.083,
       "rust/serde/test_annotations.rs": 2.293
@@ -3068,19 +3068,19 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": -0.537,
       "rust/tokio/block_on.rs": -0.481,
-      "rust/tokio/blocking.rs": 0.779,
+      "rust/tokio/blocking.rs": 0.857,
       "rust/tokio/builder.rs": 2.019,
       "rust/tokio/config.rs": -0.176,
       "rust/tokio/fuzz.rs": 0.0,
       "rust/tokio/interval.rs": 1.323,
-      "rust/tokio/lib.rs": 0.047,
+      "rust/tokio/lib.rs": 0.108,
       "rust/tokio/maybe_done.rs": -0.451,
       "rust/tokio/tests.rs": -0.53,
       "rust/tokio/tokio_mpsc_bounded.rs": 1.939,
       "rust/tokio/tokio_named_pipe.rs": 1.596
     },
     "rust/wasmtime": {
-      "rust/wasmtime/wasmtime_component_macro.rs": -0.587,
+      "rust/wasmtime/wasmtime_component_macro.rs": -0.607,
       "rust/wasmtime/wasmtime_instance.rs": 1.061,
       "rust/wasmtime/wasmtime_isle_parser.rs": 0.346,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 0.603

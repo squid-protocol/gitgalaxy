@@ -100,13 +100,13 @@
     "repos": "rack/rack"
   },
   "rust": {
-    "engine_edges": 2,
+    "engine_edges": 38,
     "files": 71,
-    "fn": 43,
+    "fn": 0,
     "fp": 2,
-    "imports": 43,
-    "precision_pct": 0.0,
-    "recall_pct": 0.0,
+    "imports": 37,
+    "precision_pct": 94.7,
+    "recall_pct": 100.0,
     "repos": "serde-rs/json"
   },
   "typescript": {

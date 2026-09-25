@@ -42,8 +42,12 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "recursive_block",
     # #3554: a body-less `mod name;` names name.rs or name/mod.rs in its OWNER's module
     # directory -- the file's own directory for mod.rs/lib.rs/main.rs, else <dir>/<stem>/.
-    # network_risk_sensor.py resolves a bare module-name token by that tree first.
+    # network_risk_sensor.py resolves a `./name` module token by that tree only.
     "imports_follow_module_tree": True,
+    # `_dependency_capture` group 2 is that `mod name;` declaration: galaxyscope records
+    # it as `./name`, a LOCAL token, so the supply-chain firewall and the typosquat radar
+    # never read a module file name as an external crate.
+    "local_module_capture_group": 2,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

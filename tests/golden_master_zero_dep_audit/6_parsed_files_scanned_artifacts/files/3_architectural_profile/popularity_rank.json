@@ -3068,10 +3068,10 @@
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 0,
-      "rust/tokio/blocking.rs": 0,
+      "rust/tokio/blocking.rs": 1,
       "rust/tokio/builder.rs": 0,
       "rust/tokio/config.rs": 0,
-      "rust/tokio/fuzz.rs": 0,
+      "rust/tokio/fuzz.rs": 1,
       "rust/tokio/interval.rs": 0,
       "rust/tokio/lib.rs": 1,
       "rust/tokio/maybe_done.rs": 0,

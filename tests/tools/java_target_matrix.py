@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import importlib.util
 import os
 import re
 import shutil
@@ -200,10 +201,10 @@ def main() -> int:
                 )
                 fh.write(f"### Generated Java: {args.corpus.name}: {verdict}\n\n{why}\n\n")
         return 0 if identical else 1
-    import gitgalaxy
-
-    if Path(gitgalaxy.__file__).resolve().parents[1] != REPO_ROOT:
-        print(f"error: imported gitgalaxy from {gitgalaxy.__file__}, not {REPO_ROOT}", file=sys.stderr)
+    spec = importlib.util.find_spec("gitgalaxy")
+    origin = Path(spec.origin).resolve() if spec and spec.origin else None
+    if origin is None or origin.parents[1] != REPO_ROOT:
+        print(f"error: gitgalaxy would be imported from {origin}, not {REPO_ROOT}", file=sys.stderr)
         return 2
     clean = refactor(args.corpus.resolve(), work, scan=args.scan)
     failed = 0

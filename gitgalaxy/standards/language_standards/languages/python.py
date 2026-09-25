@@ -80,6 +80,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '#' for line-level literature; multi-line literature
     # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "line_exclusive",
+    # #3545/#3544: imports resolve by Python's own module rule in network_risk_sensor.py:
+    # `a.b` is a/b.py or the package a/b/__init__.py under a source root, and a package name
+    # binds its __init__.py. A top-level key, not in `rules` (#2806).
+    "package_init_file": "__init__.py",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

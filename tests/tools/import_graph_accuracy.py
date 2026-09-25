@@ -56,7 +56,8 @@ RESOLUTION RULES (the language's, never the engine's)
   c, cpp      `#include "x/y.h"`: the including file's directory first, else any
               file ending in /x/y.h (the include path); `<x/y.h>` the latter only.
   java        `a.b.C` -> .../a/b/C.java; `a.b.*` -> files in .../a/b; a static
-              import drops the member.
+              import drops the member, and a nested class `a.b.Outer.Inner`
+              lives in .../a/b/Outer.java.
   javascript, typescript
               relative specifiers only (`./`, `../`): the path, with each JS/TS
               extension, a `.js` spelling of a `.ts` file, or its index file.
@@ -347,7 +348,12 @@ def java_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
             continue
         if text.split()[1:2] == ["static"] and len(parts) > 1:
             parts = parts[:-1]
-        out.append(group.suffix("/".join(parts) + ".java"))
+        targets = group.suffix("/".join(parts) + ".java")
+        # A nested class (`a.b.Outer.Inner`) lives in its outer class's file.
+        while not targets and len(parts) > 2 and parts[-2][:1].isupper():
+            parts = parts[:-1]
+            targets = group.suffix("/".join(parts) + ".java")
+        out.append(targets)
     return out
 
 

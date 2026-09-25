@@ -112,3 +112,13 @@ def test_rust_mod_declaration_follows_the_module_tree(tmp_path):
         {"src/lexical/mod.rs"},
     ]
     assert iga.rust_imports(b"mod num;\n", "src/lexical/mod.rs", g) == [{"src/lexical/num.rs"}]
+
+
+@needs_ts
+def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
+    g = _group(tmp_path, {"src/com/acme/TestTypes.java": "", "src/com/acme/Util.java": ""})
+    src = b"import com.acme.TestTypes.BagOfPrimitives;\nimport static com.acme.Util.helper;\n"
+    assert iga.java_imports(src, "src/com/acme/X.java", g) == [
+        {"src/com/acme/TestTypes.java"},
+        {"src/com/acme/Util.java"},
+    ]

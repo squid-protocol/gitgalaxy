@@ -38,6 +38,9 @@ DEFINITION: dict[str, Any] = {
     # "multi_style_dash" is the real family for this shape.
     # Rationale: Uses '--' for lines and '--[[ ... ]]' for blocks.
     "lexical_family": "multi_style_dash",
+    # #3544: `require "a.b"` is a/b.lua under a package.path root, so a candidate file must
+    # end in a/b even when it is the only b.lua (network_risk_sensor.py).
+    "import_path_mirrors_module_path": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

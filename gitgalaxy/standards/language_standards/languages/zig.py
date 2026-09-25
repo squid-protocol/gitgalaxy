@@ -31,6 +31,9 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 8 (Singular/Unique)
     # Rationale: Zig intentionally omits multi-line block comments to keep parsing simple, exclusively using '//'.
     "lexical_family": "line_exclusive",
+    # #3553: `@import("x.zig")` is a path relative to the importing file, so the network
+    # resolver tries dirname(importer)/x.zig before a name search.
+    "imports_resolve_from_importer_dir": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

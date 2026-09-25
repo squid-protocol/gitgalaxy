@@ -43,6 +43,12 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '//' for line-level literature; multi-line literature
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
+    # #3544: `import a.b.C` is .../a/b/C.java, so a candidate must end in a/b/C even when it
+    # is the only C.java (network_risk_sensor.py).
+    "import_path_mirrors_module_path": True,
+    # #3554: `import static a.b.C.member` and a nested `a.b.Outer.Inner` name something inside a
+    # class file; when the full name resolves to nothing the resolver retries the enclosing class.
+    "imports_may_name_member": True,
     # #3497: JCICS (com.ibm.cics.server) calls become CICS call sites and resource
     # operations (core/jcics.py) via mainframe_boundary's `java` dialect -- the
     # #3200 boundary_extraction pattern; a file without the import costs one scan.

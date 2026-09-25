@@ -62,6 +62,11 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '#' for single-line comments, but multi-line literature
     # utilizes the `=begin ... =end` block syntax, requiring hybrid parsing rules.
     "lexical_family": "line_exclusive",
+    # #3553: `require_relative 'x'` names a file beside the requiring one, so the network
+    # resolver tries dirname(importer)/x.rb before a name search. The capture does not keep
+    # require vs require_relative apart; a bare `require 'x'` only resolves this way when an
+    # x.rb sits beside the requirer.
+    "imports_resolve_from_importer_dir": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

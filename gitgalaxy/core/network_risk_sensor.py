@@ -4,6 +4,7 @@
 # ==============================================================================
 import logging
 import math
+import posixpath
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -57,6 +58,30 @@ SOURCE_MEMBER_IMPORT_LANGS = frozenset(
 # backtracking risk (single non-overlapping alternative, fixed-width group).
 LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
 
+# #3553: languages whose import is resolved against the IMPORTING file's own
+# directory before any search path -- C/C++/Objective-C `#include "x.h"`, Ruby
+# `require_relative`, Zig `@import("x.zig")`. Declared per language via the
+# "imports_resolve_from_importer_dir" flag on each DEFINITION. (A `./`/`../`
+# token is resolved that way in every language.)
+IMPORTER_DIR_FIRST_LANGS = frozenset(
+    lang_id
+    for lang_id, definition in LANGUAGE_DEFINITIONS.items()
+    if definition.get("imports_resolve_from_importer_dir")
+)
+
+# #3552: an ESM import spells a TypeScript source by its EMITTED name
+# (`./x.js` for x.ts); the compiler maps it back to one of these.
+_ESM_EMITTED_EXTS = frozenset({".js", ".jsx", ".mjs", ".cjs"})
+_ESM_SOURCE_EXTS = (".ts", ".tsx", ".mts", ".cts", ".d.ts", ".js", ".jsx", ".mjs", ".cjs")
+
+# #3544: languages whose dotted/compound import token IS the target's path
+# (`pkg.utils` lives at .../pkg/utils.*): a candidate must end in that path even
+# when it is the only file with the name. Declared per language via the
+# "import_path_mirrors_module_path" flag on each DEFINITION.
+MODULE_PATH_MIRROR_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("import_path_mirrors_module_path")
+)
+
 # #3037/#3038: the deterministic work budget for each hop-count path metric.
 # Closeness and average path length share one search; betweenness and Louvain
 # modularity (#3039) each run their own.
@@ -109,6 +134,10 @@ class NetworkRiskSensor:
         # graph phase. Candidate paths are drawn from the repo's ~N files, so
         # memoizing collapses those millions of computes to one per unique path.
         self._stem_cache: dict[str, str] = {}
+        # #3545/#3553: slash-normalized path -> the scan's own path string, for
+        # the location-based stages of _resolve_target. Rebuilt with the
+        # resolution map by _build_resolution_map.
+        self._by_norm_path: dict[str, str] = {}
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -119,10 +148,12 @@ class NetworkRiskSensor:
         across directories.
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
+        self._by_norm_path = {}
         for f in files:
             path = f.get("path", "")
             if not path:
                 continue
+            self._by_norm_path.setdefault(path.replace("\\", "/"), path)
             name = f.get("name", Path(path).name)
             stem = Path(path).stem
 
@@ -226,6 +257,56 @@ class NetworkRiskSensor:
         ambiguous stem from the repository's own facts. Without them the
         resolver behaves exactly as it did before #3199 and drops the edge.
         """
+        src_def = LANGUAGE_DEFINITIONS.get(src_lang or "", {})
+        # #3554: a language whose module separator is not `.` (perl
+        # `HTTP::Headers` -> HTTP/Headers.pm) spells the path with it.
+        separator = src_def.get("import_path_separator")
+        if separator:
+            target_token = target_token.replace(separator, "/")
+
+        # #3545: Python resolves a module by its own rule (source roots and
+        # package `__init__` files), never by a bare-stem search.
+        init_file = src_def.get("package_init_file")
+        if init_file:
+            return self._resolve_package_module(target_token, curr_path, resolution_map, init_file)
+
+        # #3553/#3552: a `./`/`../` token -- and any token of a language that
+        # searches the importing file's directory first -- names a location.
+        # Try it before the name search, which drops a name that repeats
+        # elsewhere in the repo even though the location pins it.
+        if target_token.replace("\\", "/").startswith(("./", "../")) or src_lang in IMPORTER_DIR_FIRST_LANGS:
+            located = self._resolve_from_importer_dir(target_token, curr_path, resolution_map, src_lang, file_facts)
+            if located is not None:
+                return located
+
+        resolved = self._resolve_by_name(
+            target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
+        )
+        # #3554: a Java `import static a.b.C.member` / nested `a.b.Outer.Inner`
+        # names something INSIDE a class file; when the full name resolves to
+        # nothing, the class it belongs to is the file.
+        if resolved is None and src_def.get("imports_may_name_member"):
+            parts = target_token.split(".")
+            for cut in range(1, min(3, len(parts) - 2) + 1):
+                resolved = self._resolve_by_name(
+                    ".".join(parts[:-cut]), resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
+                )
+                if resolved is not None:
+                    break
+        return resolved
+
+    def _resolve_by_name(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        curr_path: str,
+        folded_maps: Optional[dict[str, dict[str, list[str]]]],
+        fold_lang: Optional[str],
+        src_lang: Optional[str],
+        file_facts: Optional[dict[str, tuple[str, bool]]],
+    ) -> Optional[str]:
+        """The name search: a token's full path, file name or stem, disambiguated
+        by the path context the token carries (Stages 1-3 below)."""
         # The historical form: every dot becomes a separator, which is what
         # lets a package-style token ("pkg.utils") find utils.py.
         token_as_path = target_token.replace(".", "/").replace("\\", "/")
@@ -294,6 +375,17 @@ class NetworkRiskSensor:
 
         candidates = list(dict.fromkeys(candidates))  # de-dupe, preserve order
         if len(candidates) == 1:
+            # #3544: in a language whose import path IS the file path, a token
+            # that spells a package path (`starlette.requests`) only names a
+            # file ending in that path. The one local `requests.py` is somebody
+            # else's module, not a unique match.
+            if src_lang in MODULE_PATH_MIRROR_LANGS and "/" in match_cmp.strip("/"):
+                stem = self._stem_path(candidates[0])
+                cmp_path = match_cmp.strip("/")
+                if folded_hit:
+                    stem, cmp_path = stem.lower(), cmp_path.lower()
+                if not (stem == cmp_path or stem.endswith("/" + cmp_path)):
+                    return None
             return candidates[0]
 
         # Stage 2: multiple files share this name/stem — disambiguate using
@@ -343,6 +435,102 @@ class NetworkRiskSensor:
             f"files {candidates}; skipping edge from '{curr_path}'."
         )
         return None
+
+    def _resolve_from_importer_dir(
+        self,
+        target_token: str,
+        curr_path: str,
+        resolution_map: dict[str, list[str]],
+        src_lang: Optional[str],
+        file_facts: Optional[dict[str, tuple[str, bool]]],
+    ) -> Optional[str]:
+        """#3553/#3552: the file a token names RELATIVE TO THE IMPORTER, or None.
+
+        `dirname(importer)/token` exactly. A token without an extension
+        (`./db`, `require_relative 'request'`) then takes the one file with that
+        extension-less path, else that path's `index` file (`./lib` ->
+        lib/index.ts); a token spelled with an emitted JS extension also takes a
+        TypeScript source there -- `./x.js` is `x.ts` in an ESM package, whose
+        compiler maps the emitted name back (#3552). Any other extension names
+        exactly that file. Several same-path
+        files (`x.ts` beside `x.js`) are narrowed to the importer's language;
+        still several, and nothing is claimed.
+        """
+        token = target_token.replace("\\", "/")
+        base = posixpath.normpath(posixpath.join(posixpath.dirname(curr_path.replace("\\", "/")), token))
+        if base == ".." or base.startswith("../"):
+            return None
+        exact = self._by_norm_path.get(base)
+        if exact is not None:
+            return exact
+        # A token WITH an extension names that file: `<poll.h>` is never poll.c.
+        # The one exception is the ESM spelling of a TypeScript source (#3552).
+        ext = posixpath.splitext(base)[1].lower()
+        if ext and ext not in _ESM_EMITTED_EXTS:
+            return None
+        allowed = _ESM_SOURCE_EXTS if ext else None
+        for want in (_without_extension(base), posixpath.join(base, "index")):
+            name = posixpath.basename(want)
+            same = [
+                c
+                for c in dict.fromkeys(resolution_map.get(name, ()))
+                if self._stem_path(c) == want and (allowed is None or c.lower().endswith(allowed))
+            ]
+            if len(same) > 1 and file_facts:
+                same = [c for c in same if (file_facts.get(c) or ("", False))[0] == src_lang] or same
+            if len(same) == 1:
+                return same[0]
+        return None
+
+    def _resolve_package_module(
+        self,
+        target_token: str,
+        curr_path: str,
+        resolution_map: dict[str, list[str]],
+        init_file: str,
+    ) -> Optional[str]:
+        """#3545/#3544: Python's own module rule, or None.
+
+        `a.b` is `a/b.py` or the package `a/b/__init__.py` under a SOURCE ROOT --
+        a directory that is not itself a package (the repo root, `src/`, ...). So
+        `import types` is the stdlib, not `fastapi/types.py` (that file is
+        `fastapi.types`: `fastapi/` has an `__init__.py`), and `from fastapi
+        import X` is `fastapi/__init__.py`, which a stem search can never find.
+        Leading dots are relative to the importing package. Several matches
+        draw no edge (#261).
+        """
+        dotted = target_token.replace("\\", "/")
+        level = len(dotted) - len(dotted.lstrip("."))
+        parts = [p for p in dotted.lstrip(".").split(".") if p]
+        cur = curr_path.replace("\\", "/")
+        if level:
+            pkg = posixpath.dirname(cur).split("/") if posixpath.dirname(cur) else []
+            if level - 1 > len(pkg):
+                return None
+            root = "/".join(pkg[: len(pkg) - (level - 1)] + parts)
+            for rel in (root + ".py", posixpath.join(root, init_file) if root else init_file):
+                hit = self._by_norm_path.get(rel)
+                if hit is not None:
+                    return hit
+            return None
+        if not parts:
+            return None
+        rel = "/".join(parts)
+        matches = []
+        for tail in (rel + ".py", rel + ".pyi", rel + "/" + init_file):
+            for c in dict.fromkeys(resolution_map.get(posixpath.basename(tail), ())):
+                cn = c.replace("\\", "/")
+                if cn != tail and not cn.endswith("/" + tail):
+                    continue
+                prefix = cn[: -len(tail)].rstrip("/")
+                if prefix and posixpath.join(prefix, init_file) in self._by_norm_path:
+                    continue  # the match sits inside a package: it is `<pkg>.<rel>`, not `<rel>`
+                matches.append(c)
+        matches = list(dict.fromkeys(matches))
+        # Several source roots holding the same module (`service_a/utils.py`,
+        # `service_b/utils.py`) are the #261 case: which one wins is sys.path,
+        # which the repository does not record, so nothing is claimed.
+        return matches[0] if len(matches) == 1 else None
 
     def _narrow_ambiguous(
         self,

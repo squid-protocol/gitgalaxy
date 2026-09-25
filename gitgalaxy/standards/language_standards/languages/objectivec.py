@@ -49,6 +49,9 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 1 (Standard C-Style)
     # Rationale: Uses standard '//' for line-level literature and '/*' '*/' for blocks.
     "lexical_family": "standard_block",
+    # #3553: `#import "x.h"` is searched in the importing file's own directory first
+    # (network_risk_sensor.py tries dirname(importer)/x.h before a name search).
+    "imports_resolve_from_importer_dir": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"\b([a-zA-Z_]\w*)(?=\s*\(|:)"),

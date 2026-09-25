@@ -47,6 +47,10 @@ DEFINITION: dict[str, Any] = {
     # this; line_exclusive's real config has Ruby's =begin/=end but not
     # Perl's own POD markers. Known remaining gap, not fixed here.
     "lexical_family": "line_exclusive",
+    # #3554: `use A::B` is A/B.pm under an @INC root; `::` is the module path separator.
+    "import_path_separator": "::",
+    # #3544: ...and a candidate must end in A/B even when it is the only B.pm.
+    "import_path_mirrors_module_path": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

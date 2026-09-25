@@ -101,7 +101,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/numeric.c": [
         {
-          "Call Sites": 9,
+          "Call Sites": 7,
           "Calling Files": 1,
           "Kind": "function",
           "Name": "cob_gmp_free",
@@ -221,7 +221,7 @@
     "lua/redis": {
       "lua/redis/printf.lua": [
         {
-          "Call Sites": 192,
+          "Call Sites": 153,
           "Calling Files": 15,
           "Kind": "function",
           "Name": "printf",

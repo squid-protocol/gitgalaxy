@@ -1343,7 +1343,7 @@
       "go/core/proc.go": 1,
       "go/core/server.go": 0,
       "go/core/syscall_linux.go": 0,
-      "go/core/value.go": 4
+      "go/core/value.go": 3
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0,
@@ -2240,7 +2240,7 @@
       "lua/cosmopolitan/crashreport.lua": 0,
       "lua/cosmopolitan/cstack.lua": 3,
       "lua/cosmopolitan/db.lua": 3,
-      "lua/cosmopolitan/errors.lua": 20,
+      "lua/cosmopolitan/errors.lua": 19,
       "lua/cosmopolitan/events.lua": 6,
       "lua/cosmopolitan/fetch.lua": 0,
       "lua/cosmopolitan/files.lua": 3,
@@ -2313,7 +2313,7 @@
       "lua/pandoc/inlines-filter.lua": 0,
       "lua/pandoc/manfilter.lua": 0,
       "lua/pandoc/markdown-reader.lua": 0,
-      "lua/pandoc/math.lua": 23,
+      "lua/pandoc/math.lua": 22,
       "lua/pandoc/pandoc-format.lua": 0,
       "lua/pandoc/pandoc-image.lua": 0,
       "lua/pandoc/pandoc-json.lua": 0,
@@ -3378,7 +3378,7 @@
       "shell/serenity/SDLPoP__package.sh": 0,
       "shell/serenity/SDL_mixer__package.sh": 0,
       "shell/serenity/analyze-qemu-coverage.sh": 0,
-      "shell/serenity/builtin.sh": 23,
+      "shell/serenity/builtin.sh": 19,
       "shell/serenity/embedmap.sh": 0,
       "shell/serenity/install.sh": 0,
       "shell/serenity/package.sh": 3,
@@ -3588,7 +3588,7 @@
       "tcl/macports_port_api/portmain.tcl": 0
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": 1,
+      "tcl/macports_registry/common.tcl": 0,
       "tcl/macports_registry/depends.tcl": 0,
       "tcl/macports_registry/entry.tcl": 0,
       "tcl/macports_registry/portimage.tcl": 3,
@@ -3758,7 +3758,7 @@
     },
     "yaml/ansible/yaml_parsing/tasks": {
       "yaml/ansible/yaml_parsing/tasks/main.yml": 0,
-      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 9
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": 8
     },
     "yaml/black_action": {
       "yaml/black_action/action.yml": 0
@@ -3829,18 +3829,18 @@
       "zig/tigerbeetle/state_machine.zig": 0
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 7,
-      "zig/zig/InternPool.zig": 7,
-      "zig/zig/Type.zig": 7,
-      "zig/zig/Zcu.zig": 7,
+      "zig/zig/Compilation.zig": 4,
+      "zig/zig/InternPool.zig": 4,
+      "zig/zig/Type.zig": 4,
+      "zig/zig/Zcu.zig": 4,
       "zig/zig/main.zig": 0
     },
     "zig/zls": {
-      "zig/zls/DocumentScope.zig": 4,
-      "zig/zls/DocumentStore.zig": 3,
-      "zig/zls/Server.zig": 1,
-      "zig/zls/analysis.zig": 3,
-      "zig/zls/ast.zig": 5,
+      "zig/zls/DocumentScope.zig": 3,
+      "zig/zls/DocumentStore.zig": 2,
+      "zig/zls/Server.zig": 0,
+      "zig/zls/analysis.zig": 2,
+      "zig/zls/ast.zig": 4,
       "zig/zls/config_gen.zig": 0,
       "zig/zls/print_ast.zig": 0
     },
@@ -3849,7 +3849,7 @@
       "zig/zls/mach/StringTable.zig": 2,
       "zig/zls/mach/collision.zig": 0,
       "zig/zls/mach/graph.zig": 2,
-      "zig/zls/mach/main.zig": 36,
+      "zig/zls/mach/main.zig": 33,
       "zig/zls/mach/module.zig": 1,
       "zig/zls/mach/testing.zig": 23,
       "zig/zls/mach/win32.zig": 0

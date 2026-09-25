@@ -3063,7 +3063,7 @@
       "rust/syn/custom_keyword.rs": 7,
       "rust/syn/custom_punctuation.rs": 7,
       "rust/syn/data.rs": 4,
-      "rust/syn/derive.rs": 0
+      "rust/syn/derive.rs": 1
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 0,

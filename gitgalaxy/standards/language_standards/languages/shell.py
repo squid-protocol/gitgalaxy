@@ -57,6 +57,10 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 3 (Pure Hash)
     # Rationale: Relies strictly on '#' for line-level Commented / Non-Executable Text; no native block delimiters.
     "lexical_family": "line_exclusive",
+    # #3598: `source "$DIR/lib/x.sh"` -- the variable is configuration. Only the literal
+    # path after the last expansion names the file, and only as a whole path tail
+    # (network_risk_sensor.py); `~/...` is the user's home, never the repository.
+    "import_path_may_start_with_variable": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_UNSUPPORTED,

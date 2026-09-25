@@ -97,6 +97,17 @@ MODULE_PATH_MIRROR_LANGS = frozenset(
 # segment (`ejs`, `lodash`, `node:fs`) is a package. Anchored, fixed alternatives.
 _JS_ALIAS_PREFIX = re.compile(r"^(?:@/|~/|#)")
 
+# #3596: languages whose import may name a DECLARATION (a Kotlin top-level
+# function or property) that lives in a file not named after it. Declared per
+# language via the "imports_may_name_declaration" flag.
+DECLARATION_IMPORT_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_may_name_declaration")
+)
+
+# #3597: a URI scheme a language resolves as a package (`dart:io`, `package:`);
+# the scheme name alone, anchored and bounded.
+_URI_SCHEME = re.compile(r"[a-z][a-z0-9+.-]{0,31}:")
+
 # #3037/#3038: the deterministic work budget for each hop-count path metric.
 # Closeness and average path length share one search; betweenness and Louvain
 # modularity (#3039) each run their own.
@@ -107,6 +118,13 @@ _JS_ALIAS_PREFIX = re.compile(r"^(?:@/|~/|#)")
 # 500 -- on graphs like the 2,817-file language-crucible one, whose searches take
 # about 2 ms each.
 PATH_METRICS_WORK_BUDGET = 50_000_000
+
+
+def _is_test_path(path: str) -> bool:
+    """A test source file, by the same structural heuristic the test-coverage
+    map uses (a test directory, or a test_/_test/.spec./.test. name)."""
+    low = "/" + path.replace("\\", "/").lower()
+    return any(x in low for x in ("/test/", "/tests/", "test/", "test_", "_test", ".spec.", ".test.", "tests/"))
 
 
 def _without_extension(path_str: str) -> str:
@@ -153,6 +171,8 @@ class NetworkRiskSensor:
         # the location-based stages of _resolve_target. Rebuilt with the
         # resolution map by _build_resolution_map.
         self._by_norm_path: dict[str, str] = {}
+        # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
+        self._declared_in: dict[str, list[str]] = defaultdict(list)
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -164,11 +184,19 @@ class NetworkRiskSensor:
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
+        self._declared_in = defaultdict(list)
         for f in files:
             path = f.get("path", "")
             if not path:
                 continue
             self._by_norm_path.setdefault(path.replace("\\", "/"), path)
+            # #3596: where each declaration lives, for languages whose import
+            # names a declaration rather than a file (Kotlin top-level functions).
+            if str(f.get("lang_id", "")).lower() in DECLARATION_IMPORT_LANGS:
+                for unit in (f.get("functions") or []) + (f.get("classes") or []):
+                    name = unit.get("name") if isinstance(unit, dict) else None
+                    if name:
+                        self._declared_in[name].append(path)
             name = f.get("name", Path(path).name)
             stem = Path(path).stem
 
@@ -303,6 +331,30 @@ class NetworkRiskSensor:
             if _MODULE_NAME.fullmatch(module):
                 return self._resolve_module_tree(module, curr_path)
 
+        # #3597: Dart `package:name/path.dart` is <name>/lib/path.dart, found as a
+        # path tail; any other scheme (`dart:io`) is the SDK.
+        scheme = src_def.get("import_package_scheme")
+        if scheme and _URI_SCHEME.match(target_token):
+            if not target_token.startswith(scheme):
+                return None
+            name, _, rest = target_token[len(scheme) :].partition("/")
+            return self._resolve_path_tail(f"{name}/lib/{rest}", resolution_map) if name and rest else None
+
+        # #3598: `source "$DIR/lib/x.sh"` -- only the literal path after the last
+        # variable names the file; `~/...` is the user's home directory.
+        if src_def.get("import_path_may_start_with_variable") and (target_token.startswith("~") or "$" in target_token):
+            return self._resolve_variable_path(target_token, curr_path, resolution_map)
+
+        # #3595: a Scala wildcard (`io.circe.syntax._`) of a package object is
+        # that package's package.scala; of an object, the object's file (the
+        # name search below, on the token without its wildcard).
+        package_object = src_def.get("package_object_file")
+        if package_object and target_token.endswith(("._", ".*")):
+            target_token = target_token[:-2]
+            owned = self._resolve_path_tail(f"{target_token.replace('.', '/')}/{package_object}", resolution_map)
+            if owned is not None:
+                return owned
+
         # #3553/#3552: a `./`/`../` token -- and any token of a language that
         # searches the importing file's directory first -- names a location.
         # Try it before the name search, which drops a name that repeats
@@ -331,11 +383,20 @@ class NetworkRiskSensor:
         if resolved is None and src_def.get("imports_may_name_member"):
             parts = target_token.split(".")
             for cut in range(1, min(3, len(parts) - 2) + 1):
+                # The owner of a member or nested class is a CLASS: `java.util.X`
+                # failing never makes `java.util` (a lone util.kt) its file.
+                if not parts[-cut - 1][:1].isupper():
+                    continue
                 resolved = self._resolve_by_name(
                     ".".join(parts[:-cut]), resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
                 )
                 if resolved is not None:
                     break
+        # #3596: a Kotlin top-level function/property (`a.b.asName`) lives in a
+        # file not named after it: the one file that declares it under a
+        # directory mirroring its package.
+        if resolved is None and src_def.get("imports_may_name_declaration"):
+            resolved = self._resolve_declaration(target_token, curr_path, file_facts, src_lang)
         return resolved
 
     def _resolve_by_name(
@@ -602,6 +663,61 @@ class NetworkRiskSensor:
             if len(same) == 1:
                 return same[0]
         return None
+
+    def _resolve_path_tail(self, tail: str, resolution_map: dict[str, list[str]]) -> Optional[str]:
+        """The one file whose path ends with the whole `tail`, or None."""
+        tail = tail.strip("/")
+        name = tail.rsplit("/", 1)[-1]
+        same = [c for c in dict.fromkeys(resolution_map.get(name, ())) if self._path_ends_with(c, tail)]
+        return same[0] if len(same) == 1 else None
+
+    def _resolve_variable_path(
+        self, target_token: str, curr_path: str, resolution_map: dict[str, list[str]]
+    ) -> Optional[str]:
+        """#3598: a shell path behind a variable. What follows the last expansion's
+        first `/` is literal: a bare name is tried beside the importing file (the
+        common `$DIR` = the script's own directory), and any tail must be a whole
+        path tail of one file. The stem alone never decides -- `$rvm_path/scripts/
+        completion` is not lib/completion.bash."""
+        if target_token.startswith("~"):
+            return None
+        tail = target_token[target_token.rfind("$") :]
+        slash = tail.find("/")
+        if slash == -1:
+            return None
+        tail = tail[slash + 1 :].strip("/\"' ")
+        if not tail:
+            return None
+        if "/" not in tail:
+            beside = self._by_norm_path.get(posixpath.join(posixpath.dirname(curr_path.replace("\\", "/")), tail))
+            if beside is not None:
+                return beside
+        return self._resolve_path_tail(tail, resolution_map)
+
+    def _resolve_declaration(
+        self,
+        target_token: str,
+        curr_path: str,
+        file_facts: Optional[dict[str, tuple[str, bool]]],
+        src_lang: Optional[str],
+    ) -> Optional[str]:
+        """#3596: `a.b.name` -> the one file of the importer's language that
+        declares `name` and sits under a directory ending in a/b."""
+        parts = target_token.split(".")
+        if len(parts) < 2:
+            return None
+        package_dir = "/".join(parts[:-1])
+        hits = [
+            c
+            for c in dict.fromkeys(self._declared_in.get(parts[-1], ()))
+            if self._path_ends_with(posixpath.dirname(c.replace("\\", "/")), package_dir)
+            and (not file_facts or (file_facts.get(c) or ("", False))[0] == src_lang)
+        ]
+        # A test's helper of the same name is not what production code imports
+        # (a Kotlin test `fun joinToCode()` beside an unextracted main one).
+        if not _is_test_path(curr_path):
+            hits = [c for c in hits if not _is_test_path(c)]
+        return hits[0] if len(hits) == 1 else None
 
     def _resolve_literal_file(self, target_token: str, resolution_map: dict[str, list[str]]) -> Optional[str]:
         """The one file whose name is exactly the token's last segment and whose

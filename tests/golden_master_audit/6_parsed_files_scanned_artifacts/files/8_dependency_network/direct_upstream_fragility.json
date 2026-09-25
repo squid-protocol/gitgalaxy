@@ -3030,9 +3030,9 @@
     },
     "rust/bevy": {
       "rust/bevy/bevy_ecs_macros.rs": 31,
-      "rust/bevy/bevy_ecs_query.rs": 51,
+      "rust/bevy/bevy_ecs_query.rs": 55,
       "rust/bevy/bevy_ecs_table.rs": 6,
-      "rust/bevy/bevy_ecs_world.rs": 166,
+      "rust/bevy/bevy_ecs_world.rs": 163,
       "rust/bevy/bevy_reflect_path.rs": 9,
       "rust/bevy/bevy_render_phase.rs": 5,
       "rust/bevy/bevy_schedule_graph.rs": 8
@@ -3047,8 +3047,8 @@
       "rust/holylang/transpiler.rs": 11
     },
     "rust/serde": {
-      "rust/serde/serde_core_de_impls.rs": 19,
-      "rust/serde/serde_core_de_mod.rs": 31,
+      "rust/serde/serde_core_de_impls.rs": 17,
+      "rust/serde/serde_core_de_mod.rs": 28,
       "rust/serde/serde_core_macros.rs": 5,
       "rust/serde/serde_derive_de.rs": 42,
       "rust/serde/serde_internals_ast.rs": 7,
@@ -3069,15 +3069,15 @@
       "rust/tokio/addr_of.rs": 0,
       "rust/tokio/block_on.rs": 1,
       "rust/tokio/blocking.rs": 8,
-      "rust/tokio/builder.rs": 45,
+      "rust/tokio/builder.rs": 41,
       "rust/tokio/config.rs": 3,
       "rust/tokio/fuzz.rs": 1,
-      "rust/tokio/interval.rs": 18,
+      "rust/tokio/interval.rs": 19,
       "rust/tokio/lib.rs": 32,
-      "rust/tokio/maybe_done.rs": 13,
+      "rust/tokio/maybe_done.rs": 10,
       "rust/tokio/tests.rs": 11,
       "rust/tokio/tokio_mpsc_bounded.rs": 24,
-      "rust/tokio/tokio_named_pipe.rs": 51
+      "rust/tokio/tokio_named_pipe.rs": 44
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 5,

@@ -38,6 +38,13 @@ DEFINITION: dict[str, Any] = {
     # Rationale: (CORRECTION) Like Swift and Rust, Dart officially supports nested multi-line
     # comments (/* /* */ */). Standard C parsing would prematurely terminate here causing geometry failure.
     "lexical_family": "standard_block",
+    # #3597: `package:name/path.dart` is <the name package>/lib/path.dart. A package sits
+    # in a directory named after it by convention, so the resolver matches the path tail
+    # `name/lib/path.dart`; `dart:` is the SDK. Neither ever falls to a name search.
+    "import_package_scheme": "package:",
+    # A relative URI (`import 'src/client.dart'`) names a file beside the importer; the
+    # same name repeats across a monorepo's packages.
+    "imports_resolve_from_importer_dir": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)

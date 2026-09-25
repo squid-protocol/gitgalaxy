@@ -514,6 +514,28 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertNotIn("sec_homoglyphs", scope.ram_cache["src/nodes.py"].get("equations", {}))
 
     # ==============================================================================
+    # TEST 8.56: A `crate::` PATH IS NEVER A TYPOSQUAT (#3595)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_typosquatting_radar_skips_crate_local_paths(self, mock_logger):
+        """`use crate::component::{Component, Components}` is two full paths since
+        #3595. A `crate::` path names this crate by keyword; bevy's world.rs was
+        flagged for `Components` mimicking `Component`."""
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {"rust": {"local_import_prefixes": ("crate::",), "rules": {}}}
+        scope = Orchestrator(".", self.mock_config)
+        scope.ram_cache = {
+            "src/a.rs": {"lang_id": "rust", "raw_imports": {"crate::component::Component"}},
+            "src/b.rs": {"lang_id": "rust", "raw_imports": {"crate::component::Component"}},
+            "src/c.rs": {"lang_id": "rust", "raw_imports": {"crate::component::Component"}},
+            "src/world.rs": {"lang_id": "rust", "raw_imports": {"crate::component::Components"}},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        scope._resolve_dependency_graph()
+
+        self.assertNotIn("sec_homoglyphs", scope.ram_cache["src/world.rs"].get("equations", {}))
+
+    # ==============================================================================
     # TEST 8.6: THE CONTEXTUAL BASELINE FIX READS A CASE-FOLDED EDGE (#2871)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.logger")

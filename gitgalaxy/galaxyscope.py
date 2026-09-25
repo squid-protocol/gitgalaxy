@@ -277,14 +277,70 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
             continue
         extracted_path = next((g for g in match.groups() if g), None)
         if extracted_path:
-            # Handle comma-separated blocks and brackets (e.g., Rust/Scala: {A, B}, Python: a, b as c)
-            clean_group = extracted_path.replace("{", "").replace("}", "")
-            for item in clean_group.split(","):
-                # Strip 'as alias' and whitespace to isolate the pure module name
-                clean_module = re.split(r"\s+as\s+", item)[0].strip()
-                if clean_module:
-                    tokens.add(clean_module)
+            # Comma-separated lists (Python `a, b as c`) and brace selectors (Scala
+            # `a.b.{C, D => E}`, Rust `a::{b, c::{d}}`, PHP `A\\{B, C}`), each
+            # item with its `as` / `=>` alias dropped.
+            if _SELECTOR_GROUP.search(extracted_path):
+                items = _expand_import_selectors(extracted_path)
+            else:
+                items = [
+                    re.split(r"\s+as\s+", item)[0].strip()
+                    for item in extracted_path.replace("{", "").replace("}", "").split(",")
+                ]
+            for item in items:
+                if item:
+                    tokens.add(item)
     return tokens
+
+
+# #3595: a brace selector group opens right after an import-path separator
+# (`a.b.{`, `a::{`, `A\\{`). Only then is a brace a group; `${VAR}` and an HTML
+# `{{ placeholder }}` are not, and keep the plain comma split.
+_SELECTOR_GROUP = re.compile(r"(?:\.|::|\\)[ \t]*\{")
+
+
+def _split_top_level(text: str) -> list[str]:
+    """`text` split on the commas that are not inside braces."""
+    parts, depth, start = [], 0, 0
+    for i, ch in enumerate(text):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            parts.append(text[start:i])
+            start = i + 1
+    parts.append(text[start:])
+    return parts
+
+
+def _expand_import_selectors(text: str, depth: int = 0) -> list[str]:
+    """#3595: `io.circe.{ Decoder, Json }` is `io.circe.Decoder` and
+    `io.circe.Json` -- the prefix before a brace applies to every selector in
+    it. Deleting the braces and splitting on commas (the old reading) gave
+    `io.circe. Decoder` and a bare `Json`, neither of which resolves. Nested
+    groups recurse (bounded); a Rust `self` selector names the prefix itself."""
+    out: list[str] = []
+    for part in _split_top_level(text):
+        part = part.strip()
+        brace = part.find("{")
+        # A selector group follows a path separator (`a.b.{`, `a::{`, `A\\{`) or
+        # opens the item; `${VAR}` (shell, PowerShell) is an expansion, not one.
+        if brace == 0 or (brace > 0 and part[:brace].rstrip()[-1:] not in (".", ":", "\\")):
+            brace = -1
+        if brace == -1 or depth > 8:
+            leaf = re.split(r"\s+as\s+|\s*=>\s*", part)[0].replace("{", "").replace("}", "").strip()
+            if leaf:
+                out.append(leaf)
+            continue
+        prefix = re.sub(r"\s+", "", part[:brace])
+        inner = part[brace + 1 : part.rfind("}") if part.rfind("}") > brace else len(part)]
+        for item in _expand_import_selectors(inner, depth + 1):
+            if item == "self":
+                out.append(prefix.rstrip(":.\\/"))
+            elif item:
+                out.append(prefix + item)
+    return out
 
 
 def _process_file_worker(rel_path: str) -> dict[str, Any]:
@@ -2308,6 +2364,14 @@ class Orchestrator:
         # Languages whose `.`-led tokens are local by construction: Rust's
         # `./name` module declarations (#3554) and Python's relative imports,
         # including the `.name` form `relative_import_groups` records.
+        # A path that names the current crate/module (Rust `crate::`, `self::`,
+        # `super::`) is local by the language's own keyword -- never a package a
+        # typosquat could mimic (#3595 made `crate::a::{B, C}` full paths).
+        local_path_prefixes = {
+            lid: tuple(ldef.get("local_import_prefixes") or ())
+            for lid, ldef in self.config.get("LANGUAGE_DEFINITIONS", {}).items()
+            if isinstance(ldef, dict) and ldef.get("local_import_prefixes")
+        }
         local_module_langs = {
             lid
             for lid, ldef in self.config.get("LANGUAGE_DEFINITIONS", {}).items()
@@ -2408,8 +2472,10 @@ class Orchestrator:
                 # (`.name`, `..pkg.mod`) is never an external package -- the
                 # typosquat radar read cython's `from . import Options` as a
                 # package mimicking `Option`.
-                if not matched_internal and not (
-                    raw_import.startswith(".") and str(meta.get("lang_id", "")).lower() in local_module_langs
+                if (
+                    not matched_internal
+                    and not (raw_import.startswith(".") and str(meta.get("lang_id", "")).lower() in local_module_langs)
+                    and not raw_import.startswith(local_path_prefixes.get(str(meta.get("lang_id", "")).lower(), ()))
                 ):
                     if clean_path not in external_imports_tally:
                         external_imports_tally[clean_path] = []

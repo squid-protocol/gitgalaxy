@@ -20,13 +20,13 @@
     "repos": "fmtlib/fmt"
   },
   "dart": {
-    "engine_edges": 566,
+    "engine_edges": 674,
     "files": 332,
-    "fn": 143,
-    "fp": 5,
+    "fn": 35,
+    "fp": 6,
     "imports": 744,
     "precision_pct": 99.1,
-    "recall_pct": 80.8,
+    "recall_pct": 95.3,
     "repos": "dart-lang/http"
   },
   "go": {
@@ -70,13 +70,13 @@
     "repos": "expressjs/express"
   },
   "kotlin": {
-    "engine_edges": 147,
+    "engine_edges": 211,
     "files": 131,
-    "fn": 143,
-    "fp": 0,
+    "fn": 18,
+    "fp": 2,
     "imports": 377,
-    "precision_pct": 100.0,
-    "recall_pct": 62.1,
+    "precision_pct": 99.1,
+    "recall_pct": 95.2,
     "repos": "square/kotlinpoet"
   },
   "lua": {
@@ -140,33 +140,33 @@
     "repos": "rack/rack"
   },
   "rust": {
-    "engine_edges": 38,
+    "engine_edges": 36,
     "files": 71,
     "fn": 0,
-    "fp": 2,
+    "fp": 0,
     "imports": 37,
-    "precision_pct": 94.7,
+    "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "serde-rs/json"
   },
   "scala": {
-    "engine_edges": 322,
+    "engine_edges": 489,
     "files": 233,
-    "fn": 674,
-    "fp": 2,
+    "fn": 458,
+    "fp": 9,
     "imports": 1006,
-    "precision_pct": 99.4,
-    "recall_pct": 33.0,
+    "precision_pct": 98.2,
+    "recall_pct": 54.5,
     "repos": "circe/circe"
   },
   "shell": {
-    "engine_edges": 24,
+    "engine_edges": 28,
     "files": 362,
-    "fn": 7,
-    "fp": 3,
+    "fn": 0,
+    "fp": 0,
     "imports": 28,
-    "precision_pct": 87.5,
-    "recall_pct": 75.0,
+    "precision_pct": 100.0,
+    "recall_pct": 100.0,
     "repos": "Bash-it/bash-it"
   },
   "solidity": {

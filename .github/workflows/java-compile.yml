@@ -13,6 +13,14 @@ name: Generated Java Compiles
 #
 # Runs when the generator or what feeds it changes, on push to main, weekly
 # (dependency drift on Maven Central), and on demand.
+#
+# On a pull request, each job first asks whether the PR changes the generated Java
+# at all (java_target_matrix.py --same-as): it generates both paths with the PR's
+# code and with the base branch's code and compares every file. Identical output
+# needs no compile -- the base already compiles (push to main builds it) -- so the
+# JDK / Gradle setup and both builds are skipped and the summary says why. Any
+# difference, or a side that fails to generate, builds as before. Pushes, the
+# weekly run and manual runs always build.
 
 on:
   pull_request:
@@ -88,19 +96,6 @@ jobs:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Setup JDK 17 and 21
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: temurin
-          java-version: |
-            21
-            17
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
-        with:
-          gradle-version: "8.10.2"
-
       - name: Install GitGalaxy
         run: |
           cd gitgalaxy
@@ -113,20 +108,63 @@ jobs:
           path: .mainframe_corpora
           key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
 
-      - name: Cache Maven dependencies
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.m2/repository
-          key: java-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
-          restore-keys: java-compile-m2-
-
       - name: Fetch the pinned corpora
         run: |
           cd gitgalaxy
           rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
           PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
 
+      - name: Checkout the base branch (pull requests)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
+
+      - name: Is the generated Java unchanged? (pull requests)
+        id: same
+        if: github.event_name == 'pull_request'
+        continue-on-error: true  # "changed" (exit 1) just means: build
+        env:
+          CORPUS: ${{ matrix.corpus }}
+          CONFIGS: ${{ matrix.configs }}
+        run: |
+          cd gitgalaxy
+          ONLY=()
+          if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          python tests/tools/java_target_matrix.py \
+            "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            --same-as "$GITHUB_WORKSPACE/base" \
+            --work "$RUNNER_TEMP/java_same" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            "${ONLY[@]}"
+
+      - name: Setup JDK 17 and 21
+        if: steps.same.outputs.identical != 'true'
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            17
+
+      - name: Setup Gradle
+        if: steps.same.outputs.identical != 'true'
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
+        with:
+          gradle-version: "8.10.2"
+
+      - name: Cache Maven dependencies
+        if: steps.same.outputs.identical != 'true'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: java-compile-m2-${{ hashFiles('gitgalaxy/gitgalaxy/tools/cobol_to_java/cobol_to_java_build_forge.py', 'gitgalaxy/tests/tools/java_target_matrix.py') }}
+          restore-keys: java-compile-m2-
+
       - name: Generate and compile
+        if: steps.same.outputs.identical != 'true'
         env:
           CORPUS: ${{ matrix.corpus }}
           CONFIGS: ${{ matrix.configs }}
@@ -143,7 +181,8 @@ jobs:
             "${ONLY[@]}"
 
       - name: Generate and compile (engine scan, verified skeleton)
-        if: ${{ !cancelled() }}  # report both paths even when the first fails
+        # report both paths even when the first fails; skipped when the Java is unchanged
+        if: ${{ !cancelled() && steps.same.outputs.identical != 'true' }}
         env:
           CORPUS: ${{ matrix.corpus }}
           CONFIGS: ${{ matrix.configs }}

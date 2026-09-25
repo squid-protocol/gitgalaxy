@@ -24,7 +24,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier as _java_field_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
@@ -304,9 +304,11 @@ def render_dto_class(
     requires_list: bool,
     target: JavaTarget,
     javadoc: Optional[list[str]] = None,
+    methods: Optional[Callable[[bool], list[str]]] = None,
 ) -> str:
     """A DTO from its field lines (`_render_field` shape: `//` comments and `    private T name;`),
-    in the target's style: a Lombok class, a plain class with accessors, or a Java record."""
+    in the target's style: a Lombok class, a plain class with accessors, or a Java record.
+    `methods(is_record)` adds method lines inside the class / record body (#3655)."""
     t = target
     java = []
     java.append(f"package {package};\n")
@@ -339,6 +341,7 @@ def render_dto_class(
         java.append(f"public record {class_name}(")
         java.extend(decl)
         java.append(") {")
+        java.extend(methods(True) if methods else [])
         java.append("}")
         return "\n".join(java)
 
@@ -349,7 +352,7 @@ def render_dto_class(
     java.extend(body)
     if not use_lombok:
         java.extend(_accessors(class_name, _declared_fields(body)))
-
+    java.extend(methods(False) if methods else [])
     java.append("}")
     return "\n".join(java)
 

@@ -1494,10 +1494,14 @@ class RecordKeeper:
                 source_refmod INTEGER,
                 target_refmod INTEGER,
                 line_number INTEGER,
+                source_refmod_text TEXT,
+                target_refmod_text TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_file_id ON data_move_data(file_id);")
+        # #3655: the reference modifications as written, added to a pre-#3655 DB in place.
+        _ensure_columns(cursor, "data_move_data", ["source_refmod_text TEXT", "target_refmod_text TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
@@ -3331,6 +3335,8 @@ class RecordKeeper:
                 "source_refmod",
                 "target_refmod",
                 "line_number",
+                "source_refmod_text",
+                "target_refmod_text",
             ),
             "data_moves",
             lambda m: (
@@ -3342,6 +3348,8 @@ class RecordKeeper:
                 int(bool(m.get("source_refmod"))),
                 int(bool(m.get("target_refmod"))),
                 int(m.get("line", 0) or 0),
+                m.get("source_refmod_text"),
+                m.get("target_refmod_text"),
             ),
         )
 

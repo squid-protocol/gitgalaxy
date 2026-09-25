@@ -180,3 +180,5 @@ tests/telemetry_out/
 
 # Force tracking of the Dead Key Auditor baseline (#325) despite global *.json ignore
 !tests/dead_key_audit_baseline.json
+# The local Java toolchain (scripts/setup_java_toolchain.sh, #3654)
+.tools/

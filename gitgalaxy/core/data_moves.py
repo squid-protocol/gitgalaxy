@@ -24,6 +24,10 @@
 #   corresponding  MOVE CORRESPONDING (group to group, by matching names)
 #   source_refmod / target_refmod  the operand carries a reference modification
 #               (`X(1:5)`); a subscript (`X(I)`) is dropped and is not a source
+#   source_refmod_text / target_refmod_text  that reference modification as
+#               written, `start:length` whitespace-collapsed (#3655:
+#               `LENGTH OF CARDDEMO-COMMAREA + 1:LENGTH OF WS-THIS-PROGCOMMAREA`
+#               is how a CICS program unpacks its COMMAREA); None without one
 #
 # Per verb: MOVE a TO t...; COMPUTE t... = expr (every data name in expr);
 # ADD / SUBTRACT a... TO|FROM t... (a -> t), or with GIVING g... (a and the
@@ -126,9 +130,10 @@ class _Stream:
         t = self.peek()
         return self.i >= self.end or t == "." or t in _VERBS or t in _END_WORDS
 
-    def operand(self) -> Optional[tuple[str, str, bool]]:
+    def operand(self) -> Optional[tuple[str, str, Any]]:
         """(text, kind, refmod) of the operand at the cursor, advancing past it, or
-        None (cursor unmoved) when the cursor is not at an operand."""
+        None (cursor unmoved) when the cursor is not at an operand. `refmod` is the
+        reference modification as written (`1:5`) -- truthy -- or False."""
         t = self.peek()
         if not t or t == "." or t in _VERBS or t in _STOPS or t in _END_WORDS:
             return None
@@ -169,9 +174,12 @@ class _Stream:
         while self.peek() in ("OF", "IN") and re.fullmatch(_WORD, self.peek(1), re.I):
             name += f" OF {self.peek(1)}"
             self.i += 2
-        refmod = False
+        refmod: Any = False
         while self.peek() == "(":
-            refmod = self._skip_parens() or refmod
+            start = self.i
+            if self._skip_parens():
+                refmod = " ".join(tok[0] for tok in self.toks[start + 1 : self.i - 1]).upper()
+                refmod = re.sub(r"\s*:\s*", ":", refmod)
         return name, "item", refmod
 
     def _skip_parens(self) -> bool:
@@ -380,7 +388,9 @@ def data_moves(code_stream: str) -> list[dict[str, Any]]:
                     "target": target[0],
                     "corresponding": corr,
                     "source_refmod": bool(src and src[2]),
-                    "target_refmod": target[2],
+                    "target_refmod": bool(target[2]),
+                    "source_refmod_text": src[2] if src and isinstance(src[2], str) else None,
+                    "target_refmod_text": target[2] if isinstance(target[2], str) else None,
                     "line": line,
                 }
             )

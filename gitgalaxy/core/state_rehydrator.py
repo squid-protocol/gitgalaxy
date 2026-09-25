@@ -948,13 +948,20 @@ class StateRehydrator:
                 )
 
                 # #3452: field-level data movement.
+                # #3655: the refmod texts; a pre-#3655 DB has neither column.
+                refmod_cols = (
+                    "dm.source_refmod_text, dm.target_refmod_text"
+                    if _has_table(cursor, "data_move_data")
+                    and _has_column(cursor, "data_move_data", "source_refmod_text")
+                    else "NULL AS source_refmod_text, NULL AS target_refmod_text"
+                )
                 moves_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "data_move_data",
-                    "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "
-                    'dm.source_refmod, dm.target_refmod, dm.line_number AS "line" '
+                    "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "  # noqa: S608 -- refmod_cols is one of two literals
+                    f'dm.source_refmod, dm.target_refmod, dm.line_number AS "line", {refmod_cols} '
                     "FROM data_move_data dm JOIN file_data fd ON dm.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dm.id",
                     lambda r: {
@@ -966,6 +973,8 @@ class StateRehydrator:
                         "source_refmod": bool(r["source_refmod"]),
                         "target_refmod": bool(r["target_refmod"]),
                         "line": int(r["line"] or 0),
+                        "source_refmod_text": r["source_refmod_text"],
+                        "target_refmod_text": r["target_refmod_text"],
                     },
                 )
 

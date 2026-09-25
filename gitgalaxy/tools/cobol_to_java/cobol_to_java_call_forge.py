@@ -147,6 +147,15 @@ class CallForge:
         prog = self.cics.programs.get(key)
         return self.cics.link_types(prog) if prog is not None else (None, None)
 
+    def _prefix_type(self, passed: str | None, callee: str) -> str | None:
+        """#3655: the leading segment's DTO when the site passes exactly the record an unpacked
+        COMMAREA starts with (CardDemo's menu passes CARDDEMO-COMMAREA to every screen)."""
+        prog = self.cics.programs.get(callee)
+        if not passed or prog is None or len(prog.segment_dtos) < 2 or not prog.commarea:
+            return None
+        name = passed.split("(")[0].split(" OF ")[0].strip().upper()
+        return prog.segment_dtos[0] if name == prog.commarea["segments"][0]["record"].upper() else None
+
     def _mismatch(self, passed: str | None, callee: str) -> str | None:
         """A note when the record a site passes is not the one the target was resolved to receive."""
         prog = self.cics.programs.get(callee)
@@ -155,8 +164,12 @@ class CallForge:
         if not passed or not commarea or not receives:
             return None
         name = passed.split("(")[0].split(" OF ")[0].strip().upper()
-        if name == receives.upper():
+        if name == receives.upper() or self._prefix_type(passed, callee):
             return None
+        if commarea.get("basis") == "unpack" and name in {s["record"].upper() for s in commarea["segments"][:1]}:
+            return None  # a single unpacked record: the site passes it as is
+        if commarea.get("basis") == "unpack":
+            receives = " + ".join(s["record"] for s in commarea["segments"])
         return (
             f"TODO: this site passes {name}; {self.cls_of[callee].upper()} receives {receives} "
             f"({commarea['file']}) -- map one layout onto the other"
@@ -216,7 +229,16 @@ class CallForge:
                 ex.methods.append(f"    /** EXEC CICS {verb} PROGRAM({written}) at {where}.{note}")
                 ex.methods.append(f"     *  Call targets field testing: {status['calls']}. */")
                 ex.methods += [f"    // {g}" for g in gaps]
-                ex.methods += self._delegate(f"{verb.lower()}{target}", ref, "handleLink", req, resp)
+                prefix = {self._prefix_type(s.get("commarea"), callee) for s in sites}
+                if len(prefix) == 1 and None not in prefix and req:
+                    # every site passes the leading record: take it, and build the COMMAREA the callee reads
+                    (lead,) = prefix
+                    self._imports(ex, lead)
+                    ex.methods += [f"    public {resp or 'void'} {verb.lower()}{target}({lead} request) {{",
+                                   f"        {'return ' if resp else ''}{ref}.handleLink({req}.fromPrefix(request));",
+                                   "    }\n"]  # fmt: skip
+                else:
+                    ex.methods += self._delegate(f"{verb.lower()}{target}", ref, "handleLink", req, resp)
                 self.counts[verb.lower()] += 1
             else:
                 self._need_call_handler(callee)
@@ -287,7 +309,12 @@ class CallForge:
                 gap = self._mismatch(passed, callee)
                 if gap:
                     label += f"\n                // {gap}"
-                call = f"{ref}.handleLink({f'({req}) request' if req else ''})"
+                lead = self._prefix_type(passed, callee)
+                if lead and req:
+                    self._imports(ex, lead)
+                    call = f"{ref}.handleLink({req}.fromPrefix(({lead}) request))"
+                else:
+                    call = f"{ref}.handleLink({f'({req}) request' if req else ''})"
             else:
                 self._need_call_handler(callee)
                 params = self.params(callee)

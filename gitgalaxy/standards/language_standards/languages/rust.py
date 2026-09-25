@@ -48,6 +48,9 @@ DEFINITION: dict[str, Any] = {
     # it as `./name`, a LOCAL token, so the supply-chain firewall and the typosquat radar
     # never read a module file name as an external crate.
     "local_module_capture_group": 2,
+    # `crate::` / `self::` / `super::` paths name this crate by keyword: never an external
+    # package, so the typosquat radar never tallies them (#3595).
+    "local_import_prefixes": ("crate::", "self::", "super::"),
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

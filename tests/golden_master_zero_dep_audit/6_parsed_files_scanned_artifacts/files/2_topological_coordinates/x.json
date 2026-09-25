@@ -3063,7 +3063,7 @@
       "rust/syn/custom_keyword.rs": -9134.22,
       "rust/syn/custom_punctuation.rs": -9726.62,
       "rust/syn/data.rs": -9894.94,
-      "rust/syn/derive.rs": -9540.11
+      "rust/syn/derive.rs": -9540.12
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": -2226.7,

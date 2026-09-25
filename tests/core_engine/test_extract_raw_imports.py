@@ -42,3 +42,14 @@ def test_a_rust_mod_declaration_is_recorded_as_a_local_module():
         "./lexical",
         "serde::de",
     }
+
+
+def test_brace_selectors_distribute_their_prefix():
+    # #3595: `io.circe.{ Decoder, Json }` was `io.circe. Decoder` and a bare `Json`.
+    src = "import io.circe.{ Decoder, Json => J, _ }\nimport cats.syntax.show._\n"
+    assert _tokens("scala", src) == {"io.circe.Decoder", "io.circe.Json", "io.circe._", "cats.syntax.show._"}
+    assert _tokens("rust", "use std::{fs, io::{self, Read}};\n") == {"std::fs", "std::io", "std::io::Read"}
+
+
+def test_a_shell_expansion_is_not_a_selector_group():
+    assert _tokens("shell", 'source "${BASH_IT}/lib/log.bash"\n') == {"$BASH_IT/lib/log.bash"}

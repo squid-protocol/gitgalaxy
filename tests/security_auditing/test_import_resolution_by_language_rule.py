@@ -283,3 +283,115 @@ def test_from_dot_import_name_is_the_submodule_else_the_package():
         ]
     )
     assert edges == {("src/flask/app.py", "src/flask/cli.py"), ("src/flask/app.py", "src/flask/__init__.py")}
+
+
+# ----------------------------------------------------------------------------- #3596 #3597 #3598 #3595
+
+
+def _edges_with_units(files):
+    """Like _edges, but each entry may carry the file's declared functions/classes."""
+    parsed = [
+        {
+            "path": p,
+            "lang_id": lang,
+            "raw_imports": list(imps),
+            "classes": [{"name": c} for c in classes],
+            "functions": [{"name": f} for f in funcs],
+        }
+        for p, lang, imps, funcs, classes in files
+    ]
+    return set(NetworkRiskSensor().resolve_import_edges(parsed))
+
+
+def test_kotlin_top_level_functions_and_members_resolve_to_their_declaring_file():
+    root = "src/main/kotlin/com/squareup/kotlinpoet/"
+    edges = _edges_with_units(
+        [
+            (
+                root + "metadata/X.kt",
+                "kotlin",
+                [
+                    "com.squareup.kotlinpoet.asClassName",  # top-level extension in ClassNames.kt
+                    "com.squareup.kotlinpoet.Util.JAVA_DEPRECATED",  # object member -> Util.kt
+                    "java.util.Collections",  # never the lone util.kt
+                    "com.squareup.kotlinpoet.joinToCode",  # only a TEST declares it: no edge
+                ],
+                [],
+                [],
+            ),
+            (root + "ClassNames.kt", "kotlin", [], ["asClassName"], []),
+            (root + "Util.kt", "kotlin", [], [], ["Util"]),
+            (root + "metadata/util.kt", "kotlin", [], [], []),
+            ("src/test/kotlin/com/squareup/kotlinpoet/CodeBlockTest.kt", "kotlin", [], ["joinToCode"], []),
+        ]
+    )
+    assert edges == {(root + "metadata/X.kt", root + "ClassNames.kt"), (root + "metadata/X.kt", root + "Util.kt")}
+
+
+def test_dart_package_uris_are_path_tails_and_dart_scheme_is_the_sdk():
+    edges = _edges(
+        [
+            (
+                "pkgs/cupertino/lib/src/client.dart",
+                "dart",
+                ["package:http_profile/http_profile.dart", "dart:io", "package:async/async.dart", "api.dart"],
+            ),
+            ("pkgs/http_profile/lib/http_profile.dart", "dart", []),
+            ("pkgs/cupertino/lib/src/api.dart", "dart", []),
+            ("pkgs/other/lib/src/api.dart", "dart", []),
+            ("tool/io.dart", "dart", []),
+        ]
+    )
+    assert edges == {
+        ("pkgs/cupertino/lib/src/client.dart", "pkgs/http_profile/lib/http_profile.dart"),
+        ("pkgs/cupertino/lib/src/client.dart", "pkgs/cupertino/lib/src/api.dart"),
+    }
+
+
+def test_shell_variable_paths_resolve_only_by_their_literal_tail():
+    edges = _edges(
+        [
+            (
+                "bash_it.sh",
+                "shell",
+                [
+                    "$BASH_IT/themes/powerline/powerline.base.bash",
+                    "$rvm_path/scripts/completion",  # never lib/completion.bash by stem
+                    "$XDG_CONFIG_HOME:-$HOME/.config",  # never a config.yml
+                    "~/.fzf.bash",
+                    "$DIR/helpers.bash",  # a bare name: beside the importer
+                ],
+            ),
+            ("themes/powerline/powerline.base.bash", "shell", []),
+            ("themes/gitline/powerline.base.bash", "shell", []),
+            ("lib/completion.bash", "shell", []),
+            (".github/config.yml", "yaml", []),
+            ("helpers.bash", "shell", []),
+            ("lib/helpers.bash", "shell", []),
+        ]
+    )
+    assert edges == {("bash_it.sh", "themes/powerline/powerline.base.bash"), ("bash_it.sh", "helpers.bash")}
+
+
+def test_scala_declarations_members_and_package_objects():
+    base = "core/src/main/scala/io/circe/"
+    edges = _edges_with_units(
+        [
+            (
+                "app/src/main/scala/todo/Todo.scala",
+                "scala",
+                [
+                    "io.circe.DecodingFailure",  # declared in Error.scala
+                    "io.circe.syntax._",  # package object -> syntax/package.scala
+                    "io.circe.Json._",  # object members -> Json.scala
+                ],
+                [],
+                [],
+            ),
+            (base + "Error.scala", "scala", [], [], ["Error", "DecodingFailure"]),
+            (base + "syntax/package.scala", "scala", [], [], ["syntax"]),
+            (base + "Json.scala", "scala", [], [], ["Json"]),
+        ]
+    )
+    src = "app/src/main/scala/todo/Todo.scala"
+    assert edges == {(src, base + "Error.scala"), (src, base + "syntax/package.scala"), (src, base + "Json.scala")}

@@ -3043,12 +3043,12 @@
       "rust/holylang/error.rs": 0,
       "rust/holylang/main.rs": 0,
       "rust/holylang/parser.rs": 0,
-      "rust/holylang/semantic.rs": 6,
-      "rust/holylang/transpiler.rs": 6
+      "rust/holylang/semantic.rs": 0,
+      "rust/holylang/transpiler.rs": 0
     },
     "rust/serde": {
       "rust/serde/serde_core_de_impls.rs": 0,
-      "rust/serde/serde_core_de_mod.rs": 4,
+      "rust/serde/serde_core_de_mod.rs": 0,
       "rust/serde/serde_core_macros.rs": 0,
       "rust/serde/serde_derive_de.rs": 0,
       "rust/serde/serde_internals_ast.rs": 0,
@@ -3059,7 +3059,7 @@
       "rust/syn/LICENSE-APACHE": 0,
       "rust/syn/bigint.rs": 0,
       "rust/syn/buffer.rs": 0,
-      "rust/syn/classify.rs": 6,
+      "rust/syn/classify.rs": 0,
       "rust/syn/custom_keyword.rs": 0,
       "rust/syn/custom_punctuation.rs": 0,
       "rust/syn/data.rs": 0,
@@ -3089,12 +3089,12 @@
       "scala/SOURCES.md": 0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 6,
+      "scala/kafka/Kafka.scala": 0,
       "scala/kafka/KafkaApis.scala": 0,
       "scala/kafka/KafkaRaftManager.scala": 0,
       "scala/kafka/LogManager.scala": 0,
       "scala/kafka/Partition.scala": 0,
-      "scala/kafka/ReplicaManager.scala": 1,
+      "scala/kafka/ReplicaManager.scala": 0,
       "scala/kafka/SocketServer.scala": 0
     },
     "scheme": {

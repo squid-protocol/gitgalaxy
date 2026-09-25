@@ -1343,7 +1343,7 @@
       "go/core/proc.go": 3,
       "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
-      "go/core/value.go": 9
+      "go/core/value.go": 8
     },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": 0,
@@ -2402,7 +2402,7 @@
     },
     "nix/ghostty": {
       "nix/ghostty/build.zig": 0,
-      "nix/ghostty/default.nix": 3,
+      "nix/ghostty/default.nix": 2,
       "nix/ghostty/flake.nix": 0,
       "nix/ghostty/shell.nix": 0
     },
@@ -3092,7 +3092,7 @@
       "scala/kafka/Kafka.scala": 0,
       "scala/kafka/KafkaApis.scala": 0,
       "scala/kafka/KafkaRaftManager.scala": 0,
-      "scala/kafka/LogManager.scala": 3,
+      "scala/kafka/LogManager.scala": 2,
       "scala/kafka/Partition.scala": 5,
       "scala/kafka/ReplicaManager.scala": 2,
       "scala/kafka/SocketServer.scala": 5
@@ -3276,8 +3276,8 @@
       "shell/kubernetes/build-image.sh": 0,
       "shell/kubernetes/build.sh": 0,
       "shell/kubernetes/cluster__common.sh": 0,
-      "shell/kubernetes/common.sh": 1,
-      "shell/kubernetes/config-common.sh": 1,
+      "shell/kubernetes/common.sh": 0,
+      "shell/kubernetes/config-common.sh": 0,
       "shell/kubernetes/config-default.sh": 1,
       "shell/kubernetes/configure-helper.sh": 0,
       "shell/kubernetes/e2e-cluster-size.sh": 0,
@@ -3297,7 +3297,7 @@
       "shell/kubernetes/testcerts__gencerts.sh": 0,
       "shell/kubernetes/testdata__generate.sh": 0,
       "shell/kubernetes/update-codegen.sh": 0,
-      "shell/kubernetes/util.sh": 15
+      "shell/kubernetes/util.sh": 5
     },
     "shell/linux": {
       "shell/linux/COPYING": 0,
@@ -3831,14 +3831,14 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 2,
       "zig/zig/InternPool.zig": 4,
-      "zig/zig/Type.zig": 5,
+      "zig/zig/Type.zig": 2,
       "zig/zig/Zcu.zig": 4,
       "zig/zig/main.zig": 1
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 2,
       "zig/zls/DocumentStore.zig": 2,
-      "zig/zls/Server.zig": 1,
+      "zig/zls/Server.zig": 0,
       "zig/zls/analysis.zig": 2,
       "zig/zls/ast.zig": 2,
       "zig/zls/config_gen.zig": 0,

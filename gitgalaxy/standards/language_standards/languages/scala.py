@@ -39,6 +39,14 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Scala explicitly supports nested multi-line comments (/* /* */ */),
     # requiring depth-aware stripping to prevent premature termination.
     "lexical_family": "recursive_block",
+    # #3595: a Scala import names a declaration by PACKAGE and NAME -- one file declares
+    # many classes (circe's Error.scala holds DecodingFailure), an object member is its
+    # object's file, and a wildcard of a package object (`io.circe.syntax._`) is that
+    # package's package.scala. See network_risk_sensor.py.
+    "imports_may_name_member": True,
+    "imports_may_name_declaration": True,
+    "import_path_mirrors_module_path": True,
+    "package_object_file": "package.scala",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)

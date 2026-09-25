@@ -122,3 +122,81 @@ def test_java_nested_class_import_lives_in_the_outer_class_file(tmp_path):
         {"src/com/acme/TestTypes.java"},
         {"src/com/acme/Util.java"},
     ]
+
+
+@needs_ts
+def test_kotlin_and_scala_resolve_by_package_and_declared_name(tmp_path):
+    # Neither language ties a file's path or name to what it declares.
+    g = _group(
+        tmp_path,
+        {
+            "src/Names.kt": "package com.acme\nfun String.asName() = this\nclass Named\n",
+            "src/other/Util.kt": "package com.acme.util\n\nobject Util {\n    const val X = 1\n}\n",
+            "java/com/acme/Legacy.java": "package com.acme; class Legacy {}",
+            "scala/pkg.scala": "package io.circe\npackage object syntax { }\n",
+            "scala/Dec.scala": "package io.circe.`export`\ncase class Exported(x: Int)\n",
+            "scala/Json.scala": "package io.circe\nclass Json\nobject Decoder\n",
+            "scala/Y.scala": "package io.circe\n",  # the importer: its package anchors relative imports
+        },
+    )
+    kt = b"package x\nimport com.acme.asName\nimport com.acme.util.Util.X\nimport com.acme.util.*\nimport com.acme.Legacy\n"
+    assert iga.kotlin_imports(kt, "src/X.kt", g) == [
+        {"src/Names.kt"},
+        {"src/other/Util.kt"},
+        {"src/other/Util.kt"},
+        {"java/com/acme/Legacy.java"},  # a JVM language imports Java classes by Java's rule
+    ]
+    sc = b"package io.circe\nimport io.circe.{ Json, Decoder => D }\nimport io.circe.export.Exported\nimport syntax._\n"
+    assert iga.scala_imports(sc, "scala/Y.scala", g) == [
+        {"scala/Json.scala"},
+        {"scala/Json.scala"},
+        {"scala/Dec.scala"},  # a backquoted package segment is the plain name
+        {"scala/pkg.scala"},  # relative to the enclosing package: io.circe.syntax
+    ]
+
+
+@needs_ts
+def test_dart_package_uris_resolve_through_pubspec(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "pkgs/http/pubspec.yaml": "name: http\n",
+            "pkgs/http/lib/http.dart": "",
+            "pkgs/http/lib/src/client.dart": "",
+            "pkgs/web/lib/web.dart": "",
+        },
+    )
+    src = b"import 'package:http/http.dart';\nimport 'client.dart';\nimport 'package:async/async.dart';\nimport 'dart:io';\n"
+    # `package:async` is not in the repo and `dart:io` is the SDK: neither is scored
+    assert iga.dart_imports(src, "pkgs/http/lib/src/base.dart", g) == [
+        {"pkgs/http/lib/http.dart"},
+        {"pkgs/http/lib/src/client.dart"},
+    ]
+
+
+@needs_ts
+def test_haskell_shell_and_solidity_rules(tmp_path):
+    g = _group(
+        tmp_path,
+        {
+            "src/ShellCheck/AST.hs": "",
+            "themes/powerline/powerline.base.bash": "",
+            "themes/gitline/powerline.base.bash": "",
+            "lib/helpers.bash": "",
+            "contracts/package.json": json.dumps({"name": "@openzeppelin/contracts"}),
+            "contracts/access/Ownable.sol": "",
+            "contracts/utils/Context.sol": "",
+        },
+    )
+    assert iga.haskell_imports(b"import ShellCheck.AST\nimport Data.Map\n", "src/Main.hs", g) == [
+        {"src/ShellCheck/AST.hs"},
+        set(),
+    ]
+    sh = b'source "${BASH_IT?}/themes/powerline/powerline.base.bash"\n. ./lib/helpers.bash\nsource "$HOME/.rvm/scripts/rvm"\n'
+    assert iga.shell_imports(sh, "x.bash", g) == [{"themes/powerline/powerline.base.bash"}, {"lib/helpers.bash"}, set()]
+    sol = b'import "../utils/Context.sol";\nimport {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";\nimport "forge-std/Test.sol";\n'
+    assert iga.solidity_imports(sol, "contracts/access/Foo.sol", g) == [
+        {"contracts/utils/Context.sol"},
+        {"contracts/access/Ownable.sol"},
+        set(),
+    ]

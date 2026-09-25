@@ -16,6 +16,13 @@
     {"repo": "zigtools/zls", "commit": "0ea69abdd8f50d81989c00b6a3b9cf8ced7f9522", "language": "zig"},
     {"repo": "rack/rack", "commit": "a9833c8f3bd6b6d1e0ab35de00a1f1a16b5095f5", "language": "ruby"},
     {"repo": "serde-rs/json", "commit": "afdf6fc67247dd7fa4fcde1381e6ecc6bcc7a30e", "language": "rust"},
-    {"repo": "libwww-perl/HTTP-Message", "commit": "e16da326d0dbb56162837233f8e8b0e1e55d2309", "language": "perl"}
+    {"repo": "libwww-perl/HTTP-Message", "commit": "e16da326d0dbb56162837233f8e8b0e1e55d2309", "language": "perl"},
+    {"repo": "SDWebImage/SDWebImage", "commit": "c3ad5e1a9bf55c9b76d4c362430b5fcded96c502", "language": "objective-c"},
+    {"repo": "dart-lang/http", "commit": "d8e8e9cd1ae6ed0f0339cfa0f47f92e837a786f5", "language": "dart"},
+    {"repo": "square/kotlinpoet", "commit": "57073846d05b9d7cd4be0c918c3175e7aa4e347c", "language": "kotlin"},
+    {"repo": "circe/circe", "commit": "4e8d5262f0f2c49589739edbcd0d80b8a6392a0a", "language": "scala"},
+    {"repo": "koalaman/shellcheck", "commit": "5fe4d422104829b4355ab0304e62f5b611d9c38d", "language": "haskell"},
+    {"repo": "Bash-it/bash-it", "commit": "4725d29db8c0ac8c21df47664b28539f3b8fce94", "language": "shell"},
+    {"repo": "OpenZeppelin/openzeppelin-contracts", "commit": "4858ab13a5ad897f59753028f6315f9d487c4322", "language": "solidity"}
   ]
 }

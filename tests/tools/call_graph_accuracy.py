@@ -66,6 +66,9 @@ CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "lan
 BASELINE = REPO_ROOT / "tests" / "call_graph_accuracy_baseline.json"
 LEDGER = REPO_ROOT / "docs" / "self_scan" / "graph_comparison_ledger.json"
 READERS = ("gitgalaxy", "tree_sitter")
+# Examples a ledger entry keeps per shape: enough to read a verdict from, small enough to commit.
+# The full list is always one `--buckets N` run away.
+LEDGER_EXAMPLES = 5
 
 # The languages #3329 scoped for qualifier capture, plus C and Rust: the
 # C-style invocation family where tree-sitter's call node is unambiguous.
@@ -515,7 +518,7 @@ def main(argv: list[str] | None = None) -> int:
     if not (CRUCIBLE / "data").is_dir():
         print(f"call_graph_accuracy: no crucible at {CRUCIBLE} (set LANGUAGE_CRUCIBLE_PATH)")
         return 2
-    buckets = max(a.buckets, 10) if a.ledger else a.buckets
+    buckets = max(a.buckets, LEDGER_EXAMPLES) if a.ledger else a.buckets
     results = measure(CRUCIBLE, a.samples, buckets)
     print(render(results))
     if buckets:

@@ -54,6 +54,15 @@ python tests/tools/call_graph_accuracy.py --ledger      # merge this run's shape
 python tests/tools/call_graph_accuracy.py --ci          # raw regression gate
 ```
 
+**Who writes what.** A PR adds verdicts. The count churn -- `last_seen_count`,
+`last_seen_examples` (5 per shape, `LEDGER_EXAMPLES`), `still_reproduces` and new `unvalidated`
+shapes -- is committed after merge by `.github/workflows/graph-comparison-history.yml`, the twin
+of `tri-comparison-history.yml`, which never touches a verdict or the raw baseline.
+
+The ledger lives here, not in a sibling repo: an engine fix and the verdicts it retires land in
+one PR, and the contract, issues, tool and gate it references are all in this repo. Bulk
+per-occurrence evidence, if ever needed, belongs in `gitgalaxy-raw-output`.
+
 Validate a shape by reading its recorded examples, then set `status`, `verdict`,
 `investigated_by`, `investigated_at` and (only when the geometry above allows it)
 `credit_tools` by hand. Never set them from a guess about whether a shape "should" hold.

@@ -1,0 +1,114 @@
+name: Graph Comparison History
+
+# Push-to-main companion to call-graph-accuracy-audit.yml's PR-time gate -- the same split
+# tri-comparison-audit.yml / tri-comparison-history.yml use for the structural ledger (#3641,
+# docs/self_scan/graph_comparison_README.md). The PR gate keeps judging the RAW numbers against
+# tests/call_graph_accuracy_baseline.json; this workflow never touches that baseline.
+#
+# What it DOES do, once a change that can move a call lands on main: re-run
+# `call_graph_accuracy.py --ledger`, which refreshes docs/self_scan/graph_comparison_ledger.json --
+# last_seen_count / last_seen_examples / still_reproduces on existing shapes, and a new
+# `unvalidated` entry for any newly-observed shape. A validated entry's status / verdict /
+# credit_tools are never touched (tri_comparison_ledger.py's ENTRY LIFECYCLE). So PRs only ever
+# add verdicts; this bot commits the count churn. "No diff" is the adaptivity: a push that moved
+# nothing opens no PR.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/prism.py"
+      - "gitgalaxy/standards/language_standards/**"
+      - "tests/tools/call_graph_accuracy.py"
+      - "tests/tools/tri_comparison_ledger.py"
+      - "tests/call_graph_accuracy_baseline.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Scoped like its siblings: never cancel a push run mid-write.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  graph-comparison-history:
+    # This job's own bot commit touches the ledger; the guard keeps its merge from re-triggering it.
+    if: |
+      !startsWith(github.event.head_commit.message, 'docs: auto-update graph comparison data')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # The same install as call-graph-accuracy-audit.yml, so the ledger records exactly the
+      # numbers the PR gate measures.
+      - name: Install GitGalaxy + tree-sitter-language-pack
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install tree-sitter-language-pack
+
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: |
+          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
+          if [ -z "$ref" ]; then
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::No LANGUAGE_CRUCIBLE_REF and no PINNED_TAG in tests/_crucible_pin.py."
+            exit 1
+          fi
+          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Refresh the graph comparison ledger
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/call_graph_accuracy.py --ledger
+
+      - name: Open PR with the refreshed ledger
+        id: graph-comparison-history-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update graph comparison data"
+          title: "docs: auto-update graph comparison data"
+          body: |
+            Automated refresh of `docs/self_scan/graph_comparison_ledger.json` from the latest
+            call-graph measurement on `main` (#3641): last_seen_count / last_seen_examples /
+            still_reproduces on existing shapes, and new `unvalidated` entries for newly-observed
+            shapes. Never touches a validated entry's `status` / `verdict` / `credit_tools`, nor
+            `tests/call_graph_accuracy_baseline.json`.
+          branch: auto/graph-comparison-history
+          delete-branch: true
+          add-paths: |
+            docs/self_scan/graph_comparison_ledger.json
+
+      # Nothing else gates this PR, so merge it explicitly (same as the tri-comparison history).
+      - name: Merge the graph comparison history PR
+        if: steps.graph-comparison-history-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.graph-comparison-history-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

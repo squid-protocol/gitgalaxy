@@ -2476,9 +2476,51 @@ def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
                 "qualifier": qualifier,
                 "record_clause": clause,
                 "record": d[clause] if clause else None,
+                "ridfld": d.get("RIDFLD"),  # #3649: the key operand, as written
                 "line": src.line_of(m.start()),
             }
         )
+    return out
+
+
+# #3649: the RIDFLD of every EXEC CICS FILE command -- the key operand the Java
+# repository forge maps onto an entity key (#3617). Its own field so the reviewed
+# `CICS resources` units stay as they are.
+_RIDFLD = re.compile(r"\bRIDFLD\s*\(((?:[^()]|\([^()]*\))*)\)", re.I)
+
+
+def _ridfld_unit(line: int, verb: str, name: Optional[str], ridfld: str) -> str:
+    operand = re.sub(r"\s*([(:)])\s*", r"\1", " ".join(ridfld.split())).upper()  # `X (1 : 4)` == `X(1:4)`
+    return f"L{line} {verb} FILE {(name or '?').upper()} RIDFLD={operand}"
+
+
+def ridfld_units(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> VERB FILE NAME RIDFLD=OPERAND` for each FILE command with a RIDFLD."""
+    return {_ridfld_unit(r["line"], r["verb"], r.get("name"), r["ridfld"])
+            for r in rows if r.get("kind") == "FILE" and r.get("ridfld")}  # fmt: skip
+
+
+def engine_ridfld_units(ef: Any) -> set[str]:
+    out = set()
+    for op in ef.cics_resources:
+        m = _RIDFLD.search(op.attributes or "") if op.kind == "FILE" else None
+        if m:
+            out.add(_ridfld_unit(op.line, op.verb, op.name, m.group(1)))
+    return out
+
+
+def draft_ridflds(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3649: RIDFLD units of every COBOL / PL/I / assembler source with a keyed CICS FILE command."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS + HLASM_EXTS + PLI_EXTS and ".git" not in p.parts:
+            units = ridfld_units(cics_resource_ops(p))
+            if units:
+                out[p.relative_to(repo).as_posix()] = {
+                    "units": sorted(units),
+                    "ridflds_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
     return out
 
 
@@ -5852,6 +5894,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # at byte offsets. Truth is this tool's own arithmetic; engine is
         # GalaxyIR.symbolic_map_layouts (generated copybook text, record parser).
         "symbolic maps",
+        # #3649: the RIDFLD operand of every EXEC CICS FILE command, as written.
+        # Truth is this tool's own EXEC CICS reader; engine is cics_resource_data.attributes.
+        "CICS RIDFLD",
         # #3602: every copybook's records as `ROOT/NAME @offset+bytes` per elementary
         # PIC item. Truth is this tool's own reader and storage arithmetic; engine is
         # GalaxyIR.record_layout (record_data).
@@ -6275,6 +6320,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_dyn.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
     engine_maps = ir.symbolic_map_layouts() if ir is not None else {}
+    for rel, k in key.get("cics_ridflds", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add("CICS RIDFLD", rel, set(k.get("units", [])), None, engine_ridfld_units(ef) if ef else None)
     for rel, k in key.get("copybook_layouts", {}).items():
         add("copybook layouts", rel, set(k.get("units", [])), None, engine_copybook_units(ir, rel))
     for rel, k in key.get("symbolic_maps", {}).items():
@@ -6495,6 +6543,9 @@ def main() -> int:
     fdp = sub.add_parser("add-file-defs")
     fdp.add_argument("repo", type=Path)
     fdp.add_argument("--key", type=Path, required=True)
+    rfp = sub.add_parser("add-ridflds")  # #3649
+    rfp.add_argument("repo", type=Path)
+    rfp.add_argument("--key", type=Path, required=True)
     cbl = sub.add_parser("add-copybook-layouts")  # #3602
     cbl.add_argument("repo", type=Path)
     cbl.add_argument("--key", type=Path, required=True)
@@ -6777,6 +6828,16 @@ def main() -> int:
         key["file_control"], key["vsam_defines"] = fc, vd
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(fc)} FILE-CONTROL programs, {len(vd)} IDCAMS JCL members -> {args.key}")
+        return 0
+    if args.cmd == "add-ridflds":
+        # #3649: the add-pli discipline -- refresh drafts, keep signed-off files.
+        rf = {rel: e for rel, e in key.get("cics_ridflds", {}).items() if e.get("ridflds_validated")}
+        for rel, entry in draft_ridflds(repo).items():
+            if not rf.get(rel, {}).get("ridflds_validated"):
+                rf[rel] = entry
+        key["cics_ridflds"] = rf
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(rf)} RIDFLD files -> {args.key}")
         return 0
     if args.cmd == "add-copybook-layouts":
         # #3602: the add-pli discipline -- refresh drafts, keep signed-off files.

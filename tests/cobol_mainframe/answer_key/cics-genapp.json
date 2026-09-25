@@ -44979,5 +44979,77 @@
         "notes": []
       }
     }
+  },
+  "cics_ridflds": {
+    "base/src/lgacvs01.cbl": {
+      "units": [
+        "L68 WRITE FILE KSDSCUST RIDFLD=CA-CUSTOMER-NUM"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgapvs01.cbl": {
+      "units": [
+        "L135 WRITE FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgdpvs01.cbl": {
+      "units": [
+        "L81 DELETE FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgicvs01.cbl": {
+      "units": [
+        "L199 READ FILE KSDSCUST RIDFLD=WRITE-MSG-HIGH"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgipvs01.cbl": {
+      "units": [
+        "L111 READ FILE KSDSPOLY RIDFLD=PART-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgucvs01.cbl": {
+      "units": [
+        "L69 READ FILE KSDSCUST RIDFLD=CA-CUSTOMER-NUM"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "base/src/lgupvs01.cbl": {
+      "units": [
+        "L139 READ FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

@@ -1344,6 +1344,34 @@ def test_copybook_record_units_follow_the_engine_layout_contract(tmp_path):
     }  # fmt: skip
 
 
+def test_ridfld_units_key_the_cics_file_key_operand(tmp_path):
+    """#3649: `L<line> VERB FILE NAME RIDFLD=OPERAND`, from this tool's EXEC CICS reader;
+    the engine side parses cics_resource_data.attributes, nested parentheses included."""
+    src = tmp_path / "RF.cbl"
+    src.write_text(
+        "\n".join("       " + ln for ln in [
+            "IDENTIFICATION DIVISION.",
+            "PROGRAM-ID. RF.",
+            "PROCEDURE DIVISION.",
+            "    EXEC CICS READ FILE('ACCTDAT') INTO(WS-REC)",
+            "         RIDFLD(WS-KEY(1:4)) END-EXEC.",
+            "    EXEC CICS WRITE FILE('LOGF') FROM(WS-REC) END-EXEC.",
+        ]) + "\n",
+        encoding="utf-8",
+    )  # fmt: skip
+    assert ak.ridfld_units(ak.cics_resource_ops(src)) == {"L4 READ FILE ACCTDAT RIDFLD=WS-KEY(1:4)"}
+
+    class Op:  # an EngineCicsResource's relevant fields
+        def __init__(self, kind, attributes, line=4, verb="READ", name="ACCTDAT"):
+            self.kind, self.attributes, self.line, self.verb, self.name = kind, attributes, line, verb, name
+
+    class Ef:
+        cics_resources = [Op("FILE", "LENGTH(LENGTH OF WS-REC) RIDFLD(WS-KEY (1:4)) KEYLENGTH(4)"),
+                          Op("QUEUE", "RIDFLD(X)")]  # fmt: skip
+
+    assert ak.engine_ridfld_units(Ef()) == {"L4 READ FILE ACCTDAT RIDFLD=WS-KEY(1:4)"}  # spacing normalized
+
+
 def test_a_copybook_that_copies_is_not_keyed(tmp_path):
     assert (
         ak.copybook_record_units(_cpy(tmp_path, "OUTER.cpy", ["01 OUTER.", "   COPY INNER.", "   05 X PIC X."])) is None

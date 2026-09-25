@@ -148,6 +148,15 @@
           "forge": null,
           "truth": "cross_verified"
         },
+        "CICS RIDFLD": {
+          "engine": {
+            "got": 46,
+            "tp": 46,
+            "truth": 46
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 107,
@@ -1032,6 +1041,15 @@
           "forge": null,
           "truth": "cross_verified"
         },
+        "CICS RIDFLD": {
+          "engine": {
+            "got": 17,
+            "tp": 17,
+            "truth": 17
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 75,
@@ -1502,6 +1520,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "CICS RIDFLD": {
+          "engine": {
+            "got": 7,
+            "tp": 7,
+            "truth": 7
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 94,
@@ -1912,6 +1939,15 @@
           "forge": null,
           "truth": "cross_verified"
         },
+        "CICS RIDFLD": {
+          "engine": {
+            "got": 689,
+            "tp": 689,
+            "truth": 689
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 3251,
@@ -2298,6 +2334,15 @@
           "forge": null,
           "truth": "cross_verified"
         },
+        "CICS RIDFLD": {
+          "engine": {
+            "got": 22,
+            "tp": 22,
+            "truth": 22
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 61,
@@ -2675,6 +2720,11 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        },
+        "CICS RIDFLD": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         },
         "CICS resources": {
           "engine": null,

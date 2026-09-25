@@ -20833,5 +20833,56 @@
         "notes": []
       }
     }
+  },
+  "cics_ridflds": {
+    "Source/ZECS000.cbl": {
+      "units": [
+        "L289 READ FILE ZCEXPIRE RIDFLD=ZX-KEY",
+        "L346 WRITE FILE ZCEXPIRE RIDFLD=ZX-KEY",
+        "L411 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L478 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L525 DELETE FILE ? RIDFLD=ZF-ZK-KEY",
+        "L546 DELETE FILE ? RIDFLD=ZF-KEY-16"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECS001.cbl": {
+      "units": [
+        "L1011 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L1030 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L1137 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L1265 READ FILE ? RIDFLD=ZK-KEY",
+        "L1329 WRITE FILE ? RIDFLD=ZK-KEY",
+        "L1365 READ FILE ? RIDFLD=ZK-KEY",
+        "L1499 WRITE FILE ? RIDFLD=ZF-KEY-16",
+        "L1572 DELETE FILE ? RIDFLD=DELETE-KEY-16",
+        "L1589 READ FILE ? RIDFLD=ZK-KEY",
+        "L1614 DELETE FILE ? RIDFLD=ZK-KEY",
+        "L1631 DELETE FILE ? RIDFLD=ZF-KEY-16",
+        "L1712 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L927 READ FILE ? RIDFLD=ZK-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "Source/ZECS003.cbl": {
+      "units": [
+        "L249 READ FILE ? RIDFLD=ZF-KEY-16",
+        "L272 DELETE FILE ? RIDFLD=ZF-KEY-16",
+        "L279 DELETE FILE ? RIDFLD=ZF-ZK-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

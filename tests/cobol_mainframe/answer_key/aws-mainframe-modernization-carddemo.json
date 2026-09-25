@@ -121087,5 +121087,206 @@
         "notes": []
       }
     }
+  },
+  "cics_ridflds": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "units": [
+        "L477 READ FILE CCXREF RIDFLD=XREF-CARD-NUM",
+        "L525 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L573 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
+      "units": [
+        "L818 READ FILE CXACAIX RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L869 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L920 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/COACCT01.cbl": {
+      "units": [
+        "L396 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTUPC.cbl": {
+      "units": [
+        "L3654 READ FILE CXACAIX RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L3703 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L3753 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X",
+        "L3894 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L3921 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTVWC.cbl": {
+      "units": [
+        "L727 READ FILE CXACAIX RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L776 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
+        "L826 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COBIL00C.cbl": {
+      "units": [
+        "L345 READ FILE ACCTDAT RIDFLD=ACCT-ID",
+        "L410 READ FILE CXACAIX RIDFLD=XREF-ACCT-ID",
+        "L443 STARTBR FILE TRANSACT RIDFLD=TRAN-ID",
+        "L474 READPREV FILE TRANSACT RIDFLD=TRAN-ID",
+        "L512 WRITE FILE TRANSACT RIDFLD=TRAN-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDLIC.cbl": {
+      "units": [
+        "L1129 STARTBR FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1146 READNEXT FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1197 READNEXT FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1273 STARTBR FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1294 READPREV FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1322 READPREV FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDSLC.cbl": {
+      "units": [
+        "L742 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L783 READ FILE CARDAIX RIDFLD=WS-CARD-RID-ACCT-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDUPC.cbl": {
+      "units": [
+        "L1382 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
+        "L1427 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COSGN00C.cbl": {
+      "units": [
+        "L211 READ FILE USRSEC RIDFLD=WS-USER-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN00C.cbl": {
+      "units": [
+        "L593 STARTBR FILE TRANSACT RIDFLD=TRAN-ID",
+        "L626 READNEXT FILE TRANSACT RIDFLD=TRAN-ID",
+        "L660 READPREV FILE TRANSACT RIDFLD=TRAN-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN01C.cbl": {
+      "units": [
+        "L269 READ FILE TRANSACT RIDFLD=TRAN-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN02C.cbl": {
+      "units": [
+        "L578 READ FILE CXACAIX RIDFLD=XREF-ACCT-ID",
+        "L611 READ FILE CCXREF RIDFLD=XREF-CARD-NUM",
+        "L644 STARTBR FILE TRANSACT RIDFLD=TRAN-ID",
+        "L675 READPREV FILE TRANSACT RIDFLD=TRAN-ID",
+        "L713 WRITE FILE TRANSACT RIDFLD=TRAN-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR00C.cbl": {
+      "units": [
+        "L588 STARTBR FILE USRSEC RIDFLD=SEC-USR-ID",
+        "L621 READNEXT FILE USRSEC RIDFLD=SEC-USR-ID",
+        "L655 READPREV FILE USRSEC RIDFLD=SEC-USR-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR01C.cbl": {
+      "units": [
+        "L240 WRITE FILE USRSEC RIDFLD=SEC-USR-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR02C.cbl": {
+      "units": [
+        "L322 READ FILE USRSEC RIDFLD=SEC-USR-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR03C.cbl": {
+      "units": [
+        "L269 READ FILE USRSEC RIDFLD=SEC-USR-ID"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

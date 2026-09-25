@@ -164556,5 +164556,2262 @@
     "keyed": 25,
     "seed": 3491
   },
-  "copybook_layouts": {}
+  "copybook_layouts": {},
+  "cics_ridflds": {
+    "src/GML/R0010201.pli": {
+      "units": [
+        "L161 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010301.pli": {
+      "units": [
+        "L230 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010420.pli": {
+      "units": [
+        "L119 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010422.pli": {
+      "units": [
+        "L104 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L116 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L127 STARTBR FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L130 READPREV FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L132 READPREV FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010423.pli": {
+      "units": [
+        "L111 READ FILE KOMTAB RIDFLD=KEY_BIT",
+        "L122 STARTBR FILE KOMTAB RIDFLD=KEY_BIT",
+        "L125 READPREV FILE KOMTAB RIDFLD=KEY_BIT",
+        "L127 READPREV FILE KOMTAB RIDFLD=KEY_BIT",
+        "L99 READ FILE KOMTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010424.pli": {
+      "units": [
+        "L111 READ FILE STATTAB RIDFLD=KEY_BIT",
+        "L122 STARTBR FILE STATTAB RIDFLD=KEY_BIT",
+        "L125 READPREV FILE STATTAB RIDFLD=KEY_BIT",
+        "L127 READPREV FILE STATTAB RIDFLD=KEY_BIT",
+        "L99 READ FILE STATTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010425.pli": {
+      "units": [
+        "L102 READ FILE FEILTAB RIDFLD=W01_NR",
+        "L115 READ FILE FEILTAB RIDFLD=W01_NR",
+        "L128 STARTBR FILE FEILTAB RIDFLD=W01_NR",
+        "L131 READPREV FILE FEILTAB RIDFLD=W01_NR",
+        "L133 READPREV FILE FEILTAB RIDFLD=W01_NR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010427.pli": {
+      "units": [
+        "L56 STARTBR FILE OMRLOGG RIDFLD=RBA_PEKER",
+        "L57 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER",
+        "L62 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010430.pli": {
+      "units": [
+        "L1591 READ FILE TKNRTAB RIDFLD=W01_TKNR",
+        "L1608 READ FILE STATTAB RIDFLD=W01_STAT",
+        "L2368 WRITE FILE PRINTRX RIDFLD=PRI_RBA",
+        "L2439 WRITE FILE PRINTRX RIDFLD=PRI_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010450.pli": {
+      "units": [
+        "L817 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010480.pli": {
+      "units": [
+        "L3365 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010503.pli": {
+      "units": [
+        "L200 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010505.pli": {
+      "units": [
+        "L139 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L148 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010603.pli": {
+      "units": [
+        "L296 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L484 READ FILE DIAGNOS RIDFLD=UPS.PRIMDIAG",
+        "L529 READ FILE DIAGNOS RIDFLD=W603_KEY",
+        "L555 READ FILE DIAGNOS RIDFLD=UPS.SEKUDIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010605.pli": {
+      "units": [
+        "L153 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L162 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010703.pli": {
+      "units": [
+        "L182 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L205 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L221 READ FILE STATTAB RIDFLD=KEY_BIT2",
+        "L235 STARTBR FILE DIAGNOS RIDFLD=W01_TRE_HSU",
+        "L245 READ FILE DIAGNOS RIDFLD=USS.HSU_DIAG",
+        "L259 STARTBR FILE DIAGNOS RIDFLD=W01_TRE_GS",
+        "L269 READ FILE DIAGNOS RIDFLD=USS.GS_DIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010803.pli": {
+      "units": [
+        "L140 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010805.pli": {
+      "units": [
+        "L426 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L435 READ FILE STATTAB RIDFLD=KEY_BIT4",
+        "L85 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L94 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010903.pli": {
+      "units": [
+        "L128 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0010905.pli": {
+      "units": [
+        "L81 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L98 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011003.pli": {
+      "units": [
+        "L258 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011103.pli": {
+      "units": [
+        "L140 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011203.pli": {
+      "units": [
+        "L144 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011303.pli": {
+      "units": [
+        "L230 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L363 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L580 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L98 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011403.pli": {
+      "units": [
+        "L194 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011503.pli": {
+      "units": [
+        "L107 READ FILE TKNRTAB RIDFLD=KEY_BIT2",
+        "L89 READ FILE TKNRTAB RIDFLD=KEY_BIT1"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011603.pli": {
+      "units": [
+        "L120 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011703.pli": {
+      "units": [
+        "L109 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011801.pli": {
+      "units": [
+        "L202 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L208 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L212 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L216 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L227 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L233 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L239 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L247 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L319 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L331 STARTBR FILE F001E41 RIDFLD=KEY_BIT",
+        "L335 READNEXT FILE F001E41 RIDFLD=KEY_BIT",
+        "L347 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L355 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L369 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L375 READ FILE F001E41 RIDFLD=KEY_BIT",
+        "L387 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011903.pli": {
+      "units": [
+        "L223 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0011905.pli": {
+      "units": [
+        "L131 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L140 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0012004.pli": {
+      "units": [
+        "L418 READ FILE STASTIK RIDFLD=C_DATO",
+        "L433 WRITE FILE STASTIK RIDFLD=STATISTIKK_DATO_\u00c5MD",
+        "L438 READ FILE STASTIK RIDFLD=C_DATO",
+        "L490 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L518 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0015602.pli": {
+      "units": [
+        "L192 WRITE FILE OVERFOR RIDFLD=OVER_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019906.pli": {
+      "units": [
+        "L74 READ FILE VSKJEDE RIDFLD=KEYBIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019921.pli": {
+      "units": [
+        "L52 READ FILE FEILTAB RIDFLD=W01_FEIL"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019956.pli": {
+      "units": [
+        "L52 READ FILE INITTAB RIDFLD=W9956_PIDENT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019957.pli": {
+      "units": [
+        "L128 READ FILE REGION RIDFLD=KEY_TKNR",
+        "L169 WRITE FILE INFOINFO RIDFLD=KEY_FNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019958.pli": {
+      "units": [
+        "L114 WRITE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
+        "L129 DELETE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
+        "L90 READ FILE STRYK RIDFLD=KEY_FNR_\u00c5R"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019D70.pli": {
+      "units": [
+        "L257 STARTBR FILE INTENDR RIDFLD=KEY_BIT",
+        "L258 READNEXT FILE INTENDR RIDFLD=KEY_BIT",
+        "L263 READNEXT FILE INTENDR RIDFLD=KEY_BIT",
+        "L388 DELETE FILE INTENDR RIDFLD=KEY_BIT",
+        "L397 READ FILE INTENDR RIDFLD=KEY_BIT",
+        "L550 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019E04.pli": {
+      "units": [
+        "L1118 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L1134 WRITE FILE ENDRDSR RIDFLD=ENDR_PEKER",
+        "L3094 WRITE FILE MELDREC RIDFLD=MELD_PEKER",
+        "L4280 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L4286 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L819 STARTBR FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L825 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L833 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L842 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L886 STARTBR FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L889 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L906 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019F01.pli": {
+      "units": [
+        "L1093 WRITE FILE ALDKONV RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019F02.pli": {
+      "units": [
+        "L1270 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1288 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1409 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1415 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1431 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1442 WRITE FILE F0019F05 RIDFLD=RBA_PEKER",
+        "L505 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019F03.pli": {
+      "units": [
+        "L1037 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1043 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1059 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L899 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L917 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019F05.pli": {
+      "units": [
+        "L1054 WRITE FILE F0019F05 RIDFLD=RBA_PEKER",
+        "L1291 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1309 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1429 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1435 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1451 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1462 WRITE FILE F0019F05 RIDFLD=RBA_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019H01.pli": {
+      "units": [
+        "L1310 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1414 WRITE FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L1584 WRITE FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L1620 WRITE FILE OMRNULL RIDFLD=NULL_RBA",
+        "L1834 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L416 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L419 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L634 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L765 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L974 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R0019H60.pli": {
+      "units": [
+        "L1192 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1307 WRITE FILE FNRKONT RIDFLD=FNRKONT_RBA_PTR",
+        "L1678 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L409 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L412 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L650 STARTBR FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L652 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L665 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L688 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L892 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L921 STARTBR FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L924 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L933 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001A401.pli": {
+      "units": [
+        "L371 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001B001.pli": {
+      "units": [
+        "L1552 READ FILE DIAGKON RIDFLD=W070_REC.KEY.FNR",
+        "L1593 WRITE FILE DIAGKON RIDFLD=W070_REC.KEY",
+        "L1612 WRITE FILE DIAGKON RIDFLD=W070_REC.KEY",
+        "L569 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG1I",
+        "L690 READ FILE DIAGNOS RIDFLD=W020_KEY",
+        "L729 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG2I",
+        "L819 READ FILE YRKEKOD RIDFLD=S001B01I.NORDISK_YKODEI"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I201.pli": {
+      "units": [
+        "L2876 WRITE FILE OLINNTE RIDFLD=KEY_BIT",
+        "L2923 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I301.pli": {
+      "units": [
+        "L1607 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I402.pli": {
+      "units": [
+        "L542 READ FILE KOMTAB RIDFLD=KEY_BIT",
+        "L647 READ FILE STRYK RIDFLD=KEY_BIT_ST"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I501.pli": {
+      "units": [
+        "L1632 WRITE FILE KEYFIL RIDFLD=KEY_BIT",
+        "L1729 WRITE FILE KOMP RIDFLD=KEY_BIT",
+        "L2129 WRITE FILE FFUDATA RIDFLD=KEY_BIT",
+        "L2223 READ FILE KOMTAB RIDFLD=KEY_BIT",
+        "L2586 READ FILE KOMTAB RIDFLD=KEY_BIT",
+        "L3569 WRITE FILE OLINNTE RIDFLD=KEY_BIT",
+        "L3833 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I902.pli": {
+      "units": [
+        "L113 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I903.pli": {
+      "units": [
+        "L1570 READ FILE KOMTAB RIDFLD=KEY_BIT",
+        "L1631 READ FILE STRYK RIDFLD=KEY_BIT_ST",
+        "L3782 WRITE FILE INBRUDD RIDFLD=IN_RBA",
+        "L3820 WRITE FILE OLBRUDD RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001I904.pli": {
+      "units": [
+        "L247 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L251 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L449 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L452 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L460 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L486 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L490 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L529 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L535 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L540 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L550 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L557 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L573 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L579 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L585 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L607 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L614 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L651 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L655 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L822 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L826 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L846 READ FILE INBRUDD RIDFLD=IN_RBA",
+        "L944 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L950 READNEXT FILE INBRUDD RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001IA04.pli": {
+      "units": [
+        "L50 WRITE FILE OMSORGE RIDFLD=P_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N503.pli": {
+      "units": [
+        "L182 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L217 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L226 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N603.pli": {
+      "units": [
+        "L275 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L478 READ FILE DIAGNOS RIDFLD=U2S.PRIMDIAG",
+        "L523 READ FILE DIAGNOS RIDFLD=W603_KEY",
+        "L549 READ FILE DIAGNOS RIDFLD=U2S.SEKUDIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N605.pli": {
+      "units": [
+        "L113 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L122 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N803.pli": {
+      "units": [
+        "L141 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N805.pli": {
+      "units": [
+        "L101 READ FILE STATTAB RIDFLD=KEY_BIT2",
+        "L364 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L373 READ FILE STATTAB RIDFLD=KEY_BIT4",
+        "L92 READ FILE STATTAB RIDFLD=KEY_BIT1"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N903.pli": {
+      "units": [
+        "L129 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001N905.pli": {
+      "units": [
+        "L70 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L87 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001NB03.pli": {
+      "units": [
+        "L131 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001NC03.pli": {
+      "units": [
+        "L125 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001NO10.pli": {
+      "units": [
+        "L1093 STARTBR FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1097 READNEXT FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1134 STARTBR FILE NORREST RIDFLD=REST_RBA",
+        "L1138 READNEXT FILE NORREST RIDFLD=REST_RBA",
+        "L1290 WRITE FILE NORFEIL RIDFLD=FEIL_RBA",
+        "L1462 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1881 WRITE FILE NORSTAT RIDFLD=STAT_RBA",
+        "L1918 WRITE FILE SYSREG RIDFLD=SYS_RBA",
+        "L2012 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L543 STARTBR FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L545 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L556 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L584 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L621 WRITE FILE NORREST RIDFLD=REST_RBA",
+        "L644 READ FILE TKNRTAB RIDFLD=KEY_TKTAB",
+        "L959 STARTBR FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L962 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L974 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001O301.pli": {
+      "units": [
+        "L1525 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001S003.pli": {
+      "units": [
+        "L250 WRITE FILE YRKEKODE RIDFLD=Y_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TE01.pli": {
+      "units": [
+        "L167 STARTBR FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L171 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L178 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L254 STARTBR FILE OMRFEIL RIDFLD=RBA_PEKER",
+        "L258 READNEXT FILE OMRFEIL RIDFLD=RBA_PEKER",
+        "L271 STARTBR FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L274 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L302 STARTBR FILE INTEJKR RIDFLD=KEYBIT",
+        "L304 READNEXT FILE INTEJKR RIDFLD=KEYBIT",
+        "L326 DELETE FILE INTEJKR RIDFLD=KEYBIT_T",
+        "L335 WRITE FILE INTEJKR RIDFLD=KEYBIT_T",
+        "L362 STARTBR FILE OSLO67 RIDFLD=RBA_PEKER",
+        "L364 READNEXT FILE OSLO67 RIDFLD=RBA_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TE02.pli": {
+      "units": [
+        "L174 STARTBR FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L178 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L185 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L260 STARTBR FILE OMRFEIL RIDFLD=RBA_PEKER",
+        "L264 READNEXT FILE OMRFEIL RIDFLD=RBA_PEKER",
+        "L277 STARTBR FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L280 READNEXT FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L314 STARTBR FILE INTEJKR RIDFLD=KEYBIT",
+        "L316 READNEXT FILE INTEJKR RIDFLD=KEYBIT",
+        "L346 STARTBR FILE INTEJKR RIDFLD=KEYBIT",
+        "L348 READNEXT FILE INTEJKR RIDFLD=KEYBIT",
+        "L358 READNEXT FILE INTEJKR RIDFLD=KEYBIT",
+        "L434 READNEXT FILE INTEJKR RIDFLD=KEYBIT",
+        "L479 DELETE FILE INTEJKR RIDFLD=KEYBIT_T",
+        "L488 WRITE FILE INTEJKR RIDFLD=KEYBIT_T",
+        "L515 STARTBR FILE OSLO67 RIDFLD=RBA_PEKER",
+        "L517 READNEXT FILE OSLO67 RIDFLD=RBA_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK03.pli": {
+      "units": [
+        "L111 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L129 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L152 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L171 READ FILE BRUKAU RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK07.pli": {
+      "units": [
+        "L1591 READ FILE TKNRTAB RIDFLD=NOKKEL",
+        "L1606 WRITE FILE TKNRTAB RIDFLD=NOKKEL",
+        "L1616 READ FILE TKLISTE RIDFLD=NOKKEL",
+        "L1630 WRITE FILE TKLISTE RIDFLD=NOKKEL",
+        "L1650 WRITE FILE FORANDRE RIDFLD=NOKKEL_2",
+        "L1756 READ FILE KDPOST RIDFLD=POST_KEY",
+        "L1771 READ FILE KDPOST RIDFLD=POST_KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK43.pli": {
+      "units": [
+        "L170 READ FILE KDPOST RIDFLD=POST_KEY",
+        "L210 READ FILE KDPOST RIDFLD=POST_KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK60.pli": {
+      "units": [
+        "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK61.pli": {
+      "units": [
+        "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK62.pli": {
+      "units": [
+        "L117 STARTBR FILE HISTOR RIDFLD=IN_RBA",
+        "L120 READNEXT FILE HISTOR RIDFLD=IN_RBA",
+        "L127 READNEXT FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK81.pli": {
+      "units": [
+        "L425 READ FILE CMSTK RIDFLD=LES_TKNR",
+        "L453 READ FILE CMSTK RIDFLD=LES_TKNR",
+        "L466 WRITE FILE CMSTK RIDFLD=LES_TKNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK82.pli": {
+      "units": [
+        "L220 STARTBR FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L226 READNEXT FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L256 READNEXT FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L456 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L471 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L503 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L567 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L835 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L844 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L872 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001TK83.pli": {
+      "units": [
+        "L234 STARTBR FILE DIVPATH RIDFLD=LES_NAVN",
+        "L240 READNEXT FILE DIVPATH RIDFLD=LES_NAVN",
+        "L270 READNEXT FILE DIVPATH RIDFLD=LES_NAVN",
+        "L478 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L493 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L525 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L601 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L958 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L967 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L995 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001U603.pli": {
+      "units": [
+        "L284 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L661 READ FILE DIAGNOS RIDFLD=U3S.PRIMDIAG",
+        "L700 READ FILE DIAGNOS RIDFLD=W603_KEY",
+        "L724 READ FILE DIAGNOS RIDFLD=U3S.SEKUDIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001U605.pli": {
+      "units": [
+        "L126 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L138 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001U803.pli": {
+      "units": [
+        "L136 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001U805.pli": {
+      "units": [
+        "L200 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L209 READ FILE STATTAB RIDFLD=KEY_BIT2",
+        "L253 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L565 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L574 READ FILE STATTAB RIDFLD=KEY_BIT4"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001UC03.pli": {
+      "units": [
+        "L110 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001UE03.pli": {
+      "units": [
+        "L162 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001UE05.pli": {
+      "units": [
+        "L438 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L450 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001UJ03.pli": {
+      "units": [
+        "L197 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/GML/R001UJ05.pli": {
+      "units": [
+        "L124 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L133 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010422.pli": {
+      "units": [
+        "L102 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L114 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L125 STARTBR FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L128 READPREV FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L130 READPREV FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010423.pli": {
+      "units": [
+        "L100 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L112 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L123 STARTBR FILE LIKNING RIDFLD=KEY_BIT",
+        "L126 READPREV FILE LIKNING RIDFLD=KEY_BIT",
+        "L128 READPREV FILE LIKNING RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010424.pli": {
+      "units": [
+        "L110 READ FILE STATTAB RIDFLD=KEY_BIT",
+        "L121 STARTBR FILE STATTAB RIDFLD=KEY_BIT",
+        "L124 READPREV FILE STATTAB RIDFLD=KEY_BIT",
+        "L126 READPREV FILE STATTAB RIDFLD=KEY_BIT",
+        "L98 READ FILE STATTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010425.pli": {
+      "units": [
+        "L101 READ FILE FEILTAB RIDFLD=W01_NR",
+        "L114 READ FILE FEILTAB RIDFLD=W01_NR",
+        "L127 STARTBR FILE FEILTAB RIDFLD=W01_NR",
+        "L130 READPREV FILE FEILTAB RIDFLD=W01_NR",
+        "L132 READPREV FILE FEILTAB RIDFLD=W01_NR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010427.pli": {
+      "units": [
+        "L58 STARTBR FILE OMRLOGG RIDFLD=RBA_PEKER",
+        "L59 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER",
+        "L64 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010430.pli": {
+      "units": [
+        "L1594 READ FILE TKNRTAB RIDFLD=W01_TKNR",
+        "L1611 READ FILE STATTAB RIDFLD=W01_STAT",
+        "L2365 WRITE FILE PRINTRX RIDFLD=PRI_RBA",
+        "L2436 WRITE FILE PRINTRX RIDFLD=PRI_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010450.pli": {
+      "units": [
+        "L871 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010503.pli": {
+      "units": [
+        "L156 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010505.pli": {
+      "units": [
+        "L125 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L134 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010603.pli": {
+      "units": [
+        "L262 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L445 READ FILE DIAGNOS RIDFLD=UPS.PRIMDIAG",
+        "L490 READ FILE DIAGNOS RIDFLD=W603_KEY",
+        "L516 READ FILE DIAGNOS RIDFLD=UPS.SEKUDIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010605.pli": {
+      "units": [
+        "L174 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L183 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010803.pli": {
+      "units": [
+        "L134 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0010805.pli": {
+      "units": [
+        "L104 READ FILE STATTAB RIDFLD=KEY_BIT2",
+        "L443 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L452 READ FILE STATTAB RIDFLD=KEY_BIT4",
+        "L95 READ FILE STATTAB RIDFLD=KEY_BIT1"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011003.pli": {
+      "units": [
+        "L284 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011103.pli": {
+      "units": [
+        "L127 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011203.pli": {
+      "units": [
+        "L106 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011303.pli": {
+      "units": [
+        "L102 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L250 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L383 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L600 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011403.pli": {
+      "units": [
+        "L172 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011503.pli": {
+      "units": [
+        "L114 READ FILE TKNRTAB RIDFLD=KEY_BIT2",
+        "L86 READ FILE TKNRTAB RIDFLD=KEY_BIT1"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011603.pli": {
+      "units": [
+        "L123 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011703.pli": {
+      "units": [
+        "L84 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011801.pli": {
+      "units": [
+        "L216 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L221 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L225 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L229 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L241 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L247 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L253 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L261 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011903.pli": {
+      "units": [
+        "L200 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0011905.pli": {
+      "units": [
+        "L126 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L135 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0012001.pli": {
+      "units": [
+        "L283 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0012004.pli": {
+      "units": [
+        "L391 READ FILE STASTIK RIDFLD=C_DATO",
+        "L406 WRITE FILE STASTIK RIDFLD=STATISTIKK_DATO_\u00c5MD",
+        "L411 READ FILE STASTIK RIDFLD=C_DATO"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0012005.pli": {
+      "units": [
+        "L42 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0012101.pli": {
+      "units": [
+        "L263 WRITE FILE DSFYKODE RIDFLD=Y_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0015602.pli": {
+      "units": [
+        "L186 WRITE FILE OVERFOR RIDFLD=OVER_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019906.pli": {
+      "units": [
+        "L69 READ FILE VSKJEDE RIDFLD=KEYBIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019921.pli": {
+      "units": [
+        "L51 READ FILE FEILTAB RIDFLD=W01_FEIL"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019956.pli": {
+      "units": [
+        "L52 READ FILE INITTAB RIDFLD=W9956_PIDENT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019957.pli": {
+      "units": [
+        "L117 READ FILE REGION RIDFLD=KEY_TKNR",
+        "L146 WRITE FILE NORINFO RIDFLD=KEY_FNR",
+        "L161 WRITE FILE INFOINFO RIDFLD=KEY_FNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019958.pli": {
+      "units": [
+        "L112 WRITE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
+        "L127 DELETE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
+        "L88 READ FILE STRYK RIDFLD=KEY_FNR_\u00c5R"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019998.pli": {
+      "units": [
+        "L37 READ FILE FEILTAB RIDFLD=W01_FEIL"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019A01.pli": {
+      "units": [
+        "L225 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L230 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L234 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L238 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L250 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L256 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L262 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L270 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019A02.pli": {
+      "units": [
+        "L120 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019A03.pli": {
+      "units": [
+        "L110 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L14 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L20 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L53 STARTBR FILE AUSTART RIDFLD=KEY_BIT",
+        "L56 READNEXT FILE AUSTART RIDFLD=KEY_BIT",
+        "L70 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L81 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L90 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L98 READ FILE AUSTART RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019D70.pli": {
+      "units": [
+        "L250 STARTBR FILE INTENDR RIDFLD=KEY_BIT",
+        "L251 READNEXT FILE INTENDR RIDFLD=KEY_BIT",
+        "L256 READNEXT FILE INTENDR RIDFLD=KEY_BIT",
+        "L383 DELETE FILE INTENDR RIDFLD=KEY_BIT",
+        "L392 READ FILE INTENDR RIDFLD=KEY_BIT",
+        "L550 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019E01.pli": {
+      "units": [
+        "L1119 WRITE FILE ENDRDSR RIDFLD=ENDR_PEKER",
+        "L3189 WRITE FILE MELDREC RIDFLD=MELD_PEKER",
+        "L4479 WRITE FILE FNRFEIL RIDFLD=FEIL_RBA",
+        "L749 STARTBR FILE FNRTILG RIDFLD=KEY_BIT",
+        "L752 READNEXT FILE FNRTILG RIDFLD=KEY_BIT",
+        "L806 READ FILE FNRTILG RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019E04.pli": {
+      "units": [
+        "L1148 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L1164 WRITE FILE ENDRDSR RIDFLD=ENDR_PEKER",
+        "L3233 WRITE FILE MELDREC RIDFLD=MELD_PEKER",
+        "L4423 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L4430 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L847 STARTBR FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L853 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L862 WRITE FILE OMRFEIL RIDFLD=OMR_FEIL_PEKER",
+        "L871 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L915 STARTBR FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L918 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
+        "L935 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019F01.pli": {
+      "units": [
+        "L1310 WRITE FILE ALDKONV RIDFLD=FEIL_RBA",
+        "L780 WRITE FILE FNREOS RIDFLD=FEIL_RBA2",
+        "L804 WRITE FILE FNREPAP RIDFLD=FEIL_RBA2",
+        "L834 WRITE FILE FNRKSUP RIDFLD=FEIL_RBA2",
+        "L878 WRITE FILE FNRTAK RIDFLD=FEIL_RBA2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H01.pli": {
+      "units": [
+        "L1071 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L1194 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L1559 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1782 WRITE FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L1803 WRITE FILE F0019H02 RIDFLD=F021_RBA",
+        "L1850 WRITE FILE FNRTAK RIDFLD=FEIL_RBA2",
+        "L2022 WRITE FILE TRKLIST RIDFLD=RBA_PEKER",
+        "L2058 WRITE FILE OMRNULL RIDFLD=NULL_RBA",
+        "L2079 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L487 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L490 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L702 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H21.pli": {
+      "units": [
+        "L1320 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1407 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1418 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1458 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1673 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L425 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L429 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L647 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L784 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L972 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H31.pli": {
+      "units": [
+        "L1277 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1539 WRITE FILE F0019H31 RIDFLD=RBA_PEKER",
+        "L1775 WRITE FILE F0019H31 RIDFLD=RBA_PEKER",
+        "L1892 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L374 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L377 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L591 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L723 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L926 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H3A.pli": {
+      "units": [
+        "L1236 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1446 WRITE FILE F0019H31 RIDFLD=RBA_PEKER",
+        "L1667 WRITE FILE F0019H31 RIDFLD=RBA_PEKER",
+        "L1785 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L348 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L351 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L574 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L716 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L885 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H41.pli": {
+      "units": [
+        "L1124 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1384 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L421 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L425 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L643 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L757 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L827 WRITE FILE STATUSFL RIDFLD=STAT_RBA",
+        "L884 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R0019H60.pli": {
+      "units": [
+        "L1194 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1309 WRITE FILE FNRKONT RIDFLD=FNRKONT_RBA_PTR",
+        "L1680 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L409 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L412 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L650 STARTBR FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L652 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L665 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L688 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L892 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L921 STARTBR FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L924 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
+        "L933 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001B001.pli": {
+      "units": [
+        "L1543 READ FILE DIAGKON RIDFLD=W070_REC.KEY.FNR",
+        "L1584 WRITE FILE DIAGKON RIDFLD=W070_REC.KEY",
+        "L1603 WRITE FILE DIAGKON RIDFLD=W070_REC.KEY",
+        "L560 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG1I",
+        "L681 READ FILE DIAGNOS RIDFLD=W020_KEY",
+        "L720 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG2I",
+        "L810 READ FILE YRKEKOD RIDFLD=S001B01I.NORDISK_YKODEI"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001HL21.pli": {
+      "units": [
+        "L1290 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
+        "L1372 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1383 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1421 WRITE FILE F0019H21 RIDFLD=RBA_PEKER",
+        "L1636 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L423 STARTBR FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L427 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L645 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
+        "L782 WRITE FILE F0019H01 RIDFLD=F001_RBA",
+        "L930 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I201.pli": {
+      "units": [
+        "L3011 WRITE FILE OLINNTE RIDFLD=OLI_PEKER",
+        "L3052 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I301.pli": {
+      "units": [
+        "L1658 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I402.pli": {
+      "units": [
+        "L544 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L669 READ FILE STRYK RIDFLD=KEY_BIT_ST"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I501.pli": {
+      "units": [
+        "L1638 WRITE FILE KEYFIL RIDFLD=KEY_IDENT",
+        "L1732 WRITE FILE KOMP RIDFLD=KOM_PEKER",
+        "L2117 WRITE FILE FFUDATA RIDFLD=FFU_PEKER",
+        "L2211 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L2580 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L3545 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I902.pli": {
+      "units": [
+        "L111 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I903.pli": {
+      "units": [
+        "L1573 READ FILE LIKNING RIDFLD=KEY_BIT",
+        "L1634 READ FILE STRYK RIDFLD=KEY_BIT_ST",
+        "L3790 WRITE FILE INBRUDD RIDFLD=IN_RBA",
+        "L3828 WRITE FILE OLBRUDD RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001I904.pli": {
+      "units": [
+        "L252 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L256 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L454 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L457 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L465 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L491 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L495 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L534 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L540 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L545 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L555 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L562 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L578 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L584 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L590 READPREV FILE INBRUDD RIDFLD=IN_RBA",
+        "L612 RESETBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L619 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L656 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L660 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L827 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L831 READNEXT FILE INBRUDD RIDFLD=IN_RBA",
+        "L851 READ FILE INBRUDD RIDFLD=IN_RBA",
+        "L949 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
+        "L955 READNEXT FILE INBRUDD RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001IA04.pli": {
+      "units": [
+        "L83 WRITE FILE OMSORGE RIDFLD=OMS_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N503.pli": {
+      "units": [
+        "L153 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L193 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L202 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N603.pli": {
+      "units": [
+        "L251 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L457 READ FILE DIAGNOS RIDFLD=U2S.PRIMDIAG",
+        "L502 READ FILE DIAGNOS RIDFLD=W603_KEY",
+        "L528 READ FILE DIAGNOS RIDFLD=U2S.SEKUDIAG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N605.pli": {
+      "units": [
+        "L121 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L130 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N803.pli": {
+      "units": [
+        "L144 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N805.pli": {
+      "units": [
+        "L388 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L397 READ FILE STATTAB RIDFLD=KEY_BIT4",
+        "L90 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L99 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N903.pli": {
+      "units": [
+        "L132 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001N905.pli": {
+      "units": [
+        "L73 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L90 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001NB03.pli": {
+      "units": [
+        "L117 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001NC03.pli": {
+      "units": [
+        "L103 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001NO10.pli": {
+      "units": [
+        "L1006 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L1128 STARTBR FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1132 READNEXT FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1154 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1172 STARTBR FILE NORREST RIDFLD=REST_RBA",
+        "L1176 READNEXT FILE NORREST RIDFLD=REST_RBA",
+        "L1211 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1234 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1266 WRITE FILE NORFEIL RIDFLD=FEIL_RBA",
+        "L1548 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1553 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1561 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L1891 WRITE FILE NORSTAT RIDFLD=STAT_RBA",
+        "L1928 WRITE FILE NORSYS RIDFLD=NOR_RBA",
+        "L2023 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L563 STARTBR FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L565 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L576 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L604 WRITE FILE NORLOGG RIDFLD=LOGG_RBA",
+        "L641 WRITE FILE NORREST RIDFLD=REST_RBA",
+        "L664 READ FILE TKNRTAB RIDFLD=KEY_TKTAB",
+        "L991 STARTBR FILE NORFREG RIDFLD=KEY_NORFIL",
+        "L994 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001S003.pli": {
+      "units": [
+        "L254 WRITE FILE DSFYKODE RIDFLD=Y_LOGG"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK03.pli": {
+      "units": [
+        "L111 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L129 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L152 READ FILE BRUKAU RIDFLD=IDENT_BIT",
+        "L171 READ FILE BRUKAU RIDFLD=IDENT_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK07.pli": {
+      "units": [
+        "L1591 READ FILE TKNRTAB RIDFLD=NOKKEL",
+        "L1606 WRITE FILE TKNRTAB RIDFLD=NOKKEL",
+        "L1616 READ FILE TKLISTE RIDFLD=NOKKEL",
+        "L1630 WRITE FILE TKLISTE RIDFLD=NOKKEL",
+        "L1650 WRITE FILE FORANDRE RIDFLD=NOKKEL_2",
+        "L1756 READ FILE KDPOST RIDFLD=POST_KEY",
+        "L1771 READ FILE KDPOST RIDFLD=POST_KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK43.pli": {
+      "units": [
+        "L170 READ FILE KDPOST RIDFLD=POST_KEY",
+        "L210 READ FILE KDPOST RIDFLD=POST_KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK60.pli": {
+      "units": [
+        "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK61.pli": {
+      "units": [
+        "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK62.pli": {
+      "units": [
+        "L117 STARTBR FILE HISTOR RIDFLD=IN_RBA",
+        "L120 READNEXT FILE HISTOR RIDFLD=IN_RBA",
+        "L127 READNEXT FILE HISTOR RIDFLD=IN_RBA"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK81.pli": {
+      "units": [
+        "L425 READ FILE CMSTK RIDFLD=LES_TKNR",
+        "L453 READ FILE CMSTK RIDFLD=LES_TKNR",
+        "L466 WRITE FILE CMSTK RIDFLD=LES_TKNR"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK82.pli": {
+      "units": [
+        "L220 STARTBR FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L226 READNEXT FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L256 READNEXT FILE SEKRPATH RIDFLD=LES_NAVN",
+        "L456 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L471 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L503 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L567 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L835 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L844 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
+        "L872 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001TK83.pli": {
+      "units": [
+        "L234 STARTBR FILE DIVPATH RIDFLD=LES_NAVN",
+        "L240 READNEXT FILE DIVPATH RIDFLD=LES_NAVN",
+        "L270 READNEXT FILE DIVPATH RIDFLD=LES_NAVN",
+        "L478 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L493 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L525 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L601 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L958 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L967 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
+        "L995 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001U603.pli": {
+      "units": [
+        "L286 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001U605.pli": {
+      "units": [
+        "L133 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L145 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001U803.pli": {
+      "units": [
+        "L133 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001U805.pli": {
+      "units": [
+        "L127 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L136 READ FILE STATTAB RIDFLD=KEY_BIT2",
+        "L213 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L401 READ FILE STATTAB RIDFLD=KEY_BIT3",
+        "L410 READ FILE STATTAB RIDFLD=KEY_BIT4"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001UC03.pli": {
+      "units": [
+        "L97 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001UE03.pli": {
+      "units": [
+        "L152 READ FILE TKNRTAB RIDFLD=KEY_BIT"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001UE05.pli": {
+      "units": [
+        "L489 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L501 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/R001UJ03.pli": {
+      "units": [
+        "L151 READ FILE TKNRTAB RIDFLD=KEY_BIT",
+        "L745 READ FILE STATTAB RIDFLD=KEY_BIT1",
+        "L754 READ FILE STATTAB RIDFLD=KEY_BIT2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

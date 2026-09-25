@@ -615,6 +615,10 @@
     "copybook layouts": {
       "introduced": "#3672",
       "development_rounds": 6
+    },
+    "CICS RIDFLD": {
+      "introduced": "#3672",
+      "development_rounds": 6
     }
   }
 }

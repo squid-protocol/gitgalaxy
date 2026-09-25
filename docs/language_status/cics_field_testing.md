@@ -60,6 +60,7 @@ counted in it (their fact counts are not recorded here).
 | job submissions | 1 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | symbolic maps | 1 | 0 | 0 | 5,307 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | web services | 1 | 0 | 0 | 18 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| CICS RIDFLD | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I record fields | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | TD trigger starts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | cics/sql | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |

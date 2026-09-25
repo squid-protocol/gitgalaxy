@@ -82102,5 +82102,78 @@
         "notes": []
       }
     }
+  },
+  "cics_ridflds": {
+    "src/base/cobol_src/ABNDPROC.cbl": {
+      "units": [
+        "L141 WRITE FILE ABNDFILE RIDFLD=ABND-VSAM-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "units": [
+        "L1029 WRITE FILE CUSTOMER RIDFLD=CUSTOMER-KEY",
+        "L1048 WRITE FILE CUSTOMER RIDFLD=CUSTOMER-KEY",
+        "L1075 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY",
+        "L1290 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY",
+        "L1306 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "units": [
+        "L162 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY",
+        "L178 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "units": [
+        "L353 READ FILE CUSTOMER RIDFLD=DESIRED-KEY",
+        "L371 READ FILE CUSTOMER RIDFLD=DESIRED-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "units": [
+        "L265 READ FILE CUSTOMER RIDFLD=CUSTOMER-KY",
+        "L290 READ FILE CUSTOMER RIDFLD=CUSTOMER-KY",
+        "L574 STARTBR FILE CUSTOMER RIDFLD=CUSTOMER-KY2",
+        "L589 STARTBR FILE CUSTOMER RIDFLD=CUSTOMER-KY2",
+        "L609 READPREV FILE CUSTOMER RIDFLD=CUSTOMER-KY2",
+        "L625 READPREV FILE CUSTOMER RIDFLD=CUSTOMER-KY2"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/UPDCUST.cbl": {
+      "units": [
+        "L220 READ FILE CUSTOMER RIDFLD=DESIRED-CUST-KEY"
+      ],
+      "ridflds_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

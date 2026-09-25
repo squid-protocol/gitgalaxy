@@ -30,13 +30,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_type, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import (
-    DTO_SUBPACKAGE,
-    CicsForge,
-    _status,
-    java_type,
-)
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE, CicsForge
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 _LINK_VERBS = ("LINK", "XCTL")
@@ -91,6 +87,8 @@ class CallForge:
         self.cls_of = {key: java_class_base(key) for key in skeletons}
         self.extras: dict[str, Extras] = {key: Extras() for key in skeletons}
         self.clients: dict[str, RemoteClient] = {}
+        # What the audit reports, counted as the methods are emitted (#3657).
+        self.counts = {"link": 0, "xctl": 0, "call": 0, "dispatch": 0, "remote": 0}
         self._params: dict[str, list[Param]] = {}
         self._call_handlers: set[str] = set()
         for key in sorted(skeletons):
@@ -104,7 +102,7 @@ class CallForge:
         sk = self.skeletons[key]
         cls = self.cls_of[key]
         interface = (sk["sections"].get("interface") or {}).get("facts") or {}
-        status = _status(sk["sections"].get("interface"))
+        status = status_text(sk["sections"].get("interface"))
         out: list[Param] = []
         for p in interface.get("parameters", []):
             layout = p.get("layout")
@@ -186,7 +184,7 @@ class CallForge:
         path = sk["program"]["file"]
         ex = self.extras[key]
         status = {
-            n: _status(sections.get(n)) for n in ("calls", "dynamic_call_targets", "remote_calls", "call_contracts")
+            n: status_text(sections.get(n)) for n in ("calls", "dynamic_call_targets", "remote_calls", "call_contracts")
         }
         remote = {r["line"]: r for r in (sections.get("remote_calls") or {}).get("facts", []) if r.get("file") == path}
 
@@ -219,6 +217,7 @@ class CallForge:
                 ex.methods.append(f"     *  Call targets field testing: {status['calls']}. */")
                 ex.methods += [f"    // {g}" for g in gaps]
                 ex.methods += self._delegate(f"{verb.lower()}{target}", ref, "handleLink", req, resp)
+                self.counts[verb.lower()] += 1
             else:
                 self._need_call_handler(callee)
                 params = self.params(callee)
@@ -232,6 +231,7 @@ class CallForge:
                     f"        {ref}.handleCall({args});",
                     "    }\n",
                 ]
+                self.counts["call"] += 1
 
         for d in (sections.get("dynamic_call_targets") or {}).get("facts", []):
             if d.get("file") == path and d.get("verb") in (*_LINK_VERBS, "CALL"):
@@ -267,6 +267,7 @@ class CallForge:
         ex.methods.append(f"     *  Dynamic call targets field testing: {status}. */")
         sig = "String program, Object request" if link else "String program, Object... args"
         ex.methods.append(f"    public Object {method}({sig}) {{")
+        self.counts["dispatch"] += 1
         ex.methods.append("        switch (program.trim().toUpperCase()) {")
         for c in d.get("candidates", []):
             callee = self.key_of.get(c.get("resolves_to") or "")
@@ -313,6 +314,8 @@ class CallForge:
 
     def _remote(self, key: str, c: dict, region: str, row: dict, status: str) -> None:
         cls = java_class_base(region) + "RemoteClient"
+        if region not in self.clients:
+            self.cics.names.claim(cls)
         client = self.clients.setdefault(region, RemoteClient(region, cls))
         program = (row.get("program") or c.get("target") or "").upper()
         callee = self.key_of.get(c.get("resolves_to") or "")
@@ -344,6 +347,7 @@ class CallForge:
                           f"{region} (distributed program link).")  # fmt: skip
         ex.methods.append(f"     *  Remote calls field testing: {status}. */")
         ex.methods += self._delegate(f"remote{java_class_base(program)}L{c['line']}", field_name, name, req, resp)
+        self.counts["remote"] += 1
 
     def client_sources(self) -> dict[str, str]:
         """Remote client class name -> Java source (package <pkg>.client)."""
@@ -375,14 +379,3 @@ class CallForge:
 
     def service_extras(self, key: str) -> dict[str, Any]:
         return self.extras[key].as_dict()
-
-
-def merge_extras(*parts: dict | None) -> dict | None:
-    """One service's extras from the transaction and call forges."""
-    present: list[dict] = [p for p in parts if p and (p.get("imports") or p.get("fields") or p.get("methods"))]
-    if not present:
-        return None
-    imports = sorted({i for p in present for i in p.get("imports", [])})
-    fields = [f for p in present for f in p.get("fields", [])]
-    methods = [m for p in present for m in p.get("methods", [])]
-    return {"imports": imports, "fields": fields, "methods": methods}

@@ -244,3 +244,23 @@ def test_plain_classes_give_the_key_class_value_equality(scanned, tmp_path):
     key = (src / "entity/vsam/FdTcatRecKey.java").read_text(encoding="utf-8")
     assert "public boolean equals(Object o)" in key and "Objects.hash(fdTcatType, fdTcatCd)" in key
     assert "lombok" not in (src / "entity/vsam/AcctRec.java").read_text(encoding="utf-8")
+
+
+def test_one_class_name_registry_spans_the_forges(scanned):
+    """#3657: a name one forge generated is never reused by another. A service importing
+    dto.contract.AcctRec and entity.vsam.AcctRec would not compile."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
+
+    _, db = scanned
+    ir = load_galaxy_ir(db)
+    estate = {"sections": {"vsam_stores": {"facts": ir.vsam_stores()}}}
+    skeletons = {ef.file_path.split("/")[-1][:-4]: {"program": {"file": ef.file_path}} for ef in ir.programs()}
+    alone = RepositoryForge(estate, skeletons, "com.acme")
+    assert "AcctRec" in [st.entity for st in alone.stores]
+    names = ClassNames()
+    names.claim("AcctRec")  # e.g. a COMMAREA DTO the transaction forge generated first
+    shared = RepositoryForge(estate, skeletons, "com.acme", names=names)
+    entities = [st.entity for st in shared.stores]
+    assert "AcctRec" not in entities and "AcctAcctRec" in entities
+    assert {"AcctAcctRecRepository", "FdTcatRecKey"} <= names.taken

@@ -1,0 +1,102 @@
+# ==============================================================================
+# GitGalaxy Tool: the skeleton-driven forges as one pipeline (#3657)
+#
+# PURPOSE:
+# The forges that build from the refractor's verified skeleton (06_skeleton,
+# #3614) -- CICS endpoints and contract DTOs (#3615), service-to-service calls
+# (#3616), VSAM repositories (#3617), and the ones to come (#3618-#3622) -- are
+# planned together, over one shared registry of class names, and hand the
+# cobol-to-java controller three things: the files to write, each program's
+# service extras (merged), and the audit lines. The controller wires this one
+# object instead of every forge.
+# ==============================================================================
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import TextIO
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, merge_extras
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, CicsProgram, load_skeletons
+from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
+
+
+class SkeletonForges:
+    """Every skeleton-driven forge, planned over the same skeletons and class-name registry."""
+
+    def __init__(self, skeleton_dir: Path, package: str, target: JavaTarget) -> None:
+        self.skeletons = load_skeletons(skeleton_dir)
+        estate_file = skeleton_dir / "estate.json"
+        self.estate = json.loads(estate_file.read_text(encoding="utf-8")) if estate_file.is_file() else {}
+        self.names = ClassNames()
+        self.cics = CicsForge(self.skeletons, package, target, self.names)
+        self.calls = CallForge(self.skeletons, self.cics, package, target)
+        self.repos = RepositoryForge(self.estate, self.skeletons, package, target, self.names)
+
+    def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
+        """(java_dirs key, sub-directory) -> {class name: Java source}, every generated file."""
+        repos = self.repos
+        entities = {st.entity: repos.entity_source(st) for st in repos.stores}
+        entities.update({st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite})
+        return {
+            ("entity", "vsam"): entities,
+            ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
+            ("dto", "contract"): self.cics.dto_sources(),
+            ("base_pkg", "client"): self.calls.client_sources(),
+        }
+
+    def write(self, java_dirs: dict[str, Path], header: str) -> dict[str, int]:
+        """Writes every generated file under the Spring Boot tree; returns what the stats count."""
+        (java_dirs["dto"] / "contract").mkdir(parents=True, exist_ok=True)  # present even when empty, as before
+        for (base, sub), files in self.sources().items():
+            out_dir = java_dirs[base] / sub
+            for name, code in files.items():
+                out_dir.mkdir(parents=True, exist_ok=True)
+                (out_dir / f"{name}.java").write_text(header + code, encoding="utf-8")
+        return {"entities": len(self.repos.stores), "dtos": len(self.cics.dtos)}
+
+    def summary(self) -> str:
+        return (
+            f"Generated {len(self.cics.dtos)} program-contract DTOs for {len(self.cics.programs)} CICS programs and "
+            f"{len(self.calls.clients)} remote-region clients"
+        )
+
+    def class_base(self, key: str) -> str | None:
+        """The class base a program's service is generated under, or None when it has no skeleton."""
+        return self.calls.cls_of.get(key)
+
+    def cics_program(self, key: str) -> CicsProgram | None:
+        return self.cics.programs.get(key)
+
+    def service_extras(self, key: str) -> dict | None:
+        """What every forge adds to the program's @Service, merged."""
+        prog = self.cics.programs.get(key)
+        return merge_extras(
+            self.cics.service_extras(prog) if prog is not None else None,
+            self.calls.service_extras(key),
+            self.repos.service_extras(key),
+        )
+
+    def write_audit(self, f: TextIO) -> None:
+        """The audit lines for what the forges generated (#3615-#3617)."""
+        cics, calls, repos = self.cics, self.calls, self.repos
+        with_commarea = sum(1 for p in cics.programs.values() if p.commarea_dto)
+        f.write(
+            f"  • CICS programs (#3615)    : {len(cics.programs)} -- {with_commarea} with a COMMAREA DTO, "
+            f"{sum(len(p.transactions) for p in cics.programs.values())} transaction endpoints, "
+            f"{len(cics.dtos)} COMMAREA / channel DTOs\n"
+        )
+        n = calls.counts
+        f.write(
+            f"  • Service calls (#3616)    : {n['link']} LINK, {n['xctl']} XCTL, {n['call']} CALL, "
+            f"{n['dispatch']} data-driven dispatch, {n['remote']} remote; {len(calls.clients)} remote-region clients\n"
+        )
+        f.write(
+            f"  • VSAM stores (#3617)      : {len(repos.stores)} entities + repositories "
+            f"({sum(1 for st in repos.stores if st.key is not None)} keyed by one field); "
+            f"{len(repos.unmapped)} not generated\n"
+        )
+        for label, why in repos.unmapped:
+            f.write(f"      - {label}: {why}\n")

@@ -49,7 +49,6 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
     generate_pom_xml,
     generate_settings_gradle,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
 )
@@ -57,10 +56,10 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     java_class_base,
     output_key,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_skeleton_forges import SkeletonForges
 
 # Current Imports
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
@@ -70,7 +69,6 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
     generate_java_entity,
     is_transient_record,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, load_skeletons
 from gitgalaxy.tools.cobol_to_java.java_target import (
     DEFAULT_CONFIG,
     ConfigError,
@@ -144,13 +142,7 @@ public class {camel_name}Service {{
 """
 
 
-def _write_skeleton_audit(
-    f,
-    skeletons: dict,
-    cics: Optional[CicsForge] = None,
-    calls: Optional[CallForge] = None,
-    repos: Optional[RepositoryForge] = None,
-) -> None:
+def _write_skeleton_audit(f, skeletons: dict, forges: Optional[SkeletonForges] = None) -> None:
     """#3614: which engine facts the generated project was built against, and how far each is proven."""
     fields: dict[str, dict] = {}
     for key, path in skeletons.items():
@@ -170,30 +162,8 @@ def _write_skeleton_audit(
             f"({row['tested_on_public']} / {row['tested_on_private']})\n"
         )
     f.write("  'open' = verified on the keyed reference corpora, still being field-tested on fresh estates.\n")
-    if cics is not None:
-        with_commarea = sum(1 for p in cics.programs.values() if p.commarea_dto)
-        f.write(
-            f"  • CICS programs (#3615)    : {len(cics.programs)} -- {with_commarea} with a COMMAREA DTO, "
-            f"{sum(len(p.transactions) for p in cics.programs.values())} transaction endpoints, "
-            f"{len(cics.dtos)} COMMAREA / channel DTOs\n"
-        )
-    if calls is not None:
-        methods = [m for ex in calls.extras.values() for m in ex.methods if m.startswith("    public ")]
-        link, xctl, call, dispatch, remote = (
-            sum(1 for m in methods if f" {kind}" in m) for kind in ("link", "xctl", "call", "dispatch", "remote")
-        )
-        f.write(
-            f"  • Service calls (#3616)    : {link} LINK, {xctl} XCTL, {call} CALL, {dispatch} data-driven dispatch, "
-            f"{remote} remote; {len(calls.clients)} remote-region clients\n"
-        )
-    if repos is not None:
-        f.write(
-            f"  • VSAM stores (#3617)      : {len(repos.stores)} entities + repositories "
-            f"({sum(1 for st in repos.stores if st.key is not None)} keyed by one field); "
-            f"{len(repos.unmapped)} not generated\n"
-        )
-        for label, why in repos.unmapped:
-            f.write(f"      - {label}: {why}\n")
+    if forges is not None:
+        forges.write_audit(f)
     f.write("\n")
 
 
@@ -334,39 +304,13 @@ def main():
     # #3614: the refractor's verified skeletons (present when it ran with --scan / --galaxy-db)
     skeleton_dir = clean_room_path / "06_skeleton"
     skeletons = {p.name[: -len("_skeleton.json")]: p for p in sorted(skeleton_dir.glob("*_skeleton.json"))}
-    # #3615: CICS programs get endpoints per entry transaction and COMMAREA / channel DTOs;
-    # #3616: every program's LINK / XCTL / CALL targets become service-to-service calls.
-    cics = calls = repos = None
-    if skeletons and target.features.services:
-        loaded = load_skeletons(skeleton_dir)
-        cics = CicsForge(loaded, args.pkg, target)
-        calls = CallForge(loaded, cics, args.pkg, target)
-        estate_file = skeleton_dir / "estate.json"
-        estate = json.loads(estate_file.read_text(encoding="utf-8")) if estate_file.is_file() else {}
-        repos = RepositoryForge(estate, loaded, args.pkg, target)  # #3617: VSAM stores -> repositories
-        for sub, sources in (
-            (("entity", "vsam"), {st.entity: repos.entity_source(st) for st in repos.stores}),
-            (("entity", "vsam"), {st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite}),
-            (("repository", "vsam"), {st.repository: repos.repository_source(st) for st in repos.stores}),
-        ):
-            out_dir = java_dirs[sub[0]] / sub[1]
-            for name, code in sources.items():
-                out_dir.mkdir(parents=True, exist_ok=True)
-                (out_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
-        stats["entities"] += len(repos.stores)
-        contract_dir = java_dirs["dto"] / "contract"
-        contract_dir.mkdir(parents=True, exist_ok=True)
-        for name, code in cics.dto_sources().items():
-            (contract_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
-            stats["dtos"] += 1
-        client_dir = java_dirs["base_pkg"] / "client"
-        for name, code in calls.client_sources().items():
-            client_dir.mkdir(parents=True, exist_ok=True)
-            (client_dir / f"{name}.java").write_text(java_header + code, encoding="utf-8")
-        print(
-            f"  [+] Generated {len(cics.dtos)} program-contract DTOs for {len(cics.programs)} CICS programs and "
-            f"{len(calls.clients)} remote-region clients"
-        )
+    # #3615-#3617 (#3657): the skeleton-driven forges -- CICS endpoints + contract DTOs, service-to-
+    # service calls, VSAM repositories -- planned together and written in one go.
+    forges = SkeletonForges(skeleton_dir, args.pkg, target) if skeletons and target.features.services else None
+    if forges is not None:
+        for stat, n in forges.write(java_dirs, java_header).items():
+            stats[stat] += n
+        print(f"  [+] {forges.summary()}")
 
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
@@ -389,18 +333,14 @@ def main():
                 safe_file_name = java_class_base(raw_prog_id)
                 cics_prog = None
                 skeleton_key = output_key(ir_file, "_ir")
-                if calls is not None and calls.cls_of.get(skeleton_key) != safe_file_name:
+                if forges is not None and forges.class_base(skeleton_key) != safe_file_name:
                     skeleton_key = None  # a renamed key (legacy / legacy-service): keep the generic path
-                if cics is not None and skeleton_key:
-                    cics_prog = cics.programs.get(skeleton_key)
+                if forges is not None and skeleton_key:
+                    cics_prog = forges.cics_program(skeleton_key)
 
                 # 3A. Generate the @Service Skeleton
                 if target.features.services:
-                    extras = merge_extras(
-                        cics.service_extras(cics_prog) if cics_prog is not None else None,
-                        calls.service_extras(skeleton_key) if calls is not None and skeleton_key else None,
-                        repos.service_extras(skeleton_key) if repos is not None and skeleton_key else None,
-                    )
+                    extras = forges.service_extras(skeleton_key) if forges is not None and skeleton_key else None
                     service_code = generate_service_skeleton(
                         ir_state, args.pkg, unit_key=raw_prog_id, target=target, extras=extras
                     )
@@ -414,7 +354,7 @@ def main():
                 lineage = ir_state.get("analysis", {}).get("lineage", {})
                 wants_api = lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")
                 if cics_prog is not None and target.features.rest_controllers:
-                    java_code = cics.controller(cics_prog)
+                    java_code = forges.cics.controller(cics_prog)
                     if java_header:
                         java_code = java_header + java_code
                     (java_dirs["controller"] / f"{safe_file_name}Controller.java").write_text(
@@ -512,7 +452,7 @@ def main():
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
         if skeletons:
-            _write_skeleton_audit(f, skeletons, cics, calls, repos)
+            _write_skeleton_audit(f, skeletons, forges)
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

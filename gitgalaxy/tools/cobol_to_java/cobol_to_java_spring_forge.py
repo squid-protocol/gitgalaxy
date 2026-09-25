@@ -26,6 +26,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier as _java_field_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
@@ -98,64 +99,6 @@ def parse_pic_clause(description: str) -> dict:
             constraints["precision"] = precision
 
     return constraints
-
-
-# COBOL variable names that are protected keywords in Java (or would start with a
-# digit); the field renderer sanitizes against these so the output always compiles.
-_RESERVED_VARS = {
-    "class",
-    "static",
-    "public",
-    "private",
-    "protected",
-    "return",
-    "new",
-    "system",
-    "default",
-    "enum",
-    "interface",
-    "void",
-    "try",
-    "catch",
-    "finally",
-    "import",
-    "package",
-    "super",
-    "this",
-    "const",
-    "goto",
-    "byte",
-    "int",
-    "char",
-    "short",
-    "long",
-    "float",
-    "double",
-    "boolean",
-    "null",
-    "true",
-    "false",
-}
-
-
-def _java_field_name(col_name: str) -> str:
-    """The sanitized camelCase Java field name for a COBOL column.
-
-    COBOL names use hyphens, Java keywords and leading digits freely; we normalise
-    so the generated field is always a legal, non-colliding Java identifier.
-    """
-    # Replace hyphens with underscores before splitting to catch all legacy variations
-    clean_col = col_name.lower().replace("-", "_")
-    parts = clean_col.split("_")
-    camel_name = parts[0] + "".join(word.title() for word in parts[1:])
-
-    # Java variables cannot start with a number. Prefix with 'v'.
-    if camel_name and camel_name[0].isdigit():
-        camel_name = "v" + camel_name
-
-    if camel_name in _RESERVED_VARS:
-        camel_name += "Val"
-    return camel_name
 
 
 def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool) -> list[str]:

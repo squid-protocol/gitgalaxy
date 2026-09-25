@@ -24,6 +24,8 @@ VSAM (#3617, `cobol_to_java_repository_forge.py`):
 - A store used only by programs that are not converted (DSF's PL/I) is listed in the audit, not generated.
 - The installation-symbol DSNAMEs (`@BANK_PREFIX@`, `<USRHLQ>`) are NOT joined by guess to the CSD's concrete names.
 
+The skeleton-driven forges share one pipeline (#3657). `cobol_to_java_skeleton_forges.SkeletonForges` plans every forge over the same skeletons and one `ClassNames` registry. It writes their files, merges each service's extras and writes the audit lines. The shared helpers live in `cobol_to_java_common.py`: type and identifier mapping, `status_text`, `merge_extras`. A new layer (#3618+) is a new forge registered in `SkeletonForges`; the controller does not change. Counts come from the forge's own counters, never from parsing generated text.
+
 Program-ID lookups must go through `_program_index` / `_nearest_program` / `_program_file`. They skip CSD/BMS/JCL/DDL "program ids": the CSD deck used to shadow every program it DEFINEs.
 
 **Neither side is the oracle.** The answer key is.

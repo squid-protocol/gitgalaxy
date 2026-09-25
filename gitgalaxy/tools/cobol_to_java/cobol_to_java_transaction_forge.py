@@ -27,37 +27,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
+    ClassNames,
+    container_var,
+    java_identifier,
+    java_type,
+    status_text,
+)
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, java_url_segment
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _java_field_name, render_dto_class
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import render_dto_class
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 # The records programs exchange -- COMMAREA, channel containers (#3615), CALL USING parameters (#3616).
 DTO_SUBPACKAGE = "dto.contract"
-# Checked after the `(n)` repeat counts are stripped, so anything but 9 S V P is an editing symbol
-# (Z , . + - * $ CR DB B / and the insertion 0): a numeric-edited PIC is display text.
-_EDITED = re.compile(r"[^9SVP]")
-
-
-def _digits_and_scale(pic: str) -> tuple[int, int]:
-    """(digit positions, positions after V) of a numeric PIC: `S9(7)V99` -> (9, 2)."""
-    expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic.upper())
-    whole, _, frac = expanded.partition("V")
-    return whole.count("9") + frac.count("9"), frac.count("9")
-
-
-def java_type(fld: dict) -> str:
-    """The Java type of one elementary item of a record layout."""
-    cls, pic = fld.get("class"), (fld.get("pic") or "").upper()
-    if cls == "F":
-        return "Double"
-    if cls not in ("9", "P", "B") or not pic:
-        return "String"
-    if _EDITED.search(re.sub(r"\(\d+\)", "", pic)):
-        return "String"  # numeric-edited: a display picture, not a number
-    digits, scale = _digits_and_scale(pic)
-    if scale or digits > 18:
-        return "BigDecimal"
-    return "Integer" if digits <= 9 else "Long"
 
 
 def _field_lines(layout: dict) -> tuple[list[str], bool]:
@@ -70,7 +52,7 @@ def _field_lines(layout: dict) -> tuple[list[str], bool]:
         name = fld.get("name")
         if not name or name.upper() == "FILLER":
             continue
-        base = _java_field_name(name)
+        base = java_identifier(name)
         seen[base] = seen.get(base, 0) + 1
         var = base if seen[base] == 1 else f"{base}{seen[base]}"
         jtype = java_type(fld)
@@ -84,21 +66,6 @@ def _field_lines(layout: dict) -> tuple[list[str], bool]:
         else:
             lines.append(f"    private {jtype} {var};\n")
     return lines, requires_list
-
-
-def _container_var(name: str) -> str:
-    """A Java field for a container name, which may hold any character: `DFHEP.DATA.00001` ->
-    `dfhepData00001`."""
-    return _java_field_name("-".join(w for w in re.split(r"[^A-Za-z0-9]+", name) if w) or "container")
-
-
-def _status(section: dict | None) -> str:
-    if not section:
-        return "untested"
-    return (
-        f"{section.get('field_testing', 'untested')} ({section.get('tested_on_public', 0)} public / "
-        f"{section.get('tested_on_private', 0)} private estates)"
-    )
 
 
 @dataclass
@@ -171,8 +138,15 @@ def _segment(transid: str) -> str:
 class CicsForge:
     """Plans every CICS program first, so one DTO class serves every program passing the same layout."""
 
-    def __init__(self, skeletons: dict[str, dict], package: str, target: JavaTarget | None = None) -> None:
+    def __init__(
+        self,
+        skeletons: dict[str, dict],
+        package: str,
+        target: JavaTarget | None = None,
+        names: ClassNames | None = None,
+    ) -> None:
         self.package = package
+        self.names = names if names is not None else ClassNames()  # shared with the other forges
         self.target = target or JavaTarget()
         self.program_files = {sk["program"]["file"] for sk in skeletons.values()}
         self._file_cls = {sk["program"]["file"]: java_class_base(key) for key, sk in skeletons.items()}
@@ -195,9 +169,10 @@ class CicsForge:
         declarer = self._file_cls.get(file) if not layout.get("extended") else None
         name = java_class_base(record) if shared else (declarer or owner_cls) + java_class_base(record)
         base, n = name, 1
-        while name in self.dtos:
+        while name in self.dtos or name in self.names:
             n += 1
             name = f"{base}{n}"
+        self.names.claim(name)
         body, requires_list = _field_lines(layout)
         self.dtos[name] = Dto(name, javadoc, body, requires_list, [use] if use else [])
         self._by_signature[signature] = name
@@ -222,7 +197,7 @@ class CicsForge:
         cls = java_class_base(key)
         path = sk["program"]["file"]
         prog = CicsProgram(key, cls, path, list(sk["program"].get("program_ids", [])))
-        prog.status = {name: _status(sec) for name, sec in sections.items()}
+        prog.status = {name: status_text(sec) for name, sec in sections.items()}
 
         by_transid: dict[str, list[dict]] = {}
         for row in (sections.get("entry_transactions") or {}).get("facts", []):
@@ -266,7 +241,7 @@ class CicsForge:
                     ftype = self._dto_for(c["record"], path, c["layout"], cls, doc)
                 else:
                     ftype = "String"
-                var = _container_var(c["container"])
+                var = container_var(c["container"])
                 if var in seen:
                     continue  # the same container read (or written) twice: one field
                 seen[var] = 1
@@ -277,7 +252,7 @@ class CicsForge:
                 if ftype == "String" and c.get("record"):
                     body.append(f"    // TODO: the layout of {c['record']} was not found; carried as text.")
                 body.append(f"    private {ftype} {var};\n")
-            name = f"{cls}Channel{'In' if direction == 'in' else 'Out'}"
+            name = self.names.claim(f"{cls}Channel{'In' if direction == 'in' else 'Out'}")
             doc = [f"The containers {cls} {'reads' if direction == 'in' else 'writes'} (CICS resources field testing: "
                    f"{prog.status.get('cics_resources', 'untested')})."]  # fmt: skip
             self.dtos[name] = Dto(name, doc, body, False)

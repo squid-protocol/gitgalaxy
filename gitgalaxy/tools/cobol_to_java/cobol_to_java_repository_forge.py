@@ -27,9 +27,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, java_identifier, java_type, status_text
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _accessors, _declared_fields, _java_field_name
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import _status, java_type
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _accessors, _declared_fields
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 ENTITY_SUBPACKAGE = "entity.vsam"
@@ -89,16 +89,17 @@ class RepositoryForge:
     """Plans every VSAM store once, then the repository methods each program needs."""
 
     def __init__(self, estate: dict, skeletons: dict[str, dict], package: str,
-                 target: JavaTarget | None = None) -> None:  # fmt: skip
+                 target: JavaTarget | None = None, names: ClassNames | None = None) -> None:  # fmt: skip
         self.package = package
+        self.names = names if names is not None else ClassNames()  # shared with the other forges
         self.target = target or JavaTarget()
         section = (estate.get("sections") or {}).get("vsam_stores") or {}
-        self.status = _status(section)
+        self.status = status_text(section)
         self.key_of = {sk["program"]["file"]: key for key, sk in skeletons.items()}
         self.cls_of = {key: java_class_base(key) for key in skeletons}
         self.stores: list[Store] = []
         self.unmapped: list[tuple[str, str]] = []  # (store, why) -- no entity generated
-        used_entities: set[str] = set()
+        used_entities = self.names
         used_tables: set[str] = set()
         for raw in section.get("facts", []):
             plan = self._plan(raw, used_entities, used_tables)
@@ -112,7 +113,7 @@ class RepositoryForge:
                     self._service_methods(key, st, user)
 
     # ---- the store ----------------------------------------------------------
-    def _plan(self, raw: dict, used_entities: set[str], used_tables: set[str]) -> Store | None:
+    def _plan(self, raw: dict, used_entities: ClassNames, used_tables: set[str]) -> Store | None:
         label = raw.get("dataset") or f"CICS FILE {raw.get('name')}"
         if not raw.get("users"):
             self.unmapped.append((label, "no program in the repository touches it"))
@@ -177,9 +178,10 @@ class RepositoryForge:
         org = (raw.get("organization") or "").upper()
         base = java_class_base(best["record"])
         entity = base if base not in used_entities else java_class_base(_qualifier(raw)) + base
-        while entity in used_entities:
+        while entity in used_entities or entity + "Repository" in used_entities or entity + "Key" in used_entities:
             entity += "X"
-        used_entities.add(entity)
+        used_entities.claim(entity)
+        used_entities.claim(entity + "Repository")
         if key is not None:
             key_type, note = key.jtype, f"{key.cobol} (offset {offset}, {length} bytes, from {source})"
         elif composite:
@@ -203,6 +205,8 @@ class RepositoryForge:
             table += "_x"
         used_tables.add(table)
 
+        if composite:
+            used_entities.claim(key_type)
         st = Store(raw, entity, table, best["record"], best["file"], layout, fields, key, composite, key_type, note)
         for aix in raw.get("alternate_indexes", []):
             alt = next((f for f in fields if f.offset == aix.get("key_offset") and f.bytes == aix.get("key_length")
@@ -238,7 +242,7 @@ class RepositoryForge:
             name = f.get("name")
             if not name or name.upper() == "FILLER":
                 continue
-            base = _java_field_name(name)
+            base = java_identifier(name)
             seen[base] = seen.get(base, 0) + 1
             java = base if seen[base] == 1 else f"{base}{seen[base]}"
             out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f.get("pic"), f.get("occurs")))

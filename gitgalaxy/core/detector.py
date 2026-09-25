@@ -1005,20 +1005,13 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
 
-def _drop_nested_unit_calls(
-    sats: list[Any], code: str, call_sites: list[tuple[Any, str, list[tuple[str, int, str]]]]
-) -> None:
-    """#3642 (contract C8): a call inside a nested named unit belongs to that unit only.
+def _nested_unit_spans(sats: list[Any], code: str) -> list[tuple[int, int]]:
+    """#3642 (C8): the `[start_idx, end_idx)` span of every named unit in `sats`, sorted.
 
-    Each unit's calls were scanned over its whole block, nested units included.
-    Here every other named unit the slicer emitted strictly inside a unit's
-    `[start_idx, end_idx)` span is blanked out of it: a callee stays only if one
-    of its call sites lies outside all of them, and the qualifiers are rebuilt
-    from those sites alone. Synthetic buckets (`Anonymous_Block`, ...) are not
-    named units, so an anonymous body's calls stay with the unit around it. A
-    unit whose block cannot be anchored exactly in `code` is left as it was.
+    Synthetic buckets (`Anonymous_Block`, `__global_context__`, ...) are not
+    named units, so an anonymous body stays part of the unit around it.
     """
-    units = sorted(
+    return sorted(
         (int(s["start_idx"]), int(s["end_idx"]))
         for s in sats
         if isinstance(s.get("start_idx"), int)
@@ -1026,38 +1019,47 @@ def _drop_nested_unit_calls(
         and s["end_idx"] > s["start_idx"]
         and not _is_synthetic_satellite_name(str(s.get("name") or ""))
     )
-    unit_starts = [u[0] for u in units]
-    for sat, block, sites in call_sites:
-        lo, hi = sat.get("start_idx"), sat.get("end_idx")
-        if not isinstance(lo, int) or not isinstance(hi, int) or hi <= lo:
-            continue
-        raw = code[lo:hi]
-        base = lo + len(raw) - len(raw.lstrip())
-        if not code.startswith(block, base):
-            continue
-        spans: list[tuple[int, int]] = []
-        for ns, ne in units[bisect.bisect_left(unit_starts, lo) :]:
-            if ns >= hi:
-                break
-            if ne <= hi and (ns, ne) != (lo, hi):
-                if spans and ns <= spans[-1][1]:
-                    spans[-1] = (spans[-1][0], max(spans[-1][1], ne))
-                else:
-                    spans.append((ns, ne))
-        if not spans:
-            continue
-        span_starts = [a for a, _ in spans]
-        kept: dict[str, list[str]] = {}
-        for callee, pos, qualifier in sites:
-            at = base + pos
-            i = bisect.bisect_right(span_starts, at) - 1
-            if i >= 0 and at < spans[i][1]:
-                continue
-            seen = kept.setdefault(callee, [])
-            if qualifier not in seen:
-                seen.append(qualifier)
-        sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
-        sat["calls_out_qualifiers"] = {c: kept[c] for c in sat["calls_out_to"]}
+
+
+def _blank_nested_units(
+    units: list[tuple[int, int]], unit_starts: list[int], code: str, sat: Any, block: str
+) -> Optional[str]:
+    """#3642 (C8): `block` with every unit nested strictly inside `sat` blanked out.
+
+    Each nested span becomes spaces (newlines kept, so lines still count).
+    Returns None when nothing is nested, or when `block` cannot be anchored
+    exactly in `code` at `sat`'s span (a slicer that rebuilt its block).
+    """
+    lo, hi = sat.get("start_idx"), sat.get("end_idx")
+    if not isinstance(lo, int) or not isinstance(hi, int) or hi <= lo:
+        return None
+    raw = code[lo:hi]
+    base = lo + len(raw) - len(raw.lstrip())
+    if not code.startswith(block, base):
+        return None
+    spans: list[tuple[int, int]] = []
+    for ns, ne in units[bisect.bisect_left(unit_starts, lo) :]:
+        if ns >= hi:
+            break
+        if ne <= hi and (ns, ne) != (lo, hi):
+            a, b = max(ns - base, 0), min(ne - base, len(block))
+            if spans and a <= spans[-1][1]:
+                spans[-1] = (spans[-1][0], max(spans[-1][1], b))
+            elif a < b:
+                spans.append((a, b))
+    if not spans:
+        return None
+    parts: list[str] = []
+    prev = 0
+    for a, b in spans:
+        parts.append(block[prev:a])
+        parts.append(_NON_NEWLINE.sub(" ", block[a:b]))
+        prev = b
+    parts.append(block[prev:])
+    return "".join(parts)
+
+
+_NON_NEWLINE = re.compile(r"[^\n]")
 
 
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
@@ -1616,9 +1618,9 @@ class StructuralExtractor:
         # #3360: (unit, callees seen only on a nested header) pairs one segment's
         # slicing collects; _function_slice resolves them. None outside a slice.
         self._nested_decl_candidates: Optional[list[tuple[FunctionNode, set[str]]]] = None
-        # #3642 (C8): (unit, its block, [(callee, offset in block, qualifier)])
-        # for each unit one segment's slicing scans; _function_slice resolves them.
-        self._call_sites: Optional[list[tuple[FunctionNode, str, list[tuple[str, int, str]]]]] = None
+        # #3642 (C8): (unit, its block, its rules) for each unit one segment's
+        # slicing scanned for calls; _function_slice resolves them.
+        self._call_scans: Optional[list[tuple[FunctionNode, str, dict[str, Any]]]] = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3807,7 +3809,7 @@ class StructuralExtractor:
             sats: list[FunctionNode] = []
             impact = 0.0
             self._nested_decl_candidates = []
-            self._call_sites = []
+            self._call_scans = []
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -4018,9 +4020,9 @@ class StructuralExtractor:
                 key = f"{lang_id}::Cartography_{mode_name}"
                 regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (time.perf_counter() - t_mode_start)
 
-            if self._call_sites:
-                _drop_nested_unit_calls(sats, code, self._call_sites)
-            self._call_sites = None
+            if self._call_scans:
+                self._drop_nested_unit_calls(sats, code, self._call_scans)
+            self._call_scans = None
             if self._nested_decl_candidates:
                 _drop_nested_declaration_calls(sats, self._nested_decl_candidates)
             self._nested_decl_candidates = None
@@ -8689,6 +8691,35 @@ class StructuralExtractor:
             i += 1
         return count
 
+    def _drop_nested_unit_calls(
+        self, sats: list[FunctionNode], code: str, scans: list[tuple[FunctionNode, str, dict[str, Any]]]
+    ) -> None:
+        """#3642 (contract C8): a call inside a nested named unit belongs to that unit only.
+
+        Each unit's calls were scanned over its whole block, nested units
+        included. A unit with named units nested inside its span is rescanned
+        with them blanked out, through the same shield and `calls_out` pattern:
+        a callee stays only if it is still found, and the qualifiers come from
+        that rescan. The shield changes lengths, so the rescan is done on the
+        blanked source rather than by mapping offsets through it.
+        """
+        units = _nested_unit_spans(sats, code)
+        unit_starts = [u[0] for u in units]
+        for sat, block, rules in scans:
+            blanked = _blank_nested_units(units, unit_starts, code, sat, block)
+            pattern = rules.get("calls_out")
+            if blanked is None or not hasattr(pattern, "finditer"):
+                continue
+            safe = self._apply_literal_shield(blanked, self.primary_lang_id)
+            kept: dict[str, list[str]] = {}
+            for m in pattern.finditer(safe):
+                seen = kept.setdefault(m.group(1), [])
+                qualifier = _call_qualifier(safe, m.start(1))
+                if qualifier not in seen:
+                    seen.append(qualifier)
+            sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
+            sat["calls_out_qualifiers"] = {c: kept[c] for c in sat["calls_out_to"]}
+
     def _calculate_block_metrics(
         self,
         name: str,
@@ -9072,7 +9103,6 @@ class StructuralExtractor:
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
-        call_sites: list[tuple[str, int, str]] = []
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
@@ -9094,7 +9124,6 @@ class StructuralExtractor:
                     qualifier = _call_qualifier(safe_block, m.start(1))
                     if qualifier not in seen:
                         seen.append(qualifier)
-                    call_sites.append((callee, m.start(1), qualifier))
             else:
                 # #3393: a language whose calls can name the callee as a quoted
                 # literal (COBOL `CALL 'SUBPROG'`) declares the verb that
@@ -9175,10 +9204,10 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
-        # #3642 (C8): keep where each call sits, so _function_slice can give a
-        # call inside a nested named unit to that unit alone.
-        if call_sites and calls_out and self._call_sites is not None:
-            self._call_sites.append((sat, block, call_sites))
+        # #3642 (C8): _function_slice rescans this block without its nested
+        # named units once it knows which units the slicer emitted.
+        if calls_out and qualifiers_seen and self._call_scans is not None:
+            self._call_scans.append((sat, block, rules))
         decl_only = header_only - invoked
         if decl_only and self._nested_decl_candidates is not None:
             self._nested_decl_candidates.append((sat, decl_only))

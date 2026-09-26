@@ -684,6 +684,7 @@ class EngineJobFlow:
     runs: Optional[str] = None
     runs_via: Optional[str] = None
     systsin_member: Optional[str] = None
+    parm: Optional[str] = None  # #3624: the text EXEC PARM= passes the program
 
 
 @dataclass
@@ -3600,6 +3601,7 @@ class GalaxyIR:
                     "cond": r.cond,
                     "if_cond": r.if_cond,
                     "line": r.line,
+                    "parm": r.parm,  # #3624
                     "runner_programs": self.runner_runs(r, f.file_path),  # #3710
                 }
                 if r.proc:
@@ -3611,6 +3613,7 @@ class GalaxyIR:
                             "program": s_.program,
                             "cond": s_.cond,
                             "if_cond": s_.if_cond,
+                            "parm": s_.parm,
                             "runner_programs": self.runner_runs(s_, where or f.file_path),
                         }
                         for s_ in inner
@@ -5471,9 +5474,10 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             runner_cols = (  # #3710
                 "runs, runs_via, systsin_member" if _has_column(cur, "job_flow_data", "runs") else "NULL, NULL, NULL"
             )
+            parm_col = "parm" if _has_column(cur, "job_flow_data", "parm") else "NULL"  # #3624
             for row in cur.execute(
                 "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols} FROM job_flow_data "
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols}, {parm_col} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -5498,6 +5502,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                             runs=row[16],
                             runs_via=row[17],
                             systsin_member=row[18],
+                            parm=row[19],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

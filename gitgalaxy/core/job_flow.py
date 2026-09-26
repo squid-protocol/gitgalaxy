@@ -12,6 +12,7 @@
 #   JOB   name, cond (the JOB card's COND=)
 #   STEP  step_ordinal (1-based within its job or PROC), step_name, program
 #         (EXEC PGM=), proc (EXEC PROC=P / EXEC P), cond (EXEC COND=, as written),
+#         parm (the text EXEC PARM= passes the program, #3624),
 #         if_cond (the enclosing IF conditions: `(RC = 0)`, `NOT (RC = 0)` in an
 #         ELSE, nested ones joined by ` AND `), in_proc (the PROC it belongs to)
 #   DD    step_name (the step, or for an override `//PROCSTEP.DD` the proc step),
@@ -143,6 +144,19 @@ def _generation(text: str) -> str:
     return f"+{n}" if n > 0 else str(n)
 
 
+def _parm(value: Optional[str]) -> Optional[str]:
+    """#3624: the text a step's PARM= hands its program -- `'2022071800'` -> 2022071800,
+    `(A,B)` -> A,B -- quotes and parentheses removed, a doubled quote made one."""
+    if value is None:
+        return None
+    v = value.strip()
+    if v.startswith("(") and v.endswith(")"):
+        v = v[1:-1]
+    if len(v) >= 2 and v[0] == v[-1] == "'":
+        v = v[1:-1].replace("''", "'")
+    return v
+
+
 def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
     """The job flow of one JCL file (see the module header)."""
     if not code_stream or "//" not in code_stream:
@@ -203,6 +217,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     program=program.upper() if program else None,
                     proc=proc.upper() if proc else None,
                     cond=keyed.get("COND"),
+                    parm=_parm(keyed.get("PARM")),  # #3624
                     if_cond=" AND ".join(ifs) or None,
                     in_proc=in_proc,
                     line=line,

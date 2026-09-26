@@ -59,6 +59,214 @@ def _qualifier(store: dict) -> str:
     return (meaningful or parts or ["FILE"])[-1]
 
 
+# ---- #3624: the entity record codec ------------------------------------------------------
+_BINARY_USAGES = frozenset(
+    {"COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"}
+)
+_PACKED_USAGES = frozenset({"COMP-3", "PACKED-DECIMAL", "COMPUTATIONAL-3"})
+
+
+def _pic_numeric(pic: str) -> tuple[bool, int, int] | None:
+    """(signed, digits, scale) of a plain numeric PIC (`S9(10)V99`), None for text or an edited PIC."""
+    p = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic.upper())
+    if not p or re.search(r"[^S9V]", p):
+        return None
+    whole, _, frac = p.partition("V")
+    return p.startswith("S"), whole.count("9") + frac.count("9"), frac.count("9")
+
+
+def _codec_kind(f: Field) -> str | None:
+    """text / zoned / packed / binary, or None when the codec cannot encode the item."""
+    if not f.pic:
+        return None
+    num = _pic_numeric(f.pic)
+    usage = (f.usage or "DISPLAY").upper()
+    if num is None:
+        return "text" if usage in ("DISPLAY", "") else None
+    if usage in _PACKED_USAGES:
+        return "packed"
+    if usage in _BINARY_USAGES:
+        return "binary"
+    return "zoned" if usage in ("DISPLAY", "") else None
+
+
+def _codec_get(f: Field) -> str:
+    kind = _codec_kind(f)
+    if kind == "text":
+        return f"CobolRecords.text(rec, {f.offset}, {f.bytes}, text)"
+    signed, _digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
+    if kind == "zoned":
+        dec = f"CobolRecords.zoned(rec, {f.offset}, {f.bytes}, {scale}, text)"
+    elif kind == "packed":
+        dec = f"CobolRecords.packed(rec, {f.offset}, {f.bytes}, {scale})"
+    else:
+        dec = f"CobolRecords.binary(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()})"
+    return {"Integer": f"CobolRecords.toInteger({dec})", "Long": f"CobolRecords.toLong({dec})",
+            "Double": f"{dec}.doubleValue()", "String": f"{dec}.toPlainString()"}.get(f.jtype, dec)  # fmt: skip
+
+
+def _codec_put(f: Field, value: str) -> str:
+    kind = _codec_kind(f)
+    if kind == "text":
+        return f"CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, text)"
+    signed, digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
+    dec = f"CobolRecords.decimal({value})"
+    if kind == "zoned":
+        return f"CobolRecords.putZoned(rec, {f.offset}, {digits}, {scale}, {str(signed).lower()}, {dec}, text)"
+    if kind == "packed":
+        return f"CobolRecords.putPacked(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()}, {dec})"
+    return f"CobolRecords.putBinary(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()}, {dec})"
+
+
+COBOL_RECORDS_JAVA = """package __PACKAGE__;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+
+/**
+ * #3624: COBOL storage for the entities' record codecs (fromRecord / toRecord) -- DISPLAY text, zoned
+ * decimal (a DISPLAY numeric: the sign overpunched on the last digit, `{` / `A`-`I` positive, `}` /
+ * `J`-`R` negative, as z/OS writes it and an ASCII transfer keeps it; an unsigned field plain digits),
+ * COMP-3 packed decimal and COMP binary (big-endian). Storing follows COBOL MOVE: a value too long for
+ * the field loses its high-order digits, decimals beyond the scale are truncated, an unsigned field
+ * keeps the magnitude. Invalid data (a space in a numeric field) is an error, not a zero.
+ */
+public final class CobolRecords {
+
+    private static final String POSITIVE = "{ABCDEFGHI";
+    private static final String NEGATIVE = "}JKLMNOPQR";
+
+    private CobolRecords() {
+    }
+
+    public static byte[] blank(int length, Charset text) {
+        byte[] rec = new byte[length];
+        Arrays.fill(rec, " ".getBytes(text)[0]);
+        return rec;
+    }
+
+    public static String text(byte[] rec, int offset, int length, Charset text) {
+        return new String(rec, offset, length, text);
+    }
+
+    public static void putText(byte[] rec, int offset, int length, String value, Charset text) {
+        byte[] v = (value == null ? "" : value).getBytes(text);
+        byte space = " ".getBytes(text)[0];
+        for (int i = 0; i < length; i++) {
+            rec[offset + i] = i < v.length ? v[i] : space;
+        }
+    }
+
+    public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
+        String s = new String(rec, offset, length, text);
+        char last = s.charAt(length - 1);
+        boolean negative = false;
+        int digit;
+        if (last >= '0' && last <= '9') {
+            digit = last - '0';
+        } else if (POSITIVE.indexOf(last) >= 0) {
+            digit = POSITIVE.indexOf(last);
+        } else if (NEGATIVE.indexOf(last) >= 0) {
+            digit = NEGATIVE.indexOf(last);
+            negative = true;
+        } else {
+            throw new NumberFormatException("invalid zoned sign '" + last + "' at offset " + (offset + length - 1));
+        }
+        String digits = s.substring(0, length - 1) + digit;
+        if (!digits.chars().allMatch(Character::isDigit)) {
+            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+        }
+        BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
+        return negative ? v.negate() : v;
+    }
+
+    public static void putZoned(byte[] rec, int offset, int digits, int scale, boolean signed, BigDecimal value,
+                                Charset text) {
+        BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
+        boolean negative = signed && unscaled.signum() < 0;
+        String s = unscaled.abs().toString();
+        s = s.length() > digits ? s.substring(s.length() - digits) : "0".repeat(digits - s.length()) + s;
+        if (signed) {
+            int last = s.charAt(digits - 1) - '0';
+            s = s.substring(0, digits - 1) + (negative ? NEGATIVE : POSITIVE).charAt(last);
+        }
+        byte[] b = s.getBytes(text);
+        System.arraycopy(b, 0, rec, offset, digits);
+    }
+
+    public static BigDecimal packed(byte[] rec, int offset, int length, int scale) {
+        StringBuilder digits = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int b = rec[offset + i] & 0xFF;
+            digits.append(b >> 4);
+            if (i < length - 1) {
+                digits.append(b & 0x0F);
+            }
+        }
+        int sign = rec[offset + length - 1] & 0x0F;
+        BigDecimal v = new BigDecimal(new BigInteger(digits.toString()), scale);
+        return sign == 0x0D || sign == 0x0B ? v.negate() : v;
+    }
+
+    public static void putPacked(byte[] rec, int offset, int length, int scale, boolean signed, BigDecimal value) {
+        BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
+        int digits = length * 2 - 1;
+        String s = unscaled.abs().toString();
+        s = s.length() > digits ? s.substring(s.length() - digits) : "0".repeat(digits - s.length()) + s;
+        int sign = !signed ? 0x0F : unscaled.signum() < 0 ? 0x0D : 0x0C;
+        for (int i = 0; i < length; i++) {
+            int hi = s.charAt(2 * i) - '0';
+            int lo = i < length - 1 ? s.charAt(2 * i + 1) - '0' : sign;
+            rec[offset + i] = (byte) ((hi << 4) | lo);
+        }
+    }
+
+    public static BigDecimal binary(byte[] rec, int offset, int length, int scale, boolean signed) {
+        byte[] b = Arrays.copyOfRange(rec, offset, offset + length);
+        BigInteger v = signed ? new BigInteger(b) : new BigInteger(1, b);
+        return new BigDecimal(v, scale);
+    }
+
+    public static void putBinary(byte[] rec, int offset, int length, int scale, boolean signed, BigDecimal value) {
+        BigInteger v = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
+        if (!signed) {
+            v = v.abs();
+        }
+        byte[] b = v.toByteArray();
+        byte fill = (byte) (v.signum() < 0 ? 0xFF : 0x00);
+        for (int i = 0; i < length; i++) {
+            int from = b.length - length + i;
+            rec[offset + i] = from >= 0 ? b[from] : fill;
+        }
+    }
+
+    public static BigDecimal decimal(Object value) {
+        if (value == null) {
+            return BigDecimal.ZERO;
+        }
+        if (value instanceof BigDecimal d) {
+            return d;
+        }
+        if (value instanceof Number n) {
+            return new BigDecimal(n.toString());
+        }
+        return new BigDecimal(value.toString().trim());
+    }
+
+    public static Integer toInteger(BigDecimal v) {
+        return v.intValue();
+    }
+
+    public static Long toLong(BigDecimal v) {
+        return v.longValue();
+    }
+}
+"""
+
+
 @dataclass
 class Field:
     cobol: str
@@ -69,6 +277,7 @@ class Field:
     pic: str | None
     occurs: int | None
     pli_type: str | None = None  # #3720: a PL/I item's data type as written, when it has no picture
+    usage: str | None = None  # #3624: a COBOL item's USAGE (COMP-3, COMP, ...), None for DISPLAY
 
     @property
     def described(self) -> str:
@@ -261,7 +470,8 @@ class RepositoryForge:
             pic = f.get("pic")
             pli = f.get("dialect") == "pli"
             out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f"'{pic}'" if pli and pic else pic,
-                             f.get("occurs"), f.get("usage") if pli else None))  # fmt: skip
+                             f.get("occurs"), f.get("usage") if pli else None,
+                             None if pli else f.get("usage")))  # fmt: skip
         return out
 
     # ---- Java: entity + repository -------------------------------------------
@@ -341,8 +551,68 @@ class RepositoryForge:
         java += body
         if not t.lombok:
             java += _accessors(st.entity, _declared_fields(body))
+        java += self._codec(st)
         java.append("}")
         return "\n".join(java)
+
+    # ---- #3624: the record codec -------------------------------------------------------
+    def _codec(self, st: Store) -> list[str]:
+        """`fromRecord(byte[], Charset)` / `toRecord(Charset)`: the entity from and to its fixed-width
+        VSAM record (as REPRO unloads it), field by field at the COBOL offsets -- DISPLAY text,
+        zoned decimal with its sign overpunched, COMP-3, COMP. `text` is the record's character set
+        (ISO-8859-1 for an ASCII transfer, IBM037 on z/OS). A record with an item the codec cannot
+        represent (an OCCURS table, COMP-1 / COMP-2, a PL/I item) gets none, saying why."""
+        reclen = st.layout.get("bytes")
+        why = None
+        if not reclen:
+            why = "the record's width is not known"
+        elif any(f.pli_type or (f.pic or "").startswith("'") for f in st.fields):
+            why = "a PL/I record (its types are not COBOL PICTUREs)"
+        elif any(f.occurs for f in st.fields):
+            why = "an OCCURS table (a List field) is not laid out by it"
+        elif any(f.offset is None or f.bytes is None or not _codec_kind(f) for f in st.fields):
+            why = "an item with no PICTURE or width (COMP-1 / COMP-2 / POINTER) is not encoded by it"
+        if why:
+            return ["", f"    // #3624: no record codec: {why}."]
+        cls, key = st.entity, (lambda f: f"id.get{f.java[0].upper()}{f.java[1:]}()")
+        load = [f"        {cls} r = new {cls}();"]
+        store = [f"        byte[] rec = CobolRecords.blank({reclen}, text);"]
+        if st.composite:
+            load.append(f"        r.id = new {st.key_type}();")
+        elif st.key is None and (st.raw.get("organization") or "").upper() not in ("NONINDEXED", "NUMBERED"):
+            off, ln = st.raw.get("key_offset"), st.raw.get("key_length")
+            if off is not None and ln:
+                load.append(f"        r.vsamKey = CobolRecords.text(rec, {off}, {ln}, text);")
+        for f in st.fields:
+            get = _codec_get(f)
+            if f in st.composite:
+                load.append(f"        r.id.set{f.java[0].upper()}{f.java[1:]}({get});")
+                store.append(f"        {_codec_put(f, key(f))};")
+            else:
+                load.append(f"        r.{f.java} = {get};")
+                store.append(f"        {_codec_put(f, f.java)};")
+        return [
+            "",
+            f"    /** #3624: this record from its fixed-width VSAM form ({reclen} bytes, as REPRO unloads it), each",
+            "     *  field at its COBOL offset; `text` is the record's character set (ISO-8859-1 for an ASCII",
+            "     *  transfer, IBM037 on z/OS). FILLER bytes are not kept. */",
+            f"    public static {cls} fromRecord(byte[] rec, java.nio.charset.Charset text) {{",
+            *load,
+            "        return r;",
+            "    }",
+            "",
+            "    /** #3624: the fixed-width VSAM record of this entity (FILLER as spaces). */",
+            "    public byte[] toRecord(java.nio.charset.Charset text) {",
+            *store,
+            "        return rec;",
+            "    }",
+        ]
+
+    def records_source(self) -> str | None:
+        """#3624: the CobolRecords runtime the record codecs share, or None without an entity."""
+        if not self.stores:
+            return None
+        return COBOL_RECORDS_JAVA.replace("__PACKAGE__", f"{self.package}.{ENTITY_SUBPACKAGE}")
 
     def key_source(self, st: Store) -> str | None:
         """The @Embeddable key class of a group key, or None."""

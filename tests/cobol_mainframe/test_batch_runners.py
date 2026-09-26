@@ -148,7 +148,7 @@ def test_runner_jobs_become_application_utility_or_stay_runners(scanned, tmp_pat
     assert "the REXX / CLIST exec MYREXX" in listing["REXXRUN"]["reason"]
     assert listing["BINDRUN"]["reason"] == "data utilities only (IKJEFT01 (TSO commands))"  # BIND: no program
     cfg = (src / "batch/Db2runJobConfig.java").read_text(encoding="utf-8")
-    assert 'steps.program("RUN", "RUN", null, null, null, () -> postitService.runBatch(DDS_RUN))' in cfg
+    assert 'steps.program("RUN", "RUN", null, null, null, () -> postitService.runBatch(DDS_RUN, null))' in cfg
     svc = (src / "service/PostitService.java").read_text(encoding="utf-8")
     assert "job DB2RUN step RUN (jcl/DB2RUN.jcl:2) through IKJEFT01 (RUN PROGRAM)" in svc
     assert "through DFSRRC00 (DFSRRC00)" in svc

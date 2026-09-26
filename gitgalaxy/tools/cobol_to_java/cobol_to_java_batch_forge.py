@@ -26,7 +26,7 @@
 #   JclConditions         COND= (step and job) and IF / THEN / ELSE, evaluated against
 #                         the return codes of the steps before -- a satisfied COND
 #                         bypasses the step, as JCL does;
-#   JclSteps              the tasklets: a program step calls its service's `runBatch(dds)`
+#   JclSteps              the tasklets: a program step calls its service's `runBatch(dds, parm)`
 #                         and records RETURN-CODE; IEFBR14 creates / deletes datasets per
 #                         their DISP; IEBGENER copies SYSUT1 to SYSUT2; any other utility
 #                         (SORT, IDCAMS, ...) fails the job unless
@@ -76,6 +76,7 @@ class Step:
     via: str | None = None  # how: RUN PROGRAM / TSO CALL / DFSRRC00
     unresolved: str | None = None  # what the runner runs, when not a known program
     commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
+    parm: str | None = None  # #3624: the text EXEC PARM= passes the program
 
 
 @dataclass
@@ -152,6 +153,7 @@ class BatchForge:
                           ps["step"] if inner is not None else None,
                           dds.get((j["file"], s["ordinal"], ps["step"] if inner is not None else None), []),
                           self.programs.get(prog or ""))  # fmt: skip
+                st.parm = ps.get("parm")
                 self._through_runner(st, ps.get("runner_programs") or [])
                 steps.append(st)
         names = [st.jcl for st in steps]
@@ -307,7 +309,7 @@ class BatchForge:
         consts = f"DDS_{self._const(st.name)}"
         head = f"{_jstr(st.name)}, {_jstr(st.jcl)}, {_jstr(j.cond)}, {_jstr(st.cond)}, {_jstr(st.if_cond)}"
         if st.key:
-            return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}))"
+            return f"steps.program({head}, () -> {self._var(st.key)}.runBatch({consts}, {_jstr(st.parm)}))"
         if st.program == "IEFBR14":
             return f"steps.iefbr14({head}, {consts})"
         if st.program in COPY:
@@ -334,10 +336,11 @@ class BatchForge:
                              for x in lin if x.get("dd_name")})  # fmt: skip
             todo = "TODO: port the PROCEDURE DIVISION main line; return its RETURN-CODE"
             methods += [f"    /** The batch entry (#3622): run by {where}.",
-                        "     *  `dds` are the step's DD statements (DatasetResolver maps each to its file)."]  # fmt: skip
+                        "     *  `dds` are the step's DD statements (DatasetResolver maps each to its file); `parm` the",
+                        "     *  text its EXEC PARM= passes (null without one) -- a PROCEDURE DIVISION USING area's data."]  # fmt: skip
             methods += [f"     *  DD {d}." for d in dd_doc[:12]]
             methods += [f"     *  {todo}.", f"     *  JCL job flow field testing: {self.status}. */",
-                        "    public int runBatch(List<Dd> dds) {", "        return 0;", "    }\n"]  # fmt: skip
+                        "    public int runBatch(List<Dd> dds, String parm) {", "        return 0;", "    }\n"]  # fmt: skip
             if self.trace:
                 self.trace.record(java_path(self.package, "service", f"{java_class_base(key)}Service"),
                                   f"{java_class_base(key)}Service#runBatch", "batch-entry",

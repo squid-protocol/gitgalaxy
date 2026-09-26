@@ -1385,6 +1385,8 @@ class RecordKeeper:
         # #3710: a runner step's `runs` / `runs_via` (the programs its SYSTSIN or PARM runs and
         # how, comma-joined) and `systsin_member` (a SYSTSIN read from a dataset member).
         _ensure_columns(cursor, "job_flow_data", ["runs TEXT", "runs_via TEXT", "systsin_member TEXT"])
+        # #3624: `parm` -- the text a step's EXEC PARM= passes its program.
+        _ensure_columns(cursor, "job_flow_data", ["parm TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
@@ -3261,6 +3263,7 @@ class RecordKeeper:
                 "runs",
                 "runs_via",
                 "systsin_member",
+                "parm",
             ),
             "job_flow",
             lambda j: (
@@ -3282,6 +3285,7 @@ class RecordKeeper:
                 j.get("runs"),  # #3710
                 j.get("runs_via"),
                 j.get("systsin_member"),
+                j.get("parm"),  # #3624
             ),
         )
 

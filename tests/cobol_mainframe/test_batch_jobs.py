@@ -116,7 +116,7 @@ def test_the_jobs_become_spring_batch_jobs(scanned, tmp_path):
     assert order == sorted(order)  # JCL order, the PROC's step expanded
     assert 'steps.iefbr14("CLEAN", "CLEAN", null, null, null, DDS_CLEAN)' in cfg
     assert 'steps.utility("SORT1", "SORT1", null, null, null, "SORT", "SORT1 runs the utility SORT' in cfg
-    assert 'steps.program("RUN", "RUN", null, "(4,LT)", null, () -> postitService.runBatch(DDS_RUN))' in cfg
+    assert 'steps.program("RUN", "RUN", null, "(4,LT)", null, () -> postitService.runBatch(DDS_RUN, null))' in cfg
     assert 'steps.copy("COPY.GEN", "COPY.GEN", null, null, null, DDS_COPY_GEN)' in cfg
     assert 'new Dd("SORTOUT", "APP.TRANS.SORTED", "NEW", "CATLG", "+1")' in cfg  # DISP=(NEW,CATLG,DELETE)
     assert 'new Dd("OLD", "APP.WORK.OUT", "MOD", "DELETE", null)' in cfg  # IEFBR14's delete idiom
@@ -127,7 +127,7 @@ def test_the_jobs_become_spring_batch_jobs(scanned, tmp_path):
 
     svc = (src / "service/PostitService.java").read_text(encoding="utf-8")
     assert "The batch entry (#3622): run by job NIGHTLY step RUN (jcl/NIGHTLY.jcl:10)." in svc
-    assert "    public int runBatch(List<Dd> dds) {" in svc
+    assert "    public int runBatch(List<Dd> dds, String parm) {" in svc
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "  • Batch jobs (#3622)       : 4 JCL jobs -- 1 application (generated: 4 steps, 1 utility steps to " \
            "port), 1 runner, 1 utility, 1 build" in audit  # fmt: skip

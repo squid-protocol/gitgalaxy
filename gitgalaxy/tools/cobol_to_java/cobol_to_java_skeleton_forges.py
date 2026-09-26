@@ -62,6 +62,9 @@ class SkeletonForges:
         repos = self.repos
         entities = {st.entity: repos.entity_source(st) for st in repos.stores}
         entities.update({st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite})
+        records = repos.records_source()  # #3624: the runtime the entities' record codecs share
+        if records:
+            entities["CobolRecords"] = records
         out: dict[tuple[str, ...], dict[str, str]] = {
             ("entity", "vsam"): entities,
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},

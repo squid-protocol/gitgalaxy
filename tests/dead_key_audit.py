@@ -228,6 +228,9 @@ ALLOWLIST = {
     "GROUP": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
     "PROFILE": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
     "TRANSID": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
+    # #3624: job_flow keys an EXEC's operands by the keyword it parsed (`_split`), so PARM is
+    # written -- as the JCL text's own keyword, never as a literal the walker can trace.
+    "PARM": "JCL EXEC keyword, written via job_flow._split's parsed operands (job_flow.py, #3624)",
     # #3356: the same tokenizer's attributes that _csd_resources lifts into
     # csd_resource_data's join columns.
     **{

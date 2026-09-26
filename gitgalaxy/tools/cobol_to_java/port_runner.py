@@ -14,7 +14,8 @@
 # their record codecs, repositories, runtime), the program's and copybooks' numbered listings, the
 # verified facts and worklist items -- and hands it to the backend the customer chose:
 #   openai     any OpenAI-compatible chat endpoint (vLLM, Ollama, Azure, a gateway): --base-url, --model,
-#              --api-key-env (the NAME of the variable holding the key; the key is never stored)
+#              --api-key-env (the NAME of the variable holding the key; the key is never stored,
+#              goes only over https -- or plain http to localhost -- and never follows a redirect)
 #   anthropic  the Anthropic Messages API: --model, --api-key-env
 #   command    any CLI that reads the prompt file and prints the answer: --command, with {prompt_file}
 #              and {prompt_dir} placeholders (an in-house model, `agy -p`, `ollama run` ...)
@@ -38,6 +39,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -98,14 +100,33 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
 
 
 # ---- the backends --------------------------------------------------------------------
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """urllib follows a POST's 301/302/303 and carries every header along -- the API key
+    included -- to wherever it points. A backend call never follows one."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ARG002
+        raise urllib.error.HTTPError(req.full_url, code, f"redirect to {newurl} refused", headers, fp)
+
+
+_LOOPBACK = ("localhost", "127.0.0.1", "::1")
+
+
+def check_url(url: str) -> str:
+    """https, or plain http only to this machine (a local vLLM / Ollama): the key never crosses
+    a network unencrypted, and never goes to file: or a custom scheme."""
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme == "https" or (parts.scheme == "http" and parts.hostname in _LOOPBACK):
+        return url
+    raise SystemExit(f"backend URL must be https (or http to localhost): {url}")
+
+
 def _post(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int) -> dict[str, Any]:
-    if urllib.parse.urlsplit(url).scheme not in ("http", "https"):  # never file: or a custom scheme
-        raise SystemExit(f"backend URL must be http(s): {url}")
     headers = {"Content-Type": "application/json", **headers}
-    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)  # noqa: S310 -- http(s) only
-    # The operator's own endpoint, checked http(s) above.
+    req = urllib.request.Request(check_url(url), data=json.dumps(payload).encode(), headers=headers)  # noqa: S310
+    opener = urllib.request.build_opener(_NoRedirect)
+    # The operator's own endpoint: https (or loopback http) per check_url, and no redirects.
     # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
-    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- http(s) only, checked above
+    with opener.open(req, timeout=timeout) as resp:
         return json.loads(resp.read().decode())
 
 

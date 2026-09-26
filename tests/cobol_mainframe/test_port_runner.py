@@ -102,6 +102,38 @@ def test_a_missing_api_key_stops_before_any_request(project, monkeypatch):
                  "--api-key-env", "NO_SUCH_KEY_VAR"])  # fmt: skip
 
 
-def test_a_backend_url_must_be_http():
-    with pytest.raises(SystemExit, match="must be http"):
-        pr._post("file:///etc/passwd", {}, {}, 5)
+@pytest.mark.parametrize("url", ["file:///etc/passwd", "http://models.example.com/v1", "ftp://x/y"])
+def test_a_key_never_leaves_unencrypted_or_to_a_file(url):
+    with pytest.raises(SystemExit, match="must be https"):
+        pr._post(url, {}, {"Authorization": "Bearer k"}, 5)
+
+
+def test_https_and_a_local_model_are_accepted():
+    for url in ("https://api.example.com/v1", "http://localhost:11434/v1", "http://127.0.0.1:8000/v1"):
+        assert pr.check_url(url) == url
+
+
+def test_a_redirect_is_refused_so_the_key_is_not_forwarded():
+    import http.server
+    import threading
+
+    seen = []
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802
+            seen.append(self.path)
+            self.send_response(302)
+            self.send_header("Location", "http://127.0.0.1:1/steal")
+            self.end_headers()
+
+        def log_message(self, *a):
+            pass
+
+    srv = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=srv.handle_request, daemon=True).start()
+    try:
+        with pytest.raises(pr.urllib.error.HTTPError, match="refused"):
+            pr._post(f"http://127.0.0.1:{srv.server_port}/v1", {}, {"Authorization": "Bearer k"}, 5)
+    finally:
+        srv.server_close()
+    assert seen == ["/v1"]

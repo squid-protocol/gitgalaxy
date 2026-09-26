@@ -162,7 +162,14 @@ def build_example(slug: str, corpus_name: str, what: str, out: Path, work: Path,
     dest = out / "examples" / slug
     if dest.exists():
         shutil.rmtree(dest)
-    shutil.copytree(project, dest / "java", ignore=shutil.ignore_patterns("target", ".git"))
+
+    def _skip(folder: str, names: list[str]) -> set[str]:
+        # build output; and the porting tickets' source listings (#3752), which are the pinned source
+        # itself, line-numbered -- regenerated with the tickets, not published twice
+        listings = {"sources"} if Path(folder).name == "ai_agent_jobs" else set()
+        return {n for n in names if n in ("target", ".git")} | listings
+
+    shutil.copytree(project, dest / "java", ignore=_skip)
     legal = legal_files(corpus)
     for f in legal:  # the source's own licence and notices travel with what is derived from it
         shutil.copy(f, dest / f.name)
@@ -191,6 +198,9 @@ def build_example(slug: str, corpus_name: str, what: str, out: Path, work: Path,
 
   which runs `cobol-refractor <corpus> --scan`, then `cobol-to-java <clean room>` with the default
   target config (Spring Boot 3.2, Java 17, Lombok, Maven), and blanks the run's timestamps.
+- **Porting tickets:** `java/ai_agent_jobs/*_port_ticket.{{json,md}}`, one per program with business logic to
+  write. Their numbered source listings (`ai_agent_jobs/sources/`) are left out here -- they are the source
+  at the commit above -- and are regenerated with the tickets by the commands above.
 - **Compiles:** the repository's `compile` workflow builds `java/` on every push; GitGalaxy's own
   `java-compile` CI builds this corpus in 17 target configurations.
 """, encoding="utf-8")  # fmt: skip

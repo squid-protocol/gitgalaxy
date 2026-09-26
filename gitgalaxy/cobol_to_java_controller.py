@@ -60,6 +60,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     java_class_base,
     output_key,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import write_port_tickets
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
 )
@@ -71,7 +72,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
     generate_java_entity,
     is_transient_record,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_worklist import NATURES, write_worklist
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_worklist import NATURES, link_tickets, write_worklist
 from gitgalaxy.tools.cobol_to_java.java_target import (
     DEFAULT_CONFIG,
     ConfigError,
@@ -460,6 +461,17 @@ def main():
         )
     # #3651: every TODO the generators left, as one plan by category and COBOL source
     worklist = write_worklist(java_out_dir, manifest, {"clean_room": clean_room_path.name}, owners)
+    # #3752: a porting ticket for every program with business logic to write, linked from the worklist
+    if skeletons and target.features.agent_tickets:
+        chosen = target_as_dict(target)
+        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui")}
+        stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
+        tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
+                                     ir_dir, clean_room_path.name)  # fmt: skip
+        if tickets:
+            worklist = link_tickets(java_out_dir, worklist, tickets)
+            stats["agent_jobs"] += len(tickets)
+            print(f"  [+] Generated {len(tickets)} porting tickets (ai_agent_jobs/*_port_ticket.md)")
     # #3652: the inventory an AI agent's changes are checked against
     guard_baseline = write_baseline(java_out_dir, {"clean_room": clean_room_path.name}, mock_calls, owners)
 

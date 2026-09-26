@@ -309,12 +309,23 @@ def render_markdown(wl: dict) -> str:
         for it in (i for i in wl["items"] if i["category"] == cid):
             if it["program"] != current:
                 current = it["program"]
-                md += ["", f"**`{current}`**", ""]
+                ticket = f" -- porting ticket [`{it['ticket']}`]({it['ticket']})" if it.get("ticket") else ""
+                md += ["", f"**`{current}`**{ticket}", ""]
             md.append(f"- [ ] **{it['id']}** {_where(it)}: {it['text']}")
             for f in it["facts"][:3]:
                 status = f" ({f['field_testing']})" if f.get("field_testing") else ""
                 md.append(f"  - fact: `{f.get('source') or '?'}`, {f.get('ledger_field') or 'no ledger field'}{status}")
     return "\n".join(md) + "\n"
+
+
+def link_tickets(java_dir: Path, wl: dict, tickets: dict[str, str]) -> dict:
+    """#3752: each item of a program with a porting ticket names it; the worklist is re-written."""
+    for it in wl["items"]:
+        if it["program"] in tickets:
+            it["ticket"] = tickets[it["program"]]
+    (java_dir / "migration_worklist.json").write_text(json.dumps(wl, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (java_dir / "migration_worklist.md").write_text(render_markdown(wl), encoding="utf-8")
+    return wl
 
 
 def write_worklist(

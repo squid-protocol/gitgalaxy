@@ -96,16 +96,21 @@ _ROWS = [
 
 
 def comparison_markdown(title: str, src: dict[str, Any], java: dict[str, Any], src_langs: tuple[str, ...]) -> str:
-    lines = [f"# {title}: GitGalaxy scan, source vs generated Java", "",
-             f"Both trees scanned by the same GitGalaxy engine. Source side: the program code "
-             f"({', '.join(src_langs)}); Java side: every generated `.java` file.", "",
+    sides = (
+        f"Both trees scanned by the same GitGalaxy engine. Source side: the program code "
+        f"({', '.join(src_langs)}); Java side: every generated `.java` file."
+    )
+    lines = [f"# {title}: GitGalaxy scan, source vs generated Java", "", sides, "",
              "| metric | source | generated Java |", "|---|---|---|"]  # fmt: skip
     lines += [f"| {label} | {src[k]} | {java[k]} |" for k, label in _ROWS]
-    lines += ["", "Source estate by language: " + ", ".join(f"{k} {v}" for k, v in src["languages"].items()) + ".",
-              "", "How to read it: the generated Java is the estate's STRUCTURE -- entities, DTOs, services, "
-              "endpoints, batch jobs, wiring -- with each program's PROCEDURE DIVISION left as a traced TODO "
-              "(migration_worklist.md). So its functions are small and simple, and its tech-debt exposure "
-              "counts those TODO markers; the business logic moves over per program (see ../../equivalence).", ""]  # fmt: skip
+    how_to_read = (
+        "How to read it: the generated Java is the estate's STRUCTURE -- entities, DTOs, services, "
+        "endpoints, batch jobs, wiring -- with each program's PROCEDURE DIVISION left as a traced TODO "
+        "(migration_worklist.md). So its functions are small and simple, and its tech-debt exposure "
+        "counts those TODO markers; the business logic moves over per program (see ../../equivalence)."
+    )
+    languages = ", ".join(f"{k} {v}" for k, v in src["languages"].items())
+    lines += ["", f"Source estate by language: {languages}.", "", how_to_read, ""]
     return "\n".join(lines)
 
 

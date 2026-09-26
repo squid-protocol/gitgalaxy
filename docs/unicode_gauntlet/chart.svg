@@ -1,0 +1,482 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="674" height="962" font-family="sans-serif" font-size="10">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text transform="translate(127.0,104) rotate(-60)">ascii</text>
+<text transform="translate(161.0,104) rotate(-60)">german</text>
+<text transform="translate(195.0,104) rotate(-60)">nordic</text>
+<text transform="translate(229.0,104) rotate(-60)">french</text>
+<text transform="translate(263.0,104) rotate(-60)">turkish</text>
+<text transform="translate(297.0,104) rotate(-60)">greek</text>
+<text transform="translate(331.0,104) rotate(-60)">cyrillic</text>
+<text transform="translate(365.0,104) rotate(-60)">devanagari</text>
+<text transform="translate(399.0,104) rotate(-60)">devanagari_zwj</text>
+<text transform="translate(433.0,104) rotate(-60)">tamil</text>
+<text transform="translate(467.0,104) rotate(-60)">arabic</text>
+<text transform="translate(501.0,104) rotate(-60)">hebrew</text>
+<text transform="translate(535.0,104) rotate(-60)">han</text>
+<text transform="translate(569.0,104) rotate(-60)">kana</text>
+<text transform="translate(603.0,104) rotate(-60)">hangul</text>
+<text transform="translate(637.0,104) rotate(-60)">nfd</text>
+<text x="104" y="122" text-anchor="end">abap</text>
+<rect x="110" y="110" width="32" height="14" fill="#f9a825"><title>abap ascii: 3/5</title></rect>
+<text x="104" y="138" text-anchor="end">ada</text>
+<rect x="110" y="126" width="32" height="14" fill="#f9a825"><title>ada ascii: 3/5</title></rect>
+<rect x="144" y="126" width="32" height="14" fill="#c62828"><title>ada german: 0/2</title></rect>
+<rect x="178" y="126" width="32" height="14" fill="#c62828"><title>ada nordic: 0/2</title></rect>
+<rect x="212" y="126" width="32" height="14" fill="#c62828"><title>ada french: 0/2</title></rect>
+<rect x="246" y="126" width="32" height="14" fill="#2e7d32"><title>ada turkish: 1/1</title></rect>
+<rect x="280" y="126" width="32" height="14" fill="#c62828"><title>ada greek: 0/2</title></rect>
+<rect x="314" y="126" width="32" height="14" fill="#c62828"><title>ada cyrillic: 0/2</title></rect>
+<rect x="348" y="126" width="32" height="14" fill="#c62828"><title>ada devanagari: 0/2</title></rect>
+<rect x="382" y="126" width="32" height="14" fill="#c62828"><title>ada devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="126" width="32" height="14" fill="#c62828"><title>ada tamil: 0/2</title></rect>
+<rect x="450" y="126" width="32" height="14" fill="#c62828"><title>ada arabic: 0/2</title></rect>
+<rect x="484" y="126" width="32" height="14" fill="#c62828"><title>ada hebrew: 0/1</title></rect>
+<rect x="518" y="126" width="32" height="14" fill="#c62828"><title>ada han: 0/2</title></rect>
+<rect x="552" y="126" width="32" height="14" fill="#c62828"><title>ada kana: 0/2</title></rect>
+<rect x="586" y="126" width="32" height="14" fill="#c62828"><title>ada hangul: 0/2</title></rect>
+<rect x="620" y="126" width="32" height="14" fill="#c62828"><title>ada nfd: 0/2</title></rect>
+<text x="104" y="154" text-anchor="end">agc_assembly</text>
+<rect x="110" y="142" width="32" height="14" fill="#f9a825"><title>agc_assembly ascii: 3/5</title></rect>
+<text x="104" y="170" text-anchor="end">apex</text>
+<rect x="110" y="158" width="32" height="14" fill="#f9a825"><title>apex ascii: 3/5</title></rect>
+<text x="104" y="186" text-anchor="end">assembly</text>
+<rect x="110" y="174" width="32" height="14" fill="#f9a825"><title>assembly ascii: 3/5</title></rect>
+<text x="104" y="202" text-anchor="end">bms</text>
+<rect x="110" y="190" width="32" height="14" fill="#f9a825"><title>bms ascii: 3/5</title></rect>
+<rect x="144" y="190" width="32" height="14" fill="#c62828"><title>bms german: 0/2</title></rect>
+<rect x="178" y="190" width="32" height="14" fill="#c62828"><title>bms nordic: 0/2</title></rect>
+<text x="104" y="218" text-anchor="end">c</text>
+<rect x="110" y="206" width="32" height="14" fill="#f9a825"><title>c ascii: 3/5</title></rect>
+<rect x="144" y="206" width="32" height="14" fill="#2e7d32"><title>c german: 2/2</title></rect>
+<rect x="178" y="206" width="32" height="14" fill="#f9a825"><title>c nordic: 1/2</title></rect>
+<rect x="212" y="206" width="32" height="14" fill="#f9a825"><title>c french: 1/2</title></rect>
+<rect x="246" y="206" width="32" height="14" fill="#2e7d32"><title>c turkish: 1/1</title></rect>
+<rect x="280" y="206" width="32" height="14" fill="#f9a825"><title>c greek: 1/2</title></rect>
+<rect x="314" y="206" width="32" height="14" fill="#f9a825"><title>c cyrillic: 1/2</title></rect>
+<rect x="348" y="206" width="32" height="14" fill="#c62828"><title>c devanagari: 0/2</title></rect>
+<rect x="382" y="206" width="32" height="14" fill="#c62828"><title>c devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="206" width="32" height="14" fill="#c62828"><title>c tamil: 0/2</title></rect>
+<rect x="450" y="206" width="32" height="14" fill="#f9a825"><title>c arabic: 1/2</title></rect>
+<rect x="484" y="206" width="32" height="14" fill="#2e7d32"><title>c hebrew: 1/1</title></rect>
+<rect x="518" y="206" width="32" height="14" fill="#f9a825"><title>c han: 1/2</title></rect>
+<rect x="552" y="206" width="32" height="14" fill="#f9a825"><title>c kana: 1/2</title></rect>
+<rect x="586" y="206" width="32" height="14" fill="#2e7d32"><title>c hangul: 2/2</title></rect>
+<rect x="620" y="206" width="32" height="14" fill="#c62828"><title>c nfd: 0/2</title></rect>
+<text x="104" y="234" text-anchor="end">cobol</text>
+<rect x="110" y="222" width="32" height="14" fill="#f9a825"><title>cobol ascii: 3/5</title></rect>
+<rect x="144" y="222" width="32" height="14" fill="#c62828"><title>cobol german: 0/2</title></rect>
+<rect x="178" y="222" width="32" height="14" fill="#c62828"><title>cobol nordic: 0/2</title></rect>
+<text x="104" y="250" text-anchor="end">cpp</text>
+<rect x="110" y="238" width="32" height="14" fill="#f9a825"><title>cpp ascii: 3/5</title></rect>
+<rect x="144" y="238" width="32" height="14" fill="#2e7d32"><title>cpp german: 2/2</title></rect>
+<rect x="178" y="238" width="32" height="14" fill="#f9a825"><title>cpp nordic: 1/2</title></rect>
+<rect x="212" y="238" width="32" height="14" fill="#f9a825"><title>cpp french: 1/2</title></rect>
+<rect x="246" y="238" width="32" height="14" fill="#2e7d32"><title>cpp turkish: 1/1</title></rect>
+<rect x="280" y="238" width="32" height="14" fill="#f9a825"><title>cpp greek: 1/2</title></rect>
+<rect x="314" y="238" width="32" height="14" fill="#f9a825"><title>cpp cyrillic: 1/2</title></rect>
+<rect x="348" y="238" width="32" height="14" fill="#c62828"><title>cpp devanagari: 0/2</title></rect>
+<rect x="382" y="238" width="32" height="14" fill="#c62828"><title>cpp devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="238" width="32" height="14" fill="#c62828"><title>cpp tamil: 0/2</title></rect>
+<rect x="450" y="238" width="32" height="14" fill="#f9a825"><title>cpp arabic: 1/2</title></rect>
+<rect x="484" y="238" width="32" height="14" fill="#2e7d32"><title>cpp hebrew: 1/1</title></rect>
+<rect x="518" y="238" width="32" height="14" fill="#f9a825"><title>cpp han: 1/2</title></rect>
+<rect x="552" y="238" width="32" height="14" fill="#f9a825"><title>cpp kana: 1/2</title></rect>
+<rect x="586" y="238" width="32" height="14" fill="#2e7d32"><title>cpp hangul: 2/2</title></rect>
+<rect x="620" y="238" width="32" height="14" fill="#c62828"><title>cpp nfd: 0/2</title></rect>
+<text x="104" y="266" text-anchor="end">csharp</text>
+<rect x="110" y="254" width="32" height="14" fill="#f9a825"><title>csharp ascii: 3/5</title></rect>
+<rect x="144" y="254" width="32" height="14" fill="#2e7d32"><title>csharp german: 2/2</title></rect>
+<rect x="178" y="254" width="32" height="14" fill="#f9a825"><title>csharp nordic: 1/2</title></rect>
+<rect x="212" y="254" width="32" height="14" fill="#f9a825"><title>csharp french: 1/2</title></rect>
+<rect x="246" y="254" width="32" height="14" fill="#2e7d32"><title>csharp turkish: 1/1</title></rect>
+<rect x="280" y="254" width="32" height="14" fill="#f9a825"><title>csharp greek: 1/2</title></rect>
+<rect x="314" y="254" width="32" height="14" fill="#f9a825"><title>csharp cyrillic: 1/2</title></rect>
+<rect x="348" y="254" width="32" height="14" fill="#c62828"><title>csharp devanagari: 0/2</title></rect>
+<rect x="382" y="254" width="32" height="14" fill="#c62828"><title>csharp devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="254" width="32" height="14" fill="#c62828"><title>csharp tamil: 0/2</title></rect>
+<rect x="450" y="254" width="32" height="14" fill="#f9a825"><title>csharp arabic: 1/2</title></rect>
+<rect x="484" y="254" width="32" height="14" fill="#2e7d32"><title>csharp hebrew: 1/1</title></rect>
+<rect x="518" y="254" width="32" height="14" fill="#f9a825"><title>csharp han: 1/2</title></rect>
+<rect x="552" y="254" width="32" height="14" fill="#f9a825"><title>csharp kana: 1/2</title></rect>
+<rect x="586" y="254" width="32" height="14" fill="#2e7d32"><title>csharp hangul: 2/2</title></rect>
+<rect x="620" y="254" width="32" height="14" fill="#c62828"><title>csharp nfd: 0/2</title></rect>
+<text x="104" y="282" text-anchor="end">css</text>
+<rect x="110" y="270" width="32" height="14" fill="#f9a825"><title>css ascii: 3/5</title></rect>
+<text x="104" y="298" text-anchor="end">dart</text>
+<rect x="110" y="286" width="32" height="14" fill="#f9a825"><title>dart ascii: 3/5</title></rect>
+<rect x="144" y="286" width="32" height="14" fill="#2e7d32"><title>dart german: 2/2</title></rect>
+<rect x="178" y="286" width="32" height="14" fill="#f9a825"><title>dart nordic: 1/2</title></rect>
+<rect x="212" y="286" width="32" height="14" fill="#f9a825"><title>dart french: 1/2</title></rect>
+<rect x="246" y="286" width="32" height="14" fill="#2e7d32"><title>dart turkish: 1/1</title></rect>
+<rect x="280" y="286" width="32" height="14" fill="#f9a825"><title>dart greek: 1/2</title></rect>
+<rect x="314" y="286" width="32" height="14" fill="#f9a825"><title>dart cyrillic: 1/2</title></rect>
+<rect x="348" y="286" width="32" height="14" fill="#c62828"><title>dart devanagari: 0/2</title></rect>
+<rect x="382" y="286" width="32" height="14" fill="#c62828"><title>dart devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="286" width="32" height="14" fill="#c62828"><title>dart tamil: 0/2</title></rect>
+<rect x="450" y="286" width="32" height="14" fill="#f9a825"><title>dart arabic: 1/2</title></rect>
+<rect x="484" y="286" width="32" height="14" fill="#2e7d32"><title>dart hebrew: 1/1</title></rect>
+<rect x="518" y="286" width="32" height="14" fill="#f9a825"><title>dart han: 1/2</title></rect>
+<rect x="552" y="286" width="32" height="14" fill="#f9a825"><title>dart kana: 1/2</title></rect>
+<rect x="586" y="286" width="32" height="14" fill="#2e7d32"><title>dart hangul: 2/2</title></rect>
+<rect x="620" y="286" width="32" height="14" fill="#c62828"><title>dart nfd: 0/2</title></rect>
+<text x="104" y="314" text-anchor="end">db2_sql</text>
+<rect x="110" y="302" width="32" height="14" fill="#f9a825"><title>db2_sql ascii: 3/5</title></rect>
+<text x="104" y="330" text-anchor="end">dockerfile</text>
+<rect x="110" y="318" width="32" height="14" fill="#f9a825"><title>dockerfile ascii: 3/5</title></rect>
+<text x="104" y="346" text-anchor="end">embedded_python</text>
+<rect x="110" y="334" width="32" height="14" fill="#f9a825"><title>embedded_python ascii: 3/5</title></rect>
+<text x="104" y="362" text-anchor="end">fortran</text>
+<rect x="110" y="350" width="32" height="14" fill="#f9a825"><title>fortran ascii: 3/5</title></rect>
+<text x="104" y="378" text-anchor="end">go</text>
+<rect x="110" y="366" width="32" height="14" fill="#f9a825"><title>go ascii: 3/5</title></rect>
+<rect x="144" y="366" width="32" height="14" fill="#2e7d32"><title>go german: 2/2</title></rect>
+<rect x="178" y="366" width="32" height="14" fill="#f9a825"><title>go nordic: 1/2</title></rect>
+<rect x="212" y="366" width="32" height="14" fill="#f9a825"><title>go french: 1/2</title></rect>
+<rect x="246" y="366" width="32" height="14" fill="#2e7d32"><title>go turkish: 1/1</title></rect>
+<rect x="280" y="366" width="32" height="14" fill="#f9a825"><title>go greek: 1/2</title></rect>
+<rect x="314" y="366" width="32" height="14" fill="#f9a825"><title>go cyrillic: 1/2</title></rect>
+<rect x="348" y="366" width="32" height="14" fill="#c62828"><title>go devanagari: 0/2</title></rect>
+<rect x="382" y="366" width="32" height="14" fill="#c62828"><title>go devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="366" width="32" height="14" fill="#c62828"><title>go tamil: 0/2</title></rect>
+<rect x="450" y="366" width="32" height="14" fill="#f9a825"><title>go arabic: 1/2</title></rect>
+<rect x="484" y="366" width="32" height="14" fill="#2e7d32"><title>go hebrew: 1/1</title></rect>
+<rect x="518" y="366" width="32" height="14" fill="#f9a825"><title>go han: 1/2</title></rect>
+<rect x="552" y="366" width="32" height="14" fill="#f9a825"><title>go kana: 1/2</title></rect>
+<rect x="586" y="366" width="32" height="14" fill="#2e7d32"><title>go hangul: 2/2</title></rect>
+<rect x="620" y="366" width="32" height="14" fill="#c62828"><title>go nfd: 0/2</title></rect>
+<text x="104" y="394" text-anchor="end">groovy</text>
+<rect x="110" y="382" width="32" height="14" fill="#f9a825"><title>groovy ascii: 3/5</title></rect>
+<rect x="144" y="382" width="32" height="14" fill="#2e7d32"><title>groovy german: 2/2</title></rect>
+<rect x="178" y="382" width="32" height="14" fill="#f9a825"><title>groovy nordic: 1/2</title></rect>
+<rect x="212" y="382" width="32" height="14" fill="#f9a825"><title>groovy french: 1/2</title></rect>
+<rect x="246" y="382" width="32" height="14" fill="#2e7d32"><title>groovy turkish: 1/1</title></rect>
+<rect x="280" y="382" width="32" height="14" fill="#f9a825"><title>groovy greek: 1/2</title></rect>
+<rect x="314" y="382" width="32" height="14" fill="#f9a825"><title>groovy cyrillic: 1/2</title></rect>
+<rect x="348" y="382" width="32" height="14" fill="#c62828"><title>groovy devanagari: 0/2</title></rect>
+<rect x="382" y="382" width="32" height="14" fill="#c62828"><title>groovy devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="382" width="32" height="14" fill="#c62828"><title>groovy tamil: 0/2</title></rect>
+<rect x="450" y="382" width="32" height="14" fill="#f9a825"><title>groovy arabic: 1/2</title></rect>
+<rect x="484" y="382" width="32" height="14" fill="#2e7d32"><title>groovy hebrew: 1/1</title></rect>
+<rect x="518" y="382" width="32" height="14" fill="#f9a825"><title>groovy han: 1/2</title></rect>
+<rect x="552" y="382" width="32" height="14" fill="#f9a825"><title>groovy kana: 1/2</title></rect>
+<rect x="586" y="382" width="32" height="14" fill="#2e7d32"><title>groovy hangul: 2/2</title></rect>
+<rect x="620" y="382" width="32" height="14" fill="#c62828"><title>groovy nfd: 0/2</title></rect>
+<text x="104" y="410" text-anchor="end">haskell</text>
+<rect x="110" y="398" width="32" height="14" fill="#f9a825"><title>haskell ascii: 3/5</title></rect>
+<rect x="144" y="398" width="32" height="14" fill="#c62828"><title>haskell german: 0/2</title></rect>
+<rect x="178" y="398" width="32" height="14" fill="#c62828"><title>haskell nordic: 0/2</title></rect>
+<rect x="212" y="398" width="32" height="14" fill="#c62828"><title>haskell french: 0/2</title></rect>
+<rect x="246" y="398" width="32" height="14" fill="#c62828"><title>haskell turkish: 0/1</title></rect>
+<rect x="280" y="398" width="32" height="14" fill="#c62828"><title>haskell greek: 0/2</title></rect>
+<rect x="314" y="398" width="32" height="14" fill="#c62828"><title>haskell cyrillic: 0/2</title></rect>
+<rect x="348" y="398" width="32" height="14" fill="#c62828"><title>haskell devanagari: 0/2</title></rect>
+<rect x="382" y="398" width="32" height="14" fill="#c62828"><title>haskell devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="398" width="32" height="14" fill="#c62828"><title>haskell tamil: 0/2</title></rect>
+<rect x="450" y="398" width="32" height="14" fill="#c62828"><title>haskell arabic: 0/2</title></rect>
+<rect x="484" y="398" width="32" height="14" fill="#c62828"><title>haskell hebrew: 0/1</title></rect>
+<rect x="518" y="398" width="32" height="14" fill="#c62828"><title>haskell han: 0/2</title></rect>
+<rect x="552" y="398" width="32" height="14" fill="#c62828"><title>haskell kana: 0/2</title></rect>
+<rect x="586" y="398" width="32" height="14" fill="#c62828"><title>haskell hangul: 0/2</title></rect>
+<rect x="620" y="398" width="32" height="14" fill="#c62828"><title>haskell nfd: 0/2</title></rect>
+<text x="104" y="426" text-anchor="end">hlasm</text>
+<rect x="110" y="414" width="32" height="14" fill="#f9a825"><title>hlasm ascii: 3/5</title></rect>
+<rect x="144" y="414" width="32" height="14" fill="#c62828"><title>hlasm german: 0/2</title></rect>
+<rect x="178" y="414" width="32" height="14" fill="#c62828"><title>hlasm nordic: 0/2</title></rect>
+<text x="104" y="442" text-anchor="end">html</text>
+<rect x="110" y="430" width="32" height="14" fill="#f9a825"><title>html ascii: 3/5</title></rect>
+<text x="104" y="458" text-anchor="end">java</text>
+<rect x="110" y="446" width="32" height="14" fill="#f9a825"><title>java ascii: 3/5</title></rect>
+<rect x="144" y="446" width="32" height="14" fill="#2e7d32"><title>java german: 2/2</title></rect>
+<rect x="178" y="446" width="32" height="14" fill="#f9a825"><title>java nordic: 1/2</title></rect>
+<rect x="212" y="446" width="32" height="14" fill="#f9a825"><title>java french: 1/2</title></rect>
+<rect x="246" y="446" width="32" height="14" fill="#2e7d32"><title>java turkish: 1/1</title></rect>
+<rect x="280" y="446" width="32" height="14" fill="#f9a825"><title>java greek: 1/2</title></rect>
+<rect x="314" y="446" width="32" height="14" fill="#f9a825"><title>java cyrillic: 1/2</title></rect>
+<rect x="348" y="446" width="32" height="14" fill="#c62828"><title>java devanagari: 0/2</title></rect>
+<rect x="382" y="446" width="32" height="14" fill="#c62828"><title>java devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="446" width="32" height="14" fill="#c62828"><title>java tamil: 0/2</title></rect>
+<rect x="450" y="446" width="32" height="14" fill="#f9a825"><title>java arabic: 1/2</title></rect>
+<rect x="484" y="446" width="32" height="14" fill="#2e7d32"><title>java hebrew: 1/1</title></rect>
+<rect x="518" y="446" width="32" height="14" fill="#f9a825"><title>java han: 1/2</title></rect>
+<rect x="552" y="446" width="32" height="14" fill="#f9a825"><title>java kana: 1/2</title></rect>
+<rect x="586" y="446" width="32" height="14" fill="#2e7d32"><title>java hangul: 2/2</title></rect>
+<rect x="620" y="446" width="32" height="14" fill="#c62828"><title>java nfd: 0/2</title></rect>
+<text x="104" y="474" text-anchor="end">javascript</text>
+<rect x="110" y="462" width="32" height="14" fill="#f9a825"><title>javascript ascii: 3/5</title></rect>
+<rect x="144" y="462" width="32" height="14" fill="#2e7d32"><title>javascript german: 2/2</title></rect>
+<rect x="178" y="462" width="32" height="14" fill="#f9a825"><title>javascript nordic: 1/2</title></rect>
+<rect x="212" y="462" width="32" height="14" fill="#f9a825"><title>javascript french: 1/2</title></rect>
+<rect x="246" y="462" width="32" height="14" fill="#2e7d32"><title>javascript turkish: 1/1</title></rect>
+<rect x="280" y="462" width="32" height="14" fill="#c62828"><title>javascript greek: 0/2</title></rect>
+<rect x="314" y="462" width="32" height="14" fill="#c62828"><title>javascript cyrillic: 0/2</title></rect>
+<rect x="348" y="462" width="32" height="14" fill="#c62828"><title>javascript devanagari: 0/2</title></rect>
+<rect x="382" y="462" width="32" height="14" fill="#c62828"><title>javascript devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="462" width="32" height="14" fill="#c62828"><title>javascript tamil: 0/2</title></rect>
+<rect x="450" y="462" width="32" height="14" fill="#f9a825"><title>javascript arabic: 1/2</title></rect>
+<rect x="484" y="462" width="32" height="14" fill="#2e7d32"><title>javascript hebrew: 1/1</title></rect>
+<rect x="518" y="462" width="32" height="14" fill="#f9a825"><title>javascript han: 1/2</title></rect>
+<rect x="552" y="462" width="32" height="14" fill="#f9a825"><title>javascript kana: 1/2</title></rect>
+<rect x="586" y="462" width="32" height="14" fill="#2e7d32"><title>javascript hangul: 2/2</title></rect>
+<rect x="620" y="462" width="32" height="14" fill="#c62828"><title>javascript nfd: 0/2</title></rect>
+<text x="104" y="490" text-anchor="end">jcl</text>
+<rect x="110" y="478" width="32" height="14" fill="#f9a825"><title>jcl ascii: 3/5</title></rect>
+<rect x="144" y="478" width="32" height="14" fill="#c62828"><title>jcl german: 0/2</title></rect>
+<rect x="178" y="478" width="32" height="14" fill="#c62828"><title>jcl nordic: 0/2</title></rect>
+<text x="104" y="506" text-anchor="end">kotlin</text>
+<rect x="110" y="494" width="32" height="14" fill="#f9a825"><title>kotlin ascii: 3/5</title></rect>
+<rect x="144" y="494" width="32" height="14" fill="#2e7d32"><title>kotlin german: 2/2</title></rect>
+<rect x="178" y="494" width="32" height="14" fill="#f9a825"><title>kotlin nordic: 1/2</title></rect>
+<rect x="212" y="494" width="32" height="14" fill="#f9a825"><title>kotlin french: 1/2</title></rect>
+<rect x="246" y="494" width="32" height="14" fill="#2e7d32"><title>kotlin turkish: 1/1</title></rect>
+<rect x="280" y="494" width="32" height="14" fill="#f9a825"><title>kotlin greek: 1/2</title></rect>
+<rect x="314" y="494" width="32" height="14" fill="#f9a825"><title>kotlin cyrillic: 1/2</title></rect>
+<rect x="348" y="494" width="32" height="14" fill="#c62828"><title>kotlin devanagari: 0/2</title></rect>
+<rect x="382" y="494" width="32" height="14" fill="#c62828"><title>kotlin devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="494" width="32" height="14" fill="#c62828"><title>kotlin tamil: 0/2</title></rect>
+<rect x="450" y="494" width="32" height="14" fill="#f9a825"><title>kotlin arabic: 1/2</title></rect>
+<rect x="484" y="494" width="32" height="14" fill="#2e7d32"><title>kotlin hebrew: 1/1</title></rect>
+<rect x="518" y="494" width="32" height="14" fill="#f9a825"><title>kotlin han: 1/2</title></rect>
+<rect x="552" y="494" width="32" height="14" fill="#f9a825"><title>kotlin kana: 1/2</title></rect>
+<rect x="586" y="494" width="32" height="14" fill="#2e7d32"><title>kotlin hangul: 2/2</title></rect>
+<rect x="620" y="494" width="32" height="14" fill="#c62828"><title>kotlin nfd: 0/2</title></rect>
+<text x="104" y="522" text-anchor="end">livecode</text>
+<rect x="110" y="510" width="32" height="14" fill="#f9a825"><title>livecode ascii: 3/5</title></rect>
+<text x="104" y="538" text-anchor="end">lua</text>
+<rect x="110" y="526" width="32" height="14" fill="#f9a825"><title>lua ascii: 3/5</title></rect>
+<text x="104" y="554" text-anchor="end">m4</text>
+<rect x="110" y="542" width="32" height="14" fill="#f9a825"><title>m4 ascii: 3/5</title></rect>
+<text x="104" y="570" text-anchor="end">mainframe</text>
+<rect x="110" y="558" width="32" height="14" fill="#f9a825"><title>mainframe ascii: 3/5</title></rect>
+<rect x="144" y="558" width="32" height="14" fill="#c62828"><title>mainframe german: 0/2</title></rect>
+<rect x="178" y="558" width="32" height="14" fill="#c62828"><title>mainframe nordic: 0/2</title></rect>
+<text x="104" y="586" text-anchor="end">makefile</text>
+<rect x="110" y="574" width="32" height="14" fill="#f9a825"><title>makefile ascii: 3/5</title></rect>
+<text x="104" y="602" text-anchor="end">markdown</text>
+<rect x="110" y="590" width="32" height="14" fill="#f9a825"><title>markdown ascii: 3/5</title></rect>
+<text x="104" y="618" text-anchor="end">matlab</text>
+<rect x="110" y="606" width="32" height="14" fill="#f9a825"><title>matlab ascii: 3/5</title></rect>
+<text x="104" y="634" text-anchor="end">objective-c</text>
+<rect x="110" y="622" width="32" height="14" fill="#f9a825"><title>objective-c ascii: 3/5</title></rect>
+<rect x="144" y="622" width="32" height="14" fill="#2e7d32"><title>objective-c german: 2/2</title></rect>
+<rect x="178" y="622" width="32" height="14" fill="#f9a825"><title>objective-c nordic: 1/2</title></rect>
+<rect x="212" y="622" width="32" height="14" fill="#f9a825"><title>objective-c french: 1/2</title></rect>
+<rect x="246" y="622" width="32" height="14" fill="#2e7d32"><title>objective-c turkish: 1/1</title></rect>
+<rect x="280" y="622" width="32" height="14" fill="#f9a825"><title>objective-c greek: 1/2</title></rect>
+<rect x="314" y="622" width="32" height="14" fill="#f9a825"><title>objective-c cyrillic: 1/2</title></rect>
+<rect x="348" y="622" width="32" height="14" fill="#c62828"><title>objective-c devanagari: 0/2</title></rect>
+<rect x="382" y="622" width="32" height="14" fill="#c62828"><title>objective-c devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="622" width="32" height="14" fill="#c62828"><title>objective-c tamil: 0/2</title></rect>
+<rect x="450" y="622" width="32" height="14" fill="#f9a825"><title>objective-c arabic: 1/2</title></rect>
+<rect x="484" y="622" width="32" height="14" fill="#2e7d32"><title>objective-c hebrew: 1/1</title></rect>
+<rect x="518" y="622" width="32" height="14" fill="#f9a825"><title>objective-c han: 1/2</title></rect>
+<rect x="552" y="622" width="32" height="14" fill="#f9a825"><title>objective-c kana: 1/2</title></rect>
+<rect x="586" y="622" width="32" height="14" fill="#2e7d32"><title>objective-c hangul: 2/2</title></rect>
+<rect x="620" y="622" width="32" height="14" fill="#c62828"><title>objective-c nfd: 0/2</title></rect>
+<text x="104" y="650" text-anchor="end">perl</text>
+<rect x="110" y="638" width="32" height="14" fill="#f9a825"><title>perl ascii: 3/5</title></rect>
+<text x="104" y="666" text-anchor="end">php</text>
+<rect x="110" y="654" width="32" height="14" fill="#f9a825"><title>php ascii: 3/5</title></rect>
+<rect x="144" y="654" width="32" height="14" fill="#2e7d32"><title>php german: 2/2</title></rect>
+<rect x="178" y="654" width="32" height="14" fill="#f9a825"><title>php nordic: 1/2</title></rect>
+<rect x="212" y="654" width="32" height="14" fill="#f9a825"><title>php french: 1/2</title></rect>
+<rect x="246" y="654" width="32" height="14" fill="#2e7d32"><title>php turkish: 1/1</title></rect>
+<rect x="280" y="654" width="32" height="14" fill="#c62828"><title>php greek: 0/2</title></rect>
+<rect x="314" y="654" width="32" height="14" fill="#c62828"><title>php cyrillic: 0/2</title></rect>
+<rect x="348" y="654" width="32" height="14" fill="#c62828"><title>php devanagari: 0/2</title></rect>
+<rect x="382" y="654" width="32" height="14" fill="#c62828"><title>php devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="654" width="32" height="14" fill="#c62828"><title>php tamil: 0/2</title></rect>
+<rect x="450" y="654" width="32" height="14" fill="#c62828"><title>php arabic: 0/2</title></rect>
+<rect x="484" y="654" width="32" height="14" fill="#c62828"><title>php hebrew: 0/1</title></rect>
+<rect x="518" y="654" width="32" height="14" fill="#c62828"><title>php han: 0/2</title></rect>
+<rect x="552" y="654" width="32" height="14" fill="#c62828"><title>php kana: 0/2</title></rect>
+<rect x="586" y="654" width="32" height="14" fill="#c62828"><title>php hangul: 0/2</title></rect>
+<rect x="620" y="654" width="32" height="14" fill="#c62828"><title>php nfd: 0/2</title></rect>
+<text x="104" y="682" text-anchor="end">pli</text>
+<rect x="110" y="670" width="32" height="14" fill="#f9a825"><title>pli ascii: 3/5</title></rect>
+<rect x="144" y="670" width="32" height="14" fill="#f9a825"><title>pli german: 1/2</title></rect>
+<rect x="178" y="670" width="32" height="14" fill="#2e7d32"><title>pli nordic: 2/2</title></rect>
+<text x="104" y="698" text-anchor="end">powershell</text>
+<rect x="110" y="686" width="32" height="14" fill="#f9a825"><title>powershell ascii: 3/5</title></rect>
+<rect x="144" y="686" width="32" height="14" fill="#c62828"><title>powershell german: 0/2</title></rect>
+<rect x="178" y="686" width="32" height="14" fill="#c62828"><title>powershell nordic: 0/2</title></rect>
+<rect x="212" y="686" width="32" height="14" fill="#c62828"><title>powershell french: 0/2</title></rect>
+<rect x="246" y="686" width="32" height="14" fill="#2e7d32"><title>powershell turkish: 1/1</title></rect>
+<rect x="280" y="686" width="32" height="14" fill="#c62828"><title>powershell greek: 0/2</title></rect>
+<rect x="314" y="686" width="32" height="14" fill="#c62828"><title>powershell cyrillic: 0/2</title></rect>
+<rect x="348" y="686" width="32" height="14" fill="#c62828"><title>powershell devanagari: 0/2</title></rect>
+<rect x="382" y="686" width="32" height="14" fill="#c62828"><title>powershell devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="686" width="32" height="14" fill="#c62828"><title>powershell tamil: 0/2</title></rect>
+<rect x="450" y="686" width="32" height="14" fill="#c62828"><title>powershell arabic: 0/2</title></rect>
+<rect x="484" y="686" width="32" height="14" fill="#c62828"><title>powershell hebrew: 0/1</title></rect>
+<rect x="518" y="686" width="32" height="14" fill="#c62828"><title>powershell han: 0/2</title></rect>
+<rect x="552" y="686" width="32" height="14" fill="#c62828"><title>powershell kana: 0/2</title></rect>
+<rect x="586" y="686" width="32" height="14" fill="#c62828"><title>powershell hangul: 0/2</title></rect>
+<rect x="620" y="686" width="32" height="14" fill="#c62828"><title>powershell nfd: 0/2</title></rect>
+<text x="104" y="714" text-anchor="end">python</text>
+<rect x="110" y="702" width="32" height="14" fill="#f9a825"><title>python ascii: 3/5</title></rect>
+<rect x="144" y="702" width="32" height="14" fill="#2e7d32"><title>python german: 2/2</title></rect>
+<rect x="178" y="702" width="32" height="14" fill="#f9a825"><title>python nordic: 1/2</title></rect>
+<rect x="212" y="702" width="32" height="14" fill="#f9a825"><title>python french: 1/2</title></rect>
+<rect x="246" y="702" width="32" height="14" fill="#2e7d32"><title>python turkish: 1/1</title></rect>
+<rect x="280" y="702" width="32" height="14" fill="#c62828"><title>python greek: 0/2</title></rect>
+<rect x="314" y="702" width="32" height="14" fill="#c62828"><title>python cyrillic: 0/2</title></rect>
+<rect x="348" y="702" width="32" height="14" fill="#c62828"><title>python devanagari: 0/2</title></rect>
+<rect x="382" y="702" width="32" height="14" fill="#c62828"><title>python devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="702" width="32" height="14" fill="#c62828"><title>python tamil: 0/2</title></rect>
+<rect x="450" y="702" width="32" height="14" fill="#f9a825"><title>python arabic: 1/2</title></rect>
+<rect x="484" y="702" width="32" height="14" fill="#2e7d32"><title>python hebrew: 1/1</title></rect>
+<rect x="518" y="702" width="32" height="14" fill="#f9a825"><title>python han: 1/2</title></rect>
+<rect x="552" y="702" width="32" height="14" fill="#f9a825"><title>python kana: 1/2</title></rect>
+<rect x="586" y="702" width="32" height="14" fill="#2e7d32"><title>python hangul: 2/2</title></rect>
+<rect x="620" y="702" width="32" height="14" fill="#c62828"><title>python nfd: 0/2</title></rect>
+<text x="104" y="730" text-anchor="end">rexx</text>
+<rect x="110" y="718" width="32" height="14" fill="#f9a825"><title>rexx ascii: 3/5</title></rect>
+<rect x="144" y="718" width="32" height="14" fill="#f9a825"><title>rexx german: 1/2</title></rect>
+<rect x="178" y="718" width="32" height="14" fill="#2e7d32"><title>rexx nordic: 2/2</title></rect>
+<text x="104" y="746" text-anchor="end">ruby</text>
+<rect x="110" y="734" width="32" height="14" fill="#f9a825"><title>ruby ascii: 3/5</title></rect>
+<rect x="144" y="734" width="32" height="14" fill="#2e7d32"><title>ruby german: 2/2</title></rect>
+<rect x="178" y="734" width="32" height="14" fill="#f9a825"><title>ruby nordic: 1/2</title></rect>
+<rect x="212" y="734" width="32" height="14" fill="#f9a825"><title>ruby french: 1/2</title></rect>
+<rect x="246" y="734" width="32" height="14" fill="#2e7d32"><title>ruby turkish: 1/1</title></rect>
+<rect x="280" y="734" width="32" height="14" fill="#f9a825"><title>ruby greek: 1/2</title></rect>
+<rect x="314" y="734" width="32" height="14" fill="#f9a825"><title>ruby cyrillic: 1/2</title></rect>
+<rect x="348" y="734" width="32" height="14" fill="#c62828"><title>ruby devanagari: 0/2</title></rect>
+<rect x="382" y="734" width="32" height="14" fill="#c62828"><title>ruby devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="734" width="32" height="14" fill="#c62828"><title>ruby tamil: 0/2</title></rect>
+<rect x="450" y="734" width="32" height="14" fill="#f9a825"><title>ruby arabic: 1/2</title></rect>
+<rect x="484" y="734" width="32" height="14" fill="#2e7d32"><title>ruby hebrew: 1/1</title></rect>
+<rect x="518" y="734" width="32" height="14" fill="#f9a825"><title>ruby han: 1/2</title></rect>
+<rect x="552" y="734" width="32" height="14" fill="#f9a825"><title>ruby kana: 1/2</title></rect>
+<rect x="586" y="734" width="32" height="14" fill="#2e7d32"><title>ruby hangul: 2/2</title></rect>
+<rect x="620" y="734" width="32" height="14" fill="#c62828"><title>ruby nfd: 0/2</title></rect>
+<text x="104" y="762" text-anchor="end">rust</text>
+<rect x="110" y="750" width="32" height="14" fill="#f9a825"><title>rust ascii: 3/5</title></rect>
+<rect x="144" y="750" width="32" height="14" fill="#2e7d32"><title>rust german: 2/2</title></rect>
+<rect x="178" y="750" width="32" height="14" fill="#f9a825"><title>rust nordic: 1/2</title></rect>
+<rect x="212" y="750" width="32" height="14" fill="#f9a825"><title>rust french: 1/2</title></rect>
+<rect x="246" y="750" width="32" height="14" fill="#2e7d32"><title>rust turkish: 1/1</title></rect>
+<rect x="280" y="750" width="32" height="14" fill="#f9a825"><title>rust greek: 1/2</title></rect>
+<rect x="314" y="750" width="32" height="14" fill="#f9a825"><title>rust cyrillic: 1/2</title></rect>
+<rect x="348" y="750" width="32" height="14" fill="#c62828"><title>rust devanagari: 0/2</title></rect>
+<rect x="382" y="750" width="32" height="14" fill="#c62828"><title>rust devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="750" width="32" height="14" fill="#c62828"><title>rust tamil: 0/2</title></rect>
+<rect x="450" y="750" width="32" height="14" fill="#f9a825"><title>rust arabic: 1/2</title></rect>
+<rect x="484" y="750" width="32" height="14" fill="#2e7d32"><title>rust hebrew: 1/1</title></rect>
+<rect x="518" y="750" width="32" height="14" fill="#f9a825"><title>rust han: 1/2</title></rect>
+<rect x="552" y="750" width="32" height="14" fill="#f9a825"><title>rust kana: 1/2</title></rect>
+<rect x="586" y="750" width="32" height="14" fill="#2e7d32"><title>rust hangul: 2/2</title></rect>
+<rect x="620" y="750" width="32" height="14" fill="#c62828"><title>rust nfd: 0/2</title></rect>
+<text x="104" y="778" text-anchor="end">scala</text>
+<rect x="110" y="766" width="32" height="14" fill="#f9a825"><title>scala ascii: 3/5</title></rect>
+<rect x="144" y="766" width="32" height="14" fill="#2e7d32"><title>scala german: 2/2</title></rect>
+<rect x="178" y="766" width="32" height="14" fill="#f9a825"><title>scala nordic: 1/2</title></rect>
+<rect x="212" y="766" width="32" height="14" fill="#f9a825"><title>scala french: 1/2</title></rect>
+<rect x="246" y="766" width="32" height="14" fill="#2e7d32"><title>scala turkish: 1/1</title></rect>
+<rect x="280" y="766" width="32" height="14" fill="#f9a825"><title>scala greek: 1/2</title></rect>
+<rect x="314" y="766" width="32" height="14" fill="#f9a825"><title>scala cyrillic: 1/2</title></rect>
+<rect x="348" y="766" width="32" height="14" fill="#c62828"><title>scala devanagari: 0/2</title></rect>
+<rect x="382" y="766" width="32" height="14" fill="#c62828"><title>scala devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="766" width="32" height="14" fill="#c62828"><title>scala tamil: 0/2</title></rect>
+<rect x="450" y="766" width="32" height="14" fill="#f9a825"><title>scala arabic: 1/2</title></rect>
+<rect x="484" y="766" width="32" height="14" fill="#2e7d32"><title>scala hebrew: 1/1</title></rect>
+<rect x="518" y="766" width="32" height="14" fill="#f9a825"><title>scala han: 1/2</title></rect>
+<rect x="552" y="766" width="32" height="14" fill="#f9a825"><title>scala kana: 1/2</title></rect>
+<rect x="586" y="766" width="32" height="14" fill="#2e7d32"><title>scala hangul: 2/2</title></rect>
+<rect x="620" y="766" width="32" height="14" fill="#c62828"><title>scala nfd: 0/2</title></rect>
+<text x="104" y="794" text-anchor="end">scheme</text>
+<rect x="110" y="782" width="32" height="14" fill="#f9a825"><title>scheme ascii: 3/5</title></rect>
+<rect x="144" y="782" width="32" height="14" fill="#c62828"><title>scheme german: 0/2</title></rect>
+<rect x="178" y="782" width="32" height="14" fill="#c62828"><title>scheme nordic: 0/2</title></rect>
+<rect x="212" y="782" width="32" height="14" fill="#c62828"><title>scheme french: 0/2</title></rect>
+<rect x="246" y="782" width="32" height="14" fill="#c62828"><title>scheme turkish: 0/1</title></rect>
+<rect x="280" y="782" width="32" height="14" fill="#c62828"><title>scheme greek: 0/2</title></rect>
+<rect x="314" y="782" width="32" height="14" fill="#c62828"><title>scheme cyrillic: 0/2</title></rect>
+<rect x="348" y="782" width="32" height="14" fill="#c62828"><title>scheme devanagari: 0/2</title></rect>
+<rect x="382" y="782" width="32" height="14" fill="#c62828"><title>scheme devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="782" width="32" height="14" fill="#c62828"><title>scheme tamil: 0/2</title></rect>
+<rect x="450" y="782" width="32" height="14" fill="#c62828"><title>scheme arabic: 0/2</title></rect>
+<rect x="484" y="782" width="32" height="14" fill="#c62828"><title>scheme hebrew: 0/1</title></rect>
+<rect x="518" y="782" width="32" height="14" fill="#c62828"><title>scheme han: 0/2</title></rect>
+<rect x="552" y="782" width="32" height="14" fill="#c62828"><title>scheme kana: 0/2</title></rect>
+<rect x="586" y="782" width="32" height="14" fill="#c62828"><title>scheme hangul: 0/2</title></rect>
+<rect x="620" y="782" width="32" height="14" fill="#c62828"><title>scheme nfd: 0/2</title></rect>
+<text x="104" y="810" text-anchor="end">shell</text>
+<rect x="110" y="798" width="32" height="14" fill="#f9a825"><title>shell ascii: 3/5</title></rect>
+<text x="104" y="826" text-anchor="end">solidity</text>
+<rect x="110" y="814" width="32" height="14" fill="#f9a825"><title>solidity ascii: 3/5</title></rect>
+<text x="104" y="842" text-anchor="end">sqlite</text>
+<rect x="110" y="830" width="32" height="14" fill="#f9a825"><title>sqlite ascii: 3/5</title></rect>
+<rect x="144" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite german: 2/2</title></rect>
+<rect x="178" y="830" width="32" height="14" fill="#f9a825"><title>sqlite nordic: 1/2</title></rect>
+<rect x="212" y="830" width="32" height="14" fill="#f9a825"><title>sqlite french: 1/2</title></rect>
+<rect x="246" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite turkish: 2/2</title></rect>
+<rect x="280" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite greek: 2/2</title></rect>
+<rect x="314" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite cyrillic: 2/2</title></rect>
+<rect x="348" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite devanagari: 2/2</title></rect>
+<rect x="382" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite devanagari_zwj: 2/2</title></rect>
+<rect x="416" y="830" width="32" height="14" fill="#f9a825"><title>sqlite tamil: 1/2</title></rect>
+<rect x="450" y="830" width="32" height="14" fill="#f9a825"><title>sqlite arabic: 1/2</title></rect>
+<rect x="484" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite hebrew: 2/2</title></rect>
+<rect x="518" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite han: 2/2</title></rect>
+<rect x="552" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite kana: 2/2</title></rect>
+<rect x="586" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite hangul: 2/2</title></rect>
+<rect x="620" y="830" width="32" height="14" fill="#2e7d32"><title>sqlite nfd: 2/2</title></rect>
+<text x="104" y="858" text-anchor="end">swift</text>
+<rect x="110" y="846" width="32" height="14" fill="#f9a825"><title>swift ascii: 3/5</title></rect>
+<rect x="144" y="846" width="32" height="14" fill="#2e7d32"><title>swift german: 2/2</title></rect>
+<rect x="178" y="846" width="32" height="14" fill="#f9a825"><title>swift nordic: 1/2</title></rect>
+<rect x="212" y="846" width="32" height="14" fill="#f9a825"><title>swift french: 1/2</title></rect>
+<rect x="246" y="846" width="32" height="14" fill="#2e7d32"><title>swift turkish: 1/1</title></rect>
+<rect x="280" y="846" width="32" height="14" fill="#f9a825"><title>swift greek: 1/2</title></rect>
+<rect x="314" y="846" width="32" height="14" fill="#f9a825"><title>swift cyrillic: 1/2</title></rect>
+<rect x="348" y="846" width="32" height="14" fill="#c62828"><title>swift devanagari: 0/2</title></rect>
+<rect x="382" y="846" width="32" height="14" fill="#c62828"><title>swift devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="846" width="32" height="14" fill="#c62828"><title>swift tamil: 0/2</title></rect>
+<rect x="450" y="846" width="32" height="14" fill="#f9a825"><title>swift arabic: 1/2</title></rect>
+<rect x="484" y="846" width="32" height="14" fill="#2e7d32"><title>swift hebrew: 1/1</title></rect>
+<rect x="518" y="846" width="32" height="14" fill="#f9a825"><title>swift han: 1/2</title></rect>
+<rect x="552" y="846" width="32" height="14" fill="#f9a825"><title>swift kana: 1/2</title></rect>
+<rect x="586" y="846" width="32" height="14" fill="#2e7d32"><title>swift hangul: 2/2</title></rect>
+<rect x="620" y="846" width="32" height="14" fill="#c62828"><title>swift nfd: 0/2</title></rect>
+<text x="104" y="874" text-anchor="end">tcl</text>
+<rect x="110" y="862" width="32" height="14" fill="#f9a825"><title>tcl ascii: 3/5</title></rect>
+<rect x="144" y="862" width="32" height="14" fill="#c62828"><title>tcl german: 0/2</title></rect>
+<rect x="178" y="862" width="32" height="14" fill="#c62828"><title>tcl nordic: 0/2</title></rect>
+<rect x="212" y="862" width="32" height="14" fill="#c62828"><title>tcl french: 0/2</title></rect>
+<rect x="246" y="862" width="32" height="14" fill="#c62828"><title>tcl turkish: 0/1</title></rect>
+<rect x="280" y="862" width="32" height="14" fill="#c62828"><title>tcl greek: 0/2</title></rect>
+<rect x="314" y="862" width="32" height="14" fill="#c62828"><title>tcl cyrillic: 0/2</title></rect>
+<rect x="348" y="862" width="32" height="14" fill="#c62828"><title>tcl devanagari: 0/2</title></rect>
+<rect x="382" y="862" width="32" height="14" fill="#c62828"><title>tcl devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="862" width="32" height="14" fill="#c62828"><title>tcl tamil: 0/2</title></rect>
+<rect x="450" y="862" width="32" height="14" fill="#c62828"><title>tcl arabic: 0/2</title></rect>
+<rect x="484" y="862" width="32" height="14" fill="#c62828"><title>tcl hebrew: 0/1</title></rect>
+<rect x="518" y="862" width="32" height="14" fill="#c62828"><title>tcl han: 0/2</title></rect>
+<rect x="552" y="862" width="32" height="14" fill="#c62828"><title>tcl kana: 0/2</title></rect>
+<rect x="586" y="862" width="32" height="14" fill="#c62828"><title>tcl hangul: 0/2</title></rect>
+<rect x="620" y="862" width="32" height="14" fill="#c62828"><title>tcl nfd: 0/2</title></rect>
+<text x="104" y="890" text-anchor="end">typescript</text>
+<rect x="110" y="878" width="32" height="14" fill="#f9a825"><title>typescript ascii: 3/5</title></rect>
+<rect x="144" y="878" width="32" height="14" fill="#2e7d32"><title>typescript german: 2/2</title></rect>
+<rect x="178" y="878" width="32" height="14" fill="#f9a825"><title>typescript nordic: 1/2</title></rect>
+<rect x="212" y="878" width="32" height="14" fill="#f9a825"><title>typescript french: 1/2</title></rect>
+<rect x="246" y="878" width="32" height="14" fill="#2e7d32"><title>typescript turkish: 1/1</title></rect>
+<rect x="280" y="878" width="32" height="14" fill="#c62828"><title>typescript greek: 0/2</title></rect>
+<rect x="314" y="878" width="32" height="14" fill="#c62828"><title>typescript cyrillic: 0/2</title></rect>
+<rect x="348" y="878" width="32" height="14" fill="#c62828"><title>typescript devanagari: 0/2</title></rect>
+<rect x="382" y="878" width="32" height="14" fill="#c62828"><title>typescript devanagari_zwj: 0/2</title></rect>
+<rect x="416" y="878" width="32" height="14" fill="#c62828"><title>typescript tamil: 0/2</title></rect>
+<rect x="450" y="878" width="32" height="14" fill="#f9a825"><title>typescript arabic: 1/2</title></rect>
+<rect x="484" y="878" width="32" height="14" fill="#2e7d32"><title>typescript hebrew: 1/1</title></rect>
+<rect x="518" y="878" width="32" height="14" fill="#f9a825"><title>typescript han: 1/2</title></rect>
+<rect x="552" y="878" width="32" height="14" fill="#f9a825"><title>typescript kana: 1/2</title></rect>
+<rect x="586" y="878" width="32" height="14" fill="#2e7d32"><title>typescript hangul: 2/2</title></rect>
+<rect x="620" y="878" width="32" height="14" fill="#c62828"><title>typescript nfd: 0/2</title></rect>
+<text x="104" y="906" text-anchor="end">yacc</text>
+<rect x="110" y="894" width="32" height="14" fill="#f9a825"><title>yacc ascii: 3/5</title></rect>
+<text x="104" y="922" text-anchor="end">yaml</text>
+<rect x="110" y="910" width="32" height="14" fill="#f9a825"><title>yaml ascii: 3/5</title></rect>
+<text x="104" y="938" text-anchor="end">zig</text>
+<rect x="110" y="926" width="32" height="14" fill="#f9a825"><title>zig ascii: 3/5</title></rect>
+</svg>

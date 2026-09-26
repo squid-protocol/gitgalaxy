@@ -1,0 +1,83 @@
+name: unicode-gauntlet
+
+# #3812 (epic #3811): every read GitGalaxy makes is assumed wrong until the Unicode Gauntlet proves
+# it. Each trusted seed (keyword-rosetta's 51 languages, plus the mainframe channel seed in
+# tests/unicode_gauntlet/mainframe) is rewritten -- names in another script where the language
+# allows it, files re-encoded (UTF-8 BOM, UTF-16, cp1252, Shift-JIS, GB18030, CRLF) -- and each
+# variant's scanned facts must equal its ASCII twin's with the same renaming. The baseline is a
+# ratchet: a cell failing that tests/unicode_gauntlet/baseline.json does not list fails the run; a
+# fix lowers the baseline. The rosetta corpus is checked out at the commit the baseline recorded, so
+# a corpus change cannot move the cells under a PR.
+
+on:
+  pull_request:
+    branches: [main, v6-dev]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - "tests/tools/unicode_gauntlet.py"
+      - "tests/unicode_gauntlet/**"
+      - ".github/workflows/unicode-gauntlet.yml"
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "tests/tools/unicode_gauntlet.py"
+      - "tests/unicode_gauntlet/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  gauntlet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Read the pinned rosetta commit
+        id: pin
+        run: |
+          ref=$(python3 -c "import json; print(json.load(open('gitgalaxy/tests/unicode_gauntlet/baseline.json'))['rosetta_ref'])")
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout keyword-rosetta (pinned)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: squid-protocol/keyword-rosetta
+          ref: ${{ steps.pin.outputs.ref }}
+          path: keyword-rosetta
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyYAML tiktoken numpy pandas xgboost
+          pip install -e ./gitgalaxy
+
+      - name: Run the gauntlet against its baseline
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+        run: |
+          cd gitgalaxy
+          python tests/tools/unicode_gauntlet.py --corpus ../keyword-rosetta --ci --out "$RUNNER_TEMP/gauntlet"
+
+      - name: Publish the matrix
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/gauntlet/report.md" ]; then cat "$RUNNER_TEMP/gauntlet/report.md" >> "$GITHUB_STEP_SUMMARY"; fi

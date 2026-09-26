@@ -1,0 +1,13 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PGMB.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  WS-GREET        PIC X(30) VALUE "PGMC".
+       01  WS-AMOUNT       PIC S9(7)V99 VALUE 0.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           CALL "PGMC"
+           PERFORM 100-CALC
+           GOBACK.
+       100-CALC.
+           ADD 1 TO WS-AMOUNT.

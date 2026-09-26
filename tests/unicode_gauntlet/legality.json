@@ -1,0 +1,76 @@
+{
+  "about": "#3812: which scripts each language allows in an identifier -- it drives the gauntlet's rename transform (an illegal rename would test nothing real). `unicode`: the language takes Unicode letters in identifiers (UAX #31-style, compilers' UTF-8 source). `national`: mainframe languages whose identifiers carry the national characters @ # $, which Nordic / German EBCDIC code pages display as these letters (upper case, one byte each); max_len is the language's name limit. Every other language gets only the ASCII-name encoding cells (BOM, UTF-16, CRLF).",
+  "rules": [
+    {
+      "kind": "unicode",
+      "languages": [
+        "python",
+        "java",
+        "javascript",
+        "typescript",
+        "csharp",
+        "go",
+        "kotlin",
+        "swift",
+        "rust",
+        "ruby",
+        "php",
+        "scala",
+        "dart",
+        "groovy",
+        "haskell",
+        "objective-c",
+        "c",
+        "cpp",
+        "ada",
+        "powershell",
+        "tcl",
+        "scheme",
+        "sqlite"
+      ],
+      "scripts": [
+        "german",
+        "nordic",
+        "french",
+        "turkish",
+        "greek",
+        "cyrillic",
+        "devanagari",
+        "devanagari_zwj",
+        "tamil",
+        "arabic",
+        "hebrew",
+        "han",
+        "kana",
+        "hangul",
+        "nfd"
+      ],
+      "id_chars": "\\w\\u0300-\\u036f\\u0900-\\u0dff\\u200c\\u200d"
+    },
+    {
+      "kind": "national",
+      "languages": [
+        "cobol",
+        "pli",
+        "hlasm",
+        "jcl",
+        "rexx",
+        "bms",
+        "mainframe"
+      ],
+      "scripts": [
+        "nordic",
+        "german"
+      ],
+      "max_len": {
+        "jcl": 8,
+        "bms": 7,
+        "cobol": 30,
+        "pli": 31,
+        "hlasm": 63,
+        "rexx": 250
+      },
+      "id_chars": "A-Za-z0-9_@#$\\-ÆØÅÄÖÜ"
+    }
+  ]
+}

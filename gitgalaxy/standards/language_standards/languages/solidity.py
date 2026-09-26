@@ -37,6 +37,10 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 1 (Standard C-Style)
     # Rationale: Solidity strictly adheres to C-style line (//) and block (/* */) comments.
     "lexical_family": "standard_block",
+    # #3660: `import "./x.sol"` / `"../x.sol"` is resolved from the importing file's
+    # directory only (solc's own rule); one naming no scanned file draws no import
+    # edge. TOP LEVEL, never inside `rules` (#2806).
+    "relative_imports_are_exact": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

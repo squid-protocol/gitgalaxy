@@ -4,6 +4,7 @@
 # ==============================================================================
 import logging
 import math
+import os
 import posixpath
 import re
 from collections import defaultdict
@@ -57,6 +58,17 @@ SOURCE_MEMBER_IMPORT_LANGS = frozenset(
 # lib/helper.js. Anchored and bounded by the input's own length; no
 # backtracking risk (single non-overlapping alternative, fixed-width group).
 LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
+
+# #3665 (import contract C8): a directory that names a BUILD VARIANT -- a versioned
+# toolchain tree (`scala-2`, `scala-2.13+`, `java11`, `py3`) or a platform tree
+# (`jvm`, `js`, `native`, `android`). Only a variant axis decides between same-named
+# files; sibling modules (`service_a/` vs `service_b/`, `cobol_src/` vs `cobol_copy/`)
+# never do (#261: the nearest same-named file is a guess).
+_BUILD_VARIANT_DIR = re.compile(
+    r"(?:scala|java|jdk|kotlin|python|py|swift|dotnet|net)-?\d[\w.]{0,12}\+?"
+    r"|jvm|js|native|wasm|android|ios|macos|tvos|watchos|linux|windows|darwin|posix|unix|win32",
+    re.IGNORECASE,
+)
 
 # #3553: languages whose import is resolved against the IMPORTING file's own
 # directory before any search path -- C/C++/Objective-C `#include "x.h"`, Ruby
@@ -173,6 +185,10 @@ class NetworkRiskSensor:
         self._by_norm_path: dict[str, str] = {}
         # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
         self._declared_in: dict[str, list[str]] = defaultdict(list)
+        # #3665: the scanned directory, when the caller has one (galaxyscope sets
+        # it). Only used to tell two same-named candidates apart as ONE file: a
+        # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
+        self.root: Optional[str] = None
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -338,7 +354,7 @@ class NetworkRiskSensor:
             if not target_token.startswith(scheme):
                 return None
             name, _, rest = target_token[len(scheme) :].partition("/")
-            return self._resolve_path_tail(f"{name}/lib/{rest}", resolution_map) if name and rest else None
+            return self._resolve_path_tail(f"{name}/lib/{rest}", resolution_map, curr_path) if name and rest else None
 
         # #3598: `source "$DIR/lib/x.sh"` -- only the literal path after the last
         # variable names the file; `~/...` is the user's home directory.
@@ -351,7 +367,9 @@ class NetworkRiskSensor:
         package_object = src_def.get("package_object_file")
         if package_object and target_token.endswith(("._", ".*")):
             target_token = target_token[:-2]
-            owned = self._resolve_path_tail(f"{target_token.replace('.', '/')}/{package_object}", resolution_map)
+            owned = self._resolve_path_tail(
+                f"{target_token.replace('.', '/')}/{package_object}", resolution_map, curr_path
+            )
             if owned is not None:
                 return owned
 
@@ -364,6 +382,12 @@ class NetworkRiskSensor:
             located = self._resolve_from_importer_dir(target_token, curr_path, resolution_map, src_lang, file_facts)
             if located is not None:
                 return located
+            # #3660: in a language whose `./`/`../` import can only mean that one
+            # location (solidity), a relative path naming no scanned file -- a
+            # build-generated `../patched/X.sol` -- draws no edge. The name search
+            # below would link the same-named file somewhere else.
+            if is_relative and src_def.get("relative_imports_are_exact"):
+                return None
 
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
@@ -514,6 +538,29 @@ class NetworkRiskSensor:
         if len(path_matches) == 1:
             return path_matches[0]
 
+        # Stage 2b (#3665, import contract C8): still several -- two paths to one
+        # file are one candidate, and the same file in parallel source trees for
+        # different builds (`scala-2/` beside `scala-3/`, `jvm/` beside `js/`)
+        # means the copy the importer's own build compiles.
+        is_relative = target_token.replace("\\", "/").startswith(("./", "../"))
+        if not is_relative:
+            # A symlinked copy is the same file, not a second candidate -- only
+            # once the token's own path context has failed to pick one, so
+            # `<SDWebImage/X.h>` keeps naming the include/ path it spells. A bare
+            # file name has no path context to fail (`"X.h"` compares as `X/h`
+            # and matches nothing), so its collapsed pair is treated like any
+            # single same-named file, which Stage 1 returns without context too.
+            # A token that spells a directory no candidate has stays unmatched
+            # (`<SDWebImage/X.h>` for a file that only lives under MapKit/).
+            bare_name = "/" not in target_token.replace("\\", "/")
+            pool = self._collapse_same_file(path_matches or (candidates if bare_name else []))
+            if len(pool) == 1:
+                return pool[0]
+        if len(path_matches) > 1 and not is_relative:
+            variant = self._build_variant(path_matches, curr_path)
+            if variant is not None:
+                return variant
+
         # Stage 3 (#3199): the token carries no path context that separates
         # these candidates. Dropping the edge outright threw away most real
         # COBOL copybook dependencies -- every `COPY CUSTCOPY` in
@@ -537,7 +584,6 @@ class NetworkRiskSensor:
         # has), and a token that led with `./` or `../`, which names one exact
         # location relative to the importer -- PL/I's `%INCLUDE` is the member
         # form that can carry a quoted path.
-        is_relative = target_token.replace("\\", "/").startswith(("./", "../"))
         if file_facts and path_matches and not is_relative and src_lang in SOURCE_MEMBER_IMPORT_LANGS:
             narrowed = self._narrow_ambiguous(path_matches, curr_path, src_lang, file_facts)
             if narrowed is not None:
@@ -664,11 +710,23 @@ class NetworkRiskSensor:
                 return same[0]
         return None
 
-    def _resolve_path_tail(self, tail: str, resolution_map: dict[str, list[str]]) -> Optional[str]:
-        """The one file whose path ends with the whole `tail`, or None."""
+    def _resolve_path_tail(
+        self, tail: str, resolution_map: dict[str, list[str]], curr_path: Optional[str] = None
+    ) -> Optional[str]:
+        """The one file whose path ends with the whole `tail`, or None.
+
+        #3665: several such files are narrowed the way Stage 2b narrows a name
+        match -- one file behind several paths (a symlink), then the importer's
+        own build variant (`scala-2/` vs `scala-3/`) when `curr_path` is given.
+        """
         tail = tail.strip("/")
         name = tail.rsplit("/", 1)[-1]
         same = [c for c in dict.fromkeys(resolution_map.get(name, ())) if self._path_ends_with(c, tail)]
+        if len(same) > 1:
+            same = self._collapse_same_file(same)
+            if len(same) > 1 and curr_path is not None:
+                variant = self._build_variant(same, curr_path)
+                return variant
         return same[0] if len(same) == 1 else None
 
     def _resolve_variable_path(
@@ -785,6 +843,56 @@ class NetworkRiskSensor:
         # `service_b/utils.py`) are the #261 case: which one wins is sys.path,
         # which the repository does not record, so nothing is claimed.
         return matches[0] if len(matches) == 1 else None
+
+    def _collapse_same_file(self, candidates: list[str]) -> list[str]:
+        """#3665: candidates that are one file on disk, kept once.
+
+        A symlinked header (SDWebImage's `include/SDWebImage/X.h` -> `Core/X.h`)
+        is scanned at both paths, so `#import "X.h"` looked ambiguous and drew no
+        edge. Candidates with the same real path collapse to the one that is not
+        itself a link (the real file), order otherwise kept. Needs `self.root`;
+        without it, or on any OS error, the candidates are returned unchanged.
+        """
+        if self.root is None:
+            return candidates
+        groups: dict[str, list[str]] = {}
+        try:
+            for c in candidates:
+                groups.setdefault(os.path.realpath(os.path.join(self.root, c)), []).append(c)
+            if len(groups) == len(candidates):
+                return candidates
+            return [
+                next((c for c in group if not os.path.islink(os.path.join(self.root, c))), group[0])
+                for group in groups.values()
+            ]
+        except OSError:
+            return candidates
+
+    @staticmethod
+    def _build_variant(candidates: list[str], curr_path: str) -> Optional[str]:
+        """#3665 (import contract C8): the candidate in the importer's own build variant, or None.
+
+        Only for parallel source trees: every candidate has the same depth and
+        they differ in exactly ONE directory segment, and every candidate's segment
+        there names a build variant (`_BUILD_VARIANT_DIR`: `.../scala-2/io/circe/X`
+        vs `.../scala-3/io/circe/X`). The candidate whose segment there is also a
+        segment of the importer's own directory is the copy its build compiles.
+        Anything else (different depths, several differing segments, the
+        importer in none or several variants) is not this shape and stays
+        ambiguous.
+        """
+        split = [c.replace("\\", "/").split("/") for c in candidates]
+        if len({len(parts) for parts in split}) != 1:
+            return None
+        differing = [i for i in range(len(split[0]) - 1) if len({parts[i] for parts in split}) > 1]
+        if len(differing) != 1:
+            return None
+        at = differing[0]
+        if not all(_BUILD_VARIANT_DIR.fullmatch(parts[at]) for parts in split):
+            return None
+        importer_dirs = set(curr_path.replace("\\", "/").split("/")[:-1])
+        hits = [c for c, parts in zip(candidates, split) if parts[at] in importer_dirs]
+        return hits[0] if len(hits) == 1 else None
 
     def _narrow_ambiguous(
         self,

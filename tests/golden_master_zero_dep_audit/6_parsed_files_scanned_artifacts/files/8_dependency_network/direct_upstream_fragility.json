@@ -1199,7 +1199,7 @@
       "dart/SOURCES.md": 0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 49,
+      "dart/flutter/editable_text.dart": 50,
       "dart/flutter/events.dart": 5,
       "dart/flutter/framework.dart": 10,
       "dart/flutter/navigator.dart": 22,

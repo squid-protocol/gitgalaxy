@@ -397,8 +397,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # 24. import: Dependency Inclusions. Dependency resolution and library partitions.
         "import": re.compile(r'^[ \t]*(?:import|export|part|part\s+of)\b\s*[\'"][^\'"]+[\'"]', re.M),
+        # #3660: a conditional import's alternatives are real, platform-selected
+        # imports too -- `import 'stub.dart' if (dart.library.io) 'io_client.dart'`.
+        # The third branch takes each `if (...) 'uri'` right after a closing quote
+        # (the previous URI's); a collection-`if` in code (`['a', if (c) 'b']`)
+        # always has a comma there, so it never matches. Bounded, one condition.
         "_dependency_capture": re.compile(
-            r"(?:^|[ \t;{}])(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*(?:['\"]([^'\"]+)['\"]|([a-zA-Z_$][\w$]*)[ \t\n]*;)",
+            r"(?:^|[ \t;{}])(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*(?:['\"]([^'\"]+)['\"]|([a-zA-Z_$][\w$]*)[ \t\n]*;)"
+            r"|(?<=['\"])[ \t\n]{1,40}if[ \t\n]*\([^()\n]{1,120}\)[ \t\n]*['\"]([^'\"\n]+)['\"]",
             re.M,
         ),
         # 25. ownership: Authorship indicators.

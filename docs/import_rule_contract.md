@@ -124,6 +124,15 @@ package" scoring.
 import means the copy the importer's own build compiles: the candidate that shares the
 importer's variant directory. Several such copies are one choice, not an ambiguity that draws no
 edge.
+Implemented by #3665 in `network_risk_sensor.py`, once the token's own path context has failed to
+pick one candidate:
+- Paths that are one file on disk collapse to the real file (not the link).
+- Parallel trees that differ in exactly one directory, whose names are all build variants
+  (`_BUILD_VARIANT_DIR`: `scala-2`, `scala-2.13+`, `java11`, `jvm`, `js`, `native`, …), take the
+  importer's variant.
+- Sibling modules (`service_a/` vs `service_b/`) are not variants and stay ambiguous (#261).
+- An importer in a shared tree (`src/main/scala/`) compiles against every variant, so no single
+  copy is its own and it draws no edge.
 
 ## Deliberate duals and deferred residue
 

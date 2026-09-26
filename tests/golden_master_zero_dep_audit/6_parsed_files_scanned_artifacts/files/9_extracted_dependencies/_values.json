@@ -4017,6 +4017,7 @@
     "dart/flutter": {
       "dart/flutter/editable_text.dart": [
         "_web_browser_detection_io.dart",
+        "_web_browser_detection_web.dart",
         "actions.dart",
         "app_lifecycle_listener.dart",
         "autofill.dart",

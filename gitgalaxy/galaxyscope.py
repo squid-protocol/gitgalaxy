@@ -1095,6 +1095,8 @@ class Orchestrator:
 
         # Constructs the physical import DAG and calculates PageRank/Downstream Exposure
         self.network_sensor = NetworkRiskSensor(parent_logger=logger)
+        # #3665: lets the resolver see that two candidate paths are one file (a symlink).
+        self.network_sensor.root = str(self.root if self.root.is_dir() else self.root.parent)
 
         # ==============================================================================
         # THE EXIT STRATEGY (Recorders & Payload Generation)

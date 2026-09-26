@@ -20,13 +20,13 @@
     "repos": "fmtlib/fmt"
   },
   "dart": {
-    "engine_edges": 668,
+    "engine_edges": 703,
     "files": 332,
-    "fn": 35,
+    "fn": 0,
     "fp": 0,
     "imports": 744,
     "precision_pct": 100.0,
-    "recall_pct": 95.3,
+    "recall_pct": 100.0,
     "repos": "dart-lang/http"
   },
   "go": {
@@ -90,13 +90,13 @@
     "repos": "luarocks/luarocks"
   },
   "objective-c": {
-    "engine_edges": 652,
+    "engine_edges": 670,
     "files": 261,
-    "fn": 18,
+    "fn": 0,
     "fp": 0,
     "imports": 671,
     "precision_pct": 100.0,
-    "recall_pct": 97.3,
+    "recall_pct": 100.0,
     "repos": "SDWebImage/SDWebImage"
   },
   "perl": {
@@ -150,13 +150,13 @@
     "repos": "serde-rs/json"
   },
   "scala": {
-    "engine_edges": 481,
+    "engine_edges": 488,
     "files": 233,
-    "fn": 34,
+    "fn": 27,
     "fp": 6,
     "imports": 521,
     "precision_pct": 98.8,
-    "recall_pct": 93.5,
+    "recall_pct": 94.8,
     "repos": "circe/circe"
   },
   "shell": {
@@ -170,12 +170,12 @@
     "repos": "Bash-it/bash-it"
   },
   "solidity": {
-    "engine_edges": 834,
+    "engine_edges": 810,
     "files": 395,
     "fn": 2,
-    "fp": 24,
+    "fp": 0,
     "imports": 812,
-    "precision_pct": 97.1,
+    "precision_pct": 100.0,
     "recall_pct": 99.8,
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },

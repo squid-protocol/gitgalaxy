@@ -24,7 +24,7 @@ WHAT A CELL SAYS
     least one shape behind the number has no verdict yet, so the number is not a claim
     (graph_comparison_README.md). Call resolution has no per-shape ledger: its numbers are
     "vs <tool> <version>", the reference's view, never ground truth.
-    A panel whose n is below SMALL_N is drawn muted: too few to quote.
+    A panel whose n is below SMALL_N is drawn faded: too few to quote.
 
 USAGE
     python tests/tools/graph_coverage_chart.py                 # markdown table to stdout
@@ -58,7 +58,7 @@ CHART_PATH = REPO_ROOT / "docs" / "self_scan" / "graph_coverage_chart.svg"
 HISTORY_PATH = REPO_ROOT / "docs" / "self_scan" / "graph_coverage_history.csv"
 IMPORT_BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 CALL_BASELINE = REPO_ROOT / "tests" / "call_graph_accuracy_baseline.json"
-# A panel measured on fewer items than this is drawn muted: too few to quote.
+# A panel measured on fewer items than this is drawn faded: too few to quote.
 SMALL_N = 100
 
 PANELS = ("imports", "calls", "resolution")
@@ -82,11 +82,25 @@ class Cell:
     raw_precision: Optional[float] = None
     raw_recall: Optional[float] = None
     reference: str = ""  # call resolution: "tsc 6.0.2"
-    corpus: str = ""
+    corpus: str = ""  # the repos, for the tooltip
+    unit: str = ""  # what n counts: imports / calls / edges
+    repos: int = 0
+    files: int = 0
+    functions: int = 0
+
+    @property
+    def detail(self) -> str:
+        """The second line under n: where the number was measured."""
+        if self.reference:
+            return f"vs {self.reference}"
+        if self.repos:
+            return f"repos {self.repos} \u00b7 files {self.files:,}"
+        return f"functions {self.functions:,}" if self.functions else ""
 
     @property
     def n(self) -> int:
-        return max(self.n_precision, self.n_recall)
+        """What recall is out of: the reference's import statements, calls or edges."""
+        return self.n_recall
 
     @property
     def small(self) -> bool:
@@ -163,12 +177,19 @@ def import_cells(baseline: Path = IMPORT_BASELINE, ledger_path: Path = gl.LEDGER
     for r in results.values():  # the baseline stores totals and misses; the ledger maths wants hits
         r["correct"] = r["engine_edges"] - r["fp"]
         r["found"] = r["imports"] - r["fn"]
-    return _validated_cells(results, "import", ("correct", "fp", "found", "fn"), ledger_path, "repos")
+    cells = _validated_cells(results, "import", ("correct", "fp", "found", "fn"), ledger_path, "repos")
+    for lang, c in cells.items():
+        c.unit, c.files = "imports", int(results[lang].get("files") or 0)
+        c.repos = len([r for r in str(results[lang].get("repos", "")).split(",") if r.strip()])
+    return cells
 
 
 def call_cells(baseline: Path = CALL_BASELINE, ledger_path: Path = gl.LEDGER) -> dict[str, Cell]:
     results = json.loads(baseline.read_text())
-    return _validated_cells(results, "call", ("tp", "fp", "tp", "fn"), ledger_path)
+    cells = _validated_cells(results, "call", ("tp", "fp", "tp", "fn"), ledger_path)
+    for lang, c in cells.items():
+        c.unit, c.functions = "calls", int(results[lang].get("matched_functions") or 0)
+    return cells
 
 
 def resolution_cells(tests_dir: Path = REPO_ROOT / "tests") -> dict[str, Cell]:
@@ -194,6 +215,7 @@ def resolution_cells(tests_dir: Path = REPO_ROOT / "tests") -> dict[str, Cell]:
             raw_recall=b.get("recall_pct"),
             reference=f"{ref.tool} {b.get('reference_version') or ref.version}",
             corpus=ref.corpus,
+            unit="edges",
         )
     return out
 
@@ -229,9 +251,11 @@ def render_markdown(data: dict[str, dict[str, Cell]], languages: list[str]) -> s
             if not c:
                 row.append("not measured")
                 continue
-            ref = f", vs {c.reference}" if c.reference else ""
             small = ", small n" if c.small else ""
-            row.append(f"{_pct(c.precision)}{_star(c, 'P')} / {_pct(c.recall)}{_star(c, 'R')} ({c.n:,}{ref}{small})")
+            row.append(
+                f"{_pct(c.precision)}{_star(c, 'P')} / {_pct(c.recall)}{_star(c, 'R')} "
+                f"(n={c.n:,} {c.unit}; {c.detail}{small})"
+            )
         lines.append("| " + " | ".join(row) + " |")
     rest = [lang for lang in languages if lang not in measured]
     lines.append(f"\nNot measured in any panel ({len(rest)} of {len(languages)}): {', '.join(rest)}.")
@@ -242,18 +266,12 @@ def render_markdown(data: dict[str, dict[str, Cell]], languages: list[str]) -> s
     return "\n".join(lines)
 
 
-def _corpus_label(corpus: str, width: int = 15) -> str:
-    """The first repo, cut to fit its panel, and how many more (the tooltip has them all)."""
-    repos = [r.strip() for r in corpus.split(",") if r.strip()]
-    if not repos:
-        return ""
-    more = f" +{len(repos) - 1}" if len(repos) > 1 else ""
-    first = repos[0] if len(repos[0]) + len(more) <= width else repos[0][: width - len(more) - 1] + "\u2026"
-    return first + more
-
-
-_BLUE = "#2a78d6"  # GitGalaxy's categorical slot in tri_comparison_chart.svg: every bar is GitGalaxy's
-_MUTED = "#b9b8b2"
+# Precision and recall get their own pair, distinct from the tool colours of the charts above it
+# (blue / orange / aqua): the dataviz palette's violet and yellow slots, validated as a pair
+# (CVD dE 41). Yellow is under 3:1 on the surface, so every bar carries its value as text.
+_COLOR = {"P": "#4a3aa7", "R": "#eda100"}
+_SIDE_LABEL = {"P": "Precision", "R": "Recall"}
+_SMALL_OPACITY = 0.35
 _STYLE = """<style>
   .surface { fill: #fcfcfb; }
   .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
@@ -261,7 +279,8 @@ _STYLE = """<style>
   .panel-title { font-size: 11px; font-weight: 600; fill: #0b0b0b; }
   .panel-sub { font-size: 9.5px; fill: #706f6a; }
   .lang { font-size: 12px; font-weight: 700; fill: #0b0b0b; }
-  .pr { font-size: 8.5px; font-weight: 600; fill: #706f6a; }
+  .pr { font-size: 9px; fill: #52514e; }
+  .legend { font-size: 10px; fill: #0b0b0b; }
   .val { font-size: 9.5px; fill: #0b0b0b; }
   .n { font-size: 9px; fill: #706f6a; }
   .none { font-size: 9.5px; fill: #9a9a95; font-style: italic; }
@@ -274,9 +293,10 @@ _STYLE = """<style>
 def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: str = "") -> str:
     measured = [lang for lang in languages if any(lang in data[p] for p in PANELS)]
     rest = [lang for lang in languages if lang not in measured]
-    left, right, top = 16, 16, 88
-    label_w, panel_w, row_h = 104, 292, 34
-    track_x, track_w = 14, 132  # inside a panel: "P"/"R" letter, then the 0-100% track
+    left, right, top = 16, 16, 106
+    label_w, panel_w, row_h = 104, 306, 34
+    track_x, track_w = 46, 110  # inside a panel: "Precision"/"Recall", then the 0-100% track
+    n_x = track_x + track_w + 48  # then the value, then n and where it was measured
     width = left + label_w + panel_w * len(PANELS) + right
 
     # the unmeasured list, wrapped to the chart width
@@ -302,12 +322,21 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
         f'<text class="title" x="{left}" y="24">Graph accuracy coverage: imports and calls, per language</text>',
         f'<text class="subtitle" x="{left}" y="42">Measured: imports {counts["imports"]}, callee names '
         f"{counts['calls']}, call resolution {counts['resolution']} of {len(languages)} languages. "
-        f"P = precision, R = recall. Bars are GitGalaxy's score.</text>",
+        "Bars are GitGalaxy's score.</text>",
     ]
+    lx = left
+    for side in ("P", "R"):
+        p.append(f'<rect x="{lx}" y="53" width="14" height="8" rx="2" fill="{_COLOR[side]}"/>')
+        p.append(f'<text class="legend" x="{lx + 19}" y="61">{_SIDE_LABEL[side]}</text>')
+        lx += 90
+    p.append(
+        f'<rect x="{lx}" y="53" width="14" height="8" rx="2" fill="{_COLOR["P"]}" opacity="{_SMALL_OPACITY}"/>'
+        f'<text class="legend" x="{lx + 19}" y="61">faded: n below {SMALL_N}, too few to quote</text>'
+    )
     for i, panel in enumerate(PANELS):
         x = left + label_w + i * panel_w
-        p.append(f'<text class="panel-title" x="{x}" y="66">{PANEL_TITLE[panel]}</text>')
-        p.append(f'<text class="panel-sub" x="{x}" y="79">{escape(PANEL_SUB[panel])}</text>')
+        p.append(f'<text class="panel-title" x="{x}" y="84">{PANEL_TITLE[panel]}</text>')
+        p.append(f'<text class="panel-sub" x="{x}" y="97">{escape(PANEL_SUB[panel])}</text>')
 
     for r, lang in enumerate(measured):
         y = top + r * row_h
@@ -320,7 +349,7 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
             if not c:
                 p.append(f'<text class="none" x="{x}" y="{y + row_h / 2 + 3}">not measured</text>')
                 continue
-            color = _MUTED if c.small else _BLUE
+            fade = f' opacity="{_SMALL_OPACITY}"' if c.small else ""
             tip = (
                 f"{lang} {PANEL_TITLE[panel].lower()}: precision {_pct(c.precision)} of {c.n_precision:,}, "
                 f"recall {_pct(c.recall)} of {c.n_recall:,}"
@@ -334,21 +363,23 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
                 + ("; small n" if c.small else "")
             )
             p.append(f"<g><title>{escape(tip)}</title>")
-            for j, (letter, val) in enumerate((("P", c.precision), ("R", c.recall))):
+            for j, (side, val) in enumerate((("P", c.precision), ("R", c.recall))):
                 by = y + 7 + j * 12
-                p.append(f'<text class="pr" x="{x}" y="{by + 7}">{letter}</text>')
+                p.append(f'<text class="pr" x="{x}" y="{by + 7.5}">{_SIDE_LABEL[side]}</text>')
                 p.append(f'<rect class="track" x="{x + track_x}" y="{by}" width="{track_w}" height="8" rx="2"/>')
                 if val is not None:
                     w = max(track_w * val / 100.0, 2.0)
-                    p.append(f'<rect x="{x + track_x}" y="{by}" width="{w:.1f}" height="8" rx="2" fill="{color}"/>')
+                    p.append(
+                        f'<rect x="{x + track_x}" y="{by}" width="{w:.1f}" height="8" rx="2" '
+                        f'fill="{_COLOR[side]}"{fade}/>'
+                    )
                 p.append(
-                    f'<text class="val" x="{x + track_x + track_w + 5}" y="{by + 8}">{_pct(val)}{_star(c, letter)}</text>'
+                    f'<text class="val" x="{x + track_x + track_w + 5}" y="{by + 8}">{_pct(val)}{_star(c, side)}</text>'
                 )
-            n_line = f"n={c.n:,}" + (" small" if c.small else "")
-            p.append(f'<text class="n" x="{x + track_x + track_w + 52}" y="{y + 15}">{escape(n_line)}</text>')
-            sub = f"vs {c.reference}" if c.reference else _corpus_label(c.corpus)
-            if sub:
-                p.append(f'<text class="n" x="{x + track_x + track_w + 52}" y="{y + 27}">{escape(sub)}</text>')
+            n_line = f"n={c.n:,} {c.unit}"  # small n is the fade, the legend and the tooltip
+            p.append(f'<text class="n" x="{x + n_x}" y="{y + 15}">{escape(n_line)}</text>')
+            if c.detail:
+                p.append(f'<text class="n" x="{x + n_x}" y="{y + 27}">{escape(c.detail)}</text>')
             p.append("</g>")
 
     y = top + body_h + 24
@@ -360,8 +391,8 @@ def render_svg(data: dict[str, dict[str, Cell]], languages: list[str], stamp: st
     y += 16 * len(wrapped) + 28
     p.append(
         f'<text class="note" x="{left}" y="{y}">* a disagreement shape behind the number has no verdict yet '
-        "(docs/self_scan/graph_comparison_ledger.json): not a claim. Grey bars: n below "
-        f"{SMALL_N}, too few to quote.</text>"
+        "(docs/self_scan/graph_comparison_ledger.json): not a claim. n counts what recall is out of "
+        "(import statements, calls, reference edges).</text>"
     )
     p.append(
         f'<text class="note" x="{left}" y="{y + 15}">Call resolution is scored against the reference tool, '

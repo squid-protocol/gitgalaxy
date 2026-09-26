@@ -112,10 +112,10 @@ def test_the_chart_lists_every_unmeasured_language_and_mutes_small_n(tmp_path):
     svg = gcc.render_svg(data, languages)
     assert "Not measured in any panel (2 of 4)" in svg and "cobol, swift" in svg
     assert "imports 2, callee names 0, call resolution 0 of 4 languages" in svg
-    assert gcc._MUTED in svg  # go: 12 imports, below SMALL_N
-    assert "a/b +1" in svg  # first repo, and how many more
+    assert f'opacity="{gcc._SMALL_OPACITY}"' in svg  # go: 12 imports, below SMALL_N
+    assert "repos 2 · files 5" in svg and ">a/b" not in svg  # counts drawn; repo names only in the hover tooltip
     md = gcc.render_markdown(data, languages)
-    assert "| go | 80.0% / 91.7% (12, small n) | not measured | not measured |" in md
+    assert "| go | 80.0% / 91.7% (n=12 imports; repos 2 · files 5, small n) | not measured | not measured |" in md
     assert "Not measured in any panel (2 of 4): cobol, swift." in md
 
 

@@ -168,7 +168,7 @@ As of 2026-09-26, out of 59 languages:
 
 The limits:
 - The other 38 languages' graphs are built the same way but are **not measured**.
-- Several measured languages rest on one repo with fewer than 100 imports. The chart greys
+- Several measured languages rest on one repo with fewer than 100 imports. The chart fades
   those out.
 - A `*` marks a number with disagreements still awaiting a verdict against source.
 

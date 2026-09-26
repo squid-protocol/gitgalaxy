@@ -35,7 +35,7 @@ as well as how well.
 What a cell shows:
 - **Imports and callee names:** the validated numbers above.
 - **`*` on precision or recall:** that side still has a shape with no verdict.
-- **Grey bars:** n below 100, too few to quote.
+- **Violet bars are precision, amber bars are recall.** Faded bars: n below 100, too few to quote. n counts what recall is out of (import statements, calls or reference edges), with the repo and file counts, the function count, or the reference tool under it.
 - **Call resolution:** "vs <tool> <version>", since it has no per-shape ledger yet.
 
 It is a pure function of the committed baselines and this ledger, so it needs no scan.

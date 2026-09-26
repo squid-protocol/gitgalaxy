@@ -266,27 +266,32 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
 
 
 def diff_records(left: bytes, right: bytes, reclen: int, fields: list[dict[str, Any]]) -> dict[str, Any]:
-    """Pair records in order; per pair, every differing field (value left vs right)."""
+    """Pair records in order; per pair, every differing field (value left vs right). A FILLER is counted
+    apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
+    INITIALIZE or a new record is the runtime's leftover record area, not the program's logic."""
     lrecs = [left[i : i + reclen] for i in range(0, len(left), reclen)]
     rrecs = [right[i : i + reclen] for i in range(0, len(right), reclen)]
-    diffs, equal = [], 0
+    diffs, equal, filler = [], 0, 0
     for n in range(max(len(lrecs), len(rrecs))):
         a = lrecs[n] if n < len(lrecs) else None
         b = rrecs[n] if n < len(rrecs) else None
         if a is None or b is None:
             diffs.append({"record": n + 1, "missing": "cobol" if a is None else "java"})
             continue
-        bad = []
+        bad, filler_bad = [], False
         for f in fields:
             sl = slice(f["offset"], f["offset"] + f["bytes"])
             va, vb = decode_field(a[sl], f["pic"], f["usage"]), decode_field(b[sl], f["pic"], f["usage"])
-            if va != vb:
+            if va != vb and f["name"] == "FILLER":
+                filler_bad = True
+            elif va != vb:
                 bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
+        filler += filler_bad
         if bad:
             diffs.append({"record": n + 1, "fields": bad})
         else:
             equal += 1
-    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs}
+    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs, "filler_differs": filler}
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
@@ -296,9 +301,9 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
              f"{case.get('step')}, PARM `{case.get('parm')}`, clock `{case.get('clock')}`.", "",
              f"RETURN-CODE: COBOL `{report.get('return_code', {}).get('cobol')}`, Java "
              f"`{report.get('return_code', {}).get('java')}`.", "",
-             "| output | records equal | total |", "|---|---|---|"]  # fmt: skip
+             "| output | records equal | total | FILLER differs (not compared) |", "|---|---|---|---|"]  # fmt: skip
     for dd, d in report["outputs"].items():
-        lines.append(f"| {dd} | {d['equal']} | {d['records']} |")
+        lines.append(f"| {dd} | {d['equal']} | {d['records']} | {d.get('filler_differs', 0)} |")
     for dd, d in report["outputs"].items():
         if d["diffs"]:
             lines += ["", f"## {dd}: differences", "", "| record | field | COBOL | Java |", "|---|---|---|---|"]

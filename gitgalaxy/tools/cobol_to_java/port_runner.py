@@ -35,11 +35,12 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import urllib.request
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 PORTS = Path("ai_agent_jobs") / "ports"
 
@@ -47,6 +48,10 @@ PORTS = Path("ai_agent_jobs") / "ports"
 # ---- the prompt ----------------------------------------------------------------------
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
+
+
+# The generated runtime a port reads datasets, the pinned clock and record fields through.
+_RUNTIME_HELPERS = ("batch/DatasetResolver.java", "batch/MainframeClock.java", "entity/vsam/CobolRecords.java")
 
 
 def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
@@ -77,9 +82,9 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
         "```",
     ]
     files = [g["file"] for g in ticket["generated"]["imports"]]
-    batch = Path(tg["file"]).parent.parent / "batch"  # the batch runtime next to the service package
-    files += [str(batch / f"{n}.java") for n in ("DatasetResolver", "MainframeClock")
-              if (project / batch / f"{n}.java").is_file() and str(batch / f"{n}.java") not in files]  # fmt: skip
+    root = Path(tg["file"]).parent.parent  # the package root: the runtime helpers every port may need
+    runtime = [str(root / r) for r in _RUNTIME_HELPERS]
+    files += [f for f in runtime if (project / f).is_file() and f not in files]
     for f in files:
         parts += ["", f"## Generated class it may use: {f}", "```java", _read(project / f), "```"]
     for s in [ticket["source"]["program"], *ticket["source"]["copybooks"]]:
@@ -93,13 +98,13 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
 
 # ---- the backends --------------------------------------------------------------------
 def _post(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int) -> dict[str, Any]:
-    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json",
-                                                                                  **headers})  # fmt: skip
+    headers = {"Content-Type": "application/json", **headers}
+    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)  # noqa: S310 -- see below
     with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- a URL the operator configured
         return json.loads(resp.read().decode())
 
 
-def _key(env: Optional[str]) -> str:
+def _key(env: str | None) -> str:
     if not env:
         return ""
     value = os.environ.get(env)
@@ -138,7 +143,7 @@ def ask(backend: str, system: str, user: str, opts: argparse.Namespace, work: Pa
     raise SystemExit(f"unknown backend {backend!r}")
 
 
-def extract_java(answer: str) -> tuple[Optional[str], str]:
+def extract_java(answer: str) -> tuple[str | None, str]:
     """(the Java file the answer carries, its notes)."""
     blocks = re.findall(r"```java[ \t]*\n(.*?)```", answer, re.S)
     java = blocks[-1] if blocks else (answer if answer.lstrip().startswith(("package ", "/*", "//")) else None)
@@ -238,6 +243,8 @@ def cmd_prove(opts: argparse.Namespace) -> int:
     if attempt < 1:
         raise SystemExit(f"{opts.ticket}: no proposed port to prove")
     report_dir = port_dir / "attempts" / f"{attempt:03d}_proof"
+    if report_dir.exists():  # a re-proof of the same attempt starts clean; the log keeps every outcome
+        shutil.rmtree(report_dir)
     argv = [a.format(port_dir=overlay, report_dir=report_dir) for a in shlex.split(opts.command)]
     proc = subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603 -- the operator's command
     (port_dir / "attempts" / f"{attempt:03d}_proof.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
@@ -310,7 +317,7 @@ def cmd_status(opts: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="ask a backend to port a ticket")

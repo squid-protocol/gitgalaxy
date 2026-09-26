@@ -148,6 +148,9 @@ def run_java(
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
+    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
     cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",

@@ -66,6 +66,11 @@ PORTING_RULES = [
         "way."
     ),
     (
+        "Decode and encode a numeric field held in record bytes or a text column (zoned with an overpunched "
+        "sign, COMP-3, COMP) only through the generated CobolRecords (zoned / packed / binary and their put "
+        "methods) or the entity codecs, never a hand-written decoder."
+    ),
+    (
         "Read the time only from the generated batch runtime's MainframeClock (now()), never from the "
         "system clock directly: it is how a run is pinned to be compared with the original."
     ),

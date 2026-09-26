@@ -51,6 +51,14 @@ def test_diff_pairs_records_and_names_the_differing_fields():
     assert eq.diff_records(cobol, b"0010001{", 8, fields)["diffs"] == [{"record": 2, "missing": "java"}]
 
 
+def test_a_filler_difference_is_counted_apart_not_as_a_failure():
+    fields = [{"name": "ID", "offset": 0, "bytes": 3, "pic": "9(3)", "usage": None},
+              {"name": "FILLER", "offset": 3, "bytes": 2, "pic": "X(2)", "usage": None}]  # fmt: skip
+    d = eq.diff_records(b"00100" + b"00200", b"001  " + b"003  ", 5, fields)
+    assert (d["equal"], d["filler_differs"]) == (1, 2)
+    assert d["diffs"] == [{"record": 2, "fields": [{"field": "ID", "cobol": "2", "java": "3"}]}]
+
+
 def test_generated_cobol_loader_keys_like_the_program_and_fits_the_columns():
     src = eq.cobol_loader("XREFFILE", 50, [{"offset": 0, "length": 16},
                                            {"offset": 25, "length": 11, "duplicates": True}])  # fmt: skip

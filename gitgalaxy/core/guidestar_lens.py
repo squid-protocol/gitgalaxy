@@ -22,6 +22,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, Union
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
 # ==============================================================================
@@ -227,8 +228,7 @@ class GuideStarLens:
         """Dispatches files to specific parsers based on their format."""
         try:
             # 1. Scan for AI/LLM footprints in the raw text first
-            with open(path, encoding="utf-8", errors="ignore") as f:
-                self._detect_ai_ecosystem(f.read(), filename)
+            self._detect_ai_ecosystem(read_source(path).text, filename)  # #3813: no byte dropped
 
             # 2. Route to specific parsers for structural roadmaps
             if filename == "package.json":

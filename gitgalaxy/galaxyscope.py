@@ -37,6 +37,7 @@ from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_tran
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
 from gitgalaxy.core.wrapper_extractor import extract_wrapper_facts
@@ -484,15 +485,16 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
         # Phase 2: Disk I/O
         t_io = time.perf_counter()
         try:
-            # #2411: `utf-8-sig` consumes a leading UTF-8 BOM (EF BB BF / U+FEFF)
-            # if present, and is a no-op otherwise. Without this the BOM stays as
-            # the first character of `content_buffer`, so every `^`-anchored
-            # signal rule that targets line 1 (class_start / func_start / the
-            # manifest capture) silently fails on that file -- confirmed across
-            # 58 corpus files (38 livecode `script "Name"` declarations, plus
-            # csharp / powershell / xml / cpp / abap line-1 constructs).
-            with open(full_path_str, encoding="utf-8-sig", errors="ignore") as f:
-                content_buffer = f.read()
+            # #3813: decoded without losing a byte -- `errors="ignore"` dropped every national
+            # character of a cp1252 / Shift-JIS file, and a UTF-16 file came out full of NULs
+            # (then dropped whole as binary). #2411: read_source still consumes a leading BOM
+            # (UTF-8 EF BB BF, and now UTF-16/32 too); left as U+FEFF, every `^`-anchored
+            # line-1 rule (class_start / func_start / the manifest capture) silently failed
+            # -- 58 corpus files (38 livecode `script "Name"`, csharp / powershell / xml / ...).
+            source = read_source(full_path_str)
+            content_buffer = source.text
+            observation["source_encoding"] = source.encoding
+            observation["source_decode"] = source.how
         except FileNotFoundError:
             # Fast, zero-overhead disk failure routing.
             observation["status"] = "phantom"

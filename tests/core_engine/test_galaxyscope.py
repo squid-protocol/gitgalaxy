@@ -829,7 +829,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         # 2. Force the worker to process a file (requires mocking open() to simulate reading code)
         from unittest.mock import mock_open
 
-        with patch("builtins.open", mock_open(read_data="import os\nprint('hello')")):
+        with patch("builtins.open", mock_open(read_data=b"import os\nprint('hello')")):
             result = _process_file_worker("src/main.py")
 
         # 3. Assertions
@@ -897,7 +897,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                     git_tracked={f"config.{lang_id}"},
                     census=set(),
                 )
-                with patch("builtins.open", mock_open(read_data='api_key: "R0SETTA-PLANT-SECRET-2026"')):
+                with patch("builtins.open", mock_open(read_data=b'api_key: "R0SETTA-PLANT-SECRET-2026"')):
                     result = _process_file_worker(f"config.{lang_id}")
 
                 mock_sec_inst.scan_content.assert_called_once()
@@ -951,7 +951,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             git_tracked={"config.yaml"},
             census=set(),
         )
-        with patch("builtins.open", mock_open(read_data='api_key: "R0SETTA-PLANT-SECRET-2026"')):
+        with patch("builtins.open", mock_open(read_data=b'api_key: "R0SETTA-PLANT-SECRET-2026"')):
             _process_file_worker("config.yaml")
 
         MockSecurity.return_value.scan_content.assert_not_called()
@@ -1144,7 +1144,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             census={"main"},
         )
 
-        with patch("builtins.open", mock_open(read_data=code)):
+        with patch("builtins.open", mock_open(read_data=code.encode())):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
@@ -1228,7 +1228,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             census={"main"},
         )
 
-        with patch("builtins.open", mock_open(read_data=code)):
+        with patch("builtins.open", mock_open(read_data=code.encode())):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
@@ -1313,7 +1313,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             census={"main"},
         )
 
-        with patch("builtins.open", mock_open(read_data=code)):
+        with patch("builtins.open", mock_open(read_data=code.encode())):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
@@ -1395,7 +1395,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             census={"main"},
         )
 
-        with patch("builtins.open", mock_open(read_data=code)):
+        with patch("builtins.open", mock_open(read_data=code.encode())):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
@@ -2624,7 +2624,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         from unittest.mock import mock_open
 
-        with patch("builtins.open", mock_open(read_data="import os")):
+        with patch("builtins.open", mock_open(read_data=b"import os")):
             result = _process_file_worker("src/test.py")
 
         self.assertEqual(result["status"], "success", "Worker crashed instead of swallowing the regex exception!")

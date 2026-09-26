@@ -146,15 +146,15 @@
         "L33 MOVE 928329.948 -> WS-INTERES1"
       ],
       "cobol/CICS-Cobol/CBL0501v01DeclaracioCondicionIF.cbl": [
-        "L20 MOVE \"DECLARACIN DE CONDICIN IF\" -> WS-TEMA"
+        "L20 MOVE \"DECLARACIÓN DE CONDICIÓN IF\" -> WS-TEMA"
       ],
       "cobol/CICS-Cobol/CBL0502v01CondicionRelacion.cbl": [
-        "L22 MOVE \"DECLARACIN DE RELACIN IF\" -> WS-TEMA",
+        "L22 MOVE \"DECLARACIÓN DE RELACIÓN IF\" -> WS-TEMA",
         "L27 MOVE 27 -> WS-NUM1",
         "L28 MOVE 16 -> WS-NUM2"
       ],
       "cobol/CICS-Cobol/CBL0503v01CondicionSigno.cbl": [
-        "L18 MOVE \"DECLARACIN DE RELACIN IF\" -> WS-TEMA",
+        "L18 MOVE \"DECLARACIÓN DE RELACIÓN IF\" -> WS-TEMA",
         "L26 MOVE 27 -> WS-NUM1",
         "L27 MOVE -16 -> WS-NUM2",
         "L35 MOVE 0 -> WS-NUM2"

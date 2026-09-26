@@ -182,7 +182,7 @@
       "rust/wasmtime/wasmtime_pulley_interp.rs": 3
     },
     "shell/brew": {
-      "shell/brew/download_strategy.rb": 2
+      "shell/brew/download_strategy.rb": 5
     },
     "shell/kubernetes": {
       "shell/kubernetes/configure-helper.sh": 4,

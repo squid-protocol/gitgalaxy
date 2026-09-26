@@ -1250,7 +1250,7 @@
       "shell/brew/brew": 98,
       "shell/brew/brew.rb": 223,
       "shell/brew/cask.rb": 39,
-      "shell/brew/download_strategy.rb": 377,
+      "shell/brew/download_strategy.rb": 375,
       "shell/brew/formula.rb": 41
     },
     "shell/curl": {

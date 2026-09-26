@@ -3017,14 +3017,14 @@
       "ruby/SOURCES.md": -52.05
     },
     "ruby/rails": {
-      "ruby/rails/MIT-LICENSE": -214.66,
-      "ruby/rails/Rakefile": -115.61,
+      "ruby/rails/MIT-LICENSE": -214.64,
+      "ruby/rails/Rakefile": -115.63,
       "ruby/rails/base.rb": -200.62,
-      "ruby/rails/blob.rb": -284.58,
+      "ruby/rails/blob.rb": -284.54,
       "ruby/rails/generator.rb": -156.99,
-      "ruby/rails/inbound_emails_controller.rb": -234.21,
-      "ruby/rails/metal.rb": -160.98,
-      "ruby/rails/routing.rb": -71.88
+      "ruby/rails/inbound_emails_controller.rb": -234.18,
+      "ruby/rails/metal.rb": -161.01,
+      "ruby/rails/routing.rb": -71.92
     },
     "rust": {
       "rust/SOURCES.md": -2.03
@@ -3137,15 +3137,15 @@
       "shell/ansible/windows.sh": -117.91
     },
     "shell/brew": {
-      "shell/brew/Dockerfile": -174.41,
-      "shell/brew/LICENSE.txt": -260.06,
-      "shell/brew/brew": -127.66,
-      "shell/brew/brew.rb": -49.29,
-      "shell/brew/cask.rb": -19.74,
+      "shell/brew/Dockerfile": -174.23,
+      "shell/brew/LICENSE.txt": -259.79,
+      "shell/brew/brew": -127.72,
+      "shell/brew/brew.rb": -49.41,
+      "shell/brew/cask.rb": -20.01,
       "shell/brew/download_strategy.rb": -165.12,
-      "shell/brew/formula.rb": -159.32,
-      "shell/brew/formula_installer.rb": -155.26,
-      "shell/brew/sandbox.rb": -84.25
+      "shell/brew/formula.rb": -159.09,
+      "shell/brew/formula_installer.rb": -155.25,
+      "shell/brew/sandbox.rb": -84.44
     },
     "shell/curl": {
       "shell/curl/COPYING": 144.69,

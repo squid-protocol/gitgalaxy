@@ -9648,8 +9648,8 @@
         "Parameter Forwarders": 16
       },
       "ruby/rails/generator.rb": {
-        "Callbacks & Closures": 3,
-        "Compute Cores": 6,
+        "Callbacks & Closures": 4,
+        "Compute Cores": 5,
         "I/O & Config Routines": 4,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 1,
@@ -10132,11 +10132,12 @@
       "shell/brew/download_strategy.rb": {
         "Callbacks & Closures": 1,
         "Compute Cores": 15,
-        "Defensive Guards": 37,
+        "Defensive Guards": 39,
         "I/O & Config Routines": 11,
         "Interface Declarations": 48,
-        "Many-Argument Workhorses": 3,
-        "Parameter Forwarders": 24
+        "Many-Argument Workhorses": 1,
+        "Parameter Forwarders": 25,
+        "Stateful Encapsulated Methods": 1
       },
       "shell/brew/formula.rb": {
         "Callbacks & Closures": 2,

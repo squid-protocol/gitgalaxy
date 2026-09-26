@@ -8217,7 +8217,7 @@
         "Testing Exposure": "40.91%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 769.32,
+      "Directory Group Magnitude": 764.12,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "12.5%",
         "file_cluster_10": "25.0%",
@@ -8663,20 +8663,20 @@
     "shell/brew": {
       "Average Risk Exposures": {
         "API Exposure": "4.57%",
-        "Cognitive Load Exposure": "32.14%",
+        "Cognitive Load Exposure": "31.99%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "34.91%",
-        "Error & Exception Exposure": "46.55%",
+        "Error & Exception Exposure": "46.66%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "44.44%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "55.55%",
-        "Tech Debt Exposure": "25.25%",
+        "Tech Debt Exposure": "25.07%",
         "Testing Exposure": "19.43%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 2089.72,
+      "Directory Group Magnitude": 1985.0,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "11.1%",
         "file_cluster_12": "22.2%",

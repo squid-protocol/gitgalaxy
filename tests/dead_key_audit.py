@@ -205,6 +205,7 @@ ALLOWLIST = {
     # dict this walker can trace a producer for.
     "comment": "regex named-capture-group (?P<comment>...), not a dict key (detector.py, #1184)",
     "heredoc": "regex named-capture-group (?P<heredoc>...) in _apply_literal_shield, not a dict key (detector.py, #2405)",
+    "rx": "regex named-capture-group (?P<rx>...) in _apply_literal_shield's ruby regex branch, not a dict key (detector.py, #3646)",
     # --- Delta rehydrate: sqlite Row COLUMN reads (#3220) ---
     # state_rehydrator.load_state reconstructs functions/classes from function_data /
     # class_data via literal sqlite3.Row subscripts (r["func_name"], r["func_archetype"],

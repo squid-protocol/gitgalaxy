@@ -935,8 +935,8 @@
       "cobol/cics-genapp/soavpio.cpy": 9348.48
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": -7074.42,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -6863.68
+      "cobol/cics-java-jcics-samples/EC01.cbl": -7074.03,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": -6863.3
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": -7074.38,
@@ -1288,10 +1288,10 @@
       "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": -8250.9
     },
     "dockerfile/moby/test_targets": {
-      "dockerfile/moby/test_targets/daemon.Dockerfile": 6010.76,
-      "dockerfile/moby/test_targets/generate-files.Dockerfile": 5748.99,
-      "dockerfile/moby/test_targets/syscall.Dockerfile": 6036.08,
-      "dockerfile/moby/test_targets/windows.Dockerfile": 6251.91
+      "dockerfile/moby/test_targets/daemon.Dockerfile": 6009.67,
+      "dockerfile/moby/test_targets/generate-files.Dockerfile": 5747.9,
+      "dockerfile/moby/test_targets/syscall.Dockerfile": 6034.99,
+      "dockerfile/moby/test_targets/windows.Dockerfile": 6250.82
     },
     "embedded_python": {
       "embedded_python/SOURCES.md": -1653.38
@@ -1392,16 +1392,16 @@
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": -175.96
     },
     "groovy/godot_android_gradle": {
-      "groovy/godot_android_gradle/LICENSE.txt": 7451.31,
-      "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": 7886.34,
-      "groovy/godot_android_gradle/java_app_build.gradle": 8003.48,
-      "groovy/godot_android_gradle/java_app_settings.gradle": 8620.85,
-      "groovy/godot_android_gradle/java_editor_build.gradle": 8099.89,
-      "groovy/godot_android_gradle/java_lib_build.gradle": 7604.19,
-      "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": 8477.39,
-      "groovy/godot_android_gradle/java_scripts_publish-module.gradle": 7830.92,
-      "groovy/godot_android_gradle/java_scripts_publish-root.gradle": 8279.51,
-      "groovy/godot_android_gradle/java_settings.gradle": 7817.46
+      "groovy/godot_android_gradle/LICENSE.txt": 5321.5,
+      "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": 5756.53,
+      "groovy/godot_android_gradle/java_app_build.gradle": 5873.67,
+      "groovy/godot_android_gradle/java_app_settings.gradle": 6491.03,
+      "groovy/godot_android_gradle/java_editor_build.gradle": 5970.08,
+      "groovy/godot_android_gradle/java_lib_build.gradle": 5474.38,
+      "groovy/godot_android_gradle/java_nativeSrcsConfigs_build.gradle": 6347.58,
+      "groovy/godot_android_gradle/java_scripts_publish-module.gradle": 5701.11,
+      "groovy/godot_android_gradle/java_scripts_publish-root.gradle": 6149.7,
+      "groovy/godot_android_gradle/java_settings.gradle": 5687.64
     },
     "groovy/gradle": {
       "groovy/gradle/DefaultPluginManager.java": 7192.1,
@@ -1742,8 +1742,8 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": 6606.61
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": 8967.5,
-      "hlasm/zecs/ZECSNC.asm": 8720.65
+      "hlasm/zecs/ZECS002.asm": 8966.01,
+      "hlasm/zecs/ZECSNC.asm": 8719.16
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 7795.86,
@@ -1785,11 +1785,11 @@
       "html/cpython_jinja/search.html": 8193.48
     },
     "html/html5_boilerplate": {
-      "html/html5_boilerplate/LICENSE.txt": -6080.2,
-      "html/html5_boilerplate/dist_404.html": -5803.64,
-      "html/html5_boilerplate/dist_index.html": -6241.92,
-      "html/html5_boilerplate/src_404.html": -6463.37,
-      "html/html5_boilerplate/src_index.html": -6041.32
+      "html/html5_boilerplate/LICENSE.txt": -6079.94,
+      "html/html5_boilerplate/dist_404.html": -5803.38,
+      "html/html5_boilerplate/dist_index.html": -6241.66,
+      "html/html5_boilerplate/src_404.html": -6463.11,
+      "html/html5_boilerplate/src_index.html": -6041.07
     },
     "html/jquery_test_fixtures": {
       "html/jquery_test_fixtures/LICENSE.txt": 9403.31,
@@ -1823,7 +1823,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": -7012.78
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/vscode_builtin.html": 9204.14
+      "html/polyglot_vscode/vscode_builtin.html": 9202.7
     },
     "html/revealjs_decks": {
       "html/revealjs_decks/500-slides.html": 7880.56,
@@ -2106,7 +2106,7 @@
       "json/kafka/message/VoteRequest.json": 11116.22
     },
     "kotlin": {
-      "kotlin/SOURCES.md": 6516.54
+      "kotlin/SOURCES.md": 6515.43
     },
     "kotlin/okhttp": {
       "kotlin/okhttp/Call.kt": 6495.6,
@@ -2118,7 +2118,7 @@
       "kotlin/okhttp/build.gradle.kts": 6200.73
     },
     "livecode": {
-      "livecode/SOURCES.md": 9392.2
+      "livecode/SOURCES.md": 9391.35
     },
     "livecode/livecode": {
       "livecode/livecode/_clipboard_private_setter.livecodescript": -3564.51,
@@ -2221,7 +2221,7 @@
       "livecode/livecode/trivial.livecodescript": -898.4
     },
     "lua": {
-      "lua/SOURCES.md": -6574.56
+      "lua/SOURCES.md": -6574.3
     },
     "lua/cosmopolitan": {
       "lua/cosmopolitan/all.lua": -2448.03,
@@ -2269,13 +2269,13 @@
       "lua/cosmopolitan/tracegc.lua": -2544.82
     },
     "lua/darwin-xnu": {
-      "lua/darwin-xnu/benchmark.lua": -6530.7,
-      "lua/darwin-xnu/bridgetime.lua": -6722.77,
-      "lua/darwin-xnu/fault_throughput.lua": -7224.56,
-      "lua/darwin-xnu/kqtrace.lua": -7080.38,
-      "lua/darwin-xnu/ktruss.lua": -6943.53,
-      "lua/darwin-xnu/perf_madvise.lua": -6370.91,
-      "lua/darwin-xnu/wqtrace.lua": -6825.33
+      "lua/darwin-xnu/benchmark.lua": -6530.28,
+      "lua/darwin-xnu/bridgetime.lua": -6722.34,
+      "lua/darwin-xnu/fault_throughput.lua": -7224.14,
+      "lua/darwin-xnu/kqtrace.lua": -7079.95,
+      "lua/darwin-xnu/ktruss.lua": -6943.11,
+      "lua/darwin-xnu/perf_madvise.lua": -6370.48,
+      "lua/darwin-xnu/wqtrace.lua": -6824.91
     },
     "lua/freebsd-src": {
       "lua/freebsd-src/cli.lua": -6269.93,
@@ -2537,10 +2537,10 @@
       "pli/dsf_cics_admin/R001TK62.pli": -8406.98
     },
     "pli/zopeneditor_sample": {
-      "pli/zopeneditor_sample/PROVENANCE.md": 9241.05,
-      "pli/zopeneditor_sample/PSAM1.pli": 9027.73,
-      "pli/zopeneditor_sample/PSAM1LIB.pli": 8766.91,
-      "pli/zopeneditor_sample/PSAM2.pli": 9045.79
+      "pli/zopeneditor_sample/PROVENANCE.md": 9240.17,
+      "pli/zopeneditor_sample/PSAM1.pli": 9026.85,
+      "pli/zopeneditor_sample/PSAM1LIB.pli": 8766.03,
+      "pli/zopeneditor_sample/PSAM2.pli": 9044.91
     },
     "powershell": {
       "powershell/SOURCES.md": 9031.25
@@ -2686,9 +2686,9 @@
       "proto/SOURCES.md": 4730.19
     },
     "proto/tensorflow/framework": {
-      "proto/tensorflow/framework/dataset.proto": -460.13,
-      "proto/tensorflow/framework/graph.proto": -237.31,
-      "proto/tensorflow/framework/tensor.proto": -258.42
+      "proto/tensorflow/framework/dataset.proto": -460.11,
+      "proto/tensorflow/framework/graph.proto": -237.3,
+      "proto/tensorflow/framework/tensor.proto": -258.41
     },
     "protobuf": {
       "protobuf/SOURCES.md": -9484.29
@@ -3017,14 +3017,14 @@
       "ruby/SOURCES.md": 3122.88
     },
     "ruby/rails": {
-      "ruby/rails/MIT-LICENSE": -884.02,
-      "ruby/rails/Rakefile": -397.41,
-      "ruby/rails/base.rb": -1145.92,
-      "ruby/rails/blob.rb": -573.44,
-      "ruby/rails/generator.rb": -684.21,
-      "ruby/rails/inbound_emails_controller.rb": -232.09,
-      "ruby/rails/metal.rb": -901.09,
-      "ruby/rails/routing.rb": -758.15
+      "ruby/rails/MIT-LICENSE": -883.88,
+      "ruby/rails/Rakefile": -397.56,
+      "ruby/rails/base.rb": -1145.65,
+      "ruby/rails/blob.rb": -573.45,
+      "ruby/rails/generator.rb": -684.19,
+      "ruby/rails/inbound_emails_controller.rb": -232.3,
+      "ruby/rails/metal.rb": -900.88,
+      "ruby/rails/routing.rb": -758.07
     },
     "rust": {
       "rust/SOURCES.md": -10191.81
@@ -3137,15 +3137,15 @@
       "shell/ansible/windows.sh": 10578.51
     },
     "shell/brew": {
-      "shell/brew/Dockerfile": 6399.22,
-      "shell/brew/LICENSE.txt": 6434.54,
-      "shell/brew/brew": 5953.17,
-      "shell/brew/brew.rb": 5628.47,
-      "shell/brew/cask.rb": 5466.8,
-      "shell/brew/download_strategy.rb": 5886.79,
-      "shell/brew/formula.rb": 6225.95,
-      "shell/brew/formula_installer.rb": 5755.15,
-      "shell/brew/sandbox.rb": 5659.51
+      "shell/brew/Dockerfile": -5339.1,
+      "shell/brew/LICENSE.txt": -5303.91,
+      "shell/brew/brew": -5784.08,
+      "shell/brew/brew.rb": -6107.64,
+      "shell/brew/cask.rb": -6268.91,
+      "shell/brew/download_strategy.rb": -5850.32,
+      "shell/brew/formula.rb": -5512.02,
+      "shell/brew/formula_installer.rb": -5981.59,
+      "shell/brew/sandbox.rb": -6076.95
     },
     "shell/curl": {
       "shell/curl/COPYING": -2436.59,
@@ -3405,13 +3405,13 @@
       "solidity/SOURCES.md": -10174.33
     },
     "solidity/openzeppelin": {
-      "solidity/openzeppelin/AccessControl.sol": 8192.04,
-      "solidity/openzeppelin/CrosschainRemoteExecutor.sol": 8475.25,
-      "solidity/openzeppelin/ERC2771Forwarder.sol": 7896.83,
-      "solidity/openzeppelin/Governor.sol": 8216.62,
-      "solidity/openzeppelin/Proxy.sol": 8064.27,
-      "solidity/openzeppelin/ReentrancyGuard.sol": 8626.06,
-      "solidity/openzeppelin/StorageSlot.sol": 7740.96
+      "solidity/openzeppelin/AccessControl.sol": 8190.52,
+      "solidity/openzeppelin/CrosschainRemoteExecutor.sol": 8473.73,
+      "solidity/openzeppelin/ERC2771Forwarder.sol": 7895.3,
+      "solidity/openzeppelin/Governor.sol": 8215.1,
+      "solidity/openzeppelin/Proxy.sol": 8062.75,
+      "solidity/openzeppelin/ReentrancyGuard.sol": 8624.54,
+      "solidity/openzeppelin/StorageSlot.sol": 7739.44
     },
     "sql": {
       "sql/SOURCES.md": -432.61
@@ -3430,7 +3430,7 @@
       "sql/postgresql/mediawiki/tables.sql": -927.92
     },
     "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": -7484.15
+      "sql/postgresql/sqlmap/dns_request.sql": -7483.72
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": 9933.17,
@@ -3538,7 +3538,7 @@
       "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": -6909.5
     },
     "swift": {
-      "swift/SOURCES.md": -476.68
+      "swift/SOURCES.md": -476.65
     },
     "swift/alamofire": {
       "swift/alamofire/AFError.swift": -4957.03,
@@ -3589,15 +3589,15 @@
       "tcl/macports_port_api/portmain.tcl": -8776.86
     },
     "tcl/macports_registry": {
-      "tcl/macports_registry/common.tcl": -6004.14,
-      "tcl/macports_registry/depends.tcl": -6117.2,
-      "tcl/macports_registry/entry.tcl": -5225.33,
-      "tcl/macports_registry/portimage.tcl": -5833.67,
-      "tcl/macports_registry/portuninstall.tcl": -5813.5,
-      "tcl/macports_registry/receipt_flat.tcl": -6079.49,
-      "tcl/macports_registry/receipt_sqlite.tcl": -6311.89,
-      "tcl/macports_registry/registry.tcl": -5538.81,
-      "tcl/macports_registry/registry_util.tcl": -5355.15
+      "tcl/macports_registry/common.tcl": 7862.09,
+      "tcl/macports_registry/depends.tcl": 7749.03,
+      "tcl/macports_registry/entry.tcl": 8640.9,
+      "tcl/macports_registry/portimage.tcl": 8032.56,
+      "tcl/macports_registry/portuninstall.tcl": 8052.74,
+      "tcl/macports_registry/receipt_flat.tcl": 7786.74,
+      "tcl/macports_registry/receipt_sqlite.tcl": 7554.34,
+      "tcl/macports_registry/registry.tcl": 8327.42,
+      "tcl/macports_registry/registry_util.tcl": 8511.08
     },
     "tcl/sqlite": {
       "tcl/sqlite/README.md": 8326.75,
@@ -3639,7 +3639,7 @@
       "text/SOURCES.md": 12807.07
     },
     "text/baseline": {
-      "text/baseline/control-readme.md": 8583.52
+      "text/baseline/control-readme.md": 8582.03
     },
     "typescript": {
       "typescript/SOURCES.md": -2589.26
@@ -3730,7 +3730,7 @@
       "xml/springboot/getting-started/pom.xml": 9190.8
     },
     "xml/springboot/resources": {
-      "xml/springboot/resources/pom.xml": -5910.31
+      "xml/springboot/resources/pom.xml": -5910.1
     },
     "yacc": {
       "yacc/SOURCES.md": 3283.08

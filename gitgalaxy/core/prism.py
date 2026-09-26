@@ -1054,6 +1054,16 @@ class Prism:
                 alternatives.append(r"(?:^|(?<=\s))#")
                 continue
 
+            # #3646: in ruby, `#{` is an interpolation opener, never a comment. The
+            # line masker shields only quoted strings, so the `#{` inside a
+            # `%r{^https?://#{DOMAIN}/}o` / `%Q{...}` literal cut the line there,
+            # stranded the literal's tail, and left a following `"` unbalanced -- a
+            # multi-line "string" that hid every `end` below it (brew's
+            # download_strategy.rb `fetch` ran 239 lines).
+            if token == "#" and lang_id == "ruby":  # noqa: S105
+                alternatives.append(r"#(?!\{)")
+                continue
+
             escaped = re.escape(token)
             starts_word = token[0].isalnum() or token[0] == "_"
             ends_word = token[-1].isalnum() or token[-1] == "_"

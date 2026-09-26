@@ -11,6 +11,7 @@ that baseline in the same PR.
 |---|---|---|---|---|---|
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.8.1 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -49,6 +50,31 @@ see (`__import__('x')`) counts against precision even when the engine got it rig
 references to same-namespace classes that no `use` statement names are not statements, so an
 engine edge for one counts as a false positive.
 
+## Call resolution in TypeScript
+
+The Python check scores the engine's links against pyan3, a static analyser that infers edges
+without full types. The TypeScript check uses the compiler itself: `tests/tools/ts_callgraph.js`
+builds a program from every `.ts`/`.tsx` file of the repo under its root `tsconfig.json`, and asks
+the type checker which declaration each call and `new` resolves to. Scoring is the same (`agree`,
+`wrong`, `unconfirmed`, per confident and ambiguous link), with one verdict pyan cannot give:
+
+- **`external`**: the checker resolved the call only to declarations outside the repo, such as
+  `lib.d.ts` or `node_modules`. `input.data.trim()` on a string is `String.prototype.trim`, so an
+  engine link to the repo's own `ZodString.trim()` is provably wrong. These are reported as
+  `confident_strict_precision_pct`, which is agree / (agree + wrong + external). The number is
+  baselined but not gated yet.
+- **`unmapped`** counts engine links with an end the checker has no function for. On zod these
+  are almost all bodyless signatures: interface methods, `abstract` methods and type members.
+- **The corpus is the pinned import-graph repos, not language-crucible.** The crucible's
+  TypeScript samples are flattened, so no relative import resolves and the checker would see
+  almost nothing. Fetch with `import_graph_accuracy.py --fetch-only`. The checker's version is
+  pinned (`TYPESCRIPT_VERSION`). A different version prints a warning under `--ci`, and
+  `--regenerate` refuses to run with it. TypeScript 7 (the native Go port, npm's `latest`) can't serve as the reference:
+  its package ships no JavaScript compiler API. The script exits with a message saying so.
+- **It is a reference, not ground truth.** An `any` receiver or an unresolved package import
+  (zod is not `npm install`ed) leaves the checker silent. Those links count as `unconfirmed`,
+  never as `wrong`.
+
 ## Span anchoring
 
 A unit is mis-anchored when its `start_line` opens before the declaration, on lines that belong
@@ -63,8 +89,9 @@ declaration and are not counted. Lower is better. The shape comes from #3543, wh
 PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --fetch-only       # once
 PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --samples 5        # report + examples
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci       # needs pyan3==2.8.1
+PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   # needs node + typescript@6.0.2
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
 # after an intended improvement: the same commands with --regenerate, committed with the fix
 ```
 
-All three refuse to pass on an empty measurement (#2682).
+All of them refuse to pass on an empty measurement (#2682).

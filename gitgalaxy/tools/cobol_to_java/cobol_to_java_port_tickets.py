@@ -34,26 +34,45 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
 TICKET_VERSION = 1
 PORTING_RULES = [
-    "Port the PROCEDURE DIVISION into the service's methods, paragraph by paragraph; name the paragraph each "
-    "block ports in a comment, so the port can be reviewed against the source.",
-    "Keep COBOL's storage semantics: COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE without ROUNDED truncate "
-    "decimals; a result too long for its PICTURE loses its high-order digits (ON SIZE ERROR aside); MOVE to a "
-    "numeric field aligns on the decimal point and truncates both ends; MOVE to alphanumeric pads with spaces "
-    "or truncates on the right. Use BigDecimal with RoundingMode.DOWN, never double, for PIC 9 / COMP-3 data.",
-    "Keep the program's behaviour, including what looks like a defect (an unreachable branch, a field never "
-    "reset): the port is proven by comparing its outputs with the original's. Document each such spot with a "
-    "comment naming the defect and the one-line fix; fixing it is a business decision, not a translation.",
-    "Use the generated code as it is: entities and their fromRecord / toRecord codecs, repositories, DTOs, "
-    "the batch runtime (DatasetResolver, Dd), the other services. Do not edit generated files other than "
-    "this service; do not invent calls, files, queues or tables the facts do not name.",
-    "An abend (a CALL to CEE3ABD, an unrecoverable file status) becomes an exception; a DISPLAY becomes a log "
-    "line; the step's RETURN-CODE is runBatch's return value.",
-    "A sequential dataset is fixed-length records (RECFM=FB): write each record's toRecord(...) bytes back to "
-    "back, with no line separators, to the file DatasetResolver.path(dd) names; read it the same way.",
-    "Read the time only from the generated batch runtime's MainframeClock (now()), never from the system "
-    "clock directly: it is how a run is pinned to be compared with the original.",
-    "A fact whose field testing is not 'field-tested' is verified on reference estates but still being field-"
-    "tested: where the source contradicts it, follow the source and say so in the port's notes.",
+    (
+        "Port the PROCEDURE DIVISION into the service's methods, paragraph by paragraph; name the paragraph "
+        "each block ports in a comment, so the port can be reviewed against the source."
+    ),
+    (
+        "Keep COBOL's storage semantics: COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE without ROUNDED "
+        "truncate decimals; a result too long for its PICTURE loses its high-order digits (ON SIZE ERROR "
+        "aside); MOVE to a numeric field aligns on the decimal point and truncates both ends; MOVE to "
+        "alphanumeric pads with spaces or truncates on the right. Use BigDecimal with RoundingMode.DOWN, "
+        "never double, for PIC 9 / COMP-3 data."
+    ),
+    (
+        "Keep the program's behaviour, including what looks like a defect (an unreachable branch, a field "
+        "never reset): the port is proven by comparing its outputs with the original's. Document each such "
+        "spot with a comment naming the defect and the one-line fix; fixing it is a business decision, not a "
+        "translation."
+    ),
+    (
+        "Use the generated code as it is: entities and their fromRecord / toRecord codecs, repositories, "
+        "DTOs, the batch runtime (DatasetResolver, Dd), the other services. Do not edit generated files other"
+        " than this service; do not invent calls, files, queues or tables the facts do not name."
+    ),
+    (
+        "An abend (a CALL to CEE3ABD, an unrecoverable file status) becomes an exception; a DISPLAY becomes a"
+        " log line; the step's RETURN-CODE is runBatch's return value."
+    ),
+    (
+        "A sequential dataset is fixed-length records (RECFM=FB): write each record's toRecord(...) bytes "
+        "back to back, with no line separators, to the file DatasetResolver.path(dd) names; read it the same "
+        "way."
+    ),
+    (
+        "Read the time only from the generated batch runtime's MainframeClock (now()), never from the "
+        "system clock directly: it is how a run is pinned to be compared with the original."
+    ),
+    (
+        "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "
+        "field-tested: where the source contradicts it, follow the source and say so in the port's notes."
+    ),
 ]
 
 

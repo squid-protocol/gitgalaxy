@@ -27,13 +27,13 @@
     "tp": 2632
   },
   "go": {
-    "fn": 239,
+    "fn": 29,
     "fp": 5,
     "matched_functions": 1294,
     "parse_failures": 0,
     "precision_pct": 99.9,
-    "recall_pct": 96.4,
-    "tp": 6365
+    "recall_pct": 99.6,
+    "tp": 6575
   },
   "java": {
     "fn": 35,

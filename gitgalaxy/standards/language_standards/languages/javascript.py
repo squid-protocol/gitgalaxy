@@ -78,7 +78,7 @@ DEFINITION: dict[str, Any] = {
         # #3361: `super` is a keyword here (a constructor's `super(x)` is not a
         # call, #3327 C2). It left the global ignore set because Python's
         # `super()` IS a call (a built-in function).
-        "_calls_out_ignore": frozenset({"super"}),
+        "_calls_out_ignore": frozenset({"super", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)

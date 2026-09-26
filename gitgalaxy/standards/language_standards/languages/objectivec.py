@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"\b([a-zA-Z_]\w*)(?=\s*\(|:)"),
-        "_calls_out_ignore": frozenset({"self"}),
+        "_calls_out_ignore": frozenset({"self", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split flow. Includes Obj-C specific @try/@catch blocks.
         # BUG FIX: @try/@catch/@finally were inside the shared \b(...)\b

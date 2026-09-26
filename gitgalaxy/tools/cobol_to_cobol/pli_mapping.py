@@ -150,7 +150,8 @@ def item_class(usage: str | None, pic: str | None, attributes: str) -> str:
     return "?"
 
 
-def _aligned(attributes: str, inherited: bool) -> bool:
+def _aligned(attributes: str, inherited: bool | None) -> bool | None:
+    """The item's own ALIGNED / UNALIGNED, else what its structure passes down (None: neither says)."""
     a = (attributes or "").upper()
     if re.search(r"\bUNALIGNED\b|\bUNAL\b", a):
         return False
@@ -190,9 +191,11 @@ def pair(first: Unit, second: Unit) -> tuple[Unit, int, int]:
     return unit, p1 - start, p2 - start
 
 
-def map_item(it: Any, children: dict, inherited_aligned: bool = True, depth: int = 0) -> Unit | None:
+def map_item(it: Any, children: dict, inherited_aligned: bool | None = None, depth: int = 0) -> Unit | None:
     """The Unit of a PL/I item and everything under it; `children` maps id(item) -> its kids
-    (DEFINED ones left out by the caller). None when any width inside is unknown."""
+    (DEFINED ones left out by the caller). None when any width inside is unknown.
+    `inherited_aligned` is the ALIGNED (True) / UNALIGNED (False) an enclosing structure
+    declares, None when none does: ALIGNED on a structure aligns its strings too."""
     attrs = it.attributes or ""
     kids = children.get(id(it), [])
     times = it.occurs_max or 1
@@ -210,9 +213,8 @@ def map_item(it: Any, children: dict, inherited_aligned: bool = True, depth: int
     else:
         # Strings and pictures default to UNALIGNED, arithmetic and locators to ALIGNED --
         # unless the item or an enclosing structure says otherwise.
-        explicit = re.search(r"\b(?:UNALIGNED|UNAL|ALIGNED)\b", attrs.upper())
-        default = inherited_aligned and not _string_or_pic(it.usage, it.pic, attrs)
-        aligned = _aligned(attrs, default) if explicit else (default if inherited_aligned else False)
+        said = _aligned(attrs, inherited_aligned)
+        aligned = said if said is not None else not _string_or_pic(it.usage, it.pic, attrs)
         el = element(it.usage, it.pic, attrs, aligned)
         if el is None:
             return None
@@ -231,7 +233,7 @@ def layout(root: Any, children: dict) -> dict | None:
         return None
     lengths: dict = {}
 
-    def collect(it: Any, inherited: bool) -> None:
+    def collect(it: Any, inherited: bool | None) -> None:
         kids = children.get(id(it), [])
         aligned = _aligned(it.attributes or "", inherited)
         for kid in kids:
@@ -239,5 +241,5 @@ def layout(root: Any, children: dict) -> dict | None:
         u = map_item(it, children, inherited)
         lengths[id(it)] = u.length if u is not None else None
 
-    collect(root, True)
+    collect(root, None)
     return {k: (off, lengths.get(k)) for k, off in unit.at.items()}

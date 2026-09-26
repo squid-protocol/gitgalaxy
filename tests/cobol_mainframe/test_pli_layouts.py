@@ -102,6 +102,13 @@ def test_unaligned_packs_everything_but_the_bits_after_a_bit_string():
     assert (bits["U"], lengths["U"]) == (59 * 8, 3)
 
 
+def test_aligned_on_a_structure_aligns_its_bit_strings():
+    _, lengths = _offsets(IBM_EXAMPLE.format(align="aligned"))
+    assert lengths["U"] == 8  # IBM's example: U BIT(3) under ALIGNED A takes its byte (V at 69)
+    bits, lengths = _offsets("1 R\n2 C bit(1)\n2 D bit(1)")  # no attribute: strings stay unaligned
+    assert (bits["D"], lengths["R"]) == (1, 2)
+
+
 def test_bit_strings_share_a_byte_and_arrays_stride_by_alignment():
     bits, lengths = _offsets("1 R\n2 A char(3)\n2 B fixed bin(31)\n2 C bit(1)\n2 D bit(1)\n2 E fixed dec(7,2)")
     assert {k: (v // 8, v % 8) for k, v in bits.items()} == {

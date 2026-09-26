@@ -64,9 +64,13 @@ LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
 # (`jvm`, `js`, `native`, `android`). Only a variant axis decides between same-named
 # files; sibling modules (`service_a/` vs `service_b/`, `cobol_src/` vs `cobol_copy/`)
 # never do (#261: the nearest same-named file is a guess).
+_VARIANT_TOOLCHAINS = ("scala", "java", "jdk", "kotlin", "python", "py", "swift", "dotnet", "net")
+_VARIANT_PLATFORMS = (
+    "jvm", "js", "native", "wasm", "android", "ios", "macos", "tvos", "watchos",
+    "linux", "windows", "darwin", "posix", "unix", "win32",
+)  # fmt: skip
 _BUILD_VARIANT_DIR = re.compile(
-    r"(?:scala|java|jdk|kotlin|python|py|swift|dotnet|net)-?\d[\w.]{0,12}\+?"
-    r"|jvm|js|native|wasm|android|ios|macos|tvos|watchos|linux|windows|darwin|posix|unix|win32",
+    "(?:" + "|".join(_VARIANT_TOOLCHAINS) + r")-?\d[\w.]{0,12}\+?|" + "|".join(_VARIANT_PLATFORMS),
     re.IGNORECASE,
 )
 

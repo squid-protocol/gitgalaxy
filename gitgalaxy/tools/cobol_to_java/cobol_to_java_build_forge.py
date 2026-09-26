@@ -36,6 +36,15 @@ def ui_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
     return []
 
 
+def messaging_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
+    """(group, artifact, version or None) the TD / MQ message port's adapter needs (#3620)."""
+    if t.integration.messaging == "jms":
+        return [("org.springframework.boot", "spring-boot-starter-artemis", None)]
+    if t.integration.messaging == "kafka":
+        return [("org.springframework.kafka", "spring-kafka", None)]  # managed by Spring Boot
+    return []
+
+
 def _dependency(
     group: str, artifact: str, scope: Optional[str] = None, optional: bool = False, version: Optional[str] = None
 ) -> str:
@@ -68,7 +77,7 @@ def generate_pom_xml(group_id: str, artifact_id: str, target: Optional[JavaTarge
     ]
     if t.features.batch:
         deps.append(_dependency("org.springframework.boot", "spring-boot-starter-batch"))
-    deps += [_dependency(g, a, version=v) for g, a, v in ui_dependencies(t)]  # #3619
+    deps += [_dependency(g, a, version=v) for g, a, v in ui_dependencies(t) + messaging_dependencies(t)]  # #3619 #3620
     deps.append(_dependency(drv_group, drv_artifact, scope="runtime"))
     if t.lombok:
         deps.append(_dependency("org.projectlombok", "lombok", optional=True))
@@ -143,7 +152,10 @@ def generate_build_gradle(group_id: str, target: JavaTarget) -> str:
     ]
     if t.features.batch:
         deps.append("    implementation 'org.springframework.boot:spring-boot-starter-batch'")
-    deps += [f"    implementation '{g}:{a}{':' + v if v else ''}'" for g, a, v in ui_dependencies(t)]  # #3619
+    deps += [
+        f"    implementation '{g}:{a}{':' + v if v else ''}'"
+        for g, a, v in ui_dependencies(t) + messaging_dependencies(t)
+    ]  # #3619 #3620
     deps.append(f"    runtimeOnly '{drv_group}:{drv_artifact}'")
     if t.lombok:
         deps += ["    compileOnly 'org.projectlombok:lombok'", "    annotationProcessor 'org.projectlombok:lombok'"]

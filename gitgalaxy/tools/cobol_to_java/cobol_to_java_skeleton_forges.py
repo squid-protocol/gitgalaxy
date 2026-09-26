@@ -23,9 +23,11 @@ from gitgalaxy.tools.cobol_to_cobol.skeleton_export import (
     PROGRAM_JOINS,
     load_confidence,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_call_forge import CallForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import ClassNames, TraceLog, merge_extras
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import Db2Forge
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_messaging_forge import MessagingForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_screen_forge import ScreenForge
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import CicsForge, CicsProgram, load_skeletons
@@ -52,6 +54,8 @@ class SkeletonForges:
         self.uow = UowForge(self.skeletons, package, target, self.names, trace=self.trace)
         self.db2 = Db2Forge(self.estate, self.skeletons, package, target, self.names, trace=self.trace)  # #3618
         self.screens = ScreenForge(self.skeletons, package, target, self.names, trace=self.trace)  # #3619
+        self.messaging = MessagingForge(self.skeletons, self.estate, package, target, trace=self.trace)  # #3620
+        self.batch = BatchForge(self.skeletons, self.estate, package, target, trace=self.trace)  # #3622
 
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
         """(java_dirs key, sub-directory) -> {class name: Java source}, every generated file."""
@@ -69,6 +73,10 @@ class SkeletonForges:
             out.setdefault(where, {}).update(files)
         for where, files in self.screens.sources().items():  # #3619: view models + screen controllers
             out.setdefault(where, {}).update(files)
+        for where, files in self.messaging.sources().items():  # #3620: ports, adapter, MQ listeners
+            out.setdefault(where, {}).update(files)
+        for where, files in self.batch.sources().items():  # #3622: the JCL runtime + a config per job
+            out.setdefault(where, {}).update(files)
         return out
 
     def write(self, java_dirs: dict[str, Path], header: str) -> dict[str, int]:
@@ -79,7 +87,7 @@ class SkeletonForges:
             for name, code in files.items():
                 out_dir.mkdir(parents=True, exist_ok=True)
                 (out_dir / f"{name}.java").write_text(header + code, encoding="utf-8")
-        for rel, text in self.screens.resources().items():  # #3619: templates/screen.html
+        for rel, text in {**self.screens.resources(), **self.batch.resources()}.items():  # #3619 / #3622
             path = java_dirs["resources"] / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text, encoding="utf-8")
@@ -108,6 +116,8 @@ class SkeletonForges:
             self.uow.service_extras(key),
             self.db2.service_extras(key),
             self.screens.service_extras(key),
+            self.messaging.service_extras(key),
+            self.batch.service_extras(key),
         )
 
     def write_audit(self, f: TextIO) -> None:
@@ -138,6 +148,10 @@ class SkeletonForges:
         )
         if self.screens.screens or self.screens.unresolved:
             f.write(self.screens.audit_line())
+        if self.messaging.plan.ts or self.messaging.plan.td or self.messaging.plan.mq:
+            f.write(self.messaging.audit_line())
+        if self.batch.enabled and self.batch.jobs:
+            f.write(self.batch.audit_line())
         u = self.uow.counts
         f.write(
             f"  • Units of work (#3621)   : {u['services']} @Transactional services, {u['commits']} commit points, "

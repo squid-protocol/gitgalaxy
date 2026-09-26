@@ -31,6 +31,7 @@ DATA_CLASSES = ("lombok", "plain")  # entities and DTOs: Lombok @Data, or explic
 DTO_STYLES = ("class", "record")  # a transient record (DFHCOMMAREA): a class, or a Java record
 DATABASES = ("postgresql", "db2", "oracle", "mysql", "h2")
 DDL_AUTO = ("none", "validate", "update", "create", "create-drop")
+UI_FLAVOURS = ("none", "thymeleaf", "openapi-only")  # #3619: what the BMS screens become beyond view models
 REMOTE_CALLS = ("http", "local")  # a DPL LINK to another region: an HTTP client, or the in-process bean
 
 # Per database: (Maven groupId, artifactId) of the JDBC driver -- versions come from the
@@ -103,6 +104,11 @@ class Integration:
 
 
 @dataclass
+class Ui:
+    flavour: str = "none"  # #3619: view models only | + Thymeleaf pages | + REST endpoints with OpenAPI docs
+
+
+@dataclass
 class JavaTarget:
     project: Project = field(default_factory=Project)
     java: Java = field(default_factory=Java)
@@ -110,6 +116,7 @@ class JavaTarget:
     database: Database = field(default_factory=Database)
     features: Features = field(default_factory=Features)
     integration: Integration = field(default_factory=Integration)
+    ui: Ui = field(default_factory=Ui)
 
     @property
     def lombok(self) -> bool:
@@ -129,6 +136,7 @@ _SECTIONS = {
     "database": Database,
     "features": Features,
     "integration": Integration,
+    "ui": Ui,
 }
 
 
@@ -148,12 +156,18 @@ def _check(target: JavaTarget) -> None:
         ("database.engine", d.engine, DATABASES),
         ("database.ddl_auto", d.ddl_auto, DDL_AUTO),
         ("integration.remote_calls", target.integration.remote_calls, REMOTE_CALLS),
+        ("ui.flavour", target.ui.flavour, UI_FLAVOURS),
     ):
         if value not in allowed:
             raise ConfigError(f"{key} {value!r} is not supported; choose one of {', '.join(map(str, allowed))}")
     if target.features.rest_controllers and not target.features.services:
         raise ConfigError(
             "features.rest_controllers needs features.services: each controller calls its program's service"
+        )
+    if target.ui.flavour != "none" and not (target.features.services and target.features.rest_controllers):
+        raise ConfigError(
+            f"ui.flavour {target.ui.flavour!r} needs features.services and features.rest_controllers: "
+            "each screen's controller calls its program's service"
         )
     if not _BOOT_VERSION.fullmatch(str(s.version)):
         raise ConfigError(f"spring_boot.version {s.version!r}: a Spring Boot 3.x.y version (jakarta namespace)")
@@ -247,4 +261,8 @@ features:
 integration:
   remote_calls: http                    # {" | ".join(REMOTE_CALLS)}  (a LINK the CSD routes to another region:
                                         #   http = a RestTemplate client per region, local = call the bean in-process)
+
+ui:
+  flavour: none                         # {" | ".join(UI_FLAVOURS)}  (BMS screens: view models only,
+                                        #   + Thymeleaf pages on the 24x80 layout, or + REST endpoints and OpenAPI docs)
 """  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

@@ -64,6 +64,8 @@ MATRIX: dict[str, dict] = {
     },  # fmt: skip
     "gradle": {"java": {"build_tool": "gradle"}},
     "gradle-plain-21": {"java": {"build_tool": "gradle", "data_classes": "plain", "version": 21}},
+    "ui-thymeleaf": {"ui": {"flavour": "thymeleaf"}},  # #3619: BMS screens as web pages
+    "ui-openapi-plain": {"ui": {"flavour": "openapi-only"}, "java": {"data_classes": "plain"}},  # + REST, plain
 }
 
 

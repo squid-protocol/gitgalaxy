@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import equivalence as eq  # noqa: E402
 import equivalence_cics as ec  # noqa: E402
 
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db  # noqa: E402
@@ -133,7 +134,7 @@ def test_fields_round_trip_through_their_storage():
                                  ("300", "S9(4)", "COMP", 2), ("AB", "X(4)", None, 4), ("7", "9(1)", None, 1)]:  # fmt: skip
         raw = ec.encode_field(value, pic, usage, n)
         assert len(raw) == n
-        back = ec.eq.decode_field(raw, pic, usage)
+        back = eq.decode_field(raw, pic, usage)
         assert (back.rstrip() == value) if isinstance(back, str) else back == Decimal(value)
 
 
@@ -175,7 +176,7 @@ def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
     import json
     import subprocess
 
-    proc = subprocess.run([sys.executable, str(Path(ec.eq.__file__)), "run", "carddemo-acctview", "--keep",  # noqa: S603
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-acctview", "--keep",  # noqa: S603
                            str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())

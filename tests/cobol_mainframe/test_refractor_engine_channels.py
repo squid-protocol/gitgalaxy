@@ -11,6 +11,7 @@ with the channels) and the forge fallback (no DB, or a DB from before the channe
 and so is the channel's own round trip (write, delta-scan restore, reader).
 """
 
+import os
 import shutil
 import sqlite3
 
@@ -138,12 +139,17 @@ def test_a_db_from_before_the_channels_falls_back_to_the_forge(scanned, tmp_path
     assert ir["analysis"]["lineage"]["inputs"] == {"INDD"} and ir["generation"]["schemas"]
 
 
+def _cached(cache, rel):
+    """The rehydrated ram_cache is keyed by native paths (`src\\LEDGER.cbl` on Windows)."""
+    return cache[rel] if rel in cache else cache[rel.replace("/", os.sep)]
+
+
 def test_open_sites_survive_a_delta_scan(scanned):
     from gitgalaxy.core.state_rehydrator import StateRehydrator
 
     _, db = scanned
     cache = StateRehydrator(str(db)).load_state("legacy")["ram_cache"]
-    rows = {d["dd_name"]: d["open_sites"] for d in cache["src/LEDGER.cbl"]["dataset_bindings"]}
+    rows = {d["dd_name"]: d["open_sites"] for d in _cached(cache, "src/LEDGER.cbl")["dataset_bindings"]}
     assert rows == {"INDD": [["INPUT", OPEN_LIVE]], "OUTDD": [["OUTPUT", OPEN_LIVE]], "OLDDD": [["I-O", OPEN_DEAD]]}
 
 
@@ -152,4 +158,4 @@ def test_a_baseline_without_open_sites_still_rehydrates(scanned, tmp_path):
 
     _, db = scanned
     cache = StateRehydrator(str(_pre_3348(db, tmp_path))).load_state("legacy")["ram_cache"]
-    assert all("open_sites" not in d for d in cache["src/LEDGER.cbl"]["dataset_bindings"])
+    assert all("open_sites" not in d for d in _cached(cache, "src/LEDGER.cbl")["dataset_bindings"])

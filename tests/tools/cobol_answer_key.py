@@ -147,6 +147,8 @@ _DD_SECTION = re.compile(r"\b(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNI
 _DD_FD = re.compile(rf"^\s*(?:FD|SD)\s+({NAME})", re.M)
 _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # #3575: a leading \s* ate blank lines
 _DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([-A-Z0-9(),.$/*+]+)")
+# `SIGN IS LEADING SEPARATE CHARACTER` / `TRAILING SEPARATE`: the sign takes its own byte (census #3649, CBSA ABNDINFO).
+_DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
     r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
@@ -711,6 +713,7 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
                 "occurs_depending_on": dep_m.group(1).upper() if dep_m else None,
                 "redefines": redef_m.group(1).upper() if redef_m else None,
                 "value": value,
+                "sign_separate": bool(_DD_SIGN_SEPARATE.search(window)),
                 "line": src.line_of(m.start()),
             }
         )
@@ -4454,7 +4457,7 @@ _MV_PARENS = r"\((?:[^()]|\([^()]*\))*\)"
 _MV_OPERAND = re.compile(
     r"(?P<lit>[XNGZ]?'[^']*'?|[XNGZ]?\"[^\"]*\"?)"
     rf"|(?P<cics>(?:DFHVALUE|DFHRESP)\s*\(\s*{_MV_NAME}\s*\))"
-    rf"|(?P<fn>FUNCTION\s+{_MV_NAME}(?:\s*{_MV_PARENS})?)"
+    rf"|(?P<fn>FUNCTION\s+{_MV_NAME})(?P<fnparen>(?:\s*{_MV_PARENS})*)"
     rf"|(?P<lenof>(?:LENGTH|ADDRESS)\s+OF\s+{_MV_NAME}(?:\s+(?:OF|IN)\s+{_MV_NAME})*)"
     rf"|(?P<all>ALL\s+(?:'[^']*'|\"[^\"]*\"|{_MV_NAME}))"
     r"|(?P<num>[+-]?(?:\d*\.\d+|\d+)(?![A-Z0-9-]))"
@@ -4499,7 +4502,9 @@ def _mv_operands(
             # #3495 zECS pin: a CICS translator constant (DFHVALUE / DFHRESP), no data item.
             out.append(("".join(m.group("cics").split()), "cics_constant", False))
         elif m.group("fn"):
-            out.append((" ".join(m.group("fn").split("(")[0].split()), "function", False))
+            # #3649 census: `FUNCTION CURRENT-DATE(1:4)` reference-modifies the result; an
+            # argument list never holds a top-level colon (`NUMVAL(WS-X(1:3))` is no refmod).
+            out.append((" ".join(m.group("fn").split()), "function", _top_refmod(m.group("fnparen") or "") or False))
         elif m.group("lenof"):
             words = m.group("lenof").split()
             out.append((" ".join(words).replace(" IN ", " OF "), words[0].lower(), False))
@@ -4534,6 +4539,24 @@ def _refmod_text(parens: str) -> Optional[str]:
                 inner = parens[start + 1 : i]
                 if ":" in inner:
                     return _norm_refmod(inner)
+    return None
+
+
+def _top_refmod(parens: str) -> Optional[str]:
+    """The reference modification among parenthesized groups whose colon is at the
+    group's own top level (a function result's `(1:4)`, never an argument's), normalized."""
+    depth, start, colon = 0, None, False
+    for i, ch in enumerate(parens):
+        if ch == "(":
+            depth += 1
+            if depth == 1:
+                start, colon = i, False
+        elif ch == ")":
+            depth -= 1
+            if depth == 0 and start is not None and colon:
+                return _norm_refmod(parens[start + 1 : i])
+        elif ch == ":" and depth == 1:
+            colon = True
     return None
 
 
@@ -5369,10 +5392,11 @@ def draft_symbolic_maps(repo: Path) -> dict[str, dict[str, Any]]:
 # bytes, a group the sum of its non-REDEFINES children, OCCURS multiplies, a
 # REDEFINES starts where its target does, every 01 at 0), each named item is
 # `NAME @offset+bytes` -- the unit symbolic_map_units computes from the BMS source.
-def _pic_bytes(pic: str, usage: Optional[str]) -> int:
+def _pic_bytes(pic: str, usage: Optional[str], sign_separate: bool = False) -> int:
     p = pic.upper()
     # #3602: CR / DB take two positions, N / G (national, DBCS) two bytes each, E one;
-    # S, V and P take none (SIGN SEPARATE is not in these estates).
+    # S, V and P take none -- except a DISPLAY sign coded SEPARATE, which takes one (census
+    # #3649 found it in CBSA's ABNDINFO: the reader had assumed these estates had none).
     national = sum(int(rep) if rep else 1 for rep in re.findall(r"[NG](?:\((\d+)\))?", p))
     signs = 2 * len(re.findall(r"CR|DB", p))
     p = re.sub(r"CR|DB", "", p)
@@ -5385,7 +5409,7 @@ def _pic_bytes(pic: str, usage: Optional[str]) -> int:
         return 2 if digits <= 4 else 4 if digits <= 9 else 8
     if u in ("COMP-3", "PACKED-DECIMAL"):
         return digits // 2 + 1
-    return digits
+    return digits + (1 if sign_separate else 0)
 
 
 def copybook_layout_units(path: Path) -> set[str]:
@@ -5398,7 +5422,7 @@ def copybook_layout_units(path: Path) -> set[str]:
 
     def size(it: dict[str, Any]) -> int:
         if it["ordinal"] not in sizes:
-            own = _pic_bytes(it["pic"], it.get("usage")) if it.get("pic") else sum(
+            own = _pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False)) if it.get("pic") else sum(
                 size(c) for c in kids.get(it["ordinal"], []) if not c.get("redefines"))  # fmt: skip
             sizes[it["ordinal"]] = own * (it.get("occurs_max") or 1)
         return sizes[it["ordinal"]]
@@ -5450,7 +5474,7 @@ def copybook_record_units(path: Path) -> Optional[set[str]]:
     def size(it: dict[str, Any]) -> int:
         if it["ordinal"] not in sizes:
             if it.get("pic"):
-                own = _pic_bytes(it["pic"], it.get("usage"))
+                own = _pic_bytes(it["pic"], it.get("usage"), it.get("sign_separate", False))
             elif (it.get("usage") or "").upper() in _PICLESS_BYTES:
                 own = _PICLESS_BYTES[(it.get("usage") or "").upper()]
             else:

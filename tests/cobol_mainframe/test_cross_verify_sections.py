@@ -493,3 +493,99 @@ def test_lineage_sign_flags_ims_per_batch_and_data_moves_only_when_the_plan_is_d
 def test_upper_bound_is_the_zero_failure_bound_and_grows_with_errors():
     assert cs.upper_bound_95(0, 100) == pytest.approx(0.0295, abs=1e-4)
     assert cs.upper_bound_95(0, 100) < cs.upper_bound_95(1, 100) < cs.upper_bound_95(5, 100)
+
+
+# ---- the `layouts` suite (#3649 / #3602) ----------------------------------------
+def _layouts_key(plan_modes: dict) -> dict:
+    key = {
+        "corpus": "k",
+        "ref": "0" * 40,
+        "programs": {},
+        "copybook_layouts": {
+            "C.cpy": {"units": ["REC/A @0+4", "REC/B @4+3"], "layouts_validated": False, "verification": {}},
+            "D.cpy": {"units": ["D-REC/X @0+1"], "layouts_validated": False, "verification": {}},
+        },
+        "cics_ridflds": {
+            "P.cbl": {
+                "units": ["L9 READ FILE ACCTDAT RIDFLD=ACCT-KEY(1:8)", "L20 STARTBR FILE ? RIDFLD=K"],
+                "ridflds_validated": False,
+                "verification": {},
+            },  # fmt: skip
+        },
+        "refmod_spans": {
+            "P.cbl": {
+                "units": ["L30 MOVE DFHCOMMAREA(1:LENGTH OF A) -> A"],
+                "refmods_validated": False,
+                "verification": {},
+            },  # fmt: skip
+        },
+    }
+    files = {"cblayout": ["C.cpy", "D.cpy"], "ridfld": ["P.cbl", "Q.cbl"], "refmod": ["P.cbl"]}
+    key["sample_census"] = {"layouts": {"plan": {t: {"mode": plan_modes.get(t, "full"), "files": f}
+                                                 for t, f in files.items()}}}  # fmt: skip
+    return key
+
+
+def _layouts_agreeing() -> dict:
+    return {"files": {
+        "C.cpy": {"cblayout": [{"root": "rec", "name": "a", "offset": 0, "bytes": 4},
+                               {"root": "REC", "name": "B", "offset": 4, "bytes": 3}]},
+        "D.cpy": {"cblayout": [{"root": "D-REC", "name": "X", "offset": 0, "bytes": 1}]},
+        "P.cbl": {"ridfld": [{"line": 9, "verb": "READ", "file": "acctdat", "ridfld": "ACCT-KEY (1 : 8)"},
+                             {"line": 20, "verb": "STARTBR", "file": None, "ridfld": "K"}],
+                  "refmod": [{"line": 30, "verb": "MOVE", "source": "DFHCOMMAREA", "source_refmod": "1 : LENGTH OF A",
+                              "target": "A", "target_refmod": None}]},
+        "Q.cbl": {"ridfld": []},
+    }}  # fmt: skip
+
+
+def test_layouts_suite_is_blind_round_trips_and_lists_each_task_its_files():
+    key = _layouts_key({})
+    files = cs.corpus_files_layouts(key)
+    assert files == ["C.cpy", "D.cpy", "P.cbl", "Q.cbl"]
+    brief, truth = cs.render_layouts(key, REPO, files, 1, 1)
+    assert "ACCT-KEY" not in brief and "@4+3" not in brief and "LENGTH OF A)" not in brief
+    assert "Q.cbl" in brief.split("TASK ridfld")[1] and "Q.cbl" not in brief.split("TASK refmod")[1]
+    assert truth["facts"]["ridfld"]["Q.cbl"] == []  # asked, keyed nothing: "none" is checked too
+    assert "refmod" not in truth["facts"] or "C.cpy" not in truth["facts"]["refmod"]
+    g = cs.grade(truth, _layouts_agreeing(), REPO)
+    assert g["disagreements"] == [] and g["tasks"]["cblayout"] == {"agree": 3, "asked": 3}
+
+
+def test_layouts_suite_lists_a_wrong_offset_both_ways():
+    key = _layouts_key({})
+    _, truth = cs.render_layouts(key, REPO, cs.corpus_files_layouts(key), 1, 1)
+    answers = _layouts_agreeing()
+    answers["files"]["C.cpy"]["cblayout"][1]["offset"] = 5
+    ids = [d["id"] for d in cs.grade(truth, answers, REPO)["disagreements"]]
+    assert ids == ["cblayout:C.cpy::REC/B @4+3", "cblayout:C.cpy::REC/B @5+3"]
+
+
+def test_layouts_sign_flags_full_tasks_per_batch_and_a_sampled_task_when_its_plan_is_done():
+    key = _layouts_key({"cblayout": "sample"})
+    _, truth = cs.render_layouts(key, REPO, ["C.cpy", "P.cbl", "Q.cbl"], 1, 2)
+    g = cs.grade(truth, _layouts_agreeing(), REPO)
+    cs.sign(key, truth, g, {}, "reviewer", "2026-09-25")
+    assert key["cics_ridflds"]["P.cbl"]["ridflds_validated"] is True  # full: flagged with its batch
+    assert key["cics_ridflds"]["P.cbl"]["verification"]["tier"] == "cross_verified"
+    assert key["copybook_layouts"]["C.cpy"]["layouts_validated"] is False  # sampled: D.cpy is still to come
+    _, truth2 = cs.render_layouts(key, REPO, ["D.cpy"], 2, 2)
+    cs.sign(key, truth2, cs.grade(truth2, _layouts_agreeing(), REPO), {}, "reviewer", "2026-09-25")
+    entries = key["copybook_layouts"].values()
+    assert all(e["layouts_validated"] and e["verification"]["tier"] == "sample_verified" for e in entries)
+    sampled = key["sample_census"]["layouts"]["sampled"]["cblayout"]
+    assert (sampled["asked"], sampled["key_errors"]) == (3, 0) and sampled["upper_bound_95"] > 0
+
+
+def test_layouts_plan_is_full_while_small_and_sampled_with_recall_when_large(tmp_path):
+    for n in range(40):
+        (tmp_path / f"C{n:02d}.cpy").write_text("       01  R.\n           05 A PIC X(4).\n", encoding="utf-8")
+    (tmp_path / "ROGUE.cpy").write_text("       01  R.\n           05 Z PIC 9.\n", encoding="utf-8")  # unkeyed
+    small = {"copybook_layouts": {f"C{n:02d}.cpy": {"units": ["R/A @0+4"]} for n in range(40)}}
+    plan = cs.layouts_plan(small, tmp_path, 7)
+    assert plan["cblayout"] == {"mode": "full", "files": sorted([*small["copybook_layouts"], "ROGUE.cpy"])}
+    big = {"copybook_layouts": {f"C{n:02d}.cpy": {"units": [f"R/A{i} @{i}+1" for i in range(20)]} for n in range(40)}}
+    plan = cs.layouts_plan(big, tmp_path, 7)["cblayout"]
+    assert plan["mode"] == "sample" and "ROGUE.cpy" in plan["files"]
+    assert sum(len(big["copybook_layouts"].get(f, {}).get("units", [])) for f in plan["files"]) >= cs.LAYOUT_SAMPLE_ROWS
+    assert plan == cs.layouts_plan(big, tmp_path, 7)["cblayout"]  # seeded: the same plan every time

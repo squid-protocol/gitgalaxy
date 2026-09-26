@@ -161786,6 +161786,187 @@
       "key_errors": 2,
       "upper_bound_95": 0.0318,
       "note": "key_errors are the census's findings against the key AS DRAFTED -- all one systematic defect (a record's `line` fell on the blank/comment line before its level number), fixed in the key reader in the same change; against the corrected key every sampled field agrees, the only remaining disagreements being reviewer omissions ruled key_correct. upper_bound_95 therefore bounds the pre-fix key."
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "full",
+          "files": []
+        },
+        "ridfld": {
+          "mode": "sample",
+          "budget": 300,
+          "files": [
+            "src/GML/R0010301.pli",
+            "src/GML/R0010420.pli",
+            "src/GML/R0010423.pli",
+            "src/GML/R0010425.pli",
+            "src/GML/R0010427.pli",
+            "src/GML/R0010480.pli",
+            "src/GML/R0010503.pli",
+            "src/GML/R0010505.pli",
+            "src/GML/R0010603.pli",
+            "src/GML/R0010703.pli",
+            "src/GML/R0010903.pli",
+            "src/GML/R0011003.pli",
+            "src/GML/R0011103.pli",
+            "src/GML/R0011203.pli",
+            "src/GML/R0011303.pli",
+            "src/GML/R0011403.pli",
+            "src/GML/R0011503.pli",
+            "src/GML/R0011905.pli",
+            "src/GML/R0019F01.pli",
+            "src/GML/R0019F02.pli",
+            "src/GML/R0019F03.pli",
+            "src/GML/R0019F05.pli",
+            "src/GML/R0019H60.pli",
+            "src/GML/R001B001.pli",
+            "src/GML/R001I201.pli",
+            "src/GML/R001I501.pli",
+            "src/GML/R001I904.pli",
+            "src/GML/R001IA04.pli",
+            "src/GML/R001N903.pli",
+            "src/GML/R001S003.pli",
+            "src/GML/R001TE01.pli",
+            "src/GML/R001TK43.pli",
+            "src/GML/R001TK60.pli",
+            "src/GML/R001TK61.pli",
+            "src/GML/R001U605.pli",
+            "src/GML/R001UE05.pli",
+            "src/GML/R001UJ03.pli",
+            "src/R0010423.pli",
+            "src/R0010425.pli",
+            "src/R0010427.pli",
+            "src/R0010505.pli",
+            "src/R0010605.pli",
+            "src/R0010803.pli",
+            "src/R0010805.pli",
+            "src/R0011003.pli",
+            "src/R0011203.pli",
+            "src/R0011303.pli",
+            "src/R0011603.pli",
+            "src/R0011801.pli",
+            "src/R0012001.pli",
+            "src/R0012004.pli",
+            "src/R0015602.pli",
+            "src/R0019921.pli",
+            "src/R0019957.pli",
+            "src/R0019A01.pli",
+            "src/R0019D70.pli",
+            "src/R0019F01.pli",
+            "src/R0019H21.pli",
+            "src/R0019H41.pli",
+            "src/R0019H60.pli",
+            "src/R001HL21.pli",
+            "src/R001I201.pli",
+            "src/R001I402.pli",
+            "src/R001I902.pli",
+            "src/R001I903.pli",
+            "src/R001I904.pli",
+            "src/R001N605.pli",
+            "src/R001N805.pli",
+            "src/R001N903.pli",
+            "src/R001NB03.pli",
+            "src/R001TK03.pli",
+            "src/R001TK43.pli",
+            "src/R001TK61.pli",
+            "src/R001TK62.pli",
+            "src/R001UC03.pli",
+            "src/R001UE03.pli",
+            "src/R001UJ03.pli"
+          ]
+        },
+        "refmod": {
+          "mode": "full",
+          "files": []
+        }
+      },
+      "sampled": {
+        "ridfld": {
+          "asked": 303,
+          "key_errors": 0,
+          "files": [
+            "src/GML/R0010301.pli",
+            "src/GML/R0010420.pli",
+            "src/GML/R0010423.pli",
+            "src/GML/R0010425.pli",
+            "src/GML/R0010427.pli",
+            "src/GML/R0010480.pli",
+            "src/GML/R0010503.pli",
+            "src/GML/R0010505.pli",
+            "src/GML/R0010603.pli",
+            "src/GML/R0010703.pli",
+            "src/GML/R0010903.pli",
+            "src/GML/R0011003.pli",
+            "src/GML/R0011103.pli",
+            "src/GML/R0011203.pli",
+            "src/GML/R0011303.pli",
+            "src/GML/R0011403.pli",
+            "src/GML/R0011503.pli",
+            "src/GML/R0011905.pli",
+            "src/GML/R0019F01.pli",
+            "src/GML/R0019F02.pli",
+            "src/GML/R0019F03.pli",
+            "src/GML/R0019F05.pli",
+            "src/GML/R0019H60.pli",
+            "src/GML/R001B001.pli",
+            "src/GML/R001I201.pli",
+            "src/GML/R001I501.pli",
+            "src/GML/R001I904.pli",
+            "src/GML/R001IA04.pli",
+            "src/GML/R001N903.pli",
+            "src/GML/R001S003.pli",
+            "src/GML/R001TE01.pli",
+            "src/GML/R001TK43.pli",
+            "src/GML/R001TK60.pli",
+            "src/GML/R001TK61.pli",
+            "src/GML/R001U605.pli",
+            "src/GML/R001UE05.pli",
+            "src/GML/R001UJ03.pli",
+            "src/R0010423.pli",
+            "src/R0010425.pli",
+            "src/R0010427.pli",
+            "src/R0010505.pli",
+            "src/R0010605.pli",
+            "src/R0010803.pli",
+            "src/R0010805.pli",
+            "src/R0011003.pli",
+            "src/R0011203.pli",
+            "src/R0011303.pli",
+            "src/R0011603.pli",
+            "src/R0011801.pli",
+            "src/R0012001.pli",
+            "src/R0012004.pli",
+            "src/R0015602.pli",
+            "src/R0019921.pli",
+            "src/R0019957.pli",
+            "src/R0019A01.pli",
+            "src/R0019D70.pli",
+            "src/R0019F01.pli",
+            "src/R0019H21.pli",
+            "src/R0019H41.pli",
+            "src/R0019H60.pli",
+            "src/R001HL21.pli",
+            "src/R001I201.pli",
+            "src/R001I402.pli",
+            "src/R001I902.pli",
+            "src/R001I903.pli",
+            "src/R001I904.pli",
+            "src/R001N605.pli",
+            "src/R001N805.pli",
+            "src/R001N903.pli",
+            "src/R001NB03.pli",
+            "src/R001TK03.pli",
+            "src/R001TK43.pli",
+            "src/R001TK61.pli",
+            "src/R001TK62.pli",
+            "src/R001UC03.pli",
+            "src/R001UE03.pli",
+            "src/R001UJ03.pli"
+          ],
+          "upper_bound_95": 0.00984
+        }
+      }
     }
   },
   "cross_verification": [
@@ -162612,6 +162793,179 @@
           "why": "The key's DATA DIVISION reader anchored each entry with `^\\s*` under re.M, so the match began on the blank or comment line(s) before the level number and `line` fell early; the reviewer's line is the level number's own line (checked in the source). Fixed in the key reader (`^[ \\t]*`, #3575): 1,229 record lines corrected across the six keys, nothing else changed. The engine's record_data already had the right line."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "src/GML/R0010423.pli",
+        "src/GML/R0019H60.pli",
+        "src/GML/R001I904.pli",
+        "src/GML/R001TE01.pli",
+        "src/R0019H21.pli",
+        "src/R0019H60.pli",
+        "src/R001HL21.pli",
+        "src/R001I904.pli"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ridfld": {
+          "agree": 112,
+          "asked": 112
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 2,
+      "files": [
+        "src/GML/R0010425.pli",
+        "src/GML/R0010603.pli",
+        "src/GML/R0010703.pli",
+        "src/GML/R0011303.pli",
+        "src/GML/R0019F02.pli",
+        "src/GML/R0019F03.pli",
+        "src/GML/R0019F05.pli",
+        "src/GML/R001B001.pli",
+        "src/GML/R001I501.pli",
+        "src/R0010423.pli",
+        "src/R0010425.pli",
+        "src/R0010805.pli",
+        "src/R0011801.pli",
+        "src/R0019A01.pli",
+        "src/R0019D70.pli",
+        "src/R0019F01.pli",
+        "src/R0019H41.pli"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ridfld": {
+          "agree": 102,
+          "asked": 102
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 3,
+      "files": [
+        "src/GML/R0010301.pli",
+        "src/GML/R0010420.pli",
+        "src/GML/R0010427.pli",
+        "src/GML/R0010480.pli",
+        "src/GML/R0010503.pli",
+        "src/GML/R0010505.pli",
+        "src/GML/R0010903.pli",
+        "src/GML/R0011003.pli",
+        "src/GML/R0011103.pli",
+        "src/GML/R0011203.pli",
+        "src/GML/R0011403.pli",
+        "src/GML/R0011503.pli",
+        "src/GML/R0011905.pli",
+        "src/GML/R0019F01.pli",
+        "src/GML/R001I201.pli",
+        "src/GML/R001IA04.pli",
+        "src/GML/R001N903.pli",
+        "src/GML/R001S003.pli",
+        "src/GML/R001TK43.pli",
+        "src/GML/R001TK60.pli",
+        "src/GML/R001TK61.pli",
+        "src/GML/R001U605.pli",
+        "src/GML/R001UE05.pli",
+        "src/GML/R001UJ03.pli",
+        "src/R0010427.pli",
+        "src/R0010505.pli",
+        "src/R0010605.pli",
+        "src/R0010803.pli",
+        "src/R0011003.pli",
+        "src/R0011303.pli",
+        "src/R0012004.pli",
+        "src/R0019957.pli",
+        "src/R001I201.pli",
+        "src/R001I402.pli",
+        "src/R001I903.pli",
+        "src/R001N605.pli",
+        "src/R001N805.pli",
+        "src/R001TK03.pli",
+        "src/R001TK43.pli",
+        "src/R001TK62.pli",
+        "src/R001UJ03.pli"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ridfld": {
+          "agree": 78,
+          "asked": 78
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 4,
+      "files": [
+        "src/R0011203.pli",
+        "src/R0011603.pli",
+        "src/R0012001.pli",
+        "src/R0015602.pli",
+        "src/R0019921.pli",
+        "src/R001I902.pli",
+        "src/R001N903.pli",
+        "src/R001NB03.pli",
+        "src/R001TK61.pli",
+        "src/R001UC03.pli",
+        "src/R001UE03.pli"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ridfld": {
+          "agree": 11,
+          "asked": 11
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "pli_moves": {
@@ -164562,30 +164916,48 @@
       "units": [
         "L161 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010301.pli": {
       "units": [
         "L230 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010420.pli": {
       "units": [
         "L119 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010422.pli": {
@@ -164596,10 +164968,16 @@
         "L130 READPREV FILE TKNRTAB RIDFLD=KEY_BIT",
         "L132 READPREV FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010423.pli": {
@@ -164610,10 +164988,16 @@
         "L127 READPREV FILE KOMTAB RIDFLD=KEY_BIT",
         "L99 READ FILE KOMTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010424.pli": {
@@ -164624,10 +165008,16 @@
         "L127 READPREV FILE STATTAB RIDFLD=KEY_BIT",
         "L99 READ FILE STATTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010425.pli": {
@@ -164638,10 +165028,16 @@
         "L131 READPREV FILE FEILTAB RIDFLD=W01_NR",
         "L133 READPREV FILE FEILTAB RIDFLD=W01_NR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010427.pli": {
@@ -164650,10 +165046,16 @@
         "L57 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER",
         "L62 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010430.pli": {
@@ -164663,40 +165065,64 @@
         "L2368 WRITE FILE PRINTRX RIDFLD=PRI_RBA",
         "L2439 WRITE FILE PRINTRX RIDFLD=PRI_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010450.pli": {
       "units": [
         "L817 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010480.pli": {
       "units": [
         "L3365 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010503.pli": {
       "units": [
         "L200 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010505.pli": {
@@ -164704,10 +165130,16 @@
         "L139 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L148 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010603.pli": {
@@ -164717,10 +165149,16 @@
         "L529 READ FILE DIAGNOS RIDFLD=W603_KEY",
         "L555 READ FILE DIAGNOS RIDFLD=UPS.SEKUDIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010605.pli": {
@@ -164728,10 +165166,16 @@
         "L153 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L162 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010703.pli": {
@@ -164744,20 +165188,32 @@
         "L259 STARTBR FILE DIAGNOS RIDFLD=W01_TRE_GS",
         "L269 READ FILE DIAGNOS RIDFLD=USS.GS_DIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010803.pli": {
       "units": [
         "L140 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010805.pli": {
@@ -164767,20 +165223,32 @@
         "L85 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L94 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010903.pli": {
       "units": [
         "L128 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0010905.pli": {
@@ -164788,40 +165256,64 @@
         "L81 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L98 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011003.pli": {
       "units": [
         "L258 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011103.pli": {
       "units": [
         "L140 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011203.pli": {
       "units": [
         "L144 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011303.pli": {
@@ -164831,20 +165323,32 @@
         "L580 READ FILE TKNRTAB RIDFLD=KEY_BIT",
         "L98 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011403.pli": {
       "units": [
         "L194 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011503.pli": {
@@ -164852,30 +165356,48 @@
         "L107 READ FILE TKNRTAB RIDFLD=KEY_BIT2",
         "L89 READ FILE TKNRTAB RIDFLD=KEY_BIT1"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011603.pli": {
       "units": [
         "L120 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011703.pli": {
       "units": [
         "L109 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011801.pli": {
@@ -164897,20 +165419,32 @@
         "L375 READ FILE F001E41 RIDFLD=KEY_BIT",
         "L387 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011903.pli": {
       "units": [
         "L223 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0011905.pli": {
@@ -164918,10 +165452,16 @@
         "L131 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L140 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0012004.pli": {
@@ -164932,50 +165472,80 @@
         "L490 READ FILE TKNRTAB RIDFLD=KEY_BIT",
         "L518 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0015602.pli": {
       "units": [
         "L192 WRITE FILE OVERFOR RIDFLD=OVER_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019906.pli": {
       "units": [
         "L74 READ FILE VSKJEDE RIDFLD=KEYBIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019921.pli": {
       "units": [
         "L52 READ FILE FEILTAB RIDFLD=W01_FEIL"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019956.pli": {
       "units": [
         "L52 READ FILE INITTAB RIDFLD=W9956_PIDENT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019957.pli": {
@@ -164983,10 +165553,16 @@
         "L128 READ FILE REGION RIDFLD=KEY_TKNR",
         "L169 WRITE FILE INFOINFO RIDFLD=KEY_FNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019958.pli": {
@@ -164995,10 +165571,16 @@
         "L129 DELETE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
         "L90 READ FILE STRYK RIDFLD=KEY_FNR_\u00c5R"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019D70.pli": {
@@ -165010,10 +165592,16 @@
         "L397 READ FILE INTENDR RIDFLD=KEY_BIT",
         "L550 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019E04.pli": {
@@ -165031,20 +165619,32 @@
         "L889 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
         "L906 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019F01.pli": {
       "units": [
         "L1093 WRITE FILE ALDKONV RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019F02.pli": {
@@ -165057,10 +165657,16 @@
         "L1442 WRITE FILE F0019F05 RIDFLD=RBA_PEKER",
         "L505 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019F03.pli": {
@@ -165071,10 +165677,16 @@
         "L899 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
         "L917 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019F05.pli": {
@@ -165087,10 +165699,16 @@
         "L1451 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
         "L1462 WRITE FILE F0019F05 RIDFLD=RBA_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019H01.pli": {
@@ -165106,10 +165724,16 @@
         "L765 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA",
         "L974 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R0019H60.pli": {
@@ -165128,20 +165752,32 @@
         "L924 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
         "L933 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001A401.pli": {
       "units": [
         "L371 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001B001.pli": {
@@ -165154,10 +165790,16 @@
         "L729 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG2I",
         "L819 READ FILE YRKEKOD RIDFLD=S001B01I.NORDISK_YKODEI"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I201.pli": {
@@ -165165,20 +165807,32 @@
         "L2876 WRITE FILE OLINNTE RIDFLD=KEY_BIT",
         "L2923 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I301.pli": {
       "units": [
         "L1607 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I402.pli": {
@@ -165186,10 +165840,16 @@
         "L542 READ FILE KOMTAB RIDFLD=KEY_BIT",
         "L647 READ FILE STRYK RIDFLD=KEY_BIT_ST"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I501.pli": {
@@ -165202,20 +165862,32 @@
         "L3569 WRITE FILE OLINNTE RIDFLD=KEY_BIT",
         "L3833 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I902.pli": {
       "units": [
         "L113 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I903.pli": {
@@ -165225,10 +165897,16 @@
         "L3782 WRITE FILE INBRUDD RIDFLD=IN_RBA",
         "L3820 WRITE FILE OLBRUDD RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001I904.pli": {
@@ -165258,20 +165936,32 @@
         "L944 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
         "L950 READNEXT FILE INBRUDD RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001IA04.pli": {
       "units": [
         "L50 WRITE FILE OMSORGE RIDFLD=P_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N503.pli": {
@@ -165280,10 +165970,16 @@
         "L217 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L226 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N603.pli": {
@@ -165293,10 +165989,16 @@
         "L523 READ FILE DIAGNOS RIDFLD=W603_KEY",
         "L549 READ FILE DIAGNOS RIDFLD=U2S.SEKUDIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N605.pli": {
@@ -165304,20 +166006,32 @@
         "L113 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L122 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N803.pli": {
       "units": [
         "L141 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N805.pli": {
@@ -165327,20 +166041,32 @@
         "L373 READ FILE STATTAB RIDFLD=KEY_BIT4",
         "L92 READ FILE STATTAB RIDFLD=KEY_BIT1"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N903.pli": {
       "units": [
         "L129 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001N905.pli": {
@@ -165348,30 +166074,48 @@
         "L70 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L87 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NB03.pli": {
       "units": [
         "L131 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NC03.pli": {
       "units": [
         "L125 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001NO10.pli": {
@@ -165395,30 +166139,48 @@
         "L962 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL",
         "L974 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001O301.pli": {
       "units": [
         "L1525 WRITE FILE OLINNTE RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001S003.pli": {
       "units": [
         "L250 WRITE FILE YRKEKODE RIDFLD=Y_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TE01.pli": {
@@ -165437,10 +166199,16 @@
         "L362 STARTBR FILE OSLO67 RIDFLD=RBA_PEKER",
         "L364 READNEXT FILE OSLO67 RIDFLD=RBA_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TE02.pli": {
@@ -165463,10 +166231,16 @@
         "L515 STARTBR FILE OSLO67 RIDFLD=RBA_PEKER",
         "L517 READNEXT FILE OSLO67 RIDFLD=RBA_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK03.pli": {
@@ -165476,10 +166250,16 @@
         "L152 READ FILE BRUKAU RIDFLD=IDENT_BIT",
         "L171 READ FILE BRUKAU RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK07.pli": {
@@ -165492,10 +166272,16 @@
         "L1756 READ FILE KDPOST RIDFLD=POST_KEY",
         "L1771 READ FILE KDPOST RIDFLD=POST_KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK43.pli": {
@@ -165503,30 +166289,48 @@
         "L170 READ FILE KDPOST RIDFLD=POST_KEY",
         "L210 READ FILE KDPOST RIDFLD=POST_KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK60.pli": {
       "units": [
         "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK61.pli": {
       "units": [
         "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK62.pli": {
@@ -165535,10 +166339,16 @@
         "L120 READNEXT FILE HISTOR RIDFLD=IN_RBA",
         "L127 READNEXT FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK81.pli": {
@@ -165547,10 +166357,16 @@
         "L453 READ FILE CMSTK RIDFLD=LES_TKNR",
         "L466 WRITE FILE CMSTK RIDFLD=LES_TKNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK82.pli": {
@@ -165566,10 +166382,16 @@
         "L844 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
         "L872 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001TK83.pli": {
@@ -165585,10 +166407,16 @@
         "L967 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
         "L995 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001U603.pli": {
@@ -165598,10 +166426,16 @@
         "L700 READ FILE DIAGNOS RIDFLD=W603_KEY",
         "L724 READ FILE DIAGNOS RIDFLD=U3S.SEKUDIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001U605.pli": {
@@ -165609,20 +166443,32 @@
         "L126 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L138 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001U803.pli": {
       "units": [
         "L136 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001U805.pli": {
@@ -165633,30 +166479,48 @@
         "L565 READ FILE STATTAB RIDFLD=KEY_BIT3",
         "L574 READ FILE STATTAB RIDFLD=KEY_BIT4"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UC03.pli": {
       "units": [
         "L110 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UE03.pli": {
       "units": [
         "L162 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UE05.pli": {
@@ -165664,20 +166528,32 @@
         "L438 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L450 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UJ03.pli": {
       "units": [
         "L197 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/GML/R001UJ05.pli": {
@@ -165685,10 +166561,16 @@
         "L124 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L133 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010422.pli": {
@@ -165699,10 +166581,16 @@
         "L128 READPREV FILE TKNRTAB RIDFLD=KEY_BIT",
         "L130 READPREV FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010423.pli": {
@@ -165713,10 +166601,16 @@
         "L126 READPREV FILE LIKNING RIDFLD=KEY_BIT",
         "L128 READPREV FILE LIKNING RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010424.pli": {
@@ -165727,10 +166621,16 @@
         "L126 READPREV FILE STATTAB RIDFLD=KEY_BIT",
         "L98 READ FILE STATTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010425.pli": {
@@ -165741,10 +166641,16 @@
         "L130 READPREV FILE FEILTAB RIDFLD=W01_NR",
         "L132 READPREV FILE FEILTAB RIDFLD=W01_NR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010427.pli": {
@@ -165753,10 +166659,16 @@
         "L59 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER",
         "L64 READNEXT FILE OMRLOGG RIDFLD=RBA_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010430.pli": {
@@ -165766,30 +166678,48 @@
         "L2365 WRITE FILE PRINTRX RIDFLD=PRI_RBA",
         "L2436 WRITE FILE PRINTRX RIDFLD=PRI_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010450.pli": {
       "units": [
         "L871 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010503.pli": {
       "units": [
         "L156 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010505.pli": {
@@ -165797,10 +166727,16 @@
         "L125 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L134 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010603.pli": {
@@ -165810,10 +166746,16 @@
         "L490 READ FILE DIAGNOS RIDFLD=W603_KEY",
         "L516 READ FILE DIAGNOS RIDFLD=UPS.SEKUDIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010605.pli": {
@@ -165821,20 +166763,32 @@
         "L174 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L183 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010803.pli": {
       "units": [
         "L134 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0010805.pli": {
@@ -165844,40 +166798,64 @@
         "L452 READ FILE STATTAB RIDFLD=KEY_BIT4",
         "L95 READ FILE STATTAB RIDFLD=KEY_BIT1"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011003.pli": {
       "units": [
         "L284 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011103.pli": {
       "units": [
         "L127 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011203.pli": {
       "units": [
         "L106 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011303.pli": {
@@ -165887,20 +166865,32 @@
         "L383 READ FILE TKNRTAB RIDFLD=KEY_BIT",
         "L600 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011403.pli": {
       "units": [
         "L172 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011503.pli": {
@@ -165908,30 +166898,48 @@
         "L114 READ FILE TKNRTAB RIDFLD=KEY_BIT2",
         "L86 READ FILE TKNRTAB RIDFLD=KEY_BIT1"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011603.pli": {
       "units": [
         "L123 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011703.pli": {
       "units": [
         "L84 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011801.pli": {
@@ -165945,20 +166953,32 @@
         "L253 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
         "L261 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011903.pli": {
       "units": [
         "L200 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0011905.pli": {
@@ -165966,20 +166986,32 @@
         "L126 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L135 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0012001.pli": {
       "units": [
         "L283 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0012004.pli": {
@@ -165988,70 +167020,112 @@
         "L406 WRITE FILE STASTIK RIDFLD=STATISTIKK_DATO_\u00c5MD",
         "L411 READ FILE STASTIK RIDFLD=C_DATO"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0012005.pli": {
       "units": [
         "L42 WRITE FILE BRUKINFO RIDFLD=BRUK_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0012101.pli": {
       "units": [
         "L263 WRITE FILE DSFYKODE RIDFLD=Y_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0015602.pli": {
       "units": [
         "L186 WRITE FILE OVERFOR RIDFLD=OVER_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019906.pli": {
       "units": [
         "L69 READ FILE VSKJEDE RIDFLD=KEYBIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019921.pli": {
       "units": [
         "L51 READ FILE FEILTAB RIDFLD=W01_FEIL"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019956.pli": {
       "units": [
         "L52 READ FILE INITTAB RIDFLD=W9956_PIDENT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019957.pli": {
@@ -166060,10 +167134,16 @@
         "L146 WRITE FILE NORINFO RIDFLD=KEY_FNR",
         "L161 WRITE FILE INFOINFO RIDFLD=KEY_FNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019958.pli": {
@@ -166072,20 +167152,32 @@
         "L127 DELETE FILE STRYK RIDFLD=KEY_FNR_\u00c5R",
         "L88 READ FILE STRYK RIDFLD=KEY_FNR_\u00c5R"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019998.pli": {
       "units": [
         "L37 READ FILE FEILTAB RIDFLD=W01_FEIL"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019A01.pli": {
@@ -166099,20 +167191,32 @@
         "L262 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
         "L270 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019A02.pli": {
       "units": [
         "L120 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019A03.pli": {
@@ -166127,10 +167231,16 @@
         "L90 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA",
         "L98 READ FILE AUSTART RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019D70.pli": {
@@ -166142,10 +167252,16 @@
         "L392 READ FILE INTENDR RIDFLD=KEY_BIT",
         "L550 WRITE FILE OMRFEIL RIDFLD=FEIL_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019E01.pli": {
@@ -166157,10 +167273,16 @@
         "L752 READNEXT FILE FNRTILG RIDFLD=KEY_BIT",
         "L806 READ FILE FNRTILG RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019E04.pli": {
@@ -166178,10 +167300,16 @@
         "L918 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR",
         "L935 READNEXT FILE FNRTILG RIDFLD=KEY_TILNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019F01.pli": {
@@ -166192,10 +167320,16 @@
         "L834 WRITE FILE FNRKSUP RIDFLD=FEIL_RBA2",
         "L878 WRITE FILE FNRTAK RIDFLD=FEIL_RBA2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H01.pli": {
@@ -166213,10 +167347,16 @@
         "L490 READNEXT FILE OMRLOGG RIDFLD=LOGG_RBA",
         "L702 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H21.pli": {
@@ -166232,10 +167372,16 @@
         "L784 WRITE FILE F0019H01 RIDFLD=F001_RBA",
         "L972 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H31.pli": {
@@ -166250,10 +167396,16 @@
         "L723 WRITE FILE F0019H01 RIDFLD=F001_RBA",
         "L926 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H3A.pli": {
@@ -166268,10 +167420,16 @@
         "L716 WRITE FILE F0019H01 RIDFLD=F001_RBA",
         "L885 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H41.pli": {
@@ -166285,10 +167443,16 @@
         "L827 WRITE FILE STATUSFL RIDFLD=STAT_RBA",
         "L884 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R0019H60.pli": {
@@ -166307,10 +167471,16 @@
         "L924 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR",
         "L933 READNEXT FILE FNRSTYR RIDFLD=KEY_FNR_CHAR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001B001.pli": {
@@ -166323,10 +167493,16 @@
         "L720 READ FILE DIAGNOS RIDFLD=S001B01I.DIAG2I",
         "L810 READ FILE YRKEKOD RIDFLD=S001B01I.NORDISK_YKODEI"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001HL21.pli": {
@@ -166342,10 +167518,16 @@
         "L782 WRITE FILE F0019H01 RIDFLD=F001_RBA",
         "L930 WRITE FILE OMRLOGG RIDFLD=LOGG_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I201.pli": {
@@ -166353,20 +167535,32 @@
         "L3011 WRITE FILE OLINNTE RIDFLD=OLI_PEKER",
         "L3052 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I301.pli": {
       "units": [
         "L1658 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I402.pli": {
@@ -166374,10 +167568,16 @@
         "L544 READ FILE LIKNING RIDFLD=KEY_BIT",
         "L669 READ FILE STRYK RIDFLD=KEY_BIT_ST"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I501.pli": {
@@ -166389,20 +167589,32 @@
         "L2580 READ FILE LIKNING RIDFLD=KEY_BIT",
         "L3545 WRITE FILE OLINNTE RIDFLD=OLI_PEKER"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I902.pli": {
       "units": [
         "L111 READ FILE FUNKTAD RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I903.pli": {
@@ -166412,10 +167624,16 @@
         "L3790 WRITE FILE INBRUDD RIDFLD=IN_RBA",
         "L3828 WRITE FILE OLBRUDD RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001I904.pli": {
@@ -166445,20 +167663,32 @@
         "L949 STARTBR FILE INBRUDD RIDFLD=IN_RBA",
         "L955 READNEXT FILE INBRUDD RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001IA04.pli": {
       "units": [
         "L83 WRITE FILE OMSORGE RIDFLD=OMS_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N503.pli": {
@@ -166467,10 +167697,16 @@
         "L193 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L202 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N603.pli": {
@@ -166480,10 +167716,16 @@
         "L502 READ FILE DIAGNOS RIDFLD=W603_KEY",
         "L528 READ FILE DIAGNOS RIDFLD=U2S.SEKUDIAG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N605.pli": {
@@ -166491,20 +167733,32 @@
         "L121 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L130 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N803.pli": {
       "units": [
         "L144 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N805.pli": {
@@ -166514,20 +167768,32 @@
         "L90 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L99 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N903.pli": {
       "units": [
         "L132 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001N905.pli": {
@@ -166535,30 +167801,48 @@
         "L73 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L90 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001NB03.pli": {
       "units": [
         "L117 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001NC03.pli": {
       "units": [
         "L103 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001NO10.pli": {
@@ -166587,20 +167871,32 @@
         "L991 STARTBR FILE NORFREG RIDFLD=KEY_NORFIL",
         "L994 READNEXT FILE NORFREG RIDFLD=KEY_NORFIL"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001S003.pli": {
       "units": [
         "L254 WRITE FILE DSFYKODE RIDFLD=Y_LOGG"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK03.pli": {
@@ -166610,10 +167906,16 @@
         "L152 READ FILE BRUKAU RIDFLD=IDENT_BIT",
         "L171 READ FILE BRUKAU RIDFLD=IDENT_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK07.pli": {
@@ -166626,10 +167928,16 @@
         "L1756 READ FILE KDPOST RIDFLD=POST_KEY",
         "L1771 READ FILE KDPOST RIDFLD=POST_KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK43.pli": {
@@ -166637,30 +167945,48 @@
         "L170 READ FILE KDPOST RIDFLD=POST_KEY",
         "L210 READ FILE KDPOST RIDFLD=POST_KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK60.pli": {
       "units": [
         "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK61.pli": {
       "units": [
         "L169 WRITE FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK62.pli": {
@@ -166669,10 +167995,16 @@
         "L120 READNEXT FILE HISTOR RIDFLD=IN_RBA",
         "L127 READNEXT FILE HISTOR RIDFLD=IN_RBA"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK81.pli": {
@@ -166681,10 +168013,16 @@
         "L453 READ FILE CMSTK RIDFLD=LES_TKNR",
         "L466 WRITE FILE CMSTK RIDFLD=LES_TKNR"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK82.pli": {
@@ -166700,10 +168038,16 @@
         "L844 READ FILE CMSSEKR RIDFLD=LES_NR_M_SEQ",
         "L872 WRITE FILE CMSSEKR RIDFLD=LES_NR_M_SEQ"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001TK83.pli": {
@@ -166719,20 +168063,32 @@
         "L967 READ FILE CMSDIV RIDFLD=LES_NR_M_SEQ",
         "L995 WRITE FILE CMSDIV RIDFLD=LES_NR_M_SEQ"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001U603.pli": {
       "units": [
         "L286 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001U605.pli": {
@@ -166740,20 +168096,32 @@
         "L133 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L145 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001U803.pli": {
       "units": [
         "L133 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001U805.pli": {
@@ -166764,30 +168132,48 @@
         "L401 READ FILE STATTAB RIDFLD=KEY_BIT3",
         "L410 READ FILE STATTAB RIDFLD=KEY_BIT4"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001UC03.pli": {
       "units": [
         "L97 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001UE03.pli": {
       "units": [
         "L152 READ FILE TKNRTAB RIDFLD=KEY_BIT"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001UE05.pli": {
@@ -166795,10 +168181,16 @@
         "L489 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L501 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "src/R001UJ03.pli": {
@@ -166807,10 +168199,16 @@
         "L745 READ FILE STATTAB RIDFLD=KEY_BIT1",
         "L754 READ FILE STATTAB RIDFLD=KEY_BIT2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     }
   },

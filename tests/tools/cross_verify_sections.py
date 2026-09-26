@@ -79,6 +79,13 @@ DECLARE TABLE source, in full:
     jcl_jobs          dsns_validated           each DD's DSN, symbols resolved, and its status
     sql_tables        sql_tables_validated     each column's table, type, length, scale, nullability
 
+`layouts` (#3649 / #3602) asks the three sections the Java forges read, each IN FULL while it holds at most
+LAYOUT_FULL_ROWS units in a corpus, else over a seeded SAMPLE of files signed sample_verified:
+
+    copybook_layouts  layouts_validated        each copybook record's elementary items: offset and bytes
+    cics_ridflds      ridflds_validated        the RIDFLD of every keyed EXEC CICS FILE command
+    refmod_spans      refmods_validated        every reference-modified MOVE / COMPUTE / ... pair
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -812,6 +819,26 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
 # ---- the `lineage` suite (#3477 / #3452) ----------------------------------------
 LINEAGE_TASKS = ("imsdef", "imscheck", "moves", "trunc")
 WINDOW = 12  # lines per data-move window
+
+# The data-move operand and pairing rules, shared by the lineage sample and the #3649
+# refmod census so both ask exactly the same question.
+MOVE_PAIRS = """Operands: data names upper-case with qualifiers as `A OF B` (IN written as OF); subscripts dropped (X(I) is X and
+I is no operand); a reference modification X(1:5) is X with *_refmod true. A literal as written with its quotes
+('ABC', 16, -1), a figurative constant as written (SPACES, ZERO, ALL '9'), `FUNCTION NAME` (arguments dropped),
+`LENGTH OF X` / `ADDRESS OF X`.
+Pairs per verb (TARGETS are always data names -- a literal / figurative / function target is no pair):
+  - MOVE a TO t1 t2 ...: (a, t) for each target.
+  - COMPUTE t1 [ROUNDED] t2 = expr: (x, t) for every DATA NAME x in expr (inside function arguments too; literals,
+    function names and LENGTH OF / ADDRESS OF X are not sources) and every target t.
+  - ADD / SUBTRACT a b TO|FROM c d: (a, c) (a, d) (b, c) (b, d); with GIVING g: every operand before GIVING -> g.
+    MULTIPLY a BY b: (a, b); DIVIDE a INTO|BY b: (a, b); with GIVING / REMAINDER, every operand before GIVING ->
+    each GIVING and REMAINDER item. ADD/SUBTRACT CORRESPONDING: no pairs.
+  - STRING s1 s2 DELIMITED BY d ... INTO t: (s, t) for each sending item s (literals included); the DELIMITED BY
+    operands and POINTER are control, not sources.
+  - UNSTRING s DELIMITED BY ... INTO t1 [DELIMITER IN x] [COUNT IN c] t2 ...: (s, t) for each receiving t; the
+    delimiters, DELIMITER IN / COUNT IN items, POINTER and TALLYING are not pairs.
+  - INITIALIZE t1 t2 [REPLACING ...]: source null for each t.
+  A statement ends at a period, the next statement's verb, an END- word, or ON / NOT / INVALID / AT / SIZE."""
 _IMS_FIELDS = ("name", "parent", "owner", "dbd", "procopt", "type", "access", "bytes", "start", "psb", "program")
 
 
@@ -1050,23 +1077,7 @@ REPLACING, like (TAG)-NAME, is not an operand.
 One entry per source -> target PAIR:
   {{"line" (of the verb), "verb", "corresponding" (true for MOVE CORR/CORRESPONDING), "source", "source_refmod",
     "target", "target_refmod", "truncates"}}
-Operands: data names upper-case with qualifiers as `A OF B` (IN written as OF); subscripts dropped (X(I) is X and
-I is no operand); a reference modification X(1:5) is X with *_refmod true. A literal as written with its quotes
-('ABC', 16, -1), a figurative constant as written (SPACES, ZERO, ALL '9'), `FUNCTION NAME` (arguments dropped),
-`LENGTH OF X` / `ADDRESS OF X`.
-Pairs per verb (TARGETS are always data names -- a literal / figurative / function target is no pair):
-  - MOVE a TO t1 t2 ...: (a, t) for each target.
-  - COMPUTE t1 [ROUNDED] t2 = expr: (x, t) for every DATA NAME x in expr (inside function arguments too; literals,
-    function names and LENGTH OF / ADDRESS OF X are not sources) and every target t.
-  - ADD / SUBTRACT a b TO|FROM c d: (a, c) (a, d) (b, c) (b, d); with GIVING g: every operand before GIVING -> g.
-    MULTIPLY a BY b: (a, b); DIVIDE a INTO|BY b: (a, b); with GIVING / REMAINDER, every operand before GIVING ->
-    each GIVING and REMAINDER item. ADD/SUBTRACT CORRESPONDING: no pairs.
-  - STRING s1 s2 DELIMITED BY d ... INTO t: (s, t) for each sending item s (literals included); the DELIMITED BY
-    operands and POINTER are control, not sources.
-  - UNSTRING s DELIMITED BY ... INTO t1 [DELIMITER IN x] [COUNT IN c] t2 ...: (s, t) for each receiving t; the
-    delimiters, DELIMITER IN / COUNT IN items, POINTER and TALLYING are not pairs.
-  - INITIALIZE t1 t2 [REPLACING ...]: source null for each t.
-  A statement ends at a period, the next statement's verb, an END- word, or ON / NOT / INVALID / AT / SIZE.
+{MOVE_PAIRS}
 "truncates" (MOVE only, else null; null too in a copybook without PROCEDURE DIVISION, and when either operand has
 reference modification or it is MOVE CORR): true when the target is alphanumeric (a PIC with X or A) or a group
 item and the source -- a data item, or a QUOTED literal (its character count) -- is longer than the target, else
@@ -2637,6 +2648,291 @@ def _sign_pli_moves_sample(key: dict[str, Any], truth: dict[str, Any], g: dict[s
             entry["verification"] = dict(entry.get("verification", {}), **stamp)
 
 
+# ---- the `layouts` suite (#3649 / #3602): copybook layouts, RIDFLDs, refmod spans --
+# Three per-file sections the Java forges read (#3617 keys, #3655 COMMAREA unpacks,
+# #3615 DTOs). Each section of each corpus is censused IN FULL while it is small
+# (<= LAYOUT_FULL_ROWS units), else over a seeded SAMPLE of files (LAYOUT_SAMPLE_ROWS
+# units: strata first, then random files, plus unkeyed recall candidates) signed as
+# `sample_verified` once every planned file is signed. The plan is cut once and
+# stored under `sample_census.layouts.plan`. The comparison unit is the key's own:
+#   cblayout  `ROOT/NAME @offset+bytes`                (copybook_layouts / layouts_validated)
+#   ridfld    `L<line> VERB FILE NAME RIDFLD=OPERAND`   (cics_ridflds / ridflds_validated)
+#   refmod    `L<line> VERB SRC[(A:B)] -> TGT[(A:B)]`   (refmod_spans / refmods_validated)
+LAYOUT_SECTIONS = {
+    "cblayout": ("copybook_layouts", "layouts_validated"),
+    "ridfld": ("cics_ridflds", "ridflds_validated"),
+    "refmod": ("refmod_spans", "refmods_validated"),
+}
+LAYOUT_FULL_ROWS = 600
+LAYOUT_SAMPLE_ROWS = 300
+LAYOUT_RECALL = 3  # unkeyed candidates a sampled plan also asks ("none" is checked too)
+_LAYOUT_COPYBOOK_EXTS = (".cpy", ".copy", ".dcl")  # == cobol_answer_key.COPYBOOK_EXTS
+_LAYOUT_COBOL_EXTS = (".cbl", ".cob", ".cobol", ".ccp", *_LAYOUT_COPYBOOK_EXTS)  # == cobol_answer_key.CICS_EXTS
+
+
+def _layout_units(key: dict[str, Any], task: str) -> dict[str, list[str]]:
+    section = LAYOUT_SECTIONS[task][0]
+    return {rel: list(e.get("units", [])) for rel, e in key.get(section, {}).items()}
+
+
+def _layout_candidates(repo: Path, task: str) -> set[str]:
+    """Unkeyed files the task could apply to (recall): a copybook with a PIC and no COPY;
+    a CICS source coding RIDFLD; a COBOL source with a `(...:...)` span."""
+    out = set()
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts:
+            continue
+        rel, low = p.relative_to(repo).as_posix(), p.name.lower()
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        code = "\n".join(ln[6:72] for ln in text.splitlines() if len(ln) > 6 and ln[6] not in "*/")
+        if task == "cblayout" and low.endswith(_LAYOUT_COPYBOOK_EXTS):
+            if re.search(r"\bPIC(?:TURE)?\b", code, re.I) and not re.search(r"^\s*COPY\s", code, re.I | re.M):
+                out.add(rel)
+        elif task == "ridfld" and low.endswith(_LAYOUT_COBOL_EXTS + PLI_EXTS + HLASM_EXTS):
+            if re.search(r"\bRIDFLD\s*\(", text, re.I):
+                out.add(rel)
+        elif task == "refmod" and low.endswith(_LAYOUT_COBOL_EXTS):
+            if re.search(r"\([^()'\"]*[^()'\"\s]\s*:\s*[^()'\"\s][^()'\"]*\)", code):
+                out.add(rel)
+    return out
+
+
+def _layout_strata(task: str, rel: str, units: list[str], repo: Path) -> set[str]:
+    """What a sampled plan should cover at least once."""
+    if task == "ridfld":
+        return {u.split()[1] for u in units}  # each verb
+    text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper() if (repo / rel).is_file() else ""
+    return {s for s, pat in (("occurs", r"\bOCCURS\b"), ("packed", r"COMP(?:UTATIONAL)?-3|PACKED-DECIMAL"),
+                              ("binary", r"\bCOMP(?:UTATIONAL)?(?:-[45])?\b|\bBINARY\b"), ("redefines", r"\bREDEFINES\b"))
+            if re.search(pat, text)}  # fmt: skip
+
+
+def layouts_plan(key: dict[str, Any], repo: Path, seed: int) -> dict[str, dict[str, Any]]:
+    plan: dict[str, dict[str, Any]] = {}
+    for task in LAYOUT_SECTIONS:
+        units = _layout_units(key, task)
+        rows = sum(len(v) for v in units.values())
+        cands = _layout_candidates(repo, task) - set(units)
+        if rows <= LAYOUT_FULL_ROWS:
+            plan[task] = {"mode": "full", "files": sorted(set(units) | cands)}
+            continue
+        rng = random.Random(f"{seed}:{task}")
+        order = sorted(units)
+        rng.shuffle(order)
+        chosen: list[str] = []
+        covered: set[str] = set()
+        for rel in order:  # strata first: each not yet covered
+            new = _layout_strata(task, rel, units[rel], repo) - covered
+            if new:
+                chosen.append(rel)
+                covered |= new
+        for rel in order:
+            if sum(len(units[c]) for c in chosen) >= LAYOUT_SAMPLE_ROWS:
+                break
+            if rel not in chosen:
+                chosen.append(rel)
+        recall = sorted(cands)
+        rng.shuffle(recall)
+        plan[task] = {"mode": "sample", "budget": LAYOUT_SAMPLE_ROWS,
+                      "files": sorted(chosen + recall[:LAYOUT_RECALL])}  # fmt: skip
+    return plan
+
+
+def _layouts_plan_of(key: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return key.get("sample_census", {}).get("layouts", {}).get("plan", {})
+
+
+def corpus_files_layouts(key: dict[str, Any]) -> list[str]:
+    return sorted({f for p in _layouts_plan_of(key).values() for f in p["files"]})
+
+
+def key_facts_layouts(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    plan = _layouts_plan_of(key)
+    out: dict[str, dict[str, list[str]]] = {}
+    for task in LAYOUT_SECTIONS:
+        units, mine = _layout_units(key, task), set(plan.get(task, {}).get("files", []))
+        out[task] = {rel: sorted(units.get(rel, [])) for rel in files if rel in mine}
+    return out
+
+
+def canon_cblayout(r: dict[str, Any]) -> str:
+    return f"{_ws(r.get('root'))}/{_ws(r.get('name'))} @{int(r.get('offset') or 0)}+{int(r.get('bytes') or 0)}"
+
+
+def canon_ridfld(r: dict[str, Any]) -> str:
+    from cobol_answer_key import _ridfld_unit  # noqa: PLC0415
+
+    file = str(r.get("file") or "").strip() or None  # `VALUE 'ACCTDAT '`: CICS pads names to 8, the blank is padding
+    return _ridfld_unit(int(r.get("line") or 0), _ws(r.get("verb")), file, str(r.get("ridfld") or ""))
+
+
+def canon_refmod(r: dict[str, Any]) -> str:
+    from cobol_answer_key import _norm_refmod  # noqa: PLC0415
+
+    def side(name: Any, span: Any) -> str:
+        return f"{_ws(name) or '-'}" + (f"({_norm_refmod(str(span))})" if span else "")
+
+    return (f"L{int(r.get('line') or 0)} {_ws(r.get('verb'))} {side(r.get('source'), r.get('source_refmod'))} -> "
+            f"{side(r.get('target'), r.get('target_refmod'))}")  # fmt: skip
+
+
+_LAYOUT_CANON = {"cblayout": canon_cblayout, "ridfld": canon_ridfld, "refmod": canon_refmod}
+
+
+def reviewer_facts_layouts(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {t: {} for t in LAYOUT_SECTIONS}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        for task, canon in _LAYOUT_CANON.items():
+            rows = (v or {}).get(task)
+            if isinstance(rows, list):
+                out[task][r] = {canon(x) for x in rows if isinstance(x, dict)}
+    return out
+
+
+_NAME_RULE_START = "A name or qualifier is a\n  value only when the source fixes it:"
+_NAME_RULE_END = "otherwise null."
+
+
+def _ridfld_name_rule() -> str:
+    start = RESOURCES_CONTRACT.index(_NAME_RULE_START)  # the resources suite's own wording
+    rule = RESOURCES_CONTRACT[start : RESOURCES_CONTRACT.index(_NAME_RULE_END, start) + len(_NAME_RULE_END)]
+    return rule.replace("A name or qualifier is a\n  value", "The file name is a value").replace(
+        "assembler: its DC\n  constant", "PL/I: the string in the INIT('...') of its CHARACTER DCL in the same file;\n"
+        "  assembler: its DC constant")  # fmt: skip
+
+
+def render_layouts(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    facts = key_facts_layouts(key, files)
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "layouts", "batch": index, "of": of, "files": files, "facts": facts}  # fmt: skip
+    parts = [f"""You are independently verifying facts about real IBM mainframe source code (COBOL, and PL/I or assembler
+that issue CICS commands), as a second reviewer. Read the files yourself. They are all under the repository root
+{repo}; read only inside that directory. Do NOT edit or create any files except your answers file, and do not look
+for any existing answer key or analysis of this code: the point is an independent reading. Line numbers are 1-based
+physical line numbers of the file. Ignore commented-out lines and text inside quoted literals.
+
+{FIXED_FORMAT_RULES}
+There are up to three tasks below, each with its own file list; answer each task for exactly its files (a file with
+nothing to report gets an empty list for that task).
+"""]  # fmt: skip
+    listed = {t: [f for f in files if f in facts[t]] for t in LAYOUT_SECTIONS}
+    if listed["cblayout"]:
+        parts.append(f"""
+TASK cblayout -- COPYBOOK RECORD LAYOUTS. Lay out every record the copybook declares, as the compiler would, and
+list each ELEMENTARY item that has a PICTURE and a name (not FILLER): {{"root", "name", "offset", "bytes"}}.
+  - A record ("root") is an item with no enclosing item in the copybook: normally level 01 or 77. When the
+    outermost items are at another level (a copybook of 05 items), each outermost item is its own record. An
+    elementary record is listed with root = its own name and offset 0. A record that REDEFINES another is skipped.
+  - "offset" is the item's byte offset from the start of its record (0-based); "bytes" its size.
+  - An elementary item's size, from its PICTURE and USAGE (the item's own USAGE, or when it codes none, the nearest
+    enclosing group's): DISPLAY is one byte per character position of X A 9 Z B 0 / , . + - * $ E (`X(12)` is 12
+    positions); S, V and P take none; CR and DB take two; N and G (national / DBCS) two bytes each; SIGN ...
+    SEPARATE adds one. COMP / COMP-4 / COMP-5 / BINARY (and the COMPUTATIONAL spellings): 2 bytes for up to 4 digit
+    positions, 4 up to 9, 8 up to 18. COMP-3 / COMPUTATIONAL-3 / PACKED-DECIMAL: digits / 2 + 1 (integer division).
+    An item with no PICTURE but USAGE POINTER / FUNCTION-POINTER / INDEX / COMP-1 takes 4 bytes, PROCEDURE-POINTER /
+    COMP-2 8 bytes: it counts toward sizes but is not listed. Assume no slack bytes (ignore SYNCHRONIZED).
+  - A group's size is the sum of its subordinate items. OCCURS n (or m TO n): the item takes n times one
+    occurrence; items under an occurring group are listed ONCE, at their offset in the FIRST occurrence.
+  - REDEFINES: an item that redefines another, with everything under it, is NOT laid out -- skip it entirely and do
+    not count it toward any size. Level-66 and level-88 entries are not items.
+  - A copybook that contains a COPY statement is not laid out: answer an empty list. Pseudo-text awaiting COPY
+    REPLACING (`:TAG:-NAME`, `(TAG)-NAME`) is not a data name: such items are laid out only in the program that
+    COPYs the member, so they are not listed here (a copybook made only of them gets an empty list).
+Files:
+{chr(10).join(str(repo / f) for f in listed["cblayout"])}
+""")  # fmt: skip
+    if listed["ridfld"]:
+        pli = any(f.lower().endswith(PLI_EXTS) for f in listed["ridfld"])
+        asm = any(_is_hlasm(f) for f in listed["ridfld"])
+        extra = ""
+        if pli:
+            extra += """PL/I files: `/* ... */` is a comment (it may span lines); a statement -- an EXEC CICS command -- runs to its `;`
+(outside a quoted literal); columns 73-80 may hold a sequence field, never code, even inside a continued command.
+"""
+        if asm:
+            extra += """Assembler files: a `*` in column 1 is a comment; a statement continues onto the next line when its column 72 is
+non-blank (the continuation's text starts near column 16); columns 73-80 are a sequence field.
+"""
+        parts.append(f"""
+TASK ridfld -- RIDFLD. Every EXEC CICS file command -- READ / READNEXT / READPREV / STARTBR / RESETBR / WRITE /
+REWRITE / DELETE / UNLOCK with a FILE(...) or DATASET(...) option (not DELETE CONTAINER) -- that codes RIDFLD(x),
+in the file's own code. One entry each: {{"line" (of `EXEC CICS`), "verb" (the command's first word), "file",
+"ridfld"}}. "file" is the FILE / DATASET value when the source fixes it, else null. {_ridfld_name_rule()}
+"ridfld" is x exactly as written, subscripts and reference modification included (e.g. "WS-KEY(1:8)").
+{extra}Files:
+{chr(10).join(str(repo / f) for f in listed["ridfld"])}
+""")  # fmt: skip
+    if listed["refmod"]:
+        parts.append(f"""
+TASK refmod -- REFERENCE-MODIFIED MOVES. Consider every data-moving statement whose verb (MOVE, COMPUTE, ADD,
+SUBTRACT, MULTIPLY, DIVIDE, STRING, UNSTRING, INITIALIZE) is in procedure code -- after PROCEDURE DIVISION; a
+copybook without that header is procedure code throughout. Skip anything inside EXEC ... END-EXEC, comment lines,
+and debugging lines ('D' in column 7). Pseudo-text awaiting COPY REPLACING, like (TAG)-NAME, is not an operand.
+Pair its operands by these rules:
+{MOVE_PAIRS}
+List ONLY the pairs where the source or the target carries a reference modification X(start:length), one entry
+each: {{"line" (of the verb), "verb", "source", "source_refmod", "target", "target_refmod"}}. "source" / "target"
+follow the operand rules above (the reference modification is NOT part of the name; INITIALIZE's source is null);
+"*_refmod" is NOT true / false here (this overrides the operand rule above): it is the text between that
+reference modification's parentheses exactly as written, e.g. "LENGTH OF WS-A + 1:LENGTH OF WS-B", else null.
+Files:
+{chr(10).join(str(repo / f) for f in listed["refmod"])}
+""")  # fmt: skip
+    parts.append("""
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{"files": {"<path>": {"cblayout": [{"root": "R", "name": "N", "offset": 0, "bytes": 8}],
+                      "ridfld": [{"line": 1, "verb": "READ", "file": "F", "ridfld": "K"}],
+                      "refmod": [{"line": 1, "verb": "MOVE", "source": "A", "source_refmod": "1:4", "target": "B",
+                                  "target_refmod": null}]},
+           ...every file above, with only the tasks it is listed under...}}
+""")
+    return "".join(parts), truth
+
+
+def batches_layouts(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_layouts(key, files)
+    return _pack({f: sum(len(facts[t].get(f, [])) for t in LAYOUT_SECTIONS) for f in files}, max_items)
+
+
+def _sign_layouts(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any], by: str,
+                  at: str) -> None:  # fmt: skip
+    """A full task flags its batch's entries cross_verified; a sampled one records the batch and,
+    once every planned file is signed, flags every entry of its section sample_verified."""
+    lc = key["sample_census"]["layouts"]
+    stamp = {"status": "validated", "tier": "cross_verified", "cross_by": by, "census": {"by": by, "at": at}}
+    for task, (section, flag) in LAYOUT_SECTIONS.items():
+        plan = lc["plan"][task]
+        mine = [f for f in truth["files"] if f in plan["files"]]
+        if not mine:
+            continue
+        if plan["mode"] == "full":
+            for rel in mine:
+                entry = key.get(section, {}).get(rel)
+                if entry is not None:
+                    entry[flag] = True
+                    entry["verification"] = dict(entry.get("verification", {}), **stamp)
+            continue
+        ts = lc.setdefault("sampled", {}).setdefault(task, {"asked": 0, "key_errors": 0, "files": []})
+        ts["asked"] += g["tasks"].get(task, {}).get("asked", 0)
+        ts["key_errors"] += sum(1 for i, r in rulings.items() if r.get("verdict") == "key_fixed"
+                                and i.split(":", 1)[0] == task)  # fmt: skip
+        ts["files"] = sorted(set(ts["files"]) | set(mine))
+        if set(plan["files"]) <= set(ts["files"]):
+            ts["upper_bound_95"] = round(upper_bound_95(ts["key_errors"], ts["asked"]), 5)
+            sampled = {
+                "status": "validated",
+                "tier": "sample_verified",
+                "census": {"by": by, "at": at, "sampled": True},
+            }
+            for entry in key.get(section, {}).values():
+                entry[flag] = True
+                entry["verification"] = dict(entry.get("verification", {}), **sampled)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -2685,6 +2981,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "db2cols"
         else reviewer_facts_plimoves(answers, repo)
         if suite == "plimoves"
+        else reviewer_facts_layouts(answers, repo)
+        if suite == "layouts"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -2754,7 +3052,7 @@ def sign(
         else {("sql_tables", "sql_tables_validated")}
         if truth.get("suite") == "db2cols"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns")
+        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns", "layouts")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -2800,6 +3098,8 @@ def sign(
         _sign_dsns_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plimoves":
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "layouts":
+        _sign_layouts(key, truth, g, rulings, by, at)
     return key
 
 
@@ -2830,6 +3130,8 @@ def _sign_sample(
 
 def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> dict[str, Any]:
     recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
+    if suite == "layouts" and not _layouts_plan_of(key):
+        return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite layouts)"]}
     if suite == "plimoves":  # every planned window signed
         plan = key.get("sample_census", {}).get("pli_moves", {})
         done_w = {w for b in plan.get("batches", []) for w in b["windows"]}
@@ -2883,6 +3185,7 @@ def main() -> int:
             "bms",
             "dsns",
             "db2cols",
+            "layouts",
         ),
         default="channels",
     )
@@ -2911,6 +3214,7 @@ def main() -> int:
             "bms",
             "dsns",
             "db2cols",
+            "layouts",
         ),
         default="channels",
     )
@@ -2955,6 +3259,8 @@ def main() -> int:
         if suite == "dsns"
         else corpus_files_db2cols(key)
         if suite == "db2cols"
+        else corpus_files_layouts(key)
+        if suite == "layouts"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -3011,6 +3317,13 @@ def main() -> int:
                 bc["plan"] = {"seed": args.seed, "budget": BMS_SAMPLE_FACTS, "files": bms_plan(key, args.seed)}
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             files = corpus_files_bms(key)
+        if suite == "layouts":
+            lc = key.setdefault("sample_census", {}).setdefault("layouts", {})
+            if not lc.get("sampled") and not any(r.get("suite") == "layouts" for r in key.get("section_census", [])):
+                lc["plan"] = layouts_plan(key, repo, args.seed)
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            signed = {f for r in key.get("section_census", []) if r.get("suite") == "layouts" for f in r["files"]}
+            files = [f for f in corpus_files_layouts(key) if f not in signed]
         if suite == "records":
             rc = key.setdefault("sample_census", {}).setdefault("records", {})
             if not rc.get("batches"):
@@ -3062,6 +3375,7 @@ def main() -> int:
             "bms": batches_bms,
             "dsns": batches_dsns,
             "db2cols": batches_db2cols,
+            "layouts": batches_layouts,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -3083,6 +3397,7 @@ def main() -> int:
                 "bms": render_bms,
                 "dsns": render_dsns,
                 "db2cols": render_db2cols,
+                "layouts": render_layouts,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -3145,6 +3460,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_db2cols(key, truth["files"]))
     elif truth.get("suite") == "plimoves":
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
+    elif truth.get("suite") == "layouts":
+        current = dict(truth, facts=key_facts_layouts(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

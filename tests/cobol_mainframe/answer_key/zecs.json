@@ -19920,6 +19920,35 @@
       "asked": 7,
       "key_errors": 0,
       "upper_bound_95": 0.34816
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "full",
+          "files": [
+            "Source/ZECSZFC.cpy",
+            "Source/ZECSZKC.cpy"
+          ]
+        },
+        "ridfld": {
+          "mode": "full",
+          "files": [
+            "Source/ZECS000.cbl",
+            "Source/ZECS001.cbl",
+            "Source/ZECS003.cbl"
+          ]
+        },
+        "refmod": {
+          "mode": "full",
+          "files": [
+            "Source/ECS001.cbl",
+            "Source/ZECS000.cbl",
+            "Source/ZECS001.cbl",
+            "Source/ZECS003.cbl",
+            "Source/ZECSPLT.cbl"
+          ]
+        }
+      }
     }
   },
   "cross_verification": [
@@ -20795,6 +20824,42 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "Source/ECS001.cbl",
+        "Source/ZECS000.cbl",
+        "Source/ZECS001.cbl",
+        "Source/ZECS003.cbl",
+        "Source/ZECSPLT.cbl",
+        "Source/ZECSZFC.cpy",
+        "Source/ZECSZKC.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 17,
+          "asked": 17
+        },
+        "ridfld": {
+          "agree": 22,
+          "asked": 22
+        },
+        "refmod": {
+          "agree": 41,
+          "asked": 42
+        }
+      },
+      "rulings": {
+        "refmod:Source/ZECSPLT.cbl::L121 MOVE URI-PREFIX(3:2) -> TD-SUFFIX": {
+          "verdict": "key_correct",
+          "why": "ZECSPLT line 121: `MOVE URI-PREFIX(3:2) TO ZX-SUFFIX` with `TD-SUFFIX.` on line 122 -- two targets of one MOVE, both pairs carry the source refmod. The reviewer listed the first target only."
+        }
+      }
     }
   ],
   "copybook_layouts": {
@@ -20814,10 +20879,16 @@
         "ZF-RECORD/ZF-ZEROES @12+4",
         "ZF-RECORD/ZF-ZK-KEY @45+255"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECSZKC.cpy": {
@@ -20827,10 +20898,16 @@
         "ZK-RECORD/ZK-ZF-IDN @256+6",
         "ZK-RECORD/ZK-ZF-NC @262+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -20844,10 +20921,16 @@
         "L525 DELETE FILE ? RIDFLD=ZF-ZK-KEY",
         "L546 DELETE FILE ? RIDFLD=ZF-KEY-16"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECS001.cbl": {
@@ -20866,10 +20949,16 @@
         "L1712 READ FILE ? RIDFLD=ZF-KEY-16",
         "L927 READ FILE ? RIDFLD=ZK-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECS003.cbl": {
@@ -20878,10 +20967,16 @@
         "L272 DELETE FILE ? RIDFLD=ZF-KEY-16",
         "L279 DELETE FILE ? RIDFLD=ZF-ZK-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -20892,10 +20987,16 @@
         "L332 MOVE ECS-KEY -> PATH-NAME(PATH-NAME-LEN+1:)",
         "L390 UNSTRING ECS-DATA(I:) -> TERM-LINES"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECS000.cbl": {
@@ -20903,10 +21004,16 @@
         "L649 MOVE 'D' -> URI-MAP(5:1)",
         "L670 MOVE DEPLICATE -> WEB-PATH(1:10)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECS001.cbl": {
@@ -20942,10 +21049,16 @@
         "L794 MOVE HTTP-HEADER-VALUE(7:24) -> CA-ENCODE",
         "L944 MOVE EIBDS(1:8) -> HTTP-KEY-ERROR(1:8)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECS003.cbl": {
@@ -20956,10 +21069,16 @@
         "L376 MOVE 'R' -> URI-MAP(5:1)",
         "L398 MOVE REPLICATE -> WEB-PATH(1:10)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "Source/ZECSPLT.cbl": {
@@ -20967,10 +21086,16 @@
         "L121 MOVE URI-PREFIX(3:2) -> TD-SUFFIX",
         "L121 MOVE URI-PREFIX(3:2) -> ZX-SUFFIX"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   }

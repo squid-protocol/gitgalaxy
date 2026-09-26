@@ -43483,6 +43483,70 @@
       "asked": 30,
       "key_errors": 0,
       "upper_bound_95": 0.09503
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "full",
+          "files": [
+            "base/src/lgcmarea.cpy",
+            "base/src/lgpolicy.cpy",
+            "base/src/polloo2.cpy",
+            "base/src/pollook.cpy",
+            "base/src/soaic01.cpy",
+            "base/src/soaipb1.cpy",
+            "base/src/soaipe1.cpy",
+            "base/src/soaiph1.cpy",
+            "base/src/soaipm1.cpy",
+            "base/src/soavcii.cpy",
+            "base/src/soavcio.cpy",
+            "base/src/soavpii.cpy",
+            "base/src/soavpio.cpy"
+          ]
+        },
+        "ridfld": {
+          "mode": "full",
+          "files": [
+            "base/src/lgacvs01.cbl",
+            "base/src/lgapvs01.cbl",
+            "base/src/lgdpvs01.cbl",
+            "base/src/lgicvs01.cbl",
+            "base/src/lgipvs01.cbl",
+            "base/src/lgucvs01.cbl",
+            "base/src/lgupvs01.cbl"
+          ]
+        },
+        "refmod": {
+          "mode": "full",
+          "files": [
+            "base/src/lgacdb01.cbl",
+            "base/src/lgacdb02.cbl",
+            "base/src/lgacus01.cbl",
+            "base/src/lgacvs01.cbl",
+            "base/src/lgapdb01.cbl",
+            "base/src/lgapol01.cbl",
+            "base/src/lgapvs01.cbl",
+            "base/src/lgdpdb01.cbl",
+            "base/src/lgdpol01.cbl",
+            "base/src/lgdpvs01.cbl",
+            "base/src/lgicdb01.cbl",
+            "base/src/lgicus01.cbl",
+            "base/src/lgicvs01.cbl",
+            "base/src/lgipdb01.cbl",
+            "base/src/lgipol01.cbl",
+            "base/src/lgipvs01.cbl",
+            "base/src/lgsetup.cbl",
+            "base/src/lgstsq.cbl",
+            "base/src/lgtestc1.cbl",
+            "base/src/lgucdb01.cbl",
+            "base/src/lgucus01.cbl",
+            "base/src/lgucvs01.cbl",
+            "base/src/lgupdb01.cbl",
+            "base/src/lgupol01.cbl",
+            "base/src/lgupvs01.cbl"
+          ]
+        }
+      }
     }
   },
   "cross_verification": [
@@ -44530,6 +44594,121 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "base/src/lgipdb01.cbl",
+        "base/src/lgpolicy.cpy",
+        "base/src/lgtestc1.cbl",
+        "base/src/soaipb1.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 101,
+          "asked": 101
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 15,
+          "asked": 15
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 2,
+      "files": [
+        "base/src/lgacdb01.cbl",
+        "base/src/lgacvs01.cbl",
+        "base/src/lgapdb01.cbl",
+        "base/src/lgapvs01.cbl",
+        "base/src/lgcmarea.cpy",
+        "base/src/lgdpvs01.cbl",
+        "base/src/lgipvs01.cbl",
+        "base/src/lgucvs01.cbl",
+        "base/src/lgupvs01.cbl",
+        "base/src/polloo2.cpy",
+        "base/src/soaic01.cpy",
+        "base/src/soaipe1.cpy",
+        "base/src/soaiph1.cpy",
+        "base/src/soaipm1.cpy",
+        "base/src/soavpio.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 79,
+          "asked": 80
+        },
+        "ridfld": {
+          "agree": 6,
+          "asked": 6
+        },
+        "refmod": {
+          "agree": 20,
+          "asked": 20
+        }
+      },
+      "rulings": {
+        "cblayout:base/src/soaipm1.cpy::CA-POLICY-NUM/CA-POLICY-NUM @0+10": {
+          "verdict": "key_correct",
+          "why": "soaipm1.cpy puts `05 CA-POLICY-NUM PIC 9(10)` under the ELEMENTARY `03 CA-CUSTOMER-NUM PIC 9(10)`. A higher level number makes it subordinate to that item, not an outermost record; COBOL gives an item with a PICTURE no subordinate storage (the key's established contract, tested in test_copybook_record_units_follow_the_engine_layout_contract). The reviewer's reading as a separate record at offset 0 does not follow the levels."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 3,
+      "files": [
+        "base/src/lgacdb02.cbl",
+        "base/src/lgacus01.cbl",
+        "base/src/lgapol01.cbl",
+        "base/src/lgdpdb01.cbl",
+        "base/src/lgdpol01.cbl",
+        "base/src/lgicdb01.cbl",
+        "base/src/lgicus01.cbl",
+        "base/src/lgicvs01.cbl",
+        "base/src/lgipol01.cbl",
+        "base/src/lgsetup.cbl",
+        "base/src/lgstsq.cbl",
+        "base/src/lgucdb01.cbl",
+        "base/src/lgucus01.cbl",
+        "base/src/lgupdb01.cbl",
+        "base/src/lgupol01.cbl",
+        "base/src/pollook.cpy",
+        "base/src/soavcii.cpy",
+        "base/src/soavcio.cpy",
+        "base/src/soavpii.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 8,
+          "asked": 8
+        },
+        "ridfld": {
+          "agree": 1,
+          "asked": 1
+        },
+        "refmod": {
+          "agree": 26,
+          "asked": 26
+        }
+      },
+      "rulings": {}
     }
   ],
   "web_services": {
@@ -44681,10 +44860,16 @@
         "CA-REQUEST-SPECIFIC/CA-REQUEST-SPECIFIC @0+32482",
         "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgpolicy.cpy": {
@@ -44765,10 +44950,16 @@
         "WS-POLICY-LENGTHS/WS-POLICY-LEN @2+2",
         "WS-POLICY-LENGTHS/WS-SUMRY-ENDOW-LEN @24+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/polloo2.cpy": {
@@ -44777,10 +44968,16 @@
         "REQUEST/CA-POLICY-NUMBER @0+10",
         "REQUEST/CA-POLICY-TYPE @10+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/pollook.cpy": {
@@ -44789,10 +44986,16 @@
         "REQUEST/CA-REQUEST-ID @0+6",
         "REQUEST/CA-REQUEST-SPECIFIC @16+32482"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soaic01.cpy": {
@@ -44812,10 +45015,16 @@
         "CA/CA-REQUEST-ID @0+6",
         "CA/CA-RETURN-CODE @6+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soaipb1.cpy": {
@@ -44847,10 +45056,16 @@
         "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
         "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soaipe1.cpy": {
@@ -44874,10 +45089,16 @@
         "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
         "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soaiph1.cpy": {
@@ -44900,10 +45121,16 @@
         "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
         "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soaipm1.cpy": {
@@ -44928,20 +45155,32 @@
         "CA-REQUEST-ID/CA-REQUEST-ID @0+6",
         "CA-RETURN-CODE/CA-RETURN-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soavcii.cpy": {
       "units": [
         "COMMA-DATA/CUSTOMER-NUMBER @0+10"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soavcio.cpy": {
@@ -44949,10 +45188,16 @@
         "COMMA-DATA/COMMA-DATA-HIGH @14+10",
         "COMMA-DATA/COMMA-DATA-TEXT @0+14"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soavpii.cpy": {
@@ -44960,10 +45205,16 @@
         "COMMA-DATA/CUST-NUM @1+10",
         "COMMA-DATA/TYPE @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/soavpio.cpy": {
@@ -44973,10 +45224,16 @@
         "COMMA-DATA/POL-NUM @22+10",
         "COMMA-DATA/TYPE @11+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -44985,70 +45242,112 @@
       "units": [
         "L68 WRITE FILE KSDSCUST RIDFLD=CA-CUSTOMER-NUM"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgapvs01.cbl": {
       "units": [
         "L135 WRITE FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgdpvs01.cbl": {
       "units": [
         "L81 DELETE FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgicvs01.cbl": {
       "units": [
         "L199 READ FILE KSDSCUST RIDFLD=WRITE-MSG-HIGH"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgipvs01.cbl": {
       "units": [
         "L111 READ FILE KSDSPOLY RIDFLD=PART-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgucvs01.cbl": {
       "units": [
         "L69 READ FILE KSDSCUST RIDFLD=CA-CUSTOMER-NUM"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgupvs01.cbl": {
       "units": [
         "L139 READ FILE KSDSPOLY RIDFLD=WF-POLICY-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -45058,10 +45357,16 @@
         "L315 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L321 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgacdb02.cbl": {
@@ -45069,10 +45374,16 @@
         "L212 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L218 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgacus01.cbl": {
@@ -45080,10 +45391,16 @@
         "L166 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L172 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgacvs01.cbl": {
@@ -45091,10 +45408,16 @@
         "L108 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L114 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgapdb01.cbl": {
@@ -45103,10 +45426,16 @@
         "L582 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L588 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgapol01.cbl": {
@@ -45114,10 +45443,16 @@
         "L156 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L162 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgapvs01.cbl": {
@@ -45126,10 +45461,16 @@
         "L181 MOVE DFHCOMMAREA(1:90) -> CA-DATA",
         "L99 MOVE CA-REQUEST-ID(4:1) -> WF-REQUEST-ID"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgdpdb01.cbl": {
@@ -45137,10 +45478,16 @@
         "L232 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L238 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgdpol01.cbl": {
@@ -45148,10 +45495,16 @@
         "L173 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L179 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgdpvs01.cbl": {
@@ -45160,10 +45513,16 @@
         "L125 MOVE DFHCOMMAREA(1:90) -> CA-DATA",
         "L77 MOVE CA-REQUEST-ID(4:1) -> WF-REQUEST-ID"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgicdb01.cbl": {
@@ -45171,10 +45530,16 @@
         "L232 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L238 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgicus01.cbl": {
@@ -45182,10 +45547,16 @@
         "L153 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L159 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgipdb01.cbl": {
@@ -45206,10 +45577,16 @@
         "L904 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)",
         "L986 MOVE DB2-COMMERCIAL -> CA-COMMERCIAL(1:WS-COMM-LEN)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgipol01.cbl": {
@@ -45217,10 +45594,16 @@
         "L126 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L132 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgipvs01.cbl": {
@@ -45228,30 +45611,48 @@
         "L108 MOVE WS-COMMAREA(1:1) -> PART-KEY-TYPE",
         "L109 MOVE WS-COMMAREA(2:WS-RECV-LEN) -> PART-KEY-NUM"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgsetup.cbl": {
       "units": [
         "L134 MOVE WS-RECV-DATA(1:WS-RECV-LEN) -> LASTCUSTNUM"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgstsq.cbl": {
       "units": [
         "L84 MOVE WRITE-MSG-MSG(3:4) -> STSQ-EXT"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgucdb01.cbl": {
@@ -45259,10 +45660,16 @@
         "L209 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L215 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgucus01.cbl": {
@@ -45270,10 +45677,16 @@
         "L159 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L165 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgucvs01.cbl": {
@@ -45281,10 +45694,16 @@
         "L123 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L129 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgupdb01.cbl": {
@@ -45292,10 +45711,16 @@
         "L522 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L528 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgupol01.cbl": {
@@ -45303,10 +45728,16 @@
         "L188 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L194 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "base/src/lgupvs01.cbl": {
@@ -45315,10 +45746,16 @@
         "L193 MOVE DFHCOMMAREA(1:EIBCALEN) -> CA-DATA",
         "L199 MOVE DFHCOMMAREA(1:90) -> CA-DATA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   }

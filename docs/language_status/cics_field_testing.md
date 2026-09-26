@@ -22,7 +22,7 @@ counted in it (their fact counts are not recorded here).
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | units of work and handlers | 6 | 0 | 3 | 2,492 | 0 | 0 | 3 | 2,111 | 0.1% | field-tested | - |
 | record fields | 6 | 0 | 3 | 5,475 | 0 | 1 | 3 | 1,622 | 0.2% | field-tested | - |
-| data moves | 6 | 0 | 3 | 12,583 | 1 | 0 | 2 | 517 | 0.6% | field-tested | - |
+| data moves | 6 | 0 | 3 | 12,583 | 2 | 0 | 2 | 517 | 0.6% | field-tested | - |
 | BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
 | JCL job flow | 5 | 0 | 2 | 1,620 | 1 | 0 | 1 | 261 | 1.1% | open | 1 more clean fresh round(s), 39 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
@@ -49,8 +49,11 @@ counted in it (their fact counts are not recorded here).
 | dynamic CALLs | 2 | 0 | 1 | 4 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | call targets | 6 | 0 | 3 | 142 | 1 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | units | 6 | 0 | 3 | 2,032 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I data moves | 2 | 0 | 0 | 1,657 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -60,23 +63,20 @@ counted in it (their fact counts are not recorded here).
 | job submissions | 1 | 0 | 0 | 3 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | symbolic maps | 1 | 0 | 0 | 5,307 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | web services | 1 | 0 | 0 | 18 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| CICS RIDFLD | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I record fields | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | TD trigger starts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 | cics/sql | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
-| copybook layouts | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
-| refmod spans | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | - | untested | 2 more clean fresh round(s), 300 more clean fresh facts |
 
 ## By round
 
 | round | estate | kind | facts reviewers checked | key errors | engine | forge | brief gaps |
 |---|---|---|---|---|---|---|---|
-| 1 | zopeneditor-sample | public | 859 | 3 | 1 | 1 | 0 |
-| 2 | cics-banking-sample-application-cbsa | public | 3,142 | 37 | 0 | 1 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | public | 4,214 | 14 | 6 | 4 | 1 |
-| 4 | cics-genapp | public | 2,025 | 10 | 2 | 1 | 0 |
-| 5 | zecs | public | 1,182 | 43 | 0 | 0 | 2 |
-| 6 | dsf | public | 1,406 | 4 | 5 | 1 | 0 |
+| 1 | zopeneditor-sample | public | 940 | 3 | 1 | 1 | 1 |
+| 2 | cics-banking-sample-application-cbsa | public | 3,643 | 43 | 1 | 1 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | public | 4,867 | 26 | 7 | 4 | 1 |
+| 4 | cics-genapp | public | 2,282 | 10 | 2 | 1 | 0 |
+| 5 | zecs | public | 1,263 | 43 | 0 | 0 | 2 |
+| 6 | dsf | public | 1,709 | 4 | 5 | 1 | 0 |
 
 ## Defect log
 
@@ -107,6 +107,9 @@ counted in it (their fact counts are not recorded here).
 | B001 | 5 | brief | attribute | CICS resources | #3512 / #3561 | The brief said record_clause is 'the first of INTO / FROM / SET' (meant: that precedence); WEB CONVERSE codes both. |
 | B002 | 5 | brief | fact | CSD resources | #3575 / #3584 | The brief's name rule said 'A-Z'; CSD names are case-insensitive (`ZC@id@`). |
 | B003 | 3 | brief | fact | JCL resolved DSNs | #3575 / #3601 | The brief did not say override DDs (//PROCSTEP.DD) are out of scope, as key and engine define them. |
+| D023 | 3 | engine | fact | refmod spans, data moves | #3649 | A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it). |
+| D024 | 2 | engine | fact | copybook layouts | #3694 | `PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it). |
+| B004 | 1 | brief | fact | copybook layouts | #3649 | The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

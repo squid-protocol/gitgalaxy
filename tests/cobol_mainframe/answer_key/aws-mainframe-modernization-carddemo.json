@@ -95187,6 +95187,247 @@
           "why": "`//PRC001.FILEIN DD` / `//PRC001.FILEOUT DD` are OVERRIDE DDs (procstep-qualified names) of the PROC called at STEP05R. The key and the engine both scope override DDs out (jcl_dataset_bindings: 'override DDs (//STEP.DD) ... are out of scope -- the same contract the engine states'); the brief did not say so, and the reviewer listed them. Key correct under its contract; the brief now states the exclusion. Noted as a real scope limit: an override DD carries the effective dataset of the PROC step, and neither side records it."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "app/cpy-bms/COCRDLI.CPY"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 135,
+          "asked": 135
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+        "app/cbl/COACTUPC.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 81,
+          "asked": 81
+        },
+        "ridfld": {
+          "agree": 5,
+          "asked": 5
+        },
+        "refmod": {
+          "agree": 31,
+          "asked": 31
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 3,
+      "files": [
+        "app/cbl/COADM01C.cbl",
+        "app/cpy-bms/COCRDUP.CPY",
+        "app/cpy-bms/COTRN01.CPY"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 114,
+          "asked": 114
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 4,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/cpy-bms/COCRDSL.CPY",
+        "app/cpy/CVTRA07Y.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 62,
+          "asked": 62
+        },
+        "ridfld": {
+          "agree": 6,
+          "asked": 6
+        },
+        "refmod": {
+          "agree": 47,
+          "asked": 47
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 5,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COBIL00C.cbl",
+        "app/cbl/COCRDLIC.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COCRDUPC.cbl",
+        "app/cbl/COMEN01C.cbl",
+        "app/cbl/COTRN00C.cbl",
+        "app/cbl/COTRN02C.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 21,
+          "asked": 21
+        },
+        "ridfld": {
+          "agree": 26,
+          "asked": 26
+        },
+        "refmod": {
+          "agree": 60,
+          "asked": 60
+        }
+      },
+      "rulings": {
+        "refmod:app/cbl/CBIMPORT.cbl::L178 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(1:4)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L178 MOVE FUNCTION CURRENT-DATE(1:4) -> WS-IMPORT-DATE(1:4)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L180 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(6:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L180 MOVE FUNCTION CURRENT-DATE(5:2) -> WS-IMPORT-DATE(6:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L182 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(9:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L182 MOVE FUNCTION CURRENT-DATE(7:2) -> WS-IMPORT-DATE(9:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L184 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(1:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L184 MOVE FUNCTION CURRENT-DATE(9:2) -> WS-IMPORT-TIME(1:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L186 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(4:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L186 MOVE FUNCTION CURRENT-DATE(11:2) -> WS-IMPORT-TIME(4:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L188 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(7:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        },
+        "refmod:app/cbl/CBIMPORT.cbl::L188 MOVE FUNCTION CURRENT-DATE(13:2) -> WS-IMPORT-TIME(7:2)": {
+          "verdict": "key_fixed",
+          "why": "CBIMPORT lines 178-188 read `MOVE FUNCTION CURRENT-DATE(a:b) TO ...`. CURRENT-DATE takes no arguments, so (a:b) reference-modifies the function result, as the reviewer said. The key reader took the group as an argument list and dropped it. Fixed in the reader (_top_refmod: a top-level colon only), with a test; the engine had the same defect (field_testing D023), fixed in data_moves.py."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 6,
+      "files": [
+        "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/CBSTM03B.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COSGN00C.cbl",
+        "app/cbl/COTRN01C.cbl",
+        "app/cbl/COUSR00C.cbl",
+        "app/cbl/COUSR01C.cbl",
+        "app/cbl/COUSR02C.cbl",
+        "app/cbl/COUSR03C.cbl",
+        "app/cpy/COMEN02Y.cpy",
+        "app/cpy/CSUSR01Y.cpy",
+        "app/cpy/CVACT03Y.cpy",
+        "app/cpy/CVEXPORT.cpy",
+        "app/cpy/CVTRA02Y.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 20,
+          "asked": 20
+        },
+        "ridfld": {
+          "agree": 9,
+          "asked": 9
+        },
+        "refmod": {
+          "agree": 33,
+          "asked": 33
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -107257,16 +107498,16 @@
     },
     "app/cbl/CBIMPORT.cbl": {
       "moves": [
-        "L178 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(:)",
+        "L178 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-DATE(:)",
         "L179 MOVE '-' -> WS-IMPORT-DATE(:)",
-        "L180 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(:)",
+        "L180 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-DATE(:)",
         "L181 MOVE '-' -> WS-IMPORT-DATE(:)",
-        "L182 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(:)",
-        "L184 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(:)",
+        "L182 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-DATE(:)",
+        "L184 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-TIME(:)",
         "L185 MOVE ':' -> WS-IMPORT-TIME(:)",
-        "L186 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(:)",
+        "L186 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-TIME(:)",
         "L187 MOVE ':' -> WS-IMPORT-TIME(:)",
-        "L188 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(:)",
+        "L188 MOVE FUNCTION CURRENT-DATE(:) -> WS-IMPORT-TIME(:)",
         "L253 ADD 1 -> WS-TOTAL-RECORDS-READ",
         "L290 INITIALIZE - -> CUSTOMER-RECORD",
         "L293 MOVE EXP-CUST-ID -> CUST-ID",
@@ -107341,7 +107582,9 @@
       "data_moves_validated": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "census #3649 (refmod spans) key_fixed: the six FUNCTION CURRENT-DATE(a:b) sources are reference-modified (:)"
+        ],
         "tier": "sample_verified",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (lineage sample census)",
@@ -111885,6 +112128,112 @@
       "asked": 125,
       "key_errors": 0,
       "upper_bound_95": 0.02368
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "sample",
+          "budget": 300,
+          "files": [
+            "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+            "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+            "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy",
+            "app/cpy-bms/COCRDLI.CPY",
+            "app/cpy-bms/COCRDSL.CPY",
+            "app/cpy-bms/COCRDUP.CPY",
+            "app/cpy-bms/COTRN01.CPY",
+            "app/cpy/COMEN02Y.cpy",
+            "app/cpy/CSUSR01Y.cpy",
+            "app/cpy/CVACT03Y.cpy",
+            "app/cpy/CVEXPORT.cpy",
+            "app/cpy/CVTRA02Y.cpy",
+            "app/cpy/CVTRA07Y.cpy"
+          ]
+        },
+        "ridfld": {
+          "mode": "full",
+          "files": [
+            "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+            "app/app-vsam-mq/cbl/COACCT01.cbl",
+            "app/cbl/COACTUPC.cbl",
+            "app/cbl/COACTVWC.cbl",
+            "app/cbl/COBIL00C.cbl",
+            "app/cbl/COCRDLIC.cbl",
+            "app/cbl/COCRDSLC.cbl",
+            "app/cbl/COCRDUPC.cbl",
+            "app/cbl/COSGN00C.cbl",
+            "app/cbl/COTRN00C.cbl",
+            "app/cbl/COTRN01C.cbl",
+            "app/cbl/COTRN02C.cbl",
+            "app/cbl/COUSR00C.cbl",
+            "app/cbl/COUSR01C.cbl",
+            "app/cbl/COUSR02C.cbl",
+            "app/cbl/COUSR03C.cbl"
+          ]
+        },
+        "refmod": {
+          "mode": "full",
+          "files": [
+            "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+            "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+            "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+            "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+            "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+            "app/cbl/CBACT01C.cbl",
+            "app/cbl/CBACT02C.cbl",
+            "app/cbl/CBACT03C.cbl",
+            "app/cbl/CBACT04C.cbl",
+            "app/cbl/CBCUS01C.cbl",
+            "app/cbl/CBIMPORT.cbl",
+            "app/cbl/CBSTM03B.CBL",
+            "app/cbl/CBTRN01C.cbl",
+            "app/cbl/CBTRN02C.cbl",
+            "app/cbl/CBTRN03C.cbl",
+            "app/cbl/COACTUPC.cbl",
+            "app/cbl/COACTVWC.cbl",
+            "app/cbl/COADM01C.cbl",
+            "app/cbl/COBIL00C.cbl",
+            "app/cbl/COCRDLIC.cbl",
+            "app/cbl/COCRDSLC.cbl",
+            "app/cbl/COCRDUPC.cbl",
+            "app/cbl/COMEN01C.cbl",
+            "app/cbl/CORPT00C.cbl",
+            "app/cbl/COSGN00C.cbl",
+            "app/cbl/COTRN00C.cbl",
+            "app/cbl/COTRN01C.cbl",
+            "app/cbl/COTRN02C.cbl",
+            "app/cbl/COUSR00C.cbl",
+            "app/cbl/COUSR01C.cbl",
+            "app/cbl/COUSR02C.cbl",
+            "app/cbl/COUSR03C.cbl"
+          ]
+        }
+      },
+      "sampled": {
+        "cblayout": {
+          "asked": 433,
+          "key_errors": 0,
+          "files": [
+            "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+            "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+            "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy",
+            "app/cpy-bms/COCRDLI.CPY",
+            "app/cpy-bms/COCRDSL.CPY",
+            "app/cpy-bms/COCRDUP.CPY",
+            "app/cpy-bms/COTRN01.CPY",
+            "app/cpy/COMEN02Y.cpy",
+            "app/cpy/CSUSR01Y.cpy",
+            "app/cpy/CVACT03Y.cpy",
+            "app/cpy/CVEXPORT.cpy",
+            "app/cpy/CVTRA02Y.cpy",
+            "app/cpy/CVTRA07Y.cpy"
+          ],
+          "upper_bound_95": 0.00689
+        }
+      }
     }
   },
   "symbolic_maps": {
@@ -118421,10 +118770,16 @@
         "ERROR-LOG-RECORD/ERR-SUBSYSTEM @33+1",
         "ERROR-LOG-RECORD/ERR-TIME @6+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy": {
@@ -118436,10 +118791,16 @@
         "PA-RL-CARD-NUM/PA-RL-CARD-NUM @0+16",
         "PA-RL-TRANSACTION-ID/PA-RL-TRANSACTION-ID @0+15"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy": {
@@ -118463,10 +118824,16 @@
         "PA-RQ-TRANSACTION-AMT/PA-RQ-TRANSACTION-AMT @0+14",
         "PA-RQ-TRANSACTION-ID/PA-RQ-TRANSACTION-ID @0+15"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy": {
@@ -118499,10 +118866,16 @@
         "PA-TRANSACTION-AMT/PA-TRANSACTION-AMT @0+7",
         "PA-TRANSACTION-ID/PA-TRANSACTION-ID @0+15"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy": {
@@ -118520,10 +118893,16 @@
         "PA-DECLINED-AUTH-AMT/PA-DECLINED-AUTH-AMT @0+6",
         "PA-DECLINED-AUTH-CNT/PA-DECLINED-AUTH-CNT @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy": {
@@ -118539,10 +118918,16 @@
         "FUNC-CODES/FUNC-REPL @24+4",
         "FUNC-CODES/PARMCOUNT @36+4"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY": {
@@ -118556,10 +118941,16 @@
         "PADFLPCB/PADFL-SEG-LEVEL @8+2",
         "PADFLPCB/PADFL-SEG-NAME @20+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY": {
@@ -118573,10 +118964,16 @@
         "PASFLPCB/PASFL-SEG-LEVEL @8+2",
         "PASFLPCB/PASFL-SEG-NAME @20+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY": {
@@ -118590,10 +118987,16 @@
         "PAUTBPCB/PAUT-SEG-LEVEL @8+2",
         "PAUTBPCB/PAUT-SEG-NAME @20+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy": {
@@ -118785,10 +119188,16 @@
         "COPAU0AI/TRNNAMEI @19+4",
         "COPAU0AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy": {
@@ -118875,10 +119284,16 @@
         "COPAU1AI/TRNNAMEI @19+4",
         "COPAU1AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl": {
@@ -118911,10 +119326,16 @@
         "DCLAUTHFRDS/TRANSACTION-AMT @80+7",
         "DCLAUTHFRDS/TRANSACTION-ID @166+15"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy": {
@@ -118929,10 +119350,16 @@
         "WS-DSNTIAC-FORMATTED/WS-DSNTIAC-MESG-LEN @0+2",
         "WS-DSNTIAC-LRECL/WS-DSNTIAC-LRECL @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy": {
@@ -119058,10 +119485,16 @@
         "CTRTLIAI/TRTYPEI @179+2",
         "CTRTLIAI/TRTYPEL @172+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy": {
@@ -119112,10 +119545,16 @@
         "CTRTUPAI/TRTYPCDI @169+2",
         "CTRTUPAI/TRTYPCDL @162+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/dcl/DCLTRCAT.dcl": {
@@ -119125,10 +119564,16 @@
         "DCLTRANSACTION-TYPE-CATEGORY/DCL-TRC-TYPE-CATEGORY @2+4",
         "DCLTRANSACTION-TYPE-CATEGORY/DCL-TRC-TYPE-CODE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/app-transaction-type-db2/dcl/DCLTRTYP.dcl": {
@@ -119137,20 +119582,32 @@
         "DCLTRANSACTION-TYPE/DCL-TR-DESCRIPTION-TEXT @4+50",
         "DCLTRANSACTION-TYPE/DCL-TR-TYPE @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/COADM02Y.cpy": {
       "units": [
         "CARDDEMO-ADMIN-MENU-OPTIONS/CDEMO-ADMIN-OPT-COUNT @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/COCOM01Y.cpy": {
@@ -119172,10 +119629,16 @@
         "CARDDEMO-COMMAREA/CDEMO-USER-ID @24+8",
         "CARDDEMO-COMMAREA/CDEMO-USER-TYPE @32+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CODATECN.cpy": {
@@ -119186,20 +119649,32 @@
         "CODATECN-REC/CODATECN-OUTTYPE @21+1",
         "CODATECN-REC/CODATECN-TYPE @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/COMEN02Y.cpy": {
       "units": [
         "CARDDEMO-MAIN-MENU-OPTIONS/CDEMO-MENU-OPT-COUNT @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/COSTM01.CPY": {
@@ -119218,10 +119693,16 @@
         "TRNX-RECORD/TRNX-SOURCE @38+10",
         "TRNX-RECORD/TRNX-TYPE-CD @32+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/COTTL01Y.cpy": {
@@ -119230,10 +119711,16 @@
         "CCDA-SCREEN-TITLE/CCDA-TITLE01 @0+40",
         "CCDA-SCREEN-TITLE/CCDA-TITLE02 @40+40"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSDAT01Y.cpy": {
@@ -119259,10 +119746,16 @@
         "WS-DATE-TIME/WS-TIMESTAMP-TM-MS6 @52+6",
         "WS-DATE-TIME/WS-TIMESTAMP-TM-SS @49+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSLKPCDY.cpy": {
@@ -119272,10 +119765,16 @@
         "US-STATE-ZIPCODE-TO-EDIT/US-STATE-AND-FIRST-ZIP2 @0+4",
         "WS-US-PHONE-AREA-CODE-TO-EDIT/WS-US-PHONE-AREA-CODE-TO-EDIT @0+3"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSMSG01Y.cpy": {
@@ -119283,10 +119782,16 @@
         "CCDA-COMMON-MESSAGES/CCDA-MSG-INVALID-KEY @50+50",
         "CCDA-COMMON-MESSAGES/CCDA-MSG-THANK-YOU @0+50"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSMSG02Y.cpy": {
@@ -119296,10 +119801,16 @@
         "ABEND-DATA/ABEND-MSG @62+72",
         "ABEND-DATA/ABEND-REASON @12+50"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSUSR01Y.cpy": {
@@ -119311,10 +119822,16 @@
         "SEC-USER-DATA/SEC-USR-PWD @48+8",
         "SEC-USER-DATA/SEC-USR-TYPE @56+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CSUTLDWY.cpy": {
@@ -119336,10 +119853,16 @@
         "WS-EDIT-DATE-FLGS/WS-EDIT-MONTH @1+1",
         "WS-EDIT-DATE-FLGS/WS-EDIT-YEAR-FLG @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CUSTREC.cpy": {
@@ -119363,10 +119886,16 @@
         "CUSTOMER-RECORD/CUST-PRI-CARD-HOLDER-IND @328+1",
         "CUSTOMER-RECORD/CUST-SSN @279+9"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVACT01Y.cpy": {
@@ -119384,10 +119913,16 @@
         "ACCOUNT-RECORD/ACCT-OPEN-DATE @48+10",
         "ACCOUNT-RECORD/ACCT-REISSUE-DATE @68+10"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVACT02Y.cpy": {
@@ -119399,10 +119934,16 @@
         "CARD-RECORD/CARD-EXPIRAION-DATE @80+10",
         "CARD-RECORD/CARD-NUM @0+16"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVACT03Y.cpy": {
@@ -119411,10 +119952,16 @@
         "CARD-XREF-RECORD/XREF-CARD-NUM @0+16",
         "CARD-XREF-RECORD/XREF-CUST-ID @16+9"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVCRD01Y.cpy": {
@@ -119429,10 +119976,16 @@
         "CC-WORK-AREAS/CCARD-NEXT-PROG @5+8",
         "CC-WORK-AREAS/CCARD-RETURN-MSG @102+75"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVCUS01Y.cpy": {
@@ -119456,10 +120009,16 @@
         "CUSTOMER-RECORD/CUST-PRI-CARD-HOLDER-IND @328+1",
         "CUSTOMER-RECORD/CUST-SSN @279+9"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVEXPORT.cpy": {
@@ -119471,10 +120030,16 @@
         "EXPORT-RECORD/EXPORT-SEQUENCE-NUM @27+4",
         "EXPORT-RECORD/EXPORT-TIMESTAMP @1+26"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA01Y.cpy": {
@@ -119484,10 +120049,16 @@
         "TRAN-CAT-BAL-RECORD/TRANCAT-CD @13+4",
         "TRAN-CAT-BAL-RECORD/TRANCAT-TYPE-CD @11+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA02Y.cpy": {
@@ -119497,10 +120068,16 @@
         "DIS-GROUP-RECORD/DIS-TRAN-CAT-CD @12+4",
         "DIS-GROUP-RECORD/DIS-TRAN-TYPE-CD @10+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA03Y.cpy": {
@@ -119508,10 +120085,16 @@
         "TRAN-TYPE-RECORD/TRAN-TYPE @0+2",
         "TRAN-TYPE-RECORD/TRAN-TYPE-DESC @2+50"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA04Y.cpy": {
@@ -119520,10 +120103,16 @@
         "TRAN-CAT-RECORD/TRAN-CAT-TYPE-DESC @6+50",
         "TRAN-CAT-RECORD/TRAN-TYPE-CD @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA05Y.cpy": {
@@ -119542,10 +120131,16 @@
         "TRAN-RECORD/TRAN-SOURCE @22+10",
         "TRAN-RECORD/TRAN-TYPE-CD @16+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA06Y.cpy": {
@@ -119564,10 +120159,16 @@
         "DALYTRAN-RECORD/DALYTRAN-SOURCE @22+10",
         "DALYTRAN-RECORD/DALYTRAN-TYPE-CD @16+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/CVTRA07Y.cpy": {
@@ -119590,10 +120191,16 @@
         "TRANSACTION-DETAIL-REPORT/TRAN-REPORT-TYPE-DESC @32+15",
         "TRANSACTION-HEADER-2/TRANSACTION-HEADER-2 @0+133"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy/UNUSED1Y.cpy": {
@@ -119605,10 +120212,16 @@
         "UNUSED-DATA/UNUSED-PWD @48+8",
         "UNUSED-DATA/UNUSED-TYPE @56+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COACTUP.CPY": {
@@ -119776,10 +120389,16 @@
         "CACTUPAI/TRNNAMEI @19+4",
         "CACTUPAI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COACTVW.CPY": {
@@ -119896,10 +120515,16 @@
         "CACTVWAI/TRNNAMEI @19+4",
         "CACTVWAI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COADM01.CPY": {
@@ -119965,10 +120590,16 @@
         "COADM1AI/TRNNAMEI @19+4",
         "COADM1AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COBIL00.CPY": {
@@ -120004,10 +120635,16 @@
         "COBIL0AI/TRNNAMEI @19+4",
         "COBIL0AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COCRDLI.CPY": {
@@ -120148,10 +120785,16 @@
         "CCRDLIAI/TRNNAMEI @19+4",
         "CCRDLIAI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COCRDSL.CPY": {
@@ -120202,10 +120845,16 @@
         "CCRDSLAI/TRNNAMEI @19+4",
         "CCRDSLAI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COCRDUP.CPY": {
@@ -120262,10 +120911,16 @@
         "CCRDUPAI/TRNNAMEI @19+4",
         "CCRDUPAI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COMEN01.CPY": {
@@ -120331,10 +120986,16 @@
         "COMEN1AI/TRNNAMEI @19+4",
         "COMEN1AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/CORPT00.CPY": {
@@ -120391,10 +121052,16 @@
         "CORPT0AI/YEARLYI @177+1",
         "CORPT0AI/YEARLYL @170+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COSGN00.CPY": {
@@ -120433,10 +121100,16 @@
         "COSGN0AI/USERIDI @200+8",
         "COSGN0AI/USERIDL @193+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COTRN00.CPY": {
@@ -120619,10 +121292,16 @@
         "COTRN0AI/TRNNAMEI @19+4",
         "COTRN0AI/TRNNAMEL @12+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COTRN01.CPY": {
@@ -120691,10 +121370,16 @@
         "COTRN1AI/TTYPCDI @238+2",
         "COTRN1AI/TTYPCDL @231+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COTRN02.CPY": {
@@ -120763,10 +121448,16 @@
         "COTRN2AI/TTYPCDI @210+2",
         "COTRN2AI/TTYPCDL @203+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COUSR00.CPY": {
@@ -120949,10 +121640,16 @@
         "COUSR0AI/UTYPE10I @1041+1",
         "COUSR0AI/UTYPE10L @1034+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COUSR01.CPY": {
@@ -120994,10 +121691,16 @@
         "COUSR1AI/USRTYPEI @253+1",
         "COUSR1AI/USRTYPEL @246+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COUSR02.CPY": {
@@ -121039,10 +121742,16 @@
         "COUSR2AI/USRTYPEI @253+1",
         "COUSR2AI/USRTYPEL @246+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     },
     "app/cpy-bms/COUSR03.CPY": {
@@ -121081,10 +121790,16 @@
         "COUSR3AI/USRTYPEI @238+1",
         "COUSR3AI/USRTYPEL @231+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "sample_verified",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26",
+          "sampled": true
+        }
       }
     }
   },
@@ -121095,10 +121810,16 @@
         "L525 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
         "L573 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -121107,20 +121828,32 @@
         "L869 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
         "L920 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
       "units": [
         "L396 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COACTUPC.cbl": {
@@ -121131,10 +121864,16 @@
         "L3894 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
         "L3921 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COACTVWC.cbl": {
@@ -121143,10 +121882,16 @@
         "L776 READ FILE ACCTDAT RIDFLD=WS-CARD-RID-ACCT-ID-X",
         "L826 READ FILE CUSTDAT RIDFLD=WS-CARD-RID-CUST-ID-X"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COBIL00C.cbl": {
@@ -121157,10 +121902,16 @@
         "L474 READPREV FILE TRANSACT RIDFLD=TRAN-ID",
         "L512 WRITE FILE TRANSACT RIDFLD=TRAN-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDLIC.cbl": {
@@ -121172,10 +121923,16 @@
         "L1294 READPREV FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
         "L1322 READPREV FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDSLC.cbl": {
@@ -121183,10 +121940,16 @@
         "L742 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
         "L783 READ FILE CARDAIX RIDFLD=WS-CARD-RID-ACCT-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDUPC.cbl": {
@@ -121194,20 +121957,32 @@
         "L1382 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM",
         "L1427 READ FILE CARDDAT RIDFLD=WS-CARD-RID-CARDNUM"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COSGN00C.cbl": {
       "units": [
         "L211 READ FILE USRSEC RIDFLD=WS-USER-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN00C.cbl": {
@@ -121216,20 +121991,32 @@
         "L626 READNEXT FILE TRANSACT RIDFLD=TRAN-ID",
         "L660 READPREV FILE TRANSACT RIDFLD=TRAN-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN01C.cbl": {
       "units": [
         "L269 READ FILE TRANSACT RIDFLD=TRAN-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN02C.cbl": {
@@ -121240,10 +122027,16 @@
         "L675 READPREV FILE TRANSACT RIDFLD=TRAN-ID",
         "L713 WRITE FILE TRANSACT RIDFLD=TRAN-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR00C.cbl": {
@@ -121252,40 +122045,64 @@
         "L621 READNEXT FILE USRSEC RIDFLD=SEC-USR-ID",
         "L655 READPREV FILE USRSEC RIDFLD=SEC-USR-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR01C.cbl": {
       "units": [
         "L240 WRITE FILE USRSEC RIDFLD=SEC-USR-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR02C.cbl": {
       "units": [
         "L322 READ FILE USRSEC RIDFLD=SEC-USR-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR03C.cbl": {
       "units": [
         "L269 READ FILE USRSEC RIDFLD=SEC-USR-ID"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -121312,10 +122129,16 @@
         "L354 UNSTRING W01-GET-BUFFER(1:W01-DATALEN) -> WS-TRANSACTION-AMT-AN",
         "L868 MOVE WS-CUR-DATE-X6(1:5) -> WS-YYDDD"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -121331,10 +122154,16 @@
         "L758 STRING CUST-MIDDLE-NAME(1:1) -> CNAMEO",
         "L771 STRING CUST-ADDR-ZIP(1:5) -> ADDR002O"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
@@ -121358,10 +122187,16 @@
         "L347 MOVE PA-FRAUD-RPT-DATE -> AUTHFRDO(3:)",
         "L420 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
@@ -121374,10 +122209,16 @@
         "L110 MOVE WS-AUTH-TIME-AN(5:2) -> WS-AUTH-SS",
         "L111 MOVE WS-AUTH-TIME-AN(7:3) -> WS-AUTH-SSS"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
@@ -121388,10 +122229,16 @@
         "L529 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
         "L905 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
@@ -121403,10 +122250,16 @@
         "L378 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
         "L563 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBACT01C.cbl": {
@@ -121416,10 +122269,16 @@
         "L416 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L423 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBACT02C.cbl": {
@@ -121427,10 +122286,16 @@
         "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBACT03C.cbl": {
@@ -121438,10 +122303,16 @@
         "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBACT04C.cbl": {
@@ -121449,10 +122320,16 @@
         "L638 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L645 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBCUS01C.cbl": {
@@ -121460,29 +122337,43 @@
         "L164 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L171 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBIMPORT.cbl": {
       "units": [
-        "L178 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(1:4)",
+        "L178 MOVE FUNCTION CURRENT-DATE(1:4) -> WS-IMPORT-DATE(1:4)",
         "L179 MOVE '-' -> WS-IMPORT-DATE(5:1)",
-        "L180 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(6:2)",
+        "L180 MOVE FUNCTION CURRENT-DATE(5:2) -> WS-IMPORT-DATE(6:2)",
         "L181 MOVE '-' -> WS-IMPORT-DATE(8:1)",
-        "L182 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-DATE(9:2)",
-        "L184 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(1:2)",
+        "L182 MOVE FUNCTION CURRENT-DATE(7:2) -> WS-IMPORT-DATE(9:2)",
+        "L184 MOVE FUNCTION CURRENT-DATE(9:2) -> WS-IMPORT-TIME(1:2)",
         "L185 MOVE ':' -> WS-IMPORT-TIME(3:1)",
-        "L186 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(4:2)",
+        "L186 MOVE FUNCTION CURRENT-DATE(11:2) -> WS-IMPORT-TIME(4:2)",
         "L187 MOVE ':' -> WS-IMPORT-TIME(6:1)",
-        "L188 MOVE FUNCTION CURRENT-DATE -> WS-IMPORT-TIME(7:2)"
+        "L188 MOVE FUNCTION CURRENT-DATE(13:2) -> WS-IMPORT-TIME(7:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [
+          "census #3649 key_fixed: FUNCTION CURRENT-DATE(1:4) reference-modifies the function result"
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBSTM03B.CBL": {
@@ -121490,10 +122381,16 @@
         "L189 MOVE LK-M03B-KEY(1:LK-M03B-KEY-LN) -> FD-CUST-ID",
         "L214 MOVE LK-M03B-KEY(1:LK-M03B-KEY-LN) -> FD-ACCT-ID"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBTRN01C.cbl": {
@@ -121501,10 +122398,16 @@
         "L479 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L486 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBTRN02C.cbl": {
@@ -121512,10 +122415,16 @@
         "L717 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L724 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CBTRN03C.cbl": {
@@ -121523,10 +122432,16 @@
         "L636 MOVE IO-STAT1 -> IO-STATUS-04(1:1)",
         "L643 MOVE IO-STATUS -> IO-STATUS-04(3:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COACTUPC.cbl": {
@@ -121558,10 +122473,16 @@
         "L888 MOVE DFHCOMMAREA(1:LENGTH OF CARDDEMO-COMMAREA) -> CARDDEMO-COMMAREA",
         "L890 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COACTVWC.cbl": {
@@ -121574,10 +122495,16 @@
         "L496 STRING CUST-SSN(4:2) -> ACSTSSNO OF CACTVWAO",
         "L496 STRING CUST-SSN(6:4) -> ACSTSSNO OF CACTVWAO"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COADM01C.cbl": {
@@ -121586,10 +122513,16 @@
         "L216 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L90 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COBIL00C.cbl": {
@@ -121599,10 +122532,16 @@
         "L265 MOVE WS-CUR-TIME-X08 -> WS-TIMESTAMP(12:08)",
         "L330 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDLIC.cbl": {
@@ -121612,10 +122551,16 @@
         "L610 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
         "L656 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDSLC.cbl": {
@@ -121625,10 +122570,16 @@
         "L398 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)",
         "L441 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COCRDUPC.cbl": {
@@ -121644,10 +122595,16 @@
         "L398 MOVE DFHCOMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA) -> WS-THIS-PROGCOMMAREA",
         "L550 MOVE WS-THIS-PROGCOMMAREA -> WS-COMMAREA(LENGTH OF CARDDEMO-COMMAREA+1:LENGTH OF WS-THIS-PROGCOMMAREA)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COMEN01C.cbl": {
@@ -121656,10 +122613,16 @@
         "L249 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L86 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/CORPT00C.cbl": {
@@ -121667,20 +122630,32 @@
         "L176 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
         "L620 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COSGN00C.cbl": {
       "units": [
         "L188 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN00C.cbl": {
@@ -121689,10 +122664,16 @@
         "L385 MOVE WS-TIMESTAMP-DT-YYYY(3:2) -> WS-CURDATE-YY",
         "L578 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN01C.cbl": {
@@ -121700,10 +122681,16 @@
         "L254 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L98 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COTRN02C.cbl": {
@@ -121711,10 +122698,16 @@
         "L119 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
         "L563 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR00C.cbl": {
@@ -121722,10 +122715,16 @@
         "L114 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA",
         "L573 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR01C.cbl": {
@@ -121733,10 +122732,16 @@
         "L225 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L82 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR02C.cbl": {
@@ -121744,10 +122749,16 @@
         "L307 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L94 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "app/cbl/COUSR03C.cbl": {
@@ -121755,10 +122766,16 @@
         "L254 MOVE WS-CURDATE-YEAR(3:2) -> WS-CURDATE-YY",
         "L94 MOVE DFHCOMMAREA(1:EIBCALEN) -> CARDDEMO-COMMAREA"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   }

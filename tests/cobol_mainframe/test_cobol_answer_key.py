@@ -1441,3 +1441,41 @@ def test_copybook_layout_units_lay_out_an_ibm_symbolic_map(tmp_path):
         4,
         3,
     )
+
+
+def test_a_sign_separate_display_item_takes_its_own_byte(tmp_path):
+    """#3649 census (CBSA ABNDINFO): `PIC S9(8) DISPLAY SIGN LEADING SEPARATE` is 9 bytes;
+    an embedded sign (no SEPARATE) and a packed item are unchanged."""
+    cpy = _cpy(tmp_path, "SIGN.cpy", [
+        "03 RESPCODE    PIC S9(8) DISPLAY",
+        "       SIGN LEADING SEPARATE.",
+        "03 PLAIN       PIC S9(8).",
+        "03 TRAILER     PIC S9(3) SIGN IS TRAILING SEPARATE CHARACTER.",
+        "03 PACKED      PIC S9(7) COMP-3.",
+    ])  # fmt: skip
+    assert ak.copybook_record_units(cpy) == {
+        "RESPCODE/RESPCODE @0+9", "PLAIN/PLAIN @0+8", "TRAILER/TRAILER @0+4", "PACKED/PACKED @0+4",
+    }  # fmt: skip
+
+
+def test_a_function_result_reference_modification_is_a_refmod(tmp_path):
+    """#3649 census (CardDemo CBIMPORT): `FUNCTION CURRENT-DATE(1:4)` reference-modifies the
+    result; a colon inside an argument (`NUMVAL(WS-X(1:3))`) is not the function's refmod."""
+    src = tmp_path / "FN.cbl"
+    src.write_text(
+        "\n".join("       " + ln for ln in [
+            "IDENTIFICATION DIVISION.",
+            "PROGRAM-ID. FN.",
+            "PROCEDURE DIVISION.",
+            "    MOVE FUNCTION CURRENT-DATE(1:4) TO WS-D(1:4).",
+            "    MOVE FUNCTION UPPER-CASE(WS-N)(2:3) TO WS-U.",
+            "    MOVE FUNCTION NUMVAL(WS-X(1:3)) TO WS-V.",
+        ]) + "\n",
+        encoding="utf-8",
+    )  # fmt: skip
+    rows = ak.data_move_rows(src)
+    assert ak.refmod_units(rows) == {
+        "L4 MOVE FUNCTION CURRENT-DATE(1:4) -> WS-D(1:4)",
+        "L5 MOVE FUNCTION UPPER-CASE(2:3) -> WS-U",
+    }
+    assert "L6 MOVE FUNCTION NUMVAL -> WS-V" in ak.data_move_keys(rows)

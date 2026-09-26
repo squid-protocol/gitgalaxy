@@ -8751,6 +8751,223 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "COPYBOOK/CUSTCOPY.cpy",
+        "COPYBOOK/TRANREC.cpy",
+        "COPYLIB-MVS/REPTTOTL.cpy",
+        "COPYLIB/DATETIME.cpy",
+        "multiroot/copybooks/cust/CUSTCOPY.cpy",
+        "multiroot/copybooks/trans/SAM2PAR5.cpy",
+        "multiroot/copybooks/trans/TRANREC.cpy",
+        "multiroot/sam/SAM1.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 34,
+          "asked": 80
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-ID @0+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-INFO @33+20": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-NAME @6+17": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-REC-TYPE @5+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-3 @53+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-4 @58+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-5 @63+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-6 @68+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DESCRIPTION @23+10": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ACCT-BALANCE @23+9": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ADDR @37+20": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-CITY @57+14": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-COUNTRY @73+11": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-DATA-1 @342+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-DATA-2 @347+40": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ID @0+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-MONTH @84+9": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-NAME @6+17": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-NOTES @222+120": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-OCCUPATION @192+30": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ORDERS-YTD @32+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-REC-TYPE @5+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:COPYBOOK/CUSTCOPY.cpy:::TAG:-REC/:TAG:-STATE @71+2": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-ID @0+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-INFO @33+20": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-NAME @6+17": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-CONTACT-REC-TYPE @5+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-3 @53+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-4 @58+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-5 @63+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DATA-6 @68+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-CONTACT-REC/:TAG:-DESCRIPTION @23+10": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ACCT-BALANCE @23+9": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ADDR @37+20": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-CITY @57+14": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-COUNTRY @73+11": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-DATA-1 @342+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-DATA-2 @347+40": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ID @0+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-MONTH @84+9": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-NAME @6+17": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-NOTES @222+120": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-OCCUPATION @192+30": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-ORDERS-YTD @32+5": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-REC-TYPE @5+1": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        },
+        "cblayout:multiroot/copybooks/cust/CUSTCOPY.cpy:::TAG:-REC/:TAG:-STATE @71+2": {
+          "verdict": "key_correct",
+          "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
+        }
+      }
     }
   ],
   "file_control": {
@@ -11620,6 +11837,32 @@
       "asked": 105,
       "key_errors": 0,
       "upper_bound_95": 0.02813
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "full",
+          "files": [
+            "COPYBOOK/CUSTCOPY.cpy",
+            "COPYBOOK/TRANREC.cpy",
+            "COPYLIB-MVS/REPTTOTL.cpy",
+            "COPYLIB/DATETIME.cpy",
+            "multiroot/copybooks/cust/CUSTCOPY.cpy",
+            "multiroot/copybooks/trans/SAM2PAR5.cpy",
+            "multiroot/copybooks/trans/TRANREC.cpy"
+          ]
+        },
+        "ridfld": {
+          "mode": "full",
+          "files": []
+        },
+        "refmod": {
+          "mode": "full",
+          "files": [
+            "multiroot/sam/SAM1.cbl"
+          ]
+        }
+      }
     }
   },
   "symbolic_maps": {},
@@ -12037,10 +12280,16 @@
         "TRANSACTION-RECORD/TRAN-KEY @7+6",
         "TRANSACTION-RECORD/TRAN-UPDATE-DATA @44+36"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "COPYLIB/DATETIME.cpy": {
@@ -12053,10 +12302,16 @@
         "SYSTEM-DATE-AND-TIME/CURRENT-SECOND @10+2",
         "SYSTEM-DATE-AND-TIME/CURRENT-YEAR @0+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "COPYLIB-MVS/REPTTOTL.cpy": {
@@ -12076,20 +12331,32 @@
         "REPORT-TOTALS/NUM-UPDATE-PROCESSED @25+5",
         "REPORT-TOTALS/NUM-UPDATE-REQUESTS @20+5"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "multiroot/copybooks/trans/SAM2PAR5.cpy": {
       "units": [
         "CRUNCH-AVG/CRUNCH-AVG @0+16"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "multiroot/copybooks/trans/TRANREC.cpy": {
@@ -12101,10 +12368,16 @@
         "TRANSACTION-RECORD/TRAN-KEY @7+6",
         "TRANSACTION-RECORD/TRAN-UPDATE-DATA @44+36"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -12114,10 +12387,16 @@
       "units": [
         "L513 MOVE TRANSACTION-RECORD(1:14) -> RPT-CRUNCH-CUST"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   }

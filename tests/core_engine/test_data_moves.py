@@ -160,3 +160,18 @@ def test_a_cics_translator_constant_is_no_data_item():
         ("DFHVALUE(IMMEDIATE)", "cics_constant", "SEND-ACTION"),
         ("DFHRESP(NORMAL)", "cics_constant", "WS-R"),
     ]
+
+
+def test_a_function_result_reference_modification_is_kept():
+    """#3649 census (CardDemo CBIMPORT): `FUNCTION CURRENT-DATE(1:4)` reference-modifies the
+    function's result; a colon inside an argument is not the function's refmod."""
+    rows = extract_boundary("cobol", _program(
+        "MOVE FUNCTION CURRENT-DATE(1:4) TO WS-A(1:4).",
+        "MOVE FUNCTION UPPER-CASE(WS-A)(2:3) TO WS-A.",
+        "MOVE FUNCTION NUMVAL(WS-A(1:3)) TO WS-A.",
+    ))["data_moves"]  # fmt: skip
+    assert [(r["source"], r["source_refmod"], r["source_refmod_text"]) for r in rows] == [
+        ("FUNCTION CURRENT-DATE", True, "1:4"),
+        ("FUNCTION UPPER-CASE", True, "2:3"),
+        ("FUNCTION NUMVAL", False, None),
+    ]

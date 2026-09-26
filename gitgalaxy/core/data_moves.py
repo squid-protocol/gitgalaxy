@@ -155,10 +155,17 @@ class _Stream:
             inner = self.operand()
             return (f"{t} OF {inner[0]}" if inner else t), t.lower(), False
         if t == "FUNCTION":
+            # `FUNCTION CURRENT-DATE(1:4)` reference-modifies the result; an argument list
+            # holds no top-level colon, so `NUMVAL(WS-X(1:3))` is none (census #3649).
             name = self.peek(1)
             self.i += 2
-            self._skip_parens()
-            return f"FUNCTION {name}", "function", False
+            fn_refmod: Any = False
+            while self.peek() == "(":
+                start = self.i
+                if self._skip_parens():
+                    fn_refmod = " ".join(tok[0] for tok in self.toks[start + 1 : self.i - 1]).upper()
+                    fn_refmod = re.sub(r"\s*:\s*", ":", fn_refmod)
+            return f"FUNCTION {name}", "function", fn_refmod
         if t in ("DFHVALUE", "DFHRESP") and self.peek(1) == "(":
             # A CICS translator constant, not a subscripted data item: `MOVE
             # DFHVALUE(IMMEDIATE) TO SEND-ACTION` flows no field into SEND-ACTION.

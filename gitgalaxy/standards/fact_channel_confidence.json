@@ -24,9 +24,9 @@
       "clean_fresh_rounds": 0,
       "engine_defects": 0,
       "fresh_rounds": 0,
-      "status": "untested",
+      "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 0
+      "tested_on_public": 5
     },
     "CICS resources": {
       "clean_fresh_facts": 0,
@@ -238,11 +238,11 @@
     "copybook layouts": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
-      "engine_defects": 0,
+      "engine_defects": 1,
       "fresh_rounds": 0,
-      "status": "untested",
+      "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 0
+      "tested_on_public": 5
     },
     "copybook paths": {
       "clean_fresh_facts": 41,
@@ -256,7 +256,7 @@
     "data moves": {
       "clean_fresh_facts": 517,
       "clean_fresh_rounds": 2,
-      "engine_defects": 1,
+      "engine_defects": 2,
       "fresh_rounds": 3,
       "status": "field-tested",
       "tested_on_private": 0,
@@ -373,11 +373,11 @@
     "refmod spans": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
-      "engine_defects": 0,
+      "engine_defects": 1,
       "fresh_rounds": 0,
-      "status": "untested",
+      "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 0
+      "tested_on_public": 5
     },
     "symbolic maps": {
       "clean_fresh_facts": 0,

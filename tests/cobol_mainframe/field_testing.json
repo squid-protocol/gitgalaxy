@@ -437,6 +437,46 @@
       "issue": 3575,
       "fixed_by": "#3601",
       "summary": "The brief did not say override DDs (//PROCSTEP.DD) are out of scope, as key and engine define them."
+    },
+    {
+      "id": "D023",
+      "estate": "aws-mainframe-modernization-carddemo",
+      "side": "engine",
+      "fields": [
+        "refmod spans",
+        "data moves"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 3649,
+      "summary": "A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it)."
+    },
+    {
+      "id": "D024",
+      "estate": "cics-banking-sample-application-cbsa",
+      "side": "engine",
+      "fields": [
+        "copybook layouts"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 3694,
+      "summary": "`PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it)."
+    },
+    {
+      "id": "B004",
+      "estate": "zopeneditor-sample",
+      "side": "brief",
+      "fields": [
+        "copybook layouts"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 3649,
+      "summary": "The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it."
     }
   ],
   "fields": {

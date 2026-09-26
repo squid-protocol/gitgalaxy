@@ -66698,6 +66698,202 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_copy/ABNDINFO.cpy",
+        "src/base/cobol_copy/BANKMAP.cpy",
+        "src/base/cobol_src/CREACC.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 90,
+          "asked": 90
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 27,
+          "asked": 27
+        }
+      },
+      "rulings": {
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-RESP2CODE/ABND-RESP2CODE @0+8": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        },
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-RESP2CODE/ABND-RESP2CODE @0+9": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        },
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-RESPCODE/ABND-RESPCODE @0+8": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        },
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-RESPCODE/ABND-RESPCODE @0+9": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        },
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-SQLCODE/ABND-SQLCODE @0+8": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        },
+        "cblayout:src/base/cobol_copy/ABNDINFO.cpy::ABND-SQLCODE/ABND-SQLCODE @0+9": {
+          "verdict": "key_fixed",
+          "why": "ABNDINFO.cpy codes `PIC S9(8) DISPLAY` + `SIGN LEADING SEPARATE` on the next line: the separate sign takes its own byte, 9 not 8, as the reviewer said. The key reader assumed no SIGN SEPARATE in these estates. Fixed in the reader (_DD_SIGN_SEPARATE), with a test; the engine shares it (field_testing D024, issue #3694)."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 2,
+      "files": [
+        "src/base/cobol_copy/CUSTMAP.cpy",
+        "src/base/cobol_copy/DELACCZ.cpy",
+        "src/base/cobol_copy/INQACC.cpy",
+        "src/base/cobol_copy/INQACCCZ.cpy",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DELCUS.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 70,
+          "asked": 70
+        },
+        "ridfld": {
+          "agree": 7,
+          "asked": 7
+        },
+        "refmod": {
+          "agree": 37,
+          "asked": 37
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 3,
+      "files": [
+        "src/base/cobol_copy/CREACC.cpy",
+        "src/base/cobol_copy/CUSTOMER.cpy",
+        "src/base/cobol_copy/DELACC.cpy",
+        "src/base/cobol_copy/INQACCCU.cpy",
+        "src/base/cobol_copy/INQACCZ.cpy",
+        "src/base/cobol_copy/INQCUST.cpy",
+        "src/base/cobol_copy/INQCUSTZ.cpy",
+        "src/base/cobol_copy/UPDACC.cpy"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 112,
+          "asked": 112
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 4,
+      "files": [
+        "src/base/cobol_copy/ACCOUNT.cpy",
+        "src/base/cobol_copy/ACCTCTRL.cpy",
+        "src/base/cobol_copy/BNK1DDM.cpy",
+        "src/base/cobol_copy/CRECUST.cpy",
+        "src/base/cobol_copy/DELCUS.cpy",
+        "src/base/cobol_copy/GETCOMPY.cpy",
+        "src/base/cobol_copy/PAYDBCR.cpy",
+        "src/base/cobol_copy/PROCTRAN.cpy",
+        "src/base/cobol_copy/UPDCUST.cpy",
+        "src/base/cobol_copy/XFRFUN.cpy",
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 91,
+          "asked": 91
+        },
+        "ridfld": {
+          "agree": 0,
+          "asked": 0
+        },
+        "refmod": {
+          "agree": 17,
+          "asked": 17
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+      "at": "2026-09-26",
+      "batch": 5,
+      "files": [
+        "src/base/cobol_copy/CONTROLI.cpy",
+        "src/base/cobol_copy/CUSTCTRL.cpy",
+        "src/base/cobol_copy/GETSCODE.cpy",
+        "src/base/cobol_copy/NEWACCNO.cpy",
+        "src/base/cobol_copy/NEWCUSNO.cpy",
+        "src/base/cobol_copy/PROCISRT.cpy",
+        "src/base/cobol_copy/SORTCODE.cpy",
+        "src/base/cobol_copy/STCUSTNO.cpy",
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/INQACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ],
+      "wide": false,
+      "suite": "layouts",
+      "tasks": {
+        "cblayout": {
+          "agree": 26,
+          "asked": 26
+        },
+        "ridfld": {
+          "agree": 10,
+          "asked": 10
+        },
+        "refmod": {
+          "agree": 14,
+          "asked": 14
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -79415,6 +79611,79 @@
       "asked": 98,
       "key_errors": 0,
       "upper_bound_95": 0.03011
+    },
+    "layouts": {
+      "plan": {
+        "cblayout": {
+          "mode": "full",
+          "files": [
+            "src/base/cobol_copy/ABNDINFO.cpy",
+            "src/base/cobol_copy/ACCOUNT.cpy",
+            "src/base/cobol_copy/ACCTCTRL.cpy",
+            "src/base/cobol_copy/BANKMAP.cpy",
+            "src/base/cobol_copy/BNK1DDM.cpy",
+            "src/base/cobol_copy/CONTROLI.cpy",
+            "src/base/cobol_copy/CREACC.cpy",
+            "src/base/cobol_copy/CRECUST.cpy",
+            "src/base/cobol_copy/CUSTCTRL.cpy",
+            "src/base/cobol_copy/CUSTMAP.cpy",
+            "src/base/cobol_copy/CUSTOMER.cpy",
+            "src/base/cobol_copy/DELACC.cpy",
+            "src/base/cobol_copy/DELACCZ.cpy",
+            "src/base/cobol_copy/DELCUS.cpy",
+            "src/base/cobol_copy/GETCOMPY.cpy",
+            "src/base/cobol_copy/GETSCODE.cpy",
+            "src/base/cobol_copy/INQACC.cpy",
+            "src/base/cobol_copy/INQACCCU.cpy",
+            "src/base/cobol_copy/INQACCCZ.cpy",
+            "src/base/cobol_copy/INQACCZ.cpy",
+            "src/base/cobol_copy/INQCUST.cpy",
+            "src/base/cobol_copy/INQCUSTZ.cpy",
+            "src/base/cobol_copy/NEWACCNO.cpy",
+            "src/base/cobol_copy/NEWCUSNO.cpy",
+            "src/base/cobol_copy/PAYDBCR.cpy",
+            "src/base/cobol_copy/PROCISRT.cpy",
+            "src/base/cobol_copy/PROCTRAN.cpy",
+            "src/base/cobol_copy/SORTCODE.cpy",
+            "src/base/cobol_copy/STCUSTNO.cpy",
+            "src/base/cobol_copy/UPDACC.cpy",
+            "src/base/cobol_copy/UPDCUST.cpy",
+            "src/base/cobol_copy/XFRFUN.cpy"
+          ]
+        },
+        "ridfld": {
+          "mode": "full",
+          "files": [
+            "src/base/cobol_src/ABNDPROC.cbl",
+            "src/base/cobol_src/CRECUST.cbl",
+            "src/base/cobol_src/CUSTCTRL.cbl",
+            "src/base/cobol_src/DELCUS.cbl",
+            "src/base/cobol_src/INQCUST.cbl",
+            "src/base/cobol_src/UPDCUST.cbl"
+          ]
+        },
+        "refmod": {
+          "mode": "full",
+          "files": [
+            "src/base/cobol_src/BANKDATA.cbl",
+            "src/base/cobol_src/BNK1CAC.cbl",
+            "src/base/cobol_src/BNK1CCS.cbl",
+            "src/base/cobol_src/BNK1CRA.cbl",
+            "src/base/cobol_src/BNK1TFN.cbl",
+            "src/base/cobol_src/BNK1UAC.cbl",
+            "src/base/cobol_src/CREACC.cbl",
+            "src/base/cobol_src/CRECUST.cbl",
+            "src/base/cobol_src/DBCRFUN.cbl",
+            "src/base/cobol_src/DELACC.cbl",
+            "src/base/cobol_src/DELCUS.cbl",
+            "src/base/cobol_src/INQACC.cbl",
+            "src/base/cobol_src/INQACCCU.cbl",
+            "src/base/cobol_src/UPDACC.cbl",
+            "src/base/cobol_src/UPDCUST.cbl",
+            "src/base/cobol_src/XFRFUN.cbl"
+          ]
+        }
+      }
     }
   },
   "symbolic_maps": {
@@ -81432,18 +81701,26 @@
         "ABND-DATE/ABND-DATE @0+10",
         "ABND-FREEFORM/ABND-FREEFORM @0+600",
         "ABND-PROGRAM/ABND-PROGRAM @0+8",
-        "ABND-RESP2CODE/ABND-RESP2CODE @0+8",
-        "ABND-RESPCODE/ABND-RESPCODE @0+8",
-        "ABND-SQLCODE/ABND-SQLCODE @0+8",
+        "ABND-RESP2CODE/ABND-RESP2CODE @0+9",
+        "ABND-RESPCODE/ABND-RESPCODE @0+9",
+        "ABND-SQLCODE/ABND-SQLCODE @0+9",
         "ABND-TIME/ABND-TIME @0+8",
         "ABND-TRANID/ABND-TRANID @0+4",
         "ABND-VSAM-KEY/ABND-TASKNO-KEY @8+4",
         "ABND-VSAM-KEY/ABND-UTIME-KEY @0+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [
+          "census #3649 key_fixed: SIGN LEADING SEPARATE takes its own byte (S9(8) = 9 bytes), the reader had assumed none"
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/ACCOUNT.cpy": {
@@ -81461,10 +81738,16 @@
         "ACCOUNT-DATA/ACCOUNT-SORT-CODE @14+6",
         "ACCOUNT-DATA/ACCOUNT-TYPE @28+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/ACCTCTRL.cpy": {
@@ -81477,10 +81760,16 @@
         "ACCOUNT-CONTROL-RECORD/LAST-ACCOUNT-NUMBER @36+8",
         "ACCOUNT-CONTROL-RECORD/NUMBER-OF-ACCOUNTS @28+8"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/BANKMAP.cpy": {
@@ -81564,10 +81853,16 @@
         "BANKMAPI/SORTCODEI @70+6",
         "BANKMAPI/SORTCODEL @61+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/BNK1DDM.cpy": {
@@ -81582,10 +81877,16 @@
         "BNK1DDI/MESSAGEI @86+79",
         "BNK1DDI/MESSAGEL @77+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CONTROLI.cpy": {
@@ -81595,10 +81896,16 @@
         "CONTROL-CUSTOMER-COUNT/CONTROL-CUSTOMER-COUNT @0+6",
         "CONTROL-CUSTOMER-LAST/CONTROL-CUSTOMER-LAST @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CREACC.cpy": {
@@ -81618,10 +81925,16 @@
         "COMM-OVERDR-LIM/COMM-OVERDR-LIM @0+8",
         "COMM-SUCCESS/COMM-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CRECUST.cpy": {
@@ -81637,10 +81950,16 @@
         "COMM-NAME/COMM-NAME @0+60",
         "COMM-SUCCESS/COMM-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CUSTCTRL.cpy": {
@@ -81653,10 +81972,16 @@
         "CUSTOMER-CONTROL-RECORD/LAST-CUSTOMER-NUMBER @30+10",
         "CUSTOMER-CONTROL-RECORD/NUMBER-OF-CUSTOMERS @20+10"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CUSTMAP.cpy": {
@@ -81683,10 +82008,16 @@
         "CSTMAP1I/CUSTNAMEI @53+60",
         "CSTMAP1I/CUSTNAMEL @44+2"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/CUSTOMER.cpy": {
@@ -81700,10 +82031,16 @@
         "CUSTOMER-RECORD/CUSTOMER-NUMBER @10+10",
         "CUSTOMER-RECORD/CUSTOMER-SORTCODE @4+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/DELACC.cpy": {
@@ -81726,10 +82063,16 @@
         "DELACC-COMMAREA/DELACC-SCODE @14+6",
         "DELACC-COMMAREA/DELACC-SUCCESS @98+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/DELACCZ.cpy": {
@@ -81753,10 +82096,16 @@
         "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
         "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/DELCUS.cpy": {
@@ -81772,30 +82121,48 @@
         "COMM-NAME/COMM-NAME @0+60",
         "COMM-SCODE/COMM-SCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/GETCOMPY.cpy": {
       "units": [
         "GETCOMPANYOPERATION/COMPANY-NAME @0+40"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/GETSCODE.cpy": {
       "units": [
         "GETSORTCODEOPERATION/SORTCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQACC.cpy": {
@@ -81814,10 +82181,16 @@
         "INQACC-COMMAREA/INQACC-SCODE @14+6",
         "INQACC-COMMAREA/INQACC-SUCCESS @98+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQACCCU.cpy": {
@@ -81840,10 +82213,16 @@
         "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
         "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQACCCZ.cpy": {
@@ -81867,10 +82246,16 @@
         "CUSTOMER-NUMBER/CUSTOMER-NUMBER @0+10",
         "NUMBER-OF-ACCOUNTS/NUMBER-OF-ACCOUNTS @0+4"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQACCZ.cpy": {
@@ -81890,10 +82275,16 @@
         "INQACC-COMMAREA/INQACC-SCODE @14+6",
         "INQACC-COMMAREA/INQACC-SUCCESS @98+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQCUST.cpy": {
@@ -81913,10 +82304,16 @@
         "INQCUST-NAME/INQCUST-NAME @0+60",
         "INQCUST-SCODE/INQCUST-SCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/INQCUSTZ.cpy": {
@@ -81937,10 +82334,16 @@
         "INQCUST-PCB-POINTER/INQCUST-PCB-POINTER @0+4",
         "INQCUST-SCODE/INQCUST-SCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/NEWACCNO.cpy": {
@@ -81950,10 +82353,16 @@
         "NEWACCNO-FUNCTION/NEWACCNO-FUNCTION @0+1",
         "NEWACCNO-SUCCESS/NEWACCNO-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/NEWCUSNO.cpy": {
@@ -81963,10 +82372,16 @@
         "NEWCUSNO-FUNCTION/NEWCUSNO-FUNCTION @0+1",
         "NEWCUSNO-SUCCESS/NEWCUSNO-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/PAYDBCR.cpy": {
@@ -81984,10 +82399,16 @@
         "COMM-SORTC/COMM-SORTC @0+6",
         "COMM-SUCCESS/COMM-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/PROCISRT.cpy": {
@@ -81997,10 +82418,16 @@
         "PROCISRT-COMMAREA/PROCISRT-DEBIT-SORTCODE @13+6",
         "PROCISRT-COMMAREA/PROCISRT-FUNCTION @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/PROCTRAN.cpy": {
@@ -82015,30 +82442,48 @@
         "PROC-TRAN-DATA/PROC-TRAN-TIME @26+6",
         "PROC-TRAN-DATA/PROC-TRAN-TYPE @44+3"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/SORTCODE.cpy": {
       "units": [
         "SORTCODE/SORTCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/STCUSTNO.cpy": {
       "units": [
         "CUSTOMER-NUMBER-KEY/CNO-KEY @0+10"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/UPDACC.cpy": {
@@ -82057,10 +82502,16 @@
         "COMM-SCODE/COMM-SCODE @0+6",
         "COMM-SUCCESS/COMM-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/UPDCUST.cpy": {
@@ -82076,10 +82527,16 @@
         "COMM-UPD-FAIL-CD/COMM-UPD-FAIL-CD @0+1",
         "COMM-UPD-SUCCESS/COMM-UPD-SUCCESS @0+1"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_copy/XFRFUN.cpy": {
@@ -82096,10 +82553,16 @@
         "COMM-TAVBAL/COMM-TAVBAL @0+12",
         "COMM-TSCODE/COMM-TSCODE @0+6"
       ],
-      "layouts_validated": false,
+      "layouts_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -82108,10 +82571,16 @@
       "units": [
         "L141 WRITE FILE ABNDFILE RIDFLD=ABND-VSAM-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -82122,10 +82591,16 @@
         "L1290 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY",
         "L1306 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
@@ -82133,10 +82608,16 @@
         "L162 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY",
         "L178 READ FILE CUSTOMER RIDFLD=CUSTOMER-CONTROL-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -82144,10 +82625,16 @@
         "L353 READ FILE CUSTOMER RIDFLD=DESIRED-KEY",
         "L371 READ FILE CUSTOMER RIDFLD=DESIRED-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/INQCUST.cbl": {
@@ -82159,20 +82646,32 @@
         "L609 READPREV FILE CUSTOMER RIDFLD=CUSTOMER-KY2",
         "L625 READPREV FILE CUSTOMER RIDFLD=CUSTOMER-KY2"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/UPDCUST.cbl": {
       "units": [
         "L220 READ FILE CUSTOMER RIDFLD=DESIRED-CUST-KEY"
       ],
-      "ridflds_validated": false,
+      "ridflds_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   },
@@ -82188,10 +82687,16 @@
         "L557 MOVE WS-NEW-REVIEW-YYYYMMDD(5:2) -> CUSTOMER-CS-REVIEW-MONTH",
         "L559 MOVE WS-NEW-REVIEW-YYYYMMDD(7:2) -> CUSTOMER-CS-REVIEW-DAY"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
@@ -82206,10 +82711,16 @@
         "L941 MOVE SUBPGM-LAST-STMT-DT(3:2) -> LSTMMMO",
         "L942 MOVE SUBPGM-LAST-STMT-DT(5:4) -> LSTMYYO"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
@@ -82218,10 +82729,16 @@
         "L1090 MOVE SUBPGM-CS-REVIEW-DATE(3:2) -> SCRDTMMO",
         "L1092 MOVE SUBPGM-CS-REVIEW-DATE(5:4) -> SCRDTYYO"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
@@ -82231,10 +82748,16 @@
         "L1130 COMPUTE WS-AMOUNT-UNSTR(1:WS-AMOUNT-UNSTR-L) -> WS-AMOUNT-AS-FLOAT",
         "L974 COMPUTE AMTI(1:AMTL) -> WS-AMOUNT-AS-FLOAT"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
@@ -82244,20 +82767,32 @@
         "L1044 UNSTRING AMTI(WS-NUM-COUNT-TOTAL:AMTL) -> WS-AMOUNT-UNSTR",
         "L1187 COMPUTE WS-AMOUNT-UNSTR(1:WS-AMOUNT-UNSTR-L) -> WS-AMOUNT-AS-FLOAT"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
       "units": [
         "L906 COMPUTE OVERDRI(1:OVERDRL) -> COMM-OVERDRAFT"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/CREACC.cbl": {
@@ -82290,10 +82825,16 @@
         "L963 MOVE STORED-NXT-STMT -> HV-PROCTRAN-DESC(27:8)",
         "L964 MOVE SPACES -> HV-PROCTRAN-DESC(35:6)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -82316,10 +82857,16 @@
         "L840 MOVE WS-NEW-REVIEW-YYYYMMDD(5:2) -> COMM-CS-REVIEW-DATE(3:2)",
         "L842 MOVE WS-NEW-REVIEW-YYYYMMDD(7:2) -> COMM-CS-REVIEW-DATE(1:2)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
@@ -82327,10 +82874,16 @@
         "L500 MOVE COMM-ORIGIN(1:14) -> HV-PROCTRAN-DESC",
         "L513 MOVE COMM-ORIGIN(1:14) -> HV-PROCTRAN-DESC"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -82356,10 +82909,16 @@
         "L629 MOVE WS-STOREDC-NAME -> HV-PROCTRAN-DESC(17:14)",
         "L630 MOVE WS-STOREDC-DATE-OF-BIRTH -> HV-PROCTRAN-DESC(31:10)"
       ],
-      "refmods_validated": false,
+      "refmods_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
       }
     }
   }

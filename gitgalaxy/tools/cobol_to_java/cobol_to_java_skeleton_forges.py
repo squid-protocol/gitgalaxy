@@ -70,6 +70,7 @@ class SkeletonForges:
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
             ("dto", "contract"): self.cics.dto_sources(),
             ("base_pkg", "client"): self.calls.client_sources(),
+            ("base_pkg", "cics"): self.cics.runtime_sources(),  # #3754: CicsTask
             **self.db2.sources(),
         }
         for where, files in self.uow.sources().items():  # #3621: exception + web packages

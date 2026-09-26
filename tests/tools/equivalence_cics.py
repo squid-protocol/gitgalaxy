@@ -312,6 +312,8 @@ def stub_files(ir: Any, program_file: str) -> list[dict[str, Any]]:
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
+        if key.key_offset is None or key.key_length is None or d.record_max is None:
+            raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
         out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": key.key_offset,
                     "key_length": key.key_length, "reclen": d.record_max, "via": via})  # fmt: skip
     return sorted(out, key=lambda f: f["file"])
@@ -488,3 +490,306 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "ABEND":
             res["abend"] = args
     return res
+
+
+# ---- the Java side --------------------------------------------------------------------
+_DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
+
+
+def dto_shape(src: Path, cls: str) -> dict[str, Any]:
+    """A generated DTO's properties: {java name: COBOL field name} for a field, {java name:
+    (DTO class, its shape)} for a part (a composite COMMAREA's segments), from the comment each
+    property carries (`// CDEMO-FROM-TRANID: PIC X(04), offset 0 ...`)."""
+    path = next(src.rglob(f"{cls}.java"))
+    shape: dict[str, Any] = {}
+    for comment, jtype, var in _DTO_FIELD.findall(path.read_text(encoding="utf-8")):
+        if " -> " in comment and list(src.rglob(f"{jtype}.java")):
+            shape[var] = (jtype, dto_shape(src, jtype))
+        elif ":" in comment:
+            shape[var] = comment.split(":", 1)[0].strip()
+    return shape
+
+
+def to_java(values: dict[str, Any], shape: dict[str, Any]) -> dict[str, Any]:
+    """{COBOL name: value} -> the DTO's JSON (numbers as numbers, text as the program holds it)."""
+    out: dict[str, Any] = {}
+    for var, spec in shape.items():
+        if isinstance(spec, tuple):
+            out[var] = to_java(values, spec[1])
+        elif spec in values:
+            v = values[spec]
+            try:
+                d = Decimal(v)
+                out[var] = int(d) if d == d.to_integral_value() else float(d)
+            except (ArithmeticError, ValueError, TypeError):
+                out[var] = v
+    return out
+
+
+def from_java(obj: dict[str, Any] | None, shape: dict[str, Any]) -> dict[str, Any]:
+    """The DTO's JSON -> {COBOL name: value}."""
+    out: dict[str, Any] = {}
+    for var, spec in shape.items():
+        v = (obj or {}).get(var)
+        if isinstance(spec, tuple):
+            out.update(from_java(v, spec[1]))
+        else:
+            out[spec] = v
+    return out
+
+
+def _generated_class(src: Path, pattern: str) -> str:
+    for p in sorted(src.rglob("*.java")):
+        if re.search(pattern, p.read_text(encoding="utf-8")):
+            return p.stem
+    raise RuntimeError(f"no generated class matches {pattern!r}")
+
+
+def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]]) -> str:
+    """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
+    each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
+    written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
+    import equivalence_java as ej
+
+    pkg = ej.PKG
+    svc = ej._service_class(case["program"])
+    var = svc[0].lower() + svc[1:]
+    ca = re.search(r"handleTransaction\(String transid, (\w+) request\)",
+                   next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
+    screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
+    by_base = {f["base"]: f for f in files}
+    fields, loads = [], []
+    for dsn, spec in case["datasets"].items():
+        ent = spec["entity"]
+        repo = f"{ent[0].lower()}{ent[1:]}Repository"
+        fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
+        loads.append(f'        load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});')
+    recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
+            f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
+            for m, cls in screens.items()]  # fmt: skip
+    return f"""package {pkg};
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import {pkg}.cics.CicsTask;
+import {pkg}.dto.screen.ScreenModel;
+import {pkg}.exception.CicsAbendException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+/** #3754: the CICS equivalence run of {case["program"]} ({case["name"]}) -- generated by tests/tools/equivalence_cics.py. */
+@SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
+class EquivalenceRunTest {{
+
+    static final Charset TEXT = StandardCharsets.ISO_8859_1;
+    final Path in = Path.of(System.getProperty("equivalence.in"));
+    final Path out = Path.of(System.getProperty("equivalence.out"));
+    final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
+
+    @Autowired {pkg}.service.{svc} {var};
+{chr(10).join(fields)}
+
+    @Test
+    void run() throws IOException {{
+{chr(10).join(loads)}
+        for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
+            Object commarea = sc.get("commarea").isNull() ? null
+                    : json.treeToValue(sc.get("commarea"), {pkg}.dto.contract.{ca}.class);
+            Map<String, Object> received = new LinkedHashMap<>();
+            JsonNode r = sc.get("receive");
+{chr(10).join(recv)}
+            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received);
+            try {{
+                {var}.runTask(task);
+            }} catch (CicsAbendException e) {{
+                task.abend(e.getAbcode());
+            }}
+            List<Map<String, Object>> events = new ArrayList<>();
+            for (Map<String, Object> e : task.events()) {{
+                Map<String, Object> copy = new LinkedHashMap<>(e);
+                if (copy.get("screen") instanceof ScreenModel s) {{
+                    copy.put("screen", s.screenValues());
+                }}
+                events.add(copy);
+            }}
+            json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
+        }}
+    }}
+
+    <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
+            throws IOException {{
+        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        List<E> rows = new ArrayList<>();
+        for (int i = 0; i + reclen <= data.length; i += reclen) {{
+            rows.add(fromRecord.apply(java.util.Arrays.copyOfRange(data, i, i + reclen), TEXT));
+        }}
+        repo.saveAll(rows);
+    }}
+}}
+"""
+
+
+def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
+                  port: bool = True, port_dir: Path | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+    """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
+    COMMAREA mapped back to COBOL field names through the DTO's own comments."""
+    import json
+
+    import equivalence_java as ej
+
+    project = ej.prepare_project(case, corpus, work, "", port, port_dir)
+    src = project / "src/main/java"
+    svc = ej._service_class(case["program"])
+    ca_cls = re.search(r"handleTransaction\(String transid, (\w+) request\)",
+                       next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
+    shape = dto_shape(src, ca_cls)
+    test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
+    test.write_text(cics_equivalence_test(case, src, files), encoding="utf-8")
+    inputs = work / "in"
+    inputs.mkdir(parents=True, exist_ok=True)
+    for f in files:
+        shutil.copy(cobol_work / "files" / f["base"], inputs / f"{f['base']}.in")
+    ca_fields = commarea_fields(corpus, case)
+    scenarios = []
+    for sc in case["scenarios"]:
+        ca = None
+        if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
+            ca = to_java(decode_record(encode_record(ca_fields, sc["commarea"], b"init"), ca_fields), shape)
+        scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
+                          "commarea": ca, "receive": sc.get("receive") or {}})  # fmt: skip
+    (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
+    out = ej.run_maven(project, work, inputs)
+    result = {}
+    for sc in case["scenarios"]:
+        f = out / f"{sc['name']}.json"
+        events = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+        for e in events:
+            if "commarea" in e:
+                e["commarea"] = from_java(e["commarea"], shape) if e["commarea"] is not None else None
+        result[sc["name"]] = events
+    return result
+
+
+# ---- the comparison -------------------------------------------------------------------
+def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
+    """The COBOL task's outputs as the event list CicsTask records."""
+    out: list[dict[str, Any]] = []
+    screens, texts = iter(res["screens"]), iter(res["text"])
+    for line in res["events"]:
+        verb, _, args = line.partition(" ")
+        if verb == "SEND-MAP":
+            s = next(screens)
+            out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"]})
+        elif verb == "SEND-TEXT":
+            out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "RETURN":
+            out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,
+                        "commarea": res["return"]["commarea"]})  # fmt: skip
+        elif verb == "XCTL":
+            out.append({"event": "XCTL", "program": res["xctl"]["program"], "commarea": res["xctl"]["commarea"]})
+        elif verb == "ABEND":
+            out.append({"event": "ABEND", "abcode": args.partition("=")[2]})
+    return out
+
+
+def _same(a: Any, b: Any) -> bool:
+    """Equal as the task means it: decimals exactly, text ignoring trailing blanks, absent == empty."""
+    if a is None or b is None:
+        return str(a or "").rstrip() == str(b or "").rstrip()
+    try:
+        return Decimal(str(a)) == Decimal(str(b))
+    except ArithmeticError:
+        return str(a).rstrip(" \x00") == str(b).rstrip(" \x00")
+
+
+def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> dict[str, Any]:
+    """Events paired in order; per pair, every differing field. {events, equal, diffs}."""
+    diffs, equal = [], 0
+    for n in range(max(len(cobol), len(java))):
+        c = cobol[n] if n < len(cobol) else None
+        j = java[n] if n < len(java) else None
+        if c is None or j is None or c["event"] != j["event"]:
+            diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
+            continue
+        bad = []
+        for key in ("map", "transid", "program", "text", "abcode"):
+            if key in c and not _same(c[key], j.get(key)):
+                bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
+        for part in ("screen", "commarea"):
+            cv, jv = c.get(part) or {}, j.get(part) or {}
+            for name in cv:
+                if not _same(cv[name], jv.get(name)):
+                    bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if bad:
+            diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
+        else:
+            equal += 1
+    return {"events": max(len(cobol), len(java)), "equal": equal, "diffs": diffs}
+
+
+def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
+    lines = [f"# {case['program']} -- COBOL vs Java ({report['java']}), CICS", "",
+             f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, transaction {case['transid']}, "
+             f"clock `{case['clock']}`. Each scenario is one task; its events (SEND MAP, SEND TEXT, RETURN, "
+             "XCTL, ABEND) are paired in order and compared field by field -- screen DATA fields and every "
+             "COMMAREA field (attribute bytes are not compared).", "",
+             "Stub files, from the engine's facts: " + "; ".join(
+                 f"`{f['file']}` -> {f['base']} key {f['key_length']}@{f['key_offset']}"
+                 + (f" via {', '.join(f['via'])}" if f["via"] else "") for f in report["files"]), "",
+             "| scenario | events equal | total |", "|---|---|---|"]  # fmt: skip
+    for name, d in report["outputs"].items():
+        lines.append(f"| {name} | {d['equal']} | {d['records']} |")
+    for name, d in report["outputs"].items():
+        if d["diffs"]:
+            lines += ["", f"## {name}: differences", "", "| event | field | COBOL | Java |", "|---|---|---|---|"]
+            for x in d["diffs"][:200]:
+                if "fields" not in x:
+                    lines.append(f"| {x['event']} | (event) | `{x['cobol']}` | `{x['java']}` |")
+                for fd in x.get("fields", []):
+                    lines.append(f"| {x['event']} ({x['kind']}) | {fd['field']} | `{fd['cobol']}` | `{fd['java']}` |")
+    return "\n".join(lines) + "\n"
+
+
+def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Path | None = None,
+             cobol_only: bool = False) -> int:  # fmt: skip
+    """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report."""
+    import json
+
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    ir = load_galaxy_ir(scan_to_db(corpus, work / "scan"))
+    files = stub_files(ir, case["program_source"])
+    cobol = run_cobol_cics(case, corpus, work / "cobol", files)
+    if cobol_only:
+        for name, res in cobol.items():
+            print(f"{name}: " + "; ".join(res["events"]))
+        return 0
+    java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir)
+    report: dict[str, Any] = {"case": case["name"], "program": case["program"], "kind": "cics", "files": files,
+                              "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
+    ok = True
+    for name, res in cobol.items():
+        d = compare_events(cobol_events(res), java.get(name, []))
+        report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
+                                   "cobol": cobol_events(res), "java": java.get(name, [])}  # fmt: skip
+        ok &= d["equal"] == d["events"]
+        print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
+        for x in d["diffs"][:6]:
+            print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
+    (work / "report.json").write_text(json.dumps(report, indent=2, default=str) + "\n", encoding="utf-8")
+    (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
+    print(f"report: {work / 'report.json'}")
+    return 0 if ok else 1

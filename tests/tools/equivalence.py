@@ -29,6 +29,12 @@ Diff -- per output: records paired in order (a KSDS in key order), every field o
 copybook layout compared -- numeric DISPLAY / COMP-3 / COMP as exact decimals,
 everything else byte for byte. The report gives, per program, records equal /
 total and every differing field.
+
+A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
+EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key
+pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
+the service's runTask -- and the tasks' events (SEND MAP, SEND TEXT, RETURN, XCTL, ABEND)
+are compared field by field.
 """
 
 from __future__ import annotations
@@ -352,6 +358,11 @@ def main() -> int:
     corpus = mc.require_clone(corpus_entry)
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     build_image()
+    if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
+        import equivalence_cics as ec
+
+        return ec.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
+                           cobol_only=args.cobol_only)  # fmt: skip
     cobol = run_cobol(case, corpus, work / "cobol")
     if args.cobol_only:
         for dd, data in cobol.items():

@@ -196,6 +196,14 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
     chan_in = (src / "dto/contract/ChanpgmChannelIn.java").read_text(encoding="utf-8")
     assert "private ChanpgmWsReq reqData;" in chan_in and "CONTAINER(REQ.DATA)" in chan_in
 
+    # #3754: a program with a transaction gets runTask(CicsTask), the whole task, as a port target
+    menu_service = (src / "service/MenuService.java").read_text(encoding="utf-8")
+    assert "public void runTask(CicsTask task) {" in menu_service
+    assert "import com.gitgalaxy.modernized.cics.CicsTask;" in menu_service
+    assert "public void runTask" not in service  # ACCTINQ is only LINKed to: no transaction, no task
+    task = (src / "cics/CicsTask.java").read_text(encoding="utf-8")
+    assert "public void returnTransid(String transid, Object commarea)" in task and "public void xctl(" in task
+
     assert not (src / "controller/BatchController.java").exists()  # batch: the generic path, unchanged
     audit = (src.parents[5] / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "CICS programs (#3615)    : 3 -- 1 with a COMMAREA DTO, 2 transaction endpoints" in audit

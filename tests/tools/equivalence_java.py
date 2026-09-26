@@ -128,12 +128,10 @@ class EquivalenceRunTest {{
 """
 
 
-def run_java(
-    case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port: bool = True, port_dir: Path | None = None
-) -> dict[str, bytes]:
-    """Generate, overlay, run; {dd: output bytes}. `inputs` holds the COBOL side's `<DD>.in`
-    fixed-length files -- the very bytes the COBOL program read. `port` False runs the generated
-    service as generated (the stub), the baseline the port is measured against."""
+def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source: str, port: bool = True,
+                    port_dir: Path | None = None) -> Path:  # fmt: skip
+    """The generated project (config `h2`) with the port overlaid and `test_source` as its
+    EquivalenceRunTest. `port` False keeps the generated service as generated (the stub)."""
     work.mkdir(parents=True, exist_ok=True)
     clean = jtm.refactor(corpus, work, scan=True)
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
@@ -144,13 +142,15 @@ def run_java(
         shutil.copy(f, dest)
     test = project / "src/test/java" / PKG_DIR / "EquivalenceRunTest.java"
     test.parent.mkdir(parents=True, exist_ok=True)
-    test.write_text(equivalence_test(case), encoding="utf-8")
+    test.write_text(test_source, encoding="utf-8")
+    return project
+
+
+def run_maven(project: Path, work: Path, inputs: Path) -> Path:
+    """Run EquivalenceRunTest; the directory it wrote its outputs to."""
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
-    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
-        if "input" in spec and not spec.get("entity"):
-            shutil.copy(inputs / f"{dd}.in", datasets / dd)
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
     cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
@@ -160,6 +160,22 @@ def run_java(
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])
         raise RuntimeError(f"Java side failed (see {work / 'maven.log'}):\n{tail}")
+    return out
+
+
+def run_java(
+    case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port: bool = True, port_dir: Path | None = None
+) -> dict[str, bytes]:
+    """Generate, overlay, run; {dd: output bytes}. `inputs` holds the COBOL side's `<DD>.in`
+    fixed-length files -- the very bytes the COBOL program read. `port` False runs the generated
+    service as generated (the stub), the baseline the port is measured against."""
+    project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
+    datasets = work / "datasets"
+    datasets.mkdir(parents=True, exist_ok=True)
+    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
+    out = run_maven(project, work, inputs)
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     outs["RETURN-CODE"] = out / "RETURN-CODE"
     read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing

@@ -109,6 +109,106 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
     return out
 
 
+# #3754: one CICS task, the runtime a program's runTask is written against.
+CICS_TASK_JAVA = """package __PACKAGE__.cics;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * One CICS task (#3754): what a transaction receives -- its TRANSID, the key the user pressed (EIBAID), the
+ * COMMAREA it was started with (none on a first entry, EIBCALEN = 0) and the screens it RECEIVEs -- and, in
+ * order, what the program does with it: SEND MAP / SEND TEXT, RETURN TRANSID with a COMMAREA, XCTL, ABEND.
+ * A program's service ports its PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the
+ * same task through the original COBOL and compares every event, field by field.
+ */
+public class CicsTask {
+
+    private final String transid;
+    private final String aid;
+    private final Object commarea;
+    private final Map<String, Object> received;
+    private final List<Map<String, Object>> events = new ArrayList<>();
+    private boolean ended;
+
+    /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. */
+    public CicsTask(String transid, String aid, Object commarea, Map<String, Object> received) {
+        this.transid = transid;
+        this.aid = aid;
+        this.commarea = commarea;
+        this.received = received == null ? Map.of() : received;
+    }
+
+    public String transid() {
+        return transid;
+    }
+
+    public String aid() {
+        return aid;
+    }
+
+    /** False on a first entry (EIBCALEN = 0). */
+    public boolean hasCommarea() {
+        return commarea != null;
+    }
+
+    public <T> T commarea(Class<T> type) {
+        return type.cast(commarea);
+    }
+
+    /** RECEIVE MAP: the screen the user sent, or empty (MAPFAIL) when nothing was received. */
+    public <T> Optional<T> receive(String map, Class<T> type) {
+        return Optional.ofNullable(received.get(map)).map(type::cast);
+    }
+
+    public void sendMap(String map, Object screen) {
+        event("SEND-MAP", "map", map, "screen", screen);
+    }
+
+    public void sendText(String text) {
+        event("SEND-TEXT", "text", text);
+    }
+
+    /** RETURN TRANSID(transid) COMMAREA(commarea): the task ends; `transid` null for a plain RETURN. */
+    public void returnTransid(String transid, Object commarea) {
+        event("RETURN", "transid", transid, "commarea", commarea);
+        ended = true;
+    }
+
+    public void xctl(String program, Object commarea) {
+        event("XCTL", "program", program, "commarea", commarea);
+        ended = true;
+    }
+
+    public void abend(String abcode) {
+        event("ABEND", "abcode", abcode);
+        ended = true;
+    }
+
+    public boolean ended() {
+        return ended;
+    }
+
+    public List<Map<String, Object>> events() {
+        return Collections.unmodifiableList(events);
+    }
+
+    private void event(String kind, Object... kv) {
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", kind);
+        for (int i = 0; i < kv.length; i += 2) {
+            e.put((String) kv[i], kv[i + 1]);
+        }
+        events.add(e);
+    }
+}
+"""
+
+
 @dataclass
 class Dto:
     name: str
@@ -554,6 +654,12 @@ class CicsForge:
         return [f"    public ResponseEntity<Void> {method}({params}) {{", f"        {svc}.{call}({args});",
                 "        return ResponseEntity.noContent().build();", "    }\n"]  # fmt: skip
 
+    def runtime_sources(self) -> dict[str, str]:
+        """#3754: CicsTask (package <pkg>.cics), when any program has a transaction to run as a task."""
+        if not any(p.transactions for p in self.programs.values()):
+            return {}
+        return {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package)}
+
     def service_extras(self, prog: CicsProgram) -> dict:
         """The imports and methods the program's @Service gains: the handlers its endpoints call."""
         req, resp = self.link_types(prog)
@@ -574,6 +680,18 @@ class CicsForge:
 
         if prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")
+            # #3754: the whole task -- the port's target, and what the equivalence harness drives
+            imports.append(f"import {self.package}.cics.CicsTask;")
+            methods += [
+                "    /** One pseudo-conversational task of this program (#3754). TODO: [AI AGENT] port the PROCEDURE",
+                "     *  DIVISION: read task.hasCommarea() / task.commarea(..) / task.aid() / task.receive(map, ..),",
+                "     *  and record what the program does through the task -- sendMap, sendText, returnTransid,",
+                "     *  xctl, abend -- in the order it does it. */",
+                "    public void runTask(CicsTask task) {",
+                f'        log.info("{prog.cls}: runTask");',
+                "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
+                "    }\n",
+            ]
         if self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):

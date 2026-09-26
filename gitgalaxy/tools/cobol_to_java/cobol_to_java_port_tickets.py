@@ -71,6 +71,16 @@ PORTING_RULES = [
         "methods) or the entity codecs, never a hand-written decoder."
     ),
     (
+        "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
+        "!task.hasCommarea(), DFHCOMMAREA is task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, "
+        "PF1-PF24, PA1-PA3), RECEIVE MAP is task.receive(map, <its screen>.class) (empty = MAPFAIL), SEND MAP "
+        "is task.sendMap(map, screen), SEND TEXT / SEND is task.sendText, RETURN TRANSID COMMAREA is "
+        "task.returnTransid, XCTL is task.xctl, ABEND is task.abend -- in the order the program does them, and "
+        "the task ends at RETURN / XCTL / ABEND. A file READ is the service's generated read method (an empty "
+        "result is NOTFND, DFHRESP 13). A screen field shows what the symbolic map's O field would hold: text "
+        "as moved, an edited PICTURE formatted as COBOL formats it."
+    ),
+    (
         "Read the time only from the generated batch runtime's MainframeClock (now()), never from the "
         "system clock directly: it is how a run is pinned to be compared with the original."
     ),

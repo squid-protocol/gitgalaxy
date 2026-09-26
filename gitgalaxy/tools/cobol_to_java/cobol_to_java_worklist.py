@@ -51,7 +51,7 @@ class Category:
 
 CATEGORIES = (
     Category("commarea-mismatch", "COMMAREA layout mismatches", "conflict",
-             ("this site passes", "callers also pass"),
+             ("this site passes", "callers also pass", "disagrees with this program's declared"),
              "For each caller, confirm which layout the callee reads (the COBOL MOVEs into DFHCOMMAREA say); "
              "map that caller's record onto the DTO, or give the callee one DTO per entry."),
     Category("record-variant", "Programs reading another record layout", "conflict",
@@ -59,7 +59,8 @@ CATEGORIES = (
              "Map the program's record onto the entity's fields (or split the entity); "
              "the two layouts' sizes are in the TODO."),
     Category("missing-layout", "Unresolved layouts", "fact-gap",
-             ("no COMMAREA layout", "the layout of", "COPY members not found", "was not found in the DATA DIVISION"),
+             ("no COMMAREA layout", "the layout of", "COPY members not found", "was not found in the DATA DIVISION",
+              "has no known width"),
              "Add the missing copybook or record to the repository and re-run; the DTO then gets its real fields."),
     Category("vsam-key", "Keys that are not one field", "fact-gap",
              ("the key (offset", "no key is known", "STARTBR / READNEXT", "alternate index", "start from a key",

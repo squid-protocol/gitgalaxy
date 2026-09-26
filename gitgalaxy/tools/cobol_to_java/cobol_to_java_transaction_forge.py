@@ -70,6 +70,40 @@ def _field_lines(layout: dict) -> tuple[list[str], bool]:
     return lines, requires_list
 
 
+def _mismatch_text(mismatches: list) -> str:
+    parts = []
+    for m in mismatches:
+        if m["kind"] == "length":
+            parts.append(f"{m['caller']} vs {m['callee']} bytes")
+        elif m["kind"] == "shape":
+            parts.append(f"fields first differ at {m['caller']} / {m['callee']}")
+        else:
+            parts.append(m["kind"])
+    return "; ".join(parts)
+
+
+def commarea_alternative_todos(commarea: dict) -> list[str]:
+    """One TODO per other record callers pass. #3688: when the program's own declared
+    DFHCOMMAREA won over the callers' (`mismatches` rides on each alternative), each says
+    how that caller disagrees, or that its width is unknown -- a conflict to settle."""
+    out = []
+    for alt in commarea.get("alternatives", []):
+        sites = ", ".join(f"{s['caller']}:{s['line']}" for s in alt["sources"])
+        if alt.get("view") == "coarser":
+            continue  # the same bytes as the declaration, some as one block: nothing to settle
+        if "mismatches" not in alt:
+            out.append(f"TODO: callers also pass {alt['record']} ({alt['file']}, {alt['bytes']} bytes) at {sites}.")
+        elif alt["bytes"] is None or alt.get("variable"):
+            size = f", variable, up to {alt['bytes']} bytes" if alt.get("variable") and alt["bytes"] else ""
+            out.append(f"TODO: {alt['record']} ({alt['file']}{size}), passed at {sites}, has no known width; this program's "
+                       f"declared {commarea['record']} ({commarea['bytes']} bytes) is used -- confirm the callers pass it.")  # fmt: skip
+        else:
+            out.append(f"TODO: {alt['record']} ({alt['file']}, {alt['bytes']} bytes), passed at {sites}, disagrees "
+                       f"with this program's declared {commarea['record']} ({commarea['bytes']} bytes: "
+                       f"{_mismatch_text(alt['mismatches'])}) -- confirm which layout the program reads.")  # fmt: skip
+    return out
+
+
 @dataclass
 class Dto:
     name: str
@@ -402,11 +436,7 @@ class CicsForge:
         if prog.commarea:
             c = prog.commarea
             java.append(f" * COMMAREA: {c['record']} ({c['file']}, {c['bytes']} bytes) -> {prog.commarea_dto}.")
-            for alt in c.get("alternatives", []):
-                sites = ", ".join(f"{s['caller']}:{s['line']}" for s in alt["sources"])
-                java.append(
-                    f" * TODO: callers also pass {alt['record']} ({alt['file']}, {alt['bytes']} bytes) at {sites}."
-                )
+            java += [f" * {todo}" for todo in commarea_alternative_todos(c)]
         elif prog.channel_in or prog.channel_out:
             java.append(" * No COMMAREA: the program exchanges its data through its channel's containers.")
         elif prog.commarea_gap:
@@ -426,11 +456,7 @@ class CicsForge:
         req, resp = self.link_types(prog)
         todos = []
         if prog.commarea:
-            for alt in prog.commarea.get("alternatives", []):
-                sites = ", ".join(f"{s['caller']}:{s['line']}" for s in alt["sources"])
-                todos.append(
-                    f"TODO: callers also pass {alt['record']} ({alt['file']}, {alt['bytes']} bytes) at {sites}."
-                )
+            todos += commarea_alternative_todos(prog.commarea)
         elif prog.commarea_gap:
             todos.append(f"TODO: no COMMAREA layout: {prog.commarea_gap}.")
 

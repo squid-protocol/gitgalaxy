@@ -377,6 +377,29 @@ class BatchForge:
 
 
 _RUNTIME = {
+    "MainframeClock": """package {pkg};
+
+import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/** The time a ported program reads -- FUNCTION CURRENT-DATE, ACCEPT FROM DATE / TIME, EXEC CICS ASKTIME
+ *  (#3753): `gitgalaxy.clock` (an ISO local date-time, e.g. 2022-07-18T10:30:15.00) when set -- the
+ *  equivalence harness pins it, so a run can be compared with the original's -- else the system clock. */
+@Component
+public class MainframeClock {
+
+    private final String pinned;
+
+    public MainframeClock(@Value("${gitgalaxy.clock:}") String pinned) {
+        this.pinned = pinned == null ? "" : pinned.trim();
+    }
+
+    public LocalDateTime now() {
+        return pinned.isEmpty() ? LocalDateTime.now() : LocalDateTime.parse(pinned);
+    }
+}
+""",
     "Dd": """package {pkg};
 
 /** One DD statement of a job step (#3622): its DD name, dataset (DSN, null for SYSOUT / DUMMY / in-stream),

@@ -128,14 +128,16 @@ class EquivalenceRunTest {{
 """
 
 
-def run_java(case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port: bool = True) -> dict[str, bytes]:
+def run_java(
+    case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port: bool = True, port_dir: Path | None = None
+) -> dict[str, bytes]:
     """Generate, overlay, run; {dd: output bytes}. `inputs` holds the COBOL side's `<DD>.in`
     fixed-length files -- the very bytes the COBOL program read. `port` False runs the generated
     service as generated (the stub), the baseline the port is measured against."""
     work.mkdir(parents=True, exist_ok=True)
     clean = jtm.refactor(corpus, work, scan=True)
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
-    port_dir = CASES / case["name"] / "port"
+    port_dir = port_dir or CASES / case["name"] / "port"  # #3753: any candidate port, laid out the same way
     for f in port_dir.rglob("*.java") if port else []:
         dest = project / "src/main/java" / PKG_DIR / f.relative_to(port_dir)
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -146,6 +148,9 @@ def run_java(case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port:
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
+    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
     cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
@@ -156,4 +161,8 @@ def run_java(case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])
         raise RuntimeError(f"Java side failed (see {work / 'maven.log'}):\n{tail}")
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
-    return {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+    outs["RETURN-CODE"] = out / "RETURN-CODE"
+    read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+    if "RETURN-CODE" in read:
+        read["RETURN-CODE"] = read["RETURN-CODE"].strip()  # a number, not a record: whitespace is not data
+    return read

@@ -61,6 +61,20 @@ PORTING_RULES = [
         " log line; the step's RETURN-CODE is runBatch's return value."
     ),
     (
+        "A sequential dataset is fixed-length records (RECFM=FB): write each record's toRecord(...) bytes "
+        "back to back, with no line separators, to the file DatasetResolver.path(dd) names; read it the same "
+        "way."
+    ),
+    (
+        "Decode and encode a numeric field held in record bytes or a text column (zoned with an overpunched "
+        "sign, COMP-3, COMP) only through the generated CobolRecords (zoned / packed / binary and their put "
+        "methods) or the entity codecs, never a hand-written decoder."
+    ),
+    (
+        "Read the time only from the generated batch runtime's MainframeClock (now()), never from the "
+        "system clock directly: it is how a run is pinned to be compared with the original."
+    ),
+    (
         "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "
         "field-tested: where the source contradicts it, follow the source and say so in the port's notes."
     ),

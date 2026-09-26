@@ -1015,6 +1015,7 @@ class RecordKeeper:
                 line_number INTEGER,
                 attributes TEXT,
                 copy_members TEXT,
+                sign_separate INTEGER,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -1026,6 +1027,9 @@ class RecordKeeper:
         # recorded: expanding the member is the reader's job (galaxy_ir), so a
         # COMMAREA record and a callee's DFHCOMMAREA can be compared field by field.
         _ensure_columns(cursor, "record_data", ["copy_members TEXT"])
+        # #3694: `sign_separate` -- 1 when a COBOL item codes SIGN ... SEPARATE (its sign
+        # takes a byte of its own), NULL otherwise; widths are the reader's job (galaxy_ir).
+        _ensure_columns(cursor, "record_data", ["sign_separate INTEGER"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -2817,6 +2821,7 @@ class RecordKeeper:
                 "line_number",
                 "attributes",
                 "copy_members",
+                "sign_separate",
             ),
             "record_layouts",
             lambda it: (
@@ -2836,6 +2841,7 @@ class RecordKeeper:
                 int(it.get("line", 0) or 0),
                 it.get("attributes"),
                 it.get("copy_members"),  # #3355
+                1 if it.get("sign_separate") else None,  # #3694
             ),
         )
 

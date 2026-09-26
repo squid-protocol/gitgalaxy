@@ -6,11 +6,6 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
-    "engine_sign_separate_bytes": {
-      "issue": 3694,
-      "kind": "defect",
-      "summary": "the engine sizes PIC S9(n) DISPLAY SIGN ... SEPARATE as n bytes, not n+1 (record_data keeps no SIGN clause)"
-    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
@@ -573,12 +568,6 @@
     },
     "cics-banking-sample-application-cbsa": {
       "mismatches": {
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-RESP2CODE/ABND-RESP2CODE @0+8 | fp": "engine_sign_separate_bytes",
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-RESP2CODE/ABND-RESP2CODE @0+9 | fn": "engine_sign_separate_bytes",
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-RESPCODE/ABND-RESPCODE @0+8 | fp": "engine_sign_separate_bytes",
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-RESPCODE/ABND-RESPCODE @0+9 | fn": "engine_sign_separate_bytes",
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-SQLCODE/ABND-SQLCODE @0+8 | fp": "engine_sign_separate_bytes",
-        "engine | copybook layouts | src/base/cobol_copy/ABNDINFO.cpy | ABND-SQLCODE/ABND-SQLCODE @0+9 | fn": "engine_sign_separate_bytes",
         "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | GMOOH010 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
@@ -1248,7 +1237,7 @@
         "copybook layouts": {
           "engine": {
             "got": 389,
-            "tp": 386,
+            "tp": 389,
             "truth": 389
           },
           "forge": null,

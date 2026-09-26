@@ -693,6 +693,10 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
     return out
 
 
+# #3694: `SIGN IS LEADING SEPARATE [CHARACTER]` / `TRAILING SEPARATE`: the sign takes a byte of its own.
+_SIGN_SEPARATE_CLAUSE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b", re.IGNORECASE)
+
+
 def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
     """The DATA DIVISION item tree and FD record layouts of one COBOL file (#3246).
 
@@ -837,6 +841,8 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
                 "line": _line_of(start),
                 # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
+                # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
+                **({"sign_separate": True} if _SIGN_SEPARATE_CLAUSE.search(window) else {}),
             }
         )
     return records

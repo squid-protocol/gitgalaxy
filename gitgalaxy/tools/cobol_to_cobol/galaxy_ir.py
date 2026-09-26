@@ -308,6 +308,8 @@ class EngineDataItem:
     # #3355: the COPY member(s) that expand right after this entry, comma-separated
     # (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'); None when no COPY follows.
     copy_members: Optional[str] = None
+    # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own.
+    sign_separate: bool = False
 
     @property
     def is_group(self) -> bool:
@@ -4494,6 +4496,8 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
         return 2 if digits <= 4 else 4 if digits <= 9 else 8
     storage = [p for p in positions if p not in ("S", "V", "P")]
     width = sum(2 if p in ("N", "G") else 1 for p in storage)
+    if width and item.sign_separate and "S" in positions:
+        width += 1  # #3694: SIGN ... SEPARATE -- the sign is a character of its own
     return width or None
 
 
@@ -4734,6 +4738,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             attributes_col = "attributes" if _has_column(cur, "record_data", "attributes") else "NULL"
             # #3355: `copy_members` likewise.
             copy_col = "copy_members" if _has_column(cur, "record_data", "copy_members") else "NULL"
+            # #3694: `sign_separate` likewise (an older DB sizes every sign as embedded).
+            sign_col = "sign_separate" if _has_column(cur, "record_data", "sign_separate") else "NULL"
             for (
                 file_id,
                 ordinal,
@@ -4752,10 +4758,11 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 line,
                 attrs,
                 copies,
+                sign_sep,
             ) in cur.execute(
                 "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                 "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
-                f"{attributes_col}, {copy_col} FROM record_data WHERE repo_name = ? AND commit_hash = ? "
+                f"{attributes_col}, {copy_col}, {sign_col} FROM record_data WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
             ):
@@ -4779,6 +4786,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(line or 0),
                         attributes=attrs,
                         copy_members=copies,
+                        sign_separate=bool(sign_sep),
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is

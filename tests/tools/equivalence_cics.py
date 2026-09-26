@@ -31,16 +31,9 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
+import equivalence_common as common
 
-def _eq():
-    """The batch harness (equivalence.py), imported on use: it dispatches CICS cases here, so a
-    module-level import would be a cycle."""
-    import equivalence
-
-    return equivalence
-
-
-STUB = Path(__file__).resolve().parents[1] / "equivalence" / "cics"  # == equivalence.CASES / "cics"
+STUB = common.CASES / "cics"
 
 # The documented CICS response codes (DFHRESP) the translator replaces by number.
 DFHRESP = {
@@ -212,7 +205,7 @@ def translate(source: str) -> tuple[str, bool]:
     while i < len(lines):
         line = lines[i]
         code = line[7:72] if len(line) > 7 else ""
-        if len(line) > 6 and line[6] in "*/" or not _EXEC.search(code):
+        if (len(line) > 6 and line[6] in "*/") or not _EXEC.search(code):
             out.append(line)
             i += 1
             continue
@@ -329,7 +322,7 @@ def stub_files(ir: Any, program_file: str) -> list[dict[str, Any]]:
 # ---- field values <-> bytes -----------------------------------------------------------
 def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) -> bytes:
     """A value as the field stores it (the inverse of equivalence.decode_field)."""
-    num = _eq()._pic_numeric(pic) if pic else None
+    num = common._pic_numeric(pic) if pic else None
     if num is None:
         return str(value).encode("latin-1")[:nbytes].ljust(nbytes, b" ")
     signed, digits, scale = num
@@ -363,7 +356,7 @@ def encode_record(fields: list[dict[str, Any]], values: dict[str, Any], fill: by
         elif f["name"] in values:
             rec[sl] = encode_field(values[f["name"]], f["pic"], f["usage"], f["bytes"])
         elif fill == b"init":
-            num = _eq()._pic_numeric(f["pic"]) if f["pic"] else None
+            num = common._pic_numeric(f["pic"]) if f["pic"] else None
             rec[sl] = encode_field(0 if num else "", f["pic"], f["usage"], f["bytes"])
         else:
             rec[sl] = fill * f["bytes"]
@@ -378,7 +371,7 @@ def decode_record(data: bytes, fields: list[dict[str, Any]]) -> dict[str, str]:
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
             continue
-        v = _eq().decode_field(raw, f["pic"], f["usage"])
+        v = common.decode_field(raw, f["pic"], f["usage"])
         out[f["name"]] = str(v) if not isinstance(v, str) else v.rstrip(" \x00")
     return out
 
@@ -398,7 +391,7 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end."""
     out, at = [], 0
     for seg in case["commarea"]["segments"]:
-        fields = _eq().layout_fields(corpus, seg["copybook"], seg["record"])
+        fields = common.layout_fields(corpus, seg["copybook"], seg["record"])
         out += [dict(f, offset=f["offset"] + at) for f in fields]
         at += max(f["offset"] + f["bytes"] for f in fields)
     return out
@@ -406,7 +399,7 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
 
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
     scr = case["screens"][map_name]
-    return _eq().layout_fields(corpus, scr["copybook"], scr[side])
+    return common.layout_fields(corpus, scr["copybook"], scr[side])
 
 
 def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[dict[str, Any]]) -> dict[str, Any]:
@@ -433,7 +426,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
         (work / "files" / f["base"]).write_bytes(
-            _eq()._fixed(_eq()._input_path(case, corpus, spec["input"]), f["reclen"])
+            common._fixed(common._input_path(case, corpus, spec["input"]), f["reclen"])
         )
     ca_fields = commarea_fields(corpus, case)
     compile_task = (
@@ -461,7 +454,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
     proc = subprocess.run(  # noqa: S603 -- fixed argv, a local image
-        ["docker", "run", "--rm", "-v", f"{work}:/work", _eq().IMAGE, "bash", "/work/run.sh"],  # noqa: S607
+        ["docker", "run", "--rm", "-v", f"{work}:/work", common.IMAGE, "bash", "/work/run.sh"],  # noqa: S607
         capture_output=True, text=True, check=False,
     )  # fmt: skip
     if proc.returncode != 0:

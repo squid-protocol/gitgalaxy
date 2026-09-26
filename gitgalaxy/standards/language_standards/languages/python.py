@@ -86,6 +86,8 @@ DEFINITION: dict[str, Any] = {
     # The code a module runs at import (`app = FastAPI()`, `@app.post(...)`) becomes a
     # `__global_context__` bucket, as in Mode D, so its calls are recorded.
     "module_level_unit": True,
+    # Decorator edges: a decorated function -> each decorator applied to it.
+    "decorator_edges": True,
     # #3545/#3544: imports resolve by Python's own module rule in network_risk_sensor.py:
     # `a.b` is a/b.py or the package a/b/__init__.py under a source root, and a package name
     # binds its __init__.py. A top-level key, not in `rules` (#2806).

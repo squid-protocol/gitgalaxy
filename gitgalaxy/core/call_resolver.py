@@ -816,6 +816,7 @@ def resolve_calls(
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}
     transfers: Counter[str] = Counter()
+    decorators: Counter[str] = Counter()
 
     for f in parsed_files:
         src_path = f.get("path", "")
@@ -823,30 +824,43 @@ def resolve_calls(
         group = _group(lang)
         caller = _File(src_path, lang, imports.get(src_path, set()))
         lang_counts = by_lang.setdefault(lang, Counter())
+        # A module's own receiver types (`app = FastAPI()` at top level) hold in
+        # every function of the file that does not bind that name itself.
+        module_types: dict[str, str] = {}
+        for unit in f.get("functions", []) or []:
+            if unit.get("calls_only"):
+                module_types.update(unit.get("calls_out_receiver_types") or {})
         for func in f.get("functions", []) or []:
             # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
             # resolves by the same ladder (it names a unit the same way) but is
             # its own `kind`: it never counts toward the call-resolution rates.
             callees = [(c, "call") for c in func.get("calls_out_to") or []]
             callees += [(t, "transfer") for t in func.get("transfers_to") or []]
+            # Decorators: the decorated function -> each decorator applied to it
+            # (its wrapper runs around every call). Same ladder, own `kind`, and
+            # like a transfer never counted in the call-resolution rates.
+            callees += [(d, "decorator") for d in func.get("decorated_by") or []]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
             caller_line = int(func.get("start_line", 0) or 0)
             lineage = _lineage(func.get("parent_class_name") or _leaf(caller_name)[1], group, lang, parents)
             qualifier_map = func.get("calls_out_qualifiers") or {}
+            decorator_map = func.get("decorated_by_qualifiers") or {}
             # receiver -> its class's lineage, for receivers whose class the scan
             # knows (a factory function's name is not a class, and is ignored)
+            # knows. A name the function binds itself with no known class ("")
+            # hides the module's type for it rather than inheriting it.
+            receiver_types = {**module_types, **(func.get("calls_out_receiver_types") or {})}
             typed = {
                 q: _lineage(c, group, lang, parents)
-                for q, c in (func.get("calls_out_receiver_types") or {}).items()
-                if _is_class(index, group, str(c), lang)
+                for q, c in receiver_types.items()
+                if c and _is_class(index, group, str(c), lang)
             }
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
-                options: list[Optional[str]] = (list(qualifier_map.get(callee) or []) if kind == "call" else []) or [
-                    None
-                ]
+                quals = qualifier_map if kind == "call" else decorator_map if kind == "decorator" else {}
+                options: list[Optional[str]] = list(quals.get(callee) or []) or [None]
                 step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
                 used = options[0]
                 for q in options[1:]:
@@ -865,6 +879,8 @@ def resolve_calls(
                 if kind == "call":
                     by_step[step] += 1
                     lang_counts[resolution] += 1
+                elif kind == "decorator":
+                    decorators[step] += 1
                 else:
                     transfers[step] += 1
                 sites.append(
@@ -897,6 +913,7 @@ def resolve_calls(
         "by_resolution": dict(by_resolution),
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
         "transfers_by_step": dict(transfers),
+        "decorators_by_step": dict(decorators),
     }
     return sites, stats
 

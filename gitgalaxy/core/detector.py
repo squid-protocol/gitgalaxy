@@ -191,6 +191,11 @@ class FunctionNode(TypedDict, total=False):
     # function calls methods on. Only unconflicted evidence; empty where the
     # language does not opt in (`calls_out_receiver_types`).
     calls_out_receiver_types: dict[str, str]
+    # The decorators applied to this unit, as callee names with their receiver
+    # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
+    # like calls, recorded as fcall_data kind 'decorator'. Python only.
+    decorated_by: list[str]
+    decorated_by_qualifiers: dict[str, list[str]]
     # #3362: unconditional-transfer targets (COBOL GO TO), beside calls_out_to.
     transfers_to: list[str]
     hit_vector: dict[str, int]
@@ -1012,6 +1017,53 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
+# Decorators (Python): `@name` / `@a.b.name(...)` lines directly above a def.
+_DECORATOR_NAME = re.compile(r"(?m)^[ \t]*@[ \t]*([A-Za-z_][\w.]{0,200})")
+_DECORATOR_LOOKBACK_LINES = 60
+_BRACKET_DEPTH = str.maketrans({"(": "(", "[": "(", "{": "(", ")": ")", "]": ")", "}": ")"})
+
+
+def _python_decorators(safe_code: str, def_idx: int) -> list[tuple[str, str]]:
+    """(leaf, qualifier) for each decorator applied to the def at `def_idx`, outermost first.
+
+    Reads the contiguous block of decorator lines directly above the def, at the
+    def's own indentation, argument lines included (`@app.get(\n  "/x",\n)`), in
+    the index-aligned shielded text so a bracket inside a string cannot unbalance
+    it. `@app.post(...)` -> ("post", "app"); `@provide_bucket_name` ->
+    ("provide_bucket_name", ""). Bounded to `_DECORATOR_LOOKBACK_LINES` lines.
+    """
+    line_start = safe_code.rfind("\n", 0, def_idx) + 1
+    line_end = safe_code.find("\n", def_idx)
+    def_line = safe_code[line_start : line_end if line_end != -1 else len(safe_code)]
+    indent = def_line[: len(def_line) - len(def_line.lstrip(" \t"))]
+    lines: list[str] = []
+    pos = line_start
+    while pos > 0 and len(lines) < _DECORATOR_LOOKBACK_LINES:
+        prev = safe_code.rfind("\n", 0, pos - 1) + 1
+        lines.insert(0, safe_code[prev : pos - 1])
+        pos = prev
+
+    def reaches_def(block: list[str]) -> bool:
+        depth = 0
+        for line in block:
+            if depth == 0 and line.strip() and not (line.startswith(indent + "@") and line[len(indent)] == "@"):
+                return False
+            t = line.translate(_BRACKET_DEPTH)
+            depth += t.count("(") - t.count(")")
+            if depth < 0:
+                return False
+        return depth == 0
+
+    for i, line in enumerate(lines):
+        if line.startswith(indent) and line[len(indent) : len(indent) + 1] == "@" and reaches_def(lines[i:]):
+            out = []
+            for m in _DECORATOR_NAME.finditer("\n".join(lines[i:])):
+                parts = m.group(1).rstrip(".").split(".")
+                out.append((parts[-1], ".".join(parts[:-1])))
+            return out
+    return []
+
+
 # Module-level Python text: blanked `class Name` headers (a class statement is
 # not a call to the class); unit spans are blanked with _NON_NEWLINE.
 _MODULE_CLASS_HEADER = re.compile(r"(?m)^([ \t]*class[ \t]+)([A-Za-z_]\w{0,127})")
@@ -1045,7 +1097,8 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     an assignment from a call (`app = FastAPI()`, `self.x = mod.Parser(...)`) or
     an annotated one (`x: Foo = make()`), and `with Foo(...) as f`. A name with
     two different answers, or also assigned from a non-call (`x = y`) or bound
-    by a `for` loop, is dropped rather than guessed. The resolver checks that
+    by a `for` loop, maps to "" rather than a guess (so the resolver does not
+    fall back to a module-level type for it either). The resolver checks that
     the answer is a class it knows; a factory function's name is ignored there.
     """
     found: dict[str, Optional[str]] = {}
@@ -1075,7 +1128,8 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     for m in _RECV_FOR.finditer(text):
         for target in re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)):
             note(target, None)
-    return {k: v for k, v in found.items() if v}
+    # "" = bound here with no single known class: it hides a module-level type
+    return {k: v or "" for k, v in found.items()}
 
 
 # #3644 (C3): words that can stand before `name(` at the start of a C++ statement
@@ -6925,6 +6979,15 @@ class StructuralExtractor:
                 end_idx,
                 spatial_map,
             )
+
+            if lang_id and self.languages.get(lang_id, {}).get("decorator_edges"):
+                decorators = _python_decorators(safe_code, start_idx)
+                sat["decorated_by"] = list(dict.fromkeys(leaf for leaf, _ in decorators))
+                sat["decorated_by_qualifiers"] = {}
+                for leaf, qualifier in decorators:
+                    seen = sat["decorated_by_qualifiers"].setdefault(leaf, [])
+                    if qualifier not in seen:
+                        seen.append(qualifier)
 
             satellites.append(sat)
             sum_fxn_impact += mag

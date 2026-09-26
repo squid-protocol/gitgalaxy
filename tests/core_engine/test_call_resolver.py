@@ -590,3 +590,42 @@ def test_a_receiver_type_that_is_not_a_known_class_changes_nothing():
     typed = _site(resolve_calls(_typed_files({"app": "create_app"}))[0], "post")
     plain = _site(resolve_calls(_typed_files({}))[0], "post")
     assert typed["step"] == plain["step"] != "typed"
+
+
+# ----------------------------------------------------------------------------- decorators
+
+
+def _decorated_files(handler_types=None):
+    handler = _fn("create_item", 12)
+    handler["decorated_by"] = ["post", "provide"]
+    handler["decorated_by_qualifiers"] = {"post": ["app"], "provide": [""]}
+    if handler_types is not None:
+        handler["calls_out_receiver_types"] = handler_types
+    module = _fn("__global_context__", 1, calls=["FastAPI"], quals={"FastAPI": [""]})
+    module.update({"is_synthetic_slice": True, "calls_only": True, "calls_out_receiver_types": {"app": "FastAPI"}})
+    return [
+        _file("fastapi/applications.py", "python", [_fn("post", 20, owner="FastAPI")],
+              [{"name": "FastAPI", "inheritance": [], "start_line": 5}]),
+        _file("fastapi/routing.py", "python", [_fn("post", 40, owner="APIRouter")],
+              [{"name": "APIRouter", "inheritance": [], "start_line": 3}]),
+        _file("main.py", "python", [module, handler, _fn("provide", 30)]),
+    ]  # fmt: skip
+
+
+def test_decorators_are_their_own_kind_and_use_module_receiver_types():
+    sites, stats = resolve_calls(_decorated_files())
+    rows = {s["callee"]: s for s in sites if s["kind"] == "decorator"}
+    assert (rows["post"]["step"], rows["post"]["dst_path"], rows["post"]["src_name"]) == (
+        "typed",
+        "fastapi/applications.py",
+        "create_item",
+    )
+    assert (rows["provide"]["step"], rows["provide"]["dst_line"]) == ("file", 30)
+    assert stats["decorators_by_step"] == {"typed": 1, "file": 1}
+    # decorators never count toward the call-resolution rates
+    assert sum(stats["by_step"].values()) == 1  # the module's FastAPI() call only
+
+
+def test_a_locally_rebound_name_hides_the_module_type():
+    rows = {s["callee"]: s for s in resolve_calls(_decorated_files({"app": ""}))[0] if s["kind"] == "decorator"}
+    assert rows["post"]["step"] != "typed"

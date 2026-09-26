@@ -348,6 +348,12 @@ class StateRehydrator:
                             _json_list(r["calls_out_to"]) if "calls_out_to" in rk else [],
                             _json_list(r["calls_out_qualifiers"]) if "calls_out_qualifiers" in rk else None,
                         ),
+                        # the decorators applied to it (the resolver's kind='decorator' edges)
+                        "decorated_by": _json_list(r["decorated_by"]) if "decorated_by" in rk else [],
+                        "decorated_by_qualifiers": decode_qualifiers(
+                            _json_list(r["decorated_by"]) if "decorated_by" in rk else [],
+                            _json_list(r["decorated_by_qualifiers"]) if "decorated_by_qualifiers" in rk else None,
+                        ),
                         # the receiver -> class map the resolver's `typed` step reads
                         "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"])
                         if "calls_out_receiver_types" in rk

@@ -63,7 +63,7 @@ _LINE_SLACK = 3
 
 _LINKS_SQL = """
 SELECT sfd.file_path, sfn.func_name, sfn.start_line, c.callee, c.step,
-       dfd.file_path, dfn.func_name, dfn.start_line
+       dfd.file_path, dfn.func_name, dfn.start_line, c.kind
 FROM fcall_data c
 JOIN function_data sfn ON sfn.id = c.src_func_id
 JOIN file_data sfd ON sfd.id = sfn.file_id
@@ -178,7 +178,8 @@ def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line:
 
 def score_python(samples: int = 0) -> dict[str, Any]:
     root = CRUCIBLE / "data" / "python"
-    totals = {g: collections.Counter() for g in ("confident", "ambiguous")}
+    totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator")}
+    recall_dec_hits = 0
     recall_hits = recall_total = 0
     named_hits = named_total = 0
     wrong_examples: list[str] = []
@@ -187,8 +188,25 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         defs, edges, by_name = _pyan_graph(repo)
         db = _scan(repo)
         mine: set[tuple] = set()
+        mine_dec: set[tuple] = set()
         repo_counts = {g: collections.Counter() for g in totals}
-        for sp, sn, sl, _callee, step, dp, dn, dl in _links(db):
+        for sp, sn, sl, _callee, step, dp, dn, dl, kind in _links(db):
+            if kind == "decorator":
+                # decorated function -> decorator: its own precision and recall line;
+                # the gated call metrics below stay calls-only
+                ks, kd = _to_pyan(defs, sp, sn, sl), _to_pyan(defs, dp, dn, dl)
+                if step not in CONFIDENT:
+                    continue
+                if ks is None or kd is None:
+                    repo_counts["decorator"]["unmapped"] += 1
+                    continue
+                mine_dec.add((ks, kd))
+                repo_counts["decorator"][
+                    "agree" if (ks, kd) in edges else "wrong" if by_name.get((ks, kd[1])) else "unconfirmed"
+                ] += 1
+                continue
+            if kind not in (None, "call"):
+                continue
             group = "confident" if step in CONFIDENT else "ambiguous" if step in AMBIGUOUS else None
             if group is None:
                 continue
@@ -211,6 +229,7 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         mapped_edges = {e for e in edges if e[1][1]}
         recall_total += len(mapped_edges)
         recall_hits += len(mapped_edges & mine)
+        recall_dec_hits += len(mapped_edges & (mine | mine_dec))
         # Resolution recall: only pyan edges whose callee NAME the engine extracted
         # for that caller -- the resolver's own share, apart from Level 1's misses
         # and from pyan's reference edges (a function passed or returned, which the
@@ -240,6 +259,9 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         "confident": rates(totals["confident"]),
         "ambiguous": rates(totals["ambiguous"]),
         "recall_pct": round(100.0 * recall_hits / recall_total, 1) if recall_total else None,
+        # calls + decorator edges (decorated function -> decorator), not gated
+        "decorator": rates(totals["decorator"]),
+        "recall_with_decorators_pct": round(100.0 * recall_dec_hits / recall_total, 1) if recall_total else None,
         "resolution_recall_pct": round(100.0 * named_hits / named_total, 1) if named_total else None,
         "named_pyan_edges": named_total,
         "pyan_edges": recall_total,
@@ -269,7 +291,7 @@ def score_cobol() -> dict[str, Any]:
         programs = key.get("programs", {})
         c = collections.Counter()
         bad: list[str] = []
-        for sp, sn, _sl, _callee, step, dp, dn, dl in _links(dbs[-1]):
+        for sp, sn, _sl, _callee, step, dp, dn, dl, _kind in _links(dbs[-1]):
             prog = programs.get(sp)
             if prog is None or step not in CONFIDENT:
                 continue
@@ -304,6 +326,10 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
         "recall_pct": py["recall_pct"],
         "resolution_recall_pct": py["resolution_recall_pct"],
         "pyan_edges": py["pyan_edges"],
+        # decorator edges (kind='decorator'): reported and baselined, not gated
+        "decorator_precision_pct": (py.get("decorator") or {}).get("precision_pct"),
+        "decorator_judged": (py.get("decorator") or {}).get("agree", 0) + (py.get("decorator") or {}).get("wrong", 0),
+        "recall_with_decorators_pct": py.get("recall_with_decorators_pct"),
     }
 
 
@@ -319,15 +345,19 @@ def render(current: dict[str, Any]) -> str:
     def pct(v: Any) -> str:
         return "n/a" if v is None else f"{v}%"
 
-    return "\n".join(
-        [
-            "| language | reference | confident precision | ambiguous precision | recall | resolution recall |",
-            "|---|---|---|---|---|---|",
-            f"| python | pyan3 | {pct(current['confident_precision_pct'])} ({current['confident_judged']} judged) | "
-            f"{pct(current['ambiguous_precision_pct'])} | {pct(current['recall_pct'])} | "
-            f"{pct(current['resolution_recall_pct'])} |",
-        ]
-    )
+    lines = [
+        "| language | reference | confident precision | ambiguous precision | recall | resolution recall |",
+        "|---|---|---|---|---|---|",
+        f"| python | pyan3 | {pct(current['confident_precision_pct'])} ({current['confident_judged']} judged) | "
+        f"{pct(current['ambiguous_precision_pct'])} | {pct(current['recall_pct'])} | "
+        f"{pct(current['resolution_recall_pct'])} |",
+    ]
+    if current.get("decorator_precision_pct") is not None:
+        lines.append(
+            f"\ndecorator edges (not gated): precision {pct(current['decorator_precision_pct'])} "
+            f"({current['decorator_judged']} judged); recall with decorators {pct(current['recall_with_decorators_pct'])}"
+        )
+    return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:

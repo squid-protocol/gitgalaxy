@@ -36,7 +36,7 @@ def test_only_receivers_the_function_calls_methods_on():
     assert _types(code)["run"] == {"app": "FastAPI"}
 
 
-def test_conflicting_or_non_call_evidence_is_dropped():
+def test_conflicting_or_non_call_evidence_is_blanked():
     code = (
         "def run(flag):\n"
         "    a = Foo()\n    a = Bar()\n"
@@ -45,7 +45,8 @@ def test_conflicting_or_non_call_evidence_is_dropped():
         "    c = Foo()\n"
         "    a.m()\n    b.m()\n    c.m()\n"
     )
-    assert _types(code)["run"] == {}
+    # "" = bound here with no single known class: no type, and it hides a module-level one
+    assert _types(code)["run"] == {"a": "", "b": "", "c": ""}
 
 
 def test_annotated_assignment_uses_the_annotation():

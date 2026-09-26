@@ -41,6 +41,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import scip_callgraph  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
@@ -220,6 +223,18 @@ REFERENCES: dict[str, Reference] = {
         (Path(__file__), TOOLS / "ts_callgraph.js"),
         True,
         'npm install --global "typescript@6.0.2"  (7.x has no JavaScript compiler API)',
+    ),
+    # SCIP (#3783): scip-java's compiler-resolved index, through the shared SCIP adapter
+    "java": Reference(
+        "java",
+        "scip-java",
+        scip_callgraph.SCIP_JAVA_VERSION,
+        "import_graph",
+        scip_callgraph.scip_java_contract,
+        scip_callgraph.scip_java_version,
+        (Path(__file__), TOOLS / "scip_callgraph.py"),
+        True,
+        "a JDK 17+ (java, javac) and Maven (mvn) on PATH; the pinned scip-java jars are fetched on first use",
     ),
 }
 BY_TOOL = {r.tool: r for r in REFERENCES.values()}

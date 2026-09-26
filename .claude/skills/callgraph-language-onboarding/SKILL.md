@@ -34,6 +34,17 @@ not installed), and those links are `unconfirmed`, never `wrong`.
   method)? If so, emit `external` and set `reports_external=True`. That's how #3756's
   built-in-shadowing links became provable.
 
+- **A SCIP indexer is one registry entry away.** `tests/tools/scip_callgraph.py` turns any
+  SCIP index into the contract: definitions, call-position references, `external` and engine
+  naming. Java (scip-java) is the worked example. The new language needs only a build
+  function that produces the index. First, check that the indexer records `enclosing_range`
+  and symbol kinds. Where a native reference exists, run the `compare` cross-check from
+  `docs/graph_accuracy.md` ("Call resolution in Java, and SCIP"). scip-typescript covered
+  only 52% of tsc's edges, so TypeScript stays native.
+- **Overloading languages** (Java, C#, C++, Kotlin, Scala): add the language to
+  `call_graph_resolution.OVERLOADED_LANGS`. The overload-blind precision and recall then say
+  how much of `wrong` is only the choice of overload.
+
 ## 2. Pick a corpus repo the reference can resolve
 
 - **Not language-crucible.** Its samples are flattened into one directory per repo, so no

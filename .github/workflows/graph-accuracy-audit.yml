@@ -9,7 +9,9 @@ name: Graph Accuracy Audit
 #   - call resolution, Level 2: confident caller->callee links vs pyan3 on
 #     language-crucible's Python repos, and vs the TypeScript compiler's own
 #     type checker on the pinned typescript repo(s) of import_graph_corpus.json
-#     (tests/tools/call_graph_resolution.py + ts_callgraph.js);
+#     (tests/tools/call_graph_resolution.py + ts_callgraph.js), and vs scip-java
+#     (javac-resolved, through the shared SCIP adapter tests/tools/scip_callgraph.py,
+#     #3783) on the pinned java repo;
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
@@ -30,11 +32,13 @@ on:
       - "tests/tools/call_graph_resolution.py"
       - "tests/tools/callgraph_refs.py"
       - "tests/tools/ts_callgraph.js"
+      - "tests/tools/scip_callgraph.py"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"
       - "tests/import_graph_accuracy_baseline.json"
       - "tests/call_graph_resolution_baseline.json"
       - "tests/call_graph_resolution_typescript_baseline.json"
+      - "tests/call_graph_resolution_java_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
 
@@ -76,6 +80,24 @@ jobs:
       - name: Install the TypeScript checker (call-resolution reference)
         run: npm install --global "typescript@6.0.2"
 
+      # scip-java (the java reference) runs javac with its semanticdb plugin; gson's build
+      # wants JDK 17-25. The scip-java jars and the corpus's Maven dependencies are
+      # cached: Maven Central rate-limits bursts (scip_callgraph.MAVEN_FLAGS retries 429s).
+      - name: Setup JDK 21 (scip-java reference)
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Cache scip-java and Maven dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cache/gitgalaxy/scip-java-*
+            ~/.m2/repository
+          key: scip-java-${{ hashFiles('gitgalaxy/tests/tools/scip_callgraph.py', 'gitgalaxy/tests/import_graph_corpus.json') }}
+          restore-keys: scip-java-
+
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
         run: |
           ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
@@ -116,6 +138,14 @@ jobs:
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Gate call-resolution (Level 2, vs scip-java) against the baseline
+        if: ${{ !cancelled() }}
+        env:
+          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py java --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
 
       - name: Gate span anchoring against the baseline
         if: ${{ !cancelled() }}

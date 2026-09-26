@@ -158,13 +158,19 @@ As of 2026-09-26, out of 59 languages:
   own import statements on pinned real repos
   ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
 - **Callee names are measured in 11**, against tree-sitter.
-- **Call resolution is measured in 2**, against a reference analyser:
+- **Call resolution is measured in 3**, against a reference analyser:
   - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
   - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
-    57.1% recall.
+    57.1% recall;
+  - Java, vs scip-java (javac's own resolution): 59.8% precision on 4,778 judged links,
+    36.3% recall. Most of the gap is overloads: 1,653 links go to a different overload of
+    the right method, which the engine can't choose without argument types. Counting those
+    right, it is 94.3% precision and 58.4% recall
+    ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
 
-  A call link, when made, is almost always right, but about half of calls are left unlinked.
-  So function-level fan-in and PageRank are a lower bound.
+  In Python and TypeScript a call link, when made, is almost always right, but about half of
+  calls are left unlinked. So function-level fan-in and PageRank are a lower bound. In Java
+  they also spread across the wrong overloads.
 
 The limits:
 - The other 38 languages' graphs are built the same way but are **not measured**.

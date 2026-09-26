@@ -148,6 +148,17 @@ def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line:
     return (path, name, best) if abs(best - line) <= _LINE_SLACK else None
 
 
+# Languages with overloading: several same-named units in one class, chosen by argument
+# types the engine does not see. Their results also report an overload-blind view (#3783).
+OVERLOADED_LANGS = frozenset({"java"})
+
+
+def _same_file_overload(ref: RefGraph, ks: tuple, kd: tuple) -> bool:
+    """A `wrong` link whose target shares its file and name with a reference target of the
+    same caller: the right method, a different overload of it."""
+    return any(t[0] == kd[0] for t in ref.by_name.get((ks, kd[1]), ()))
+
+
 def _verdict(ref: RefGraph, ks: tuple, kd: tuple) -> str:
     if (ks, kd) in ref.edges:
         return "agree"
@@ -163,6 +174,7 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator", "reference")}
     recall_dec_hits = recall_all_hits = 0
     recall_hits = recall_total = 0
+    recall_overload_hits = 0
     named_hits = named_total = 0
     wrong_examples: list[str] = []
     external_examples: list[str] = []
@@ -205,9 +217,15 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
             if group == "confident" and verdict == "external" and len(external_examples) < samples:
                 external_examples.append(f"{repo_name}: {sp}:{sn} -> {dp}:{dn}@{dl} ({reference}: outside the repo)")
             repo_counts[group][verdict] += 1
+            if verdict == "wrong" and _same_file_overload(ref, ks, kd):
+                repo_counts[group]["wrong_overload"] += 1
         mapped_edges = {e for e in edges if e[1][1]}
         recall_total += len(mapped_edges)
         recall_hits += len(mapped_edges & mine)
+        # the same edge up to the overload: the engine linked this caller to a unit of the
+        # callee's name in the callee's file
+        mine_overload = {(ks, (kd[0], kd[1])) for ks, kd in mine}
+        recall_overload_hits += sum(1 for ks, kd in mapped_edges if (ks, (kd[0], kd[1])) in mine_overload)
         recall_dec_hits += len(mapped_edges & (mine | mine_dec))
         recall_all_hits += len(mapped_edges & (mine | mine_dec | mine_ref))
         # Resolution recall: only reference edges whose callee NAME the engine extracted
@@ -235,6 +253,10 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
             "wrong_target_pct": round(100.0 * c["wrong"] / judged, 1) if judged else None,
             # also counts a link the reference proves goes outside the repo as wrong
             "strict_precision_pct": round(100.0 * c["agree"] / strict, 1) if strict else None,
+            # a different overload of the right method counted as right
+            "overload_blind_precision_pct": round(100.0 * (c["agree"] + c["wrong_overload"]) / judged, 1)
+            if judged
+            else None,
         }
 
     return {
@@ -242,6 +264,7 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
         "confident": rates(totals["confident"]),
         "ambiguous": rates(totals["ambiguous"]),
         "recall_pct": round(100.0 * recall_hits / recall_total, 1) if recall_total else None,
+        "recall_overload_blind_pct": round(100.0 * recall_overload_hits / recall_total, 1) if recall_total else None,
         # calls + decorator edges (decorated function -> decorator), not gated
         "decorator": rates(totals["decorator"]),
         "recall_with_decorators_pct": round(100.0 * recall_dec_hits / recall_total, 1) if recall_total else None,
@@ -274,6 +297,7 @@ def score_language(lang: str, samples: int = 0, use_cache: bool = True) -> dict[
 
     result = _score(ref.tool, repos(), samples)
     result["reference_version"] = ", ".join(sorted(versions))
+    result["lang"] = lang
     return result
 
 
@@ -362,6 +386,11 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
             out.pop(k)
         for k in ("reference_precision_pct", "reference_judged", "recall_all_kinds_pct"):
             out.pop(k)
+    if py.get("lang") in OVERLOADED_LANGS:
+        # reported and baselined, not gated: how much of `wrong` is only the overload choice
+        out["confident_wrong_overload"] = py["confident"].get("wrong_overload", 0)
+        out["confident_overload_blind_precision_pct"] = py["confident"].get("overload_blind_precision_pct")
+        out["recall_overload_blind_pct"] = py.get("recall_overload_blind_pct")
     return out
 
 
@@ -390,6 +419,12 @@ def render(current: dict[str, Any], lang: str = "python") -> str:
             f"\nconfident links {reference} resolves outside the repo (not gated): {current['confident_external']}; "
             f"strict precision counting them wrong {pct(current['confident_strict_precision_pct'])}; "
             f"unmapped (an end {reference} has no function for) {current['confident_unmapped']}"
+        )
+    if current.get("confident_overload_blind_precision_pct") is not None:
+        lines.append(
+            f"\noverloads (not gated): {current['confident_wrong_overload']} of the wrong links are a different "
+            f"overload of the right method; counting those right, precision "
+            f"{pct(current['confident_overload_blind_precision_pct'])}, recall {pct(current['recall_overload_blind_pct'])}"
         )
     if current.get("decorator_precision_pct") is not None:
         lines.append(

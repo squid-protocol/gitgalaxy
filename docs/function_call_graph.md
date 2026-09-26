@@ -94,14 +94,19 @@ case at a time). It is what the graph knows on top of the names.
 Together: recall of pyan3's function edges across calls, decorators and references is
 77.3% (calls alone: 51.6%). Read the numbers with their limits:
 
-- **Two reference tools, two languages.** pyan3 is a reference, not ground truth: a
+- **Three reference tools, three languages.** pyan3 is a reference, not ground truth: a
   hand-checked sample of edges it has and GitGalaxy does not were pyan inferences with
   no basis in the source (a getter that only reads an attribute). TypeScript is measured
   against the compiler's own type checker on zod: 99.9% confident precision over 1,520
   judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
-  `map.get()`), so strict precision is 96.6% (#3756). Other languages run the same
-  machinery unmeasured.
+  `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
+  scip-java (javac-resolved SCIP) on gson: 59.8% confident precision over 4,778 judged
+  links and 36.3% recall. 1,653 of the wrong links are a different overload of the right
+  method in the same class, which the engine can't choose without argument types.
+  Counting those right, it is 94.3% precision and 58.4% recall
+  (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP"). Other languages run
+  the same machinery unmeasured.
 - **Tuned on the corpus it is scored on.** Every change above was found and verified on
   language-crucible's Python repos; a held-out check has not been run.
 - **What stays out of reach without types.** `x.method()` where `x` comes from a loop over

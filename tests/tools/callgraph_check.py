@@ -48,6 +48,8 @@ FOCUSED_TESTS = (
     "tests/tools_recorders/test_fcall_data.py",
     "tests/tools/test_call_graph_resolution_gate.py",
     "tests/tools/test_callgraph_tools.py",
+    "tests/tools/test_scip_callgraph.py",
+    "tests/tools/test_graph_coverage_chart.py",
 )
 STEPS = ("gate", "tests", "crucible", "tree-sitter", "lint")
 

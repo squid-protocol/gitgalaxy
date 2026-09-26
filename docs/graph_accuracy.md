@@ -12,6 +12,7 @@ that baseline in the same PR.
 | Callee names (call graph, Level 1) | `tests/tools/call_graph_accuracy.py` | tree-sitter call nodes | language-crucible | `tests/call_graph_accuracy_baseline.json` | `call-graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py python` | pyan3 2.8.1 call graph | language-crucible Python | `tests/call_graph_resolution_baseline.json` | `graph-accuracy-audit.yml` |
 | Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py typescript` | the TypeScript 6.0.2 type checker (`tests/tools/ts_callgraph.js`) | pinned typescript repos, `tests/import_graph_corpus.json` (zod) | `tests/call_graph_resolution_typescript_baseline.json` | `graph-accuracy-audit.yml` |
+| Call resolution (call graph, Level 2) | `tests/tools/call_graph_resolution.py java` | scip-java 0.12.3 (javac-resolved SCIP, through `tests/tools/scip_callgraph.py`) | pinned java repos, `tests/import_graph_corpus.json` (gson) | `tests/call_graph_resolution_java_baseline.json` | `graph-accuracy-audit.yml` |
 | Import edges | `tests/tools/import_graph_accuracy.py` | each language's import statements (Python `ast`, tree-sitter), resolved by the language's own rule | pinned real repos, `tests/import_graph_corpus.json` | `tests/import_graph_accuracy_baseline.json` | `graph-accuracy-audit.yml` |
 | Span anchoring | `tests/tools/span_anchor_audit.py` | the declaration line in the raw source | language-crucible | `tests/span_anchor_baseline.json` | `graph-accuracy-audit.yml` |
 
@@ -81,6 +82,79 @@ the type checker which declaration each call and `new` resolves to. Scoring is t
 - **It is a reference, not ground truth.** An `any` receiver or an unresolved package import
   (zod is not `npm install`ed) leaves the checker silent. Those links count as `unconfirmed`,
   never as `wrong`.
+
+## Call resolution in Java, and SCIP (#3783)
+
+Java is scored against **scip-java**. It's the SCIP index (<https://github.com/sourcegraph/scip>)
+that javac's own symbol resolution produces, read by one shared adapter,
+`tests/tools/scip_callgraph.py`. The adapter decodes the protobuf itself, so it needs no
+dependency. Every language with a SCIP indexer can use the same adapter.
+
+How it reads an index:
+- **Edges:** a reference in call position (`f(`, `f<T>(`, `new X(`) inside a named callable
+  definition's `enclosing_range` becomes an edge. A method reference (`Foo::bar`), a type and
+  a field are not calls.
+- **Callers:** calls inside an anonymous function belong to the named unit around it (C8).
+- **External calls:** a callable defined outside the repo (the JDK) makes the call
+  `external`.
+- **Names follow the engine:** a constructor takes its class's name, each overload keeps its
+  own line, an anonymous class's methods are units, and abstract or interface methods are
+  not.
+
+How the index is built: `scip-java index` re-runs the Maven build with a forked javac, and
+that breaks on builds that turn warnings into errors. So the adapter builds it itself:
+1. one reactor `mvn -fae compile dependency:build-classpath`;
+2. javac with the `semanticdb-javac` plugin, per module, main and test sources together;
+3. `scip-java index-semanticdb`.
+
+A module that doesn't compile is listed under `skipped` in the contract. The first run
+fetches the pinned jars from Maven Central, which rate-limits bursts; `MAVEN_FLAGS` retries
+429s. After that, gson builds in about 45 seconds.
+
+**First numbers vs scip-java on gson** (7,858 reference edges):
+
+| metric | value |
+|---|---|
+| confident precision | 59.8% (4,778 judged) |
+| recall | 36.3% |
+| resolution recall | 38.7% |
+
+**Overloads explain most of the gap.** 1,653 of the 1,923 `wrong` links go to a different
+**overload of the right method** in the same class. The engine can't choose between them
+without argument types. `call_graph_resolution.py` reports an overload-blind view for
+languages with overloading (`OVERLOADED_LANGS`), baselined but not gated. It counts a link
+to the right method in the right file as right:
+
+| overload-blind metric | value |
+|---|---|
+| precision | 94.3% |
+| recall | 58.4% |
+
+The strict numbers stay the gated ones, because a function-level PageRank still lands on
+the wrong overload.
+
+**What scip-java can't see:** calls through an abstract type or an interface (`typeAdapter.read()`)
+point at a bodyless declaration. Those links come out `unconfirmed`, not `wrong`.
+
+**SCIP or a native tool, per language?** The deciding check ran scip-typescript 0.4.0 on
+zod through the same adapter and compared it edge by edge with `ts_callgraph.js`:
+- **Its edges are trustworthy:** 96.5% of them are in tsc's graph too.
+- **It covers only 52.4% of tsc's edges.** 88% of the gap is callers that scip-typescript
+  doesn't record as definitions with an extent: zod's `inst.refine = (...) =>` member
+  assignments, quoted keys, and object-literal methods.
+
+**The decision:**
+- Use a SCIP indexer when it runs the language's compiler and records definitions fully,
+  as scip-java does.
+- Keep a native adapter where one already sees more, as tsc does for TypeScript.
+- Before adopting SCIP for a new language, repeat the cross-check where a native reference
+  exists:
+
+```sh
+python tests/tools/scip_callgraph.py contract <index.scip> <source-root> --lang <lang> > scip.json
+python tests/tools/callgraph_refs.py <lang> <repo> > native.json
+python tests/tools/scip_callgraph.py compare native.json scip.json
+```
 
 ## Span anchoring
 

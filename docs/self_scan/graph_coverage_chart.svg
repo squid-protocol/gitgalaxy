@@ -17,7 +17,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="1054" height="942"/>
 <text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
-<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 11, call resolution 2 of 59 languages. Bars are GitGalaxy's score.</text>
+<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 11, call resolution 3 of 59 languages. Bars are GitGalaxy's score.</text>
 <rect x="16" y="53" width="14" height="8" rx="2" fill="#4a3aa7"/>
 <text class="legend" x="35" y="61">Precision</text>
 <rect x="106" y="53" width="14" height="8" rx="2" fill="#eda100"/>
@@ -181,7 +181,18 @@
 <text class="n" x="630" y="325">n=1,946 calls</text>
 <text class="n" x="630" y="337">functions 735</text>
 </g>
-<text class="none" x="732" y="330.0">not measured</text>
+<g><title>java call resolution: precision 59.8% of 4,778, recall 36.3% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<text class="pr" x="732" y="324.5">Precision</text>
+<rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
+<rect x="778" y="317" width="65.8" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="325">59.8%</text>
+<text class="pr" x="732" y="336.5">Recall</text>
+<rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
+<rect x="778" y="329" width="39.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">36.3%</text>
+<text class="n" x="936" y="325">n=7,858 edges</text>
+<text class="n" x="936" y="337">vs scip-java 0.12.3</text>
+</g>
 <text class="lang" x="22" y="365.0">javascript</text>
 <g><title>javascript imports: precision 100.0% of 57, recall 100.0% of 63; corpus expressjs/express; small n</title>
 <text class="pr" x="120" y="358.5">Precision</text>

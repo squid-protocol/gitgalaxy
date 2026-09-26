@@ -58,6 +58,9 @@ zod (269 edges) split into:
 | `not_extracted/after_nested_def` | the caller's span ends where a nested function starts | detector span / loc | none yet |
 | `not_extracted/same_name` | a call to a different function of the caller's own name, dropped like recursion | detector calls_out | none yet |
 | `ambiguous/receiver` | `x.m()` with an untyped receiver | receiver typing (Python has `typed`, #3693) | per language |
+| `wrong` / `confident_other_target`, target in the same file as the reference's | a different overload of the right method (Java: 1,653 of 1,923 wrong on gson) | overload choice by argument count; the overload-blind metrics measure it | #3835 |
+| `unmapped_dst` on Java interface / abstract methods | links to bodyless Java declarations | extend #3757's `def_shape` = `signature` beyond TS/JS | #3836 |
+| `wrong` / `external`: `field.m()` inside a class that also has `m` | the explicit receiver is ignored and the caller's own class wins | resolver: a qualified call must not take the class step | #3837 |
 
 A pattern found in one language usually exists in its neighbours. Bodyless signatures apply to
 Java, C#, Go interfaces and Rust traits. String interpolation applies to Kotlin, Swift and Ruby.

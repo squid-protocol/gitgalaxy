@@ -53,6 +53,16 @@ else
   warn "no node/npm: the typescript call-graph gate cannot run"
 fi
 
+# --- java: the scip-java reference (#3783) needs a JDK 17+ and Maven; its pinned jars are
+# fetched once into ~/.cache/gitgalaxy (scip_callgraph.scip_java_tools), here so the first
+# gate run in a session does not pay for it. Maven Central rate-limits: MAVEN_FLAGS retries.
+if command -v java >/dev/null 2>&1 && command -v mvn >/dev/null 2>&1; then
+  python -c "import sys; sys.path.insert(0, 'tests/tools'); import scip_callgraph as s; s.scip_java_tools()" \
+    >/dev/null 2>&1 || warn "could not fetch the pinned scip-java jars (Maven Central): the java call-graph gate will retry"
+else
+  warn "no java/mvn: the java call-graph gate (scip-java) cannot run"
+fi
+
 # --- PATH for the session: keep the current `node` first (another node in the
 # python scripts dir would switch npm's global root away from typescript), then
 # this interpreter's scripts, ahead of the uv tool shims -- so `pytest`, `mypy`

@@ -217,6 +217,7 @@ public record ScreenCell(String key, int line, int column, int length, boolean i
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -239,7 +240,7 @@ public interface ScreenModel {{
         List<ScreenCell> cells = new ArrayList<>();
         for (ScreenField f : screenLayout()) {{
             String css = "f" + (f.input() ? " in" : "") + (f.bright() ? " brt" : "") + (f.dark() ? " drk" : "")
-                    + (f.color() != null ? " c-" + f.color().toLowerCase() : "");
+                    + (f.color() != null ? " c-" + f.color().toLowerCase(Locale.ROOT) : "");
             for (int i = 0; i < f.occurs(); i++) {{
                 String key = f.name() == null ? null : (f.occurs() > 1 ? f.name() + "." + (i + 1) : f.name());
                 String text = key == null ? (f.initial() == null ? "" : f.initial()) : values.getOrDefault(key, "");

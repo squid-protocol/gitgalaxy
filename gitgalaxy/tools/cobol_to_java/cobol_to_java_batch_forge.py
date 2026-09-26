@@ -414,6 +414,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -441,7 +442,7 @@ public class DatasetResolver {
         }
         int current = latest(base);
         int g = current + Integer.parseInt(dd.generation().replace("+", ""));
-        return base.resolve(String.format("G%04dV00", Math.max(g, 1)));
+        return base.resolve(String.format(Locale.ROOT, "G%04dV00", Math.max(g, 1)));
     }
 
     private int latest(Path gdg) {
@@ -461,6 +462,7 @@ public class DatasetResolver {
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -484,7 +486,7 @@ public final class JclConditions {
         if (cond == null || rcs.isEmpty()) {
             return false;
         }
-        Matcher m = TEST.matcher(cond.toUpperCase());
+        Matcher m = TEST.matcher(cond.toUpperCase(Locale.ROOT));
         while (m.find()) {
             int code = Integer.parseInt(m.group(1));
             String op = m.group(2);
@@ -526,7 +528,7 @@ public final class JclConditions {
 
     private static List<String> tokens(String text) {
         Matcher m = Pattern.compile("[A-Z0-9#@$]+(?:\\\\.[A-Z0-9#@$]+)*|>=|<=|\\u00ac=|\\\\^=|[=<>()&|\\u00ac]")
-                .matcher(text.toUpperCase());
+                .matcher(text.toUpperCase(Locale.ROOT));
         List<String> out = new ArrayList<>();
         while (m.find()) {
             out.add(m.group());

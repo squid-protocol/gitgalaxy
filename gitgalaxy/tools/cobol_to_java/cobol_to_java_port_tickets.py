@@ -75,6 +75,10 @@ PORTING_RULES = [
         "methods) or the entity codecs, never a hand-written decoder."
     ),
     (
+        "Format and case-map with Locale.ROOT (String.format(Locale.ROOT, ...), toUpperCase(Locale.ROOT)): "
+        "the default locale prints other digits (Arabic, Devanagari) and maps case differently (Turkish)."
+    ),
+    (
         "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
         "!task.hasCommarea(), DFHCOMMAREA is task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, "
         "PF1-PF24, PA1-PA3), RECEIVE MAP is task.receive(map, <its screen>.class) (empty = MAPFAIL), SEND MAP "

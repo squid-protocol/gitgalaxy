@@ -337,7 +337,8 @@ class CallForge:
         sig = "String program, Object request" if link else "String program, Object... args"
         ex.methods.append(f"    public Object {method}({sig}) {{")
         self.counts["dispatch"] += 1
-        ex.methods.append("        switch (program.trim().toUpperCase()) {")
+        ex.imports.add("import java.util.Locale;")
+        ex.methods.append("        switch (program.trim().toUpperCase(Locale.ROOT)) {")
         for c in d.get("candidates", []):
             callee = self.key_of.get(c.get("resolves_to") or "")
             label = f'            case "{c["program"].upper()}":'

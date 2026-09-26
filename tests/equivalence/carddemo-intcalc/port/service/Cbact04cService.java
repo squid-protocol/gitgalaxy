@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,7 +103,7 @@ public class Cbact04cService {
     @Transactional
     public int runBatch(List<Dd> dds, String parm) {
         log.info("START OF EXECUTION OF PROGRAM CBACT04C");
-        String parmDate = String.format("%-10s", parm == null ? "" : parm).substring(0, 10);
+        String parmDate = String.format(Locale.ROOT, "%-10s", parm == null ? "" : parm).substring(0, 10);
         Path transact = datasets.path(dds.stream().filter(d -> "TRANSACT".equals(d.name())).findFirst().orElseThrow());
         List<FdTranCatBalRecord> balances = fdTranCatBalRecordRepository.findAll(
                 Sort.by("id.fdTrancatAcctId", "id.fdTrancatTypeCd", "id.fdTrancatCd"));  // TCATBAL-FILE, key order
@@ -185,7 +186,7 @@ public class Cbact04cService {
 
     private static FdDiscgrpRecKey discKey(String groupId, String typeCd, int catCd) {
         FdDiscgrpRecKey k = new FdDiscgrpRecKey();
-        k.setFdDisAcctGroupId(String.format("%-10s", groupId));   // X(10), as the record holds it
+        k.setFdDisAcctGroupId(String.format(Locale.ROOT, "%-10s", groupId));   // X(10), as the record holds it
         k.setFdDisTranTypeCd(typeCd);
         k.setFdDisTranCatCd(catCd);
         return k;
@@ -195,11 +196,11 @@ public class Cbact04cService {
     private TranRecord interestTransaction(String parmDate, int suffix, AccountRecord account, CardXrefRecord xref,
                                            BigDecimal monthlyInt) {
         TranRecord t = new TranRecord();
-        t.setTranId(parmDate + String.format("%06d", suffix));          // STRING PARM-DATE WS-TRANID-SUFFIX
+        t.setTranId(parmDate + String.format(Locale.ROOT, "%06d", suffix));          // STRING PARM-DATE WS-TRANID-SUFFIX
         t.setTranTypeCd("01");
         t.setTranCatCd(5);
         t.setTranSource("System");
-        t.setTranDesc("Int. for a/c " + String.format("%011d", account.getAcctId()));
+        t.setTranDesc("Int. for a/c " + String.format(Locale.ROOT, "%011d", account.getAcctId()));
         t.setTranAmt(monthlyInt);
         t.setTranMerchantId(0);
         t.setTranMerchantName("");
@@ -215,7 +216,7 @@ public class Cbact04cService {
     /** FUNCTION CURRENT-DATE as a DB2 timestamp: YYYY-MM-DD-HH.MM.SS.hh0000. */
     private String db2Timestamp() {
         LocalDateTime now = clock.isBlank() ? LocalDateTime.now() : LocalDateTime.parse(clock);
-        return String.format("%04d-%02d-%02d-%02d.%02d.%02d.%02d0000", now.getYear(), now.getMonthValue(),
+        return String.format(Locale.ROOT, "%04d-%02d-%02d-%02d.%02d.%02d.%02d0000", now.getYear(), now.getMonthValue(),
                 now.getDayOfMonth(), now.getHour(), now.getMinute(), now.getSecond(), now.getNano() / 10_000_000);
     }
 
@@ -227,7 +228,7 @@ public class Cbact04cService {
 
     /** An entity's data field back as the record bytes it was cut from (padded to its width). */
     private static byte[] data(String field, int width) {
-        return String.format("%-" + width + "s", field == null ? "" : field).getBytes(TEXT);
+        return String.format(Locale.ROOT, "%-" + width + "s", field == null ? "" : field).getBytes(TEXT);
     }
 
     private static IllegalStateException abend(String why) {

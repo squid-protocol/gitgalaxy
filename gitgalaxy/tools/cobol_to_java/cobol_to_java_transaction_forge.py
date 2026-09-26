@@ -60,7 +60,12 @@ def _field_lines(layout: dict) -> tuple[list[str], bool]:
         jtype = java_type(fld)
         pic = f"PIC {fld['pic']}" if fld.get("pic") else (fld.get("usage") or "no PIC")
         usage = f" {fld['usage']}" if fld.get("usage") and fld.get("pic") else ""
-        lines.append(f"    // {name}: {pic}{usage}, offset {fld['offset']}, {fld['bytes']} bytes ({fld['file']})")
+        if fld.get("dialect") == "pli" and fld.get("pic"):
+            pic, usage = f"PIC '{fld['pic']}'", ""  # #3720: PL/I's picture, as written
+        where = f"offset {fld['offset']}, {fld['bytes']} bytes"
+        if fld.get("bits") is not None:  # #3720: an unaligned PL/I bit string
+            where = f"offset {fld['offset']} bit {fld['bit_offset'] % 8}, {fld['bits']} bits"
+        lines.append(f"    // {name}: {pic}{usage}, {where} ({fld['file']})")
         if fld.get("occurs"):
             requires_list = True
             lines.append(f"    // OCCURS {fld['occurs']} TIMES")
@@ -235,7 +240,8 @@ class CicsForge:
 
     def _record_doc(self, record: str, file: str, layout: dict, status: str) -> list[str]:
         width = f"{layout['bytes']} bytes" if layout.get("bytes") is not None else "width unknown"
-        doc = [f"COBOL record {record} ({file}), {width}, from GitGalaxy's verified skeleton."]
+        kind = "PL/I structure" if layout.get("dialect") == "pli" else "COBOL record"  # #3720
+        doc = [f"{kind} {record} ({file}), {width}, from GitGalaxy's verified skeleton."]
         if layout.get("extended"):
             doc.append("The program continues this copied record past its COPY: the layout is the program's own.")
         if layout.get("unexpanded"):
@@ -327,6 +333,8 @@ class CicsForge:
             if commarea.get("basis") == "caller_record":
                 sites = ", ".join(f"{s['verb']} at {s['caller']}:{s['line']}" for s in commarea.get("sources", []))
                 use = f"The COMMAREA {cls} receives, as passed by {sites}."
+            elif commarea.get("basis") == "parameter":  # #3720: a PL/I main procedure's parameter area
+                use = f"The COMMAREA {cls} receives as its main procedure's parameter ({commarea['record']})."
             else:
                 use = f"The DFHCOMMAREA {cls} declares in its LINKAGE SECTION."
             prog.commarea_dto = self._dto_for(commarea["record"], commarea["file"], commarea, cls, doc, use)

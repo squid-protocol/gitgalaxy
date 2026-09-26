@@ -68,6 +68,11 @@ class Field:
     bytes: int
     pic: str | None
     occurs: int | None
+    pli_type: str | None = None  # #3720: a PL/I item's data type as written, when it has no picture
+
+    @property
+    def described(self) -> str:
+        return f"PIC {self.pic}" if self.pic else self.pli_type or "no PIC"
 
 
 @dataclass
@@ -253,7 +258,10 @@ class RepositoryForge:
             base = java_identifier(name)
             seen[base] = seen.get(base, 0) + 1
             java = base if seen[base] == 1 else f"{base}{seen[base]}"
-            out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f.get("pic"), f.get("occurs")))
+            pic = f.get("pic")
+            pli = f.get("dialect") == "pli"
+            out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f"'{pic}'" if pli and pic else pic,
+                             f.get("occurs"), f.get("usage") if pli else None))  # fmt: skip
         return out
 
     # ---- Java: entity + repository -------------------------------------------
@@ -316,9 +324,7 @@ class RepositoryForge:
         for f in st.fields:
             if f in st.composite:
                 continue  # in the key class
-            body.append(
-                f"    // {f.cobol}: {'PIC ' + f.pic if f.pic else 'no PIC'}, offset {f.offset}, {f.bytes} bytes"
-            )
+            body.append(f"    // {f.cobol}: {f.described}, offset {f.offset}, {f.bytes} bytes")
             if f is st.key:
                 body.append("    @Id")
             column = f.cobol.upper().replace("-", "_")
@@ -328,7 +334,7 @@ class RepositoryForge:
                 body.append(f"    private List<{f.jtype}> {f.java};\n")
                 continue
             attrs = [f'name = "{column}"']
-            if f.jtype == "String":
+            if f.jtype == "String" and f.bytes is not None:  # a width not known: the JPA default
                 attrs.append(f"length = {max(f.bytes, 1)}")
             body.append(f"    @Column({', '.join(attrs)})")
             body.append(f"    private {f.jtype} {f.java};\n")
@@ -365,8 +371,10 @@ class RepositoryForge:
         body: list[str] = []
         for f in st.composite:
             column = f.cobol.upper().replace("-", "_")
-            attrs = [f'name = "{column}"'] + ([f"length = {max(f.bytes, 1)}"] if f.jtype == "String" else [])
-            body += [f"    // {f.cobol}: {'PIC ' + f.pic if f.pic else 'no PIC'}, offset {f.offset}, {f.bytes} bytes",
+            attrs = [f'name = "{column}"'] + (
+                [f"length = {max(f.bytes, 1)}"] if f.jtype == "String" and f.bytes is not None else []
+            )
+            body += [f"    // {f.cobol}: {f.described}, offset {f.offset}, {f.bytes} bytes",
                      f"    @Column({', '.join(attrs)})", f"    private {f.jtype} {f.java};\n"]  # fmt: skip
         java += body
         if not t.lombok:  # a composite id needs value equality

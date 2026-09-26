@@ -166,9 +166,42 @@ def _digits_and_scale(pic: str) -> tuple[int, int]:
     return whole.count("9") + frac.count("9"), frac.count("9")
 
 
+def _pli_java_type(cls: str | None, pic: str, usage: str) -> str:
+    """#3720: a PL/I item's Java type. A picture repeats by PREFIX (`(5)9V99`, not COBOL's
+    `9(5)`); FIXED DEC(p,q) / FIXED BIN(p,q) carry their precision in the type (FIXED DEC
+    defaults to (5,0), FIXED BIN to (15,0)); a BIT(1) is a flag; a POINTER / OFFSET / HANDLE
+    is an address -- opaque outside the region, kept as its value."""
+    if cls == "F":
+        return "Double"
+    if cls == "A":
+        return "Long"
+    if cls == "T":
+        m = re.search(r"\bBIT\s*\(\s*(\d+)", usage)
+        return "Boolean" if m and m.group(1) == "1" else "String"
+    if cls == "9" and pic:
+        expanded = re.sub(r"\((\d+)\)(.)", lambda m: m.group(2) * int(m.group(1)), pic.strip("'"))
+        if re.search(r"[^9SV]", expanded):
+            return "String"  # numeric-edited: a display picture
+        whole, _, frac = expanded.partition("V")
+        digits, scale = whole.count("9") + frac.count("9"), frac.count("9")
+    elif cls in ("P", "B"):
+        m = re.search(r"\b(?:FIXED|DEC(?:IMAL)?|BIN(?:ARY)?)\s*\(\s*(\d+)(?:\s*,\s*([+-]?\d+))?", usage)
+        digits = int(m.group(1)) if m else (5 if cls == "P" else 15)
+        scale = int(m.group(2)) if m and m.group(2) else 0
+        if cls == "B":  # binary digits: 31 fit an int, 63 a long
+            return "BigDecimal" if scale else "Integer" if digits <= 31 else "Long"
+    else:
+        return "String"
+    if scale or digits > 18:
+        return "BigDecimal"
+    return "Integer" if digits <= 9 else "Long"
+
+
 def java_type(fld: dict) -> str:
     """The Java type of one elementary item of a record layout."""
     cls, pic = fld.get("class"), (fld.get("pic") or "").upper()
+    if fld.get("dialect") == "pli":
+        return _pli_java_type(cls, pic, (fld.get("usage") or "").upper())
     if cls == "F":
         return "Double"
     if cls not in ("9", "P", "B") or not pic:

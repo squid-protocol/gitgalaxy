@@ -1856,6 +1856,44 @@ def _pli_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]
     return calls
 
 
+# A procedure statement: one or more `label:` prefixes, PROC / PROCEDURE, then its
+# parameter list (#3720). Labels are bounded names, so the repeat cannot backtrack.
+_PLI_PROC_STMT = re.compile(
+    r"((?:(?:[^\W\d]|[@#$])[\w@#$]*[ \t\r\n]*:[ \t\r\n]*)+)PROC(?:EDURE)?(?![\w@#$])[ \t\r\n]*", re.I
+)
+
+
+def _pli_entry_points(code_stream: str) -> list[dict[str, Any]]:
+    """The external procedure of one PL/I file as its entry point (#3720): kind PROCEDURE,
+    its (first) label, and its parameters -- `ACCTP: PROC(COMMAREA_PTR) OPTIONS(MAIN);`
+    gives params `COMMAREA_PTR`, the pointer a CICS program receives its COMMAREA on.
+    The same row as COBOL's PROCEDURE DIVISION USING (`params` comma-joined, None when
+    there are none). Internal procedures and secondary ENTRY statements are not rows."""
+    text = _pli_blank_sequence_fields(code_stream)
+    in_macro = False
+    for start, statement in _pli_split(text, ";"):
+        i = _pli_skip_leading(statement)
+        head = statement[i:]
+        if in_macro:
+            in_macro = not _PLI_MACRO_END.match(head)
+            continue
+        if _PLI_MACRO_PROC.match(head):
+            in_macro = True
+            continue
+        proc = _PLI_PROC_STMT.match(head)
+        if not proc:
+            continue
+        label = proc.group(1).split(":")[0].strip().upper()
+        params = None
+        if head[proc.end() : proc.end() + 1] == "(":
+            close = _pli_balanced(head, proc.end())
+            names = [p.strip().upper() for p in head[proc.end() + 1 : close - 1].split(",")]
+            params = ",".join(n for n in names if n) or None
+        line = text.count("\n", 0, start + i) + 1
+        return [{"kind": "PROCEDURE", "entry_name": label, "params": params, "line": line}]
+    return []
+
+
 def _pli_uow_handlers(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
     """PL/I units of work and handlers (#3491): the CICS SYNCPOINT / HANDLE / ABEND /
     RESP-check rows through the COBOL reader (each command closed by END-EXEC), plus
@@ -2089,6 +2127,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "cics_tasks": _cics_tasks(blank_sequence_fields(code_stream), _pli_value_map(pli_records), [], "pli"),
             "uow_handlers": _pli_uow_handlers(code_stream, _pli_value_map(pli_records)),  # #3491
             "data_moves": pli_data_moves(code_stream),  # #3491 part 3
+            "entry_points": _pli_entry_points(code_stream),  # #3720
         }
     if dialect == "bms":
         # #3347: BMS map field layouts ride their own key (`screen_fields`), read

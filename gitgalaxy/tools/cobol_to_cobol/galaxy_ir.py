@@ -135,6 +135,7 @@
 # measured deltas.
 # ==============================================================================
 import fnmatch
+import json
 import os
 import re
 import sqlite3
@@ -143,6 +144,8 @@ import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
+
+from gitgalaxy.tools.cobol_to_cobol import pli_mapping
 
 # Subsystem hit columns carried per file. They are rule-hit counts, not block
 # counts: arch_io/arch_ipc mix EXEC SQL, EXEC DLI, CICS verbs and CALL.
@@ -766,6 +769,9 @@ class EngineFile:
     program_ids: list[str] = field(default_factory=list)
     units: list[EngineUnit] = field(default_factory=list)
     copy_deps: list[str] = field(default_factory=list)
+    # #3720: every %INCLUDE member a PL/I file names, found or not (file_data.raw_imports);
+    # copy_deps holds only the ones the scan resolved to a file. Empty for other languages.
+    includes: list[str] = field(default_factory=list)
     signals: dict[str, int] = field(default_factory=dict)
     calls: list = field(default_factory=list)  # EngineCall, #3200
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
@@ -1682,6 +1688,66 @@ class GalaxyIR:
             return [(ef, c) for c in siblings[siblings.index(it) + 1 :]] if it in siblings else []
         return []
 
+    def _pli_mapping(self, root: EngineDataItem, ef: Optional[EngineFile] = None) -> tuple[Optional[dict], dict]:
+        """(pli_mapping.layout of PL/I record `root` -- id(item) -> (bit offset, bits) -- or None
+        when a width inside is unknown, the children map it used). Cached per record.
+
+        `x LIKE s` takes the structuring of structure `s` (its members, not its dimension):
+        found in `ef` or its %INCLUDE members, its members are `x`'s children here. The
+        borrowed items are the same objects as `s`'s, so they are `s`'s, not `x`'s own."""
+        cache = self.__dict__.setdefault("_pli_cache", {})
+        if id(root) not in cache:
+            children: dict = {}
+            todo: list[tuple[EngineDataItem, frozenset]] = [(root, frozenset())]
+            while todo:
+                node, seen = todo.pop()
+                own = node.children
+                like = _PLI_LIKE.search(node.attributes or "") if not own else None
+                if like and ef is not None and id(node) not in seen:
+                    *qual, name = [p.strip() for p in like.group(1).upper().split(".")]
+                    found = self._find_item(ef, name, qual[-1] if qual else None)
+                    target = found[0][1] if found else None
+                    own = target.children if target is not None and target is not node else []
+                kids = [k for k in own if not k.redefines and k.level not in (66, 88)]
+                children[id(node)] = kids
+                todo.extend((k, seen | {id(node)}) for k in kids if id(k) not in seen)
+            cache[id(root)] = (pli_mapping.layout(root, children), children, root)
+        lay, children, _ = cache[id(root)]
+        return lay, children
+
+    def _pli_record_layout(self, ef: EngineFile, item: EngineDataItem) -> dict:
+        """record_layout for a PL/I record (#3720): the same shape, offsets from PL/I's
+        structure mapping (pli_mapping). A bit string also carries `bit_offset` / `bits`."""
+        lay, children = self._pli_mapping(item, ef)
+        fields: list = []
+        variable = False
+
+        def walk(it: EngineDataItem) -> None:
+            nonlocal variable
+            if re.search(r"\bREFER\b", (it.attributes or "").upper()):
+                variable = True
+            kids = children.get(id(it), [])
+            if kids:
+                for kid in kids:
+                    walk(kid)
+                return
+            off, bits = lay.get(id(it), (None, None)) if lay else (None, None)
+            if bits is None:  # the record's mapping is unknown (an AREA, an unresolved LIKE): its own width may not be
+                unit = pli_mapping.map_item(it, children)
+                bits = None if unit is None else unit.length
+            entry = {"name": it.name, "level": it.level, "pic": it.pic, "usage": it.usage, "class": _item_class(it),
+                     "offset": None if off is None else off // 8,
+                     "bytes": None if bits is None else ((off or 0) % 8 + bits + 7) // 8,
+                     "occurs": it.occurs_max, "file": ef.file_path, "dialect": "pli"}  # fmt: skip
+            if off is not None and bits is not None and (off % 8 or bits % 8):
+                entry["bit_offset"], entry["bits"] = off, bits
+            fields.append(entry)
+
+        walk(item)
+        total = lay.get(id(item), (0, None))[1] if lay else None
+        return {"bytes": None if total is None else (total + 7) // 8, "variable": variable, "fields": fields,
+                "unexpanded": [], "copybooks": [], "dialect": "pli"}  # fmt: skip
+
     def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: Optional[list] = None) -> dict:
         """One record's storage layout, COPY-expanded, from the DB alone (#3355).
 
@@ -1695,6 +1761,8 @@ class GalaxyIR:
         `extension` is (file, item) entries appended to the record's own children
         (a copied record continued in the program -- `_copy_extension`).
         """
+        if ef.language == "pli" and not extension:
+            return self._pli_record_layout(ef, item)  # #3720: PL/I structure mapping
         fields: list = []
         unexpanded: list = []
         copybooks: list = []
@@ -1785,11 +1853,68 @@ class GalaxyIR:
         return found
 
     def _dfhcommarea(self, callee: EngineFile) -> Optional[EngineDataItem]:
-        """The callee's LINKAGE SECTION `01 DFHCOMMAREA`, or None."""
+        """The callee's LINKAGE SECTION `01 DFHCOMMAREA`, or None.
+
+        #3720: a PL/I program's is its external procedure's first parameter -- the structure
+        `BASED` on it when it is a pointer (`R001B1: PROC(COMMAREA_PEKER)` + `DCL 1 KOMMAREA
+        BASED(COMMAREA_PEKER)`, how CICS hands a PL/I program its COMMAREA), or the parameter
+        itself when it is a structure. Several structures BASED on the pointer overlay the
+        same storage, as REDEFINES do: the first in source order, like COBOL's `01`. Only for
+        a program with CICS evidence (`_pli_is_cics`): a batch main procedure's parameter is
+        its JCL PARM, not a COMMAREA."""
+        if callee.language == "pli":
+            return self._pli_parameter_area(callee) if self._pli_is_cics(callee) else None
         for it in callee.records:
             if it.name == "DFHCOMMAREA" and (it.section or "LINKAGE") == "LINKAGE":
                 return it
         return None
+
+    def _pli_is_cics(self, ef: EngineFile) -> bool:
+        """A PL/I program with CICS evidence: an EXEC CICS resource, task or unit-of-work /
+        handler command, a LINK / XCTL / RETURN TRANSID of its own, or a LINK / XCTL reaching it."""
+        linked = self.__dict__.get("_cics_linked")
+        if linked is None:
+            linked = {c.resolves_to for f in self.files.values() for c in f.calls if c.verb != "CALL" and c.resolves_to}
+            self.__dict__["_cics_linked"] = linked
+        return bool(
+            ef.cics_resources
+            or ef.cics_tasks
+            or any(u.source == "CICS" for u in ef.uow_handlers)
+            or any(c.verb != "CALL" for c in ef.calls)
+            or ef.file_path in linked
+        )
+
+    def _pli_parameter_area(self, ef: EngineFile) -> Optional[EngineDataItem]:
+        entry = next((e for e in ef.entry_points if e.kind == "PROCEDURE"), None)
+        if entry is None or not entry.parameters:
+            return None
+        param = entry.parameters[0].upper()
+        declared = next((it for it in ef.records if it.name.upper() == param), None)
+        if declared is not None and declared.children:
+            return declared  # a structure parameter
+        based = re.compile(rf"\bBASED\s*\(\s*{re.escape(param)}\s*\)", re.I)
+        for f in [ef, *self._copy_files(ef)]:  # the program, then its %INCLUDE members
+            hit = next((it for it in f.records if it.children and based.search(it.attributes or "")), None)
+            if hit is not None:
+                return hit
+        return None
+
+    def _pli_area_gap(self, ef: EngineFile) -> str:
+        """Why a PL/I program has no parameter area: no parameter, or the pointer's BASED
+        structure is not in what was scanned -- naming the %INCLUDE members the scan could not
+        resolve (DSF's KOM_OMR comes from P0019908, which the public repository lacks)."""
+        if not self._pli_is_cics(ef):
+            return "no CICS evidence: a batch main procedure's parameter is its PARM, not a COMMAREA"
+        entry = next((e for e in ef.entry_points if e.kind == "PROCEDURE"), None)
+        if entry is None or not entry.parameters:
+            return "the main procedure takes no parameter, and no resolved caller passes this program a COMMAREA"
+        found = {Path(p).stem.upper() for p in ef.copy_deps}
+        missing = [m for m in ef.includes if m not in found and not _SYSTEM_COPYBOOK.match(m)]
+        where = f"; %INCLUDE members not in the repository: {', '.join(missing)}" if missing else ""
+        return (
+            f"no structure parameter, or structure BASED on the main procedure's parameter {entry.parameters[0]}, "
+            f"is declared in the program or its %INCLUDE members{where}; no resolved caller passes a COMMAREA"
+        )
 
     def _transaction_program(self, transid: Optional[str]) -> Optional[str]:
         """The one program file a transaction id routes to, via the CSD map."""
@@ -2011,7 +2136,7 @@ class GalaxyIR:
         return {
             "record": own.name,
             "file": ef.file_path,
-            "basis": "dfhcommarea",
+            "basis": _own_basis(ef),
             "sources": [s for o in options for s in o[5]],
             **layout,
             "extended": False,
@@ -2157,17 +2282,22 @@ class GalaxyIR:
                 ]
             else:
                 own = self._dfhcommarea(ef)
+                area = "the main procedure's parameter area" if ef.language == "pli" else "DFHCOMMAREA"
                 if own is None:
-                    gap = "no LINKAGE DFHCOMMAREA, and no resolved caller passes this program a COMMAREA"
+                    gap = (
+                        self._pli_area_gap(ef)
+                        if ef.language == "pli"
+                        else "no LINKAGE DFHCOMMAREA, and no resolved caller passes this program a COMMAREA"
+                    )
                 else:
                     layout = self.record_layout(ef, own)
                     if layout["variable"] or layout["bytes"] is None:
                         gap = (
-                            "DFHCOMMAREA is variable-length or of unknown width, and no resolved LINK / XCTL / "
+                            f"{area} is variable-length or of unknown width, and no resolved LINK / XCTL / "
                             "RETURN TRANSID passes this program a record"
                         )
                     else:
-                        commarea = {"record": own.name, "file": ef.file_path, "basis": "dfhcommarea", "sources": [],
+                        commarea = {"record": own.name, "file": ef.file_path, "basis": _own_basis(ef), "sources": [],
                                     "alternatives": [], **layout, "extended": False}  # fmt: skip
             containers = []
             for op in ef.cics_resources:
@@ -4031,6 +4161,27 @@ class GalaxyIR:
             items.setdefault(key, []).append((offset, total, len(path), it.name))
             return total
 
+        if ef.language == "pli":  # #3720: PL/I structure mapping, bit offsets rounded to bytes
+            for root in (r for r in ef.records if not r.redefines and r.level not in (66, 88)):
+                lay, children = self._pli_mapping(root, ef)
+                key = (ef.file_path, root.name)
+
+                def fill(it: EngineDataItem, path: tuple, lay=lay, key=key, children=children) -> None:
+                    off, bits = lay.get(id(it), (None, None)) if lay else (None, None)
+                    width = None if bits is None or off is None else (off % 8 + bits + 7) // 8
+                    times = it.occurs_max or 1
+                    spans[id(it)] = (key, (off or 0) // 8, width, None if width is None else width // times)
+                    paths[id(it)] = path
+                    items.setdefault(key, []).append(((off or 0) // 8, width, len(path), it.name))
+                    for kid in children.get(id(it), []):
+                        if kid in it.children:  # not the members a LIKE borrows: those are the base's
+                            fill(kid, (it.name, *path))
+
+                fill(root, ())
+            cache[(ef.file_path, id(ef))] = (spans, ef)
+            self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
+            self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
+            return spans
         fd_first: dict = {}
         for root in ef.records:
             if id(root) not in spans:
@@ -4555,7 +4706,9 @@ def _is_elementary(item: EngineDataItem) -> bool:
 
 def _item_class(item: EngineDataItem) -> str:
     """A coarse storage class for shape comparison: X alnum, 9 zoned, P packed,
-    B binary, F float, N national, A address; `?` when unknown."""
+    B binary, F float, N national, A address, T bit string (PL/I); `?` when unknown."""
+    if item.attributes is not None:  # #3720: a PL/I item
+        return pli_mapping.item_class(item.usage, item.pic, item.attributes)
     usage = (item.usage or "DISPLAY").upper()
     if usage in ("COMP-3", "COMPUTATIONAL-3", "PACKED-DECIMAL"):
         return "P"
@@ -4577,6 +4730,9 @@ def _item_class(item: EngineDataItem) -> str:
 
 def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
     """One occurrence's storage width of an elementary item, or None when unknown."""
+    if item.attributes is not None:  # #3720: a PL/I item (attributes is None for COBOL)
+        el = pli_mapping.element(item.usage, item.pic, item.attributes, False)
+        return None if el is None else (el[0] + 7) // 8
     usage = (item.usage or "DISPLAY").upper()
     if usage in ("COMP-1", "COMPUTATIONAL-1", "POINTER", "INDEX"):
         return 4
@@ -4600,6 +4756,16 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
     if width and item.sign_separate and "S" in positions:
         width += 1  # #3694: SIGN ... SEPARATE -- the sign is a character of its own
     return width or None
+
+
+# `LIKE s` / `LIKE a.s`: the structure whose members an item copies (#3720).
+_PLI_LIKE = re.compile(r"\bLIKE\s+([A-Z@#$][\w@#$]*(?:\s*\.\s*[A-Z@#$][\w@#$]*)*)", re.I)
+
+
+def _own_basis(ef: "EngineFile") -> str:
+    """program_interfaces' `basis` for a program's own declared COMMAREA: COBOL's LINKAGE
+    DFHCOMMAREA, or (#3720) a PL/I main procedure's parameter area."""
+    return "parameter" if ef.language == "pli" else "dfhcommarea"
 
 
 def _layout_mismatches(caller: dict, callee: dict) -> list:
@@ -4764,6 +4930,17 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 by_id[src].copy_deps.append(by_id[dst].file_path)
         for ef in files.values():
             ef.copy_deps.sort()
+        if _has_column(cur, "file_data", "raw_imports"):
+            for file_id, raw in cur.execute(
+                "SELECT id, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ? AND language = 'pli'",
+                (repo_name, commit_hash),
+            ):
+                try:
+                    names = json.loads(raw) if raw else []
+                except ValueError:
+                    names = []
+                if file_id in by_id and isinstance(names, list):
+                    by_id[file_id].includes = sorted({str(n).upper() for n in names if n})
 
         # #3200: the call sites, resolved and unresolved alike. A pre-#3200
         # database has no such table, so a missing table is "no data", never an

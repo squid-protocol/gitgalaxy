@@ -887,7 +887,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     vsam_defines = boundary.get("vsam_defines", [])
                     # #3451: JCL job flow (jcl only).
                     job_flow = boundary.get("job_flow", [])
-                    # #3454: program entry points (cobol only).
+                    # #3454: program entry points (cobol; pli external procedures, #3720).
                     entry_points = boundary.get("entry_points", [])
                     # #3450: IMS DL/I calls (cobol only).
                     dli_calls = boundary.get("dli_calls", [])

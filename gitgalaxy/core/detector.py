@@ -282,20 +282,22 @@ class ScopeParsingRegistry:
         },
         "ruby": {
             "mode": "mode_d",
+            # #3646: `@module`/`@class`/`@end` (instance) and `$end` (global) variables
+            # are names, never keywords: `@module = T.let(` opened a scope no `end` closed.
             "openers": [
-                r"(?<![:.])\bdef\b(?!:)",
-                r"(?<![:.])\bclass\b(?!:)",
-                r"(?<![:.])\bmodule\b(?!:)",
-                r"(?<![:.])\bif\b(?!:)",
-                r"(?<![:.])\bunless\b(?!:)",
-                r"(?<![:.])\bwhile\b(?!:)",
-                r"(?<![:.])\buntil\b(?!:)",
-                r"(?<![:.])\bfor\b(?!:)",
-                r"(?<![:.])\bcase\b(?!:)",
-                r"(?<![:.])\bdo\b(?!:)",
-                r"(?<![:.])\bbegin\b(?!:)",
+                r"(?<![:.@$])\bdef\b(?!:)",
+                r"(?<![:.@$])\bclass\b(?!:)",
+                r"(?<![:.@$])\bmodule\b(?!:)",
+                r"(?<![:.@$])\bif\b(?!:)",
+                r"(?<![:.@$])\bunless\b(?!:)",
+                r"(?<![:.@$])\bwhile\b(?!:)",
+                r"(?<![:.@$])\buntil\b(?!:)",
+                r"(?<![:.@$])\bfor\b(?!:)",
+                r"(?<![:.@$])\bcase\b(?!:)",
+                r"(?<![:.@$])\bdo\b(?!:)",
+                r"(?<![:.@$])\bbegin\b(?!:)",
             ],
-            "closers": [r"(?<![:.])\bend\b(?!:)"],
+            "closers": [r"(?<![:.@$])\bend\b(?!:)"],
             # #1262: which of the openers above actually declares a
             # method (as opposed to generic control-flow/module scope) --
             # drives _slice_by_keywords' nested-satellite scan so a `def`
@@ -3826,6 +3828,10 @@ class StructuralExtractor:
                 # string (regex alternation is left-to-right, the real string
                 # wins first), so `echo "x <<EOF"` is still blanked whole.
                 return m.group(0)
+            if m.groupdict().get("rx") is not None:
+                # #3646: a ruby regex literal -- keep the value-position context
+                # it was matched with, blank the literal itself (single line).
+                return m.group("rxpre") + '""'
             return '""' + "\n" * m.group(0).count("\n")
 
         # 1. Advanced Atomic Quotes
@@ -3948,6 +3954,21 @@ class StructuralExtractor:
             # Default to C-style block comments for the vast majority of C-family / web languages
             block_comment_alt = r"/\*[\s\S]*?\*/|"
 
+        # #3646: ruby `/.../` regex literals. Unshielded, a keyword inside one
+        # (`/<p\s+class="footnote"/`, `x =~ /if|do/`) opened a Mode-D scope that no
+        # `end` closed, so the method ran to EOF and swallowed the next one's calls.
+        # A `/` opens a regex only where a value is expected -- line start, after
+        # `( , = ~ ! & | { [ ; ? :`, or after a keyword that takes an expression --
+        # so division (`a / b`, `x/2`) never does. One line, a `[...]` class may hold
+        # `/`, escapes are atomic; flags follow. It sits in the one atomic pass, so a
+        # string or comment that starts first still claims its span, and after the
+        # raw-string branch so its `\1` keeps its group number.
+        ruby_regex_alt = (
+            r"(?P<rxpre>(?:^|[(,=~!&|{\[;?:]|\b(?:when|if|unless|elsif|while|until|and|or|not|return|then))[ \t]*)"
+            r"(?P<rx>/(?![ \t/*=])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])*/[a-z]{0,8})|"
+            if lang_id == "ruby"
+            else ""
+        )
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
@@ -3956,11 +3977,12 @@ class StructuralExtractor:
             f"{standard_double}|"  # Standard Double
             f"{standard_single}|"  # Standard Single
             r"`(?:\\.|[^`\\])*`|"  # Standard Backtick
+            + ruby_regex_alt
             # Comment marker must be at line-start or preceded by whitespace
             # (guards against e.g. shell's "$#" positional-arg-count being
             # mistaken for a comment). Same marker set previously stripped
             # by `_slice_by_keywords`'s own post-hoc pass.
-            rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
+            + rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
         )
         if lang_id == "lua":
             # tri-comparison-ledger-sweep (lua, 2026-08-29): Lua long-bracket

@@ -509,6 +509,20 @@
       "issue": 3720,
       "summary": "PL/I storage widths came from the COBOL sizing: a spaced picture repeat `PIC '( 4)9'` read as 5 bytes, so both of DSF's COBOL CALLs into PL/I routines (R001NRCO, R001NACO) mismatched on IN_TKNR, and a CHAR parameter had no width. PL/I items are now mapped by IBM's structure-mapping rules (pli_mapping): both contracts pair with every length matching.",
       "fixed_by": "#3729"
+    },
+    {
+      "id": "D027",
+      "estate": "dsf",
+      "side": "engine",
+      "fields": [
+        "PL/I layouts"
+      ],
+      "language": "pli",
+      "severity": "fact",
+      "found_by": "#3727 key vs engine (#3728)",
+      "issue": 3728,
+      "summary": "An %INCLUDE inside a PL/I declaration was dropped: a structure whose remaining members come from the included member (DSF's TRANHISTSEGM, `4 XSPERRE CHAR(1), %INCLUDE P0019940;`) was laid out from the members before it alone -- a complete-looking 39 bytes. The include is now recorded where it stands (copy_members); a member in the repository is spliced in and nested by level number, and one that is missing leaves the width unknown, named in `unexpanded`.",
+      "fixed_by": "#3737"
     }
   ],
   "fields": {

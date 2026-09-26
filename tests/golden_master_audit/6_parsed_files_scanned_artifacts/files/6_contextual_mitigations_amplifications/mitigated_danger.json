@@ -182,7 +182,7 @@
       "rust/wasmtime/wasmtime_pulley_interp.rs": "7 instances"
     },
     "shell/brew": {
-      "shell/brew/download_strategy.rb": "2 instances"
+      "shell/brew/download_strategy.rb": "8 instances"
     },
     "shell/kubernetes": {
       "shell/kubernetes/configure-helper.sh": "1 instances",

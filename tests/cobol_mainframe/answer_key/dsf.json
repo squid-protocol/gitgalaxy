@@ -171816,6 +171816,14 @@
         "SSA1_SB0PERSN/HP @25+1",
         "SSA1_SB0PERSN/PKEY @19+6",
         "SSA1_SB0PERSN/REL_OP @17+2",
+        "W001_DLI/GHU @8+4",
+        "W001_DLI/GN @4+4",
+        "W001_DLI/GU @0+4",
+        "W001_DLI/ISRT @16+4",
+        "W001_DLI/PARM_CT_3 @20+4",
+        "W001_DLI/PARM_CT_4 @24+4",
+        "W001_DLI/PARM_CT_5 @28+4",
+        "W001_DLI/REPL @12+4",
         "W_ROT/FNR @0+6",
         "W_ROT/NAVN @25+25",
         "W_ROT/NESTE_SB_VERSJON_NR @6+2",
@@ -171825,13 +171833,13 @@
         "W_ROT/SPR\u00c5K @53+1",
         "W_ROT/TKNR @50+3"
       ],
-      "skipped": {
-        "W001_DLI": "include"
-      },
+      "skipped": {},
       "pli_layouts_validated": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "#3728 key fix: only `, %INCLUDE` marks an include (not a %SKIP / %PAGE listing directive after a stray comma); 8 units now laid out, 0 withdrawn"
+        ],
         "tier": "sample_verified",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",

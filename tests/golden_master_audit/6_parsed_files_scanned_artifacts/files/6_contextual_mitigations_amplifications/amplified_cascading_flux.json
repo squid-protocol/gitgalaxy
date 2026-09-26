@@ -1250,7 +1250,7 @@
       "shell/brew/brew": "31 instances",
       "shell/brew/brew.rb": "67 instances",
       "shell/brew/cask.rb": "11 instances",
-      "shell/brew/download_strategy.rb": "113 instances",
+      "shell/brew/download_strategy.rb": "112 instances",
       "shell/brew/formula.rb": "12 instances"
     },
     "shell/curl": {

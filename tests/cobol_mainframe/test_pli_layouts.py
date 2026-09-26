@@ -275,3 +275,58 @@ def test_the_commarea_dto_carries_pli_types(scanned, tmp_path):
     assert "// ACCT_NO: PIC '(5)9', offset 12, 5 bytes" in dto
     manifest = json.loads((java / "traceability.json").read_text(encoding="utf-8"))
     assert any(a["symbol"].endswith("#acctBal") for a in manifest["artifacts"])
+
+
+# ---- #3728: an %INCLUDE inside a declaration ---------------------------------------
+INCP = """\
+ INCP: PROC OPTIONS(MAIN);
+   DCL 1 TRAN,
+         2 T_ID    CHAR(3),
+         %INCLUDE TRANREST;
+   DCL 1 LISTE BASED(P),
+         3 LINJE (5),
+         %INCLUDE LINJEINC;
+   DCL 1 HALF,
+         2 H_ID    CHAR(4),
+         %INCLUDE GONE;
+   DCL P POINTER;
+ END INCP;
+"""
+
+
+@pytest.fixture(scope="module")
+def included(tmp_path_factory):
+    base = tmp_path_factory.mktemp("pli_dcl_include")
+    repo = base / "estate"
+    files = {
+        "src/INCP.pli": INCP,
+        "inc/TRANREST.pli": "   2 T_SEQ   FIXED BIN(31),\n   2 T_FLAG  CHAR(2);\n",
+        "inc/LINJEINC.pli": "   5 L_KODE  CHAR(2),\n   5 L_BELOP PIC '(3)9';\n",
+    }
+    for rel, text in files.items():
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text, encoding="utf-8")
+    return load_galaxy_ir(scan_to_db(repo, base / "scan"))
+
+
+def test_an_include_inside_a_declaration_is_spliced_in_where_it_stands(included):
+    ef = included.files["src/INCP.pli"]
+    tran = next(r for r in ef.records if r.name == "TRAN")
+    layout = included.record_layout(ef, tran)
+    got = [(f["name"], f["offset"], f["bytes"], f["file"]) for f in layout["fields"]]
+    assert got == [("T_ID", 0, 3, "src/INCP.pli"), ("T_SEQ", 3, 4, "inc/TRANREST.pli"),
+                   ("T_FLAG", 7, 2, "inc/TRANREST.pli")]  # fmt: skip
+    assert (layout["bytes"], layout["unexpanded"], layout["copybooks"]) == (9, [], ["inc/TRANREST.pli"])
+
+
+def test_a_fragment_nests_by_its_level_numbers(included):
+    ef = included.files["src/INCP.pli"]
+    layout = included.record_layout(ef, next(r for r in ef.records if r.name == "LISTE"))
+    assert [(f["name"], f["offset"], f["bytes"]) for f in layout["fields"]] == [("L_KODE", 0, 2), ("L_BELOP", 2, 3)]
+    assert layout["bytes"] == 25  # LINJE (5) of 5 bytes each
+
+
+def test_a_missing_member_leaves_the_structure_unknown_and_named(included):
+    ef = included.files["src/INCP.pli"]
+    layout = included.record_layout(ef, next(r for r in ef.records if r.name == "HALF"))
+    assert layout["bytes"] is None and layout["unexpanded"] == ["GONE"]  # not a 4-byte structure

@@ -4087,7 +4087,7 @@
         "verification": 40.91
       },
       "file_count": 8,
-      "total_mass": 769.32
+      "total_mass": 764.12
     },
     "rust": {
       "avg_exposures": {
@@ -4340,20 +4340,20 @@
       "avg_exposures": {
         "api_exposure": 4.57,
         "churn": 0.0,
-        "cognitive_load": 32.14,
+        "cognitive_load": 31.99,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 34.91,
-        "safety_score": 46.55,
+        "safety_score": 46.66,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
         "state_flux": 55.55,
-        "tech_debt": 25.25,
+        "tech_debt": 25.07,
         "verification": 19.43
       },
       "file_count": 9,
-      "total_mass": 2089.72
+      "total_mass": 1985.0
     },
     "shell/curl": {
       "avg_exposures": {

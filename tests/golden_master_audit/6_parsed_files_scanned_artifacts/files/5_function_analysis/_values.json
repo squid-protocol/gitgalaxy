@@ -463365,19 +463365,6 @@
           "Structural Impact": 13.6
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
-          "End Line": 266,
-          "Function Name": "extract_anchors",
-          "Input Parameters": 1,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 34,
-          "Reflection Hits": 0,
-          "Start Line": 233,
-          "Structural Impact": 10.2
-        },
-        {
           "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 264,
@@ -463428,6 +463415,19 @@
           "Reflection Hits": 0,
           "Start Line": 177,
           "Structural Impact": 5.4
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "40.0%",
+          "End Line": 248,
+          "Function Name": "extract_anchors",
+          "Input Parameters": 1,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 233,
+          "Structural Impact": 5.0
         },
         {
           "Control Flow Branches": 2,
@@ -503263,8 +503263,8 @@
           "Structural Impact": 25.5
         },
         {
-          "Control Flow Branches": 10,
-          "Control Flow Ratio": "76.9%",
+          "Control Flow Branches": 12,
+          "Control Flow Ratio": "80.0%",
           "End Line": 329,
           "Function Name": "sort!",
           "Input Parameters": 1,
@@ -503273,7 +503273,7 @@
           "Lines of Code (LOC)": 43,
           "Reflection Hits": 0,
           "Start Line": 287,
-          "Structural Impact": 17.7
+          "Structural Impact": 20.5
         },
         {
           "Control Flow Branches": 8,
@@ -504047,34 +504047,8 @@
       ],
       "shell/brew/download_strategy.rb": [
         {
-          "Control Flow Branches": 51,
-          "Control Flow Ratio": "50.5%",
-          "End Line": 1707,
-          "Function Name": "initialize",
-          "Input Parameters": 4,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 373,
-          "Reflection Hits": 0,
-          "Start Line": 1335,
-          "Structural Impact": 134.9
-        },
-        {
-          "Control Flow Branches": 28,
-          "Control Flow Ratio": "65.1%",
-          "End Line": 534,
-          "Function Name": "parse_basename",
-          "Input Parameters": 2,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 146,
-          "Reflection Hits": 0,
-          "Start Line": 389,
-          "Structural Impact": 57.5
-        },
-        {
-          "Control Flow Branches": 13,
-          "Control Flow Ratio": "72.2%",
+          "Control Flow Branches": 18,
+          "Control Flow Ratio": "75.0%",
           "End Line": 638,
           "Function Name": "resolve_url_basename_time_file_size",
           "Input Parameters": 2,
@@ -504083,7 +504057,20 @@
           "Lines of Code (LOC)": 77,
           "Reflection Hits": 0,
           "Start Line": 562,
-          "Structural Impact": 28.1
+          "Structural Impact": 36.8
+        },
+        {
+          "Control Flow Branches": 16,
+          "Control Flow Ratio": "72.7%",
+          "End Line": 534,
+          "Function Name": "fetch",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 73,
+          "Reflection Hits": 0,
+          "Start Line": 462,
+          "Structural Impact": 27.7
         },
         {
           "Control Flow Branches": 15,
@@ -504097,6 +504084,19 @@
           "Reflection Hits": 0,
           "Start Line": 1653,
           "Structural Impact": 24.4
+        },
+        {
+          "Control Flow Branches": 10,
+          "Control Flow Ratio": "71.4%",
+          "End Line": 428,
+          "Function Name": "parse_basename",
+          "Input Parameters": 2,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 40,
+          "Reflection Hits": 0,
+          "Start Line": 389,
+          "Structural Impact": 21.1
         },
         {
           "Control Flow Branches": 12,
@@ -504138,8 +504138,8 @@
           "Structural Impact": 18.3
         },
         {
-          "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "75.0%",
           "End Line": 749,
           "Function Name": "initialize",
           "Input Parameters": 4,
@@ -504148,7 +504148,20 @@
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 735,
-          "Structural Impact": 14.2
+          "Structural Impact": 16.4
+        },
+        {
+          "Control Flow Branches": 9,
+          "Control Flow Ratio": "40.9%",
+          "End Line": 1707,
+          "Function Name": "__global_context__",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 87,
+          "Reflection Hits": 0,
+          "Start Line": 1,
+          "Structural Impact": 14.4
         },
         {
           "Control Flow Branches": 5,
@@ -504214,6 +504227,19 @@
           "Reflection Hits": 0,
           "Start Line": 820,
           "Structural Impact": 10.6
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 1350,
+          "Function Name": "initialize",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 16,
+          "Reflection Hits": 0,
+          "Start Line": 1335,
+          "Structural Impact": 9.7
         },
         {
           "Control Flow Branches": 3,
@@ -504292,6 +504318,19 @@
           "Reflection Hits": 0,
           "Start Line": 962,
           "Structural Impact": 7.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 456,
+          "Function Name": "initialize",
+          "Input Parameters": 4,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 13,
+          "Reflection Hits": 0,
+          "Start Line": 444,
+          "Structural Impact": 7.4
         },
         {
           "Control Flow Branches": 4,
@@ -504424,19 +504463,6 @@
           "Structural Impact": 4.6
         },
         {
-          "Control Flow Branches": 0,
-          "Control Flow Ratio": "0.0%",
-          "End Line": 1707,
-          "Function Name": "__global_context__",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 69,
-          "Reflection Hits": 0,
-          "Start Line": 1,
-          "Structural Impact": 4.5
-        },
-        {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "50.0%",
           "End Line": 844,
@@ -504461,19 +504487,6 @@
           "Reflection Hits": 0,
           "Start Line": 877,
           "Structural Impact": 4.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 1421,
-          "Function Name": "clone_repo",
-          "Input Parameters": 1,
-          "Is Documented": 1,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 29,
-          "Reflection Hits": 0,
-          "Start Line": 1393,
-          "Structural Impact": 4.3
         },
         {
           "Control Flow Branches": 1,
@@ -504590,6 +504603,19 @@
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 1306,
+          "Structural Impact": 3.4
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "25.0%",
+          "End Line": 1404,
+          "Function Name": "clone_repo",
+          "Input Parameters": 1,
+          "Is Documented": 1,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 12,
+          "Reflection Hits": 0,
+          "Start Line": 1393,
           "Structural Impact": 3.4
         },
         {

@@ -301,8 +301,11 @@ def render_markdown(wl: dict) -> str:
     # #3237: with a port order (ai_agent_jobs/port_order.json), sources are listed in it -- the programs
     # the most other code depends on first -- and the rest after, by item count.
     rank = {o["file"]: o["rank"] for o in wl.get("port_order") or []}
-    order_note = ["", "Listed in port order: the programs the most other code depends on first "
-                  "([ai_agent_jobs/port_order.md](ai_agent_jobs/port_order.md))."] if rank else []  # fmt: skip
+    note = (
+        "Listed in port order: the programs the most other code depends on first "
+        "([ai_agent_jobs/port_order.md](ai_agent_jobs/port_order.md))."
+    )
+    order_note = ["", note] if rank else []
     md += ["", "## By program source", *order_note, "", "| source | " + " | ".join(NATURES) + " | total |",
            "|---|" + "---:|" * (len(NATURES) + 1)]  # fmt: skip
     for prog, cnt in sorted(

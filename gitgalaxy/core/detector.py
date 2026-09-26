@@ -47,6 +47,7 @@ from gitgalaxy.standards.language_standards import (
 from gitgalaxy.standards.language_standards._shared_patterns import (
     QUALIFIED_CALLS_OUT_PATTERNS,
 )
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 HAS_TIKTOKEN = False
 try:
@@ -1094,15 +1095,22 @@ _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
 
 # References (Python): a function name used as a value -- `Depends(get_db)`,
 # `key=sort_key`, `callback=self.on_done`, `return wrapper`, `h = on_event`.
-_REF_CANDIDATE = re.compile(r"(?<![\w.])((?:self|cls)\.)?([A-Za-z_]\w{0,63})(?=[ \t]*(?:[,)\]}]|\n|$))")
+# #3814: a Python name is UAX #31 (`def नाम(`, `def café(`, decomposed accents): `[A-Za-z_]\w`
+# dropped non-Latin names, and `\w` alone cuts Indic names at their vowel signs (Mn/Mc) -- a cut
+# `def` header then left its parameters looking like references. The lookbehind uses the same
+# class, so a match cannot start mid-name after a combining mark.
+_PY_NAME = r"[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}"
+_PY_NAME_RE = re.compile(_PY_NAME)
+_PY_NOT_AFTER = r"(?<![" + ID_CONTINUE + r".])"
+_REF_CANDIDATE = re.compile(_PY_NOT_AFTER + r"((?:self|cls)\.)?(" + _PY_NAME + r")(?=[ \t]*(?:[,)\]}]|\n|$))")
 _REF_KEYWORD_BEFORE = re.compile(r"\b(?:return|yield|lambda[^:\n]{0,80}:|else)[ \t]*$")
-_REF_PARAM_NAME = re.compile(r"^[ \t\n]*\*{0,2}([A-Za-z_]\w{0,63})")
+_REF_PARAM_NAME = re.compile(r"^[ \t\n]*\*{0,2}(" + _PY_NAME + r")")
 _REF_IMPORT_AS = re.compile(r"\bimport[ \t]+([^\n]{1,300})")
-_REF_EXCEPT_AS = re.compile(r"\bexcept\b[^\n]{0,200}?\bas[ \t]+([A-Za-z_]\w{0,63})")
-_REF_WALRUS = re.compile(r"(?<![\w.])([A-Za-z_]\w{0,63})[ \t]*:=")
+_REF_EXCEPT_AS = re.compile(r"\bexcept\b[^\n]{0,200}?\bas[ \t]+(" + _PY_NAME + r")")
+_REF_WALRUS = re.compile(_PY_NOT_AFTER + r"(" + _PY_NAME + r")[ \t]*:=")
 # tuple / starred targets: `a, b = ...`, `(a, *rest) = ...`
 _REF_TUPLE_TARGET = re.compile(r"(?m)^[ \t]*\(?([A-Za-z_*][\w \t,*]{0,200},[\w \t,*]{0,200})\)?[ \t]*=(?!=)")
-_REF_DEF_OPEN = re.compile(r"\bdef[ \t]+\w+[ \t]*\(")
+_REF_DEF_OPEN = re.compile(r"\bdef[ \t]+[" + ID_CONTINUE + r"]+[ \t]*\(")
 _REF_HEADER_MAX = 20000
 
 
@@ -1114,9 +1122,9 @@ def _python_bindings(text: str) -> set[str]:
     for m in _RECV_ASSIGN.finditer(text):
         names.add(m.group(1))
     for m in _REF_TUPLE_TARGET.finditer(text):
-        names.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+        names.update(_PY_NAME_RE.findall(m.group(1)))
     for m in _RECV_FOR.finditer(text):
-        names.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+        names.update(_PY_NAME_RE.findall(m.group(1)))
     for m in _RECV_WITH.finditer(text):
         names.add(m.group(2))
     names.update(_REF_EXCEPT_AS.findall(text))
@@ -1165,7 +1173,7 @@ def _python_locals(text: str) -> set[str]:
             else:
                 part.append(ch)
     for m in _REF_IMPORT_AS.finditer(text):
-        local.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+        local.update(_PY_NAME_RE.findall(m.group(1)))
     return local
 
 
@@ -1266,13 +1274,13 @@ def _python_decorators(safe_code: str, def_idx: int) -> list[tuple[str, str]]:
 
 # Module-level Python text: blanked `class Name` headers (a class statement is
 # not a call to the class); unit spans are blanked with _NON_NEWLINE.
-_MODULE_CLASS_HEADER = re.compile(r"(?m)^([ \t]*class[ \t]+)([A-Za-z_]\w{0,127})")
+_MODULE_CLASS_HEADER = re.compile(r"(?m)^([ \t]*class[ \t]+)([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})")
 
 # Receiver types (Python): the local evidence that says which class a receiver
 # is, so `app.post()` after `app = FastAPI()` resolves to FastAPI.post. Every
 # quantifier is bounded; the text is the literal-shielded block.
-_RECV_NAME = r"(?:self\.)?[A-Za-z_]\w{0,63}"
-_RECV_DOTTED = r"[A-Za-z_][\w.]{0,120}"
+_RECV_NAME = r"(?:self\.)?" + _PY_NAME
+_RECV_DOTTED = r"[" + ID_START + r"][" + ID_CONTINUE + r".]{0,120}"
 # `name = Rhs`, `name: Ann = Rhs` (never `==`, `+=`, `name[...] =`)
 _RECV_ASSIGN = re.compile(
     r"(?m)^[ \t]*("
@@ -1283,11 +1291,11 @@ _RECV_ASSIGN = re.compile(
 )
 _RECV_CTOR = re.compile(r"(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\(")
 _RECV_WITH = re.compile(
-    r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+([A-Za-z_]\w{0,63})"
+    r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+(" + _PY_NAME + r")"
 )
 _RECV_FOR = re.compile(r"\bfor[ \t]+([^\n]{1,200}?)[ \t]+in\b")
-_RECV_HEADER = re.compile(r"\bdef[ \t]+\w+[ \t]*\(([^)]{0,2000})\)", re.S)
-_RECV_PARAM = re.compile(r"(?:^|,)[ \t\n]*\*{0,2}([A-Za-z_]\w{0,63})[ \t]*:[ \t]*[\"']?(" + _RECV_DOTTED + r")")
+_RECV_HEADER = re.compile(r"\bdef[ \t]+[" + ID_CONTINUE + r"]+[ \t]*\(([^)]{0,2000})\)", re.S)
+_RECV_PARAM = re.compile(r"(?:^|,)[ \t\n]*\*{0,2}(" + _PY_NAME + r")[ \t]*:[ \t]*[\"']?(" + _RECV_DOTTED + r")")
 
 
 def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
@@ -1326,7 +1334,7 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     for m in _RECV_WITH.finditer(text):
         note(m.group(2), m.group(1))
     for m in _RECV_FOR.finditer(text):
-        for target in re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)):
+        for target in _PY_NAME_RE.findall(m.group(1)):
             note(target, None)
     # "" = bound here with no single known class: it hides a module-level type
     return {k: v or "" for k, v in found.items()}
@@ -10189,9 +10197,13 @@ class StructuralExtractor:
         # pattern (it still excludes punctuation such as Go assembly's `·`). The
         # mainframe languages also allow `@` and `#` in names; on Nordic EBCDIC code
         # pages those, with `$`, are the very bytes that display as Æ Ø Å.
+        # #3814: `\w` has no combining marks, so a Devanagari / Tamil name (vowel signs,
+        # viramas: Mn/Mc) or a decomposed `é` split at the mark -- ID_CONTINUE (UAX #31) keeps them.
         is_swift = self.primary_lang_id == "swift"
         national = "@#" if self.primary_lang_id in _NATIONAL_CHARACTER_LANGUAGES else ""
-        pattern = r"[\w./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else rf"[\w{national}./%$():~'\-\[\]]+"
+        pattern = (
+            rf"[{ID_CONTINUE}./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else rf"[{ID_CONTINUE}{national}./%$():~'\-\[\]]+"
+        )
         words = [w for w in re.findall(pattern, clean) if w.strip("_-:")]
 
         if not words:

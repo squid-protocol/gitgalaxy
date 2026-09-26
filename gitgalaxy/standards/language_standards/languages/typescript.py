@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC,
     GLOBAL_DL_FRAMEWORKS,
@@ -104,7 +106,9 @@ DEFINITION: dict[str, Any] = {
         # same way Python's did (#1199). Name groups added to branches
         # 1/4 too, purely so existing extraction tests keep passing.
         "args": re.compile(
-            r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
+            r"function\s+(["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
             # #2773: the gap between an arrow's parameter list and its `=>` used to be
             # `[^=;{]*` -- unbounded and newline-crossing, so ANY parenthesised
             # expression matched as long as some `=>` turned up later on the way to the
@@ -122,7 +126,7 @@ DEFINITION: dict[str, Any] = {
             # (6 functions, tree_sitter_accuracy_audit args_exact_match 2881 -> 2875).
             # Newlines stay excluded on both sides so the gap cannot run down the file.
             r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50}(?::(?:[^=;{()\n]|\((?:[^()\n]|\([^()\n]*\))*\)){0,120})?=>|"
-            r"([a-zA-Z_$][\w$]{0,100})[ \t]*=>|"
+            r"([" + ID_START + r"$][" + ID_CONTINUE + r"$]{0,100})[ \t]*=>|"
             # #2539: `with` excluded CONDITIONALLY (only when followed by whitespace
             # then `(` -- the `with (shape) {` statement shape) rather than added to
             # the unconditional keyword list: `with` is a real, prominent method name
@@ -141,7 +145,11 @@ DEFINITION: dict[str, Any] = {
             # annotation (2900 of the 3026), a call statement by `;`, `,`, `)`, `|`,
             # `&`, `.` (6039 of the 6133). Requiring `{` or `:` keeps 95.8% of the
             # declarations and drops 98.5% of the calls.
-            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b|with\b[ \t\n]+\()(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50}[:{]|"
+            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b|with\b[ \t\n]+\()(\[[^\]]+\]|[#]?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50}[:{]|"
             # #2773: the one declaration shape the `{`-or-`:` anchor above cannot
             # cover. A constructor has no return type BY GRAMMAR, so a bodyless
             # constructor overload signature (`constructor(runner: () => void, timeout:
@@ -214,7 +222,11 @@ DEFINITION: dict[str, Any] = {
             # the isolated function name and the generic parameters.
             # Note: We also migrated the JS Vertical Assignment fixes here (`[ \t\n]*`).
             # =====================================================================
-            r"\b(?:async\s+)?function[ \t\n*]+(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
+            r"\b(?:async\s+)?function[ \t\n*]+(\[[^\]]+\]|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?=[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()|"
             # BUG FIX (issue #1838, P2): a constructor parameter property
             # (`constructor(private readonly interval: number, private
             # readonly nowFn = () => Date.now())`) puts an
@@ -255,7 +267,11 @@ DEFINITION: dict[str, Any] = {
             r"(?<!,\spublic\sreadonly\s)(?<!,\sprivate\sreadonly\s)(?<!,\sprotected\sreadonly\s)"
             r"(?<!\(public\s)(?<!\(private\s)(?<!\(protected\s)(?<!\(readonly\s)"
             r"(?<!\(public\sreadonly\s)(?<!\(private\sreadonly\s)(?<!\(protected\sreadonly\s)"
-            r"(\[[^\]]+\]|[a-zA-Z_$][\w$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?"
+            r"(\[[^\]]+\]|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:[ \t\n]*:[ \t\n]{0,50}(?:(?!\b(?:const|let|var|return|export|import|class|private|public|protected|readonly)\b)[^=;{}]|=>){0,200})?"
             # BUG FIX (issue #1838, R2): the arrow-body terminator only
             # accepted a body starting with `{`/`<`/`(`/end-of-line --
             # missed the common point-free/FP-style shape where the body
@@ -312,8 +328,36 @@ DEFINITION: dict[str, Any] = {
             # member-signature return type. The type keywords (`void`,
             # `string`, ...) stay excluded: they are never valid bare arrow
             # bodies in JS/TS in either context.
-            r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)))|"
-            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+            r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)))|"
+            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(\[[^\]]+\]|[#]?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
             # #1221: the trailing lookahead used to be just
             # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
             # `(` follows, nothing more -- so any bare call statement
@@ -423,7 +467,11 @@ DEFINITION: dict[str, Any] = {
             # method/signature named `with` (`Array.prototype.with` ES2023,
             # Temporal's `.with()` -- ubiquitous in `.d.ts`) never has that space,
             # exactly the discriminator this group already relies on.
-            r"(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+            r"(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
             r"|"
             # BUG FIX (R3): The arrow-value (Branch 5 / standalone value) branch
             # is known to fail on mid-statement function values (e.g. `const a = b || () => {}`)
@@ -504,7 +552,11 @@ DEFINITION: dict[str, Any] = {
             # `:Type;` / `{` terminator below keeps a bare generic call
             # statement (`useCallback<() => void>(cb);`) from matching.
             # #2539: same conditional `with` exclusion as Branch A -- see its comment.
-            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:=>|=(?!>)|[^<>=]|<(?:=>|=(?!>)|[^<>=])*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?=\??[ \t\n]{0,50}(?:<(?:=>|=(?!>)|[^<>=]|<(?:=>|=(?!>)|[^<>=])*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
             r")",
             re.M,
         ),
@@ -544,7 +596,11 @@ DEFINITION: dict[str, Any] = {
         # run, so a plain `const` declaration (no literal `class`/
         # `enum`/`interface` token following) still doesn't match.
         "class_start": re.compile(
-            r"^[ \t]*(?:(?:export|default|abstract|declare|const)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+([a-zA-Z_$][\w$]*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
+            r"^[ \t]*(?:(?:export|default|abstract|declare|const)[ \t\n]+){0,4}(?:class|enum|interface)[ \t\n]+(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t\n]+(?:extends|implements)[ \t\n]+([a-zA-Z_$][\w_$, \t\n]*))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -590,7 +646,7 @@ DEFINITION: dict[str, Any] = {
         "api": re.compile(
             r"\b(?:export|module\.exports|exports\.)\b"
             r"|\bpublic[ \t\n]+(?:(?:static|readonly|abstract|override|async)[ \t\n]+){0,4}"
-            r"(?:get\b|set\b|[A-Za-z_$#][\w$]*[ \t\n]*[(:?<=;,])"
+            r"(?:get\b|set\b|[" + ID_START + r"$#][" + ID_CONTINUE + r"$]*[ \t\n]*[(:?<=;,])"
             r"|@(Controller|Resolver|Get|Post|Put|Delete)\b"
         ),
         # 11. flux (State Mutation)
@@ -613,7 +669,19 @@ DEFINITION: dict[str, Any] = {
             # string literal is not an increment).
             # Same shape as javascript: `let`/`var`/`const` declare, a bare `this.` reads,
             # `=` directly followed by `{`/quote is a TSX attribute.
-            r"(?:^|[;{})])[ \t]*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\?\.[A-Za-z_$][\w$]*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{})])[ \t]*["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?:\.["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\?\.["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|\*\*|<<|>>>?|&&|\|\||\?\?)?=(?![=>{\"'`])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_$(]"
             r"|\bsetState\s*\("

@@ -19949,6 +19949,16 @@
           ]
         }
       }
+    },
+    "runners": {
+      "plan": {
+        "mode": "full",
+        "files": [
+          "JCL/CONFIG.jcl",
+          "JCL/DEFEXPR.jcl",
+          "JCL/DEFZC##.jcl"
+        ]
+      }
     }
   },
   "cross_verification": [
@@ -20860,6 +20870,25 @@
           "why": "ZECSPLT line 121: `MOVE URI-PREFIX(3:2) TO ZX-SUFFIX` with `TD-SUFFIX.` on line 122 -- two targets of one MOVE, both pairs carry the source refmod. The reviewer listed the first target only."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "JCL/CONFIG.jcl",
+        "JCL/DEFEXPR.jcl",
+        "JCL/DEFZC##.jcl"
+      ],
+      "wide": false,
+      "suite": "runners",
+      "tasks": {
+        "runner": {
+          "agree": 30,
+          "asked": 30
+        }
+      },
+      "rulings": {}
     }
   ],
   "copybook_layouts": {
@@ -21094,6 +21123,83 @@
         "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
+      }
+    }
+  },
+  "runner_steps": {
+    "JCL/CONFIG.jcl": {
+      "units": [
+        "L107 STEP09 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L129 STEP11 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L151 STEP13 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L173 STEP15 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L19 STEP01 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L195 STEP17 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L217 STEP19 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L239 STEP21 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L261 STEP23 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L283 STEP25 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L305 STEP27 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L327 STEP29 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L349 STEP31 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L371 STEP33 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L393 STEP35 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L41 STEP03 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L415 STEP37 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L437 STEP39 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L459 STEP41 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L481 STEP43 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L503 STEP45 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L525 STEP47 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L547 STEP49 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L63 STEP05 IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L85 STEP07 IKJEFT1B RUNS=REXXREPL/TSO EXEC"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "JCL/DEFEXPR.jcl": {
+      "units": [
+        "L19 CUSTOMIZ IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L41 ECSFILEC IKJEFT1B RUNS=REXXREPL/TSO EXEC"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "JCL/DEFZC##.jcl": {
+      "units": [
+        "L27 CUSTOMIZ IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L49 ECSFILEC IKJEFT1B RUNS=REXXREPL/TSO EXEC",
+        "L69 ECSKEYC IKJEFT1B RUNS=REXXREPL/TSO EXEC"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
           "at": "2026-09-26"
         }
       }

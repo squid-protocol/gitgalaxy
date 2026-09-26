@@ -660,3 +660,23 @@ def test_plilayouts_plan_samples_every_stratum_with_recall(tmp_path):
     assert {"bit", "varying", "binary", "decimal", "picture", "pointer"} <= set(plan["strata"])
     assert sum(len(key["pli_layouts"].get(f, {}).get("units", [])) for f in plan["files"]) >= cs.LAYOUT_SAMPLE_ROWS
     assert plan == cs.pli_layouts_plan(key, tmp_path, 7)  # seeded
+
+
+# ---- the `runners` suite (#3710) -----------------------------------------------------
+def test_runners_suite_is_blind_round_trips_and_signs_in_full():
+    key = {"corpus": "k", "ref": "0" * 40, "programs": {},
+           "runner_steps": {"J.jcl": {"units": ["L2 RUN IKJEFT01 RUNS=POSTIT/RUN PROGRAM", "L9 M IKJEFT1B SYSTSIN=CTL"],
+                                      "runners_validated": False, "verification": {}}},
+           "sample_census": {"runners": {"plan": {"mode": "full", "files": ["J.jcl", "K.jcl"]}}}}  # fmt: skip
+    brief, truth = cs.render_runners(key, REPO, cs.corpus_files_runners(key), 1, 1)
+    assert "POSTIT" not in brief and "RUN PROGRAM(x)" in brief and truth["facts"]["runner"]["K.jcl"] == []
+    answers = {"files": {
+        "J.jcl": {"runner": [{"line": 2, "step": "run", "runner": "IKJEFT01", "program": "postit", "via": "run  program"},
+                             {"line": 9, "step": "M", "runner": "IKJEFT1B", "program": None, "via": None,
+                              "systsin_member": "CTL"}]},
+        "K.jcl": {"runner": []}}}  # fmt: skip
+    g = cs.grade(truth, answers, REPO)
+    assert g["disagreements"] == [] and g["tasks"]["runner"] == {"agree": 2, "asked": 2}
+    cs.sign(key, truth, g, {}, "reviewer", "2026-09-26")
+    assert key["runner_steps"]["J.jcl"]["verification"]["tier"] == "cross_verified"
+    assert cs.coverage(key, cs.corpus_files_runners(key), "runners")["missing"] == []

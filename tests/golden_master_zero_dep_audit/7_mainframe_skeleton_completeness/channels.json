@@ -15,10 +15,10 @@
     },
     "batch entry": {
       "Gaps": {
-        "batch program no JCL step runs": 282
+        "batch program no JCL step runs": 279
       },
-      "Ratio": "1.7%",
-      "Resolved": 5,
+      "Ratio": "2.8%",
+      "Resolved": 8,
       "System Names (Not Gaps)": 0,
       "Total": 287
     },
@@ -43,13 +43,13 @@
     "program calls": {
       "Gaps": {
         "dynamic target": 15,
-        "missing program": 259,
+        "missing program": 260,
         "non-COBOL program not linked": 0
       },
-      "Ratio": "52.1%",
-      "Resolved": 298,
-      "System Names (Not Gaps)": 172,
-      "Total": 572
+      "Ratio": "52.3%",
+      "Resolved": 301,
+      "System Names (Not Gaps)": 220,
+      "Total": 576
     },
     "screens": {
       "Gaps": {

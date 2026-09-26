@@ -43547,6 +43547,16 @@
           ]
         }
       }
+    },
+    "runners": {
+      "plan": {
+        "mode": "full",
+        "files": [
+          "base/cntl/db2bind.jcl",
+          "base/cntl/db2cre.jcl",
+          "base/cntl/db2del.jcl"
+        ]
+      }
     }
   },
   "cross_verification": [
@@ -44709,6 +44719,25 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "base/cntl/db2bind.jcl",
+        "base/cntl/db2cre.jcl",
+        "base/cntl/db2del.jcl"
+      ],
+      "wide": false,
+      "suite": "runners",
+      "tasks": {
+        "runner": {
+          "agree": 12,
+          "asked": 12
+        }
+      },
+      "rulings": {}
     }
   ],
   "web_services": {
@@ -45754,6 +45783,65 @@
         "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
+      }
+    }
+  },
+  "runner_steps": {
+    "base/cntl/db2bind.jcl": {
+      "units": [
+        "L6 BIND IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "base/cntl/db2cre.jcl": {
+      "units": [
+        "L11 CREATE IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L150 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L192 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L229 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L264 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L302 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L350 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L383 CRGRACC IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L412 INSERT IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM",
+        "L99 CRTABS IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "base/cntl/db2del.jcl": {
+      "units": [
+        "L11 DELETE IKJEFT01 RUNS=DSNTIAD/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
           "at": "2026-09-26"
         }
       }

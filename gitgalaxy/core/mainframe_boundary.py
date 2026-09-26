@@ -93,6 +93,7 @@ from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.jcics import jcics
+from gitgalaxy.core.jcl_runners import runner_targets
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
@@ -1474,6 +1475,45 @@ def _jcl_resolve_datasets(
                 _mark(row, results.pop(), "resolved")
 
 
+# #3710: what a runner step runs is a program the job runs. A load module -- RUN
+# PROGRAM, TSO CALL, DFSRRC00's program -- is an `EXEC PGM` call site of its own (form
+# `runner`, operand the runner and how), so the call graph, reachability and
+# completeness see it; a TSO EXEC of a REXX / CLIST exec is not a program call and
+# rides on the STEP row only.
+_RUNNER_CALL_VIAS = frozenset({"RUN PROGRAM", "TSO CALL", "DFSRRC00"})
+
+
+def _attach_runner_targets(boundary: dict[str, Any], targets: list[dict[str, Any]]) -> None:
+    """The STEP rows gain `runs` / `runs_via` (comma-joined, in order) and `systsin_member`;
+    each load-module target becomes an `EXEC PGM` call row."""
+    by_line: dict[int, list[dict[str, Any]]] = {}
+    for t in targets:
+        by_line.setdefault(t["line"], []).append(t)
+        if t["program"] and t["via"] in _RUNNER_CALL_VIAS:
+            boundary["calls"].append(
+                {
+                    "verb": "EXEC PGM",
+                    "form": "runner",
+                    "operand": f"{t['runner']} {t['via']}",
+                    "target": t["program"],
+                    "line": t["at"],
+                }
+            )
+    for row in boundary.get("job_flow", []):
+        mine = by_line.get(row["line"]) if row.get("kind") == "STEP" else None
+        if not mine:
+            continue
+        ran = [t for t in mine if t["program"]]
+        if ran:
+            row["runs"] = ",".join(t["program"] for t in ran)
+            row["runs_via"] = ",".join(t["via"] for t in ran)
+        elif any(t["via"] == "TSO commands" for t in mine):
+            row["runs_via"] = "TSO commands"  # SYSTSIN holds commands only
+        member = next((t["member"] for t in mine if t["member"]), None)
+        if member:
+            row["systsin_member"] = member
+
+
 def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
     """JCL `EXEC PGM=` steps and the `DD` statements that bind a ddname to a dataset.
 
@@ -2079,6 +2119,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
+        _attach_runner_targets(boundary, runner_targets(code_stream))  # #3710
         boundary["ims_gen"] = jcl_ims_regions(_jcl_statements(code_stream))  # #3477
         boundary["web_services"] = jcl_web_services(code_stream)  # #3496
         return boundary

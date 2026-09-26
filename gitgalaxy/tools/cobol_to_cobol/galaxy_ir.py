@@ -145,6 +145,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
 
 # Subsystem hit columns carried per file. They are rule-hit counts, not block
@@ -678,6 +679,11 @@ class EngineJobFlow:
     generation: Optional[str]
     line: int
     disp_normal: Optional[str] = None  # #3622: DISP's normal-end disposition (KEEP / CATLG / DELETE / ...)
+    # #3710: a runner step (IKJEFT01 / DFSRRC00): the programs it runs and how (comma-joined,
+    # in order: RUN PROGRAM / TSO CALL / TSO EXEC / DFSRRC00), and a SYSTSIN read from a member.
+    runs: Optional[str] = None
+    runs_via: Optional[str] = None
+    systsin_member: Optional[str] = None
 
 
 @dataclass
@@ -839,6 +845,9 @@ class GalaxyIR:
     repo_name: str
     commit_hash: str
     files: dict[str, EngineFile]
+    # #3710: the scanned source tree, when the caller has it: a runner step's SYSTSIN read
+    # from a dataset member (a `.ctl` file the scan does not record) is read from here.
+    source_root: Optional[Path] = None
 
     def programs(self, language: str = "cobol") -> list[EngineFile]:
         return sorted(
@@ -1469,6 +1478,9 @@ class GalaxyIR:
                 for step in [st, *(st.get("expands_to") or [])]:
                     if step.get("program"):
                         run.add(step["program"].upper())
+                    # #3710: the program a runner (IKJEFT01 RUN PROGRAM, DFSRRC00 PARM) runs
+                    run |= {r["program"].upper() for r in step.get("runner_programs") or []
+                            if r.get("program") and r.get("via") != "TSO EXEC"}  # fmt: skip
         called = {c.resolves_to for f in self.files.values() for c in f.calls if c.resolves_to and c.verb == "CALL"}
         batch = [f for f in programs + pli if f not in cics and f.file_path not in called]
         ch = {"resolved": 0, "total": 0, "system": 0, "gaps": {"batch program no JCL step runs": 0}}
@@ -3532,17 +3544,69 @@ class GalaxyIR:
                     "cond": r.cond,
                     "if_cond": r.if_cond,
                     "line": r.line,
+                    "runner_programs": self.runner_runs(r, f.file_path),  # #3710
                 }
                 if r.proc:
                     where, inner = self._proc_steps(f, r.proc)
                     entry["proc_file"] = where
                     entry["expands_to"] = [
-                        {"step": s_.step_name, "program": s_.program, "cond": s_.cond, "if_cond": s_.if_cond}
+                        {
+                            "step": s_.step_name,
+                            "program": s_.program,
+                            "cond": s_.cond,
+                            "if_cond": s_.if_cond,
+                            "runner_programs": self.runner_runs(s_, where or f.file_path),
+                        }
                         for s_ in inner
                     ]
                 steps.append(entry)
             out.append({"file": f.file_path, "job": job.name, "cond": job.cond, "steps": steps})
         return out
+
+    def runner_runs(self, step: EngineJobFlow, from_file: str) -> list:
+        """#3710: what a runner step (IKJEFT01 / 1A / 1B, DFSRRC00) runs -- one entry per program:
+        `program`, `via` (RUN PROGRAM / TSO CALL / TSO EXEC / DFSRRC00), `resolves_to` (the program
+        file, when a load module and in the repository) and `source` (`systsin` / `parm`, or
+        `member` for a SYSTSIN read from a dataset member). A member's commands are read from
+        `source_root` when the member is there; else one entry names the `member` with `program`
+        None -- a finding, not a guess; a member that runs no program (DSN FREE / BIND commands) has
+        `via` "TSO commands". [] for a step that runs no runner, or whose in-stream SYSTSIN holds
+        commands only."""
+        out: list = []
+        for prog, via in zip((step.runs or "").split(","), (step.runs_via or "").split(",")):
+            if prog:
+                out.append({"program": prog, "via": via, "source": "parm" if via == "DFSRRC00" else "systsin"})
+        if not step.runs and step.runs_via == "TSO commands":
+            out.append({"program": None, "via": "TSO commands", "source": "systsin"})
+        if step.systsin_member:
+            text = self._systsin_member_text(step.systsin_member)
+            if text is None:
+                out.append({"program": None, "via": None, "source": "member", "member": step.systsin_member})
+            elif not systsin_programs(text):  # FREE / BIND / RACF commands: it runs no program
+                out.append({"program": None, "via": "TSO commands", "source": "member", "member": step.systsin_member})
+            out += [
+                {"program": r["program"], "via": r["via"], "source": "member", "member": step.systsin_member}
+                for r in systsin_programs(text or "")
+            ]
+        for e in out:
+            load_module = e["program"] and e["via"] != "TSO EXEC"
+            e["resolves_to"] = self._nearest_program(e["program"], from_file) if load_module else None
+        return out
+
+    def _systsin_member_text(self, member: str) -> Optional[str]:
+        """The text of the one file under `source_root` whose name is `member` (any extension),
+        else None: no root, no such file, or two of them."""
+        if self.source_root is None:
+            return None
+        index = self.__dict__.get("_member_index")
+        if index is None:
+            index = {}
+            for p in self.source_root.rglob("*"):
+                if p.is_file() and ".git" not in p.parts:
+                    index.setdefault(p.stem.upper(), []).append(p)
+            self.__dict__["_member_index"] = index
+        hits = index.get(member.upper(), [])
+        return hits[0].read_text(encoding="utf-8", errors="ignore") if len(hits) == 1 else None
 
     def job_dds(self) -> list:
         """Every job step's DD statements (#3622): per JCL file with a JOB card, one row per
@@ -5348,9 +5412,12 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # #3451: JCL job flow. A pre-#3451 database has none.
         if _has_table(cur, "job_flow_data"):
             normal_col = "disp_normal" if _has_column(cur, "job_flow_data", "disp_normal") else "NULL"  # #3622
+            runner_cols = (  # #3710
+                "runs, runs_via, systsin_member" if _has_column(cur, "job_flow_data", "runs") else "NULL, NULL, NULL"
+            )
             for row in cur.execute(
-                "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col is one of two literals
-                f"dd_name, dsn, disp, generation, line_number, {normal_col} FROM job_flow_data "
+                "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col / runner_cols are literals
+                f"dd_name, dsn, disp, generation, line_number, {normal_col}, {runner_cols} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -5372,6 +5439,9 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                             generation=row[13],
                             line=int(row[14] or 0),
                             disp_normal=row[15],
+                            runs=row[16],
+                            runs_via=row[17],
+                            systsin_member=row[18],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

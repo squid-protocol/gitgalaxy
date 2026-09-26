@@ -8,8 +8,12 @@
 #
 #   application   runs a program of the estate (EXEC PGM=, or through a PROC)
 #                 -> a Spring Batch Job;
-#   runner        runs IKJEFT01 / IKJEFT1B / DFSRRC00, whose program is named in
-#                 SYSTSIN / PARM (not a verified fact yet) -- listed, not generated;
+#   runner        runs IKJEFT01 / IKJEFT1B / DFSRRC00 and what it runs is not known -- a
+#                 SYSTSIN member not in the repository, a REXX / CLIST exec -- listed, not
+#                 generated. #3710: a runner step whose program the engine resolved
+#                 (job_steps `runner_programs`: SYSTSIN RUN PROGRAM / CALL, DFSRRC00 PARM)
+#                 counts as that program: an estate program makes the job an
+#                 application job, an IBM utility (DSNTEP2, DSNTIAD) a utility job;
 #   utility       only data utilities (IDCAMS, IEBGENER, SORT, IEFBR14, ...) --
 #                 VSAM defines, loads, copies: listed, not generated;
 #   build         compilers, linkers, CSD updates, tooling -- listed, not generated.
@@ -68,6 +72,10 @@ class Step:
     proc_step: str | None
     dds: list[dict] = field(default_factory=list)
     key: str | None = None  # the estate program's skeleton key
+    runner: str | None = None  # #3710: the runner (IKJEFT01, DFSRRC00) that runs `program`
+    via: str | None = None  # how: RUN PROGRAM / TSO CALL / DFSRRC00
+    unresolved: str | None = None  # what the runner runs, when not a known program
+    commands_only: bool = False  # a TSO runner running commands (DSN FREE / BIND, RACF), no program
 
 
 @dataclass
@@ -144,18 +152,22 @@ class BatchForge:
                           ps["step"] if inner is not None else None,
                           dds.get((j["file"], s["ordinal"], ps["step"] if inner is not None else None), []),
                           self.programs.get(prog or ""))  # fmt: skip
+                self._through_runner(st, ps.get("runner_programs") or [])
                 steps.append(st)
         names = [st.jcl for st in steps]
         for st in steps:
             if names.count(st.jcl) > 1:
                 st.name = f"{st.jcl}#{st.ordinal}"
-        progs: set[str] = {st.program for st in steps if st.program is not None}
+        # A TSO runner running commands only (DSN FREE / BIND, RACF) is utility work, not an unknown program.
+        progs: set[str] = {st.program for st in steps if st.program is not None and not st.commands_only}
+        progs |= {f"{st.program} (TSO commands)" for st in steps if st.commands_only}
         if any(st.key for st in steps):
             run = sorted({st.program or "?" for st in steps if st.key})
             kind, reason = "application", f"runs {', '.join(run)}"
         elif progs & RUNNERS:
-            kind, reason = "runner", (f"runs {', '.join(sorted(progs & RUNNERS))}: the program it runs is named in "
-                                      "SYSTSIN / PARM, which the engine does not resolve yet")  # fmt: skip
+            open_ = sorted({f"{st.program} ({st.unresolved})" for st in steps if st.program in RUNNERS
+                            and not st.commands_only})  # fmt: skip
+            kind, reason = "runner", f"runs {', '.join(open_)}"
         elif progs and progs <= (BUILD_PROGRAMS | {p for p in progs if p.startswith("&")}):
             kind, reason = "build", f"builds / installs ({', '.join(sorted(progs))})"
         elif progs and not (progs & BUILD_PROGRAMS):
@@ -163,6 +175,32 @@ class BatchForge:
         else:
             kind, reason = "build", f"tooling ({', '.join(sorted(progs)) or 'no program'})"
         return Job(j["file"], j.get("job") or "", j.get("cond"), kind, reason, steps)
+
+    def _through_runner(self, st: Step, runs: list[dict]) -> None:
+        """#3710: a runner step runs the program its SYSTSIN / PARM names -- the estate program
+        when one resolves, else the first load module it runs (an IBM utility: DSNTEP2); a runner
+        whose program is not known keeps its own name, with what is missing in `unresolved`."""
+        tso = st.program in RUNNERS and st.program != "DFSRRC00" and st.program != "DFSRRC0"
+        if st.program not in RUNNERS:
+            return
+        if not runs:
+            st.unresolved = "no SYSTSIN in the step" if tso else "no PARM program"
+            return
+        if all(r.get("via") == "TSO commands" for r in runs):
+            st.commands_only = True
+            st.unresolved = "TSO commands only (no RUN PROGRAM, CALL or EXEC)"
+            return
+        modules = [r for r in runs if r.get("program") and r.get("via") != "TSO EXEC"]
+        estate = next((r for r in modules if self.programs.get(str(r["program"]).upper())), None)
+        pick = estate or (modules[0] if modules else None)
+        if pick is not None:
+            st.runner, st.via, st.program = st.program, pick.get("via"), str(pick["program"]).upper()
+            st.key = self.programs.get(st.program)
+            return
+        member = next((r.get("member") for r in runs if r.get("member") and not r.get("program")), None)
+        execs = [r["program"] for r in runs if r.get("via") == "TSO EXEC" and r.get("program")]
+        st.unresolved = (f"SYSTSIN member {member} is not in the repository" if member
+                         else f"the REXX / CLIST exec {', '.join(execs)}" if execs else "nothing resolved")  # fmt: skip
 
     # ---- sources ------------------------------------------------------------------------------
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
@@ -255,8 +293,14 @@ class BatchForge:
         p = st.program or "?"
         if st.key or p in ("IEFBR14", *COPY):
             return None
+        if p in RUNNERS and st.commands_only:
+            return (
+                f"TODO: {st.jcl} runs {p} with TSO commands only (DSN FREE / BIND, RACF, ...) -- a utility step to port"
+            )
         if p in RUNNERS:
-            return f"TODO: {st.jcl} runs {p}: the program it runs is named in SYSTSIN / PARM -- a utility step to port"
+            return f"TODO: {st.jcl} runs {p}, running {st.unresolved} -- a utility step to port"
+        if st.runner:
+            return f"TODO: {st.jcl} runs the utility {p} through {st.runner} ({st.via}) -- a utility step to port"
         return f"TODO: {st.jcl} runs the utility {p} (its control statements are in SYSIN) -- a utility step to port"
 
     def _tasklet(self, j: Job, st: Step) -> str:
@@ -283,7 +327,8 @@ class BatchForge:
         fields: list[tuple[str, str]] = []
         if runs:
             imports += [f"import {pkg}.Dd;", "import java.util.List;"]
-            where = "; ".join(f"job {j.job} step {st.jcl} ({j.file}:{st.line})" for j, st in runs)
+            where = "; ".join(f"job {j.job} step {st.jcl} ({j.file}:{st.line})"
+                              + (f" through {st.runner} ({st.via})" if st.runner else "") for j, st in runs)  # fmt: skip
             lin = self.lineage.get(key, [])
             dd_doc = sorted({f"{x['dd_name']} ({'/'.join(x.get('modes') or [])}) -> {x.get('dataset') or x.get('dsn') or '?'}"
                              for x in lin if x.get("dd_name")})  # fmt: skip

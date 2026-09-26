@@ -4947,6 +4947,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 43,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cash-account-cobol/DB2DDL.jcl": [
@@ -4976,6 +4983,34 @@
           "Line": 87,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 12,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 40,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 72,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 91,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5011,6 +5046,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 109,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "BANKDATA",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/BATCH.jcl": [
@@ -5035,6 +5077,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5121,6 +5170,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
@@ -5146,6 +5202,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
@@ -5155,6 +5218,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
@@ -5163,6 +5233,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5316,6 +5393,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
@@ -5324,6 +5408,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5334,6 +5425,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
@@ -5342,6 +5440,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5352,6 +5457,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
@@ -5360,6 +5472,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5370,6 +5489,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
@@ -5379,6 +5505,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
@@ -5387,6 +5520,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5404,6 +5544,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 98,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": [
@@ -5412,6 +5559,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5422,6 +5576,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
@@ -5430,6 +5591,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5440,6 +5608,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
@@ -5448,6 +5623,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5458,6 +5640,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
@@ -5466,6 +5655,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5476,6 +5672,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
@@ -5484,6 +5687,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5494,6 +5704,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
@@ -5502,6 +5719,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5512,6 +5736,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
@@ -5520,6 +5751,13 @@
           "Line": 9,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5530,6 +5768,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": [
@@ -5538,6 +5783,13 @@
           "Line": 16,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 25,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],
@@ -5780,6 +6032,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 139,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-genapp/db2cre.jcl": [
@@ -5852,6 +6111,76 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 95,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 146,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 188,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 225,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 260,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 298,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 346,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 379,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 409,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cics-genapp/db2del.jcl": [
@@ -5860,6 +6189,13 @@
           "Line": 11,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 15,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTIAD",
           "Verb": "EXEC PGM"
         }
       ],
@@ -6147,6 +6483,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 13,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "CBLDB21",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cobol-programming-course/CBLDB22R.jcl": [
@@ -6156,6 +6499,13 @@
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
           "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 16,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "CBLDB22",
+          "Verb": "EXEC PGM"
         }
       ],
       "jcl/cobol-programming-course/CBLDB23R.jcl": [
@@ -6164,6 +6514,13 @@
           "Line": 8,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 16,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "CBLDB23",
           "Verb": "EXEC PGM"
         }
       ],
@@ -6205,6 +6562,13 @@
           "Line": 6,
           "Operand": "IKJEFT01",
           "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "runner",
+          "Line": 11,
+          "Operand": "IKJEFT01 RUN PROGRAM",
+          "Target": "DSNTEP2",
           "Verb": "EXEC PGM"
         }
       ],

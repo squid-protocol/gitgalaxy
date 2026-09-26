@@ -4165,6 +4165,126 @@ def engine_job_flow_row(j: Any) -> dict[str, Any]:
     }
 
 
+# ==============================================================================
+# The programs batch runners run (#3710)
+# ==============================================================================
+# This tool's own reading of each runner step -- `EXEC PGM=IKJEFT01 / IKJEFT1A /
+# IKJEFT1B / DFSRRC00` -- over the raw member: one unit per program it runs,
+#   `L<exec line> <STEP> <RUNNER> RUNS=<PROGRAM>/<VIA>`
+# VIA: RUN PROGRAM (`RUN PROG[RAM](x)` in the step's in-stream SYSTSIN), TSO CALL
+# (`CALL 'lib(x)'`), TSO EXEC (`EXEC 'lib(x)'` / `EX` / `%x`: a REXX or CLIST exec),
+# DFSRRC00 (PARM='region,x,...'). A SYSTSIN coded as a dataset member is
+#   `L<exec line> <STEP> <RUNNER> SYSTSIN=<MEMBER>`
+# (its commands are not in this member). A TSO command continues past a trailing `-`
+# or `+`. The same contract as core/jcl_runners.py, none of its code.
+_RUNNER_PGMS = ("IKJEFT01", "IKJEFT1A", "IKJEFT1B", "DFSRRC00")
+
+
+def _runner_tso_units(prefix: str, data: list[str]) -> list[str]:
+    joined: list[str] = []
+    carry = ""
+    for raw in data:
+        text = raw[:72].strip()
+        if not text:
+            continue
+        more = text[-1] in "-+"
+        carry = (carry + " " + (text[:-1] if more else text)).strip()
+        if not more:
+            joined.append(carry)
+            carry = ""
+    if carry:
+        joined.append(carry)
+    units = []
+    for cmd in joined:
+        word = cmd.split(None, 1)[0].upper() if cmd.split() else ""
+        m, via = None, ""
+        if word == "RUN":
+            m, via = re.match(r"RUN\s+PROG(?:RAM)?\s*\(\s*'?([A-Z0-9@#$]+)", cmd, re.I), "RUN PROGRAM"
+        elif word == "CALL":
+            m, via = re.match(r"CALL\s+'?(?:[^'(\s]*\(\s*([A-Z0-9@#$]+)\s*\)|([A-Z0-9@#$]+))", cmd, re.I), "TSO CALL"
+        elif word in ("EXEC", "EX"):
+            m, via = re.match(r"EXE?C?\s+'?(?:[^'(\s]*\(\s*([A-Z0-9@#$]+)\s*\)|([A-Z0-9@#$]+))", cmd, re.I), "TSO EXEC"
+        elif cmd.startswith("%"):
+            m, via = re.match(r"%([A-Z0-9@#$]+)", cmd, re.I), "TSO EXEC"
+        if m:
+            units.append(f"{prefix} RUNS={next(g for g in m.groups() if g).upper()}/{via}")
+    return units
+
+
+def runner_step_units(text: str) -> set[str]:
+    """The runner units of one JCL member (see above)."""
+    lines = text.upper().split("\n")
+    units: set[str] = set()
+    prefix: Optional[str] = None
+    runner: Optional[str] = None
+    i = 0
+    while i < len(lines):
+        line = lines[i][:72].rstrip()
+        stmt = re.match(r"//([A-Z0-9@#$.]*)\s+(EXEC|DD|JOB|PROC|PEND)\b(.*)", line)
+        if not stmt or line.startswith("//*"):
+            i += 1
+            continue
+        name, op, rest = stmt.group(1), stmt.group(2), stmt.group(3)
+        if op == "EXEC":
+            first = i + 1
+            while rest.rstrip().endswith(",") and i + 1 < len(lines) and re.match(r"//\s", lines[i + 1][:72]):
+                i += 1
+                rest += lines[i][2:72].strip()
+            pgm = re.search(r"\bPGM=([A-Z0-9@#$]+)", rest)
+            runner = pgm.group(1) if pgm and pgm.group(1) in _RUNNER_PGMS else None
+            prefix = f"L{first} {name or '-'} {runner}" if runner else None
+            if runner == "DFSRRC00":
+                parm = re.search(r"\bPARM=\(?'?([^')]*)", rest)
+                parts = [p.strip() for p in parm.group(1).split(",")] if parm else []
+                if len(parts) > 1 and parts[1]:
+                    units.add(f"{prefix} RUNS={parts[1]}/DFSRRC00")
+        elif op in ("JOB", "PROC", "PEND"):
+            prefix = runner = None
+        elif op == "DD" and name == "SYSTSIN" and runner and runner != "DFSRRC00":
+            if re.match(r"\s*(?:\*|DATA)(?:\s|,|$)", rest):
+                data = []
+                while i + 1 < len(lines) and not lines[i + 1].startswith(("//", "/*")):
+                    i += 1
+                    data.append(lines[i])
+                units.update(_runner_tso_units(prefix or "", data))
+            else:
+                member = re.search(r"\bDSN=[^,(\s]*\(([A-Z0-9@#$]+)\)", rest)
+                if member:
+                    units.add(f"{prefix} SYSTSIN={member.group(1)}")
+        i += 1
+    return units
+
+
+def draft_runner_steps(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3710: every JCL member's runner units; `runners_validated` signs them off."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
+            units = runner_step_units(p.read_text(encoding="utf-8", errors="ignore"))
+            if units:
+                out[p.relative_to(repo).as_posix()] = {
+                    "units": sorted(units),
+                    "runners_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+def engine_runner_units(ef: Any) -> set[str]:
+    """The engine's side: each job_flow STEP row's `runs` / `runs_via` and `systsin_member`."""
+    out: set[str] = set()
+    for r in ef.job_flow:
+        if r.kind != "STEP" or not (r.runs or r.systsin_member):
+            continue
+        prefix = f"L{r.line} {r.step_name or '-'} {r.program}"
+        for prog, via in zip((r.runs or "").split(","), (r.runs_via or "").split(",")):
+            if prog:
+                out.add(f"{prefix} RUNS={prog}/{via}")
+        if r.systsin_member:
+            out.add(f"{prefix} SYSTSIN={r.systsin_member}")
+    return out
+
+
 def draft_job_flow(repo: Path) -> dict[str, dict[str, Any]]:
     """Drafted job flow for every JCL member (#3451); `jobflow_validated` signs it off."""
     out: dict[str, dict[str, Any]] = {}
@@ -6291,6 +6411,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # PIC item. Truth is this tool's own reader and storage arithmetic; engine is
         # GalaxyIR.record_layout (record_data).
         "copybook layouts",
+        # #3710: the program each batch runner step runs (IKJEFT01 SYSTSIN, DFSRRC00
+        # PARM), `L<line> STEP RUNNER RUNS=PROG/VIA` / `SYSTSIN=MEMBER`. Truth is this
+        # tool's own JCL reader; engine is job_flow_data's runs / runs_via / systsin_member.
+        "JCL runner programs",
         # #3727: every PL/I structure as `ROOT/NAME @offset+bytes` (bit strings off a
         # byte `@byte.bit+Nb`) per named elementary member. Truth is this tool's own
         # PL/I reader and structure mapping; engine is GalaxyIR.record_layout.
@@ -6722,6 +6846,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         add("CICS RIDFLD", rel, set(k.get("units", [])), None, engine_ridfld_units(ef) if ef else None)
     for rel, k in key.get("copybook_layouts", {}).items():
         add("copybook layouts", rel, set(k.get("units", [])), None, engine_copybook_units(ir, rel))
+    for rel, k in key.get("runner_steps", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add("JCL runner programs", rel, set(k.get("units", [])), None, engine_runner_units(ef) if ef else None)
     for rel, k in key.get("pli_layouts", {}).items():
         add(
             "PL/I layouts",
@@ -6957,6 +7084,9 @@ def main() -> int:
     cbl = sub.add_parser("add-copybook-layouts")  # #3602
     cbl.add_argument("repo", type=Path)
     cbl.add_argument("--key", type=Path, required=True)
+    rnr = sub.add_parser("add-runners")  # #3710
+    rnr.add_argument("repo", type=Path)
+    rnr.add_argument("--key", type=Path, required=True)
     pll = sub.add_parser("add-pli-layouts")  # #3727
     pll.add_argument("repo", type=Path)
     pll.add_argument("--key", type=Path, required=True)
@@ -7269,6 +7399,16 @@ def main() -> int:
         key["copybook_layouts"] = cl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(cl)} copybook layouts -> {args.key}")
+        return 0
+    if args.cmd == "add-runners":
+        # #3710: the add-pli discipline -- refresh drafts, keep signed-off files.
+        rs = {rel: e for rel, e in key.get("runner_steps", {}).items() if e.get("runners_validated")}
+        for rel, entry in draft_runner_steps(repo).items():
+            if not rs.get(rel, {}).get("runners_validated"):
+                rs[rel] = entry
+        key["runner_steps"] = rs
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(rs)} runner files -> {args.key}")
         return 0
     if args.cmd == "add-pli-layouts":
         # #3727: the add-pli discipline -- refresh drafts, keep signed-off files.

@@ -12,7 +12,7 @@
         "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl",
         "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl"
       ],
-      "Gap Count": 282,
+      "Gap Count": 279,
       "Input": "JCL and PROC libraries"
     },
     {
@@ -23,7 +23,7 @@
         "CBL0001 (jcl/cobol-programming-course/CBL0003J.jcl:12)",
         "CBL0002 (jcl/cobol-programming-course/CBL0002J.jcl:12)"
       ],
-      "Gap Count": 275,
+      "Gap Count": 276,
       "Input": "application programs (source or load-module list)"
     },
     {

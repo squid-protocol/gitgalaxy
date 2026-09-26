@@ -92,6 +92,11 @@ units, else over a seeded SAMPLE of files (every construct stratum at least once
     pli_layouts       pli_layouts_validated    each structure's named elementary members: offset and bytes
                                                (bit offset and bits for an unaligned bit string)
 
+`runners` (#3710) asks every JCL member with a batch-runner step (IKJEFT01 / 1A / 1B, DFSRRC00), in full:
+
+    runner_steps      runners_validated        the program each runner step runs (SYSTSIN / PARM), or its
+                                               SYSTSIN dataset member
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -3142,6 +3147,105 @@ def _sign_plilayouts(key: dict[str, Any], truth: dict[str, Any], g: dict[str, An
             entry["verification"] = dict(entry.get("verification", {}), **sampled)
 
 
+# ---- the `runners` suite (#3710): what each batch runner step runs ------------------
+# Every JCL member with a runner step (EXEC PGM=IKJEFT01 / IKJEFT1A / IKJEFT1B /
+# DFSRRC00), IN FULL: the keyed ones and every other member that codes such a step
+# (recall: a runner step whose SYSTSIN the key found nothing in). Units are the key's:
+# `L<exec line> STEP RUNNER RUNS=PROGRAM/VIA` and `L<exec line> STEP RUNNER SYSTSIN=MEMBER`
+# (runner_steps / runners_validated). The plan is stored under `sample_census.runners.plan`.
+_RUNNER_STEP = re.compile(r"\bPGM=(?:IKJEFT0?1|IKJEFT1[AB]|DFSRRC00)\b", re.I)
+
+
+def runners_plan(key: dict[str, Any], repo: Path) -> dict[str, Any]:
+    cands = set()
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".jcl", ".prc"):
+            if _RUNNER_STEP.search(p.read_text(encoding="utf-8", errors="ignore")):
+                cands.add(p.relative_to(repo).as_posix())
+    return {"mode": "full", "files": sorted(set(key.get("runner_steps", {})) | cands)}
+
+
+def _runners_plan_of(key: dict[str, Any]) -> dict[str, Any]:
+    return key.get("sample_census", {}).get("runners", {}).get("plan", {})
+
+
+def corpus_files_runners(key: dict[str, Any]) -> list[str]:
+    return list(_runners_plan_of(key).get("files", []))
+
+
+def key_facts_runners(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    keyed = key.get("runner_steps", {})
+    return {"runner": {rel: sorted(keyed.get(rel, {}).get("units", [])) for rel in files}}
+
+
+def canon_runner(r: dict[str, Any]) -> str:
+    head = f"L{int(r.get('line') or 0)} {_ws(r.get('step')) or '-'} {_ws(r.get('runner'))}"
+    if r.get("systsin_member"):
+        return f"{head} SYSTSIN={_ws(r.get('systsin_member'))}"
+    return f"{head} RUNS={_ws(r.get('program'))}/{' '.join(str(r.get('via') or '').upper().split())}"
+
+
+def reviewer_facts_runners(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"runner": {}}
+    for path, v in (answers.get("files") or {}).items():
+        rows = (v or {}).get("runner")
+        if isinstance(rows, list):
+            r = path[len(root) :] if path.startswith(root) else path
+            out["runner"][r] = {canon_runner(x) for x in rows if isinstance(x, dict)}
+    return out
+
+
+def render_runners(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "runners", "batch": index, "of": of, "files": files, "facts": key_facts_runners(key, files)}  # fmt: skip
+    brief = f"""You are independently verifying facts about real IBM mainframe JCL, as a second reviewer. Read the files yourself.
+They are all under the repository root {repo}; read only inside that directory. Do NOT edit or create any files except
+your answers file and any helper scripts you write INSIDE the directory holding this brief, and do not look for any
+existing answer key or analysis of this code: the point is an independent reading.
+
+TASK runner -- WHAT BATCH RUNNERS RUN. Some job steps do not run the application program directly: they run a RUNNER
+that runs it. For every step (in a job or in a PROC) whose EXEC runs PGM=IKJEFT01, IKJEFT1A, IKJEFT1B (TSO in
+batch) or DFSRRC00 (IMS), list what it runs, one entry per program: {{"line", "step", "runner", "program", "via",
+"systsin_member"}}. "line" is the physical line (1-based) of the step's `EXEC`; "step" its step name (null when the
+EXEC has none); "runner" the PGM= value.
+  - DFSRRC00: the program is the SECOND positional value of PARM= (`PARM='BMP,PROGX,PSBX'` -> PROGX); via "DFSRRC00".
+  - IKJEFT01 / 1A / 1B: the step's `//SYSTSIN DD *` (or DD DATA) in-stream input -- the lines after it, up to the
+    next line starting with `//` or `/*` -- holds TSO commands, one per line; a line ending in `-` or `+` continues
+    the command on the next line. Columns 73-80 are not part of a command. Report:
+      `RUN PROGRAM(x)` / `RUN PROG(x)` (DB2 DSN subcommand) -> program x, via "RUN PROGRAM";
+      `CALL 'lib(x)'` / `CALL lib(x)` / `CALL 'x'`         -> program x, via "TSO CALL";
+      `EXEC 'lib(x)'` / `EX lib(x)` / `%x`                  -> program x, via "TSO EXEC" (a REXX / CLIST exec).
+    Other commands (DSN SYSTEM(...), END, FREE, BIND, ...) run nothing. When SYSTSIN is instead a dataset
+    (`//SYSTSIN DD DSN=lib(MEMBER)`), give ONE entry with "systsin_member" = MEMBER and "program" / "via" null.
+  - A `//*` line is a comment. A runner step with nothing to report adds no entry.
+Files:
+{chr(10).join(str(repo / f) for f in files)}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"runner": [{{"line": 12, "step": "RUN", "runner": "IKJEFT01", "program": "PROGX",
+                                  "via": "RUN PROGRAM", "systsin_member": null}}]}},
+           ...every file above...}}}}
+"""  # fmt: skip
+    return brief, truth
+
+
+def batches_runners(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_runners(key, files)["runner"]
+    return _pack({f: max(1, len(facts.get(f, []))) for f in files}, max_items)
+
+
+def _sign_runners(key: dict[str, Any], truth: dict[str, Any], by: str, at: str) -> None:
+    stamp = {"status": "validated", "tier": "cross_verified", "cross_by": by, "census": {"by": by, "at": at}}
+    for rel in truth["files"]:
+        entry = key.get("runner_steps", {}).get(rel)
+        if entry is not None:
+            entry["runners_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **stamp)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -3194,6 +3298,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "layouts"
         else reviewer_facts_plilayouts(answers, repo)
         if suite == "plilayouts"
+        else reviewer_facts_runners(answers, repo)
+        if suite == "runners"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -3264,7 +3370,18 @@ def sign(
         if truth.get("suite") == "db2cols"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
         if truth.get("suite")
-        in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns", "layouts", "plilayouts")
+        in (
+            "plicalls",
+            "pliuow",
+            "plimoves",
+            "pliresources",
+            "records",
+            "bms",
+            "dsns",
+            "layouts",
+            "plilayouts",
+            "runners",
+        )
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -3314,6 +3431,8 @@ def sign(
         _sign_layouts(key, truth, g, rulings, by, at)
     if truth.get("suite") == "plilayouts":
         _sign_plilayouts(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "runners":
+        _sign_runners(key, truth, by, at)
     return key
 
 
@@ -3348,6 +3467,8 @@ def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> 
         return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite layouts)"]}
     if suite == "plilayouts" and not _pli_layouts_plan_of(key):
         return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite plilayouts)"]}
+    if suite == "runners" and not _runners_plan_of(key):
+        return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite runners)"]}
     if suite == "plimoves":  # every planned window signed
         plan = key.get("sample_census", {}).get("pli_moves", {})
         done_w = {w for b in plan.get("batches", []) for w in b["windows"]}
@@ -3403,6 +3524,7 @@ def main() -> int:
             "db2cols",
             "layouts",
             "plilayouts",
+            "runners",
         ),
         default="channels",
     )
@@ -3433,6 +3555,7 @@ def main() -> int:
             "db2cols",
             "layouts",
             "plilayouts",
+            "runners",
         ),
         default="channels",
     )
@@ -3481,6 +3604,8 @@ def main() -> int:
         if suite == "layouts"
         else corpus_files_plilayouts(key)
         if suite == "plilayouts"
+        else corpus_files_runners(key)
+        if suite == "runners"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -3544,6 +3669,13 @@ def main() -> int:
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             signed = {f for r in key.get("section_census", []) if r.get("suite") == "layouts" for f in r["files"]}
             files = [f for f in corpus_files_layouts(key) if f not in signed]
+        if suite == "runners":
+            rc_ = key.setdefault("sample_census", {}).setdefault("runners", {})
+            signed = {f for r in key.get("section_census", []) if r.get("suite") == "runners" for f in r["files"]}
+            if not signed:
+                rc_["plan"] = runners_plan(key, repo)
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = [f for f in corpus_files_runners(key) if f not in signed]
         if suite == "plilayouts":
             pc = key.setdefault("sample_census", {}).setdefault("pli_layouts", {})
             signed = {f for r in key.get("section_census", []) if r.get("suite") == "plilayouts" for f in r["files"]}
@@ -3604,6 +3736,7 @@ def main() -> int:
             "db2cols": batches_db2cols,
             "layouts": batches_layouts,
             "plilayouts": batches_plilayouts,
+            "runners": batches_runners,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -3627,6 +3760,7 @@ def main() -> int:
                 "db2cols": render_db2cols,
                 "layouts": render_layouts,
                 "plilayouts": render_plilayouts,
+                "runners": render_runners,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -3693,6 +3827,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_layouts(key, truth["files"]))
     elif truth.get("suite") == "plilayouts":
         current = dict(truth, facts=key_facts_plilayouts(key, truth["files"]))
+    elif truth.get("suite") == "runners":
+        current = dict(truth, facts=key_facts_runners(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

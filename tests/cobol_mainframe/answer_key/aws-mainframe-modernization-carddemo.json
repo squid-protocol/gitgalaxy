@@ -95428,6 +95428,33 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
+        "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+        "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+        "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+        "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
+        "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+        "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
+        "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+        "app/jcl/TXT2PDF1.JCL",
+        "samples/jcl/RACFCMDS.jcl",
+        "samples/proc/BLDCIDB2.prc"
+      ],
+      "wide": false,
+      "suite": "runners",
+      "tasks": {
+        "runner": {
+          "agree": 13,
+          "asked": 13
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -112234,6 +112261,24 @@
           "upper_bound_95": 0.00689
         }
       }
+    },
+    "runners": {
+      "plan": {
+        "mode": "full",
+        "files": [
+          "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl",
+          "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl",
+          "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL",
+          "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL",
+          "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL",
+          "app/app-transaction-type-db2/jcl/CREADB21.jcl",
+          "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl",
+          "app/app-transaction-type-db2/jcl/TRANEXTR.jcl",
+          "app/jcl/TXT2PDF1.JCL",
+          "samples/jcl/RACFCMDS.jcl",
+          "samples/proc/BLDCIDB2.prc"
+        ]
+      }
     }
   },
   "symbolic_maps": {
@@ -122774,6 +122819,156 @@
         "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
+      }
+    }
+  },
+  "runner_steps": {
+    "app/app-authorization-ims-db2-mq/jcl/CBPAUP0J.jcl": {
+      "units": [
+        "L24 STEP01 DFSRRC00 RUNS=CBPAUP0C/DFSRRC00"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/DBPAUTP0.jcl": {
+      "units": [
+        "L15 UNLOAD DFSRRC00 RUNS=DFSURGU0/DFSRRC00"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/LOADPADB.JCL": {
+      "units": [
+        "L26 STEP01 DFSRRC00 RUNS=PAUDBLOD/DFSRRC00"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/UNLDGSAM.JCL": {
+      "units": [
+        "L26 STEP01 DFSRRC00 RUNS=DBUNLDGS/DFSRRC00"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/jcl/UNLDPADB.JCL": {
+      "units": [
+        "L38 STEP01 DFSRRC00 RUNS=PAUDBUNL/DFSRRC00"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/jcl/CREADB21.jcl": {
+      "units": [
+        "L40 FREEPLN IKJEFT01 SYSTSIN=DB2FREE",
+        "L52 CRCRDDB IKJEFT01 SYSTSIN=DB2TIAD1",
+        "L65 RUNTEP2 IKJEFT01 SYSTSIN=DB2TEP41",
+        "L77 LDTCCAT IKJEFT01 SYSTSIN=DB2TEP41"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/jcl/MNTTRDB2.jcl": {
+      "units": [
+        "L21 STEP1 IKJEFT01 RUNS=COBTUPDT/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/jcl/TRANEXTR.jcl": {
+      "units": [
+        "L65 STEP40 IKJEFT01 RUNS=DSNTIAUL/RUN PROGRAM",
+        "L95 STEP50 IKJEFT01 RUNS=DSNTIAUL/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "app/jcl/TXT2PDF1.JCL": {
+      "units": [
+        "L24 TXT2PDF IKJEFT1B RUNS=TXT2PDF/TSO EXEC"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
           "at": "2026-09-26"
         }
       }

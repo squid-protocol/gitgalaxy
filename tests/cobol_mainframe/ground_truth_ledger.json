@@ -274,6 +274,15 @@
           "forge": null,
           "truth": "sample_verified"
         },
+        "JCL runner programs": {
+          "engine": {
+            "got": 13,
+            "tp": 13,
+            "truth": 13
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "MOVE truncation": {
           "engine": {
             "got": 82,
@@ -1169,6 +1178,15 @@
           "forge": null,
           "truth": "sample_verified"
         },
+        "JCL runner programs": {
+          "engine": {
+            "got": 31,
+            "tp": 31,
+            "truth": 31
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "MOVE truncation": {
           "engine": {
             "got": 1,
@@ -1654,6 +1672,15 @@
           "forge": null,
           "truth": "sample_verified"
         },
+        "JCL runner programs": {
+          "engine": {
+            "got": 12,
+            "tp": 12,
+            "truth": 12
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "MOVE truncation": {
           "engine": {
             "got": 68,
@@ -2083,6 +2110,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "JCL runner programs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "MOVE truncation": {
           "engine": {
             "got": 3,
@@ -2492,6 +2524,15 @@
           "forge": null,
           "truth": "sample_verified"
         },
+        "JCL runner programs": {
+          "engine": {
+            "got": 30,
+            "tp": 30,
+            "truth": 30
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "MOVE truncation": {
           "engine": {
             "got": 2,
@@ -2876,6 +2917,11 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        },
+        "JCL runner programs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         },
         "MOVE truncation": {
           "engine": {

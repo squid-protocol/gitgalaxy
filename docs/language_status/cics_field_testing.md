@@ -54,6 +54,7 @@ counted in it (their fact counts are not recorded here).
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| JCL runner programs | 4 | 0 | 0 | 86 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I data moves | 2 | 0 | 0 | 1,657 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -73,10 +74,10 @@ counted in it (their fact counts are not recorded here).
 | round | estate | kind | facts reviewers checked | key errors | engine | forge | brief gaps |
 |---|---|---|---|---|---|---|---|
 | 1 | zopeneditor-sample | public | 967 | 3 | 1 | 1 | 1 |
-| 2 | cics-banking-sample-application-cbsa | public | 3,643 | 43 | 1 | 1 | 0 |
-| 3 | aws-mainframe-modernization-carddemo | public | 4,867 | 26 | 7 | 4 | 1 |
-| 4 | cics-genapp | public | 2,282 | 10 | 3 | 1 | 0 |
-| 5 | zecs | public | 1,263 | 43 | 0 | 0 | 2 |
+| 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 1 | 1 | 0 |
+| 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 7 | 4 | 1 |
+| 4 | cics-genapp | public | 2,294 | 10 | 3 | 1 | 0 |
+| 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 6 | 1 | 0 |
 
 ## Defect log

@@ -82,12 +82,14 @@ def test_markdown_lists_every_channel_and_input(estate):
 PINNED = {
     # #3578: the five `SEND MAP(CCARD-NEXT-MAP)` maps, moved from LIT-THISMAP, now resolve.
     "aws-mainframe-modernization-carddemo": {
-        "program calls": (65, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (47, 47),
-        "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (11, 17),
+        # #3710: + COBTUPDT (IKJEFT01 RUN PROGRAM) and 4 IMS programs (DFSRRC00 PARM), run by jobs now
+        "program calls": (70, 87), "copybooks": (173, 173), "transactions": (62, 73), "screens": (47, 47),
+        "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (16, 17),
     },
     "cics-banking-sample-application-cbsa": {
-        "program calls": (142, 150), "copybooks": (88, 88), "transactions": (42, 47), "screens": (36, 37),
-        "data flows": (4742, 4743), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        # #3710: + BANKDATA, which IKJEFT01 RUN PROGRAM runs
+        "program calls": (143, 151), "copybooks": (88, 88), "transactions": (42, 47), "screens": (36, 37),
+        "data flows": (4742, 4743), "IMS PSBs": (0, 0), "batch entry": (1, 1),
     },
     "cics-genapp": {
         "program calls": (95, 101), "copybooks": (29, 29), "transactions": (74, 74), "screens": (52, 52),

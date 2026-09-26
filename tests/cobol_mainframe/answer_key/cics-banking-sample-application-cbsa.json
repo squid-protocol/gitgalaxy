@@ -66894,6 +66894,74 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "etc/install/base/db2jcl/BTCHSQL.jcl",
+        "etc/install/base/db2jcl/CREDB00.jcl",
+        "etc/install/base/db2jcl/CREI101.jcl",
+        "etc/install/base/db2jcl/CREI201.jcl",
+        "etc/install/base/db2jcl/CREI301.jcl",
+        "etc/install/base/db2jcl/CRESG01.jcl",
+        "etc/install/base/db2jcl/CRESG02.jcl",
+        "etc/install/base/db2jcl/CRESG03.jcl",
+        "etc/install/base/db2jcl/CRETB01.jcl",
+        "etc/install/base/db2jcl/CRETB02.jcl",
+        "etc/install/base/db2jcl/CRETB03.jcl",
+        "etc/install/base/db2jcl/CRETS01.jcl",
+        "etc/install/base/db2jcl/CRETS02.jcl",
+        "etc/install/base/db2jcl/CRETS03.jcl",
+        "etc/install/base/db2jcl/DB2BIND.jcl",
+        "etc/install/base/db2jcl/DROPDB2.jcl",
+        "etc/install/base/db2jcl/DRPDB00.jcl",
+        "etc/install/base/db2jcl/DRPI101.jcl",
+        "etc/install/base/db2jcl/DRPI201.jcl",
+        "etc/install/base/db2jcl/DRPI301.jcl"
+      ],
+      "wide": false,
+      "suite": "runners",
+      "tasks": {
+        "runner": {
+          "agree": 20,
+          "asked": 20
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+      "at": "2026-09-26",
+      "batch": 2,
+      "files": [
+        "etc/install/base/db2jcl/DRPSG01.jcl",
+        "etc/install/base/db2jcl/DRPSG02.jcl",
+        "etc/install/base/db2jcl/DRPSG03.jcl",
+        "etc/install/base/db2jcl/DRPTB01.jcl",
+        "etc/install/base/db2jcl/DRPTB02.jcl",
+        "etc/install/base/db2jcl/DRPTB03.jcl",
+        "etc/install/base/db2jcl/DRPTS01.jcl",
+        "etc/install/base/db2jcl/DRPTS02.jcl",
+        "etc/install/base/db2jcl/DRPTS03.jcl",
+        "etc/install/base/db2jcl/INSTDB2.jcl",
+        "etc/install/base/installjcl/BANKDATA.jcl",
+        "etc/install/base/installjcl/RACF001.jcl",
+        "etc/install/base/installjcl/RESTCICS.jcl",
+        "etc/install/base/installjcl/RESTZOSC.jcl",
+        "etc/install/base/installjcl/SHUTCICS.jcl",
+        "etc/install/base/installjcl/SHUTZOSC.jcl"
+      ],
+      "wide": false,
+      "suite": "runners",
+      "tasks": {
+        "runner": {
+          "agree": 11,
+          "asked": 11
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -79684,6 +79752,49 @@
           ]
         }
       }
+    },
+    "runners": {
+      "plan": {
+        "mode": "full",
+        "files": [
+          "etc/install/base/db2jcl/BTCHSQL.jcl",
+          "etc/install/base/db2jcl/CREDB00.jcl",
+          "etc/install/base/db2jcl/CREI101.jcl",
+          "etc/install/base/db2jcl/CREI201.jcl",
+          "etc/install/base/db2jcl/CREI301.jcl",
+          "etc/install/base/db2jcl/CRESG01.jcl",
+          "etc/install/base/db2jcl/CRESG02.jcl",
+          "etc/install/base/db2jcl/CRESG03.jcl",
+          "etc/install/base/db2jcl/CRETB01.jcl",
+          "etc/install/base/db2jcl/CRETB02.jcl",
+          "etc/install/base/db2jcl/CRETB03.jcl",
+          "etc/install/base/db2jcl/CRETS01.jcl",
+          "etc/install/base/db2jcl/CRETS02.jcl",
+          "etc/install/base/db2jcl/CRETS03.jcl",
+          "etc/install/base/db2jcl/DB2BIND.jcl",
+          "etc/install/base/db2jcl/DROPDB2.jcl",
+          "etc/install/base/db2jcl/DRPDB00.jcl",
+          "etc/install/base/db2jcl/DRPI101.jcl",
+          "etc/install/base/db2jcl/DRPI201.jcl",
+          "etc/install/base/db2jcl/DRPI301.jcl",
+          "etc/install/base/db2jcl/DRPSG01.jcl",
+          "etc/install/base/db2jcl/DRPSG02.jcl",
+          "etc/install/base/db2jcl/DRPSG03.jcl",
+          "etc/install/base/db2jcl/DRPTB01.jcl",
+          "etc/install/base/db2jcl/DRPTB02.jcl",
+          "etc/install/base/db2jcl/DRPTB03.jcl",
+          "etc/install/base/db2jcl/DRPTS01.jcl",
+          "etc/install/base/db2jcl/DRPTS02.jcl",
+          "etc/install/base/db2jcl/DRPTS03.jcl",
+          "etc/install/base/db2jcl/INSTDB2.jcl",
+          "etc/install/base/installjcl/BANKDATA.jcl",
+          "etc/install/base/installjcl/RACF001.jcl",
+          "etc/install/base/installjcl/RESTCICS.jcl",
+          "etc/install/base/installjcl/RESTZOSC.jcl",
+          "etc/install/base/installjcl/SHUTCICS.jcl",
+          "etc/install/base/installjcl/SHUTZOSC.jcl"
+        ]
+      }
     }
   },
   "symbolic_maps": {
@@ -82917,6 +83028,504 @@
         "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
+      }
+    }
+  },
+  "runner_steps": {
+    "etc/install/base/db2jcl/BTCHSQL.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CREDB00.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CREI101.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CREI201.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CREI301.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRESG01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRESG02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRESG03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETB01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETB02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETB03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETS01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETS02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/CRETS03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DB2BIND.jcl": {
+      "units": [
+        "L122 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DROPDB2.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPDB00.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPI101.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPI201.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPI301.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS01.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS02.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS03.jcl": {
+      "units": [
+        "L9 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/db2jcl/INSTDB2.jcl": {
+      "units": [
+        "L32 GRANT IKJEFT01 RUNS=DSNTEP2/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "etc/install/base/installjcl/BANKDATA.jcl": {
+      "units": [
+        "L94 BANKDAT5 IKJEFT01 RUNS=BANKDATA/RUN PROGRAM"
+      ],
+      "runners_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (batch runners census #3710)",
           "at": "2026-09-26"
         }
       }

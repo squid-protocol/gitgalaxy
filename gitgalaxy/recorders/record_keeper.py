@@ -1382,6 +1382,9 @@ class RecordKeeper:
         # #3622: `disp_normal` -- DISP's normal-end disposition (KEEP / CATLG / DELETE / PASS / UNCATLG), NULL
         # when not written: IEFBR14's `DISP=(MOD,DELETE)` deletes, `(MOD,CATLG)` creates.
         _ensure_columns(cursor, "job_flow_data", ["disp_normal TEXT"])
+        # #3710: a runner step's `runs` / `runs_via` (the programs its SYSTSIN or PARM runs and
+        # how, comma-joined) and `systsin_member` (a SYSTSIN read from a dataset member).
+        _ensure_columns(cursor, "job_flow_data", ["runs TEXT", "runs_via TEXT", "systsin_member TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
@@ -3255,6 +3258,9 @@ class RecordKeeper:
                 "generation",
                 "line_number",
                 "disp_normal",
+                "runs",
+                "runs_via",
+                "systsin_member",
             ),
             "job_flow",
             lambda j: (
@@ -3273,6 +3279,9 @@ class RecordKeeper:
                 j.get("generation"),
                 int(j.get("line", 0) or 0),
                 j.get("disp_normal"),  # #3622
+                j.get("runs"),  # #3710
+                j.get("runs_via"),
+                j.get("systsin_member"),
             ),
         )
 

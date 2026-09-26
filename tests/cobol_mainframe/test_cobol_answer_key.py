@@ -1514,3 +1514,32 @@ def test_pli_layouts_draft_keys_structures_only(tmp_path):
     drafted = ak.draft_pli_layouts(tmp_path)
     assert list(drafted) == ["P.pli"] and drafted["P.pli"]["units"] == ["R/A @0+2"]
     assert drafted["P.pli"]["pli_layouts_validated"] is False
+
+
+# ---- #3710: the programs batch runners run --------------------------------------
+def test_runner_step_units_read_systsin_parm_and_members():
+    jcl = """//J        JOB (A),'X'
+//DB2      EXEC PGM=IKJEFT01
+//SYSTSIN  DD *
+  DSN SYSTEM(DB2P)
+  RUN PROGRAM(POSTIT) -
+      PLAN(P1)
+  END
+/*
+//IMS      EXEC PGM=DFSRRC00,
+//             PARM='BMP,IMSPGM,PSB1'
+//MEM      EXEC PGM=IKJEFT1B
+//SYSTSIN  DD DISP=SHR,DSN=APP.CNTL(RUNPOST)
+//REXX     EXEC PGM=IKJEFT1B
+//SYSTSIN  DD *
+ EXEC 'APP.EXEC(MYREXX)'
+ %OTHER
+//PLAIN    EXEC PGM=IEFBR14
+"""
+    assert ak.runner_step_units(jcl) == {
+        "L2 DB2 IKJEFT01 RUNS=POSTIT/RUN PROGRAM",
+        "L9 IMS DFSRRC00 RUNS=IMSPGM/DFSRRC00",
+        "L11 MEM IKJEFT1B SYSTSIN=RUNPOST",
+        "L13 REXX IKJEFT1B RUNS=MYREXX/TSO EXEC",
+        "L13 REXX IKJEFT1B RUNS=OTHER/TSO EXEC",
+    }

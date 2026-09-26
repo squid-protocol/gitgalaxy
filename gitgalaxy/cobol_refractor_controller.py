@@ -431,6 +431,7 @@ def main():
     if args.galaxy_db or args.scan:
         db_path = scan_to_db(target_path, ir_dir) if args.scan else args.galaxy_db.resolve()
         galaxy_ir = load_galaxy_ir(db_path)
+        galaxy_ir.source_root = target_path  # #3710: SYSTSIN members a runner step reads
         program_files = [target_path / ef.file_path for ef in galaxy_ir.programs("cobol")]
         missing = [p for p in program_files if not p.is_file()]
         if missing:

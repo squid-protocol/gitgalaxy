@@ -106,6 +106,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "symbolic maps": ("symbolic_maps", "symbolic_validated"),
     "copybook layouts": ("copybook_layouts", "layouts_validated"),
     "PL/I layouts": ("pli_layouts", "pli_layouts_validated"),
+    "JCL runner programs": ("runner_steps", "runners_validated"),
     "CICS RIDFLD": ("cics_ridflds", "ridflds_validated"),
     "refmod spans": ("refmod_spans", "refmods_validated"),
     "dynamic call targets": ("dynamic_targets", "dynamic_validated"),

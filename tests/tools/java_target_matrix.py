@@ -35,6 +35,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
 from unittest.mock import patch
@@ -133,30 +134,83 @@ def _same_tree(a: Path, b: Path) -> list[str]:
     return diffs
 
 
-def same_as(corpus: Path, base: Path, only: list[str] | None, work: Path) -> tuple[bool, str]:
-    """(identical, why): generate with this checkout and with `base`, both paths, and compare."""
+def build_input(rel: str) -> bool:
+    """Whether a generated project's file is read by the build: the sources and resources
+    under src/, and the Maven / Gradle build files. Porting tickets, worklists, audits and
+    traceability are reports -- a change there cannot break a compile."""
+    top = rel.split("/", 1)[0]
+    return top in ("src", "gradle", "pom.xml", "gradle.properties") or top.endswith((".gradle", ".gradle.kts"))
+
+
+def _cached(cache: Path | None, name: str) -> Path | None:
+    """A base generation kept from an earlier run of the same base commit, or None."""
+    tree = cache / name if cache else None
+    return tree if tree and (tree / ".complete").is_file() else None
+
+
+def _keep(cache: Path | None, tree: Path) -> None:
+    """Keep a base generation's projects (not the corpus copy or the clean room) for the next run."""
+    if cache is None:
+        return
+    dest = cache / tree.name
+    shutil.rmtree(dest, ignore_errors=True)
+    dest.mkdir(parents=True)
+    for project in tree.glob("java_*"):
+        shutil.copytree(project, dest / project.name)
+    (dest / ".complete").write_text("", encoding="utf-8")
+
+
+def same_as(
+    corpus: Path, base: Path, only: list[str] | None, work: Path, base_cache: Path | None = None
+) -> tuple[bool, str]:
+    """(identical, why): generate with this checkout and with `base`, both paths, and compare
+    what the build reads (`build_input`). The generations are independent processes, so they
+    run side by side; the base's come from `base_cache` when an earlier run of the same base
+    commit kept them there (the caller keys the cache on that commit)."""
     me = Path(__file__).resolve()
+    runs = []
     trees: dict[str, Path] = {}
     for side, root in (("head", REPO_ROOT), ("base", base.resolve())):
         for scan in (False, True):
             out = work / f"{side}{'_scan' if scan else ''}"
+            kept = _cached(base_cache, out.name) if side == "base" else None
+            if kept:
+                trees[out.name] = kept
+                continue
             cmd = [sys.executable, str(me), str(corpus), "--work", str(out), "--no-build"]
             cmd += (["--scan"] if scan else []) + (["--only", *only] if only else [])
             env = dict(os.environ, GITGALAXY_CODE_ROOT=str(root), PYTHONPATH=str(root))
-            proc = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=3600)  # noqa: S603
+            runs.append((side, scan, out, cmd, env))
+
+    def run(item):
+        cmd, env = item[3], item[4]
+        return item, subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=3600)  # noqa: S603
+
+    with ThreadPoolExecutor(max_workers=max(len(runs), 1)) as pool:
+        for (side, scan, out, _cmd, _env), proc in pool.map(run, runs):
             if proc.returncode != 0:
                 return False, f"{side} failed to generate ({'scan' if scan else 'plain'} path): {proc.stderr[-400:]}"
             trees[out.name] = out
+            (out / ".complete").write_text("", encoding="utf-8")  # the build step may reuse it (--generated)
+            if side == "base":
+                _keep(base_cache, out)
     diffs: list[str] = []
+    reports: list[str] = []
     for path in ("", "_scan"):
         head, base_tree = trees[f"head{path}"], trees[f"base{path}"]
         projects = sorted(p.name for p in head.glob("java_*")) or ["(none)"]
         if projects != sorted(p.name for p in base_tree.glob("java_*")):
             return False, f"different configs generated{path}"
         for name in projects:
-            diffs += [f"{name}{path}/{d}" for d in _same_tree(head / name, base_tree / name)]
+            for d in _same_tree(head / name, base_tree / name):
+                (diffs if build_input(d) else reports).append(f"{name}{path}/{d}")
     if diffs:
-        return False, f"{len(diffs)} generated file(s) differ, e.g. {', '.join(diffs[:5])}"
+        return False, f"{len(diffs)} build input(s) differ, e.g. {', '.join(diffs[:5])}"
+    if reports:
+        return True, (
+            f"every build input is identical to the base's; {len(reports)} report file(s) differ and need no "
+            f"compile, e.g. {', '.join(reports[:3])}"
+        )
     return True, "every generated file is identical to the base's"
 
 
@@ -190,6 +244,16 @@ def main() -> int:
     )
     ap.add_argument("--no-build", action="store_true", help="generate (and normalize) without compiling")
     ap.add_argument("--same-as", type=Path, default=None, metavar="BASE", help="exit 0 when the Java is unchanged")
+    ap.add_argument(
+        "--base-cache", type=Path, default=None, help="with --same-as: keep / reuse the base's generation here"
+    )
+    ap.add_argument(
+        "--generated",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="build the java_<config> projects a --same-as run already generated in DIR (skips the refactor)",
+    )
     args = ap.parse_args()
     unknown = sorted(set(args.only or []) - set(MATRIX))
     if unknown:
@@ -197,7 +261,7 @@ def main() -> int:
     work = args.work or Path(tempfile.mkdtemp(prefix="java_matrix_"))
     work.mkdir(parents=True, exist_ok=True)
     if args.same_as:
-        identical, why = same_as(args.corpus.resolve(), args.same_as, args.only, work)
+        identical, why = same_as(args.corpus.resolve(), args.same_as, args.only, work, args.base_cache)
         print(f"{'IDENTICAL' if identical else 'CHANGED'}: {args.corpus.name}: {why}", flush=True)
         if os.environ.get("GITHUB_OUTPUT"):
             with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
@@ -214,7 +278,7 @@ def main() -> int:
     if origin is None or origin.parents[1] != REPO_ROOT:
         print(f"error: gitgalaxy would be imported from {origin}, not {REPO_ROOT}", file=sys.stderr)
         return 2
-    clean = refactor(args.corpus.resolve(), work, scan=args.scan)
+    clean = None if args.generated else refactor(args.corpus.resolve(), work, scan=args.scan)
     failed = 0
     rows = [
         f"### Generated Java compiles: {args.corpus.name}{' (engine scan)' if args.scan else ''}",
@@ -225,12 +289,12 @@ def main() -> int:
     for name, config in MATRIX.items():
         if args.only and name not in args.only:
             continue
-        project = generate(clean, name, config, work)
+        project = args.generated / f"java_{name}" if args.generated else generate(clean, name, config, work)
         if args.no_build:
             normalize(project)
             continue
         version = config.get("java", {}).get("version", 17)
-        ok, errors = build(project, version, args.m2)
+        ok, errors = build(project, version, args.m2) if project.is_dir() else (False, f"{project} was not generated")
         failed += not ok
         print(f"{'PASS' if ok else 'FAIL'}  {name}" + (f"\n{errors}" if errors and not ok else ""), flush=True)
         detail = "" if ok else " -- " + " / ".join(errors.splitlines()[:3]).replace("|", "/")

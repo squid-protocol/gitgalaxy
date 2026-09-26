@@ -18,9 +18,14 @@ name: Generated Java Compiles
 # at all (java_target_matrix.py --same-as): it generates both paths with the PR's
 # code and with the base branch's code and compares every file. Identical output
 # needs no compile -- the base already compiles (push to main builds it) -- so the
-# JDK / Gradle setup and both builds are skipped and the summary says why. Any
-# difference, or a side that fails to generate, builds as before. Pushes, the
-# weekly run and manual runs always build.
+# JDK / Gradle setup and both builds are skipped and the summary says why. Only what
+# the build reads is compared (src/, pom.xml, the Gradle files): a change confined to
+# porting tickets, worklists or audits needs no compile. Any build-input difference,
+# or a side that fails to generate, builds -- from the projects the check already
+# generated, so the corpus is not refactored (or scanned) a third time. The four
+# generations run side by side, and the base's are cached per base commit, so a
+# second push to the same PR generates only the head. Pushes, the weekly run and
+# manual runs always build from scratch.
 
 on:
   pull_request:
@@ -122,6 +127,13 @@ jobs:
           path: base
           persist-credentials: false
 
+      - name: Cache the base branch's generation (pull requests)
+        if: github.event_name == 'pull_request'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/java_base_cache
+          key: java-same-base-${{ matrix.corpus }}-${{ github.event.pull_request.base.sha }}-${{ hashFiles('gitgalaxy/tests/tools/java_target_matrix.py', 'gitgalaxy/tests/cobol_mainframe/corpora.json', 'gitgalaxy/.github/workflows/java-compile.yml') }}
+
       - name: Is the generated Java unchanged? (pull requests)
         id: same
         if: github.event_name == 'pull_request'
@@ -136,6 +148,7 @@ jobs:
           python tests/tools/java_target_matrix.py \
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
             --same-as "$GITHUB_WORKSPACE/base" \
+            --base-cache "$RUNNER_TEMP/java_base_cache" \
             --work "$RUNNER_TEMP/java_same" \
             --summary "$GITHUB_STEP_SUMMARY" \
             "${ONLY[@]}"
@@ -173,8 +186,11 @@ jobs:
           export JDK_17="$JAVA_HOME_17_X64" JDK_21="$JAVA_HOME_21_X64" JAVA_HOME="$JAVA_HOME_17_X64"
           ONLY=()
           if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          REUSE=()  # a pull request's check already generated the head's projects
+          if [ -f "$RUNNER_TEMP/java_same/head/.complete" ]; then REUSE=(--generated "$RUNNER_TEMP/java_same/head"); fi
           PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            "${REUSE[@]}" \
             --work "$RUNNER_TEMP/java_matrix" \
             --m2 "$HOME/.m2/repository" \
             --summary "$GITHUB_STEP_SUMMARY" \
@@ -191,8 +207,11 @@ jobs:
           export JDK_17="$JAVA_HOME_17_X64" JDK_21="$JAVA_HOME_21_X64" JAVA_HOME="$JAVA_HOME_17_X64"
           ONLY=()
           if [ -n "$CONFIGS" ]; then ONLY=(--only $CONFIGS); fi
+          REUSE=()
+          if [ -f "$RUNNER_TEMP/java_same/head_scan/.complete" ]; then REUSE=(--generated "$RUNNER_TEMP/java_same/head_scan"); fi
           PYTHONPATH="$PWD" python tests/tools/java_target_matrix.py \
             "$GITGALAXY_MAINFRAME_CORPORA/$CORPUS" \
+            "${REUSE[@]}" \
             --scan \
             --work "$RUNNER_TEMP/java_matrix_scan" \
             --m2 "$HOME/.m2/repository" \

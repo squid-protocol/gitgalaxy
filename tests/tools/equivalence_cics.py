@@ -427,9 +427,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
         (work / "files" / f["base"]).write_bytes(eq._fixed(eq._input_path(case, corpus, spec["input"]), f["reclen"]))
     ca_fields = commarea_fields(corpus, case)
-    script = ["set -e", "cd /work",
-              "cobc -x -std=ibm -fsign=EBCDIC -fstatic-call -I /work/src -o task src/EQCICSDR.cbl "
-              "src/PROGRAM.cbl src/ggcics.c"]  # fmt: skip
+    compile_task = (
+        "cobc -x -std=ibm -fsign=EBCDIC -fstatic-call -I /work/src -o task src/EQCICSDR.cbl "
+        "src/PROGRAM.cbl src/ggcics.c"
+    )
+    script = ["set -e", "cd /work", compile_task]
     date, _, time = case["clock"].partition(" ")
     for sc in case["scenarios"]:
         d = work / "scenarios" / sc["name"]
@@ -526,15 +528,28 @@ def to_java(values: dict[str, Any], shape: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def from_java(obj: dict[str, Any] | None, shape: dict[str, Any]) -> dict[str, Any]:
-    """The DTO's JSON -> {COBOL name: value}."""
-    out: dict[str, Any] = {}
+def _leaves(shape: dict[str, Any]) -> dict[str, str]:
+    """{java leaf name: COBOL field name} over the whole shape, parts included."""
+    out: dict[str, str] = {}
     for var, spec in shape.items():
-        v = (obj or {}).get(var)
-        if isinstance(spec, tuple):
-            out.update(from_java(v, spec[1]))
-        else:
-            out[spec] = v
+        out.update(_leaves(spec[1]) if isinstance(spec, tuple) else {var: spec})
+    return out
+
+
+def from_java(obj: dict[str, Any] | None, shape: dict[str, Any]) -> dict[str, Any]:
+    """The DTO's JSON -> {COBOL name: value}. The object may be the whole COMMAREA or one of its
+    parts (an XCTL passes only CARDDEMO-COMMAREA), so leaves are matched wherever they sit."""
+    names = _leaves(shape)
+    out: dict[str, Any] = {}
+
+    def walk(o: Any) -> None:
+        for k, v in (o or {}).items():
+            if isinstance(v, dict):
+                walk(v)
+            elif k in names:
+                out[names[k]] = v
+
+    walk(obj)
     return out
 
 
@@ -668,8 +683,13 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         ca = None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             ca = to_java(decode_record(encode_record(ca_fields, sc["commarea"], b"init"), ca_fields), shape)
+        # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
+        # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
+        receive = {
+            m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
+        }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "receive": sc.get("receive") or {}})  # fmt: skip
+                          "commarea": ca, "receive": receive})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     out = ej.run_maven(project, work, inputs)
     result = {}
@@ -741,11 +761,13 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
-    lines = [f"# {case['program']} -- COBOL vs Java ({report['java']}), CICS", "",
-             f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, transaction {case['transid']}, "
-             f"clock `{case['clock']}`. Each scenario is one task; its events (SEND MAP, SEND TEXT, RETURN, "
-             "XCTL, ABEND) are paired in order and compared field by field -- screen DATA fields and every "
-             "COMMAREA field (attribute bytes are not compared).", "",
+    about = (
+        f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, transaction {case['transid']}, "
+        f"clock `{case['clock']}`. Each scenario is one task; its events (SEND MAP, SEND TEXT, RETURN, "
+        "XCTL, ABEND) are paired in order and compared field by field -- screen DATA fields and every "
+        "COMMAREA field (attribute bytes are not compared)."
+    )
+    lines = [f"# {case['program']} -- COBOL vs Java ({report['java']}), CICS", "", about, "",
              "Stub files, from the engine's facts: " + "; ".join(
                  f"`{f['file']}` -> {f['base']} key {f['key_length']}@{f['key_offset']}"
                  + (f" via {', '.join(f['via'])}" if f["via"] else "") for f in report["files"]), "",

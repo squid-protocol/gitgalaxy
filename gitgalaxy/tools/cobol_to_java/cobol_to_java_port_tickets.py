@@ -35,6 +35,10 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 TICKET_VERSION = 1
 PORTING_RULES = [
     (
+        "Deliver the whole port: every paragraph the ported method reaches, every screen field it sets, every "
+        "file it reads. A partial port or a sketch is not proven: the equivalence harness compares every output."
+    ),
+    (
         "Port the PROCEDURE DIVISION into the service's methods, paragraph by paragraph; name the paragraph "
         "each block ports in a comment, so the port can be reviewed against the source."
     ),

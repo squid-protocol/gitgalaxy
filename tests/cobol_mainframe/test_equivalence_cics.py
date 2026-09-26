@@ -165,3 +165,20 @@ def test_events_are_compared_field_by_field():
     assert d["diffs"] == [{"event": 1, "kind": "SEND-MAP",
                            "fields": [{"field": "screen.BAL", "cobol": "+   1.00", "java": "+1.00"}]}]  # fmt: skip
     assert ec.compare_events(cobol, java[:1])["diffs"][-1] == {"event": 2, "cobol": "RETURN", "java": None}
+
+
+@pytest.mark.skipif(__import__("os").environ.get("EQUIVALENCE_E2E") != "1",
+                    reason="needs Docker (GnuCOBOL) and a JDK + Maven")  # fmt: skip
+def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
+    """COACTVWC as COBOL under the stub runtime and as the generated Java plus the case's port: every
+    scenario's every event (screen, COMMAREA, XCTL) equal, field by field."""
+    import json
+    import subprocess
+
+    proc = subprocess.run([sys.executable, str(Path(ec.eq.__file__)), "run", "carddemo-acctview", "--keep",  # noqa: S603
+                           str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert {n: (o["equal"], o["records"]) for n, o in report["outputs"].items()} == {
+        "enter-from-menu": (2, 2), "view-account": (2, 2), "account-not-on-file": (2, 2),
+        "account-not-numeric": (2, 2), "pf3-back-to-menu": (1, 1)}  # fmt: skip

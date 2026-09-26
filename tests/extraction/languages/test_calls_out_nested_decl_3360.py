@@ -125,11 +125,15 @@ def test_no_false_fcall_edge_from_outer_to_nested_declaration():
     functions = StructuralExtractor("python", LANGUAGE_DEFINITIONS).splice(_PY, "")["functions"]
     files = [{"path": "m.py", "lang_id": "python", "functions": functions}]
     sites, _ = resolve_calls(files)
-    pairs = {(s["src_name"], s["dst_name"]) for s in sites}
-    assert ("o2", "helper") not in pairs
-    assert ("outer", "inner") in pairs
+    calls = {(s["src_name"], s["dst_name"]) for s in sites if s["kind"] == "call"}
+    assert ("o2", "helper") not in calls
+    assert ("outer", "inner") in calls
+    # `return helper` hands the nested function out: a reference edge, not a call
+    refs = {(s["src_name"], s["dst_name"]) for s in sites if s["kind"] == "reference"}
+    assert refs == {("o2", "helper")}
 
-    metrics = {name: m for (_, name, _), m in function_metrics(files, sites).items()}
+    call_sites = [s for s in sites if s["kind"] == "call"]
+    metrics = {name: m for (_, name, _), m in function_metrics(files, call_sites).items()}
     assert metrics["o2"]["func_fan_out"] == 0
     assert metrics["helper"]["func_fan_in"] == 0
     assert metrics["inner"]["func_fan_in"] == 1

@@ -1080,7 +1080,8 @@ def _python_locals(text: str) -> set[str]:
     parameters of every def (a nested function's too)."""
     local = _python_bindings(text)
     for a, b in _python_signatures(text):
-        depth, part = 0, []
+        depth = 0
+        part: list[str] = []
         for ch in text[a:b] + ",":
             if ch in "([{":
                 depth += 1

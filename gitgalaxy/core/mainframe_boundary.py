@@ -875,6 +875,11 @@ _PLI_DECLARE = re.compile(r"(?:DCL|DECLARE)(?![\w@#$])", re.I)
 # time; a DECLARE inside it declares a macro variable, not program storage.
 _PLI_MACRO_PROC = re.compile(r"%[ \t\r\n]*[\w@#$]+[ \t\r\n]*:[ \t\r\n]*PROC(?:EDURE)?(?![\w@#$])", re.I)
 _PLI_MACRO_END = re.compile(r"%[ \t\r\n]*END(?![\w@#$])", re.I)
+# `%INCLUDE M` / `%INCLUDE SYSLIB(M)` inside a declaration (#3728): M supplies members.
+_PLI_INCLUDE = re.compile(r"%[ \t\r\n]*INCLUDE[ \t\r\n]+(?:[\w@#$]+[ \t\r\n]*\([ \t\r\n]*)?([\w@#$]+)", re.I)
+# A member that is a declaration FRAGMENT -- level-numbered items with no DCL of their
+# own, spliced into the declaration that %INCLUDEs it (#3728).
+_PLI_FRAGMENT = re.compile(r"\d{1,3}[ \t\r\n]+(?:[^\W\d]|[@#$(*])")
 # Fixed-format source carries a sequence number in columns 73-80 (navikt/DSF:
 # `00000110`). Blanked in place so offsets and line numbers are unchanged. A line
 # over 80 columns is free-format and left alone.
@@ -1142,14 +1147,21 @@ def _pli_items(body: str) -> list[tuple[int, Optional[int], str, Optional[str], 
     """Split one DECLARE body into (offset, level, name, dims, attribute tokens) items.
 
     A factored declaration (`DCL (A, B) CHAR(5)`, `2 (X, Y) FIXED BIN`) expands to
-    one item per name sharing the outer attributes. A `%INCLUDE` standing in for a
-    structure's members (navikt/DSF: `DCL 1 B01 BASED(P), %INCLUDE P0019921;`) and
-    a macro-built name (`DCL FIELD%;J ...`) are not items this file declares.
+    one item per name sharing the outer attributes. A macro-built name (`DCL
+    FIELD%;J ...`) is not an item this file declares. A `%INCLUDE` standing in for
+    members (navikt/DSF: `DCL 1 B01 BASED(P), %INCLUDE P0019921;`) is not one either:
+    it comes back as a marker, (offset, None, "%INCLUDE", member, []), where it sits
+    (#3728).
     """
-    out = []
+    out: list[tuple[int, Optional[int], str, Optional[str], list[str]]] = []
     for offset, piece in _pli_split(body, ","):
         i = _pli_skip_leading(piece)
-        if i >= len(piece) or piece[i] == "%":
+        if i >= len(piece):
+            continue
+        if piece[i] == "%":
+            include = _PLI_INCLUDE.match(piece, i)
+            if include:
+                out.append((offset + i, None, "%INCLUDE", include.group(1).upper(), []))
             continue
         level = None
         level_match = _PLI_LEVEL.match(piece, i)
@@ -1210,6 +1222,7 @@ def _pli_records(code_stream: str) -> list[dict[str, Any]]:
 
     records: list[dict[str, Any]] = []
     in_macro = False
+    first = True
     for start, statement in _pli_split(text, ";"):
         i = _pli_skip_leading(statement)
         head = statement[i:]
@@ -1219,12 +1232,24 @@ def _pli_records(code_stream: str) -> list[dict[str, Any]]:
         if _PLI_MACRO_PROC.match(head):
             in_macro = True
             continue
-        declare = _PLI_DECLARE.match(head)
-        if not declare:
+        if not head.strip() or head.startswith("%"):
             continue
-        body_start = start + i + declare.end()
+        declare = _PLI_DECLARE.match(head)
+        # #3728: a member that opens with level-numbered items is a declaration fragment;
+        # its items are recorded with section `%INCLUDE`, for the includer to splice in.
+        fragment = first and not declare and _PLI_FRAGMENT.match(head) is not None
+        first = False
+        if not declare and not fragment:
+            continue
+        body_start = start + i + (declare.end() if declare else 0)
+        statement_first = len(records)
         stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, root storage class)
         for offset, level, name, dims, tokens in _pli_items(text[body_start : start + len(statement)]):
+            if name == "%INCLUDE":  # #3728: the member expands right after the item before it
+                if len(records) > statement_first:
+                    prev = records[-1].get("copy_members")
+                    records[-1]["copy_members"] = f"{prev},{dims}" if prev else dims
+                continue
             fields = _pli_item_attributes(tokens)
             if fields is None:
                 continue
@@ -1232,7 +1257,7 @@ def _pli_records(code_stream: str) -> list[dict[str, Any]]:
             while stack and stack[-1][0] >= level:
                 stack.pop()
             parent_ordinal = stack[-1][1] if stack else None
-            section = stack[0][2] if stack else fields["section"]
+            section = "%INCLUDE" if fragment else stack[0][2] if stack else fields["section"]
             ordinal = len(records)
             stack.append((level, ordinal, section))
             occurs = depending = None

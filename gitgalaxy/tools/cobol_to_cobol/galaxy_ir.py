@@ -1688,37 +1688,92 @@ class GalaxyIR:
             return [(ef, c) for c in siblings[siblings.index(it) + 1 :]] if it in siblings else []
         return []
 
+    def _pli_fragment(self, ef: Optional[EngineFile], member: str) -> Optional[EngineFile]:
+        """#3728: the PL/I declaration fragment `%INCLUDE member` names -- a scanned member whose
+        items carry section `%INCLUDE` -- preferring the includer's resolved include edges."""
+        if ef is None:
+            return None
+        want = member.upper()
+        paths = [p for p in ef.copy_deps if Path(p).stem.upper() == want]
+        paths += sorted(p for p, f in self.files.items() if f.language == "pli" and Path(p).stem.upper() == want)
+        for p in paths:
+            f = self.files.get(p)
+            if f is not None and any(r.section == "%INCLUDE" for r in f.records):
+                return f
+        return None
+
     def _pli_mapping(self, root: EngineDataItem, ef: Optional[EngineFile] = None) -> tuple[Optional[dict], dict]:
         """(pli_mapping.layout of PL/I record `root` -- id(item) -> (bit offset, bits) -- or None
         when a width inside is unknown, the children map it used). Cached per record.
 
+        #3728: an `%INCLUDE` inside the declaration (`copy_members` on the item it follows)
+        splices the member's fragment in where it stands, the whole structure then nesting by
+        level number as the compiler sees it; a member not in the repository leaves the
+        layout unknown and is named in `_pli_unexpanded`.
         `x LIKE s` takes the structuring of structure `s` (its members, not its dimension):
-        found in `ef` or its %INCLUDE members, its members are `x`'s children here. The
-        borrowed items are the same objects as `s`'s, so they are `s`'s, not `x`'s own."""
+        found in `ef` or its %INCLUDE members, its members are `x`'s children here. Spliced and
+        borrowed items are the member's / `s`'s own objects, not `x`'s."""
         cache = self.__dict__.setdefault("_pli_cache", {})
         if id(root) not in cache:
+            unexpanded: list = []
+            owners: dict = {}
+
+            def flat(it: EngineDataItem, owner: Optional[EngineFile], depth: int) -> list:
+                owners[id(it)] = owner.file_path if owner is not None else None
+                out = [it]
+                for k in it.children:
+                    if not k.redefines and k.level not in (66, 88):
+                        out += flat(k, owner, depth)
+                for member in [m for m in (it.copy_members or "").split(",") if m]:
+                    frag = self._pli_fragment(ef, member) if depth < 8 else None
+                    if frag is None:
+                        unexpanded.append(member)
+                        continue
+                    for r in frag.records:
+                        if r.section == "%INCLUDE" and not r.redefines:
+                            out += flat(r, frag, depth + 1)
+                return out
+
             children: dict = {}
-            todo: list[tuple[EngineDataItem, frozenset]] = [(root, frozenset())]
+            stack: list = []
+            malformed = False
+            items = flat(root, ef, 0)
+            for it in items:
+                children.setdefault(id(it), [])
+                while stack and stack[-1].level >= it.level:
+                    stack.pop()
+                if stack:
+                    children[id(stack[-1])].append(it)
+                elif it is not root:
+                    malformed = True  # a spliced item at or above the root's level
+                stack.append(it)
+            todo: list[tuple[EngineDataItem, frozenset]] = [(it, frozenset()) for it in items if not children[id(it)]]
             while todo:
                 node, seen = todo.pop()
-                own = node.children
-                like = _PLI_LIKE.search(node.attributes or "") if not own else None
-                if like and ef is not None and id(node) not in seen:
-                    *qual, name = [p.strip() for p in like.group(1).upper().split(".")]
-                    found = self._find_item(ef, name, qual[-1] if qual else None)
-                    target = found[0][1] if found else None
-                    own = target.children if target is not None and target is not node else []
+                like = _PLI_LIKE.search(node.attributes or "")
+                if not like or ef is None or id(node) in seen or children.get(id(node)):
+                    continue
+                *qual, name = [p.strip() for p in like.group(1).upper().split(".")]
+                found = self._find_item(ef, name, qual[-1] if qual else None)
+                target = found[0][1] if found else None
+                own = target.children if target is not None and target is not node else []
                 kids = [k for k in own if not k.redefines and k.level not in (66, 88)]
                 children[id(node)] = kids
-                todo.extend((k, seen | {id(node)}) for k in kids if id(k) not in seen)
-            cache[id(root)] = (pli_mapping.layout(root, children), children, root)
-        lay, children, _ = cache[id(root)]
+                for k in kids:
+                    children.setdefault(id(k), [c for c in k.children if not c.redefines and c.level not in (66, 88)])
+                    todo.append((k, seen | {id(node)}))
+            lay = None if unexpanded or malformed else pli_mapping.layout(root, children)
+            cache[id(root)] = (lay, children, root, sorted(set(unexpanded)), owners)
+        lay, children, _, _, _ = cache[id(root)]
         return lay, children
 
     def _pli_record_layout(self, ef: EngineFile, item: EngineDataItem) -> dict:
         """record_layout for a PL/I record (#3720): the same shape, offsets from PL/I's
-        structure mapping (pli_mapping). A bit string also carries `bit_offset` / `bits`."""
+        structure mapping (pli_mapping). A bit string also carries `bit_offset` / `bits`.
+        #3728: `unexpanded` names the %INCLUDE members inside its declaration the repository
+        lacks (the width is then unknown); `copybooks` the ones spliced in."""
         lay, children = self._pli_mapping(item, ef)
+        _, _, _, unexpanded, owners = self.__dict__["_pli_cache"][id(item)]
         fields: list = []
         variable = False
 
@@ -1738,15 +1793,16 @@ class GalaxyIR:
             entry = {"name": it.name, "level": it.level, "pic": it.pic, "usage": it.usage, "class": _item_class(it),
                      "offset": None if off is None else off // 8,
                      "bytes": None if bits is None else ((off or 0) % 8 + bits + 7) // 8,
-                     "occurs": it.occurs_max, "file": ef.file_path, "dialect": "pli"}  # fmt: skip
+                     "occurs": it.occurs_max, "file": owners.get(id(it)) or ef.file_path, "dialect": "pli"}  # fmt: skip
             if off is not None and bits is not None and (off % 8 or bits % 8):
                 entry["bit_offset"], entry["bits"] = off, bits
             fields.append(entry)
 
         walk(item)
         total = lay.get(id(item), (0, None))[1] if lay else None
+        spliced = sorted({p for p in owners.values() if p and p != ef.file_path})
         return {"bytes": None if total is None else (total + 7) // 8, "variable": variable, "fields": fields,
-                "unexpanded": [], "copybooks": [], "dialect": "pli"}  # fmt: skip
+                "unexpanded": list(unexpanded), "copybooks": spliced, "dialect": "pli"}  # fmt: skip
 
     def record_layout(self, ef: EngineFile, item: EngineDataItem, extension: Optional[list] = None) -> dict:
         """One record's storage layout, COPY-expanded, from the DB alone (#3355).

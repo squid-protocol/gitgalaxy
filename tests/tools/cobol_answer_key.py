@@ -988,10 +988,12 @@ def _pli_declarations(text: str) -> list[tuple[list[dict[str, Any]], bool]]:
             continue
         if macro or st[0][1] not in ("DCL", "DECLARE") or st[0][0] != "word":
             continue
-        depth, include = 0, False
-        for prev, t in zip([("punct", ",", 0), *st[1:]], st[1:]):
+        depth, include, body = 0, False, st[1:]
+        for j, t in enumerate(body):
             depth += {"(": 1, ")": -1}.get(t[1], 0)
-            include |= t[1] == "%" and depth == 0 and prev[1] == ","
+            # `, %INCLUDE M` -- not `, %SKIP` / `%PAGE`, listing directives that declare nothing (#3728)
+            after_comma = j == 0 or body[j - 1][1] == ","
+            include |= t[1] == "%" and depth == 0 and after_comma and j + 1 < len(body) and body[j + 1][1] == "INCLUDE"
         out.append((_pli_declaration(st[1:]), include))
     return out
 

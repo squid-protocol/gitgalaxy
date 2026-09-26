@@ -245,7 +245,11 @@ class CicsForge:
         if layout.get("extended"):
             doc.append("The program continues this copied record past its COPY: the layout is the program's own.")
         if layout.get("unexpanded"):
-            doc.append(f"TODO: COPY members not found in the repository: {', '.join(layout['unexpanded'])}.")
+            missing = ", ".join(layout["unexpanded"])
+            if layout.get("dialect") == "pli":  # #3728: a PL/I structure's %INCLUDE inside its declaration
+                doc.append(f"TODO: %INCLUDE members not found in the repository: {missing}.")
+            else:
+                doc.append(f"TODO: COPY members not found in the repository: {missing}.")
         named = sum(f.get("bytes") or 0 for f in layout.get("fields", []))
         if layout.get("bytes") is not None and named != layout["bytes"]:
             doc.append("Fields inside an OCCURS group appear once; the offsets and the width count every occurrence.")

@@ -2117,9 +2117,9 @@
         },
         "PL/I layouts": {
           "engine": {
-            "got": 6694,
-            "tp": 6694,
-            "truth": 6694
+            "got": 6702,
+            "tp": 6702,
+            "truth": 6702
           },
           "forge": null,
           "truth": "sample_verified"

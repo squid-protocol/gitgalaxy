@@ -202,6 +202,56 @@ CALLS_OUT_RUBY = re.compile(
     re.M,
 )
 
+# #3643 (contracts C3, and C3's 2026-09-25 pattern amendment): rust's own calls_out.
+# Group 1 is the callee, so detector.py treats it like CALLS_OUT_C_STYLE (qualifier,
+# C5 header check). Three shapes the C-style pattern gets wrong:
+#   - a macro is a call to its name: `format!(`, `vec![`, `quote!{` (never
+#     `macro_rules! name {`, whose `!` is not followed by the delimiter);
+#   - a turbofish sits between the name and `(`: `collect::<Vec<_>>()`,
+#     `query::<&A>()` -- two nesting levels, one line, no `( ) { }` or quote inside;
+#   - a tuple-struct PATTERN is not a call: `Data::Struct(x) =>`, `Ok(t) =>`,
+#     `Some(1) | None =>`, `if let Some(x) =`, `let Wrapper(inner) = w;`. The name is
+#     capitalised (a variant or tuple struct; a guard's `if valid(x) =>` is a real
+#     call and stays), its balanced one-line argument list is followed -- after any
+#     closing `)`/`]` of an enclosing pattern, `Err(X::Gone(e)) =>` -- by `=>`, a
+#     pattern `|`, a binding `=` (never `==`, `=>`'s own `=` or `||`/`|=`), or a
+#     match guard's `if` (an expression never puts `if` after a call: no postfix `if`).
+#     Only the `|` may sit on the next line, as a multi-line arm writes it
+#     (`Type::Array(_)\n| Type::Tuple(_) =>`).
+# Every quantifier is bounded or runs over characters its neighbours cannot start
+# with (Rules 1-3); the pattern check runs only at a capitalised word start.
+_RUST_GENERIC_CHAR = r"[^<>(){}\n\"]"
+_RUST_TURBOFISH = (
+    r"::<(?:" + _RUST_GENERIC_CHAR + r"|<(?:" + _RUST_GENERIC_CHAR + r"|<" + _RUST_GENERIC_CHAR + r"{0,200}>){0,200}>)"
+    r"{1,200}>"
+)
+_RUST_BALANCED_ARGS = r"\((?:[^()\n]|\((?:[^()\n]|\([^()\n]{0,200}\)){0,200}\)){0,200}\)"
+_RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b)|\s{0,16}\|(?![|=]))"
+CALLS_OUT_RUST = re.compile(
+    r"\b(?![A-Z]\w{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
+    r"([a-zA-Z_]\w*)"
+    r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
+)
+
+# #3645 (contract C3): Go writes a conversion to a pointer or qualified type in
+# parentheses -- `(*gcBgMarkWorkerNode)(nodep)`, `(*uintptr)(unsafe.Pointer(p))`,
+# `(*unsafe.Pointer)(p)` -- and a conversion is a call. `\b(name)\s*\(` cannot see
+# the `)` between the type and its `(`. The first lookahead captures the callee (group 1,
+# so detector.py treats this like CALLS_OUT_C_STYLE; `pkg` becomes the qualifier)
+# either after a `(`/`(*`/`(pkg.` prefix or at the match start, and only where a
+# word starts (`(?<!\w)`: never re-scanned from inside one). The prefix form
+# needs `name)(`, the plain form `name(` -- and leaves its `(` unconsumed, so in
+# `return (*m)(p)` the conversion's `(` is still there to open a prefix. The prefix
+# also takes `**T` and an array type, `(*[2]Timeval)(p)`. A `(` that closes a call
+# (`h(next)(w)`, a call of the returned func) is no prefix: the `(` may not follow a
+# name, `)` or `]`. Every quantifier is bounded or runs over disjoint characters
+# (Rules 1-3).
+_GO_CONVERSION_PREFIX = r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[a-zA-Z_]\w{0,63}\.)?"
+CALLS_OUT_GO = re.compile(
+    r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([a-zA-Z_]\w*))"
+    r"(?:" + _GO_CONVERSION_PREFIX + r"[a-zA-Z_]\w{0,63}\)\(|\b[a-zA-Z_]\w*(?=\s*\())"
+)
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -210,6 +260,8 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_RUBY,
+    CALLS_OUT_RUST,
+    CALLS_OUT_GO,
 )
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)

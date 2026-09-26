@@ -63,6 +63,7 @@ DEFINITION: dict[str, Any] = {
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {
+                "throw",  # #3645: a keyword here; a real function in go/matlab/haskell
                 "this",
                 "synchronized",
                 # #3361: statement keywords here (`assert(x)`, a constructor's

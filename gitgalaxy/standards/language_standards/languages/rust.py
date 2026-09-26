@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_RUST, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -53,7 +53,7 @@ DEFINITION: dict[str, Any] = {
     "local_import_prefixes": ("crate::", "self::", "super::"),
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_RUST,  # #3643: macros, turbofish; patterns are not calls
         # #3359 (contract C2): keywords and special forms, never calls
         "_calls_out_ignore": frozenset(
             {
@@ -71,6 +71,10 @@ DEFINITION: dict[str, Any] = {
                 "else",
                 "impl",
                 "where",
+                # #3643: closure-trait bounds (`F: Fn(&T) -> R`, `impl FnOnce(u8)`) are types
+                "Fn",
+                "FnMut",
+                "FnOnce",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

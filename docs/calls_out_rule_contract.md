@@ -46,18 +46,25 @@ keyword followed by `(` is not a call: `if (`, `foreach (`, `elseif(`, `returns 
 `pub(crate)`, `let (a, b)`, `case (x, y)`, `not (`, `func() {...}`. A built-in or stdlib
 function is a call (decision 1): `print(`, `len(`, `printf(`, the `log` of `console.log(`,
 zig's `@intFromEnum(`. A load form that the `import` contract owns (`require(`, `import(`,
-`include`) is `import`'s, not a second signal here (COUNT_CONTRACT corollary 4).
+`include`) is `import`'s, not a second signal here (COUNT_CONTRACT corollary 4). Keywords are per
+language: `throw` is one in C++, Java and JavaScript, but go's runtime `throw("...")`, matlab's
+and haskell's are functions, so it sits in each keyword language's `_calls_out_ignore`, never in
+the global set (#3645).
 
 **C3 · Constructors, conversions and macros are calls to the name written.** `new Foo(a)`,
 Python `Foo(a)`, rust `Some(x)`, go `uint32(x)`, C `Py_DECREF(o)` and m4 `AC_DEFUN(...)` are all
-calls to `Foo` / `Some` / `uint32` / `Py_DECREF` / `AC_DEFUN`. The resolver matches the name to a
+calls to `Foo` / `Some` / `uint32` / `Py_DECREF` / `AC_DEFUN`. A go conversion to a parenthesized type,
+`(*T)(x)` or `(*unsafe.Pointer)(p)`, is a call to `T` / `Pointer` (#3645). The resolver matches the name to a
 class, type, variant or macro definition, or labels it `external`. A language whose indexing is
 spelled exactly like a call (matlab `x(1)`) cannot tell the two apart without types. That is an
 inherent limit, recorded per language, not something a rule fix can reach.
 A *pattern* is not a call, even though it is spelled like one (#3641, decided by Joe
 2026-09-25): rust `Data::Struct(x) =>` and `Ok(t) =>` in a `match`, and any destructuring
 pattern that only tests or binds, construct nothing. The same `Ok(t)` in an expression is a
-constructor call.
+constructor call. Rust's own pattern (`CALLS_OUT_RUST`, #3643) drops a capitalised `Name(…)` whose
+one-line argument list is followed by `=>`, a pattern `|`, a binding `=` or a guard `if`; it also
+takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). A closure-trait bound
+(`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract

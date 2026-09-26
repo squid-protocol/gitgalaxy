@@ -1340,7 +1340,7 @@
       "go/core/main.go": 0,
       "go/core/mgc.go": 2,
       "go/core/mutex.go": 1,
-      "go/core/proc.go": 2,
+      "go/core/proc.go": 3,
       "go/core/server.go": 3,
       "go/core/syscall_linux.go": 2,
       "go/core/value.go": 5

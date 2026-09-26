@@ -54,10 +54,6 @@ class Unit:
     at: dict = field(default_factory=dict)
 
 
-def _num(text: str | None, default: int) -> int:
-    return int(text) if text and text.isdigit() else default
-
-
 def pic_positions(pic: str) -> int | None:
     """Storage bytes of a PL/I picture: one per character position; V, K and F(n) take none,
     CR / DB two. `(4)9` repeats."""
@@ -86,13 +82,6 @@ def pic_positions(pic: str) -> int | None:
         else:
             return None
     return total
-
-
-_TYPE = re.compile(
-    r"\b(?P<base>CHAR(?:ACTER)?|BIT|FIXED|FLOAT|DEC(?:IMAL)?|BIN(?:ARY)?|POINTER|PTR|OFFSET|HANDLE|"
-    r"LABEL|ENTRY|FILE|AREA|FORMAT|TASK|EVENT|WIDECHAR|WCHAR|GRAPHIC|G)\b",
-    re.I,
-)
 
 
 def element(usage: str | None, pic: str | None, attributes: str, aligned: bool) -> tuple[int, int] | None:

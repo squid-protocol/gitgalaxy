@@ -381,6 +381,98 @@
           "Params": "CUST-REC,TRANSACTION-RECORD,TRAN-OK,TRAN-MSG"
         }
       ]
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": [
+        {
+          "Entry": "R00103",
+          "Kind": "PROCEDURE",
+          "Line": 26,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010420.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 28,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010421.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 20,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010422.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 21,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010423.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 23,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010424.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 21,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010425.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 22,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010426.pli": [
+        {
+          "Entry": "R001B1",
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R0010427.pli": [
+        {
+          "Entry": "R001427",
+          "Kind": "PROCEDURE",
+          "Line": 22,
+          "Params": "COMMAREA_PEKER"
+        }
+      ],
+      "pli/dsf_cics_admin/R001TK62.pli": [
+        {
+          "Entry": "R001T62",
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "COMMAREA_PEKER"
+        }
+      ]
+    },
+    "pli/zopeneditor_sample": {
+      "pli/zopeneditor_sample/PSAM2.pli": [
+        {
+          "Entry": "PSAM2",
+          "Kind": "PROCEDURE",
+          "Line": 2,
+          "Params": "CUSTFILE_RECORD,CUSTOMER_BALANCE_STATS"
+        }
+      ]
     }
   },
   "path": [

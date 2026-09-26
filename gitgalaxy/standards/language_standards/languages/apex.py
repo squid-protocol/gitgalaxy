@@ -43,6 +43,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        "_calls_out_ignore": frozenset({"throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes switch on/when and DML try-catch.
         # #2545: `return` removed -- was phantom-counting every early-return method as a

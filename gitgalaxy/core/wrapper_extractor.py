@@ -46,6 +46,9 @@ from typing import Any, Callable, Optional
 # filter so a macro body's `while (0)` is not recorded as a callee.
 from gitgalaxy.core.detector import _CALLS_OUT_GLOBAL_IGNORE
 
+# A C/C++ macro body: C++'s `throw` is a keyword there (#3645 moved it out of the global set).
+_MACRO_IGNORE = _CALLS_OUT_GLOBAL_IGNORE | {"throw"}
+
 # The literal-vocabulary rules the wrapper channel covers (#3313): the two
 # step 1 measured, plus the allocator case step 2 measured on full clones.
 WRAPPER_RULES = ("debug_prints", "panics_and_aborts", "memory_alloc")
@@ -178,9 +181,7 @@ def extract_wrapper_facts(
             body = m.group(3).replace("\\\n", " ")
             hits = sorted(rule for rule, pattern in patterns.items() if pattern.search(body))
             params = {p.strip() for p in m.group(2).split(",")}
-            called = [
-                c for c in dict.fromkeys(_CALLED.findall(body)) if c not in _CALLS_OUT_GLOBAL_IGNORE and c not in params
-            ]
+            called = [c for c in dict.fromkeys(_CALLED.findall(body)) if c not in _MACRO_IGNORE and c not in params]
             called = called[:_MAX_CALLEES]
             if hits or called:
                 macros.append({"name": m.group(1), "hits": hits, "called": called})

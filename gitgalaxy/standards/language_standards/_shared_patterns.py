@@ -202,6 +202,25 @@ CALLS_OUT_RUBY = re.compile(
     re.M,
 )
 
+# #3645 (contract C3): Go writes a conversion to a pointer or qualified type in
+# parentheses -- `(*gcBgMarkWorkerNode)(nodep)`, `(*uintptr)(unsafe.Pointer(p))`,
+# `(*unsafe.Pointer)(p)` -- and a conversion is a call. `\b(name)\s*\(` cannot see
+# the `)` between the type and its `(`. The first lookahead captures the callee (group 1,
+# so detector.py treats this like CALLS_OUT_C_STYLE; `pkg` becomes the qualifier)
+# either after a `(`/`(*`/`(pkg.` prefix or at the match start, and only where a
+# word starts (`(?<!\w)`: never re-scanned from inside one). The prefix form
+# needs `name)(`, the plain form `name(` -- and leaves its `(` unconsumed, so in
+# `return (*m)(p)` the conversion's `(` is still there to open a prefix. The prefix
+# also takes `**T` and an array type, `(*[2]Timeval)(p)`. A `(` that closes a call
+# (`h(next)(w)`, a call of the returned func) is no prefix: the `(` may not follow a
+# name, `)` or `]`. Every quantifier is bounded or runs over disjoint characters
+# (Rules 1-3).
+_GO_CONVERSION_PREFIX = r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[a-zA-Z_]\w{0,63}\.)?"
+CALLS_OUT_GO = re.compile(
+    r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([a-zA-Z_]\w*))"
+    r"(?:" + _GO_CONVERSION_PREFIX + r"[a-zA-Z_]\w{0,63}\)\(|\b[a-zA-Z_]\w*(?=\s*\())"
+)
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -210,6 +229,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_RUBY,
+    CALLS_OUT_GO,
 )
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)

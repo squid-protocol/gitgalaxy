@@ -42,6 +42,7 @@ DEFINITION: dict[str, Any] = {
         "calls_out": CALLS_OUT_COMMAND_POSITION,
         "_calls_out_ignore": frozenset(
             {
+                "throw",  # #3645: a keyword here; a real function in go/matlab/haskell
                 "on",
                 "end",
                 "then",

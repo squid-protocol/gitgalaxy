@@ -46,11 +46,15 @@ keyword followed by `(` is not a call: `if (`, `foreach (`, `elseif(`, `returns 
 `pub(crate)`, `let (a, b)`, `case (x, y)`, `not (`, `func() {...}`. A built-in or stdlib
 function is a call (decision 1): `print(`, `len(`, `printf(`, the `log` of `console.log(`,
 zig's `@intFromEnum(`. A load form that the `import` contract owns (`require(`, `import(`,
-`include`) is `import`'s, not a second signal here (COUNT_CONTRACT corollary 4).
+`include`) is `import`'s, not a second signal here (COUNT_CONTRACT corollary 4). Keywords are per
+language: `throw` is one in C++, Java and JavaScript, but go's runtime `throw("...")`, matlab's
+and haskell's are functions, so it sits in each keyword language's `_calls_out_ignore`, never in
+the global set (#3645).
 
 **C3 · Constructors, conversions and macros are calls to the name written.** `new Foo(a)`,
 Python `Foo(a)`, rust `Some(x)`, go `uint32(x)`, C `Py_DECREF(o)` and m4 `AC_DEFUN(...)` are all
-calls to `Foo` / `Some` / `uint32` / `Py_DECREF` / `AC_DEFUN`. The resolver matches the name to a
+calls to `Foo` / `Some` / `uint32` / `Py_DECREF` / `AC_DEFUN`. A go conversion to a parenthesized type,
+`(*T)(x)` or `(*unsafe.Pointer)(p)`, is a call to `T` / `Pointer` (#3645). The resolver matches the name to a
 class, type, variant or macro definition, or labels it `external`. A language whose indexing is
 spelled exactly like a call (matlab `x(1)`) cannot tell the two apart without types. That is an
 inherent limit, recorded per language, not something a rule fix can reach.

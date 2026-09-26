@@ -1429,7 +1429,8 @@ _CALLS_OUT_GLOBAL_IGNORE = frozenset(
         "alignof",
         "decltype",
         "using",
-        "throw",
+        # #3645: no `throw` -- a keyword in C++/Java/JS, but go's runtime `throw("...")`,
+        # matlab and haskell call a real function. It lives in each keyword language's own set.
         "await",
         "import",
         "require",

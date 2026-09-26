@@ -53,7 +53,7 @@ def test_generic_pattern_is_registered_and_used():
     assert CALLS_OUT_C_STYLE_GENERIC in QUALIFIED_CALLS_OUT_PATTERNS
     for lang in ("cpp", "typescript", "csharp"):
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE_GENERIC
-    for lang in ("c", "javascript", "python", "go"):
+    for lang in ("c", "javascript", "python"):  # go has its own since #3645
         assert LANGUAGE_DEFINITIONS[lang]["rules"]["calls_out"] is CALLS_OUT_C_STYLE
 
 

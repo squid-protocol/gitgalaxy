@@ -1340,8 +1340,8 @@
       "go/core/main.go": 2.517,
       "go/core/mgc.go": 2.447,
       "go/core/mutex.go": 0.154,
-      "go/core/proc.go": 1.327,
-      "go/core/server.go": 0.836,
+      "go/core/proc.go": 1.385,
+      "go/core/server.go": 0.856,
       "go/core/syscall_linux.go": 0.621,
       "go/core/value.go": 1.313
     },

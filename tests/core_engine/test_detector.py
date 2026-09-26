@@ -2886,6 +2886,65 @@ def test_detector_ts_js_quoted_method_key_after_modifier_is_not_named_by_the_mod
         assert names == ['"array-objects"', "'single-q'", "get", "async"], f"[{lang}] {names}"
 
 
+def test_detector_ts_js_def_shape_separates_bindings_members_and_signatures():
+    """
+    #3757/#3758/#3759: only a declaration binds a name a bare call can reach
+    (`function f`, `const/let/var f =`); an object-literal method, an object
+    property or a member assignment is reached through its object, and a bodyless
+    signature (interface member, `abstract` method, overload) runs no code. The
+    call resolver reads this as `def_shape`.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "export function optional(x) {\n"
+        "  return x;\n"
+        "}\n"
+        "const Node = () => z.object({});\n"
+        "let f2 = function () { return 1; };\n"
+        "const o = { clone(def) { return 1; }, prop: () => 2 };\n"
+        "inst.parse = (payload) => {\n"
+        "  return payload;\n"
+        "};\n"
+    )
+    ts_only = (
+        "export interface Z {\n"
+        "  check(a: number): this;\n"
+        "}\n"
+        "abstract class A {\n"
+        "  abstract _parse(input: string): number;\n"
+        "}\n"
+        "function over(a: string): void;\n"
+        "function over(a: any) {}\n"
+    )
+    expected = {"optional": "binding", "Node": "binding", "f2": "binding", "clone": "member", "parse": "member"}
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        satellites, _ = detector._slice_by_braces(code, lang, LANGUAGE_DEFINITIONS[lang]["rules"], 0, {})
+        got = {s["name"]: s.get("def_shape") for s in satellites if s["name"] in expected}
+        # javascript does not extract the one-line object-literal method at all
+        # (a separate recall gap); every unit it does extract has the right shape
+        assert got == {n: expected[n] for n in got}, f"[{lang}] {got}"
+        assert set(got) == set(expected) - ({"clone"} if lang == "javascript" else set()), f"[{lang}] {got}"
+
+    detector = StructuralExtractor("typescript", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    satellites, _ = detector._slice_by_braces(ts_only, "typescript", rules, 0, {})
+    assert [(s["name"], s.get("def_shape")) for s in satellites] == [
+        ("check", "signature"),
+        ("_parse", "signature"),
+        ("over", "signature"),
+        ("over", "binding"),
+    ]
+
+    # other languages leave it unset
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_sats, _ = c_detector._slice_by_braces(
+        "int f(void) {\n  return 1;\n}\n", "c", LANGUAGE_DEFINITIONS["c"]["rules"], 0, {}
+    )
+    assert c_sats and all("def_shape" not in s for s in c_sats)
+
+
 def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
     """
     The safe_code-matching fix above is deliberately gated to

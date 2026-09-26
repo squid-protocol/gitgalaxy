@@ -32,6 +32,23 @@ The receiver chain written before a C-style call (`utils.parse`, `self.save`,
 keeps `d.get()` on a dictionary from landing on the repository's one `get`
 method. **Ambiguous pairs are never graph edges.**
 
+In TypeScript and JavaScript the detector also records what each definition is
+(`function_data.def_shape`, #3757), because only some shapes can be called by name:
+
+- **`binding`**: `function f`, `const/let/var f = ...`. The only shape a bare call
+  `f()` can reach. When a file has several bindings of the name in different
+  scopes (a `const Node = ...` in each test callback), the call goes to the
+  nearest one written before it, or to the last one when none precedes it,
+  because a function declaration is hoisted (#3759).
+- **`member`**: an object-literal method `f() {}`, an object property
+  `f: () => ...`, or a member assignment `x.f = () => ...`. Only reachable through
+  its object, so a bare call never lands on it (#3758).
+- **`signature`**: an interface member, an `abstract` method, or an overload
+  signature. No code runs there, so it is never a call target (#3757). A call to
+  an overloaded function reaches its implementation.
+
+Other languages leave `def_shape` NULL and resolve as before.
+
 ## Edge kinds
 
 `fcall_data.kind` says what a row's link is. Every kind resolves down the same ladder;
@@ -80,11 +97,11 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
 - **Two reference tools, two languages.** pyan3 is a reference, not ground truth: a
   hand-checked sample of edges it has and GitGalaxy does not were pyan inferences with
   no basis in the source (a getter that only reads an attribute). TypeScript is measured
-  against the compiler's own type checker on zod: 99.6% confident precision over 1,519
-  judged links, 56.9% recall, 73.7% resolution recall. The checker also shows that 52
+  against the compiler's own type checker on zod: 99.9% confident precision over 1,520
+  judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
-  `map.get()`), so strict precision is 96.3%. Other languages run the same machinery
-  unmeasured.
+  `map.get()`), so strict precision is 96.6% (#3756). Other languages run the same
+  machinery unmeasured.
 - **Tuned on the corpus it is scored on.** Every change above was found and verified on
   language-crucible's Python repos; a held-out check has not been run.
 - **What stays out of reach without types.** `x.method()` where `x` comes from a loop over

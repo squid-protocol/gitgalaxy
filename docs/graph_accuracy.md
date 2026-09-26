@@ -63,8 +63,9 @@ the type checker which declaration each call and `new` resolves to. Scoring is t
   engine link to the repo's own `ZodString.trim()` is provably wrong. These are reported as
   `confident_strict_precision_pct`, which is agree / (agree + wrong + external). The number is
   baselined but not gated yet.
-- **`unmapped`** counts engine links with an end the checker has no function for. On zod these
-  are almost all bodyless signatures: interface methods, `abstract` methods and type members.
+- **`unmapped`** counts engine links with an end the checker has no function for. Before
+  `def_shape` (#3757) there were 216 of these on zod, almost all links to bodyless signatures
+  (interface methods, `abstract` methods, type members). Now 10 remain.
 - **The corpus is the pinned import-graph repos, not language-crucible.** The crucible's
   TypeScript samples are flattened, so no relative import resolves and the checker would see
   almost nothing. Fetch with `import_graph_accuracy.py --fetch-only`. The checker's version is

@@ -662,3 +662,87 @@ def test_a_nested_definition_wins_over_the_files_first():
     for s in resolve_calls(files)[0]:
         if s["callee"] == "wrapper":
             assert s["dst_line"] == 12, s["kind"]
+
+
+def _ts(name, line, shape, owner=None, calls=(), quals=None):
+    f = _fn(name, line, owner=owner, calls=calls, quals=quals)
+    f["def_shape"] = shape
+    return f
+
+
+def test_bare_call_never_reaches_an_object_literal_member_3758():
+    # zod v4/classic/in-out.ts: `import { clone } from "../core/util.js"` plus
+    # `import * as schemas from "./schemas.js"`, whose `clone(def, params) {` is an
+    # object-literal method. A bare `clone(...)` can only mean the bound function.
+    files = [
+        _file(
+            "classic/in-out.ts",
+            "typescript",
+            [_ts("withChecks", 11, "binding", calls=["clone"], quals={"clone": [""]})],
+        ),
+        _file("classic/schemas.ts", "typescript", [_ts("clone", 202, "member")]),
+        _file("core/util.ts", "typescript", [_ts("clone", 645, "binding")]),
+    ]
+    edges = [
+        {"src": "classic/in-out.ts", "dst": "classic/schemas.ts", "edge_kind": "import"},
+        {"src": "classic/in-out.ts", "dst": "core/util.ts", "edge_kind": "import"},
+    ]
+    row = _site(resolve_calls(files, edges)[0], "clone")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("import", "core/util.ts", 645)
+
+
+def test_signature_is_never_a_call_target_3757():
+    # an interface member / abstract method / overload signature runs no code:
+    # the overload's implementation is the target, and a name that only has a
+    # signature resolves to nothing in the repository
+    files = [
+        _file(
+            "a.ts",
+            "typescript",
+            [
+                _ts("over", 1, "signature"),
+                _ts("over", 2, "binding"),
+                _ts("check", 5, "signature", owner="ZodType"),
+                _ts("main", 9, "binding", calls=["over", "check"], quals={"over": [""], "check": ["schema"]}),
+            ],
+        )
+    ]
+    sites, _ = resolve_calls(files)
+    assert (_site(sites, "over")["dst_line"], _site(sites, "over")["step"]) == (2, "file")
+    assert _site(sites, "check")["step"] == "none"
+
+
+def test_block_scoped_bindings_resolve_to_the_nearest_preceding_3759():
+    # zod cyclic-data.test.ts: a `const Node = ...` in each test callback, each
+    # called by a getter written inside it
+    nodes = [_ts("Node", line, "binding") for line in (726, 758, 798, 910)]
+    callers = [
+        _ts("kids", 729, "member", calls=["Node"], quals={"Node": [""]}),
+        _ts("self", 760, "member", calls=["Node"], quals={"Node": [""]}),
+        _ts("kids", 912, "member", calls=["Node"], quals={"Node": [""]}),
+    ]
+    sites, _ = resolve_calls([_file("t.test.ts", "typescript", nodes + callers)])
+    got = sorted((s["src_line"], s["dst_line"]) for s in sites if s["callee"] == "Node")
+    assert got == [(729, 726), (760, 758), (912, 910)]
+
+
+def test_hoisted_binding_called_before_every_definition_takes_the_last():
+    files = [
+        _file(
+            "h.js",
+            "javascript",
+            [
+                _ts("main", 1, "binding", calls=["helper"], quals={"helper": [""]}),
+                _ts("helper", 5, "binding"),
+                _ts("helper", 9, "binding"),
+            ],
+        )
+    ]
+    assert _site(resolve_calls(files)[0], "helper")["dst_line"] == 9
+
+
+def test_python_same_file_redefinitions_are_left_alone():
+    # the nearest-preceding rule is block-scoped languages only: a python module
+    # may legally redefine a function, and the resolver keeps its existing pick
+    files = [_file("m.py", "python", [_fn("f", 1), _fn("main", 3, calls=["f"], quals={"f": [""]}), _fn("f", 6)])]
+    assert _site(resolve_calls(files)[0], "f")["dst_line"] == 1

@@ -318,7 +318,7 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 
 class _Definition:
-    __slots__ = ("dir", "kind", "line", "name", "owner_key", "parts", "path", "stem")
+    __slots__ = ("dir", "kind", "line", "name", "owner_key", "parts", "path", "shape", "stem")
 
     def __init__(
         self,
@@ -330,6 +330,7 @@ class _Definition:
         line: int,
         owner_key: Optional[str],
         kind: str,
+        shape: Optional[str] = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -339,6 +340,8 @@ class _Definition:
         self.line = line
         self.owner_key = owner_key  # the owning class's name key, None for a free function
         self.kind = kind  # 'function' | 'class'
+        # typescript/javascript (#3757): 'binding' | 'member'; None elsewhere
+        self.shape = shape
 
 
 class _Set:
@@ -415,7 +418,11 @@ class _Bucket:
     @property
     def free(self) -> _Set:
         if self._free is None:
-            self._free = _Set([d for d in self.defs if d.kind == "class" or d.owner_key is None])
+            # #3758/#3759: an object-literal method or a member assignment has no
+            # owning class but binds no name either -- a bare call cannot reach it
+            self._free = _Set(
+                [d for d in self.defs if (d.kind == "class" or d.owner_key is None) and d.shape != "member"]
+            )
         return self._free
 
     @property
@@ -442,6 +449,11 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
         for func in f.get("functions", []) or []:
             if func.get("is_synthetic_slice"):
                 continue
+            shape = func.get("def_shape") or None
+            if shape == "signature":
+                # #3757: an interface member, an `abstract` method, an overload
+                # signature -- no code runs there, so no call lands there
+                continue
             name = str(func.get("name") or "")
             leaf, prefix = _leaf(name)
             if not leaf:
@@ -449,7 +461,9 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             owner = func.get("parent_class_name") or prefix
             owner_key = _key(_leaf(owner)[0], lang) if owner else None
             index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
-                _Definition(path, dir_, parts, stem, name, int(func.get("start_line", 0) or 0), owner_key, "function")
+                _Definition(
+                    path, dir_, parts, stem, name, int(func.get("start_line", 0) or 0), owner_key, "function", shape
+                )
             )
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name") or "")
@@ -786,6 +800,26 @@ def _resolve_one(
     return _ladder(bucket.all if ownerless else bucket.methods, caller, True, cache)
 
 
+# #3759: languages where one file holds several bindings of a name only in
+# different scopes -- a `const Node = ...` in each test callback, a helper nested
+# in two functions. A second binding in ONE scope is an error there (an overload
+# signature is not a binding, #3757), so the binding a bare call sees is the
+# nearest one written before it, its own scope's or an enclosing one's, or, when
+# none precedes, the last (a function declaration is hoisted). Python is not
+# listed: a module-level redefinition is legal and the last one wins at runtime.
+_BLOCK_SCOPED_LANGS = frozenset({"typescript", "javascript"})
+
+
+def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> Optional[_Definition]:
+    """Among several same-file bindings a bare call can reach (`bucket.free`), the
+    one a call at `caller_line` sees; None with fewer than two."""
+    same = [d for d in bucket.free.defs if d.path == path and d.kind == "function"]
+    if len(same) < 2:
+        return None
+    before = [d for d in same if d.line <= caller_line]
+    return max(before or same, key=lambda d: d.line)
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: Optional[list[dict[str, Any]]] = None,
@@ -893,6 +927,18 @@ def resolve_calls(
                     ]
                     if nested and not (caller_line < dst.line <= caller_end):
                         dst = min(nested, key=lambda d: d.line)
+                if (
+                    kind in ("call", "reference")
+                    and not used
+                    and lang in _BLOCK_SCOPED_LANGS
+                    and bucket is not None
+                    and dst is not None
+                    and dst.path == src_path
+                    and dst.kind == "function"
+                    and dst.owner_key is None
+                    and not (caller_line < dst.line <= caller_end)
+                ):
+                    dst = _in_scope_same_file(bucket, src_path, caller_line) or dst
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.

@@ -272,3 +272,18 @@ def test_references_and_loc_persist_and_rehydrate(tmp_path):
         {"helper": [""]},
         7,
     )
+
+
+def test_def_shape_persists_and_rehydrates(tmp_path):
+    # #3757: a delta scan resolves rehydrated functions, so the shape the resolver
+    # reads (typescript/javascript 'binding' | 'member' | 'signature') must survive
+    # the DB round trip; other languages store NULL and rehydrate without it
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["def_shape"] = "member"
+    _record(db, files)
+    assert _rows(db, "SELECT def_shape FROM function_data WHERE func_name = 'main'") == [("member",)]
+    assert _rows(db, "SELECT COUNT(*) FROM function_data WHERE def_shape IS NULL AND func_name != 'main'")[0][0] > 0
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    main = [f for node in cache.values() for f in node["functions"] if f["name"] == "main"]
+    assert main[0]["def_shape"] == "member"

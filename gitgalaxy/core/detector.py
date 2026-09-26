@@ -128,6 +128,8 @@ class FunctionNode(TypedDict, total=False):
 
     name: str
     parent_class_name: str
+    # typescript/javascript only (#3757): 'binding' | 'member' | 'signature'
+    def_shape: str
     usage_status: int
 
     # #2908 Phase 2: per-unit public/documented flags feeding the
@@ -1546,6 +1548,28 @@ def _ts_js_quoted_method_name(code: str, match: "re.Match[str]") -> Optional[str
         return None
     key = _TS_JS_QUOTED_METHOD_KEY.match(code, match.end(group))
     return f"{key.group(1)}{key.group(2)}{key.group(1)}" if key else None
+
+
+# #3757/#3758/#3759: what a TS/JS definition IS, which decides what can call it.
+# Only a declaration binds a name a bare call can reach (`function f`, `const f =`,
+# `let`/`var`, `class`); a method shorthand (`f() {}` in an object literal), an
+# object property (`f: () => ...`) or a member assignment (`x.f = () => ...`) is
+# reached only through its object, and a bodyless signature (an interface member,
+# an `abstract` method, an overload) is never code that runs. Recorded as
+# `def_shape` so the call resolver can tell them apart; every other language
+# leaves it unset (unknown, treated as before).
+_TS_JS_BINDING_KEYWORD = re.compile(r"\b(?:function|const|let|var|class)\b")
+
+
+def _ts_js_def_shape(code: str, match: "re.Match[str]", bodyless: bool) -> str:
+    """`signature`, `binding` or `member` for a typescript/javascript func_start match."""
+    if bodyless:
+        return "signature"
+    name_end = match.end(match.lastindex or 0)
+    decl = code[code.rfind("\n", 0, name_end) + 1 : name_end]
+    # only the statement the name belongs to: `const o = { f() {` is a member
+    segment = decl[max(decl.rfind(c) for c in "{;,(") + 1 :]
+    return "binding" if _TS_JS_BINDING_KEYWORD.search(segment) else "member"
 
 
 # #2547: satellite names the structural slicer synthesizes for languages/modes with
@@ -5610,6 +5634,7 @@ class StructuralExtractor:
 
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
+            ts_bodyless = False  # #3757: set by the typescript/javascript terminator scan
 
             # #2933: scheme's func_start leads with `^[ \t\n]*` under re.M, whose
             # newline-inclusive class swallows the blank/blanked-comment lines
@@ -6487,6 +6512,8 @@ class StructuralExtractor:
                             break  # bodyless prototype
                     pos += 1
 
+                # a `;` (or no terminator at all, #2278) before any body: a signature
+                ts_bodyless = term_kind not in ("brace", "arrow")
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "arrow":
@@ -6795,6 +6822,8 @@ class StructuralExtractor:
                 args_search_text,
                 args_count_override,
             )
+            if lang_id in ("typescript", "javascript"):
+                sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
             satellites.append(sat)
             sum_fxn_impact += mag
 

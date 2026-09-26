@@ -125,6 +125,18 @@ def _disp(value: Optional[str]) -> Optional[str]:
     return v or "NEW"  # DISP=(,CATLG) is NEW
 
 
+_NORMAL_ENDS = ("KEEP", "CATLG", "DELETE", "PASS", "UNCATLG")
+
+
+def _disp_normal(value: Optional[str]) -> Optional[str]:
+    """#3622: DISP's normal-end disposition -- `(MOD,DELETE,DELETE)` -> DELETE -- or None."""
+    if value is None:
+        return None
+    parts = value.strip("()").split(",")
+    end = parts[1].strip().upper() if len(parts) > 1 else ""
+    return end if end in _NORMAL_ENDS else None
+
+
 def _generation(text: str) -> str:
     """A GDG relative generation as `+1` / `0` / `-1`."""
     n = int(text)
@@ -213,6 +225,7 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             if gen:
                 dsn = dsn[: gen.start()]
             disp = _disp(keyed.get("DISP")) or "NEW"
+            normal = _disp_normal(keyed.get("DISP"))
             rows.append(
                 dict(
                     blank,
@@ -224,6 +237,8 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
                     generation=_generation(gen.group(1)) if gen else None,
                     in_proc=in_proc,
                     line=line,
+                    # #3622: presence-keyed -- a DD without a normal-end disposition keeps its pre-#3622 shape
+                    **({"disp_normal": normal} if normal else {}),
                 )
             )
     return rows

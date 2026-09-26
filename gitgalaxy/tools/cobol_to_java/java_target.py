@@ -32,6 +32,7 @@ DTO_STYLES = ("class", "record")  # a transient record (DFHCOMMAREA): a class, o
 DATABASES = ("postgresql", "db2", "oracle", "mysql", "h2")
 DDL_AUTO = ("none", "validate", "update", "create", "create-drop")
 UI_FLAVOURS = ("none", "thymeleaf", "openapi-only")  # #3619: what the BMS screens become beyond view models
+MESSAGING = ("in-memory", "jms", "kafka")  # #3620: the adapter behind the TD / MQ message port
 REMOTE_CALLS = ("http", "local")  # a DPL LINK to another region: an HTTP client, or the in-process bean
 
 # Per database: (Maven groupId, artifactId) of the JDBC driver -- versions come from the
@@ -101,6 +102,7 @@ class Features:
 @dataclass
 class Integration:
     remote_calls: str = "http"  # #3616: a LINK the CSD routes to another region (REMOTESYSTEM / SYSID)
+    messaging: str = "in-memory"  # #3620: TD intrapartition + MQ queues -> in-process | JMS (Artemis) | Kafka
 
 
 @dataclass
@@ -156,6 +158,7 @@ def _check(target: JavaTarget) -> None:
         ("database.engine", d.engine, DATABASES),
         ("database.ddl_auto", d.ddl_auto, DDL_AUTO),
         ("integration.remote_calls", target.integration.remote_calls, REMOTE_CALLS),
+        ("integration.messaging", target.integration.messaging, MESSAGING),
         ("ui.flavour", target.ui.flavour, UI_FLAVOURS),
     ):
         if value not in allowed:
@@ -261,6 +264,8 @@ features:
 integration:
   remote_calls: http                    # {" | ".join(REMOTE_CALLS)}  (a LINK the CSD routes to another region:
                                         #   http = a RestTemplate client per region, local = call the bean in-process)
+  messaging: in-memory                  # {" | ".join(MESSAGING)}  (TD intrapartition + MQ queues: an in-process
+                                        #   queue, JMS through Spring's Artemis starter, or Kafka topics)
 
 ui:
   flavour: none                         # {" | ".join(UI_FLAVOURS)}  (BMS screens: view models only,

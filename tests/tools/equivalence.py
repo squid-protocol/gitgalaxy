@@ -163,7 +163,8 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     script.append(f"cobc -x {flags} -o program src/EQDRIVER.cbl src/PROGRAM.cbl")
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
-    script.append(f"{clock}{env} ./program > /work/stdout.txt 2>&1 || (cat /work/stdout.txt; exit 1)")
+    # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
+    script.append(f"set +e; {clock}{env} ./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
             script.append(f"{dd}=/work/{dd}.idx OUTFILE=/work/{dd}.out ./ul{dd}")
@@ -176,7 +177,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     )  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
-    return {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items() if spec.get("compare")}
+    outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items() if spec.get("compare")}
+    outs["RETURN-CODE"] = (work / "RETURN-CODE").read_text(encoding="ascii").strip().encode()
+    return outs
 
 
 def build_image() -> None:
@@ -291,6 +294,8 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
     lines = [f"# {case['program']} -- COBOL vs Java ({report['java']})", "",
              f"Case `{case['name']}`: {case['corpus']} `{case['program_source']}`, job {case.get('job')} step "
              f"{case.get('step')}, PARM `{case.get('parm')}`, clock `{case.get('clock')}`.", "",
+             f"RETURN-CODE: COBOL `{report.get('return_code', {}).get('cobol')}`, Java "
+             f"`{report.get('return_code', {}).get('java')}`.", "",
              "| output | records equal | total |", "|---|---|---|"]  # fmt: skip
     for dd, d in report["outputs"].items():
         lines.append(f"| {dd} | {d['equal']} | {d['records']} |")
@@ -320,6 +325,11 @@ def main() -> int:
     r.add_argument("case")
     r.add_argument("--keep", type=Path, help="work directory to keep (default: a temporary one)")
     r.add_argument("--cobol-only", action="store_true", help="run the COBOL side and print its outputs' shape")
+    r.add_argument(
+        "--port",
+        type=Path,
+        help="a port directory to prove instead of the case's own (laid out under com/gitgalaxy/modernized)",
+    )
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     sub.add_parser("list")
@@ -338,14 +348,20 @@ def main() -> int:
     cobol = run_cobol(case, corpus, work / "cobol")
     if args.cobol_only:
         for dd, data in cobol.items():
+            if dd == "RETURN-CODE":
+                print(f"RETURN-CODE: {data.decode()}")
+                continue
             print(f"{dd}: {len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records")
         return 0
     import equivalence_java as ej
 
-    java = ej.run_java(case, corpus, work / "java", work / "cobol", port=not args.generated_only)
+    java = ej.run_java(case, corpus, work / "java", work / "cobol", port=not args.generated_only, port_dir=args.port)
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
-                              "java": "generated" if args.generated_only else "ported"}  # fmt: skip
-    ok = True
+                              "java": "generated" if args.generated_only else "ported",
+                              "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
+    rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
+    report["return_code"] = rc
+    ok = rc["cobol"] == rc["java"]
     for dd, spec in case["datasets"].items():
         if not spec.get("compare"):
             continue
@@ -355,6 +371,10 @@ def main() -> int:
         ok &= d["equal"] == d["records"] and not d["diffs"]
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
+    print(
+        f"{case['program']} RETURN-CODE: COBOL {rc['cobol']}, Java {rc['java']}"
+        + ("" if rc["cobol"] == rc["java"] else "  <-- differs")
+    )
     for dd, d in report["outputs"].items():
         print(f"{case['program']} {dd}: {d['equal']}/{d['records']} records equal")
         for x in d["diffs"][:10]:

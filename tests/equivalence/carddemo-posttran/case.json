@@ -1,0 +1,26 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "CBTRN02C",
+  "program_source": "app/cbl/CBTRN02C.cbl",
+  "copy_dirs": ["app/cpy"],
+  "job": "POSTTRAN",
+  "step": "STEP15",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "DALYTRAN": {"input": "app/data/ASCII/dailytran.txt", "organization": "sequential", "reclen": 350},
+    "XREFFILE": {"input": "app/data/ASCII/cardxref.txt", "organization": "indexed", "reclen": 50,
+                 "keys": [{"offset": 0, "length": 16}], "entity": "CardXrefRecord"},
+    "ACCTFILE": {"input": "app/data/ASCII/acctdata.txt", "organization": "indexed", "reclen": 300,
+                 "keys": [{"offset": 0, "length": 11}], "entity": "AccountRecord",
+                 "compare": true, "copybook": "app/cpy/CVACT01Y.cpy"},
+    "TCATBALF": {"input": "app/data/ASCII/tcatbal.txt", "organization": "indexed", "reclen": 50,
+                 "keys": [{"offset": 0, "length": 17}], "entity": "FdTranCatBalRecord",
+                 "compare": true, "copybook": "app/cpy/CVTRA01Y.cpy"},
+    "TRANFILE": {"organization": "indexed", "reclen": 350, "keys": [{"offset": 0, "length": 16}],
+                 "entity": "TranRecord", "compare": true, "copybook": "app/cpy/CVTRA05Y.cpy"},
+    "DALYREJS": {"organization": "sequential", "reclen": 430, "compare": true,
+                 "copybook": "app/cbl/CBTRN02C.cbl", "record": "FD-REJS-RECORD"}
+  },
+  "notes": "Job POSTTRAN step STEP15: CardDemo's own daily transactions posted against its accounts, cross references and category balances. Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

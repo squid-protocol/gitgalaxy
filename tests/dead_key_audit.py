@@ -231,6 +231,10 @@ ALLOWLIST = {
     # #3624: job_flow keys an EXEC's operands by the keyword it parsed (`_split`), so PARM is
     # written -- as the JCL text's own keyword, never as a literal the walker can trace.
     "PARM": "JCL EXEC keyword, written via job_flow._split's parsed operands (job_flow.py, #3624)",
+    # #3753: the porting loop reads documents other programs write -- an OpenAI-compatible
+    # chat response and the equivalence harness's report.json (tests/tools/equivalence.py).
+    "choices": "OpenAI-compatible chat completion response field, written by the model server (port_runner.py, #3753)",
+    "equal": "equivalence report.json per-output count, written by tests/tools/equivalence.py (port_runner.py, #3753)",
     # #3356: the same tokenizer's attributes that _csd_resources lifts into
     # csd_resource_data's join columns.
     **{

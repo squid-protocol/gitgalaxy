@@ -100,3 +100,8 @@ def test_a_missing_api_key_stops_before_any_request(project, monkeypatch):
     with pytest.raises(SystemExit, match="NO_SUCH_KEY_VAR is not set"):
         pr.main(["run", str(project), "--ticket", "POSTIT", "--backend", "anthropic", "--model", "m",
                  "--api-key-env", "NO_SUCH_KEY_VAR"])  # fmt: skip
+
+
+def test_a_backend_url_must_be_http():
+    with pytest.raises(SystemExit, match="must be http"):
+        pr._post("file:///etc/passwd", {}, {}, 5)

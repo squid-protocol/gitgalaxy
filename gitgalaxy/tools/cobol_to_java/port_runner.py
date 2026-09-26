@@ -38,6 +38,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -98,9 +99,13 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
 
 # ---- the backends --------------------------------------------------------------------
 def _post(url: str, payload: dict[str, Any], headers: dict[str, str], timeout: int) -> dict[str, Any]:
+    if urllib.parse.urlsplit(url).scheme not in ("http", "https"):  # never file: or a custom scheme
+        raise SystemExit(f"backend URL must be http(s): {url}")
     headers = {"Content-Type": "application/json", **headers}
-    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)  # noqa: S310 -- see below
-    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- a URL the operator configured
+    req = urllib.request.Request(url, data=json.dumps(payload).encode(), headers=headers)  # noqa: S310 -- http(s) only
+    # The operator's own endpoint, checked http(s) above.
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 -- http(s) only, checked above
         return json.loads(resp.read().decode())
 
 

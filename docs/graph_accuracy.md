@@ -69,7 +69,8 @@ the type checker which declaration each call and `new` resolves to. Scoring is t
   TypeScript samples are flattened, so no relative import resolves and the checker would see
   almost nothing. Fetch with `import_graph_accuracy.py --fetch-only`. The checker's version is
   pinned (`TYPESCRIPT_VERSION`). A different version prints a warning under `--ci`, and
-  `--regenerate` refuses to run with it.
+  `--regenerate` refuses to run with it. TypeScript 7 (the native Go port, npm's `latest`) can't serve as the reference:
+  its package ships no JavaScript compiler API. The script exits with a message saying so.
 - **It is a reference, not ground truth.** An `any` receiver or an unresolved package import
   (zod is not `npm install`ed) leaves the checker silent. Those links count as `unconfirmed`,
   never as `wrong`.

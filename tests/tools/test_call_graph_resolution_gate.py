@@ -99,8 +99,11 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     if shutil.which("node") is None:
         pytest.skip("node is not installed")
     env = cgr._node_env()
-    if subprocess.run(["node", "-e", "require('typescript')"], env=env, capture_output=True).returncode:
-        pytest.skip("the typescript package is not on NODE_PATH")
+    # a typescript whose package has the JavaScript compiler API: 7.x (the native
+    # port, what a bare `npm install -g typescript` gives) has none
+    probe = "process.exit(typeof require('typescript').createProgram === 'function' ? 0 : 1)"
+    if subprocess.run(["node", "-e", probe], env=env, capture_output=True).returncode:
+        pytest.skip("no typescript with the JavaScript compiler API (<= 6.x) on NODE_PATH")
     (tmp_path / "util.ts").write_text("export function clone(x: number) {\n  return x;\n}\n")
     (tmp_path / "main.ts").write_text(
         'import { clone } from "./util";\n'
@@ -117,8 +120,9 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
         "};\n"
     )
     out = subprocess.run(
-        ["node", str(cgr.TOOLS / "ts_callgraph.js"), str(tmp_path)], env=env, capture_output=True, text=True, check=True
+        ["node", str(cgr.TOOLS / "ts_callgraph.js"), str(tmp_path)], env=env, capture_output=True, text=True
     )
+    assert out.returncode == 0, out.stderr
     g = json.loads(out.stdout)
     run = ["main.ts", "run", 7]
     assert sorted(g["defs"]) == [run, ["main.ts", "trim", 3], ["util.ts", "clone", 1]]

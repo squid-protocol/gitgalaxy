@@ -23,6 +23,17 @@ const ts = require("typescript");
 const fs = require("fs");
 const path = require("path");
 
+// TypeScript 7 (the native Go port) ships no JavaScript compiler API: its
+// package exports neither createProgram nor a type checker. The reference
+// needs a 6.x (or earlier) package, which is what CI pins.
+if (typeof ts.createProgram !== "function") {
+  process.stderr.write(
+    `ts_callgraph: typescript ${ts.version} on NODE_PATH has no JavaScript compiler API (7.x is the native port); ` +
+      "install typescript@6.0.2\n",
+  );
+  process.exit(3);
+}
+
 const repo = path.resolve(process.argv[2] || ".");
 const SKIP_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage"]);
 const SOURCE = /\.(c|m)?tsx?$/;

@@ -202,6 +202,37 @@ CALLS_OUT_RUBY = re.compile(
     re.M,
 )
 
+# #3643 (contracts C3, and C3's 2026-09-25 pattern amendment): rust's own calls_out.
+# Group 1 is the callee, so detector.py treats it like CALLS_OUT_C_STYLE (qualifier,
+# C5 header check). Three shapes the C-style pattern gets wrong:
+#   - a macro is a call to its name: `format!(`, `vec![`, `quote!{` (never
+#     `macro_rules! name {`, whose `!` is not followed by the delimiter);
+#   - a turbofish sits between the name and `(`: `collect::<Vec<_>>()`,
+#     `query::<&A>()` -- two nesting levels, one line, no `( ) { }` or quote inside;
+#   - a tuple-struct PATTERN is not a call: `Data::Struct(x) =>`, `Ok(t) =>`,
+#     `Some(1) | None =>`, `if let Some(x) =`, `let Wrapper(inner) = w;`. The name is
+#     capitalised (a variant or tuple struct; a guard's `if valid(x) =>` is a real
+#     call and stays), its balanced one-line argument list is followed -- after any
+#     closing `)`/`]` of an enclosing pattern, `Err(X::Gone(e)) =>` -- by `=>`, a
+#     pattern `|`, a binding `=` (never `==`, `=>`'s own `=` or `||`/`|=`), or a
+#     match guard's `if` (an expression never puts `if` after a call: no postfix `if`).
+#     Only the `|` may sit on the next line, as a multi-line arm writes it
+#     (`Type::Array(_)\n| Type::Tuple(_) =>`).
+# Every quantifier is bounded or runs over characters its neighbours cannot start
+# with (Rules 1-3); the pattern check runs only at a capitalised word start.
+_RUST_GENERIC_CHAR = r"[^<>(){}\n\"]"
+_RUST_TURBOFISH = (
+    r"::<(?:" + _RUST_GENERIC_CHAR + r"|<(?:" + _RUST_GENERIC_CHAR + r"|<" + _RUST_GENERIC_CHAR + r"{0,200}>){0,200}>)"
+    r"{1,200}>"
+)
+_RUST_BALANCED_ARGS = r"\((?:[^()\n]|\((?:[^()\n]|\([^()\n]{0,200}\)){0,200}\)){0,200}\)"
+_RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b)|\s{0,16}\|(?![|=]))"
+CALLS_OUT_RUST = re.compile(
+    r"\b(?![A-Z]\w{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
+    r"([a-zA-Z_]\w*)"
+    r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
+)
+
 # The invocation patterns detector.py treats as the C-style family: group 1 is
 # the callee, the receiver chain before it is its qualifier (#3329), and a
 # capture on a nested `func_start` header is a declaration (#3360).
@@ -210,6 +241,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
     CALLS_OUT_RUBY,
+    CALLS_OUT_RUST,
 )
 
 # Unsupported / AST-Required (Shell, Markup, Data, Config)

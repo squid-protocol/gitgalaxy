@@ -81,13 +81,13 @@
     "tp": 925
   },
   "rust": {
-    "fn": 697,
-    "fp": 734,
+    "fn": 5,
+    "fp": 250,
     "matched_functions": 1774,
     "parse_failures": 0,
-    "precision_pct": 89.8,
-    "recall_pct": 90.3,
-    "tp": 6497
+    "precision_pct": 96.6,
+    "recall_pct": 99.9,
+    "tp": 7189
   },
   "typescript": {
     "fn": 177,

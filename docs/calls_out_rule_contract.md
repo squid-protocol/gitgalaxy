@@ -57,7 +57,10 @@ inherent limit, recorded per language, not something a rule fix can reach.
 A *pattern* is not a call, even though it is spelled like one (#3641, decided by Joe
 2026-09-25): rust `Data::Struct(x) =>` and `Ok(t) =>` in a `match`, and any destructuring
 pattern that only tests or binds, construct nothing. The same `Ok(t)` in an expression is a
-constructor call.
+constructor call. Rust's own pattern (`CALLS_OUT_RUST`, #3643) drops a capitalised `Name(…)` whose
+one-line argument list is followed by `=>`, a pattern `|`, a binding `=` or a guard `if`; it also
+takes macros (`format!(`, `vec![`) and turbofish calls (`collect::<Vec<_>>()`). A closure-trait bound
+(`F: Fn(&T)`, `impl FnOnce(u8)`) is a type, and `Fn`/`FnMut`/`FnOnce` are in rust's keyword set (C2).
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract

@@ -450,7 +450,8 @@
       "severity": "fact",
       "found_by": "census",
       "issue": 3649,
-      "summary": "A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it)."
+      "summary": "A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it).",
+      "fixed_by": "#3695"
     },
     {
       "id": "D024",
@@ -476,7 +477,8 @@
       "severity": "fact",
       "found_by": "census",
       "issue": 3649,
-      "summary": "The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it."
+      "summary": "The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it.",
+      "fixed_by": "#3695"
     }
   ],
   "fields": {

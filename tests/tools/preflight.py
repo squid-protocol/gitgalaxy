@@ -134,7 +134,8 @@ GATES = [
     Gate(
         "java-carddemo",
         _matrix(
-            "aws-mainframe-modernization-carddemo", ["default", "plain-records", "gradle-plain-21", "ui-thymeleaf"]
+            "aws-mainframe-modernization-carddemo",
+            ["default", "plain-records", "gradle-plain-21", "ui-thymeleaf", "messaging-jms"],
         ),
         requires_java=True,
     ),  # fmt: skip

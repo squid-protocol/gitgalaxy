@@ -66,6 +66,8 @@ MATRIX: dict[str, dict] = {
     "gradle-plain-21": {"java": {"build_tool": "gradle", "data_classes": "plain", "version": 21}},
     "ui-thymeleaf": {"ui": {"flavour": "thymeleaf"}},  # #3619: BMS screens as web pages
     "ui-openapi-plain": {"ui": {"flavour": "openapi-only"}, "java": {"data_classes": "plain"}},  # + REST, plain
+    "messaging-jms": {"integration": {"messaging": "jms"}},  # #3620: MQ / TD on a JMS broker, @JmsListener
+    "messaging-kafka-plain": {"integration": {"messaging": "kafka"}, "java": {"data_classes": "plain"}},
 }
 
 

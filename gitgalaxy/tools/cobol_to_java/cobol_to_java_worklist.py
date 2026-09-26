@@ -67,6 +67,10 @@ CATEGORIES = (
               "reads through path"),
              "Name the key: split the record so the key is one field, or keep the String vsamKey in step with "
              "the record; for a browse, add a range query over the key."),
+    Category("queue-name", "Data-driven queue names", "fact-gap",
+             ("the queue name is data-driven", "is an installation symbol"),
+             "Resolve the name (the MOVEs into the operand, or the installation's symbol table) and pass it: "
+             "the port takes any queue name."),
     Category("open-mode", "DDs without an OPEN mode", "fact-gap",
              ("no OPEN mode",),
              "Add the JCL step that runs the program (or state the mode); the access methods are generated from it."),
@@ -86,11 +90,11 @@ CATEGORIES = (
              "End the transaction at the SYNCPOINT the comment cites: a nested REQUIRES_NEW call, or two service "
              "methods."),
     Category("interface-call", "Calls to other services", "port",
-             ("Implement or mock interface call",),
+             ("Implement or mock interface call", "submits a job through the internal reader"),
              "Wire the called service (or a mock) in place of the placeholder."),
     Category("business-logic", "Business logic to port", "port",
              ("implement from the program's business rules", "Implement extracted business rules", "port paragraph",
-              "port the logic that fills", "port the logic that reads",
+              "port the logic that fills", "port the logic that reads", "port the logic that handles the MQ request",
               "build the response"),
              "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch."),
     Category("configuration", "Target configuration", "review",

@@ -355,7 +355,9 @@ corpora, exactly matching.
   architectural coupling is a scoring question with its own measured
   before/after; it is deliberately not settled here, and is filed as #3237. One consequence: #2992's
   per-file reconciliation is now scoped to `WHERE edge_kind = 'import'`, and so
-  is `galaxy_ir`'s `copy_deps`.
+  is `galaxy_ir`'s `copy_deps`. *(Since #3237 the resolved `'call'`/`'exec'` edges
+  are in the graph, and the reconciliation counts distinct neighbours over every
+  kind; `copy_deps` is still import-only.)*
 - **A CALL resolves by PROGRAM-ID, nearest-wins — the import resolver's rule is
   wrong for this relation.** An import names a file, so an ambiguous stem is
   refused rather than guessed (#3199). A called program is chosen by library

@@ -128,8 +128,15 @@ decorator and reference lines reported). The TypeScript numbers come from the
   graph**, at the weight of one plain import (`CALL_EDGE_WEIGHT` = 1.0), so
   `pagerank_score`, `popularity`, `internal_dependency_links`, betweenness,
   closeness and blast radius all see them. `import_statements` holds the number
-  of calling functions. The mainframe program-level `'call'`/`'exec'` rows are
-  still outside the graph (#3237).
+  of calling functions.
+- `edge_data` rows of kind `'call'`/`'exec'` (#3200, in the graph since #3237):
+  the mainframe program-level edges -- a resolved COBOL `CALL`, CICS
+  `LINK`/`XCTL` or JCL `EXEC PGM=`. The same rule as `'fcall'`: a pair no import
+  or function call already joins becomes a graph edge at `CALL_EDGE_WEIGHT`, so
+  every graph metric above sees them; an unresolved target has no edge. The
+  table keeps one row per (src, dst, kind) with its `call_sites` count, so a pair
+  can have an import row and a call row; per file, distinct neighbours over every
+  kind equal `internal_dependency_links` / `popularity`.
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.

@@ -551,3 +551,42 @@ def test_a_typescript_index_barrel_is_followed():
     edges = [{"src": "app.ts", "dst": "lib/index.ts"}, {"src": "lib/index.ts", "dst": "lib/core.ts"}]
     row = _site(resolve_calls(files, edges)[0], "render")
     assert (row["step"], row["dst_path"]) == ("import", "lib/core.ts")
+
+
+# ----------------------------------------------------------------------------- typed receivers
+
+
+def _typed_files(rtypes):
+    main = _fn("main", 1, calls=["post"], quals={"post": ["app"]})
+    main["calls_out_receiver_types"] = rtypes
+    return [
+        _file("fastapi/applications.py", "python", [_fn("post", 20, owner="FastAPI")],
+              [{"name": "FastAPI", "inheritance": ["Starlette"], "start_line": 5}]),
+        _file("fastapi/routing.py", "python", [_fn("post", 40, owner="APIRouter")],
+              [{"name": "APIRouter", "inheritance": [], "start_line": 3}]),
+        _file("tests/test_app.py", "python", [main]),
+    ]  # fmt: skip
+
+
+def test_a_receiver_of_known_class_resolves_to_that_class_method():
+    row = _site(resolve_calls(_typed_files({"app": "FastAPI"}))[0], "post")
+    assert (row["step"], row["resolution"], row["dst_path"], row["dst_line"]) == (
+        "typed",
+        "scoped",
+        "fastapi/applications.py",
+        20,
+    )
+
+
+def test_a_typed_receiver_finds_an_inherited_method():
+    files = _typed_files({"app": "App"})
+    files.append(_file("my/app.py", "python", [], [{"name": "App", "inheritance": ["FastAPI"], "start_line": 1}]))
+    row = _site(resolve_calls(files)[0], "post")
+    assert (row["step"], row["dst_path"]) == ("typed", "fastapi/applications.py")
+
+
+def test_a_receiver_type_that_is_not_a_known_class_changes_nothing():
+    # `app = create_app()` records create_app; it is a function, not a class, so the old ladder runs.
+    typed = _site(resolve_calls(_typed_files({"app": "create_app"}))[0], "post")
+    plain = _site(resolve_calls(_typed_files({}))[0], "post")
+    assert typed["step"] == plain["step"] != "typed"

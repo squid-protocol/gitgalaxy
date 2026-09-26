@@ -48,11 +48,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "call_graph_resolution_baseline.json"
+
+sys.path.insert(0, str(REPO_ROOT))
+from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, RESOLUTION_OF_STEP  # noqa: E402
+
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
 TOLERANCE_PP = 0.5
 # The python metrics --ci gates (all higher-is-better).
 GATED = ("confident_precision_pct", "recall_pct", "resolution_recall_pct")
-CONFIDENT = ("class", "qualified", "file", "import", "unique")
+# the resolver's own confident steps, so a new one is counted without an edit here
+CONFIDENT = tuple(step for step, res in RESOLUTION_OF_STEP.items() if res in CONFIDENT_RESOLUTIONS)
 AMBIGUOUS = ("nearest", "unseen", "receiver")
 _LINE_SLACK = 3
 

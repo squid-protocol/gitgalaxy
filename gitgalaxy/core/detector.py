@@ -183,6 +183,11 @@ class FunctionNode(TypedDict, total=False):
     # #3329: callee name -> the distinct receiver chains it was called through,
     # in first-seen order; '' is a bare call. Empty for non-C-style languages.
     calls_out_qualifiers: dict[str, list[str]]
+    # Receiver name -> the class it was constructed from or annotated with, in this
+    # function (`app = FastAPI()`, `def f(ch: Channel)`), for the receivers the
+    # function calls methods on. Only unconflicted evidence; empty where the
+    # language does not opt in (`calls_out_receiver_types`).
+    calls_out_receiver_types: dict[str, str]
     # #3362: unconditional-transfer targets (COBOL GO TO), beside calls_out_to.
     transfers_to: list[str]
     hit_vector: dict[str, int]
@@ -1003,6 +1008,68 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+# Receiver types (Python): the local evidence that says which class a receiver
+# is, so `app.post()` after `app = FastAPI()` resolves to FastAPI.post. Every
+# quantifier is bounded; the text is the literal-shielded block.
+_RECV_NAME = r"(?:self\.)?[A-Za-z_]\w{0,63}"
+_RECV_DOTTED = r"[A-Za-z_][\w.]{0,120}"
+# `name = Rhs`, `name: Ann = Rhs` (never `==`, `+=`, `name[...] =`)
+_RECV_ASSIGN = re.compile(
+    r"(?m)^[ \t]*("
+    + _RECV_NAME
+    + r")[ \t]*(?::[ \t]*[\"']?("
+    + _RECV_DOTTED
+    + r")[^=\n]{0,120})?=(?!=)[ \t]*([^\n]{0,300})"
+)
+_RECV_CTOR = re.compile(r"(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\(")
+_RECV_WITH = re.compile(
+    r"\bwith[ \t]+(?:await[ \t]+)?(" + _RECV_DOTTED + r")[ \t]*\([^\n]{0,300}?\bas[ \t]+([A-Za-z_]\w{0,63})"
+)
+_RECV_FOR = re.compile(r"\bfor[ \t]+([^\n]{1,200}?)[ \t]+in\b")
+_RECV_HEADER = re.compile(r"\bdef[ \t]+\w+[ \t]*\(([^)]{0,2000})\)", re.S)
+_RECV_PARAM = re.compile(r"(?:^|,)[ \t\n]*\*{0,2}([A-Za-z_]\w{0,63})[ \t]*:[ \t]*[\"']?(" + _RECV_DOTTED + r")")
+
+
+def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
+    """Receiver name -> class leaf name, for the receivers in `receivers`.
+
+    Evidence, all from this one function: a parameter annotation (`ch: Channel`),
+    an assignment from a call (`app = FastAPI()`, `self.x = mod.Parser(...)`) or
+    an annotated one (`x: Foo = make()`), and `with Foo(...) as f`. A name with
+    two different answers, or also assigned from a non-call (`x = y`) or bound
+    by a `for` loop, is dropped rather than guessed. The resolver checks that
+    the answer is a class it knows; a factory function's name is ignored there.
+    """
+    found: dict[str, Optional[str]] = {}
+
+    def note(name: str, cls: Optional[str]) -> None:
+        if name not in receivers:
+            return
+        leaf = cls.rsplit(".", 1)[-1] if cls else None
+        if name in found and found[name] != leaf:
+            found[name] = None
+        else:
+            found.setdefault(name, leaf)
+
+    header = _RECV_HEADER.search(text)
+    if header:
+        for m in _RECV_PARAM.finditer(header.group(1)):
+            note(m.group(1), m.group(2))
+    for m in _RECV_ASSIGN.finditer(text):
+        name, annotation, rhs = m.group(1), m.group(2), m.group(3)
+        if annotation:
+            note(name, annotation)
+            continue
+        call = _RECV_CTOR.match(rhs)
+        note(name, call.group(1) if call else None)
+    for m in _RECV_WITH.finditer(text):
+        note(m.group(2), m.group(1))
+    for m in _RECV_FOR.finditer(text):
+        for target in re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)):
+            note(target, None)
+    return {k: v for k, v in found.items() if v}
+
 
 # #3644 (C3): words that can stand before `name(` at the start of a C++ statement
 # without being the type of a declared variable (`return f(x)`, `new Foo(x)`).
@@ -9196,6 +9263,7 @@ class StructuralExtractor:
         # invocation families name their callee with a verb or by position and
         # carry no qualifier: their map stays empty, meaning "not captured".
         qualifiers_seen: dict[str, list[str]] = {}
+        receiver_text: Optional[str] = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
         invoked: set[str] = set()
@@ -9203,6 +9271,7 @@ class StructuralExtractor:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             if any(invocation_pattern is p for p in QUALIFIED_CALLS_OUT_PATTERNS):
+                receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
                 # once it knows the slicer really emitted that nested unit.
@@ -9295,9 +9364,16 @@ class StructuralExtractor:
             shielded = self._apply_literal_shield(block, self.primary_lang_id)
             transfers = list(dict.fromkeys(t for t in transfer_pattern.findall(shielded) if t != name))
 
+        receiver_types: dict[str, str] = {}
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
+            receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
+            if receivers:
+                receiver_types = _python_receiver_types(receiver_text, receivers)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
+            "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "texture": texture_str,

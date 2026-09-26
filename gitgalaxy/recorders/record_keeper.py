@@ -820,6 +820,7 @@ class RecordKeeper:
                 docstring TEXT,
                 calls_out_to TEXT,
                 calls_out_qualifiers TEXT,
+                calls_out_receiver_types TEXT,
                 transfers_to TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
@@ -1784,6 +1785,9 @@ class RecordKeeper:
         # kind of link an fcall_data row is ('call' | 'transfer').
         self._heal_column(cursor, "function_data", "transfers_to", "TEXT")
         self._heal_column(cursor, "fcall_data", "kind", "TEXT DEFAULT 'call'")
+        # Receiver name -> class, per function (the call resolver's `typed` step):
+        # a JSON object, NULL where the function has none.
+        self._heal_column(cursor, "function_data", "calls_out_receiver_types", "TEXT")
 
         # #3329: the receiver chain per callee, a JSON list aligned with
         # calls_out_to (call_resolver.encode_qualifiers). Same auto-heal for a
@@ -2484,6 +2488,11 @@ class RecordKeeper:
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
                         _qualifiers_json(func),
+                        (
+                            json.dumps(func["calls_out_receiver_types"], sort_keys=True, separators=(",", ":"))
+                            if func.get("calls_out_receiver_types")
+                            else None
+                        ),
                         json.dumps(func["transfers_to"]) if func.get("transfers_to") else None,
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
@@ -2556,7 +2565,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, transfers_to, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, transfers_to, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

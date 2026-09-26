@@ -12,6 +12,10 @@
 # THE LADDER (first match wins, per (caller function, callee name)):
 #   1. `class`   -- a method of the caller's own class, in the caller's file.
 #   2. `file`    -- a definition in the caller's own file.
+#   2b. `typed`  -- `x.save()` where this function shows x's class
+#                   (`x = Store()`, `def f(x: Store)`; the detector's
+#                   calls_out_receiver_types): Store's method, or its
+#                   nearest ancestor's. Python only for now.
 #   3. `import`  -- a definition in a file the caller's file imports (the
 #                   resolved import graph, NetworkRiskSensor.dependency_edges).
 #   4. `unique`  -- the name is defined exactly once in the repository.
@@ -75,6 +79,7 @@ _GROUP_OF = {lang: min(group) for group in _LINK_GROUPS for lang in group}
 RESOLUTION_OF_STEP = {
     "class": "scoped",
     "qualified": "scoped",
+    "typed": "scoped",
     "file": "scoped",
     "import": "scoped",
     "unique": "unique",
@@ -90,7 +95,7 @@ CONFIDENT_RESOLUTIONS = frozenset({"scoped", "unique"})
 _RANK = {
     step: i
     for i, step in enumerate(
-        ("class", "qualified", "import", "file", "unique", "unseen", "nearest", "receiver", "tie", "none")
+        ("class", "qualified", "typed", "import", "file", "unique", "unseen", "nearest", "receiver", "tie", "none")
     )
 }
 
@@ -561,6 +566,11 @@ def _ancestry(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], set[s
     return parents
 
 
+def _is_class(index: dict[tuple[str, str], "_Bucket"], group: str, name: str, lang: str) -> bool:
+    bucket = index.get((group, _key(name, lang)))
+    return bucket is not None and any(d.kind == "class" for d in bucket.defs)
+
+
 def _lineage(owner: Optional[str], group: str, lang: str, parents: dict[tuple[str, str], set[str]]) -> list[str]:
     """The caller's class followed by its ancestors, nearest first (bounded)."""
     if not owner:
@@ -698,6 +708,7 @@ def _resolve_one(
     lineage: list[str],
     qualifier: Optional[str],
     cache: _Cache,
+    typed: Optional[dict[str, list[str]]] = None,
 ) -> tuple[str, Optional[_Definition]]:
     """One (caller, callee, qualifier) lookup. `qualifier` None = not captured."""
     if bucket is None:
@@ -749,6 +760,13 @@ def _resolve_one(
             if d is not None:
                 return "class", d
         return "none", None
+    if typed and qualifier in typed:
+        # The receiver's class is known from this function (`app = FastAPI()`):
+        # the method on that class, or on the nearest ancestor that has it.
+        for owner_key in typed[qualifier]:
+            d = owned(owner_key)
+            if d is not None:
+                return "typed", d
     head = qualifier.split(".", 1)[0]
     last = qualifier.rsplit(".", 1)[-1]
     d = owned(_key(last, caller.lang))
@@ -817,15 +835,22 @@ def resolve_calls(
             caller_line = int(func.get("start_line", 0) or 0)
             lineage = _lineage(func.get("parent_class_name") or _leaf(caller_name)[1], group, lang, parents)
             qualifier_map = func.get("calls_out_qualifiers") or {}
+            # receiver -> its class's lineage, for receivers whose class the scan
+            # knows (a factory function's name is not a class, and is ignored)
+            typed = {
+                q: _lineage(c, group, lang, parents)
+                for q, c in (func.get("calls_out_receiver_types") or {}).items()
+                if _is_class(index, group, str(c), lang)
+            }
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
                 options: list[Optional[str]] = (list(qualifier_map.get(callee) or []) if kind == "call" else []) or [
                     None
                 ]
-                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache)
+                step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
                 used = options[0]
                 for q in options[1:]:
-                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache)
+                    alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
                 cls = None

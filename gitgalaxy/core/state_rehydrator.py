@@ -22,6 +22,19 @@ from typing import Any, Optional
 from gitgalaxy.core.call_resolver import decode_qualifiers
 
 
+def _json_dict(value: Any) -> dict:
+    """Decode a persisted JSON-object column; NULL or malformed text -> {}."""
+    if isinstance(value, dict):
+        return value
+    if not value:
+        return {}
+    try:
+        out = json.loads(value)
+    except (TypeError, ValueError):
+        return {}
+    return out if isinstance(out, dict) else {}
+
+
 def _json_list(value: Any) -> list:
     """Decode a persisted JSON-list column (e.g. calls_out_to) back to a list.
     Tolerates already-decoded lists, NULLs and malformed text (-> [])."""
@@ -335,6 +348,10 @@ class StateRehydrator:
                             _json_list(r["calls_out_to"]) if "calls_out_to" in rk else [],
                             _json_list(r["calls_out_qualifiers"]) if "calls_out_qualifiers" in rk else None,
                         ),
+                        # the receiver -> class map the resolver's `typed` step reads
+                        "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"])
+                        if "calls_out_receiver_types" in rk
+                        else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # #3362: COBOL GO TO targets, re-resolved on a delta scan.
                         "transfers_to": _json_list(r["transfers_to"]) if "transfers_to" in rk else [],

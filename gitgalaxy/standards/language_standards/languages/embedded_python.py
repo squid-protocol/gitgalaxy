@@ -56,6 +56,9 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses '#' for line-level literature; multi-line literature
     # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "line_exclusive",
+    # Local receiver types for the call resolver (`app = FastAPI()` -> `app.post()`
+    # is FastAPI.post). A top-level helper flag, not a `rules` pattern (#2806).
+    "calls_out_receiver_types": True,
     # #3545/#3544: imports resolve by Python's own module rule (see python.py).
     "package_init_file": "__init__.py",
     "rules": {

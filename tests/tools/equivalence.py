@@ -50,16 +50,7 @@ from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
-from equivalence_common import (  # noqa: F401
-    CASES,
-    IMAGE,
-    REPO_ROOT,
-    _fixed,
-    _input_path,
-    _pic_numeric,
-    decode_field,
-    layout_fields,
-)
+from equivalence_common import CASES, IMAGE, _fixed, _input_path, decode_field, layout_fields
 
 
 # ---- COBOL side ----------------------------------------------------------------------

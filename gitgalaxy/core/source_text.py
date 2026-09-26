@@ -26,7 +26,6 @@ from __future__ import annotations
 import codecs
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Union
 
 _BOMS = (  # longest first: the UTF-32 LE mark begins with the UTF-16 LE one
     (codecs.BOM_UTF32_LE, "utf-32-le"),
@@ -83,14 +82,14 @@ def decode_source(data: bytes, *, truncated: bool = False) -> SourceText:
                 return SourceText(_decode(data[len(bom) :], codec, truncated), codec, "bom")
             except UnicodeDecodeError:
                 break  # a false mark (e.g. Latin-1 text starting "ÿþ"): decode the bytes as they are
-    codec = _utf16_without_bom(data)
-    if codec is not None:
+    utf16 = _utf16_without_bom(data)
+    if utf16 is not None:
         try:
-            text = _decode(data, codec, truncated)
+            text = _decode(data, utf16, truncated)
         except UnicodeDecodeError:
             text = None
         if text is not None and _looks_like_text(text):
-            return SourceText(text, codec, "utf-16-heuristic")
+            return SourceText(text, utf16, "utf-16-heuristic")
     try:
         return SourceText(_decode(data, "utf-8", truncated), "utf-8", "utf-8")
     except UnicodeDecodeError:
@@ -101,7 +100,7 @@ def decode_source(data: bytes, *, truncated: bool = False) -> SourceText:
         return SourceText(data.decode("latin-1"), "latin-1", "latin-1-fallback")
 
 
-def read_source(path: Union[str, Path], limit: int | None = None) -> SourceText:
+def read_source(path: str | Path, limit: int | None = None) -> SourceText:
     """A source file's text, decoded without losing a byte. `limit`: read at most that many bytes (a
     guard against multi-GB logs) -- the file is then decoded as the prefix it is."""
     with open(path, "rb") as f:

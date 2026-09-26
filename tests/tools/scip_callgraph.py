@@ -219,6 +219,9 @@ def _name(symbol: str, display: str, lang: str) -> Optional[str]:
 
 # ----------------------------------------------------------------------------- contract
 
+# a definition's key in the contract: (path, name, line)
+DefKey = tuple[str, str, int]
+
 
 def _span(r: list[int]) -> tuple[int, int, int, int]:
     """SCIP range [line, char, end_char] or [line, char, end_line, end_char], 0-based."""
@@ -282,9 +285,8 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
         for sym, (kind, _display) in d.symbols.items():
             kinds.setdefault(sym, kind)
 
-    Def = tuple[str, str, int]  # (path, name, line)
-    defs_by_symbol: dict[str, Def] = {}
-    scopes: dict[str, list[tuple[tuple[int, int, int, int], Def]]] = collections.defaultdict(list)
+    defs_by_symbol: dict[str, DefKey] = {}
+    scopes: dict[str, list[tuple[tuple[int, int, int, int], DefKey]]] = collections.defaultdict(list)
     for d in docs:
         lines = sources[d.path]
         for o in d.occurrences:
@@ -304,15 +306,15 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             span = _span(o.range)
             if not _has_body(lines, o.enclosing, (span[2], span[3])):
                 continue
-            key: Def = (d.path, name, span[0] + 1)
+            key: DefKey = (d.path, name, span[0] + 1)
             if o.symbol.startswith("local "):
                 defs_by_symbol[f"{d.path}\0{o.symbol}"] = key
             else:
                 defs_by_symbol[o.symbol] = key
             scopes[d.path].append((_span(o.enclosing), key))
 
-    edges: dict[tuple[Def, Def], int] = {}
-    external: set[tuple[Def, str]] = set()
+    edges: dict[tuple[DefKey, DefKey], int] = {}
+    external: set[tuple[DefKey, str]] = set()
     classes = _constructors_by_class(defs_by_symbol, lang)
     for d in docs:
         lines = sources[d.path]
@@ -363,7 +365,7 @@ def _after_new(lines: list[str], span: tuple[int, int, int, int]) -> bool:
     return bool(re.search(r"\bnew\s+(?:[\w$]+\s*\.\s*)*$", head))
 
 
-def _constructors_by_class(defs_by_symbol: dict[str, tuple[str, str, int]], lang: str) -> dict[str, Any]:
+def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict[str, Any]:
     """TypeScript `new X(` references the class `X#`; map it to X's constructor def."""
     out: dict[str, Any] = {}
     for sym, key in defs_by_symbol.items():

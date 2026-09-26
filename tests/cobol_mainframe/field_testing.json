@@ -464,7 +464,8 @@
       "severity": "fact",
       "found_by": "census",
       "issue": 3694,
-      "summary": "`PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it)."
+      "summary": "`PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it).",
+      "fixed_by": "#3700"
     },
     {
       "id": "B004",

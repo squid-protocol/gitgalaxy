@@ -108,7 +108,7 @@ counted in it (their fact counts are not recorded here).
 | B002 | 5 | brief | fact | CSD resources | #3575 / #3584 | The brief's name rule said 'A-Z'; CSD names are case-insensitive (`ZC@id@`). |
 | B003 | 3 | brief | fact | JCL resolved DSNs | #3575 / #3601 | The brief did not say override DDs (//PROCSTEP.DD) are out of scope, as key and engine define them. |
 | D023 | 3 | engine | fact | refmod spans, data moves | #3649 / #3695 | A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it). |
-| D024 | 2 | engine | fact | copybook layouts | #3694 | `PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it). |
+| D024 | 2 | engine | fact | copybook layouts | #3694 / #3700 | `PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it). |
 | B004 | 1 | brief | fact | copybook layouts | #3649 / #3695 | The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's

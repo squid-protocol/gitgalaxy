@@ -1336,17 +1336,15 @@ class Orchestrator:
             # cross-file calls.
             import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
             self._resolve_function_calls()
+            # #3200/#3201: the mainframe call graph (COBOL CALL, CICS LINK/XCTL, JCL
+            # EXEC PGM=). Since #3237 its resolved edges enter the dependency graph
+            # like #3333's function calls -- see invocation_resolver.py's header.
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
-                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges
+                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
 
-            # #3200/#3201: resolve the mainframe call graph AFTER the dependency
-            # graph, and entirely beside it. These edges carry edge_kind
-            # 'call'/'exec' and are never handed to the DiGraph, so pagerank,
-            # popularity, blast radius and every risk score are unchanged --
-            # see invocation_resolver.py's header for why that is deliberate.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             # #3211-followup: the CICS transaction map, resolved the same way.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
@@ -3381,12 +3379,12 @@ class Orchestrator:
             # imports, then calls, then metrics over both -- as a full scan does).
             import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
             self._resolve_function_calls()
+            # #3200/#3201, #3237: same resolution in delta mode, into the same graph.
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
-                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges
+                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges, self.invocation_edges
             )
 
-            # #3200/#3201: same resolution in delta mode.
-            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             # #3211-followup: the CICS transaction map, same resolution in delta mode.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and

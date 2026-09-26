@@ -131,19 +131,16 @@ def test_edges_persist_keyed_to_file_data(keeper, tmp_path):
     conn = sqlite3.connect(db)
     assert conn.execute("SELECT DISTINCT repo_name, commit_hash FROM edge_data").fetchall() == [("EdgeRepo", "c0ffee")]
     assert conn.execute("SELECT network_edges_unrecorded FROM repo_data").fetchone() == (0,)
-    # Per file, the rows reconcile with the node summaries already in file_data.
-    # #3333 widened it to the graph's two kinds, 'import' and 'fcall' (a
-    # confident call into a file the caller does not import). #3200 had scoped
-    # it to edge_kind='import': edge_data now also carries
-    # 'call'/'exec' rows (the mainframe call graph), which are resolved by a
-    # different rule and deliberately never entered the DiGraph -- so they must
-    # NOT appear in a degree that pagerank and blast radius were computed from.
-    # Without the filter this invariant would silently start asserting that the
-    # call graph is part of the dependency graph.
+    # Per file, the rows reconcile with the node summaries already in file_data:
+    # distinct neighbours over every edge kind. #3333 added 'fcall' (a confident
+    # call into a file the caller does not import) and #3237 the mainframe
+    # 'call'/'exec' edges, both only where no other edge joins the pair, so a
+    # neighbour is one edge in the graph. edge_data may hold a pair twice -- an
+    # import and a CALL between the same two files -- hence DISTINCT.
     mismatches = conn.execute("""
         SELECT f.file_path, f.internal_dependency_links, f.popularity,
-               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind IN ('import', 'fcall')),
-               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind IN ('import', 'fcall'))
+               (SELECT COUNT(DISTINCT e.dst_file_id) FROM edge_data e WHERE e.src_file_id = f.id),
+               (SELECT COUNT(DISTINCT e.src_file_id) FROM edge_data e WHERE e.dst_file_id = f.id)
         FROM file_data f
     """).fetchall()
     conn.close()
@@ -232,3 +229,41 @@ def test_pre_2992_database_is_healed(keeper, tmp_path):
     keeper.record_mission(files, [], {}, SESSION, str(db), dependency_edges=sensor.dependency_edges)
 
     assert len(_edges_by_path(db)) == len(EXPECTED_EDGES)
+
+
+# ==============================================================================
+# #3237: the mainframe call graph is in the dependency graph
+# ==============================================================================
+INVOCATIONS = [
+    # app already imports lib: the CALL adds no second graph edge, only its edge_data row.
+    {"src": "src/app.py", "dst": "src/lib.py", "edge_kind": "call", "weight": 1.0, "call_sites": 1},
+    # island reaches util only by invocation: a new edge, at CALL_EDGE_WEIGHT, whatever its site count.
+    {"src": "src/island.py", "dst": "src/util.py", "edge_kind": "exec", "weight": 3.0, "call_sites": 3},
+]
+
+
+def test_an_invocation_joins_the_graph_where_nothing_else_does(keeper, tmp_path):
+    sensor = NetworkRiskSensor()
+    files, _ = sensor.build_dependency_graph(copy.deepcopy(UNIVERSE), invocation_edges=INVOCATIONS)
+    by_path = {f["path"]: f["telemetry"] for f in files}
+    assert by_path["src/island.py"]["network_metrics"]["out_degree"] == 1
+    assert by_path["src/util.py"]["popularity"] == 3  # app, lib and now island
+    assert by_path["src/app.py"]["network_metrics"]["out_degree"] == 2  # lib is still one neighbour
+    # The recorder writes the invocations from the resolver's own list, so they are not re-published.
+    assert sensor.dependency_edges == EXPECTED_EDGES
+
+    db = tmp_path / "calls.db"
+    keeper.record_mission(
+        files, [], {}, SESSION, str(db), dependency_edges=sensor.dependency_edges, invocation_edges=INVOCATIONS
+    )
+    rows = _edges_by_path(db)
+    assert ("src/island.py", "src/util.py", "exec", 3.0, 3, 0) in rows and len(rows) == 5
+    conn = sqlite3.connect(db)
+    for path, links, popularity, out_n, in_n in conn.execute("""
+        SELECT f.file_path, f.internal_dependency_links, f.popularity,
+               (SELECT COUNT(DISTINCT e.dst_file_id) FROM edge_data e WHERE e.src_file_id = f.id),
+               (SELECT COUNT(DISTINCT e.src_file_id) FROM edge_data e WHERE e.dst_file_id = f.id)
+        FROM file_data f
+    """):
+        assert (links, popularity) == (out_n, in_n), path
+    conn.close()

@@ -39,6 +39,9 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # pairs no import already joins get one, so an import-and-call pair keeps its
 # import weight and a pair is never counted twice.
 CALL_EDGE_WEIGHT = 1.0
+# #3237: the mainframe program-level edge kinds (invocation_resolver.py). In the graph
+# since #3237; written to edge_data from the resolver's own list, never re-published.
+_INVOCATION_KINDS = ("call", "exec")
 
 CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("case_insensitive_imports")
@@ -1252,6 +1255,7 @@ class NetworkRiskSensor:
         parsed_files: list[dict[str, Any]],
         call_pairs: Optional[dict[tuple[str, str], int]] = None,
         import_edges: Optional[dict[tuple[str, str], dict[str, Any]]] = None,
+        invocation_edges: Optional[list[dict[str, Any]]] = None,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
@@ -1265,6 +1269,14 @@ class NetworkRiskSensor:
         importing it (C across translation units, PHP/Ruby globals, same-package
         Java/Go) is connected in every graph metric. `import_edges` reuses a
         `resolve_import_edges` result instead of resolving again.
+
+        `invocation_edges` (#3237) are the mainframe program-level edges
+        (`invocation_resolver.resolve_invocations`: a resolved COBOL CALL, CICS
+        LINK / XCTL, JCL EXEC PGM=). The same rule as a function call: a pair
+        that no import or function call already joins becomes an edge of its
+        own kind ('call' / 'exec') at CALL_EDGE_WEIGHT. They are not re-published
+        on `dependency_edges`: the recorder writes every invocation edge from the
+        resolver's own list, so a pair is one edge_data row per kind.
         """
         # 1. Resolve every file's imports into distinct directed edges (#2992),
         # then add the call-implied edges no import covers (#3333).
@@ -1280,7 +1292,16 @@ class NetworkRiskSensor:
                     "import_statements": n,
                     "entity_imports": 0,
                 }
-        self._publish_edges(edges)
+        for e in invocation_edges or ():
+            src, dst = e.get("src", ""), e.get("dst", "")
+            if (src, dst) not in edges and src != dst and src in known and dst in known:
+                edges[(src, dst)] = {
+                    "edge_kind": e.get("edge_kind", "call"),
+                    "weight": CALL_EDGE_WEIGHT,
+                    "import_statements": int(e.get("call_sites", 0)),
+                    "entity_imports": 0,
+                }
+        self._publish_edges({pair: a for pair, a in edges.items() if a.get("edge_kind") not in _INVOCATION_KINDS})
 
         # 2. Degree: distinct neighbouring files, one per edge (#3024).
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}

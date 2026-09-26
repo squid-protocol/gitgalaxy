@@ -25,19 +25,23 @@
 # (core/path_proximity.py), but they still disagree about what a tie MEANS: a
 # call picks one, an import that is still ambiguous draws nothing.
 #
-# THE EDGES ARE A SEPARATE KIND AND DO NOT ENTER THE GRAPH.
-# `edge_kind` is 'call'/'exec', never 'import'. They are NOT handed to the
-# DiGraph, so pagerank_score, popularity, internal_dependency_links,
-# betweenness, blast radius, the archetypes and every risk score are byte-for-
-# byte what they were before this module existed. Whether a runtime invocation
-# ought to count as architectural coupling is a scoring question with its own
-# measured before/after; it is deliberately not settled here (#3237). The one
-# consequence is that #2992's per-file reconciliation
-# (COUNT by src == internal_dependency_links) is now scoped to the graph's
-# kinds, `WHERE edge_kind IN ('import', 'fcall')` since #3333 added function
-# calls to the graph, which is what tests/tools_recorders/test_edge_data.py
-# asserts. (#3333 settled it for function calls; these program-level
-# 'call'/'exec' edges are still #3237's.)
+# THE EDGES ARE A SEPARATE KIND, AND SINCE #3237 THEY ARE IN THE GRAPH.
+# `edge_kind` is 'call'/'exec', never 'import'. #3200 kept them out of the
+# DiGraph so it could ship with a zero-diff golden master; #3333 then put
+# confident function calls into every other language's graph, which left this
+# family the one exception (CBSA's ABNDPROC, LINKed from 23 programs, ranked 0).
+# #3237 settled it the #3333 way: every RESOLVED edge here -- a static or
+# VALUE-resolved CALL, a LINK / XCTL, an EXEC PGM= -- joins the graph at
+# CALL_EDGE_WEIGHT wherever no import or function call already joins the pair
+# (NetworkRiskSensor.build_dependency_graph), so pagerank_score, popularity,
+# internal_dependency_links, betweenness and blast radius count runtime
+# invocation for mainframe code as they do for every language. An unresolved
+# target has no edge, so it adds nothing. An error-path LINK (ABNDPROC, the
+# abend handler) counts like any other: no language's graph knows which calls
+# are error paths. edge_data keeps one row per (src, dst, kind) from this list;
+# a pair is counted once in the graph, so #2992's reconciliation is "distinct
+# neighbours over every kind == internal_dependency_links / popularity", which
+# tests/tools_recorders/test_edge_data.py asserts.
 # ==============================================================================
 from pathlib import Path
 from typing import Any
@@ -180,8 +184,8 @@ def resolve_invocations(
                 {"src": src_path, "dst": resolved, "edge_kind": kind, "weight": 0.0, "call_sites": 0},
             )
             # One unit of weight per site, matching the import edge's "1.0 per
-            # plain import". Nothing reads this weight today -- these edges are
-            # not in the graph -- but it keeps the column meaningful per kind.
+            # plain import": edge_data's record of how many sites the edge has.
+            # The graph weighs the edge at CALL_EDGE_WEIGHT, as a function call (#3237).
             edge["weight"] += 1.0
             edge["call_sites"] += 1
 

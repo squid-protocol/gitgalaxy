@@ -684,6 +684,10 @@
       "introduced": "#3542",
       "development_rounds": 6
     },
+    "PL/I layouts": {
+      "introduced": "#3727",
+      "development_rounds": 6
+    },
     "copybook layouts": {
       "introduced": "#3672",
       "development_rounds": 6

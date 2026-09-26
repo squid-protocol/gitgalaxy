@@ -86,6 +86,12 @@ LAYOUT_FULL_ROWS units in a corpus, else over a seeded SAMPLE of files signed sa
     cics_ridflds      ridflds_validated        the RIDFLD of every keyed EXEC CICS FILE command
     refmod_spans      refmods_validated        every reference-modified MOVE / COMPUTE / ... pair
 
+`plilayouts` (#3727) asks every PL/I structure's layout, IN FULL while a corpus holds at most LAYOUT_FULL_ROWS
+units, else over a seeded SAMPLE of files (every construct stratum at least once) signed sample_verified:
+
+    pli_layouts       pli_layouts_validated    each structure's named elementary members: offset and bytes
+                                               (bit offset and bits for an unaligned bit string)
+
 `resources` (#3351-#3354 / #3495) is asked of every COBOL and HLASM source issuing EXEC CICS:
 
     cics_resources    cics_validated           FILE / QUEUE / MAP / CONTAINER / CHANNEL operations,
@@ -2933,6 +2939,209 @@ def _sign_layouts(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any],
                 entry["verification"] = dict(entry.get("verification", {}), **sampled)
 
 
+# ---- the `plilayouts` suite (#3727): PL/I structure layouts --------------------------
+# Every PL/I structure the key lays out (pli_layouts / pli_layouts_validated), as
+# `ROOT/NAME @offset+bytes` -- `ROOT/NAME @byte.bit+Nb` for a member off a byte
+# boundary. IN FULL while a corpus holds at most LAYOUT_FULL_ROWS units, else a seeded
+# SAMPLE of files (every stratum at least once, then random files up to
+# LAYOUT_SAMPLE_ROWS units, plus LAYOUT_RECALL unkeyed PL/I files that declare a
+# structure) signed sample_verified once every planned file is signed. The plan is
+# stored under `sample_census.pli_layouts.plan`.
+PLI_LAYOUT_STRATA = {
+    "bit": r"\bBIT\s*\(",
+    "varying": r"\bVAR(?:YING)?\b",
+    "binary": r"\bBIN(?:ARY)?\b",
+    "decimal": r"\bDEC(?:IMAL)?\b",
+    "picture": r"\bPIC(?:TURE)?\b",
+    "pointer": r"\bP(?:OINTE)?TR\b",
+    "unaligned": r"\bUNAL(?:IGNED)?\b",
+    "aligned": r"(?<!UN)\bALIGNED\b",
+    "float": r"\bFLOAT\b",
+    "defined": r"\bDEF(?:INED)?\b",
+    "skipped": None,  # a structure the key does not lay out (LIKE, an %INCLUDE inside the DCL)
+}
+
+
+def _pli_layout_units(key: dict[str, Any]) -> dict[str, list[str]]:
+    return {rel: list(e.get("units", [])) for rel, e in key.get("pli_layouts", {}).items()}
+
+
+def _pli_layout_candidates(repo: Path) -> set[str]:
+    """PL/I sources declaring a structure (a level-2 item in a DCL): the recall pool."""
+    out = set()
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts:
+            text = p.read_text(encoding="utf-8", errors="ignore")
+            if re.search(r"\b(?:DCL|DECLARE)[ \t\r\n]+1[ \t\r\n]", text, re.I):
+                out.add(p.relative_to(repo).as_posix())
+    return out
+
+
+def pli_layouts_plan(key: dict[str, Any], repo: Path, seed: int) -> dict[str, Any]:
+    units = _pli_layout_units(key)
+    rows = sum(len(v) for v in units.values())
+    cands = _pli_layout_candidates(repo) - set(key.get("pli_layouts", {}))
+    if rows <= LAYOUT_FULL_ROWS:
+        return {"mode": "full", "files": sorted(set(key.get("pli_layouts", {})) | cands)}
+    rng = random.Random(f"{seed}:plilayout")
+    order = sorted(key.get("pli_layouts", {}))
+    rng.shuffle(order)
+
+    def strata(rel: str) -> set[str]:
+        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper() if (repo / rel).is_file() else ""
+        got = {s for s, pat in PLI_LAYOUT_STRATA.items() if pat and re.search(pat, text)}
+        return got | ({"skipped"} if key["pli_layouts"][rel].get("skipped") else set())
+
+    chosen: list[str] = []
+    covered: set[str] = set()
+    for rel in order:  # strata first: each not yet covered, from a file with units to check
+        new = strata(rel) - covered
+        if new and units.get(rel):
+            chosen.append(rel)
+            covered |= new
+    for rel in order:
+        if sum(len(units.get(c, [])) for c in chosen) >= LAYOUT_SAMPLE_ROWS:
+            break
+        if rel not in chosen and units.get(rel):
+            chosen.append(rel)
+    recall = sorted(cands)
+    rng.shuffle(recall)
+    return {"mode": "sample", "seed": seed, "budget": LAYOUT_SAMPLE_ROWS, "strata": sorted(covered),
+            "files": sorted(chosen + recall[:LAYOUT_RECALL])}  # fmt: skip
+
+
+def _pli_layouts_plan_of(key: dict[str, Any]) -> dict[str, Any]:
+    return key.get("sample_census", {}).get("pli_layouts", {}).get("plan", {})
+
+
+def corpus_files_plilayouts(key: dict[str, Any]) -> list[str]:
+    return list(_pli_layouts_plan_of(key).get("files", []))
+
+
+def key_facts_plilayouts(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    units, mine = _pli_layout_units(key), set(_pli_layouts_plan_of(key).get("files", []))
+    return {"plilayout": {rel: sorted(units.get(rel, [])) for rel in files if rel in mine}}
+
+
+def canon_plilayout(r: dict[str, Any]) -> str:
+    where = f"@{int(r.get('offset') or 0)}"
+    if r.get("bit") is not None or r.get("bits") is not None:
+        where += f".{int(r.get('bit') or 0)}+{int(r.get('bits') or 0)}b"
+    else:
+        where += f"+{int(r.get('bytes') or 0)}"
+    return f"{_ws(r.get('root'))}/{_ws(r.get('name'))} {where}"
+
+
+def reviewer_facts_plilayouts(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"plilayout": {}}
+    for path, v in (answers.get("files") or {}).items():
+        rows = (v or {}).get("plilayout")
+        if isinstance(rows, list):
+            r = path[len(root) :] if path.startswith(root) else path
+            out["plilayout"][r] = {canon_plilayout(x) for x in rows if isinstance(x, dict)}
+    return out
+
+
+PLI_LAYOUT_RULES = """\
+PL/I source: `/* ... */` is a comment (it may span lines); a statement runs to its `;` outside a quoted literal;
+columns 73-80 may hold a sequence number, never code. A structure is a DECLARE (DCL) item of level 1 with members
+(level 2 and deeper; a member belongs to the nearest preceding item of a lower level number). Storage mapping is
+Enterprise PL/I's, 31-bit:
+  SIZES. CHARACTER(n) n bytes, plus 2 when VARYING. BIT(n) n BITS when unaligned; when aligned, n bits rounded up to
+  whole bytes. PICTURE 'p': one byte per character position of the picture -- `(n)x` repeats x n times; V and K take
+  none, F(n) none, CR and DB two. FIXED DECIMAL(p[,q]) p/2+1 bytes (integer division; FIXED alone is DECIMAL(5)).
+  FIXED BINARY(p[,q]) 1 byte for p <= 7, 2 for p <= 15, 4 for p <= 31, 8 above (FIXED BINARY alone is p 15). FLOAT
+  DECIMAL(p) 4 bytes for p <= 6, 8 for p <= 16, 16 above; FLOAT BINARY(p) 4 for p <= 21, 8 for p <= 53, 16 above
+  (DECIMAL or BINARY without FIXED is FLOAT). POINTER / PTR / OFFSET / HANDLE 4 bytes. An ENTRY or LABEL variable 8.
+  An array (a dimension after the name, `X(3)`, `X(0:9)`, `X(2,4)`) holds that many elements.
+  ALIGNMENT. Each member has an alignment requirement. UNALIGNED data: a byte (bit strings: a bit). ALIGNED data:
+  FIXED BINARY, FLOAT, POINTER... on their own size (2, 4 or 8 bytes; FLOAT of 16 bytes on 8), POINTER / OFFSET /
+  HANDLE / ENTRY / LABEL on 4, a VARYING string on 2, anything else (fixed-length CHARACTER, BIT, PICTURE, FIXED
+  DECIMAL) on a byte. A member is ALIGNED or UNALIGNED as it says (UNAL = UNALIGNED); when it says neither, as the
+  nearest enclosing structure that says; when none says, strings and pictures are UNALIGNED and the rest ALIGNED.
+  An array's elements are each aligned: an element's size is rounded up to a multiple of its alignment, except the
+  last. A minor structure's alignment is the strictest of its members'.
+  PLACEMENT (IBM's structure mapping: padding is minimised, and falls before a structure rather than inside it).
+  Map the deepest minor structures first. Within a structure, pair the first two members, then that pair with the
+  third, and so on. For each pair: begin the first on a doubleword boundary (or, when it is a minor structure already
+  mapped, at its offset from one); begin the second at the first position after the first's end that meets its
+  alignment (a minor structure: that keeps its own offset from a boundary of its alignment); then move the first
+  toward the second as far as the first's alignment allows. The pair is a unit whose alignment is the stricter of
+  the two, and whose offset from a boundary of that alignment is where its first byte now sits. So a structure can
+  begin some bytes past an alignment boundary: e.g. `1 R, 2 A CHAR(3), 2 B FIXED BIN(31)` puts A at 0 and B at 3
+  (R starts one byte past a fullword), and R is 7 bytes.
+  All offsets are from the structure's own first byte.
+"""
+
+
+def render_plilayouts(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    facts = key_facts_plilayouts(key, files)
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "plilayouts", "batch": index, "of": of, "files": files, "facts": facts}  # fmt: skip
+    brief = f"""You are independently verifying facts about real IBM mainframe PL/I source code, as a second reviewer. Read the
+files yourself. They are all under the repository root {repo}; read only inside that directory. Do NOT edit or create
+any files except your answers file and any helper scripts you write INSIDE the directory holding this brief, and do
+not look for any existing answer key or analysis of this code: the point is an independent reading.
+
+TASK plilayout -- PL/I STRUCTURE LAYOUTS. For every structure each file below declares, list each NAMED ELEMENTARY
+member (a member with no members of its own; not `*`): {{"root", "name", "offset", "bytes", "bit", "bits"}}.
+{PLI_LAYOUT_RULES}
+  - "root" is the level-1 structure's name. "offset" is the member's byte offset in it; "bytes" its size in bytes
+    (a whole array's, for an array member); "bit" and "bits" are null. A member that does not start AND end on a
+    byte boundary (an unaligned BIT string, BIT(1) flags packed together) gives "offset" = the byte it starts in,
+    "bit" = its first bit within that byte (0 = leftmost), "bits" = its length in bits, and "bytes" null.
+  - A member inside an array of structures is listed once, at its offset in the FIRST element.
+  - DEFINED (DEF): a member or structure declared DEFINED overlays other storage: skip it, with everything under
+    it, and do not count it toward any size.
+  - Do not lay out -- list nothing for -- a structure declared LIKE another, one whose members are not all
+    written in the DCL (the DCL contains an %INCLUDE), or one using UNION, REFER or AREA. A level-1 item without
+    members is not a structure. Two structures of the same name in one file are both listed.
+Files:
+{chr(10).join(str(repo / f) for f in files)}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"plilayout": [{{"root": "R", "name": "A", "offset": 0, "bytes": 3, "bit": null, "bits": null}},
+                                     {{"root": "R", "name": "F", "offset": 7, "bytes": null, "bit": 1, "bits": 1}}]}},
+           ...every file above...}}}}
+"""  # fmt: skip
+    return brief, truth
+
+
+def batches_plilayouts(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_plilayouts(key, files)["plilayout"]
+    return _pack({f: len(facts.get(f, [])) for f in files}, max_items)
+
+
+def _sign_plilayouts(key: dict[str, Any], truth: dict[str, Any], g: dict[str, Any], rulings: dict[str, Any],
+                     by: str, at: str) -> None:  # fmt: skip
+    """A full census flags its batch's entries cross_verified; a sampled one records the batch
+    and, once every planned file is signed, flags every entry sample_verified."""
+    pc = key["sample_census"]["pli_layouts"]
+    plan = pc["plan"]
+    mine = [f for f in truth["files"] if f in plan["files"]]
+    if plan["mode"] == "full":
+        stamp = {"status": "validated", "tier": "cross_verified", "cross_by": by, "census": {"by": by, "at": at}}
+        for rel in mine:
+            entry = key.get("pli_layouts", {}).get(rel)
+            if entry is not None:
+                entry["pli_layouts_validated"] = True
+                entry["verification"] = dict(entry.get("verification", {}), **stamp)
+        return
+    ts = pc.setdefault("sampled", {"asked": 0, "key_errors": 0, "files": []})
+    ts["asked"] += g["tasks"].get("plilayout", {}).get("asked", 0)
+    ts["key_errors"] += sum(1 for i, r in rulings.items() if r.get("verdict") == "key_fixed")
+    ts["files"] = sorted(set(ts["files"]) | set(mine))
+    if set(plan["files"]) <= set(ts["files"]):
+        ts["upper_bound_95"] = round(upper_bound_95(ts["key_errors"], ts["asked"]), 5)
+        sampled = {"status": "validated", "tier": "sample_verified", "census": {"by": by, "at": at, "sampled": True}}
+        for entry in key.get("pli_layouts", {}).values():
+            entry["pli_layouts_validated"] = True
+            entry["verification"] = dict(entry.get("verification", {}), **sampled)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -2983,6 +3192,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "plimoves"
         else reviewer_facts_layouts(answers, repo)
         if suite == "layouts"
+        else reviewer_facts_plilayouts(answers, repo)
+        if suite == "plilayouts"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -3052,7 +3263,8 @@ def sign(
         else {("sql_tables", "sql_tables_validated")}
         if truth.get("suite") == "db2cols"
         else set()  # plicalls / pliuow: flagged all at once when the sample completes
-        if truth.get("suite") in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns", "layouts")
+        if truth.get("suite")
+        in ("plicalls", "pliuow", "plimoves", "pliresources", "records", "bms", "dsns", "layouts", "plilayouts")
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -3100,6 +3312,8 @@ def sign(
         _sign_pli_moves_sample(key, truth, g, rulings, by, at)
     if truth.get("suite") == "layouts":
         _sign_layouts(key, truth, g, rulings, by, at)
+    if truth.get("suite") == "plilayouts":
+        _sign_plilayouts(key, truth, g, rulings, by, at)
     return key
 
 
@@ -3132,6 +3346,8 @@ def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> 
     recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
     if suite == "layouts" and not _layouts_plan_of(key):
         return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite layouts)"]}
+    if suite == "plilayouts" and not _pli_layouts_plan_of(key):
+        return {"files": [0, 0], "wide": False, "missing": ["(no plan: run census --suite plilayouts)"]}
     if suite == "plimoves":  # every planned window signed
         plan = key.get("sample_census", {}).get("pli_moves", {})
         done_w = {w for b in plan.get("batches", []) for w in b["windows"]}
@@ -3186,6 +3402,7 @@ def main() -> int:
             "dsns",
             "db2cols",
             "layouts",
+            "plilayouts",
         ),
         default="channels",
     )
@@ -3215,6 +3432,7 @@ def main() -> int:
             "dsns",
             "db2cols",
             "layouts",
+            "plilayouts",
         ),
         default="channels",
     )
@@ -3261,6 +3479,8 @@ def main() -> int:
         if suite == "db2cols"
         else corpus_files_layouts(key)
         if suite == "layouts"
+        else corpus_files_plilayouts(key)
+        if suite == "plilayouts"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -3324,6 +3544,13 @@ def main() -> int:
                 (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
             signed = {f for r in key.get("section_census", []) if r.get("suite") == "layouts" for f in r["files"]}
             files = [f for f in corpus_files_layouts(key) if f not in signed]
+        if suite == "plilayouts":
+            pc = key.setdefault("sample_census", {}).setdefault("pli_layouts", {})
+            signed = {f for r in key.get("section_census", []) if r.get("suite") == "plilayouts" for f in r["files"]}
+            if not signed:
+                pc["plan"] = pli_layouts_plan(key, repo, args.seed)
+                (REPO_ROOT / corpus["answer_key"]).write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+            files = [f for f in corpus_files_plilayouts(key) if f not in signed]
         if suite == "records":
             rc = key.setdefault("sample_census", {}).setdefault("records", {})
             if not rc.get("batches"):
@@ -3376,6 +3603,7 @@ def main() -> int:
             "dsns": batches_dsns,
             "db2cols": batches_db2cols,
             "layouts": batches_layouts,
+            "plilayouts": batches_plilayouts,
         }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
@@ -3398,6 +3626,7 @@ def main() -> int:
                 "dsns": render_dsns,
                 "db2cols": render_db2cols,
                 "layouts": render_layouts,
+                "plilayouts": render_plilayouts,
             }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
@@ -3462,6 +3691,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_plimoves(key, truth["windows"]))
     elif truth.get("suite") == "layouts":
         current = dict(truth, facts=key_facts_layouts(key, truth["files"]))
+    elif truth.get("suite") == "plilayouts":
+        current = dict(truth, facts=key_facts_plilayouts(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

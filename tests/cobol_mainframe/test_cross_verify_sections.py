@@ -589,3 +589,74 @@ def test_layouts_plan_is_full_while_small_and_sampled_with_recall_when_large(tmp
     assert plan["mode"] == "sample" and "ROGUE.cpy" in plan["files"]
     assert sum(len(big["copybook_layouts"].get(f, {}).get("units", [])) for f in plan["files"]) >= cs.LAYOUT_SAMPLE_ROWS
     assert plan == cs.layouts_plan(big, tmp_path, 7)["cblayout"]  # seeded: the same plan every time
+
+
+# ---- the `plilayouts` suite (#3727) ----------------------------------------------
+def _plilayouts_key(mode: str = "full") -> dict:
+    key = {
+        "corpus": "k",
+        "ref": "0" * 40,
+        "programs": {},
+        "pli_layouts": {
+            "A.pli": {"units": ["R/A @0+3", "R/B @3+4", "R/C @7.0+1b"], "skipped": {},
+                      "pli_layouts_validated": False, "verification": {}},
+            "B.pli": {"units": ["S/X @0+2"], "skipped": {"L": "like"}, "pli_layouts_validated": False,
+                      "verification": {}},
+        },
+    }  # fmt: skip
+    key["sample_census"] = {"pli_layouts": {"plan": {"mode": mode, "files": ["A.pli", "B.pli", "C.pli"]}}}
+    return key
+
+
+def _plilayouts_agreeing() -> dict:
+    return {"files": {
+        "A.pli": {"plilayout": [{"root": "r", "name": "a", "offset": 0, "bytes": 3, "bit": None, "bits": None},
+                                {"root": "R", "name": "B", "offset": 3, "bytes": 4},
+                                {"root": "R", "name": "C", "offset": 7, "bytes": None, "bit": 0, "bits": 1}]},
+        "B.pli": {"plilayout": [{"root": "S", "name": "X", "offset": 0, "bytes": 2}]},
+        "C.pli": {"plilayout": []},
+    }}  # fmt: skip
+
+
+def test_plilayouts_suite_is_blind_and_round_trips_bits_and_bytes():
+    key = _plilayouts_key()
+    brief, truth = cs.render_plilayouts(key, REPO, cs.corpus_files_plilayouts(key), 1, 1)
+    assert "@3+4" not in brief and "R/B" not in brief and "IBM's structure mapping" in brief
+    assert truth["facts"]["plilayout"]["C.pli"] == []  # a recall candidate: "none" is checked too
+    g = cs.grade(truth, _plilayouts_agreeing(), REPO)
+    assert g["disagreements"] == [] and g["tasks"]["plilayout"] == {"agree": 4, "asked": 4}
+    wrong = _plilayouts_agreeing()
+    wrong["files"]["A.pli"]["plilayout"][2]["bit"] = 1  # the flag in the wrong bit
+    ids = [d["id"] for d in cs.grade(truth, wrong, REPO)["disagreements"]]
+    assert ids == ["plilayout:A.pli::R/C @7.0+1b", "plilayout:A.pli::R/C @7.1+1b"]
+
+
+def test_plilayouts_sign_full_per_batch_and_sampled_once_the_plan_is_done():
+    key = _plilayouts_key()
+    _, truth = cs.render_plilayouts(key, REPO, ["A.pli"], 1, 2)
+    cs.sign(key, truth, cs.grade(truth, _plilayouts_agreeing(), REPO), {}, "reviewer", "2026-09-26")
+    assert key["pli_layouts"]["A.pli"]["verification"]["tier"] == "cross_verified"
+    assert key["pli_layouts"]["B.pli"]["pli_layouts_validated"] is False
+    key = _plilayouts_key("sample")
+    for i, files in enumerate((["A.pli"], ["B.pli", "C.pli"]), 1):
+        _, truth = cs.render_plilayouts(key, REPO, files, i, 2)
+        cs.sign(key, truth, cs.grade(truth, _plilayouts_agreeing(), REPO), {}, "reviewer", "2026-09-26")
+        done = all(e["pli_layouts_validated"] for e in key["pli_layouts"].values())
+        assert done is (i == 2)  # sampled: flagged only when every planned file is signed
+    assert key["pli_layouts"]["A.pli"]["verification"]["tier"] == "sample_verified"
+    assert key["sample_census"]["pli_layouts"]["sampled"]["asked"] == 4
+    assert cs.coverage(key, cs.corpus_files_plilayouts(key), "plilayouts")["missing"] == []
+
+
+def test_plilayouts_plan_samples_every_stratum_with_recall(tmp_path):
+    kinds = ["BIT(1)", "CHAR(4) VAR", "FIXED BIN(31)", "FIXED DEC(5)", "PIC '99'", "PTR"]
+    key = {"pli_layouts": {}}
+    for n in range(60):
+        (tmp_path / f"P{n:02d}.pli").write_text(f" DCL 1 R, 2 A {kinds[n % 6]};\n", encoding="utf-8")
+        key["pli_layouts"][f"P{n:02d}.pli"] = {"units": [f"R/A{i} @{i}+1" for i in range(12)], "skipped": {}}
+    (tmp_path / "ROGUE.pli").write_text(" DCL 1 Q, 2 Z CHAR(1);\n", encoding="utf-8")  # unkeyed
+    plan = cs.pli_layouts_plan(key, tmp_path, 7)
+    assert plan["mode"] == "sample" and "ROGUE.pli" in plan["files"]
+    assert {"bit", "varying", "binary", "decimal", "picture", "pointer"} <= set(plan["strata"])
+    assert sum(len(key["pli_layouts"].get(f, {}).get("units", [])) for f in plan["files"]) >= cs.LAYOUT_SAMPLE_ROWS
+    assert plan == cs.pli_layouts_plan(key, tmp_path, 7)  # seeded

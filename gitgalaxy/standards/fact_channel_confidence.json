@@ -181,6 +181,15 @@
       "tested_on_private": 0,
       "tested_on_public": 2
     },
+    "PL/I layouts": {
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 0,
+      "fresh_rounds": 0,
+      "status": "open",
+      "tested_on_private": 0,
+      "tested_on_public": 2
+    },
     "PL/I record fields": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,

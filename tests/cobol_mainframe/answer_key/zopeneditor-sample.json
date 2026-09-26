@@ -8968,6 +8968,24 @@
           "why": "CUSTCOPY.cpy's items are all named with pseudo-text awaiting COPY REPLACING (`:TAG:-REC`, `:TAG:-ID`, ...): not data names until an including program's REPLACING supplies them, so the member has no layout of its own (the same contract as the data-move channel, whose brief says pseudo-text is not an operand). The layout is keyed where it exists, in each including program's records. The brief omitted this rule (field_testing B004); it now states it."
         }
       }
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",
+      "at": "2026-09-26",
+      "batch": 1,
+      "files": [
+        "PLI/PSAM1.pli",
+        "PLI/PSAM1LIB.pli"
+      ],
+      "wide": false,
+      "suite": "plilayouts",
+      "tasks": {
+        "plilayout": {
+          "agree": 27,
+          "asked": 27
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -11863,6 +11881,15 @@
           ]
         }
       }
+    },
+    "pli_layouts": {
+      "plan": {
+        "mode": "full",
+        "files": [
+          "PLI/PSAM1.pli",
+          "PLI/PSAM1LIB.pli"
+        ]
+      }
     }
   },
   "symbolic_maps": {},
@@ -12395,6 +12422,67 @@
         "cross_by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (layouts census #3649)",
+          "at": "2026-09-26"
+        }
+      }
+    }
+  },
+  "pli_layouts": {
+    "PLI/PSAM1.pli": {
+      "units": [
+        "HDR2/HDR2A @0+40",
+        "HDR2/HDR2B @40+40",
+        "HDR3/HDR3A @0+40",
+        "HDR3/HDR3B @40+40",
+        "SYSTEM_DATE_AND_TIME/CURRENT_DAY @6+2",
+        "SYSTEM_DATE_AND_TIME/CURRENT_HOUR @8+2",
+        "SYSTEM_DATE_AND_TIME/CURRENT_MILLISEC @14+3",
+        "SYSTEM_DATE_AND_TIME/CURRENT_MINUTE @10+2",
+        "SYSTEM_DATE_AND_TIME/CURRENT_MONTH @4+2",
+        "SYSTEM_DATE_AND_TIME/CURRENT_SECOND @12+2",
+        "SYSTEM_DATE_AND_TIME/CURRENT_YEAR @0+4",
+        "TRAN_RECORD/CRUNCH_CPU_LOOPS @13+9",
+        "TRAN_RECORD/CRUNCH_FILL1 @12+1",
+        "TRAN_RECORD/CRUNCH_FILL2 @22+58",
+        "TRAN_RECORD/CRUNCH_IO_LOOPS @7+5",
+        "TRAN_RECORD/TRAN_CODE @0+6",
+        "TRAN_RECORD/TRAN_FILL3 @6+1"
+      ],
+      "skipped": {},
+      "pli_layouts_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",
+          "at": "2026-09-26"
+        }
+      }
+    },
+    "PLI/PSAM1LIB.pli": {
+      "units": [
+        "HDR2/HDR2A @0+40",
+        "HDR2/HDR2B @40+40",
+        "HDR3/HDR3A @0+40",
+        "HDR3/HDR3B @40+40",
+        "TRAN_RECORD/CRUNCH_CPU_LOOPS @13+9",
+        "TRAN_RECORD/CRUNCH_FILL1 @12+1",
+        "TRAN_RECORD/CRUNCH_FILL2 @22+58",
+        "TRAN_RECORD/CRUNCH_IO_LOOPS @7+5",
+        "TRAN_RECORD/TRAN_CODE @0+6",
+        "TRAN_RECORD/TRAN_FILL3 @6+1"
+      ],
+      "skipped": {},
+      "pli_layouts_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (PL/I layouts census #3727)",
           "at": "2026-09-26"
         }
       }

@@ -930,6 +930,275 @@ def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# PL/I record layouts (#3727)
+# ==============================================================================
+# Every PL/I structure (a level-1 item with members) laid out by this tool's own
+# arithmetic, as `ROOT/NAME @offset+bytes` per named elementary member -- or
+# `ROOT/NAME @byte.bit+Nb` when the member does not start or end on a byte (an
+# unaligned BIT string). A member of an array is listed once, at its first
+# occurrence, with the size of the whole array; a DEFINED member (and all under it)
+# overlays storage and is not laid out; `*` is filler.
+#
+# The rule is IBM's structure mapping (Enterprise PL/I Language Reference,
+# "Structure and union mapping"), stated here the other way round from the engine's
+# pairwise shifting: a structure's members are placed one after another, each at
+# the first position after its predecessor that meets its alignment, and of every
+# start the first member's alignment allows (modulo the structure's strictest
+# alignment) the one whose padding -- gap by gap, first gap first -- is least is
+# taken. Its start is then the structure's offset from that boundary, which its
+# parent honours. Sizes and alignments (31-bit, bits):
+#   CHARACTER(n) 8n [VARYING +16]; BIT(n) n unaligned, else whole bytes; PICTURE one
+#   byte per position (V K and F(n) none, CR DB two); FIXED DECIMAL(p) 8(p/2+1);
+#   FIXED BINARY(p) 8/16/32/64 as p <= 7/15/31/63; FLOAT 32/64/128 (DECIMAL p <= 6/16,
+#   BINARY p <= 21/53); POINTER / OFFSET / HANDLE 32; ENTRY / LABEL variable 64,
+#   fullword-aligned. Aligned: arithmetic and locators on their own size (at most a
+#   doubleword), a VARYING string on a halfword, anything else on a byte. Strings and
+#   pictures default to UNALIGNED, the rest to ALIGNED; an explicit (UN)ALIGNED on a
+#   structure passes to its members. Unaligned data is byte-aligned, bits bit-aligned.
+# A structure this reader cannot lay out is `skipped` with the reason: LIKE, UNION /
+# CELL, REFER, AREA or another type it does not size, an %INCLUDE inside the
+# declaration (its members are not here), or a member with no data type.
+_PLI_LAYOUT_UNSIZED = {"LIKE": "like", "UNION": "union", "CELL": "union", "REFER": "refer", "AREA": "area",
+                       "TASK": "type", "EVENT": "type", "FILE": "type", "FORMAT": "type", "WIDECHAR": "type",
+                       "WCHAR": "type", "GRAPHIC": "type", "UCHAR": "type"}  # fmt: skip
+
+
+def _pli_declarations(text: str) -> list[tuple[list[dict[str, Any]], bool]]:
+    """(items, the declaration holds an %INCLUDE) per DECLARE statement, macro procedures
+    skipped -- the statement walk of pli_data_items."""
+    tokens = _pli_token_stream(_pli_source_lines(text))
+    statements: list[list] = [[]]
+    for t in tokens:
+        if t[1] == ";" and t[0] == "punct":
+            statements.append([])
+        else:
+            statements[-1].append(t)
+    out: list[tuple[list[dict[str, Any]], bool]] = []
+    macro = False
+    for st in statements:
+        while st and st[0][0] == "word" and st[0][1].isdigit() and len(st) > 1 and st[1][2] > st[0][2]:
+            st = st[1:]
+        if not st:
+            continue
+        if st[0][1] == "%":
+            if macro:
+                macro = not (len(st) > 1 and st[1][1] == "END")
+            elif len(st) > 3 and st[2][1] == ":" and st[3][1] in ("PROC", "PROCEDURE"):
+                macro = True
+            continue
+        if macro or st[0][1] not in ("DCL", "DECLARE") or st[0][0] != "word":
+            continue
+        depth, include = 0, False
+        for prev, t in zip([("punct", ",", 0), *st[1:]], st[1:]):
+            depth += {"(": 1, ")": -1}.get(t[1], 0)
+            include |= t[1] == "%" and depth == 0 and prev[1] == ","
+        out.append((_pli_declaration(st[1:]), include))
+    return out
+
+
+def _pli_words(attributes: str) -> list[str]:
+    return re.findall(r"[A-Z@#$][\w@#$]*|\d+|'[^']*'|[(),:]", attributes.upper())
+
+
+def _pli_extent(dims: Optional[str]) -> Optional[int]:
+    """Elements of an array from its dimension text (`3`, `2,4`, `0:9`); None when not fixed."""
+    if dims is None:
+        return 1
+    n = 1
+    for part in dims.split(","):
+        lo, _, hi = part.strip().rpartition(":")
+        if not hi.strip().lstrip("+-").isdigit() or (lo and not lo.strip().lstrip("+-").isdigit()):
+            return None
+        n *= int(hi) - (int(lo) if lo else 1) + 1
+    return n
+
+
+def _pli_picture_bytes(pic: str) -> Optional[int]:
+    body = re.sub(r"F\(\s*[+-]?\d+\s*\)", "", pic.upper())
+    total, rep = 0, 1
+    for m in re.finditer(r"\(\s*(\d+)\s*\)|CR|DB|(.)", body):
+        if m.group(1):
+            rep = int(m.group(1))
+            continue
+        ch = m.group(0)
+        if ch in ("CR", "DB"):
+            total += 2 * rep
+        elif ch in "VK":
+            pass
+        elif ch in "9XAZ*Y$+-S.,/B0TIRE ":
+            total += rep
+        else:
+            return None
+        rep = 1
+    return total
+
+
+def _pli_element(attributes: str, aligned: Optional[bool]) -> tuple[Optional[tuple[int, int]], str]:
+    """((bits, alignment in bits), "") of one elementary member, or (None, reason).
+    `aligned` is the inherited (UN)ALIGNED, None when nothing above says."""
+    words = _pli_words(attributes)
+    top = set(words)
+    for w, reason in _PLI_LAYOUT_UNSIZED.items():
+        if w in top:
+            return None, reason
+    if "UNALIGNED" in top or "UNAL" in top:
+        own: Optional[bool] = False
+    elif "ALIGNED" in top:
+        own = True
+    else:
+        own = aligned
+
+    def arg(after: set[str]) -> Optional[int]:
+        for i, w in enumerate(words[:-2]):
+            if w in after and words[i + 1] == "(" and words[i + 2].isdigit():
+                return int(words[i + 2])
+        return None
+
+    pic = next((w for i, w in enumerate(words) if w.startswith("'") and i and words[i - 1] in ("PIC", "PICTURE")),
+               None)  # fmt: skip
+    if pic is not None:
+        n = _pli_picture_bytes(pic.strip("'"))
+        return ((8 * n, 8), "") if n is not None else (None, "picture")
+    if top & {"CHAR", "CHARACTER"}:
+        n = arg({"CHAR", "CHARACTER"})
+        if n is None:
+            return None, "type"
+        varying = bool(top & {"VAR", "VARYING"})
+        return (8 * n + 16 * varying, 16 if own and varying else 8), ""
+    if "BIT" in top:
+        n = arg({"BIT"})
+        if n is None:
+            return None, "type"
+        return ((8 * -(-n // 8), 8) if own else (n, 1)), ""
+    aligned_arith = own is not False
+    if top & {"POINTER", "PTR", "OFFSET", "HANDLE"}:
+        return (32, 32 if aligned_arith else 8), ""
+    if top & {"ENTRY", "LABEL"}:
+        return (64, 32 if aligned_arith else 8), ""
+    fixed, flt = "FIXED" in top, "FLOAT" in top
+    binary, decimal = bool(top & {"BIN", "BINARY"}), bool(top & {"DEC", "DECIMAL"})
+    if not (fixed or flt or binary or decimal):
+        return None, "no type"
+    p = arg({"FIXED", "FLOAT", "BIN", "BINARY", "DEC", "DECIMAL"})
+    if fixed and binary:
+        p = p or 15
+        size = 8 if p <= 7 else 16 if p <= 15 else 32 if p <= 31 else 64
+        return (size, size if aligned_arith else 8), ""
+    if fixed:
+        return (8 * ((p or 5) // 2 + 1), 8), ""
+    if binary:
+        size = 32 if (p or 21) <= 21 else 64 if (p or 21) <= 53 else 128
+    else:
+        size = 32 if (p or 6) <= 6 else 64 if (p or 6) <= 16 else 128
+    return (size, min(size, 64) if aligned_arith else 8), ""
+
+
+def _pli_string_or_picture(attributes: str) -> bool:
+    top = set(_pli_words(attributes))
+    return bool(top & {"CHAR", "CHARACTER", "BIT", "PIC", "PICTURE"})
+
+
+def _pli_map(item: dict[str, Any], kids: dict[int, list], aligned: Optional[bool]) -> tuple[Any, str]:
+    """((bits, alignment, start residue, {ordinal: (bit offset, bits)}), "") of an item and
+    all under it, or (None, reason). `aligned` is what the enclosing structure passes down."""
+    top = set(_pli_words(item["attributes"]))
+    times = _pli_extent(item["dims"])
+    if times is None:
+        return None, "dimension"
+    own = False if top & {"UNALIGNED", "UNAL"} else True if "ALIGNED" in top else aligned
+    members = [k for k in kids.get(item["ordinal"], []) if not {"DEFINED", "DEF"} & set(_pli_words(k["attributes"]))]
+    if not members:
+        default = own if own is not None else not _pli_string_or_picture(item["attributes"])
+        el, why = _pli_element(item["attributes"], default)
+        if el is None:
+            return None, why
+        bits, align, residue, at = el[0], el[1], 0, {}
+    else:
+        mapped = []
+        for m in members:
+            r, why = _pli_map(m, kids, own)
+            if r is None:
+                return None, why
+            mapped.append(r)
+        strictest = max(r[1] for r in mapped)
+        best = None
+        for start in range(mapped[0][2], strictest, mapped[0][1]):  # every start the first member allows
+            pos, gaps, where = start, [], {}
+            for b, a, res, inner in mapped:
+                place = pos + (res - pos) % a
+                gaps.append(place - pos)
+                where.update({o: (place + off, n) for o, (off, n) in inner.items()})
+                pos = place + b
+            if best is None or gaps < best[0]:
+                best = (gaps, start, pos, where)
+        if best is None:  # unreachable: the range holds the first member's own residue
+            return None, "mapping"
+        _, start, end, where = best
+        bits, align, residue = end - start, strictest, start % strictest
+        at = {o: (off - start, n) for o, (off, n) in where.items()}
+    if times > 1:
+        bits = (bits + (-bits) % align) * (times - 1) + bits  # each element on its alignment
+    at[item["ordinal"]] = (0, bits)
+    return (bits, align, residue, at), ""
+
+
+def pli_layout(text: str) -> tuple[set[str], dict[str, str]]:
+    """(the layout units of every structure the source declares, {root: why skipped})."""
+    units: set[str] = set()
+    skipped: dict[str, str] = {}
+    for items, include in _pli_declarations(text):
+        kids: dict[int, list] = {}
+        roots: list[dict[str, Any]] = []
+        stack: list[dict[str, Any]] = []
+        for i, it in enumerate(items):
+            it["ordinal"] = i
+            while stack and stack[-1]["level"] >= it["level"]:
+                stack.pop()
+            (kids.setdefault(stack[-1]["ordinal"], []) if stack else roots).append(it)
+            stack.append(it)
+        for root in roots:
+            words = set(_pli_words(root["attributes"]))
+            if root["name"] == "*" or {"DEFINED", "DEF"} & words:
+                continue  # filler; an overlay of another structure
+            if root["ordinal"] not in kids:
+                if "LIKE" in words:
+                    skipped[root["name"]] = "like"  # a structure copying another's members
+                elif include and _pli_element(root["attributes"], None)[0] is None:
+                    skipped[root["name"]] = "include"  # `1 B BASED(P), %INCLUDE M;`: its members are in M
+                continue  # otherwise a scalar, not a structure
+            if include:
+                skipped[root["name"]] = "include"
+                continue
+            mapped, why = _pli_map(root, kids, None)
+            if mapped is None:
+                skipped[root["name"]] = why
+                continue
+            for o, (off, n) in mapped[3].items():
+                if o in kids or items[o]["name"] == "*":
+                    continue  # the structure and its minor structures; filler
+                where = f"@{off // 8}+{n // 8}" if off % 8 == 0 and n % 8 == 0 else f"@{off // 8}.{off % 8}+{n}b"
+                units.add(f"{root['name']}/{items[o]['name']} {where}")
+    return units, skipped
+
+
+def draft_pli_layouts(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3727: every PL/I source's structure layouts (see pli_layout)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or p.suffix.lower() not in PLI_EXTS or ".git" in p.parts:
+            continue
+        units, skipped = pli_layout(p.read_text(encoding="utf-8", errors="ignore"))
+        if units or skipped:
+            out[p.relative_to(repo).as_posix()] = {
+                "units": sorted(units),
+                "skipped": dict(sorted(skipped.items())),
+                "pli_layouts_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
+
+
+# ==============================================================================
 # PL/I program call sites (#3491)
 # ==============================================================================
 # This tool's own reading of a PL/I source's calls OUT of the program, over the
@@ -5533,6 +5802,30 @@ def engine_copybook_units(ir: Any, rel: str) -> Optional[set[str]]:
     return out
 
 
+def engine_pli_layout_units(ir: Any, rel: str, skipped: set[str]) -> Optional[set[str]]:
+    """#3727: the engine's side of a PL/I file's layout units -- GalaxyIR.record_layout of
+    each structure the key laid out (the roots it skipped are left out on both sides)."""
+    ef = ir.files.get(rel) if ir is not None else None
+    if ef is None:
+        return None
+    out: set[str] = set()
+    for root in ef.records:
+        if root.name in skipped or root.redefines or not root.children:
+            continue
+        layout = ir.record_layout(ef, root)
+        if layout["bytes"] is None:
+            continue  # not laid out: the key's units for it are misses
+        for fld in layout["fields"]:
+            if not fld.get("name") or fld["name"] == "*":
+                continue
+            if fld.get("bits") is not None:
+                where = f"@{fld['bit_offset'] // 8}.{fld['bit_offset'] % 8}+{fld['bits']}b"
+            else:
+                where = f"@{fld['offset']}+{fld['bytes']}"
+            out.add(f"{root.name}/{fld['name']} {where}")
+    return out
+
+
 def verify_symbolic_maps(key: dict[str, Any], repo: Path, at: str) -> tuple[int, list[str]]:
     """Sign every keyed mapset whose IBM-generated copybook (`<MAPSET>.cpy` in a
     `cpy-bms` directory) lays out exactly as the key computes; (signed, differences)."""
@@ -5998,6 +6291,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # PIC item. Truth is this tool's own reader and storage arithmetic; engine is
         # GalaxyIR.record_layout (record_data).
         "copybook layouts",
+        # #3727: every PL/I structure as `ROOT/NAME @offset+bytes` (bit strings off a
+        # byte `@byte.bit+Nb`) per named elementary member. Truth is this tool's own
+        # PL/I reader and structure mapping; engine is GalaxyIR.record_layout.
+        "PL/I layouts",
         # #3492: READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT, as
         # written. Truth is this tool's own reader; engine is data_move_data.
         "file I/O moves",
@@ -6425,6 +6722,14 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         add("CICS RIDFLD", rel, set(k.get("units", [])), None, engine_ridfld_units(ef) if ef else None)
     for rel, k in key.get("copybook_layouts", {}).items():
         add("copybook layouts", rel, set(k.get("units", [])), None, engine_copybook_units(ir, rel))
+    for rel, k in key.get("pli_layouts", {}).items():
+        add(
+            "PL/I layouts",
+            rel,
+            set(k.get("units", [])),
+            None,
+            engine_pli_layout_units(ir, rel, set(k.get("skipped", {}))),
+        )
     for rel, k in key.get("symbolic_maps", {}).items():
         for mapset, units in k.get("layouts", {}).items():
             eng = engine_maps.get(mapset)
@@ -6652,6 +6957,9 @@ def main() -> int:
     cbl = sub.add_parser("add-copybook-layouts")  # #3602
     cbl.add_argument("repo", type=Path)
     cbl.add_argument("--key", type=Path, required=True)
+    pll = sub.add_parser("add-pli-layouts")  # #3727
+    pll.add_argument("repo", type=Path)
+    pll.add_argument("--key", type=Path, required=True)
     uw = sub.add_parser("add-uow")
     uw.add_argument("repo", type=Path)
     uw.add_argument("--key", type=Path, required=True)
@@ -6961,6 +7269,16 @@ def main() -> int:
         key["copybook_layouts"] = cl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(cl)} copybook layouts -> {args.key}")
+        return 0
+    if args.cmd == "add-pli-layouts":
+        # #3727: the add-pli discipline -- refresh drafts, keep signed-off files.
+        pl = {rel: e for rel, e in key.get("pli_layouts", {}).items() if e.get("pli_layouts_validated")}
+        for rel, entry in draft_pli_layouts(repo).items():
+            if not pl.get(rel, {}).get("pli_layouts_validated"):
+                pl[rel] = entry
+        key["pli_layouts"] = pl
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(pl)} PL/I layout files -> {args.key}")
         return 0
     if args.cmd == "add-uow":
         # #3453: the add-pli discipline -- refresh drafts, keep signed-off files.

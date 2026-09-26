@@ -1479,3 +1479,38 @@ def test_a_function_result_reference_modification_is_a_refmod(tmp_path):
         "L5 MOVE FUNCTION UPPER-CASE(2:3) -> WS-U",
     }
     assert "L6 MOVE FUNCTION NUMVAL -> WS-V" in ak.data_move_keys(rows)
+
+
+# ---- #3727: PL/I record layouts --------------------------------------------------
+_IBM_EXAMPLE = """ DCL 1 A {align}, 2 B FIXED BIN(31), 2 C, 3 D FLOAT DEC(14), 3 E, 4 F ENTRY VARIABLE, 4 G,
+   5 H CHAR(2), 5 I FLOAT DEC(13), 4 J FIXED BIN(31,0), 3 K CHAR(2), 3 L FIXED BIN(20,0), 2 M, 3 N,
+   4 P FIXED BIN(15), 4 Q CHAR(5), 4 R FLOAT DEC(2), 3 S, 4 T FLOAT DEC(15), 4 U BIT(3), 4 V CHAR(1),
+   3 W FIXED BIN(31), 2 X PIC '$9V99';"""
+
+
+def test_pli_layout_reproduces_ibm_figure_12():
+    units, skipped = ak.pli_layout(_IBM_EXAMPLE.format(align="ALIGNED"))
+    assert skipped == {}
+    assert units == {"A/B @0+4", "A/D @4+8", "A/F @16+8", "A/H @26+2", "A/I @28+8", "A/J @36+4", "A/K @40+2",
+                     "A/L @44+4", "A/P @48+2", "A/Q @50+5", "A/R @56+4", "A/T @60+8", "A/U @68+1", "A/V @69+1",
+                     "A/W @72+4", "A/X @76+4"}  # fmt: skip
+    units, _ = ak.pli_layout(_IBM_EXAMPLE.format(align="UNALIGNED"))
+    assert {"A/F @12+8", "A/R @47+4", "A/U @59.0+3b", "A/V @60+1", "A/X @65+4"} <= units
+
+
+def test_pli_layout_bits_arrays_defined_and_what_it_skips():
+    units, skipped = ak.pli_layout(
+        """ DCL 1 R, 2 A CHAR(3), 2 B FIXED BIN(31), 2 C BIT(1), 2 D BIT(1), 2 E FIXED DEC(7,2), 2 X(3) FIXED BIN(15),
+          2 Y DEF A CHAR(1); /* a DEFINED overlay */
+        DCL 1 Q LIKE R; DCL 1 Z BASED(P), %INCLUDE FOO; DCL 1 V, 2 V1 AREA(100); DCL S FIXED BIN(15);"""
+    )
+    assert units == {"R/A @0+3", "R/B @3+4", "R/C @7.0+1b", "R/D @7.1+1b", "R/E @8+4", "R/X @13+6"}
+    assert skipped == {"Q": "like", "Z": "include", "V": "area"}
+
+
+def test_pli_layouts_draft_keys_structures_only(tmp_path):
+    (tmp_path / "P.pli").write_text(" DCL 1 R, 2 A CHAR(2);\n DCL X CHAR(1);\n", encoding="utf-8")
+    (tmp_path / "S.pli").write_text(" DCL X CHAR(1);\n", encoding="utf-8")
+    drafted = ak.draft_pli_layouts(tmp_path)
+    assert list(drafted) == ["P.pli"] and drafted["P.pli"]["units"] == ["R/A @0+2"]
+    assert drafted["P.pli"]["pli_layouts_validated"] is False

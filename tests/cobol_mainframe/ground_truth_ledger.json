@@ -302,6 +302,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -1188,6 +1193,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -1668,6 +1678,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -2100,6 +2115,15 @@
           "forge": null,
           "truth": "sample_verified"
         },
+        "PL/I layouts": {
+          "engine": {
+            "got": 6694,
+            "tp": 6694,
+            "truth": 6694
+          },
+          "forge": null,
+          "truth": "sample_verified"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -2492,6 +2516,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "PL/I record fields": {
           "engine": null,
           "forge": null,
@@ -2879,6 +2908,15 @@
           },
           "forge": null,
           "truth": "sample_verified"
+        },
+        "PL/I layouts": {
+          "engine": {
+            "got": 27,
+            "tp": 27,
+            "truth": 27
+          },
+          "forge": null,
+          "truth": "cross_verified"
         },
         "PL/I record fields": {
           "engine": {

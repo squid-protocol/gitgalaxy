@@ -3,7 +3,11 @@
     "file_name": "R001BYDL.cobol",
     "path": "<WORK>/dsf/src/GML/R001BYDL.cobol",
     "corporate_header": "",
-    "loc": 201
+    "loc": 201,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

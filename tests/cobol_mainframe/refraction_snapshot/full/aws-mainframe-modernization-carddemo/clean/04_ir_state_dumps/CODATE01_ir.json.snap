@@ -3,7 +3,11 @@
     "file_name": "CODATE01.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/CODATE01.cbl",
     "corporate_header": "",
-    "loc": 524
+    "loc": 524,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

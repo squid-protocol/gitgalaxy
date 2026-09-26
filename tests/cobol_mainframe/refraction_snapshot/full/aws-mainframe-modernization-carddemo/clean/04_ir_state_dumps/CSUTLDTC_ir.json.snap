@@ -3,7 +3,11 @@
     "file_name": "CSUTLDTC.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CSUTLDTC.cbl",
     "corporate_header": "",
-    "loc": 157
+    "loc": 157,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

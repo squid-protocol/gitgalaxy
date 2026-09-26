@@ -3,7 +3,11 @@
     "file_name": "COCRDSLC.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COCRDSLC.cbl",
     "corporate_header": "",
-    "loc": 887
+    "loc": 887,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

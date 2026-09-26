@@ -988,6 +988,7 @@ class RecordKeeper:
                 line_number INTEGER,
                 dsn_resolved TEXT,
                 dsn_resolution TEXT,
+                open_sites TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -998,6 +999,9 @@ class RecordKeeper:
         # ambiguous / unresolved -- see mainframe_boundary._jcl_resolve_datasets).
         # Both NULL on a COBOL row. Healed onto a table created before #3345.
         _ensure_columns(cursor, "dataset_data", ["dsn_resolved TEXT", "dsn_resolution TEXT"])
+        # #3348: a COBOL row's OPEN sites, a JSON list of [mode, line] in line order, so
+        # the refractor can drop the OPENs in dead paragraphs. NULL on a JCL row.
+        _ensure_columns(cursor, "dataset_data", ["open_sites TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
@@ -2849,6 +2853,7 @@ class RecordKeeper:
                 "line_number",
                 "dsn_resolved",
                 "dsn_resolution",
+                "open_sites",
             ),
             "dataset_bindings",
             lambda b: (
@@ -2861,6 +2866,7 @@ class RecordKeeper:
                 int(b.get("line", 0) or 0),
                 b.get("dsn_resolved"),  # #3345
                 b.get("dsn_resolution"),
+                json.dumps(b["open_sites"]) if b.get("open_sites") is not None else None,  # #3348
             ),
         )
 

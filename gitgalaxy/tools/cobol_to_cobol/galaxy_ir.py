@@ -128,6 +128,12 @@
 # Since #3492 the file-I/O verbs are data moves too (READ INTO: the FD record ->
 # the area; WRITE FROM: the area -> the record), an FD's 01 records share one
 # storage key, and they carry a field's offset as a group MOVE does.
+# Since #3348 the refractor CONSUMES these channels, not only stores and compares
+# them: with a DB, cobol_refractor_controller.process_payload takes a program's DD
+# lineage and dynamic CALLs (dataset_data, with each OPEN's line -- open_sites --
+# and call_site_data) and its schemas (record_data) from here via
+# engine_sourcing.py, and records the source per field (metadata.ir_sources); the
+# forge readers are the fallback for a DB from before a channel.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -249,6 +255,9 @@ class EngineDataset:
     # on a COBOL row and on a DB written before the columns existed.
     dsn_resolved: Optional[str] = None
     dsn_resolution: Optional[str] = None
+    # #3348: a COBOL row's OPEN sites, [(mode, line)] in line order; None on a JCL row
+    # and on a DB written before the column existed (the refractor then keeps the forge).
+    open_sites: Optional[list] = None
 
     @property
     def is_binding(self) -> bool:
@@ -784,6 +793,8 @@ class EngineFile:
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
+    # #3348: the DB has record_data, so an empty `data_items` means "no items", not "not read".
+    records_read: bool = False
     transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
     sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
     sql_statements: list = field(default_factory=list)  # EngineSqlStatement, source order, #3446
@@ -5123,9 +5134,23 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             resolved_cols = (
                 "dsn_resolved, dsn_resolution" if _has_column(cur, "dataset_data", "dsn_resolution") else "NULL, NULL"
             )
-            for file_id, step, internal, assign, dd, modes, dsn, line, dsn_resolved, dsn_resolution in cur.execute(
-                "SELECT file_id, step_name, internal_name, assign_name, dd_name, access_modes, dsn, line_number, "  # noqa: S608 -- resolved_cols is one of two literals; values are bound
-                f"{resolved_cols} FROM dataset_data WHERE repo_name = ? AND commit_hash = ? "
+            # #3348: open_sites likewise.
+            opens_col = "open_sites" if _has_column(cur, "dataset_data", "open_sites") else "NULL"
+            for (
+                file_id,
+                step,
+                internal,
+                assign,
+                dd,
+                modes,
+                dsn,
+                line,
+                dsn_resolved,
+                dsn_resolution,
+                opens,
+            ) in cur.execute(
+                "SELECT file_id, step_name, internal_name, assign_name, dd_name, access_modes, dsn, line_number, "  # noqa: S608 -- resolved_cols / opens_col are literals; values are bound
+                f"{resolved_cols}, {opens_col} FROM dataset_data WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -5142,6 +5167,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         int(line or 0),
                         dsn_resolved,
                         dsn_resolution,
+                        [(m, int(n)) for m, n in json.loads(opens)] if opens is not None else None,
                     )
                 )
 
@@ -5151,6 +5177,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # Rows arrive in source order (ORDER BY ordinal); the tree is rethreaded
         # from parent_ordinal, which the extractor computed with a level stack.
         if _has_table(cur, "record_data"):
+            for ef in by_id.values():
+                ef.records_read = True
             # #3250: `attributes` is NULL on a DB written before the column existed.
             attributes_col = "attributes" if _has_column(cur, "record_data", "attributes") else "NULL"
             # #3355: `copy_members` likewise.

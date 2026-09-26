@@ -3,7 +3,11 @@
     "file_name": "COUSR02C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COUSR02C.cbl",
     "corporate_header": "",
-    "loc": 414
+    "loc": 414,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

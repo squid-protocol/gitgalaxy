@@ -3,7 +3,11 @@
     "file_name": "lgdpol01.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgdpol01.cbl",
     "corporate_header": "",
-    "loc": 186
+    "loc": 186,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

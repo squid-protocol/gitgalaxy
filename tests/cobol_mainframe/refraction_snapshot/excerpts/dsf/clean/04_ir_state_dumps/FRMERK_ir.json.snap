@@ -3,7 +3,11 @@
     "file_name": "FRMERK.cobol",
     "path": "<WORK>/dsf/src/GML/FRMERK.cobol",
     "corporate_header": "",
-    "loc": 103
+    "loc": 103,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

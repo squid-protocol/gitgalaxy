@@ -3,7 +3,11 @@
     "file_name": "lgucvs01.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgucvs01.cbl",
     "corporate_header": "",
-    "loc": 136
+    "loc": 136,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

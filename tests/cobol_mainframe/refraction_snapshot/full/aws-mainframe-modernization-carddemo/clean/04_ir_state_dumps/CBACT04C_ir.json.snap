@@ -3,7 +3,11 @@
     "file_name": "CBACT04C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBACT04C.cbl",
     "corporate_header": "",
-    "loc": 652
+    "loc": 652,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

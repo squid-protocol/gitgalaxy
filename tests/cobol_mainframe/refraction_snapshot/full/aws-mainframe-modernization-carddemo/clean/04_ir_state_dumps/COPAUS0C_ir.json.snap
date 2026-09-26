@@ -3,7 +3,11 @@
     "file_name": "COPAUS0C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
     "corporate_header": "",
-    "loc": 1032
+    "loc": 1032,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

@@ -3,7 +3,11 @@
     "file_name": "lgstsq.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgstsq.cbl",
     "corporate_header": "",
-    "loc": 126
+    "loc": 126,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

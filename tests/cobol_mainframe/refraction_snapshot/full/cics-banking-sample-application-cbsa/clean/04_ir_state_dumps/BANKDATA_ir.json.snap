@@ -3,7 +3,11 @@
     "file_name": "BANKDATA.cbl",
     "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/BANKDATA.cbl",
     "corporate_header": "",
-    "loc": 1463
+    "loc": 1463,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

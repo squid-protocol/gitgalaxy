@@ -501,3 +501,26 @@ def test_cics_resource_verdict_needs_explicit_validation(mini_repo):
     summary = rd.summarize_causes(rd.classify(mini_repo, rows, key))
     assert summary["unexplained"] == 0
     assert summary["by_cause"] == {"key:engine defect": 2}
+
+
+def _with(row, **pairs):
+    row.update(pairs)
+    return row
+
+
+def test_a_lineage_or_schema_disagreement_is_unexplained(mini_repo):
+    """#3348: the refractor reads lineage and schemas from the DB, so the engine and the
+    forge it replaced must agree; any difference is a regression, never explained away."""
+    row = _with(_row(), lineage={"old": ["inputs:INDD"], "db": ["inputs:INDD", "outputs:OUTDD"]},
+                schema={"old": ["TABLE T", "A INTEGER"], "db": ["TABLE T"]})  # fmt: skip
+    got = {(d["field"], d["side"], d["value"], d["cause"]) for d in rd.classify(mini_repo, [row], None)}
+    assert got == {
+        ("lineage", "db", "outputs:OUTDD", rd.UNEXPLAINED),
+        ("schema_column", "old", "A INTEGER", rd.UNEXPLAINED),
+    }
+
+
+def test_a_db_from_before_the_channels_is_not_compared(mini_repo):
+    """A DB without the channels gives None: the refractor keeps the forge, nothing to compare."""
+    row = _with(_row(), lineage={"old": ["inputs:INDD"], "db": None}, schema={"old": ["TABLE T"], "db": None})
+    assert rd.classify(mini_repo, [row], None) == []

@@ -3,7 +3,11 @@
     "file_name": "BNK1CAC.cbl",
     "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/BNK1CAC.cbl",
     "corporate_header": "",
-    "loc": 1299
+    "loc": 1299,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

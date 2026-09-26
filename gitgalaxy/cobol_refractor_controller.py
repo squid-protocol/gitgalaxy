@@ -39,6 +39,7 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
     scan_system_limits,
 )
+from gitgalaxy.tools.cobol_to_cobol.engine_sourcing import engine_lineage, engine_schemas
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
     EngineFile,
     GalaxyIR,
@@ -241,9 +242,13 @@ def process_payload(
 
     `engine_file` is this program's record from the engine's master DB (#3120).
     It supplies PROGRAM-ID, the COPY dependency graph and the paragraph
-    inventory. Dead code, DD lineage and data items stay on the forge tools:
-    the DB does not carry them (see galaxy_ir.py), and `usage_status` is a
-    by-name test, not reachability, so it is recorded but never used for masking.
+    inventory, and (#3348) the DD lineage and dynamic CALLs (dataset_data +
+    call_site_data) and the record layouts behind the schemas (record_data).
+    `metadata.ir_sources` says, per field, whether the DB or the forge supplied it:
+    the forge is the fallback when there is no DB or it predates a channel. Dead
+    code stays on the forge: its reachability analysis names the dead paragraphs
+    and the engine's facts in them are dropped; `usage_status` is a by-name test,
+    not reachability, so it is recorded but never used for masking.
 
     `filepath` is never written. When the lexical patcher rewrites the program, the
     patched copy goes to `patched_dir` (mirroring its path under `source_root`) and
@@ -311,7 +316,10 @@ def process_payload(
     orphans = state_manager.get_orphaned_vars(program_id)
 
     # B. DAG Architect (Maps I/O Intent - Utilizing Deprecated Trails RAM to deflect Hallucinated Dependencies!)
-    ir["analysis"]["lineage"] = extract_lineage(work_path, dead_paras=dead_paras)
+    # #3348: from the DB's dataset / call channels when it has them, else the forge.
+    lineage = engine_lineage(engine_file, dead_paras) if engine_file is not None else None
+    sources = {"lineage": "galaxy_db" if lineage is not None else "forge"}
+    ir["analysis"]["lineage"] = lineage if lineage is not None else extract_lineage(work_path, dead_paras=dead_paras)
 
     # C. JCL Forge (Extracts Program ID and Subsystems)
     ir["analysis"]["base_intent"] = analyze_cobol_intent(work_path)
@@ -331,11 +339,14 @@ def process_payload(
     # --- PHASE 2: CONTEXT-AWARE GENERATION ---
 
     # A. Schema Forge (Injecting Deprecated Trails RAM to prevent Schema Bloat)
-    ir["generation"]["schemas"] = forge_schemas(
-        work_path,
-        ignore_vars=orphans,
-        corporate_header=ir["metadata"]["corporate_header"],
-    )
+    # #3348: from the DB's record_data when it has it, else the forge's own reader.
+    header = ir["metadata"]["corporate_header"]
+    schemas = engine_schemas(engine_file, filepath.stem, orphans, header) if engine_file is not None else False
+    sources["schemas"] = "forge" if schemas is False else "galaxy_db"
+    if schemas is False:
+        schemas = forge_schemas(work_path, ignore_vars=orphans, corporate_header=header)
+    ir["generation"]["schemas"] = schemas
+    ir["metadata"]["ir_sources"] = sources
 
     # B. JCL Forge (Injecting DAG RAM for Accurate DISP routing)
     dag_lineage = ir["analysis"]["lineage"] or {"inputs": set(), "outputs": set()}

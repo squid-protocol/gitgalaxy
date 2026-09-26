@@ -3,7 +3,11 @@
     "file_name": "COACCT01.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-vsam-mq/cbl/COACCT01.cbl",
     "corporate_header": "",
-    "loc": 620
+    "loc": 620,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

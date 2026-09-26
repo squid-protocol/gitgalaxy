@@ -3,7 +3,11 @@
     "file_name": "CRDTAGY4.cbl",
     "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/CRDTAGY4.cbl",
     "corporate_header": "",
-    "loc": 277
+    "loc": 277,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

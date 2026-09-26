@@ -3,7 +3,11 @@
     "file_name": "ZECS000.cbl",
     "path": "<WORK>/zecs/Source/ZECS000.cbl",
     "corporate_header": "",
-    "loc": 838
+    "loc": 838,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

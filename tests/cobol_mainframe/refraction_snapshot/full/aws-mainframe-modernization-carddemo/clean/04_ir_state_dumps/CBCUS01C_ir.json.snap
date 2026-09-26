@@ -3,7 +3,11 @@
     "file_name": "CBCUS01C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBCUS01C.cbl",
     "corporate_header": "",
-    "loc": 178
+    "loc": 178,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

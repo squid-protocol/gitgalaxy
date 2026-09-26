@@ -89,6 +89,7 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E40
 )
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas  # noqa: E402
+from gitgalaxy.tools.cobol_to_cobol.engine_sourcing import engine_lineage, engine_schemas  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir, scan_to_db  # noqa: E402
 
 # The sibling readers/scorer. It has no top-level engine imports, so importing it
@@ -175,6 +176,23 @@ def _forge_record_fields(path: Path) -> set[str]:
     if not schema:
         return set()
     return {name.replace("-", "_").upper() for name in schema["json"]["properties"]}
+
+
+def _lineage_values(lineage: Optional[dict[str, Any]]) -> list[str]:
+    """#3348: a program's DD lineage and dynamic CALLs as comparable strings
+    (`inputs:DD`, `outputs:DD`, `unresolved_calls:NAME`)."""
+    if not lineage:
+        return []
+    return sorted(f"{k}:{v}" for k in ("inputs", "outputs", "unresolved_calls") for v in lineage.get(k) or ())
+
+
+def _schema_values(schemas: Any) -> list[str]:
+    """#3348: the refractor's generated schema as comparable strings: its table and
+    each SQL column line (name, type and the COMP-3 / OCCURS DEPENDING notes)."""
+    if not schemas:
+        return []
+    cols = [ln.strip() for ln in schemas["sql"].splitlines() if ln.startswith("    ")]
+    return sorted([f"TABLE {schemas['table']}", *cols])
 
 
 def _engine_transactions(ir: GalaxyIR) -> dict[str, set[str]]:
@@ -434,6 +452,12 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         graveyard = x_ray_dead_code(path, copybook_root=repo) or {}
         dead_old = set(graveyard.get("dead_paras", set()))
         lineage = extract_lineage(path, dead_paras=dead_old) or {}
+        # #3348: what the refractor now reads from the DB, against the forge it replaced.
+        # A DB from before the channels gives None (the refractor keeps the forge), so
+        # there is nothing to compare: the row says so rather than inventing deltas.
+        orphans = set(graveyard.get("orphaned_vars", set()))
+        lineage_db = engine_lineage(ef, dead_old)
+        schemas_db = engine_schemas(ef, path.stem, orphans)
         paras_old = old_paragraphs(path, repo)
         paras_new = {u.name.upper() for u in ef.units}
         copy_named, copy_old = old_copybooks(path, repo)
@@ -481,13 +505,22 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                     "old": sorted(tx_old),
                     "db": sorted(tx_db),
                 },
+                # #3348: the refractor's DD lineage / dynamic CALLs and its generated
+                # schema, forge vs engine (None: the DB predates the channel).
+                "lineage": {
+                    "old": _lineage_values(lineage),
+                    "db": None if lineage_db is None else _lineage_values(lineage_db),
+                },
+                "schema": {
+                    "old": _schema_values(forge_schemas(path, ignore_vars=orphans)),
+                    "db": None if schemas_db is False else _schema_values(schemas_db),
+                },
                 # Stated absences: the DB carries no equivalent (see galaxy_ir.py SCOPE).
                 "forge_only": {
                     "dd_files": sorted(f["dd_name"] for f in intent["files_requested"]),
                     "inputs": sorted(lineage.get("inputs", set())),
                     "outputs": sorted(lineage.get("outputs", set())),
-                    "unresolved_calls": sorted(lineage.get("unresolved_calls", [])),
-                    "orphaned_vars": len(graveyard.get("orphaned_vars", set())),
+                    "orphaned_vars": len(orphans),
                 },
             }
         )
@@ -711,9 +744,18 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             for v, on in (("cics", ss["old_cics"] > 0), ("sql", ss["old_sql"] > 0))
             if on
         ]
-        # Stated absences: the DB carries no equivalent (galaxy_ir.py SCOPE).
+        # #3348: the refractor reads these from the DB now, so the two must agree.
+        for field, key in (("lineage", "lineage"), ("schema_column", "schema")):
+            pair = r.get(key)
+            if not pair or pair["db"] is None:
+                continue
+            old, db = set(pair["old"]), set(pair["db"])
+            deltas += [{"program": prog, "field": field, "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": field, "side": "db", "value": v} for v in sorted(db - old)]
+        # Stated absences: the DB carries no equivalent (galaxy_ir.py SCOPE). The forge's
+        # inputs/outputs stay in the row for the summary; since #3348 they are compared above.
         fo = r["forge_only"]
-        for kind in ("dd_files", "inputs", "outputs", "unresolved_calls"):
+        for kind in ("dd_files",):
             deltas += [{"program": prog, "field": f"forge_only:{kind}", "side": "old", "value": v} for v in fo[kind]]
         if fo["orphaned_vars"]:
             deltas.append(
@@ -862,6 +904,10 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
     if field == "csd_resource":
         # #3356: two independent CSD readers disagree on a DEFINE or one of its key
         # attributes -- a real defect on one side. Left to the validated key.
+        return UNEXPLAINED
+    if field in ("lineage", "schema_column"):
+        # #3348: the refractor sources these from the DB; the forge is what it replaced.
+        # They agree on every pinned corpus, so a delta is a regression on one side.
         return UNEXPLAINED
     return UNEXPLAINED
 

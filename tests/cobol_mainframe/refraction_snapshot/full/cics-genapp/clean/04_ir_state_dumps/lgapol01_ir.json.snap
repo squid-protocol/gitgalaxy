@@ -3,7 +3,11 @@
     "file_name": "lgapol01.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgapol01.cbl",
     "corporate_header": "",
-    "loc": 169
+    "loc": 169,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

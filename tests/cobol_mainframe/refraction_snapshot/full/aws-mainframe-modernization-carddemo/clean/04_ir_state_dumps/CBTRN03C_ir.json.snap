@@ -4,7 +4,11 @@
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBTRN03C.cbl",
     "corporate_header": "",
     "loc": 649,
-    "patched_path": "<WORK>/aws-mainframe-modernization-carddemo_gitgalaxy_clean_<TS>/00_patched_source/app/cbl/CBTRN03C.cbl"
+    "patched_path": "<WORK>/aws-mainframe-modernization-carddemo_gitgalaxy_clean_<TS>/00_patched_source/app/cbl/CBTRN03C.cbl",
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

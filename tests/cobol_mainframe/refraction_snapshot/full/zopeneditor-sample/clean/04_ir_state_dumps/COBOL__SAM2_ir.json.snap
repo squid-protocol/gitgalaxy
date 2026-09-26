@@ -3,7 +3,11 @@
     "file_name": "SAM2.cbl",
     "path": "<WORK>/zopeneditor-sample/COBOL/SAM2.cbl",
     "corporate_header": "",
-    "loc": 159
+    "loc": 159,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

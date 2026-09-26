@@ -3,7 +3,11 @@
     "file_name": "CBTRN02C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBTRN02C.cbl",
     "corporate_header": "",
-    "loc": 731
+    "loc": 731,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

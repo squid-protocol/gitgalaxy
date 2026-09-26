@@ -3,7 +3,11 @@
     "file_name": "COBSWAIT.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COBSWAIT.cbl",
     "corporate_header": "",
-    "loc": 41
+    "loc": 41,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

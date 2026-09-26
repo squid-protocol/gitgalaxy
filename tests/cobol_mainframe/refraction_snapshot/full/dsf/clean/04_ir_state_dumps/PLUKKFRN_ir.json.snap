@@ -3,7 +3,11 @@
     "file_name": "PLUKKFRN.cobol",
     "path": "<WORK>/dsf/src/GML/PLUKKFRN.cobol",
     "corporate_header": "",
-    "loc": 101
+    "loc": 101,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

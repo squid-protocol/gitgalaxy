@@ -3,7 +3,11 @@
     "file_name": "CBEXPORT.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl",
     "corporate_header": "",
-    "loc": 582
+    "loc": 582,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

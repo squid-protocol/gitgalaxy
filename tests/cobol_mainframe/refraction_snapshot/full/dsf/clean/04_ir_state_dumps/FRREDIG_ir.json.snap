@@ -3,7 +3,11 @@
     "file_name": "FRREDIG.cobol",
     "path": "<WORK>/dsf/src/GML/FRREDIG.cobol",
     "corporate_header": "",
-    "loc": 135
+    "loc": 135,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

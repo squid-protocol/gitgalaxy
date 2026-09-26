@@ -3,7 +3,11 @@
     "file_name": "SAM2.cbl",
     "path": "<WORK>/zopeneditor-sample/multiroot/sam/SAM2.cbl",
     "corporate_header": "",
-    "loc": 164
+    "loc": 164,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

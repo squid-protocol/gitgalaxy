@@ -3,7 +3,11 @@
     "file_name": "lgacdb02.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgacdb02.cbl",
     "corporate_header": "",
-    "loc": 225
+    "loc": 225,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

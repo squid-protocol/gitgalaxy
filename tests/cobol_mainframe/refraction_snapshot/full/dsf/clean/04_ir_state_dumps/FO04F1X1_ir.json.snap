@@ -3,7 +3,11 @@
     "file_name": "FO04F1X1.cobol",
     "path": "<WORK>/dsf/src/GML/FO04F1X1.cobol",
     "corporate_header": "",
-    "loc": 406
+    "loc": 406,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

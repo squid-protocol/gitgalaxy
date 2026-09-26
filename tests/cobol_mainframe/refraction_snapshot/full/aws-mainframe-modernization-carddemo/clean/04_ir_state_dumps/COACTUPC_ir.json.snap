@@ -3,7 +3,11 @@
     "file_name": "COACTUPC.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COACTUPC.cbl",
     "corporate_header": "",
-    "loc": 4236
+    "loc": 4236,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

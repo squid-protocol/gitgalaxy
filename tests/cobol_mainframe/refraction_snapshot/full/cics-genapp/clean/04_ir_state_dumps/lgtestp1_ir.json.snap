@@ -3,7 +3,11 @@
     "file_name": "lgtestp1.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgtestp1.cbl",
     "corporate_header": "",
-    "loc": 318
+    "loc": 318,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

@@ -3,7 +3,11 @@
     "file_name": "COBTUPDT.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
     "corporate_header": "",
-    "loc": 237
+    "loc": 237,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

@@ -3,7 +3,11 @@
     "file_name": "SAM1LIB.cbl",
     "path": "<WORK>/zopeneditor-sample/COBOL/SAM1LIB.cbl",
     "corporate_header": "",
-    "loc": 488
+    "loc": 488,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

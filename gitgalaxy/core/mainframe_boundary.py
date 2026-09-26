@@ -662,13 +662,16 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
                 "dd_name": _ASSIGN_DEVICE_PREFIX.sub("", assign).upper(),
                 "modes": set(),
                 "line": line_no,
+                # #3348: every OPEN of the file, (mode, line), so a consumer can drop the
+                # ones in unreachable code (the refractor masks dead paragraphs by line).
+                "open_sites": set(),
             },
         )
 
     # OPEN walks its operand run, switching mode at each mode keyword. Only
     # operands that a SELECT declared are credited, which is what keeps a
     # stray word in an OPEN sentence from inventing a dataset.
-    for _line_no, sentence in sentences:
+    for line_no, sentence in sentences:
         upper = sentence.upper()
         anchor = 0
         while True:
@@ -676,17 +679,20 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
             if not found:
                 break
             anchor = found.end()
+            at = line_no + upper.count("\n", 0, found.start())
             mode: Optional[str] = None
             for token in upper[found.end() :].replace(",", " ").replace(".", " ").split():
                 if token in _OPEN_MODES:
                     mode = token
                 elif token in records and mode:
                     records[token]["modes"].add(mode)
+                    records[token]["open_sites"].add((mode, at))
 
     out = []
     for rec in records.values():
         rec = dict(rec)
         rec["modes"] = sorted(rec["modes"])
+        rec["open_sites"] = [list(site) for site in sorted(rec["open_sites"], key=lambda s: (s[1], s[0]))]
         rec["dsn"] = None
         rec["step_name"] = None
         out.append(rec)

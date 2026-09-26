@@ -3,7 +3,11 @@
     "file_name": "lgwebst5.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgwebst5.cbl",
     "corporate_header": "",
-    "loc": 802
+    "loc": 802,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

@@ -148,11 +148,24 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         if "DATA DIVISION" in content:
             content = content.split("DATA DIVISION")[1]
 
-    table_name = filepath.stem.upper().replace("-", "_")
+    return render_schemas(data_entries(content), filepath.stem.upper(), ignore_vars, corporate_header)
+
+
+def render_schemas(
+    entries: list[dict], table_name: str, ignore_vars: Optional[set] = None, corporate_header: str = ""
+) -> Optional[dict]:
+    """The SQL DDL and JSON Schema of a program's data description entries, in source order.
+
+    #3348: `entries` come from this forge's own reader (`data_entries`) or from the
+    engine's record_data (the refractor's `engine_schemas`); both carry `level`
+    (two digits), `name`, `pic`, `usage` and `depending`.
+    """
+    ignore_vars = ignore_vars or set()
+    table_name = table_name.upper().replace("-", "_")
     columns = []
     json_properties = {}
 
-    for entry in data_entries(content):
+    for entry in entries:
         level, name, pic, usage = entry["level"], entry["name"], entry["pic"], entry["usage"]
 
         # Skip FILLERs (empty byte spaces) and 88-level conditions (booleans)

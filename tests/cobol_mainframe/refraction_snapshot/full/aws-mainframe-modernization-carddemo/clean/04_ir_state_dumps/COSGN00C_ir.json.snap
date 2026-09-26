@@ -3,7 +3,11 @@
     "file_name": "COSGN00C.cbl",
     "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COSGN00C.cbl",
     "corporate_header": "",
-    "loc": 260
+    "loc": 260,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

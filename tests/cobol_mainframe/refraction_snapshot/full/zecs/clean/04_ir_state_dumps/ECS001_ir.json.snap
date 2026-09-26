@@ -4,7 +4,11 @@
     "path": "<WORK>/zecs/Source/ECS001.cbl",
     "corporate_header": "",
     "loc": 422,
-    "patched_path": "<WORK>/zecs_gitgalaxy_clean_<TS>/00_patched_source/Source/ECS001.cbl"
+    "patched_path": "<WORK>/zecs_gitgalaxy_clean_<TS>/00_patched_source/Source/ECS001.cbl",
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

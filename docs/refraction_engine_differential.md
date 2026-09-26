@@ -50,8 +50,8 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | DB2 `DECLARE TABLE` / DCLGEN columns | — (no forge reads them) | `sql_table_data` | **DB** since #3344 — compared against the answer key's own raw-file reader as `sql_column` deltas (full column shape); 24/24 on CBSA |
 | CICS FILE / MAP / QUEUE / CONTAINER / CHANNEL operations | — (no forge reads them) | `cics_resource_data` | **DB** since #3351-#3354 — compared against the answer key's own EXEC CICS reader as `cics_resource` deltas; 75/75 on CBSA, 107/107 on carddemo |
 | orphaned variables | graveyard | — | **stated absence**: the by-name unused-variable count is a graveyard signal, not a layout |
-| DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
-| unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
+| DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update); **the refractor reads it** since #3348 (`lineage` datum) |
+| unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line; **the refractor reads it** since #3348 (`lineage` datum) |
 | CICS transaction map | `cics_transaction_reader` (CSD) | `transaction_data` | **DB** since #3247 — which transaction id entry-points into which program, from the CSD decks; exact against the key on CBSA (14/14). `transaction` is an INDEPENDENT key field |
 | CSD resource definitions (FILE, TDQUEUE, DB2TRAN, MAPSET, ...) | — (no forge reads them) | `csd_resource_data` | **DB** since #3356 — compared against the answer key's own CSD tokenizer as `csd_resource` deltas (type, name, line, key attributes); 100/100 on CBSA, 134/134 on carddemo |
 | CICS / DB2 presence | forge regex | hit columns | **forge**. Presence agrees 36/36 with a line-level check. The hit columns (`arch_io`, `arch_ipc`) mix CICS verbs, SQL, DLI and CALL, so they cannot give a clean flag (D4) |
@@ -451,7 +451,7 @@ a cause is never a fourth parser's opinion:
 | `system_copybook` | a `DFH`/`CEE`/`SQLCA`/`SQLDA` member, unresolvable by construction | D3 |
 | `bms_symbolic_map` | a member generated from a `.bms` map at build time | D3 |
 | `forge_flat_schema` | a DATA DIVISION field the engine carries that the forge's flat single-line `cobol_schema_forge` reader drops (group item, continuation-line PIC, copybook layout) | #3246 |
-| `stated_absence` | every `forge_only` datum and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
+| `stated_absence` | every `forge_only` datum (since #3348: the DD files requested and the orphaned-variable count) and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
 
 **A verdict from the key.** Where the corpus has a *validated* answer key (#3210), a delta on an
 **independent** field — `program_id` or `copybook` — is adjudicated directly from truth
@@ -642,3 +642,42 @@ shared `_value_of` gave up 80 characters after the data-name, and carddemo pads 
 engine does. The excerpts gained CBSA's `CRDTAGY1` (GET/PUT CONTAINER on a channel named by `MOVE`)
 and carddemo's `CORPT00C` (SEND/RECEIVE MAP bound to the added `CORPT00.bms`, and `WRITEQ TD
 QUEUE('JOBS')`); unexplained stays 0 on every excerpt and full corpus.
+
+## Update: the refractor consumes the channels (#3348) — 2026-09-26
+
+The refractor no longer re-parses what the DB carries. With a master DB,
+`cobol_refractor_controller.process_payload` takes three things from the engine (through
+`engine_sourcing.py`):
+
+- a program's DD lineage (the DDs it OPENs for input and for output) from `dataset_data`;
+- its dynamic CALLs from `call_site_data`;
+- its generated SQL / JSON schema from `record_data`.
+
+`metadata.ir_sources` records, per field, whether `galaxy_db` or the `forge` supplied it. The
+forge readers remain the fallback when there is no DB, or when the DB was written before a channel.
+
+Dead code stays on the forge (`docs/unreferenced_by_name_contract.md`). The forge's reachability
+analysis names the dead paragraphs, and the engine's facts that fall in one are dropped by line.
+Each OPEN therefore now carries its line: `dataset_data.open_sites` is a JSON list of `[mode, line]`
+per COBOL row, and it is NULL on a JCL row and on an older DB. The engine's units give each
+paragraph's span. `usage_status` is still never used for masking.
+
+Both are compared data now, so a disagreement is `unexplained` and gated:
+
+- `lineage` compares `inputs:DD`, `outputs:DD` and `unresolved_calls:NAME`.
+- `schema_column` compares the table and every SQL column line.
+
+The forge's `inputs` / `outputs` / `unresolved_calls` are no longer counted as `stated_absence`,
+which is why those counts fall in the re-blessed baseline.
+
+Measured on all six full pinned corpora (123 COBOL programs), engine vs forge:
+
+- **identical on every program**: 92 DD edges, 4 dynamic CALLs, 5,475 schema columns.
+- 0 unexplained on every excerpt and full corpus.
+
+No OPEN or dynamic CALL in these corpora sits in a dead paragraph, although 68 programs have dead
+paragraphs. The masking is pinned instead by `tests/cobol_mainframe/test_refractor_engine_channels.py`,
+whose fixture OPENs a file and CALLs through an identifier in a dead paragraph.
+
+One shared limitation, not a delta: an `OCCURS ... DEPENDING ON` on a group item gets no "use
+JSONB" note, from either source, because the schema is flat and lists only elementary items.

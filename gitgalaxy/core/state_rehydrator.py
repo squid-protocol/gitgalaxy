@@ -479,6 +479,11 @@ class StateRehydrator:
                     if _has_table(cursor, "dataset_data") and _has_column(cursor, "dataset_data", "dsn_resolution")
                     else "NULL AS dsn_resolved, NULL AS dsn_resolution"
                 )
+                # #3348: a COBOL row's OPEN sites; absent on a baseline written before them.
+                if _has_table(cursor, "dataset_data") and _has_column(cursor, "dataset_data", "open_sites"):
+                    resolved_cols += ", ds.open_sites"
+                else:
+                    resolved_cols += ", NULL AS open_sites"
                 datasets_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -502,6 +507,7 @@ class StateRehydrator:
                             if r["dsn_resolution"]
                             else {}
                         ),
+                        **({"open_sites": json.loads(r["open_sites"])} if r["open_sites"] is not None else {}),
                     },
                 )
                 # Aliased to the extractor's own payload key names (level_number ->

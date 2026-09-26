@@ -3,7 +3,11 @@
     "file_name": "lgsetup.cbl",
     "path": "<WORK>/cics-genapp/base/src/lgsetup.cbl",
     "corporate_header": "",
-    "loc": 533
+    "loc": 533,
+    "ir_sources": {
+      "lineage": "forge",
+      "schemas": "forge"
+    }
   },
   "analysis": {
     "dead_code": {

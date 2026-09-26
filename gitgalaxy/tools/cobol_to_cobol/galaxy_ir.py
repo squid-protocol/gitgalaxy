@@ -5341,7 +5341,18 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         conn.close()
 
     _attach_symbolic_maps(files)
+    _name_pli_programs(files)
     return GalaxyIR(db_path, repo_name, commit_hash, files)
+
+
+def _name_pli_programs(files: dict[str, EngineFile]) -> None:
+    """#3623: a PL/I program has no PROGRAM-ID. It is a program when its external procedure is
+    OPTIONS(MAIN | FETCHABLE) (the `raw_arch_api` signal, #3576), and its load module -- the name a
+    LINK, XCTL, CALL, CSD PROGRAM() or JCL PGM= uses -- is its member (#3491's resolver rule). An
+    %INCLUDE member or a library of internal procedures stays a non-program, as a copybook does."""
+    for ef in files.values():
+        if ef.language == "pli" and not ef.program_ids and ef.signals.get("raw_arch_api"):
+            ef.program_ids.append(Path(ef.file_path).stem.upper())
 
 
 def _attach_symbolic_maps(files: dict[str, EngineFile]) -> None:

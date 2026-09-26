@@ -180,6 +180,34 @@ def _ir_to_json(ir_state: dict) -> str:
     return json.dumps(ir_state, indent=2, default=lambda o: sorted(o, key=str) if isinstance(o, set) else o)
 
 
+def engine_ir_dump(galaxy_ir: GalaxyIR, ef: Any, file_path: Path) -> dict:
+    """#3623: the IR dump of a program the COBOL passes do not read (PL/I), from the engine's facts:
+    the shape the Java generator reads (metadata, analysis.lineage / base_intent), nothing inferred.
+    Its CICS, calls, units of work, data moves and DECLAREs reach the generators through its
+    verified skeleton, as a COBOL program's do."""
+    unresolved = sorted({row["target"] for row in galaxy_ir.unresolved_calls()
+                         if row["file"] == ef.file_path and row.get("target") and row.get("verb") in ("CALL", "LINK", "XCTL")})  # fmt: skip
+    return {
+        "metadata": {
+            "file_name": file_path.name,
+            "path": str(file_path),
+            "corporate_header": "",
+            "loc": ef.total_loc,
+            "ir_source": "galaxy_db",
+            "language": ef.language,
+            "program_ids": list(ef.program_ids),
+        },
+        "analysis": {
+            "lineage": {"inputs": [], "outputs": [], "unresolved_calls": unresolved},
+            "base_intent": {"is_cics": bool(ef.cics_resources or ef.cics_tasks), "files_requested": []},
+            "engine_units": [u.name for u in ef.units],
+            "copy_dependencies": list(ef.copy_deps),
+            "honesty_flags": [],
+        },
+        "generation": {},
+    }
+
+
 def _output_keys(cobol_files: list[Path], target_path: Path) -> dict[Path, str]:
     """Each program's name in the clean room's flat output directories and in the
     IR state: its stem when no other program in the run shares it, otherwise its
@@ -424,7 +452,7 @@ def main():
 
     # 1. Sense the scale of the repository
     ir_mode, cobol_files = calibrate_ir_medium(target_path, cobol_files=program_files)
-    if not cobol_files:
+    if not cobol_files and not (galaxy_ir is not None and galaxy_ir.programs("pli")):  # #3623: PL/I-only estates
         print("⚠️ No executable COBOL files found in the target location.")
         sys.exit(0)
 
@@ -510,6 +538,20 @@ def main():
                 f"[{rel}{flag[len(tag) :]}" if flag.startswith(tag) else flag for flag in system_limits
             )
 
+    # #3623: PL/I programs -- no COBOL passes apply, so their IR dump is built from the engine's
+    # facts alone (engine_ir_dump), and they get a verified skeleton like any COBOL program.
+    pli_written = 0
+    if galaxy_ir is not None:
+        pli_files = [target_path / ef.file_path for ef in galaxy_ir.programs("pli")]
+        all_keys = _output_keys(cobol_files + pli_files, target_path)
+        for file_path in pli_files:
+            key = all_keys[file_path]
+            rel = _rel(file_path, target_path).as_posix()
+            ir_keys[rel] = key
+            ef = galaxy_ir.files[rel]
+            (ir_dir / f"{key}_ir.json").write_text(_ir_to_json(engine_ir_dump(galaxy_ir, ef, file_path)))
+            pli_written += 1
+
     # Close DB connection if applicable
     state_manager.close()
 
@@ -569,9 +611,11 @@ def main():
             f.write("----------------------------------------------------------\n")
             f.write(f"  • Source DB : {galaxy_ir.db_path.name} (commit {galaxy_ir.commit_hash[:8]})\n")
             for language, counts in galaxy_ir.inventory().items():
-                status = {"cobol": "refracted", "hlasm": "detected, wrap-or-retire (not a migration target)"}.get(
-                    language, "detected, not yet migratable"
-                )
+                status = {
+                    "cobol": "refracted",
+                    "hlasm": "detected, wrap-or-retire (not a migration target)",
+                    "pli": f"{pli_written} programs: engine IR + skeleton (#3623)",
+                }.get(language, "detected, not yet migratable")
                 f.write(f"  • {language:<10}: {counts['files']} files, {counts['units']} units ({status})\n")
             f.write(f"  • Verified skeletons (06_skeleton): {skeletons_written} programs + estate.json\n")
         f.write("\n==========================================================\n")

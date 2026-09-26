@@ -121,7 +121,8 @@ def format_java_header(header_text: str) -> str:
 
 def generate_mock_service(subroutine_name: str, package_name: str) -> str:
     """Generates a mock @Service interface to satisfy Spring DI for missing external dependencies."""
-    camel_name = "".join(word.capitalize() for word in subroutine_name.replace("-", "_").split("_"))
+    # #3623: the same class base the file is named with (DSF's `..._ØVRIGE_...` made them differ).
+    camel_name = java_class_base(subroutine_name, prefix="")
     return f"""package {package_name}.service;
 
 import org.springframework.stereotype.Service;
@@ -175,7 +176,7 @@ def _write_worklist_audit(f, worklist: dict) -> None:
     s = worklist["summary"]
     f.write("[3] MIGRATION WORKLIST (migration_worklist.md / .json)\n")
     f.write("----------------------------------------------------------\n")
-    f.write(f"  • Open items : {s['items']} across {s['programs']} COBOL sources\n")
+    f.write(f"  • Open items : {s['items']} across {s['programs']} program sources\n")
     f.write("  • By nature  : " + ", ".join(f"{n} {s['by_nature'][n]}" for n in NATURES) + "\n")
     for cid, n in s["by_category"].items():
         f.write(f"    {worklist['categories'][cid]['title']:<42} {n:>5}  ({worklist['categories'][cid]['nature']})\n")

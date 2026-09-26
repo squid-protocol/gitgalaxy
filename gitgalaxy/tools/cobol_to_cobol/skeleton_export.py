@@ -21,6 +21,7 @@
 # ==============================================================================
 from __future__ import annotations
 
+import inspect
 import json
 from dataclasses import asdict, is_dataclass
 from importlib import resources
@@ -144,6 +145,14 @@ class SkeletonExporter:
         self.confidence = load_confidence() if confidence is None else confidence
         self._joins = {name: getattr(ir, method)() for name, (method, _) in PROGRAM_JOINS.items()}
         self._interfaces = ir.program_interfaces()
+        # #3623: a join scoped by `language` (COBOL by default) is computed for PL/I programs too
+        # when the estate has any; each program still gets only the rows naming it.
+        if ir.programs("pli"):
+            for name, (method, _) in PROGRAM_JOINS.items():
+                fn = getattr(ir, method)
+                if "language" in inspect.signature(fn).parameters:
+                    self._joins[name] = list(self._joins[name]) + list(fn(language="pli"))
+            self._interfaces = {**self._interfaces, **ir.program_interfaces(language="pli")}
 
     def program(self, ef: EngineFile) -> dict[str, Any]:
         path = ef.file_path

@@ -135,7 +135,7 @@ def test_the_join_claims_merges_folds_and_attributes(tmp_path):
 def test_without_a_manifest_every_java_todo_is_an_item(tmp_path):
     _java(tmp_path, SVC, "    // TODO: [AI AGENT] Implement extracted business rules here.\n")
     wl = build_worklist(tmp_path, None)
-    assert [(i["category"], i["program"]) for i in wl["items"]] == [("business-logic", "(no COBOL source cited)")]
+    assert [(i["category"], i["program"]) for i in wl["items"]] == [("business-logic", "(no program source cited)")]
 
 
 def test_tracelog_keeps_one_symbol_backed_by_different_lines():
@@ -227,5 +227,5 @@ def test_a_real_run_writes_the_worklist_and_its_audit(tmp_path):
     assert all((java / i["file"]).is_file() for i in wl["items"])
     assert (java / "migration_worklist.md").read_text(encoding="utf-8").startswith("# Migration worklist\n")
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
-    assert f"  • Open items : {wl['summary']['items']} across {wl['summary']['programs']} COBOL sources" in audit
+    assert f"  • Open items : {wl['summary']['items']} across {wl['summary']['programs']} program sources" in audit
     assert "CICS responses the COBOL never tests" in audit

@@ -17,7 +17,7 @@
 
 [3] MIGRATION WORKLIST (migration_worklist.md / .json)
 ----------------------------------------------------------
-  • Open items : 7 across 5 COBOL sources
+  • Open items : 7 across 5 program sources
   • By nature  : conflict 0, fact-gap 0, review 1, port 6
     Calls to other services                        1  (port)
     Business logic to port                         5  (port)

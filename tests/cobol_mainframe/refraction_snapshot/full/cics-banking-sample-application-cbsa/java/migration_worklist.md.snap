@@ -2,7 +2,7 @@
 
 Every TODO the generators left in this project: where a fact was missing or two facts disagreed, the Java says so instead of guessing. Each item names the fact it rests on (from `traceability.json`) and a suggested resolution.
 
-**32 items** across 31 COBOL sources.
+**32 items** across 31 program sources (COBOL, PL/I).
 
 | nature | items | what it takes |
 |---|---:|---|
@@ -18,7 +18,7 @@ Every TODO the generators left in this project: where a fact was missing or two 
 | [Business logic to port](#business-logic) | port | 31 | Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch. |
 | [Target configuration](#configuration) | review | 1 | Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD at run time, never from a file. |
 
-## By COBOL source
+## By program source
 
 | source | conflict | fact-gap | review | port | total |
 |---|---:|---:|---:|---:|---:|

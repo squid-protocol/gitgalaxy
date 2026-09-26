@@ -235,7 +235,7 @@ def build_worklist(
             _owner(it["file"], owners or {})
             or _program(it["facts"])
             or _program(file_facts.get(it["file"], []))
-            or ("(no COBOL source cited)" if it["file"].endswith(".java") else "(project configuration)")
+            or ("(no program source cited)" if it["file"].endswith(".java") else "(project configuration)")
         )
     items.sort(
         key=lambda i: (
@@ -283,7 +283,7 @@ def render_markdown(wl: dict) -> str:
           ("Every TODO the generators left in this project: where a fact was missing or two facts disagreed, "
            "the Java says so instead of guessing. Each item names the fact it rests on (from "
            "`traceability.json`) and a suggested resolution."), "",
-          f"**{s['items']} items** across {s['programs']} COBOL sources.", "",
+          f"**{s['items']} items** across {s['programs']} program sources (COBOL, PL/I).", "",
           "| nature | items | what it takes |", "|---|---:|---|"]  # fmt: skip
     what = {"conflict": "two facts disagree: a person decides which one the Java follows",
             "fact-gap": "a fact is missing: supply it and re-run",
@@ -297,7 +297,7 @@ def render_markdown(wl: dict) -> str:
     programs: dict[str, Counter] = {}
     for it in wl["items"]:
         programs.setdefault(it["program"], Counter())[it["nature"]] += 1
-    md += ["", "## By COBOL source", "", "| source | " + " | ".join(NATURES) + " | total |",
+    md += ["", "## By program source", "", "| source | " + " | ".join(NATURES) + " | total |",
            "|---|" + "---:|" * (len(NATURES) + 1)]  # fmt: skip
     for prog, cnt in sorted(programs.items(), key=lambda kv: (-sum(kv[1].values()), kv[0])):
         md.append(f"| `{prog}` | " + " | ".join(str(cnt[n] or "") for n in NATURES) + f" | {sum(cnt.values())} |")

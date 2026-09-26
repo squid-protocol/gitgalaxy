@@ -12,7 +12,7 @@
 // passes `npm root -g` when NODE_PATH is unset). Output:
 //   version   the typescript version that produced it
 //   defs      [path, name, line] for every named function-like with a body
-//   edges     [caller, callee] pairs, each a def key
+//   edges     [caller, callee, line] -- each end a def key; line = the first call site
 //   external  [caller, callee name] pairs whose call the checker resolved
 //             ONLY to declarations outside the repo (lib.d.ts, node_modules):
 //             `str.trim()` is String.prototype.trim, whatever the repo defines
@@ -176,10 +176,12 @@ for (const sf of program.getSourceFiles()) {
     }
     if ((ts.isCallExpression(node) || ts.isNewExpression(node)) && stack.length) {
       const src = stack[stack.length - 1];
+      const line = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
       const r = resolve(node);
       for (const dst of r.keys) {
         const s = JSON.stringify([src, dst]);
-        if (JSON.stringify(src) !== JSON.stringify(dst)) edges.set(s, [src, dst]);
+        // the first call site, for callgraph_triage.py's source excerpts
+        if (JSON.stringify(src) !== JSON.stringify(dst) && !edges.has(s)) edges.set(s, [src, dst, line]);
       }
       if (r.external && r.name) external.set(JSON.stringify([src, r.name]), [src, r.name]);
     }

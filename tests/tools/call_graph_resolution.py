@@ -46,11 +46,9 @@ from __future__ import annotations
 
 import argparse
 import collections
-import glob
 import json
 import os
 import sqlite3
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -60,14 +58,21 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "call_graph_resolution_baseline.json"
+
+sys.path.insert(0, str(TOOLS))
+from callgraph_refs import BY_TOOL, REFERENCES, RefGraph, corpus_repos, node_env, reference_graph  # noqa: E402
+
+# python keeps its original baseline name; every later language is <lang>
 BASELINES = {
-    "python": BASELINE,
-    "typescript": REPO_ROOT / "tests" / "call_graph_resolution_typescript_baseline.json",
+    lang: BASELINE if lang == "python" else REPO_ROOT / "tests" / f"call_graph_resolution_{lang}_baseline.json"
+    for lang in REFERENCES
 }
-REFERENCE = {"python": "pyan3", "typescript": "tsc"}
+REFERENCE = {lang: r.tool for lang, r in REFERENCES.items()}
 # The TypeScript checker the typescript baseline was measured with (CI installs it;
-# a different version is warned about, and refused by --regenerate).
-TYPESCRIPT_VERSION = "6.0.2"
+# a different version is warned about, and refused by --regenerate). Kept as a
+# name for callers; the registry (callgraph_refs.REFERENCES) is the source.
+TYPESCRIPT_VERSION = REFERENCES["typescript"].version
+_node_env = node_env
 
 sys.path.insert(0, str(REPO_ROOT))
 from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, RESOLUTION_OF_STEP  # noqa: E402
@@ -132,59 +137,7 @@ def _links(db: Path) -> list[tuple]:
         conn.close()
 
 
-# ----------------------------------------------------------------------------- python / pyan3
-
-
-def _compiles(path: str) -> bool:
-    """pyan aborts the whole run on one file Python itself cannot compile."""
-    try:
-        compile(Path(path).read_text(encoding="utf-8", errors="replace"), path, "exec")
-    except (SyntaxError, ValueError):
-        return False
-    return True
-
-
-def _pyan_graph(repo: Path) -> tuple[dict[tuple[str, str], list[int]], set[tuple], dict[tuple, set[tuple]]]:
-    """pyan3 over every compilable .py file of `repo`.
-
-    Returns (defs, edges, by_caller_name):
-      defs     (relpath, name) -> def lines
-      edges    {(caller_key, callee_key)}, a key being (relpath, name, line)
-      by_name  (caller_key, callee_name) -> the callee keys pyan links it to
-    """
-    from pyan.analyzer import CallGraphVisitor
-
-    files = [f for f in glob.glob(str(repo / "**" / "*.py"), recursive=True) if _compiles(f)]
-    v = CallGraphVisitor(files, root=str(repo))
-
-    def key(node):
-        if (
-            node.filename is None
-            or node.ast_node is None
-            or str(node.flavor) not in ("Flavor.FUNCTION", "Flavor.METHOD")
-        ):
-            return None
-        return (os.path.relpath(node.filename, repo), node.name, int(getattr(node.ast_node, "lineno", 0)))
-
-    defs: dict[tuple[str, str], list[int]] = collections.defaultdict(list)
-    edges: set[tuple] = set()
-    by_name: dict[tuple, set[tuple]] = collections.defaultdict(set)
-    for src, dsts in v.uses_edges.items():
-        ks = key(src)
-        if ks is None:
-            continue
-        for dst in dsts:
-            kd = key(dst)
-            if kd is None or kd == ks:
-                continue
-            edges.add((ks, kd))
-            by_name[(ks, kd[1])].add(kd)
-    for node_list in v.nodes.values():
-        for node in node_list:
-            k = key(node)
-            if k:
-                defs[(k[0], k[1])].append(k[2])
-    return defs, edges, by_name
+# ----------------------------------------------------------------------------- scoring
 
 
 def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line: int):
@@ -194,21 +147,6 @@ def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line:
         return None
     best = min(lines, key=lambda x: abs(x - line))
     return (path, name, best) if abs(best - line) <= _LINE_SLACK else None
-
-
-class RefGraph:
-    """A reference tool's call graph for one repo, keyed like pyan (relpath, name, line).
-
-    defs      (relpath, name) -> def lines
-    edges     {(caller_key, callee_key)}
-    by_name   (caller_key, callee_name) -> the callee keys the reference links it to
-    external  {(caller_key, callee_name)}: calls the reference resolved ONLY outside
-              the repo (a built-in or library method). pyan cannot say this; the
-              TypeScript checker can, so an engine link there is provably wrong.
-    """
-
-    def __init__(self, defs, edges, by_name, external=frozenset()) -> None:
-        self.defs, self.edges, self.by_name, self.external = defs, edges, by_name, external
 
 
 def _verdict(ref: RefGraph, ks: tuple, kd: tuple) -> str:
@@ -320,83 +258,32 @@ def _score(reference: str, repos, samples: int = 0) -> dict[str, Any]:
     }
 
 
-def score_python(samples: int = 0) -> dict[str, Any]:
-    root = CRUCIBLE / "data" / "python"
-
-    def repos():
-        for repo in sorted(p for p in root.iterdir() if p.is_dir()):
-            yield repo.name, RefGraph(*_pyan_graph(repo)), _scan(repo)
-
-    return _score("pyan3", repos(), samples)
-
-
-# ----------------------------------------------------------------------------- typescript / tsc
-
-
-def _node_env() -> dict[str, str]:
-    """NODE_PATH for ts_callgraph.js: the caller's, else the global npm root."""
-    env = dict(os.environ)
-    if not env.get("NODE_PATH"):
-        try:
-            root = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True, check=True).stdout.strip()
-        except (OSError, subprocess.CalledProcessError):
-            root = ""
-        if root:
-            env["NODE_PATH"] = root
-    return env
-
-
-def _tsc_graph(repo: Path) -> tuple[RefGraph, str]:
-    """The TypeScript checker's call graph of `repo` (tests/tools/ts_callgraph.js)."""
-    try:
-        proc = subprocess.run(
-            ["node", str(TOOLS / "ts_callgraph.js"), str(repo)],
-            capture_output=True,
-            text=True,
-            env=_node_env(),
-        )
-    except OSError as exc:
-        raise SystemExit(f"call_graph_resolution: node is required for the typescript mode ({exc})") from exc
-    if proc.returncode != 0:
-        raise SystemExit(f"call_graph_resolution: ts_callgraph.js failed on {repo}:\n{proc.stderr[-2000:]}")
-    raw = json.loads(proc.stdout)
-    defs: dict[tuple[str, str], list[int]] = collections.defaultdict(list)
-    edges: set[tuple] = set()
-    by_name: dict[tuple, set[tuple]] = collections.defaultdict(set)
-    for p, n, line in raw["defs"]:
-        defs[(p, n)].append(int(line))
-    for src, dst in raw["edges"]:
-        ks, kd = tuple(src), tuple(dst)
-        edges.add((ks, kd))
-        by_name[(ks, kd[1])].add(kd)
-    external = {(tuple(src), name) for src, name in raw["external"]}
-    return RefGraph(defs, edges, by_name, external), raw["version"]
-
-
-def score_typescript(samples: int = 0) -> dict[str, Any]:
-    """Against the TypeScript checker on the pinned typescript repos of
-    tests/import_graph_corpus.json. Not language-crucible: its TypeScript samples
-    are flattened into one directory per repo, so no relative import resolves and
-    the checker would know almost nothing."""
-    sys.path.insert(0, str(TOOLS))
-    import import_graph_accuracy as iga
-
-    entries = [e for e in iga.load_manifest() if e["language"] == "typescript"]
-    missing = [e["repo"] for e in entries if not (iga.repo_dir(iga.CORPUS, e) / ".git").is_dir()]
-    if missing:
-        raise SystemExit(f"call_graph_resolution: not fetched: {missing} -- run import_graph_accuracy.py --fetch-only")
+def score_language(lang: str, samples: int = 0, use_cache: bool = True) -> dict[str, Any]:
+    """Engine links vs `lang`'s registered reference (callgraph_refs.REFERENCES) on
+    its corpus: language-crucible for python, the pinned tests/import_graph_corpus.json
+    repos for the rest. Not language-crucible for those: its samples are flattened
+    into one directory per repo, so no relative import resolves and a compiler
+    reference would know almost nothing."""
+    ref = REFERENCES[lang]
     versions: set[str] = set()
 
     def repos():
-        for e in entries:
-            d = iga.repo_dir(iga.CORPUS, e)
-            ref, version = _tsc_graph(d)
+        for name, path in corpus_repos(lang):
+            graph, version = reference_graph(lang, path, use_cache)
             versions.add(version)
-            yield e["repo"], ref, _scan(d)
+            yield name, graph, _scan(path)
 
-    result = _score("tsc", repos(), samples)
+    result = _score(ref.tool, repos(), samples)
     result["reference_version"] = ", ".join(sorted(versions))
     return result
+
+
+def score_python(samples: int = 0) -> dict[str, Any]:
+    return score_language("python", samples)
+
+
+def score_typescript(samples: int = 0) -> dict[str, Any]:
+    return score_language("typescript", samples)
 
 
 # ----------------------------------------------------------------------------- cobol / answer keys
@@ -464,7 +351,8 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
         + (py.get("reference_edges") or {}).get("wrong", 0),
         "recall_all_kinds_pct": py.get("recall_all_kinds_pct"),
     }
-    if py.get("reference") == "tsc":
+    ref = BY_TOOL.get(str(py.get("reference")))
+    if ref is not None and ref.reports_external:
         # the checker's extra verdict: a confident link it proves leaves the repo.
         # Reported and baselined, not gated (yet).
         out["confident_external"] = py["confident"].get("external", 0)
@@ -517,7 +405,7 @@ def render(current: dict[str, Any], lang: str = "python") -> str:
     return "\n".join(lines)
 
 
-def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace) -> int:
+def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace, version: str | None = None) -> int:
     baseline_path = BASELINES[lang]
     print(render(current, lang))
     if a.summary:
@@ -531,9 +419,9 @@ def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace) -> int:
     if (a.ci or a.regenerate) and not current["confident_judged"]:
         print(f"call_graph_resolution: FAIL -- no confident {lang} link was judged (scan, reference or corpus problem)")
         return 1
-    version = current.get("reference_version")
-    if lang == "typescript" and version != TYPESCRIPT_VERSION:
-        msg = f"typescript {version} is not the pinned {TYPESCRIPT_VERSION}; numbers are not comparable to the baseline"
+    pinned = REFERENCES[lang].version
+    if version and version != pinned:
+        msg = f"{REFERENCE[lang]} {version} is not the pinned {pinned}; numbers are not comparable to the baseline"
         if a.regenerate:
             print(f"call_graph_resolution: FAIL -- {msg}")
             return 1
@@ -556,32 +444,32 @@ def _gate(lang: str, current: dict[str, Any], a: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=("python", "typescript", "cobol", "all"))
+    ap.add_argument("mode", choices=(*sorted(REFERENCES), "cobol", "all"))
     ap.add_argument("--samples", type=int, default=5)
     ap.add_argument("--json", metavar="PATH")
-    ap.add_argument("--ci", action="store_true", help="python/typescript: fail on a drop beyond the baseline tolerance")
-    ap.add_argument("--regenerate", action="store_true", help="python/typescript: rewrite the committed baseline")
+    ap.add_argument("--ci", action="store_true", help="fail on a drop beyond the baseline tolerance")
+    ap.add_argument("--regenerate", action="store_true", help="rewrite the committed baseline(s)")
+    ap.add_argument("--no-cache", action="store_true", help="rebuild the reference graphs (callgraph_refs cache)")
     ap.add_argument("--summary", metavar="PATH", help="append the tables here (e.g. $GITHUB_STEP_SUMMARY)")
     a = ap.parse_args(argv)
     if (a.ci or a.regenerate) and a.mode == "cobol":
         print(
-            "call_graph_resolution: --ci/--regenerate gate python and typescript (cobol is gated by the ground-truth ledger)"
+            "call_graph_resolution: --ci/--regenerate gate the reference languages (cobol is gated by the ground-truth ledger)"
         )
         return 2
     result: dict[str, Any] = {}
-    if a.mode in ("python", "all"):
-        result["python"] = score_python(a.samples)
-    if a.mode in ("typescript", "all"):
-        result["typescript"] = score_typescript(a.samples)
+    for lang in sorted(REFERENCES):
+        if a.mode in (lang, "all"):
+            result[lang] = score_language(lang, a.samples, use_cache=not a.no_cache)
     if a.mode in ("cobol", "all"):
         result["cobol"] = score_cobol()
     print(json.dumps({k: {kk: vv for kk, vv in v.items() if kk != "per_repo"} for k, v in result.items()}, indent=2))
     if a.json:
         Path(a.json).write_text(json.dumps(result, indent=2) + "\n")
     rc = 0
-    for lang in ("python", "typescript"):
+    for lang in sorted(REFERENCES):
         if lang in result:
-            rc |= _gate(lang, gated_metrics(result[lang]), a)
+            rc |= _gate(lang, gated_metrics(result[lang]), a, result[lang].get("reference_version"))
     return rc
 
 

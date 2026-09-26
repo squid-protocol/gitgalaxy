@@ -84,6 +84,29 @@ to other code: blank lines, comments, or lines that end a previous construct (`{
 declaration and are not counted. Lower is better. The shape comes from #3543, where a
 `func_start` pattern swallows the newline before the declaration.
 
+## Adding a language, and finding what to fix (#3772)
+
+Each reference is an adapter registered in `tests/tools/callgraph_refs.py`. It emits one
+JSON contract: `defs`, `edges` (each with its first call site), and optionally `external`.
+The scorer never changes per language. A new language is an adapter, a registry entry
+(tool, pinned version, corpus) and a baseline.
+
+The reference graph depends only on the corpus repo's content (its git tree), the tool
+version and the adapter's code, so it's cached (`GITGALAXY_CALLGRAPH_CACHE`, default
+`~/.cache/gitgalaxy/callgraph_refs`). Re-running a gate after an engine change costs only
+the engine scan: zod's reference loads in about 1 second, where building it takes about 20.
+
+| tool | question it answers |
+|---|---|
+| `callgraph_triage.py <lang>` | Where is the gap? Every missed reference edge goes into one bucket (`not_extracted/in_string`, `ambiguous/receiver`, `resolved_outside`, …), and every confident link gets a precision verdict. Buckets are ranked by count, with source lines, and add up exactly to the recall gap. |
+| `explain_call.py <db\|repo> <file>:<function> [callee]` | Why did one call resolve the way it did? It re-runs the real resolver on the scan's own inputs, checks the result against the recorded rows, and lists every candidate with its `def_shape` and whether a bare call or a receiver can reach it. |
+| `callgraph_check.py` | Is the PR ready? It runs the per-language gates, the focused tests, crucible, the tree-sitter audit and the lint audits, one line per step, with logs on disk. A missing tool or pin fails the run, and `--regenerate` rewrites baselines only when everything passes. |
+
+A fresh Claude Code on the web session installs all of this at CI's pins through
+`.claude/hooks/session-start.sh`. That covers pyan3, typescript 6.0.2, the test and lint
+tools, and both corpora, and it reports up front when the environment can't run
+full-precision golden masters.
+
 ## Running locally
 
 ```sh
@@ -92,6 +115,8 @@ PYTHONPATH="$PWD" python tests/tools/import_graph_accuracy.py --samples 5       
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci       # needs pyan3==2.8.1
 PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci   # needs node + typescript@6.0.2
 PYTHONPATH="$PWD" python tests/tools/span_anchor_audit.py --ci
+python tests/tools/callgraph_triage.py typescript --samples 3     # ranked buckets of misses and wrong links
+python tests/tools/callgraph_check.py                             # the whole chain, one line per step
 # after an intended improvement: the same commands with --regenerate, committed with the fix
 ```
 

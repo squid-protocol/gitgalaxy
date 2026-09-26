@@ -28,6 +28,7 @@ on:
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/import_graph_accuracy.py"
       - "tests/tools/call_graph_resolution.py"
+      - "tests/tools/callgraph_refs.py"
       - "tests/tools/ts_callgraph.js"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"

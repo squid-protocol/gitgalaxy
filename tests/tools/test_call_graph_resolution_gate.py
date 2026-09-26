@@ -126,5 +126,6 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
     g = json.loads(out.stdout)
     run = ["main.ts", "run", 7]
     assert sorted(g["defs"]) == [run, ["main.ts", "trim", 3], ["util.ts", "clone", 1]]
-    assert sorted(g["edges"]) == [[run, ["main.ts", "trim", 3]], [run, ["util.ts", "clone", 1]]]
+    # each edge carries its first call site: `t.trim()` on line 9, `clone(1)` on line 11
+    assert sorted(g["edges"]) == [[run, ["main.ts", "trim", 3], 9], [run, ["util.ts", "clone", 1], 11]]
     assert g["external"] == [[run, "trim"]]  # s.trim() is String.prototype.trim

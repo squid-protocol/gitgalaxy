@@ -260,7 +260,9 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
             place(c, cur)
             cur += size(c)
 
-    roots = [r for r in kids.get(None, []) if not r.get("redefines") and (record is None or r["name"] == record)]
+    # A named record may itself REDEFINE another (#3754: a symbolic map's output area, CACTVWAO
+    # REDEFINES CACTVWAI); with no name, the first record that does not is the layout.
+    roots = [r for r in kids.get(None, []) if (r["name"] == record if record else not r.get("redefines"))]
     place(roots[0], 0)
     return out
 

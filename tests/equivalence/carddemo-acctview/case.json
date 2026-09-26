@@ -1,0 +1,38 @@
+{
+  "kind": "cics",
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "COACTVWC",
+  "program_source": "app/cbl/COACTVWC.cbl",
+  "copy_dirs": ["app/cpy", "app/cpy-bms"],
+  "transid": "CAVW",
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS": {"input": "app/data/ASCII/acctdata.txt", "entity": "AccountRecord"},
+    "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS": {"input": "app/data/ASCII/custdata.txt", "entity": "CustomerRecord"},
+    "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS": {"input": "app/data/ASCII/cardxref.txt", "entity": "CardXrefRecord"}
+  },
+  "commarea": {"segments": [{"copybook": "app/cpy/COCOM01Y.cpy", "record": "CARDDEMO-COMMAREA"},
+                            {"copybook": "app/cbl/COACTVWC.cbl", "record": "WS-THIS-PROGCOMMAREA"}]},
+  "screens": {"CACTVWA": {"copybook": "app/cpy-bms/COACTVW.CPY", "input": "CACTVWAI", "output": "CACTVWAO"}},
+  "scenarios": [
+    {"name": "enter-from-menu", "aid": "DFHENTER",
+     "commarea": {"CDEMO-FROM-TRANID": "CM00", "CDEMO-FROM-PROGRAM": "COMEN01C", "CDEMO-USER-ID": "USER0001",
+                  "CDEMO-USER-TYPE": "U", "CDEMO-PGM-CONTEXT": 0}},
+    {"name": "view-account", "aid": "DFHENTER",
+     "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-FROM-PROGRAM": "COACTVWC", "CDEMO-USER-ID": "USER0001",
+                  "CDEMO-USER-TYPE": "U", "CDEMO-PGM-CONTEXT": 1},
+     "receive": {"CACTVWA": {"ACCTSIDI": "00000000001"}}},
+    {"name": "account-not-on-file", "aid": "DFHENTER",
+     "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-FROM-PROGRAM": "COACTVWC", "CDEMO-USER-ID": "USER0001",
+                  "CDEMO-USER-TYPE": "U", "CDEMO-PGM-CONTEXT": 1},
+     "receive": {"CACTVWA": {"ACCTSIDI": "99999999999"}}},
+    {"name": "account-not-numeric", "aid": "DFHENTER",
+     "commarea": {"CDEMO-FROM-TRANID": "CAVW", "CDEMO-FROM-PROGRAM": "COACTVWC", "CDEMO-USER-ID": "USER0001",
+                  "CDEMO-USER-TYPE": "U", "CDEMO-PGM-CONTEXT": 1},
+     "receive": {"CACTVWA": {"ACCTSIDI": "ABC"}}},
+    {"name": "pf3-back-to-menu", "aid": "DFHPF3",
+     "commarea": {"CDEMO-FROM-TRANID": "CM00", "CDEMO-FROM-PROGRAM": "COMEN01C", "CDEMO-USER-ID": "USER0001",
+                  "CDEMO-USER-TYPE": "U", "CDEMO-PGM-CONTEXT": 1}}
+  ],
+  "notes": "CardDemo's account view (transaction CAVW), pseudo-conversational: entered from the menu it sends the empty screen; re-entered with an account id it reads the card cross-reference (through the CXACAIX alternate index), the account and the customer, and sends them; PF3 returns to the menu. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

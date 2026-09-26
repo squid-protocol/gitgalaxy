@@ -1012,8 +1012,33 @@ class StateRehydrator:
                     },
                 )
 
+                # The slicer's synthetic top-level buckets: callers without a
+                # function_data row, restored so their calls re-resolve.
+                synthetic_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "synthetic_unit_data",
+                    "SELECT fd.file_path AS _fp, su.unit_name, su.start_line, su.calls_out_to, "
+                    "su.calls_out_qualifiers, su.calls_out_receiver_types, su.transfers_to, su.calls_only "
+                    "FROM synthetic_unit_data su JOIN file_data fd ON su.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY su.id",
+                    lambda r: {
+                        "name": r["unit_name"],
+                        "start_line": int(r["start_line"] or 0),
+                        "is_synthetic_slice": True,
+                        "calls_only": bool(r["calls_only"]),
+                        "calls_out_to": _json_list(r["calls_out_to"]),
+                        "calls_out_qualifiers": decode_qualifiers(
+                            _json_list(r["calls_out_to"]), _json_list(r["calls_out_qualifiers"])
+                        ),
+                        "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"]),
+                        "transfers_to": _json_list(r["transfers_to"]),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
-                    node["functions"] = funcs_by_file.get(rel_path, [])
+                    node["functions"] = funcs_by_file.get(rel_path, []) + synthetic_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
                     node["call_sites"] = calls_by_file.get(rel_path, [])
                     node["dataset_bindings"] = datasets_by_file.get(rel_path, [])

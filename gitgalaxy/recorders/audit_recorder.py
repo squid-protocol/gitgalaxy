@@ -732,7 +732,7 @@ class AuditRecorder:
                         "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])
-                    if isinstance(func, dict)
+                    if isinstance(func, dict) and not func.get("calls_only")
                 ],
                 "6. Contextual Mitigations & Amplifications": (
                     formatted_mitigations if formatted_mitigations else "None Detected"

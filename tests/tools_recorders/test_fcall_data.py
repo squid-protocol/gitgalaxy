@@ -209,3 +209,29 @@ def test_receiver_types_persist_and_rehydrate(tmp_path):
     cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
     main = [f for node in cache.values() for f in node["functions"] if f["name"] == "main"]
     assert main[0]["calls_out_receiver_types"] == {"d": "Store"}
+
+
+def test_synthetic_units_persist_and_rehydrate_to_the_same_resolution(tmp_path):
+    # A synthetic top-level bucket has no function_data row; its calls ride on
+    # synthetic_unit_data so a delta scan resolves them like a fresh scan.
+    db = tmp_path / "f.db"
+    files = _universe()
+    module = _fn("__global_context__", 1, calls=["parse"], quals={"parse": ["utils"]})
+    module["is_synthetic_slice"] = True
+    module["calls_out_receiver_types"] = {"utils": "Utils"}
+    module["calls_only"] = True
+    files[0]["functions"].append(module)
+    _record(db, files)
+    assert _rows(db, "SELECT unit_name, start_line, calls_out_to, calls_out_qualifiers, calls_out_receiver_types "
+                     "FROM synthetic_unit_data") == [("__global_context__", 1, '["parse"]', '["utils"]', '{"utils":"Utils"}')]  # fmt: skip
+    assert _rows(db, "SELECT COUNT(*) FROM function_data WHERE func_name = '__global_context__'") == [(0,)]
+    assert _rows(db, "SELECT calls_only FROM synthetic_unit_data") == [(1,)]
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    restored = [{"path": path, **node} for path, node in sorted(cache.items())]
+
+    def key(rows):
+        return sorted(
+            (r["src_path"], r["src_name"], r["callee"], r["step"], r["dst_path"], r["dst_name"]) for r in rows
+        )
+
+    assert key(resolve_calls(restored, _IMPORTS)[0]) == key(resolve_calls(files, _IMPORTS)[0])

@@ -145,6 +145,9 @@ class FunctionNode(TypedDict, total=False):
     # statistics (functions_found, and every average taken over it) can leave out
     # the entries that are not functions.
     is_synthetic_slice: bool
+    # A synthetic bucket that exists only to carry calls (Python's module-level
+    # `__global_context__`): no weight, never part of a file's structural mass.
+    calls_only: bool
 
     # Dual-Key mapping to ensure compatibility with all pipeline versions
     semantic_type: str
@@ -1008,6 +1011,10 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+# Module-level Python text: blanked `class Name` headers (a class statement is
+# not a call to the class); unit spans are blanked with _NON_NEWLINE.
+_MODULE_CLASS_HEADER = re.compile(r"(?m)^([ \t]*class[ \t]+)([A-Za-z_]\w{0,127})")
 
 # Receiver types (Python): the local evidence that says which class a receiver
 # is, so `app.post()` after `app = FastAPI()` resolves to FastAPI.post. Every
@@ -6925,7 +6932,62 @@ class StructuralExtractor:
             if lang_id == "haskell":
                 haskell_group_stack.append((name, end_idx))
 
+        if lang_id and self.languages.get(lang_id, {}).get("module_level_unit"):
+            module_sat = self._module_level_unit(code, satellites, rules, offset)
+            if module_sat is not None:
+                # Calls only: it is a synthetic bucket (#2691), so it adds no
+                # impact and stays out of the function population.
+                satellites.append(module_sat)
+
         return satellites, sum_fxn_impact
+
+    def _module_level_unit(
+        self, code: str, satellites: list[FunctionNode], rules: dict[str, Any], offset: int
+    ) -> Optional[FunctionNode]:
+        """The code a module runs at import, as Mode D's `__global_context__` bucket.
+
+        Every sliced unit's span is blanked out (newlines kept) and so is each
+        `class Name` header's name, so what is left is the module- and
+        class-level statements: `app = FastAPI()`, `@app.post("/items")`,
+        `setup_logging()`, `if __name__ == "__main__": main()`. Without it a
+        Python module's top-level calls are recorded nowhere, and a web app's
+        route registration and wiring with them. None when nothing is left.
+        """
+        spans = sorted(
+            (int(s["start_idx"]), int(s["end_idx"]))
+            for s in satellites
+            if isinstance(s.get("start_idx"), int)
+            and isinstance(s.get("end_idx"), int)
+            and s["end_idx"] > s["start_idx"]
+        )
+        parts: list[str] = []
+        prev = 0
+        for a, b in spans:
+            if b <= prev:
+                continue
+            a = max(a, prev)
+            parts.append(code[prev:a])
+            parts.append(_NON_NEWLINE.sub(" ", code[a:b]))
+            prev = b
+        parts.append(code[prev:])
+        text = _MODULE_CLASS_HEADER.sub(lambda m: m.group(1) + " " * len(m.group(2)), "".join(parts))
+        if not text.strip():
+            return None
+        loc = sum(1 for line in text.splitlines() if line.strip())
+        sat, _ = self._calculate_block_metrics(
+            "__global_context__",
+            text,
+            loc,
+            offset + 1,
+            offset + code.count("\n") + 1,
+            rules,
+        )
+        # Calls only: no weight of its own, so no file's magnitude or impact
+        # moves, and mass/report consumers skip it (`calls_only`).
+        for weight in ("magnitude", "mag", "impact"):
+            sat[weight] = 0.0  # type: ignore[literal-required]
+        sat["calls_only"] = True
+        return sat
 
     def _slice_by_keywords(
         self,

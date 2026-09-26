@@ -136,7 +136,8 @@ def classify_file(f: dict[str, Any], drift: dict | None = None):
     denom = coding_loc if coding_loc > 0 else 1.0
     raw = {
         "log_coding_loc": math.log1p(coding_loc),
-        "log_function_count": math.log1p(len(f.get("functions", []))),
+        # a calls-only bucket (Python's module-level unit) is not a function
+        "log_function_count": math.log1p(len([u for u in f.get("functions", []) if not u.get("calls_only")])),
         "log_class_count": math.log1p(len(f.get("classes", []))),
         "log_import_count": math.log1p(len(f.get("raw_imports", []))),
         "encapsulation_ratio": min(max(float(tel.get("encapsulation_ratio", 0.0) or 0.0), 0.0), 1.0),

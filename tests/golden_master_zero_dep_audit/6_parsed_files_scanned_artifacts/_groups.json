@@ -7682,11 +7682,11 @@
       "Directory Group Magnitude": 3843.8,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_0": "8.7%",
-        "file_cluster_12": "8.7%",
+        "file_cluster_12": "13.0%",
         "file_cluster_14": "4.3%",
         "file_cluster_17": "4.3%",
         "file_cluster_2": "30.4%",
-        "file_cluster_5": "39.1%",
+        "file_cluster_5": "34.8%",
         "file_cluster_8": "4.3%"
       },
       "File Count": 23,
@@ -7735,14 +7735,14 @@
       "Directory Group Magnitude": 9927.56,
       "Ecosystem Fingerprint (Archetypes)": {
         "Unclassified": "0.5%",
-        "file_cluster_0": "13.7%",
-        "file_cluster_11": "16.6%",
+        "file_cluster_0": "13.2%",
+        "file_cluster_11": "16.1%",
         "file_cluster_12": "11.7%",
-        "file_cluster_13": "6.8%",
+        "file_cluster_13": "5.9%",
         "file_cluster_14": "0.5%",
-        "file_cluster_15": "36.6%",
+        "file_cluster_15": "38.0%",
         "file_cluster_2": "3.4%",
-        "file_cluster_5": "7.3%",
+        "file_cluster_5": "7.8%",
         "file_cluster_7": "2.9%"
       },
       "File Count": 205,
@@ -7974,8 +7974,9 @@
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "11.1%",
         "Unclassified": "5.6%",
-        "file_cluster_11": "11.1%",
+        "file_cluster_11": "5.6%",
         "file_cluster_12": "33.3%",
+        "file_cluster_2": "5.6%",
         "file_cluster_3": "5.6%",
         "file_cluster_4": "11.1%",
         "file_cluster_6": "5.6%",
@@ -8056,7 +8057,7 @@
         "file_cluster_0": "16.7%",
         "file_cluster_15": "16.7%",
         "file_cluster_2": "16.7%",
-        "file_cluster_6": "16.7%",
+        "file_cluster_4": "16.7%",
         "file_cluster_7": "16.7%"
       },
       "File Count": 6,

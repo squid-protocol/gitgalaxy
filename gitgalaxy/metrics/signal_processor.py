@@ -832,7 +832,8 @@ class SignalProcessor:
             # ------------------------------------------------------------------
             # 4. CALCULATE FILE IMPACT (Structural Magnitude)
             # ------------------------------------------------------------------
-            functions = meta.get("functions", [])
+            # A calls-only bucket (Python's module-level unit) carries no weight.
+            functions = [f for f in meta.get("functions", []) if not f.get("calls_only")]
             func_start = signals.get("func_start", 0)
 
             if functions:
@@ -2270,7 +2271,7 @@ class SignalProcessor:
             }
             for f in parsed_files
             for func in f.get("functions", [])
-            if isinstance(func, dict)
+            if isinstance(func, dict) and not func.get("calls_only")
         ]
         all_funcs.sort(key=lambda x: x["impact"], reverse=True)
         return {

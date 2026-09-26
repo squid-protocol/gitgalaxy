@@ -1505,6 +1505,27 @@ class RecordKeeper:
             )
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_file_id ON data_move_data(file_id);")
+        # The slicer's synthetic top-level buckets (`__global_context__`: a Python
+        # module's import-time code, Mode D's loose code). They have no
+        # function_data row (#2691), but they are callers: their calls are kept
+        # here so a delta scan restores them and resolves exactly like a fresh one.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS synthetic_unit_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                unit_name TEXT,
+                start_line INTEGER,
+                calls_out_to TEXT,
+                calls_out_qualifiers TEXT,
+                calls_out_receiver_types TEXT,
+                transfers_to TEXT,
+                calls_only INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_synthetic_unit_file_id ON synthetic_unit_data(file_id);")
         # #3655: the reference modifications as written, added to a pre-#3655 DB in place.
         _ensure_columns(cursor, "data_move_data", ["source_refmod_text TEXT", "target_refmod_text TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);")
@@ -3341,6 +3362,43 @@ class RecordKeeper:
             ),
         )
 
+        # Synthetic top-level buckets' calls (no function_data row) -- per-file.
+        _insert_per_file_child(
+            cursor,
+            [
+                {
+                    "path": f.get("path", ""),
+                    "synthetic_units": [u for u in f.get("functions", []) or [] if u.get("is_synthetic_slice")],
+                }
+                for f in parsed_files
+            ],
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "synthetic_unit_data",
+            (
+                "unit_name",
+                "start_line",
+                "calls_out_to",
+                "calls_out_qualifiers",
+                "calls_out_receiver_types",
+                "transfers_to",
+                "calls_only",
+            ),
+            "synthetic_units",
+            lambda u: (
+                str(u.get("name") or "")[:255],
+                int(u.get("start_line", 0) or 0),
+                json.dumps(u.get("calls_out_to", [])),
+                _qualifiers_json(u),
+                json.dumps(u["calls_out_receiver_types"], sort_keys=True, separators=(",", ":"))
+                if u.get("calls_out_receiver_types")
+                else None,
+                json.dumps(u["transfers_to"]) if u.get("transfers_to") else None,
+                int(bool(u.get("calls_only"))),
+            ),
+        )
+
         # #3452: field-level data movement -- per-file.
         _insert_per_file_child(
             cursor,
@@ -3665,7 +3723,7 @@ class RecordKeeper:
             loc = file_data.get("total_loc", 0)
             coding_loc = file_data.get("coding_loc", 0)
             mass = file_data.get("file_impact", 0.0)
-            func_count = len(file_data.get("functions", []))
+            func_count = len([u for u in file_data.get("functions", []) if not u.get("calls_only")])
             class_count = len(file_data.get("classes", []))
 
             tel = file_data.get("telemetry", {})

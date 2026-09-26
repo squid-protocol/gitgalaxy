@@ -267,7 +267,10 @@ class StatisticalAuditor:
             confidence = artifact.get("telemetry", {}).get("identity_confidence", artifact.get("intensity", 0.0))
             equations = self._scored_equations(artifact)
             signal_hits = sum(v for k, v in equations.items() if k in self.SIGNAL_KEYS and isinstance(v, (int, float)))
-            named_structure = len(artifact.get("functions", [])) + len(artifact.get("classes", []))
+            # a calls-only bucket (Python's module-level unit) is not a named symbol
+            named_structure = len([u for u in artifact.get("functions", []) if not u.get("calls_only")]) + len(
+                artifact.get("classes", [])
+            )
             is_collision = "Collision" in proof_str
             is_real_lang = current_lang not in ("", "unknown", "undeterminable", "plaintext")
             decisive_collision = is_collision and confidence >= 0.85 and signal_hits >= 5

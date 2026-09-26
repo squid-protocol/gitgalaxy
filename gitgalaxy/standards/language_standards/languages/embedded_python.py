@@ -64,6 +64,8 @@ DEFINITION: dict[str, Any] = {
     "module_level_unit": True,
     # Decorator edges: a decorated function -> each decorator applied to it.
     "decorator_edges": True,
+    # Reference edges: a function -> each function it uses as a value (a callback).
+    "reference_edges": True,
     # #3545/#3544: imports resolve by Python's own module rule (see python.py).
     "package_init_file": "__init__.py",
     "rules": {

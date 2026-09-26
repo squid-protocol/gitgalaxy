@@ -629,3 +629,36 @@ def test_decorators_are_their_own_kind_and_use_module_receiver_types():
 def test_a_locally_rebound_name_hides_the_module_type():
     rows = {s["callee"]: s for s in resolve_calls(_decorated_files({"app": ""}))[0] if s["kind"] == "decorator"}
     assert rows["post"]["step"] != "typed"
+
+
+# ----------------------------------------------------------------------------- references
+
+
+def test_a_reference_is_kept_only_when_it_reaches_a_function_in_scope():
+    caller = _fn("setup", 1)
+    caller["references_to"] = ["get_db", "config", "Widget", "helper"]
+    caller["references_qualifiers"] = {"get_db": [""], "config": [""], "Widget": [""], "helper": [""]}
+    files = [
+        _file(
+            "app.py", "python", [caller, _fn("get_db", 20)], [{"name": "Widget", "inheritance": [], "start_line": 30}]
+        ),
+        _file("lib/cfg.py", "python", [_fn("config", 1)]),  # unique in the repo, but not imported: a variable
+        _file("lib/h.py", "python", [_fn("helper", 1)]),
+    ]
+    sites, stats = resolve_calls(files, [{"src": "app.py", "dst": "lib/h.py"}])
+    refs = {s["callee"]: s for s in sites if s["kind"] == "reference"}
+    assert set(refs) == {"get_db", "helper"}  # config: not in scope; Widget: a class
+    assert (refs["get_db"]["step"], refs["helper"]["step"]) == ("file", "import")
+    assert stats["references_by_step"] == {"file": 1, "import": 1}
+
+
+def test_a_nested_definition_wins_over_the_files_first():
+    # every decorator in the file defines its own `wrapper`; `return wrapper` means this one
+    outer = _fn("deco_b", 10, calls=["wrapper"], quals={"wrapper": [""]})
+    outer["loc"] = 8
+    outer["references_to"] = ["wrapper"]
+    outer["references_qualifiers"] = {"wrapper": [""]}
+    files = [_file("d.py", "python", [_fn("deco_a", 1), _fn("wrapper", 2), outer, _fn("wrapper", 12)])]
+    for s in resolve_calls(files)[0]:
+        if s["callee"] == "wrapper":
+            assert s["dst_line"] == 12, s["kind"]

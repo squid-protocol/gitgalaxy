@@ -196,6 +196,11 @@ class FunctionNode(TypedDict, total=False):
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
     decorated_by: list[str]
     decorated_by_qualifiers: dict[str, list[str]]
+    # Function names used as values (`Depends(get_db)`, `key=f`, `return wrapper`),
+    # with receiver chains (`self.on_done` -> "on_done" via "self"). Resolved to
+    # fcall_data kind 'reference' only when they reach a function confidently.
+    references_to: list[str]
+    references_qualifiers: dict[str, list[str]]
     # #3362: unconditional-transfer targets (COBOL GO TO), beside calls_out_to.
     transfers_to: list[str]
     hit_vector: dict[str, int]
@@ -1016,6 +1021,130 @@ def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, 
 
 
 _UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+# References (Python): a function name used as a value -- `Depends(get_db)`,
+# `key=sort_key`, `callback=self.on_done`, `return wrapper`, `h = on_event`.
+_REF_CANDIDATE = re.compile(r"(?<![\w.])((?:self|cls)\.)?([A-Za-z_]\w{0,63})(?=[ \t]*(?:[,)\]}]|\n|$))")
+_REF_KEYWORD_BEFORE = re.compile(r"\b(?:return|yield|lambda[^:\n]{0,80}:|else)[ \t]*$")
+_REF_PARAM_NAME = re.compile(r"^[ \t\n]*\*{0,2}([A-Za-z_]\w{0,63})")
+_REF_IMPORT_AS = re.compile(r"\bimport[ \t]+([^\n]{1,300})")
+_REF_EXCEPT_AS = re.compile(r"\bexcept\b[^\n]{0,200}?\bas[ \t]+([A-Za-z_]\w{0,63})")
+_REF_WALRUS = re.compile(r"(?<![\w.])([A-Za-z_]\w{0,63})[ \t]*:=")
+# tuple / starred targets: `a, b = ...`, `(a, *rest) = ...`
+_REF_TUPLE_TARGET = re.compile(r"(?m)^[ \t]*\(?([A-Za-z_*][\w \t,*]{0,200},[\w \t,*]{0,200})\)?[ \t]*=(?!=)")
+_REF_DEF_OPEN = re.compile(r"\bdef[ \t]+\w+[ \t]*\(")
+_REF_HEADER_MAX = 20000
+
+
+def _python_bindings(text: str) -> set[str]:
+    """Names `text` binds as variables: assignment (plain, annotated, tuple and
+    starred) and loop targets, `with`/`except ... as`, walrus. Imports and defs
+    are not variables and are left out."""
+    names: set[str] = set()
+    for m in _RECV_ASSIGN.finditer(text):
+        names.add(m.group(1))
+    for m in _REF_TUPLE_TARGET.finditer(text):
+        names.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+    for m in _RECV_FOR.finditer(text):
+        names.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+    for m in _RECV_WITH.finditer(text):
+        names.add(m.group(2))
+    names.update(_REF_EXCEPT_AS.findall(text))
+    names.update(_REF_WALRUS.findall(text))
+    return names
+
+
+_REF_MAX_DEFS = 500
+
+
+def _python_signatures(text: str) -> list[tuple[int, int]]:
+    """(start, end) of every def's parameter list in `text`, bracket-balanced (bounded)."""
+    out: list[tuple[int, int]] = []
+    for m in _REF_DEF_OPEN.finditer(text):
+        depth, i = 1, m.end()
+        end = min(len(text), i + _REF_HEADER_MAX)
+        while i < end and depth:
+            ch = text[i]
+            depth += ch in "([{"
+            depth -= ch in ")]}"
+            i += 1
+        out.append((m.end(), i - 1))
+        if len(out) >= _REF_MAX_DEFS:
+            break
+    return out
+
+
+def _python_locals(text: str) -> set[str]:
+    """Every name `text` binds as a variable, in any def it contains: assignment,
+    loop and `with`/`except`/walrus targets, `import ... as` names, and the
+    parameters of every def (a nested function's too)."""
+    local = _python_bindings(text)
+    for a, b in _python_signatures(text):
+        depth, part = 0, []
+        for ch in text[a:b] + ",":
+            if ch in "([{":
+                depth += 1
+            elif ch in ")]}":
+                depth -= 1
+            if ch == "," and depth == 0:
+                pm = _REF_PARAM_NAME.match("".join(part))
+                if pm:
+                    local.add(pm.group(1))
+                part = []
+            else:
+                part.append(ch)
+    for m in _REF_IMPORT_AS.finditer(text):
+        local.update(re.findall(r"[A-Za-z_]\w{0,63}", m.group(1)))
+    return local
+
+
+_PY_NON_REFERENCES = frozenset(
+    {"None", "True", "False", "self", "cls", "and", "or", "not", "in", "is", "if", "else", "for", "while",
+     "return", "yield", "lambda", "await", "async", "pass", "break", "continue", "super", "print", "len"}
+)  # fmt: skip
+
+
+def _python_references(text: str, called: set[str], own_name: str) -> list[tuple[str, str]]:
+    """(name, qualifier) for each function name `text` uses as a value, first-seen order.
+
+    A candidate is a bare name or `self.x`/`cls.x`, not followed by `(`, `.` or
+    `[`, standing in an argument, keyword, assignment right-hand side, return,
+    yield, lambda body or collection position. The function's own parameters and
+    local bindings (assignment and loop targets, `with`/`except`/`import ... as`,
+    walrus) are variables, not references, and a name the function also calls
+    is already an edge. The resolver keeps only those that resolve confidently
+    to a function; everything else here is expected to be a variable.
+    """
+    local = _python_locals(text)
+    signatures = _python_signatures(text)
+    out: dict[tuple[str, str], None] = {}
+    for m in _REF_CANDIDATE.finditer(text):
+        prefix, name = m.group(1), m.group(2)
+        if name in _PY_NON_REFERENCES or name == own_name or name in called:
+            continue
+        if not prefix and name in local:
+            continue
+        before = text[max(0, m.start() - 120) : m.start()].rstrip(" \t")
+        if any(a <= m.start() < b for a, b in signatures) and not (
+            before.endswith("=") or (before.endswith("(") and before[-2:-1].isidentifier())
+        ):
+            continue  # in a signature only a default or a call argument (`Depends(get_db)`) counts
+        tail = before[-2:]
+        if tail in ("==", "!=", "<=", ">="):
+            continue
+        if not (before.endswith(("(", ",", "[", "{", "=", ":")) or _REF_KEYWORD_BEFORE.search(before)):
+            continue
+        # a colon outside a dict/lambda is an annotation (`x: int`) or a slice
+        if (
+            before.endswith(":")
+            and "{" not in before[-120:]
+            and not before.endswith("lambda:")
+            and not _REF_KEYWORD_BEFORE.search(before)
+        ):
+            continue
+        out[(name, prefix[:-1] if prefix else "")] = None
+    return list(out)
+
 
 # Decorators (Python): `@name` / `@a.b.name(...)` lines directly above a def.
 _DECORATOR_NAME = re.compile(r"(?m)^[ \t]*@[ \t]*([A-Za-z_][\w.]{0,200})")
@@ -6995,6 +7124,35 @@ class StructuralExtractor:
             if lang_id == "haskell":
                 haskell_group_stack.append((name, end_idx))
 
+        if lang_id and self.languages.get(lang_id, {}).get("reference_edges") and satellites:
+            # A name the module binds as a variable (`app = FastAPI()`) is that
+            # variable inside every function of the file, never a reference to a
+            # same-named function elsewhere.
+            module_vars = _python_bindings(self._module_text(code, satellites))
+            spans = [
+                (int(s["start_idx"]), int(s["end_idx"]))
+                for s in satellites
+                if isinstance(s.get("start_idx"), int) and isinstance(s.get("end_idx"), int)
+            ]
+            for s in satellites:
+                refs = s.get("references_qualifiers") or {}
+                if not refs:
+                    continue
+                # ... and a name an enclosing function binds is a closure variable
+                bound = set(module_vars)
+                lo, hi = s.get("start_idx"), s.get("end_idx")
+                if isinstance(lo, int) and isinstance(hi, int):
+                    for a, b in spans:
+                        if a < lo and hi <= b:
+                            bound |= _python_locals(code[a:b])
+                drop = {r for r, quals in refs.items() if r in bound and "" in quals}
+                if drop:
+                    for r in drop:
+                        refs[r] = [q for q in refs[r] if q]
+                        if not refs[r]:
+                            del refs[r]
+                    s["references_to"] = [r for r in s.get("references_to", []) if r in refs]
+
         if lang_id and self.languages.get(lang_id, {}).get("module_level_unit"):
             module_sat = self._module_level_unit(code, satellites, rules, offset)
             if module_sat is not None:
@@ -7016,6 +7174,32 @@ class StructuralExtractor:
         Python module's top-level calls are recorded nowhere, and a web app's
         route registration and wiring with them. None when nothing is left.
         """
+        text = self._module_text(code, satellites)
+        if not text.strip():
+            return None
+        loc = sum(1 for line in text.splitlines() if line.strip())
+        sat, _ = self._calculate_block_metrics(
+            "__global_context__",
+            text,
+            loc,
+            offset + 1,
+            offset + code.count("\n") + 1,
+            rules,
+        )
+        # Calls only: no weight of its own, so no file's magnitude or impact
+        # moves, and mass/report consumers skip it (`calls_only`).
+        for weight in ("magnitude", "mag", "impact"):
+            sat[weight] = 0.0  # type: ignore[literal-required]
+        sat["calls_only"] = True
+        # References stay on real functions for now: synthetic_unit_data does not
+        # persist them, and a delta scan must resolve exactly like a fresh one.
+        sat["references_to"] = []
+        sat["references_qualifiers"] = {}
+        return sat
+
+    @staticmethod
+    def _module_text(code: str, satellites: list[FunctionNode]) -> str:
+        """`code` with every sliced unit's span and each `class Name` header's name blanked."""
         spans = sorted(
             (int(s["start_idx"]), int(s["end_idx"]))
             for s in satellites
@@ -7033,24 +7217,7 @@ class StructuralExtractor:
             parts.append(_NON_NEWLINE.sub(" ", code[a:b]))
             prev = b
         parts.append(code[prev:])
-        text = _MODULE_CLASS_HEADER.sub(lambda m: m.group(1) + " " * len(m.group(2)), "".join(parts))
-        if not text.strip():
-            return None
-        loc = sum(1 for line in text.splitlines() if line.strip())
-        sat, _ = self._calculate_block_metrics(
-            "__global_context__",
-            text,
-            loc,
-            offset + 1,
-            offset + code.count("\n") + 1,
-            rules,
-        )
-        # Calls only: no weight of its own, so no file's magnitude or impact
-        # moves, and mass/report consumers skip it (`calls_only`).
-        for weight in ("magnitude", "mag", "impact"):
-            sat[weight] = 0.0  # type: ignore[literal-required]
-        sat["calls_only"] = True
-        return sat
+        return _MODULE_CLASS_HEADER.sub(lambda m: m.group(1) + " " * len(m.group(2)), "".join(parts))
 
     def _slice_by_keywords(
         self,
@@ -9495,9 +9662,22 @@ class StructuralExtractor:
             if receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
+        references: list[tuple[str, str]] = []
+        if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("reference_edges"):
+            # `invoked`, not every capture: a nested `def f(` header is not a call,
+            # and `return f` is then a reference to it
+            references = _python_references(receiver_text, invoked, _UNIT_NAME_SEPARATORS.split(name)[-1])
+        reference_quals: dict[str, list[str]] = {}
+        for ref, qualifier in references:
+            seen_q = reference_quals.setdefault(ref, [])
+            if qualifier not in seen_q:
+                seen_q.append(qualifier)
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
+            "references_to": list(reference_quals),
+            "references_qualifiers": reference_quals,
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},

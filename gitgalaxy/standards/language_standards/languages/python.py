@@ -88,6 +88,8 @@ DEFINITION: dict[str, Any] = {
     "module_level_unit": True,
     # Decorator edges: a decorated function -> each decorator applied to it.
     "decorator_edges": True,
+    # Reference edges: a function -> each function it uses as a value (a callback).
+    "reference_edges": True,
     # #3545/#3544: imports resolve by Python's own module rule in network_risk_sensor.py:
     # `a.b` is a/b.py or the package a/b/__init__.py under a source root, and a package name
     # binds its __init__.py. A top-level key, not in `rules` (#2806).

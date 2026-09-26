@@ -184,12 +184,17 @@ def _qualifiers_json(func: dict) -> Optional[str]:
     return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
 
 
+def _aligned_json(func: dict, names_key: str, quals_key: str) -> Optional[str]:
+    """A qualifier column aligned with a name column (`encode_qualifiers`), NULL when none."""
+    if not func.get(names_key):
+        return None
+    encoded = encode_qualifiers(list(func[names_key]), func.get(quals_key) or {})
+    return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
+
+
 def _decorators_json(func: dict) -> Optional[str]:
     """function_data.decorated_by_qualifiers -- aligned with decorated_by, NULL when none."""
-    if not func.get("decorated_by"):
-        return None
-    encoded = encode_qualifiers(list(func["decorated_by"]), func.get("decorated_by_qualifiers") or {})
-    return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
+    return _aligned_json(func, "decorated_by", "decorated_by_qualifiers")
 
 
 # #3496: web_service_data's row fields, in column order (`transaction` is stored
@@ -831,6 +836,8 @@ class RecordKeeper:
                 calls_out_receiver_types TEXT,
                 decorated_by TEXT,
                 decorated_by_qualifiers TEXT,
+                references_to TEXT,
+                references_qualifiers TEXT,
                 transfers_to TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
@@ -1827,6 +1834,9 @@ class RecordKeeper:
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
         self._heal_column(cursor, "function_data", "decorated_by", "TEXT")
         self._heal_column(cursor, "function_data", "decorated_by_qualifiers", "TEXT")
+        # Function names used as values (kind='reference' edges), aligned the same way.
+        self._heal_column(cursor, "function_data", "references_to", "TEXT")
+        self._heal_column(cursor, "function_data", "references_qualifiers", "TEXT")
 
         # #3329: the receiver chain per callee, a JSON list aligned with
         # calls_out_to (call_resolver.encode_qualifiers). Same auto-heal for a
@@ -2534,6 +2544,8 @@ class RecordKeeper:
                         ),
                         json.dumps(func["decorated_by"]) if func.get("decorated_by") else None,
                         _decorators_json(func),
+                        json.dumps(func["references_to"]) if func.get("references_to") else None,
+                        _aligned_json(func, "references_to", "references_qualifiers"),
                         json.dumps(func["transfers_to"]) if func.get("transfers_to") else None,
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
@@ -2606,7 +2618,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, decorated_by, decorated_by_qualifiers, transfers_to, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

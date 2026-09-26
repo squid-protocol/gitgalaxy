@@ -354,11 +354,20 @@ class StateRehydrator:
                             _json_list(r["decorated_by"]) if "decorated_by" in rk else [],
                             _json_list(r["decorated_by_qualifiers"]) if "decorated_by_qualifiers" in rk else None,
                         ),
+                        # function names used as values (the resolver's kind='reference' edges)
+                        "references_to": _json_list(r["references_to"]) if "references_to" in rk else [],
+                        "references_qualifiers": decode_qualifiers(
+                            _json_list(r["references_to"]) if "references_to" in rk else [],
+                            _json_list(r["references_qualifiers"]) if "references_qualifiers" in rk else None,
+                        ),
                         # the receiver -> class map the resolver's `typed` step reads
                         "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"])
                         if "calls_out_receiver_types" in rk
                         else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
+                        # with start_line, the caller's span the resolver uses to prefer
+                        # a function nested inside it over a same-named one elsewhere
+                        "loc": int(r["loc"] or 0) if "loc" in rk else 0,
                         # #3362: COBOL GO TO targets, re-resolved on a delta scan.
                         "transfers_to": _json_list(r["transfers_to"]) if "transfers_to" in rk else [],
                         # engine stores the complexity/branch metric under "branch"

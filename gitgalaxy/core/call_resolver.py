@@ -817,6 +817,7 @@ def resolve_calls(
     by_lang: dict[str, Counter[str]] = {}
     transfers: Counter[str] = Counter()
     decorators: Counter[str] = Counter()
+    references: Counter[str] = Counter()
 
     for f in parsed_files:
         src_path = f.get("path", "")
@@ -840,13 +841,19 @@ def resolve_calls(
             # (its wrapper runs around every call). Same ladder, own `kind`, and
             # like a transfer never counted in the call-resolution rates.
             callees += [(d, "decorator") for d in func.get("decorated_by") or []]
+            # References: a function name used as a value (a callback, `Depends(f)`).
+            # Most candidates are variables, so only a confident, scoped link to a
+            # function becomes a row (see _REFERENCE_STEPS below).
+            callees += [(r, "reference") for r in func.get("references_to") or []]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
             caller_line = int(func.get("start_line", 0) or 0)
+            caller_end = caller_line + int(func.get("loc", 0) or 0) - 1
             lineage = _lineage(func.get("parent_class_name") or _leaf(caller_name)[1], group, lang, parents)
             qualifier_map = func.get("calls_out_qualifiers") or {}
             decorator_map = func.get("decorated_by_qualifiers") or {}
+            reference_map = func.get("references_qualifiers") or {}
             # receiver -> its class's lineage, for receivers whose class the scan
             # knows (a factory function's name is not a class, and is ignored)
             # knows. A name the function binds itself with no known class ("")
@@ -859,7 +866,7 @@ def resolve_calls(
             }
             for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
-                quals = qualifier_map if kind == "call" else decorator_map if kind == "decorator" else {}
+                quals = {"call": qualifier_map, "decorator": decorator_map, "reference": reference_map}.get(kind, {})
                 options: list[Optional[str]] = list(quals.get(callee) or []) or [None]
                 step, dst = _resolve_one(bucket, caller, lineage, options[0], cache, typed)
                 used = options[0]
@@ -867,6 +874,25 @@ def resolve_calls(
                     alt_step, alt_dst = _resolve_one(bucket, caller, lineage, q, cache, typed)
                     if _RANK[alt_step] < _RANK[step]:
                         step, dst, used = alt_step, alt_dst, q
+                if kind == "reference" and (step not in _REFERENCE_STEPS or dst is None or dst.kind != "function"):
+                    continue  # a variable, a class, or a name the scope cannot see: no row
+                if (
+                    kind in ("call", "reference")
+                    and not used
+                    and bucket is not None
+                    and dst is not None
+                    and dst.path == src_path
+                    and caller_end > caller_line
+                ):
+                    # `wrapper(...)` / `return wrapper` inside a function that defines
+                    # its own nested `wrapper`: that one, not the file's first.
+                    nested = [
+                        d
+                        for d in bucket.all.defs
+                        if d.path == src_path and d.kind == "function" and caller_line < d.line <= caller_end
+                    ]
+                    if nested and not (caller_line < dst.line <= caller_end):
+                        dst = min(nested, key=lambda d: d.line)
                 cls = None
                 if dst is not None and dst.kind == "class":
                     # A constructor call reaches the class's constructor method.
@@ -881,6 +907,8 @@ def resolve_calls(
                     lang_counts[resolution] += 1
                 elif kind == "decorator":
                     decorators[step] += 1
+                elif kind == "reference":
+                    references[step] += 1
                 else:
                     transfers[step] += 1
                 sites.append(
@@ -914,9 +942,16 @@ def resolve_calls(
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
         "transfers_by_step": dict(transfers),
         "decorators_by_step": dict(decorators),
+        "references_by_step": dict(references),
     }
     return sites, stats
 
+
+# A reference is kept only when the name is in scope for certain: the caller's
+# class, a qualified or typed receiver, its own file or a file it imports.
+# `unique` is not enough -- a local variable named like the repository's one
+# function of that name is still a variable.
+_REFERENCE_STEPS = frozenset({"class", "qualified", "typed", "file", "import"})
 
 RESOLUTION_CLASSES = ("scoped", "unique", "ambiguous", "external")
 

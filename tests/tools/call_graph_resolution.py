@@ -178,8 +178,8 @@ def _to_pyan(defs: dict[tuple[str, str], list[int]], path: str, name: str, line:
 
 def score_python(samples: int = 0) -> dict[str, Any]:
     root = CRUCIBLE / "data" / "python"
-    totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator")}
-    recall_dec_hits = 0
+    totals = {g: collections.Counter() for g in ("confident", "ambiguous", "decorator", "reference")}
+    recall_dec_hits = recall_all_hits = 0
     recall_hits = recall_total = 0
     named_hits = named_total = 0
     wrong_examples: list[str] = []
@@ -189,19 +189,21 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         db = _scan(repo)
         mine: set[tuple] = set()
         mine_dec: set[tuple] = set()
+        mine_ref: set[tuple] = set()
         repo_counts = {g: collections.Counter() for g in totals}
         for sp, sn, sl, _callee, step, dp, dn, dl, kind in _links(db):
-            if kind == "decorator":
-                # decorated function -> decorator: its own precision and recall line;
-                # the gated call metrics below stay calls-only
+            if kind in ("decorator", "reference"):
+                # decorated function -> decorator, function -> a function it uses as a
+                # value: each its own precision and recall line; the gated call
+                # metrics below stay calls-only
                 ks, kd = _to_pyan(defs, sp, sn, sl), _to_pyan(defs, dp, dn, dl)
                 if step not in CONFIDENT:
                     continue
                 if ks is None or kd is None:
-                    repo_counts["decorator"]["unmapped"] += 1
+                    repo_counts[kind]["unmapped"] += 1
                     continue
-                mine_dec.add((ks, kd))
-                repo_counts["decorator"][
+                (mine_dec if kind == "decorator" else mine_ref).add((ks, kd))
+                repo_counts[kind][
                     "agree" if (ks, kd) in edges else "wrong" if by_name.get((ks, kd[1])) else "unconfirmed"
                 ] += 1
                 continue
@@ -230,6 +232,7 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         recall_total += len(mapped_edges)
         recall_hits += len(mapped_edges & mine)
         recall_dec_hits += len(mapped_edges & (mine | mine_dec))
+        recall_all_hits += len(mapped_edges & (mine | mine_dec | mine_ref))
         # Resolution recall: only pyan edges whose callee NAME the engine extracted
         # for that caller -- the resolver's own share, apart from Level 1's misses
         # and from pyan's reference edges (a function passed or returned, which the
@@ -262,6 +265,9 @@ def score_python(samples: int = 0) -> dict[str, Any]:
         # calls + decorator edges (decorated function -> decorator), not gated
         "decorator": rates(totals["decorator"]),
         "recall_with_decorators_pct": round(100.0 * recall_dec_hits / recall_total, 1) if recall_total else None,
+        # calls + decorators + references (function names used as values), not gated
+        "reference_edges": rates(totals["reference"]),
+        "recall_all_kinds_pct": round(100.0 * recall_all_hits / recall_total, 1) if recall_total else None,
         "resolution_recall_pct": round(100.0 * named_hits / named_total, 1) if named_total else None,
         "named_pyan_edges": named_total,
         "pyan_edges": recall_total,
@@ -330,6 +336,10 @@ def gated_metrics(py: dict[str, Any]) -> dict[str, Any]:
         "decorator_precision_pct": (py.get("decorator") or {}).get("precision_pct"),
         "decorator_judged": (py.get("decorator") or {}).get("agree", 0) + (py.get("decorator") or {}).get("wrong", 0),
         "recall_with_decorators_pct": py.get("recall_with_decorators_pct"),
+        "reference_precision_pct": (py.get("reference_edges") or {}).get("precision_pct"),
+        "reference_judged": (py.get("reference_edges") or {}).get("agree", 0)
+        + (py.get("reference_edges") or {}).get("wrong", 0),
+        "recall_all_kinds_pct": py.get("recall_all_kinds_pct"),
     }
 
 
@@ -356,6 +366,11 @@ def render(current: dict[str, Any]) -> str:
         lines.append(
             f"\ndecorator edges (not gated): precision {pct(current['decorator_precision_pct'])} "
             f"({current['decorator_judged']} judged); recall with decorators {pct(current['recall_with_decorators_pct'])}"
+        )
+    if current.get("reference_precision_pct") is not None:
+        lines.append(
+            f"reference edges (not gated): precision {pct(current['reference_precision_pct'])} "
+            f"({current['reference_judged']} judged); recall, all kinds {pct(current['recall_all_kinds_pct'])}"
         )
     return "\n".join(lines)
 

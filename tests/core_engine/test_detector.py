@@ -2849,6 +2849,43 @@ def test_detector_ts_param_function_type_annotation_not_counted_as_function():
         assert "ap" in names2, f"[{lang}] object-literal arrow property dropped: {names2}"
 
 
+def test_detector_ts_js_quoted_method_key_after_modifier_is_not_named_by_the_modifier():
+    """
+    Regression test for issue #3760: a quoted object-literal method key behind a
+    modifier (`async "array-objects"() {}`, zod's packages/bench/compile-vs-arktype.ts:414)
+    was named `async`. The brace-safe stream blanks the whole literal, quotes
+    included, so func_start saw `async                 () {` and captured the
+    modifier as the name. The key is read back from the raw code instead, quotes
+    kept (the convention groovy's quoted names already follow). A method that
+    really is named like a modifier (`get() {}`, `static async() {}`) has no literal
+    after the name and keeps it.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        code = (
+            "export const suites = {\n"
+            '  async "array-objects"() {\n'
+            "    run1();\n"
+            "  },\n"
+            "  async 'single-q'() {\n"
+            "    run2();\n"
+            "  },\n"
+            "  get() {\n"
+            "    return 1;\n"
+            "  },\n"
+            "  static async() {\n"
+            "    run3();\n"
+            "  },\n"
+            "};\n"
+        )
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert names == ['"array-objects"', "'single-q'", "get", "async"], f"[{lang}] {names}"
+
+
 def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
     """
     The safe_code-matching fix above is deliberately gated to

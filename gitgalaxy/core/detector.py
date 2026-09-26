@@ -1524,6 +1524,30 @@ _TS_JS_RESERVED_MODIFIER_KEYWORDS = frozenset(
     {"async", "static", "public", "private", "protected", "abstract", "readonly", "override", "get", "set"}
 )
 
+# #3760: a quoted method key after a modifier (`async "array-objects"() {}`, a
+# benchmark/test-table idiom). The brace-safe stream blanks the whole literal,
+# quotes included, so func_start sees `async                 () {` and captures
+# the MODIFIER as the name. Read the literal back from the raw code: it sits
+# between the captured keyword and the parameter list (an optional generic list
+# in between). Bounded throughout; a key is one line.
+_TS_JS_QUOTED_METHOD_KEY = re.compile(r"""[ \t]*(["'])([^"'\\\r\n]{1,200})\1[ \t]*(?:<[^<>\r\n]{0,200}>[ \t]*)?\(""")
+
+
+def _ts_js_quoted_method_name(code: str, match: "re.Match[str]") -> Optional[str]:
+    """The quoted key (quotes kept, as groovy's quoted names are) when func_start
+    captured a modifier keyword standing in front of one; None otherwise. A
+    method genuinely named `get`/`async` (`get() {}`) has no literal there and
+    keeps its name."""
+    # typescript's func_start captures the name in a group; javascript's match
+    # has none and simply ends at the name
+    group = match.lastindex or 0
+    words = match.group(group).split()
+    if not words or words[-1] not in _TS_JS_RESERVED_MODIFIER_KEYWORDS:
+        return None
+    key = _TS_JS_QUOTED_METHOD_KEY.match(code, match.end(group))
+    return f"{key.group(1)}{key.group(2)}{key.group(1)}" if key else None
+
+
 # #2547: satellite names the structural slicer synthesizes for languages/modes with
 # no real same-file call graph -- Mode D's (_slice_by_keywords) top-level loose-code
 # bucket ("__global_context__", see ~5063) and Mode E's (_slice_by_terminator)
@@ -6747,6 +6771,8 @@ class StructuralExtractor:
             raw_name = match.group(match.lastindex) if match.lastindex else match.group(0)
             if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
                 raw_name = match.group(0)
+            if lang_id in ("typescript", "javascript"):
+                raw_name = _ts_js_quoted_method_name(code, match) or raw_name  # #3760
 
             name = self._extract_name(raw_name)
             current_line_count += code.count("\n", last_counted_idx, start_idx)

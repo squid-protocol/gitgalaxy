@@ -178,6 +178,13 @@ def _ordered_raw_imports(raw_imports: Any) -> list:
     )
 
 
+def _arities_json(func: dict[str, Any]) -> Optional[str]:
+    """#3835: function_data.calls_out_arities -- callee -> its call-site argument
+    counts, NULL where the language records none."""
+    arities = {c: a for c, a in (func.get("calls_out_arities") or {}).items() if a}
+    return json.dumps(arities, sort_keys=True, separators=(",", ":")) if arities else None
+
+
 def _qualifiers_json(func: dict) -> Optional[str]:
     """#3329: function_data.calls_out_qualifiers -- NULL where none are captured."""
     encoded = encode_qualifiers(list(func.get("calls_out_to") or []), func.get("calls_out_qualifiers") or {})
@@ -841,6 +848,7 @@ class RecordKeeper:
                 calls_out_to TEXT,
                 calls_out_qualifiers TEXT,
                 calls_out_receiver_types TEXT,
+                calls_out_arities TEXT,
                 decorated_by TEXT,
                 decorated_by_qualifiers TEXT,
                 references_to TEXT,
@@ -1558,6 +1566,7 @@ class RecordKeeper:
                 calls_out_to TEXT,
                 calls_out_qualifiers TEXT,
                 calls_out_receiver_types TEXT,
+                calls_out_arities TEXT,
                 transfers_to TEXT,
                 calls_only INTEGER,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
@@ -1566,6 +1575,8 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_synthetic_unit_file_id ON synthetic_unit_data(file_id);")
         # #3655: the reference modifications as written, added to a pre-#3655 DB in place.
         _ensure_columns(cursor, "data_move_data", ["source_refmod_text TEXT", "target_refmod_text TEXT"])
+        # #3835: a pre-#3835 DB gains the synthetic units' call-site argument counts
+        _ensure_columns(cursor, "synthetic_unit_data", ["calls_out_arities TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_data_move_snapshot ON data_move_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
@@ -1855,6 +1866,9 @@ class RecordKeeper:
         # definition is, which decides what the call resolver lets reach it. NULL
         # for every other language.
         self._heal_column(cursor, "function_data", "def_shape", "TEXT")
+        # #3835: callee -> the argument counts it was called with (java: overload
+        # choice in the call resolver). A JSON object, NULL where none are recorded.
+        self._heal_column(cursor, "function_data", "calls_out_arities", "TEXT")
         # Decorators applied to the function, aligned like calls_out_to /
         # calls_out_qualifiers (the resolver's kind='decorator' edges).
         self._heal_column(cursor, "function_data", "decorated_by", "TEXT")
@@ -2570,6 +2584,7 @@ class RecordKeeper:
                             if func.get("calls_out_receiver_types")
                             else None
                         ),
+                        _arities_json(func),
                         json.dumps(func["decorated_by"]) if func.get("decorated_by") else None,
                         _decorators_json(func),
                         json.dumps(func["references_to"]) if func.get("references_to") else None,
@@ -2648,7 +2663,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, calls_out_receiver_types, calls_out_arities, decorated_by, decorated_by_qualifiers, references_to, references_qualifiers, transfers_to, def_shape, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,
@@ -3452,6 +3467,7 @@ class RecordKeeper:
                 "calls_out_to",
                 "calls_out_qualifiers",
                 "calls_out_receiver_types",
+                "calls_out_arities",
                 "transfers_to",
                 "calls_only",
             ),
@@ -3464,6 +3480,7 @@ class RecordKeeper:
                 json.dumps(u["calls_out_receiver_types"], sort_keys=True, separators=(",", ":"))
                 if u.get("calls_out_receiver_types")
                 else None,
+                _arities_json(u),
                 json.dumps(u["transfers_to"]) if u.get("transfers_to") else None,
                 int(bool(u.get("calls_only"))),
             ),

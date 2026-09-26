@@ -101,12 +101,11 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
   judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
   `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
-  scip-java (javac-resolved SCIP) on gson: 59.8% confident precision over 4,778 judged
-  links and 36.3% recall. 1,653 of the wrong links are a different overload of the right
-  method in the same class, which the engine can't choose without argument types.
-  Counting those right, it is 94.3% precision and 58.4% recall
-  (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP"). Other languages run
-  the same machinery unmeasured.
+  scip-java (javac-resolved SCIP) on gson: 92.7% confident precision over 3,474 judged
+  links, and 41.0% recall. A call to an overloaded method links to the overload with that
+  many parameters (#3835). When several overloads take that many, the call is ambiguous:
+  a row, not an edge (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP").
+  Other languages run the same machinery unmeasured.
 - **Tuned on the corpus it is scored on.** Every change above was found and verified on
   language-crucible's Python repos; a held-out check has not been run.
 - **What stays out of reach without types.** `x.method()` where `x` comes from a loop over

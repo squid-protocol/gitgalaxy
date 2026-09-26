@@ -7,7 +7,7 @@ and classes (name, inheritance) -- plus the import edges, and pins one rung of t
 ladder or one qualifier rule.
 """
 
-from gitgalaxy.core.call_resolver import resolve_calls
+from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, resolve_calls
 
 
 def _fn(name, line=1, owner=None, calls=(), quals=None, synthetic=False):
@@ -746,3 +746,89 @@ def test_python_same_file_redefinitions_are_left_alone():
     # may legally redefine a function, and the resolver keeps its existing pick
     files = [_file("m.py", "python", [_fn("f", 1), _fn("main", 3, calls=["f"], quals={"f": [""]}), _fn("f", 6)])]
     assert _site(resolve_calls(files)[0], "f")["dst_line"] == 1
+
+
+def _overload(name, line, owner, args):
+    return {**_fn(name, line, owner=owner), "args": args}
+
+
+def _java_caller(calls, arities, quals=None):
+    f = _fn("run", 40, owner="App", calls=calls, quals=quals)
+    f["calls_out_arities"] = arities
+    return f
+
+
+def _gson_like(caller):
+    """Gson.java: two constructors and three fromJson overloads (1, 2 and 2 params)."""
+    return [
+        _file(
+            "src/Gson.java",
+            "java",
+            [
+                _overload("Gson", 10, "Gson", 0),
+                _overload("Gson", 14, "Gson", 3),
+                _overload("fromJson", 20, "Gson", 1),
+                _overload("fromJson", 24, "Gson", 2),
+                _overload("fromJson", 28, "Gson", 2),
+                _overload("toJson", 32, "Gson", 1),
+            ],
+            [{"name": "Gson", "start_line": 5}],
+        ),
+        _file("src/App.java", "java", [caller], [{"name": "App", "start_line": 1}]),
+    ]
+
+
+def test_java_overload_is_chosen_by_argument_count():
+    # #3835: `new Gson()` is the no-arg constructor and `gson.fromJson(x)` the
+    # one-parameter overload -- not whichever overload comes first in the file
+    caller = _java_caller(
+        ["Gson", "fromJson"], {"Gson": [0], "fromJson": [1]}, quals={"Gson": [""], "fromJson": ["gson"]}
+    )
+    sites, _ = resolve_calls(_gson_like(caller))
+    ctor, from_json = _site(sites, "Gson"), _site(sites, "fromJson")
+    assert (ctor["dst_line"], from_json["dst_line"]) == (10, 20)
+    assert {ctor["resolution"], from_json["resolution"]} <= CONFIDENT_RESOLUTIONS
+
+
+def test_java_calls_to_two_overloads_are_two_links():
+    caller = _java_caller(["Gson"], {"Gson": [0, 3]}, quals={"Gson": [""]})
+    sites, _ = resolve_calls(_gson_like(caller))
+    rows = [s for s in sites if s["callee"] == "Gson"]
+    assert sorted(s["dst_line"] for s in rows) == [10, 14]
+    assert {s["resolution"] for s in rows} <= CONFIDENT_RESOLUTIONS
+
+
+def test_java_overloads_an_argument_count_cannot_choose_are_ambiguous():
+    # two fromJson overloads take 2 parameters, none takes 5, and a call site the
+    # detector could not count gives no evidence: an `overload` row, never an edge
+    for arities in ({"fromJson": [2]}, {"fromJson": [5]}, {}):
+        caller = _java_caller(["fromJson"], arities, quals={"fromJson": ["gson"]})
+        sites, stats = resolve_calls(_gson_like(caller))
+        row = _site(sites, "fromJson")
+        assert (row["step"], row["resolution"]) == ("overload", "ambiguous"), arities
+    # a count that picks one keeps its link even when another count is ambiguous
+    caller = _java_caller(["fromJson"], {"fromJson": [1, 2]}, quals={"fromJson": ["gson"]})
+    rows = [s for s in resolve_calls(_gson_like(caller))[0] if s["callee"] == "fromJson"]
+    confident = [s for s in rows if s["resolution"] in CONFIDENT_RESOLUTIONS]
+    assert [s["dst_line"] for s in confident] == [20]
+    assert [s["step"] for s in rows if s not in confident] == ["overload"]
+
+
+def test_a_single_definition_ignores_argument_counts():
+    # no overloads: the count never demotes a link (varargs, a miscount)
+    caller = _java_caller(["toJson"], {"toJson": [3]}, quals={"toJson": ["gson"]})
+    assert _site(resolve_calls(_gson_like(caller))[0], "toJson")["dst_line"] == 32
+
+
+def test_overload_choice_is_java_only():
+    # a language outside OVERLOAD_LANGS keeps one row per callee, whatever it records
+    files = [
+        _file("a.ts", "typescript", [_overload("f", 1, None, 1), _overload("g", 5, None, 0)]),
+        _file(
+            "b.ts",
+            "typescript",
+            [{**_fn("run", 1, calls=["f"], quals={"f": [""]}), "calls_out_arities": {"f": [7]}}],
+        ),
+    ]
+    rows = [s for s in resolve_calls(files)[0] if s["callee"] == "f"]
+    assert len(rows) == 1 and rows[0]["step"] != "overload"

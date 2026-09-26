@@ -16,7 +16,7 @@ confidently gets exactly one bucket:
     after_nested_def           the call is past the engine's end of the caller (a nested
                                function cut the caller's span short)
     other
-  ambiguous/<step>           named, but only an ambiguous row (receiver/nearest/tie/unseen) --
+  ambiguous/<step>           named, but only an ambiguous row (receiver/nearest/tie/unseen/overload) --
                              never an edge
   resolved_outside           named, and the engine found no definition in the repo (`none`)
   confident_other_target     named and linked confidently, but to a different definition
@@ -61,6 +61,7 @@ HINTS = {
     "ambiguous/receiver": "x.m() with an untyped receiver: needs receiver typing (#3693 for python)",
     "ambiguous/nearest": "several definitions, the nearest by path was only a guess",
     "ambiguous/tie": "several definitions, equally near",
+    "ambiguous/overload": "several overloads take this many arguments (or none does): the overload is not chosen (#3835)",
     "ambiguous/unseen": "the only definition, but the caller cannot see it (no import) -- often an import gap",
     "resolved_outside": "the engine found no definition: an import it did not follow, or a name it keys differently",
     "confident_other_target": "a confident link to the wrong definition (see the precision table's `wrong`)",

@@ -82,7 +82,7 @@ TOLERANCE_PP = 0.5
 GATED = ("confident_precision_pct", "recall_pct", "resolution_recall_pct")
 # the resolver's own confident steps, so a new one is counted without an edit here
 CONFIDENT = tuple(step for step, res in RESOLUTION_OF_STEP.items() if res in CONFIDENT_RESOLUTIONS)
-AMBIGUOUS = ("nearest", "unseen", "receiver")
+AMBIGUOUS = ("nearest", "unseen", "receiver", "overload")
 _LINE_SLACK = 3
 
 _LINKS_SQL = """

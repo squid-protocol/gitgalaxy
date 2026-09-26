@@ -57,6 +57,9 @@ DEFINITION: dict[str, Any] = {
     # operations (core/jcics.py) via mainframe_boundary's `java` dialect -- the
     # #3200 boundary_extraction pattern; a file without the import costs one scan.
     "boundary_extraction": "java",
+    # #3835: record each callee's argument counts at its call sites, so the call
+    # resolver can choose among same-named overloads (call_resolver.OVERLOAD_LANGS).
+    "calls_out_arities": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)

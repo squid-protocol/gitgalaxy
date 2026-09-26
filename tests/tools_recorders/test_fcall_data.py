@@ -287,3 +287,24 @@ def test_def_shape_persists_and_rehydrates(tmp_path):
     cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
     main = [f for node in cache.values() for f in node["functions"] if f["name"] == "main"]
     assert main[0]["def_shape"] == "member"
+
+
+def test_calls_out_arities_persist_and_rehydrate(tmp_path):
+    # #3835: the call resolver chooses a java overload by the argument counts the
+    # caller used, so a delta scan's rehydrated functions must carry them; a
+    # function without any stores NULL and rehydrates an empty map
+    db = tmp_path / "f.db"
+    files = _universe()
+    files[0]["functions"][0]["calls_out_arities"] = {"helper": [1, 2]}
+    _record(db, files)
+    assert _rows(db, "SELECT calls_out_arities FROM function_data WHERE func_name = 'main'") == [('{"helper":[1,2]}',)]
+    assert (
+        _rows(db, "SELECT COUNT(*) FROM function_data WHERE calls_out_arities IS NULL AND func_name != 'main'")[0][0]
+        > 0
+    )
+    cache = StateRehydrator(str(db)).load_state("FcallRepo")["ram_cache"]
+    funcs = {f["name"]: f for node in cache.values() for f in node["functions"]}
+    assert funcs["main"]["calls_out_arities"] == {"helper": [1, 2]}
+    assert all(
+        f["calls_out_arities"] == {} for n, f in funcs.items() if n != "main" and not f.get("is_synthetic_slice")
+    )

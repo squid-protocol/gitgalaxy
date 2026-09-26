@@ -111,27 +111,32 @@ A module that doesn't compile is listed under `skipped` in the contract. The fir
 fetches the pinned jars from Maven Central, which rate-limits bursts; `MAVEN_FLAGS` retries
 429s. After that, gson builds in about 45 seconds.
 
-**First numbers vs scip-java on gson** (7,858 reference edges):
+**Numbers vs scip-java on gson** (7,858 reference edges):
 
-| metric | value |
-|---|---|
-| confident precision | 59.8% (4,778 judged) |
-| recall | 36.3% |
-| resolution recall | 38.7% |
+| metric | first (#3783) | after overload choice (#3835) |
+|---|---|---|
+| confident precision | 59.8% (4,778 judged) | 92.7% (3,474 judged) |
+| recall | 36.3% | 41.0% |
+| resolution recall | 38.7% | 43.6% |
+| strict precision (JDK calls counted wrong) | 54.4% | 82.9% |
 
-**Overloads explain most of the gap.** 1,653 of the 1,923 `wrong` links go to a different
-**overload of the right method** in the same class. The engine can't choose between them
-without argument types. `call_graph_resolution.py` reports an overload-blind view for
-languages with overloading (`OVERLOADED_LANGS`), baselined but not gated. It counts a link
-to the right method in the right file as right:
+**Overloads were most of the first gap.** 1,653 of the first 1,923 `wrong` links went to
+a different **overload of the right method** in the same class, which is why
+`call_graph_resolution.py` reports an overload-blind view for `OVERLOADED_LANGS` (baselined,
+not gated).
 
-| overload-blind metric | value |
-|---|---|
-| precision | 94.3% |
-| recall | 58.4% |
+#3835 made the resolver choose an overload by argument count:
+- **What the detector records:** for Java, the argument counts each callee is called with
+  (`calls_out_arities`).
+- **One match:** the call links to the one overload declaring that many parameters. A
+  method that calls two overloads links to both.
+- **Several matches, or none:** a count that matches several overloads (`fromJson(String,
+  Class)` vs `fromJson(Reader, Type)`) or none (varargs) becomes the ambiguous step
+  `overload`. That's a row, never an edge: triage's `ambiguous/overload`, 1,396 reference
+  edges.
 
-The strict numbers stay the gated ones, because a function-level PageRank still lands on
-the wrong overload.
+The overload-blind view now equals the strict one: no confident link lands on the wrong
+overload.
 
 **What scip-java can't see:** calls through an abstract type or an interface (`typeAdapter.read()`)
 point at a bodyless declaration. Those links come out `unconfirmed`, not `wrong`.

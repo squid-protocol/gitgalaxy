@@ -74,8 +74,9 @@ def load_inputs(db: Path) -> tuple[list[dict[str, Any]], list[dict[str, str]], s
     return parsed, edges, repo
 
 
-def recorded_rows(db: Path, path: str, name: str, line: int) -> dict[str, tuple]:
-    """callee -> (step, dst path, dst name, dst line) as the scan recorded it."""
+def recorded_rows(db: Path, path: str, name: str, line: int) -> dict[str, list[tuple]]:
+    """callee -> every (step, dst path, dst name, dst line) the scan recorded for it
+    (several when the call reaches more than one overload, #3835)."""
     conn = sqlite3.connect(db)
     try:
         rows = conn.execute(
@@ -90,7 +91,10 @@ def recorded_rows(db: Path, path: str, name: str, line: int) -> dict[str, tuple]
         ).fetchall()
     finally:
         conn.close()
-    return {r[0]: r[1:] for r in rows}
+    out: dict[str, list[tuple]] = {}
+    for r in rows:
+        out.setdefault(r[0], []).append(r[1:])
+    return out
 
 
 def find_caller(parsed: list[dict[str, Any]], spec: str) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -118,7 +122,10 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
     group = cr._group(lang)
 
     sites, _ = cr.resolve_calls(parsed, edges)
-    mine = {s["callee"]: s for s in sites if s["src_path"] == path and s["src_line"] == line and s["kind"] == "call"}
+    mine: dict[str, list[dict[str, Any]]] = {}
+    for s in sites:
+        if s["src_path"] == path and s["src_line"] == line and s["kind"] == "call":
+            mine.setdefault(s["callee"], []).append(s)
     scanned = recorded_rows(db, path, name, line)
     index = cr._index(parsed)
     imports = cr._with_reexports(cr._imports_by_file(edges)).get(path, set())
@@ -135,7 +142,9 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
         return (s["step"], s["dst_path"], s["dst_line"]) if s["dst_kind"] == "function" else (s["step"], None, None)
 
     agree = all(
-        target(s) == (scanned[c][0], scanned[c][1], scanned[c][3]) for c, s in mine.items() if c in scanned
+        {target(s) for s in rows} == {(r[0], r[1], r[3]) for r in scanned[c]}
+        for c, rows in mine.items()
+        if c in scanned
     ) and set(scanned) <= set(mine)
     out.append(
         "  re-run matches the scan's recorded rows"
@@ -145,15 +154,24 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
     for callee in func.get("calls_out_to") or []:
         if only and callee != only:
             continue
-        s = mine.get(callee)
+        rows = mine.get(callee) or []
+        s = rows[0] if rows else None
         if s is None or s["dst_path"] is None:
             q = f"  qualifier {s['qualifier']!r}" if s else ""
             out.append(f"\n{callee}: none -- no definition this caller can reach (external){q}")
         else:
+            lines = [
+                f"{r['step']} ({r['resolution']}) -> {r['dst_path']}:{r['dst_name']}@{r['dst_line']}"
+                f"  qualifier {r['qualifier']!r}"
+                for r in rows
+            ]
+            # several rows: the call reaches more than one overload (#3835)
             out.append(
-                f"\n{callee}: {s['step']} ({s['resolution']}) -> {s['dst_path']}:{s['dst_name']}@{s['dst_line']}"
-                f"  qualifier {s['qualifier']!r}"
+                f"\n{callee}: {lines[0]}" if len(lines) == 1 else f"\n{callee}:\n" + "\n".join(f"  {x}" for x in lines)
             )
+        arities = (func.get("calls_out_arities") or {}).get(callee)
+        if arities:
+            out.append(f"  argument counts at its call sites: {arities}")
         opts = quals.get(callee) or []
         out.append(f"  qualifiers recorded: {opts or ['(none captured)']}")
         bucket = index.get((group, cr._key(str(callee), lang)))
@@ -164,6 +182,7 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
                 reach = [w for w, ok in (("bare", id(d) in free), ("receiver", id(d) in methods)) if ok]
                 out.append(
                     f"    {d.path}:{d.line} {d.name} owner={d.owner_key or '-'} shape={d.shape or '-'} kind={d.kind}"
+                    f" params={d.arity if d.arity is not None else '-'}"
                     f" reach={'+'.join(reach) or 'none'}"
                     f"{' same-file' if d.path == path else ''}{' imported' if d.path in imports else ''}"
                 )

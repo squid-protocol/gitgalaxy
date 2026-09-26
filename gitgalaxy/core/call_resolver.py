@@ -87,6 +87,7 @@ RESOLUTION_OF_STEP = {
     "nearest": "ambiguous",
     "tie": "ambiguous",
     "receiver": "ambiguous",
+    "overload": "ambiguous",
     "none": "external",
 }
 CONFIDENT_RESOLUTIONS = frozenset({"scoped", "unique"})
@@ -95,7 +96,20 @@ CONFIDENT_RESOLUTIONS = frozenset({"scoped", "unique"})
 _RANK = {
     step: i
     for i, step in enumerate(
-        ("class", "qualified", "typed", "import", "file", "unique", "unseen", "nearest", "receiver", "tie", "none")
+        (
+            "class",
+            "qualified",
+            "typed",
+            "import",
+            "file",
+            "unique",
+            "unseen",
+            "overload",
+            "nearest",
+            "receiver",
+            "tie",
+            "none",
+        )
     )
 }
 
@@ -318,7 +332,7 @@ def _rank(src_parts: tuple[str, ...], d: "_Definition") -> tuple[int, int]:
 
 
 class _Definition:
-    __slots__ = ("dir", "kind", "line", "name", "owner_key", "parts", "path", "shape", "stem")
+    __slots__ = ("arity", "dir", "kind", "line", "name", "owner_key", "parts", "path", "shape", "stem")
 
     def __init__(
         self,
@@ -331,6 +345,7 @@ class _Definition:
         owner_key: Optional[str],
         kind: str,
         shape: Optional[str] = None,
+        arity: Optional[int] = None,
     ) -> None:
         self.path = path
         self.dir = dir_
@@ -342,6 +357,9 @@ class _Definition:
         self.kind = kind  # 'function' | 'class'
         # typescript/javascript (#3757): 'binding' | 'member'; None elsewhere
         self.shape = shape
+        # #3835: the declared parameter count (the detector's `args`), for choosing
+        # among overloads in OVERLOAD_LANGS; None for a class
+        self.arity = arity
 
 
 class _Set:
@@ -462,7 +480,16 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             owner_key = _key(_leaf(owner)[0], lang) if owner else None
             index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
                 _Definition(
-                    path, dir_, parts, stem, name, int(func.get("start_line", 0) or 0), owner_key, "function", shape
+                    path,
+                    dir_,
+                    parts,
+                    stem,
+                    name,
+                    int(func.get("start_line", 0) or 0),
+                    owner_key,
+                    "function",
+                    shape,
+                    int(func.get("args", 0) or 0),
                 )
             )
         for cls in f.get("classes", []) or []:
@@ -820,6 +847,42 @@ def _in_scope_same_file(bucket: "_Bucket", path: str, caller_line: int) -> Optio
     return max(before or same, key=lambda d: d.line)
 
 
+# #3835: languages with overloading -- several methods of one name on one class,
+# told apart by their parameters. The resolver picks among them by the argument
+# counts the caller used (the detector's `calls_out_arities`); when a count still
+# matches several overloads, or none, the call is ambiguous (`overload`), a row
+# but never an edge. Measured on gson vs scip-java: 1,653 of 1,923 wrong confident
+# links were an arbitrary pick among overloads.
+OVERLOAD_LANGS = frozenset({"java"})
+
+
+def _overloads(index: dict[tuple[str, str], "_Bucket"], dst: _Definition, group: str, lang: str) -> list[_Definition]:
+    """Every definition of `dst`'s name on `dst`'s class in `dst`'s file (itself included)."""
+    bucket = index.get((group, _key(_leaf(dst.name)[0], lang)))
+    if bucket is None:
+        return [dst]
+    return [d for d in bucket.defs if d.kind == "function" and d.path == dst.path and d.owner_key == dst.owner_key]
+
+
+def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple[list[_Definition], bool]:
+    """(the overloads the call's argument counts pick, whether any count stays ambiguous).
+
+    Each count picks the one overload declaring that many parameters; a count that
+    matches several, or none (a variadic method, an arity the detector miscounted),
+    is ambiguous. No recorded count at all is ambiguous too.
+    """
+    picked: list[_Definition] = []
+    ambiguous = not arities
+    for n in arities:
+        match = [d for d in overloads if d.arity == n]
+        if len(match) == 1:
+            if match[0] not in picked:
+                picked.append(match[0])
+        else:
+            ambiguous = True
+    return picked, ambiguous
+
+
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: Optional[list[dict[str, Any]]] = None,
@@ -945,39 +1008,59 @@ def resolve_calls(
                     ctor = _constructor_of(index, dst, lang)
                     if ctor is not None:
                         cls, dst = dst, ctor
-                if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
-                    continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
-                resolution = RESOLUTION_OF_STEP[step]
-                if kind == "call":
-                    by_step[step] += 1
-                    lang_counts[resolution] += 1
-                elif kind == "decorator":
-                    decorators[step] += 1
-                elif kind == "reference":
-                    references[step] += 1
-                else:
-                    transfers[step] += 1
-                sites.append(
-                    {
-                        "src_path": src_path,
-                        "src_name": caller_name,
-                        "src_line": caller_line,
-                        "src_synthetic": bool(func.get("is_synthetic_slice")),
-                        "callee": callee,
-                        "kind": kind,
-                        "qualifier": used,
-                        "step": step,
-                        "resolution": resolution,
-                        "candidates": bucket.all.n_paths if bucket else 0,
-                        "dst_path": dst.path if dst else None,
-                        "dst_name": dst.name if dst else None,
-                        "dst_line": dst.line if dst else None,
-                        "dst_kind": dst.kind if dst else None,
-                        # the class a constructor call named, when dst is its constructor
-                        "dst_class_path": cls.path if cls else None,
-                        "dst_class_name": cls.name if cls else None,
-                    }
-                )
+                # #3835: a confident call to one of several overloads -> the overloads
+                # its argument counts pick, each its own row; a count that cannot
+                # choose leaves an ambiguous `overload` row (the first overload kept
+                # as the guess), which is never an edge
+                targets: list[tuple[str, Optional[_Definition]]] = [(step, dst)]
+                if (
+                    kind == "call"
+                    and lang in OVERLOAD_LANGS
+                    and dst is not None
+                    and dst.kind == "function"
+                    and RESOLUTION_OF_STEP[step] in CONFIDENT_RESOLUTIONS
+                ):
+                    overloads = _overloads(index, dst, group, lang)
+                    if len(overloads) > 1:
+                        arities = [int(a) for a in (func.get("calls_out_arities") or {}).get(callee) or []]
+                        picked, ambiguous = _choose_overloads(overloads, arities)
+                        targets = [(step, d) for d in picked]
+                        if ambiguous:
+                            targets.append(("overload", dst if dst not in picked else overloads[0]))
+                for step, dst in targets:
+                    if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
+                        continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
+                    resolution = RESOLUTION_OF_STEP[step]
+                    if kind == "call":
+                        by_step[step] += 1
+                        lang_counts[resolution] += 1
+                    elif kind == "decorator":
+                        decorators[step] += 1
+                    elif kind == "reference":
+                        references[step] += 1
+                    else:
+                        transfers[step] += 1
+                    sites.append(
+                        {
+                            "src_path": src_path,
+                            "src_name": caller_name,
+                            "src_line": caller_line,
+                            "src_synthetic": bool(func.get("is_synthetic_slice")),
+                            "callee": callee,
+                            "kind": kind,
+                            "qualifier": used,
+                            "step": step,
+                            "resolution": resolution,
+                            "candidates": bucket.all.n_paths if bucket else 0,
+                            "dst_path": dst.path if dst else None,
+                            "dst_name": dst.name if dst else None,
+                            "dst_line": dst.line if dst else None,
+                            "dst_kind": dst.kind if dst else None,
+                            # the class a constructor call named, when dst is its constructor
+                            "dst_class_path": cls.path if cls else None,
+                            "dst_class_name": cls.name if cls else None,
+                        }
+                    )
 
     by_resolution: Counter[str] = Counter()
     for step, n in by_step.items():

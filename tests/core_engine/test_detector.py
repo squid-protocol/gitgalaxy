@@ -5564,3 +5564,50 @@ def test_detector_is_documented_powershell_undelimited_doc_marker_in_code():
     # Same undelimited marker, pushed 6+ lines above (outside k=5).
     far = ".SYNOPSIS\n\n\n\n\n\nfunction probe_dispatch {\n    param($argv)\n}\n"
     assert documented(far) is False
+
+
+def test_call_arity_counts_top_level_arguments():
+    """#3835: the argument count of a call, for choosing among java overloads --
+    commas inside nested calls, lambdas, initializers and generic type arguments
+    do not count; a `<` comparison is not a type argument list."""
+    from gitgalaxy.core.detector import _call_arity
+
+    cases = {
+        "f()": 0,
+        "f( )": 0,
+        "f(a)": 1,
+        "f(g(a, b), c)": 2,
+        "f(new HashMap<String, Integer>(), x)": 2,
+        "f(Map.<K, V>of(k, v))": 1,
+        "f(i < n, x)": 2,
+        "f(x -> { a(1, 2); }, y)": 2,
+        "f(new int[]{1, 2, 3})": 1,
+        "f(a,\n  b,\n  c)": 3,
+        "Box<>(a, b)": 2,
+        "f": None,  # no argument list: a field or a declaration
+        "f::g": None,  # a method reference is not a call
+    }
+    for src, want in cases.items():
+        name = src.split("(")[0].split("<")[0].split(":")[0]
+        assert _call_arity(src, len(name)) == want, src
+
+
+def test_detector_java_records_call_site_arities():
+    """#3835: java records, per callee, the distinct argument counts it is called
+    with; languages without `calls_out_arities` record none."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        'class A {\n  void run(String s) {\n    helper(1); helper("a", 2); helper(3); System.out.println(s);\n  }\n}\n'
+    )
+    detector = StructuralExtractor("java", LANGUAGE_DEFINITIONS)
+    sats, _ = detector._slice_by_braces(code, "java", LANGUAGE_DEFINITIONS["java"]["rules"], 0, {})
+    (run,) = [s for s in sats if s["name"] == "run"]
+    assert run["calls_out_arities"] == {"helper": [1, 2], "println": [1]}
+    assert run["args"] == 1
+
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_sats, _ = c_detector._slice_by_braces(
+        "int f(void) {\n  g(1, 2);\n  return 1;\n}\n", "c", LANGUAGE_DEFINITIONS["c"]["rules"], 0, {}
+    )
+    assert c_sats and all(not s.get("calls_out_arities") for s in c_sats)

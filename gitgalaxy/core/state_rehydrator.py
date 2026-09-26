@@ -369,6 +369,8 @@ class StateRehydrator:
                         "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"])
                         if "calls_out_receiver_types" in rk
                         else {},
+                        # #3835: callee -> call-site argument counts (java overload choice)
+                        "calls_out_arities": _json_dict(r["calls_out_arities"]) if "calls_out_arities" in rk else {},
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # with start_line, the caller's span the resolver uses to prefer
                         # a function nested inside it over a same-named one elsewhere
@@ -1066,7 +1068,7 @@ class StateRehydrator:
                     baseline_hash,
                     "synthetic_unit_data",
                     "SELECT fd.file_path AS _fp, su.unit_name AS name, su.start_line, su.calls_out_to, "
-                    "su.calls_out_qualifiers, su.calls_out_receiver_types, su.transfers_to, su.calls_only "
+                    "su.calls_out_qualifiers, su.calls_out_receiver_types, su.calls_out_arities, su.transfers_to, su.calls_only "
                     "FROM synthetic_unit_data su JOIN file_data fd ON su.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY su.id",
                     lambda r: {
@@ -1079,6 +1081,7 @@ class StateRehydrator:
                             _json_list(r["calls_out_to"]), _json_list(r["calls_out_qualifiers"])
                         ),
                         "calls_out_receiver_types": _json_dict(r["calls_out_receiver_types"]),
+                        "calls_out_arities": _json_dict(r["calls_out_arities"]),
                         "transfers_to": _json_list(r["transfers_to"]),
                     },
                 )

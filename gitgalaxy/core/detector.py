@@ -193,6 +193,9 @@ class FunctionNode(TypedDict, total=False):
     # function calls methods on. Only unconflicted evidence; empty where the
     # language does not opt in (`calls_out_receiver_types`).
     calls_out_receiver_types: dict[str, str]
+    # #3835: callee name -> the distinct argument counts it was called with, in
+    # first-seen order (`calls_out_arities` languages only: overload choice).
+    calls_out_arities: dict[str, list[int]]
     # The decorators applied to this unit, as callee names with their receiver
     # chains (`@app.post(...)` -> "post" via "app"), outermost first. Resolved
     # like calls, recorded as fcall_data kind 'decorator'. Python only.
@@ -948,6 +951,69 @@ def _call_qualifier(text: str, pos: int) -> str:
         segments.append(ident)
         i = start
     return ".".join(reversed(segments))
+
+
+# #3835: how far `_call_arity` scans for a call's argument list, and how long a
+# `<...>` type-argument list (`new HashMap<String, List<T>>(`) it skips before one.
+_ARITY_MAX_SCAN = 4000
+_ARITY_MAX_TYPE_ARGS = 200
+_ARITY_OPEN = {"(": ")", "[": "]", "{": "}"}
+
+
+def _call_arity(text: str, pos: int) -> Optional[int]:
+    """#3835: the number of arguments of the call whose callee name ends at `pos`,
+    or None when no argument list follows (a method reference, a declaration).
+
+    `text` is literal-shielded, so a comma inside a string is already gone. Commas
+    count at depth zero of `()`, `[]` and `{}` (a lambda body, an array
+    initializer), and outside a `<...>` generic argument list -- a `<` right
+    after an identifier opens one only when its `>` closes before the call's own
+    `)`, so `f(i < n, x)` stays two arguments. `f()` is 0. One linear pass of at
+    most `_ARITY_MAX_SCAN` characters; no regex runs.
+    """
+    n = len(text)
+    i = pos
+    while i < n and text[i] in " \t\r\n":
+        i += 1
+    if i < n and text[i] == "<":  # `new Box<>(`, `foo<T>(`: skip the type arguments
+        depth, j = 0, i
+        while j < n and j - i < _ARITY_MAX_TYPE_ARGS:
+            depth += {"<": 1, ">": -1}.get(text[j], 0)
+            j += 1
+            if depth == 0:
+                break
+        if depth:
+            return None
+        i = j
+        while i < n and text[i] in " \t\r\n":
+            i += 1
+    if i >= n or text[i] != "(":
+        return None
+    stack: list[str] = []
+    commas, empty, angle = 0, True, 0
+    end = min(n, i + _ARITY_MAX_SCAN)
+    j = i + 1
+    while j < end:
+        ch = text[j]
+        if ch in _ARITY_OPEN:
+            stack.append(_ARITY_OPEN[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        elif ch == ")" and not stack:
+            return 0 if empty else commas + 1
+        elif ch == "<" and not stack and j > 0 and (text[j - 1].isalnum() or text[j - 1] in "_$."):
+            close = text.find(">", j, end)
+            paren = text.find(")", j, end)
+            if close != -1 and (paren == -1 or close < paren):
+                angle += 1
+        elif ch == ">" and angle and not stack:
+            angle -= 1
+        elif ch == "," and not stack and not angle:
+            commas += 1
+        if not ch.isspace():
+            empty = False
+        j += 1
+    return None
 
 
 def _declaration_headers(func_start: Any, text: str) -> tuple[dict[int, str], dict[int, int]]:
@@ -9634,6 +9700,9 @@ class StructuralExtractor:
         # invocation families name their callee with a verb or by position and
         # carry no qualifier: their map stays empty, meaning "not captured".
         qualifiers_seen: dict[str, list[str]] = {}
+        # #3835: argument counts per callee, where overloads are chosen by them
+        arities_seen: dict[str, list[int]] = {}
+        track_arities = bool(self.languages.get(self.primary_lang_id, {}).get("calls_out_arities"))
         receiver_text: Optional[str] = None
         raw_calls: list[str] = []
         header_only: set[str] = set()
@@ -9684,6 +9753,10 @@ class StructuralExtractor:
                     seen = qualifiers_seen.setdefault(callee, [])
                     if qualifier not in seen:
                         seen.append(qualifier)
+                    if track_arities:
+                        arity = _call_arity(safe_block, callee_pos + len(callee))
+                        if arity is not None and arity not in arities_seen.setdefault(callee, []):
+                            arities_seen[callee].append(arity)
             else:
                 # #3393: a language whose calls can name the callee as a quoted
                 # literal (COBOL `CALL 'SUBPROG'`) declares the verb that
@@ -9760,6 +9833,7 @@ class StructuralExtractor:
             "calls_out_receiver_types": receiver_types,
             "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
+            "calls_out_arities": {c: arities_seen[c] for c in calls_out if arities_seen.get(c)},
             "texture": texture_str,
             "type_id": texture_str,
             "loc": loc,

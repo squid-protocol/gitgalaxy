@@ -1019,12 +1019,12 @@ class StateRehydrator:
                     repo_name,
                     baseline_hash,
                     "synthetic_unit_data",
-                    "SELECT fd.file_path AS _fp, su.unit_name, su.start_line, su.calls_out_to, "
+                    "SELECT fd.file_path AS _fp, su.unit_name AS name, su.start_line, su.calls_out_to, "
                     "su.calls_out_qualifiers, su.calls_out_receiver_types, su.transfers_to, su.calls_only "
                     "FROM synthetic_unit_data su JOIN file_data fd ON su.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY su.id",
                     lambda r: {
-                        "name": r["unit_name"],
+                        "name": r["name"],
                         "start_line": int(r["start_line"] or 0),
                         "is_synthetic_slice": True,
                         "calls_only": bool(r["calls_only"]),

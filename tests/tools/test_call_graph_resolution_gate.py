@@ -9,6 +9,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import call_graph_resolution as cgr
+import callgraph_refs
 
 
 def test_gated_metrics_flatten_the_scored_result():
@@ -98,7 +99,7 @@ def test_ts_callgraph_resolves_calls_with_the_type_checker(tmp_path):
 
     if shutil.which("node") is None:
         pytest.skip("node is not installed")
-    env = cgr._node_env()
+    env = callgraph_refs.node_env()
     # a typescript whose package has the JavaScript compiler API: 7.x (the native
     # port, what a bare `npm install -g typescript` gives) has none
     probe = "process.exit(typeof require('typescript').createProgram === 'function' ? 0 : 1)"

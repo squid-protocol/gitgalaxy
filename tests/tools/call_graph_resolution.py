@@ -60,7 +60,7 @@ CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "lan
 BASELINE = REPO_ROOT / "tests" / "call_graph_resolution_baseline.json"
 
 sys.path.insert(0, str(TOOLS))
-from callgraph_refs import BY_TOOL, REFERENCES, RefGraph, corpus_repos, node_env, reference_graph  # noqa: E402
+from callgraph_refs import BY_TOOL, REFERENCES, RefGraph, corpus_repos, reference_graph  # noqa: E402
 
 # python keeps its original baseline name; every later language is <lang>
 BASELINES = {
@@ -72,7 +72,6 @@ REFERENCE = {lang: r.tool for lang, r in REFERENCES.items()}
 # a different version is warned about, and refused by --regenerate). Kept as a
 # name for callers; the registry (callgraph_refs.REFERENCES) is the source.
 TYPESCRIPT_VERSION = REFERENCES["typescript"].version
-_node_env = node_env
 
 sys.path.insert(0, str(REPO_ROOT))
 from gitgalaxy.core.call_resolver import CONFIDENT_RESOLUTIONS, RESOLUTION_OF_STEP  # noqa: E402

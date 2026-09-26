@@ -126,7 +126,8 @@ this repo's own always-current self-scan brief is at
 
 ## Accuracy, measured
 
-Two standing measurement programs back the claims above. The full narrative —
+Two standing measurement programs back the claims above, and a third, for the
+dependency and call graphs, is in progress. The full narrative —
 methodology, verdicts, limits, and what comes next — lives in
 [the validation program](docs/validation.md); this is the summary.
 
@@ -143,6 +144,38 @@ argument disagreement. The limit: three structural targets, one fixed corpus —
 not "parses as accurately as an AST" in general.
 
 ![Tri-comparison](docs/self_scan/tri_comparison_chart.svg)
+
+### Graph validation: imports and calls (in progress)
+
+Blast radius, PageRank and the "structural pillars" come from the **import graph**. The
+function-level rankings come from the **call graph**. Neither graph is measured in every
+language yet, and the chart below says which ones are:
+- Measured languages show precision and recall with n.
+- Every language not yet measured is listed by name.
+
+As of 2026-09-26, out of 59 languages:
+- **The import graph is measured in 20.** Engine edges are checked against each language's
+  own import statements on pinned real repos
+  ([`import_graph_accuracy.py`](tests/tools/import_graph_accuracy.py)).
+- **Callee names are measured in 11**, against tree-sitter.
+- **Call resolution is measured in 2**, against a reference analyser:
+  - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
+  - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
+    57.1% recall.
+
+  A call link, when made, is almost always right, but about half of calls are left unlinked.
+  So function-level fan-in and PageRank are a lower bound.
+
+The limits:
+- The other 38 languages' graphs are built the same way but are **not measured**.
+- Several measured languages rest on one repo with fewer than 100 imports. The chart greys
+  those out.
+- A `*` marks a number with disagreements still awaiting a verdict against source.
+
+The plan to close these gaps is
+[epic #3772](https://github.com/squid-protocol/gitgalaxy/issues/3772).
+
+![Graph accuracy coverage](docs/self_scan/graph_coverage_chart.svg)
 
 ### Cross-language consistency: the Keyword Rosetta control corpus
 

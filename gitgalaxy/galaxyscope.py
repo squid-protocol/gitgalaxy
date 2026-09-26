@@ -776,6 +776,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             t_imports = time.perf_counter()
             raw_imports = set()
             named_tokens = set()  # <--- NEW: Initialize token tracker
+            # #3660: top-level names the file declares beyond its functions and
+            # classes (Kotlin properties), for declaration-import resolution.
+            declared_names: set[str] = set()
             # #3200/#3201/#3246/#3211-followup: named mainframe boundary facts,
             # empty for every language that does not declare `boundary_extraction`.
             call_sites: list = []
@@ -823,6 +826,19 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)
 
             if not is_inert:
+                # #3660: a language's `_declaration_capture` (group 1: the name) over
+                # the code stream, so a commented-out declaration is never indexed.
+                declaration_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_declaration_capture")
+                if declaration_regex:
+                    try:
+                        declared_names.update(
+                            m.group(1)
+                            for m in declaration_regex.finditer(refraction.get("code_stream", content_buffer))
+                            if m.group(1)
+                        )
+                    except Exception:
+                        logging.exception("Declaration extraction failed for language '%s'.", lang_id)
+
                 # 2. Extract Named Tokens dynamically via Language Standards
                 named_token_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_named_token_capture")
                 if named_token_regex:
@@ -948,6 +964,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
+            "declared_names": sorted(declared_names),
             # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,

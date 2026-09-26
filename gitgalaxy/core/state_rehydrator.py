@@ -257,6 +257,11 @@ class StateRehydrator:
                     "wrapper_facts": (
                         json.loads(f["wrapper_facts"]) if "wrapper_facts" in row_keys and f["wrapper_facts"] else None
                     ),
+                    # #3660: the file's declared top-level names, so an unchanged
+                    # file's properties still resolve declaration imports on a delta.
+                    "declared_names": (
+                        json.loads(f["declared_names"]) if "declared_names" in row_keys and f["declared_names"] else []
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

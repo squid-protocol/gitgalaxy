@@ -762,6 +762,7 @@ EXTENSION_SIGNALS = frozenset(row.name for row in _ROWS if row.phase in ("ai-ml"
 HELPER_KEYS: dict[str, str] = {
     "_dependency_capture": "capture group 1 = the exact dependency path string, for the import DAG",
     "_named_token_capture": "capture group(s) = the exact imported symbol names (AI/ML pack)",
+    "_declaration_capture": "capture group 1 = a top-level name the file declares beyond its units (Kotlin properties), recorded as declared_names for declaration-import resolution (#3660)",
     "_scope_filters": "{rule: filter_name} -- a structural filter detector.py applies after the regex (CRITICAL ENGINE RULE 17)",
     "_hyphenated_words": "True -- the language's words run through hyphens (COBOL); detector.py drops every rule match glued to a hyphenated word on either side (_glued_to_hyphen_word), so a keyword inside a name (WRITE-LINE, END-IF) is not counted",
     "_calls_out_literal_callee": "verb regex ending at the quote -- a quoted literal right after it names the callee (COBOL `CALL 'SUBPROG'`, #3393); detector.py keeps that literal when calls_out scans the block, blanking every other one",

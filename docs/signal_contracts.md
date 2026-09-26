@@ -175,6 +175,7 @@ written.** Corollaries every audited contract has needed so far:
 | `_args_tcl_pattern_list_groups` | args strategy: tcl pattern-list parameter groups |
 | `_calls_out_ignore` | frozenset of callee names UNIONed with the detector's global calls_out ignore set; a language declared `identifier_case: insensitive` authors them lowercase and compares casefolded (keywords filtered in any spelling), every other language compares exactly (#3359) -- Epic #3264 Phase 3 (#3282) |
 | `_calls_out_literal_callee` | verb regex ending at the quote -- a quoted literal right after it names the callee (COBOL `CALL 'SUBPROG'`, #3393); detector.py keeps that literal when calls_out scans the block, blanking every other one |
+| `_declaration_capture` | capture group 1 = a top-level name the file declares beyond its units (Kotlin properties), recorded as declared_names for declaration-import resolution (#3660) |
 | `_dependency_capture` | capture group 1 = the exact dependency path string, for the import DAG |
 | `_hyphenated_words` | True -- the language's words run through hyphens (COBOL); detector.py drops every rule match glued to a hyphenated word on either side (_glued_to_hyphen_word), so a keyword inside a name (WRITE-LINE, END-IF) is not counted |
 | `_line_gates` | (rule, ...) -- rules opted into the per-line literal gate (#3072); detector.py resolves via rule_prefilter.build_line_gate, and a refusal (pattern not provably line-local) silently runs the rule whole-segment |

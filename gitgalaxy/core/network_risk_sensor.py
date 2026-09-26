@@ -217,6 +217,11 @@ class NetworkRiskSensor:
                     name = unit.get("name") if isinstance(unit, dict) else None
                     if name:
                         self._declared_in[name].append(path)
+                # #3660: top-level properties (`val KmConstructor.isPrimary`), which are
+                # neither units nor classes: the language's `_declaration_capture`.
+                for name in f.get("declared_names") or ():
+                    if path not in self._declared_in[name]:
+                        self._declared_in[name].append(path)
             name = f.get("name", Path(path).name)
             stem = Path(path).stem
 

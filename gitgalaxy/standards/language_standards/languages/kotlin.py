@@ -295,6 +295,20 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"^[ \t]*import\s+(?:static[ \t]+)?[\w.]+;?", re.M),
         "_dependency_capture": re.compile(r"^[ \t]*import[ \t\n]+(?:static[ \t\n]+)?([\w.*]+)", re.M),
+        # #3660: the top-level PROPERTIES a file declares, for `import a.b.name` of a
+        # property (#3596 indexes functions and classes only). Unindented only (a
+        # member is indented), any receiver (`val KmConstructor.isPrimary`,
+        # `val KmType?.simpleName`, `val <T> List<T>.head`), annotations and
+        # modifiers first -- never `private`, which no other file can import. Group 1
+        # is the name. Bounded; the receiver's `[\w.]` run ends at the name's `.`.
+        "_declaration_capture": re.compile(
+            r"^(?:@[\w.:]{1,120}(?:\([^)\n]{0,200}\))?[ \t]+"
+            r"|(?:public|internal|protected|const|inline|expect|actual|lateinit|external)[ \t]+){0,8}"
+            r"va[lr][ \t]+(?:<[^>\n]{1,100}>[ \t]*)?"
+            r"(?:[A-Za-z_][\w.]{0,120}(?:<[^\n=:]{0,120}>)?\??\.)?"
+            r"([A-Za-z_]\w{0,127})(?=[ \t]*(?:[:=]|by\b|get\b|$))",
+            re.M,
+        ),
         # 25. ownership (Authorship Metadata)
         # #2882 contract: C2 `@since` is a version tag, `Copyright:` a notice -- neither is ownership
         "ownership": re.compile(

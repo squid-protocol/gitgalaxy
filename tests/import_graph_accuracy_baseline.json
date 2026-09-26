@@ -70,13 +70,13 @@
     "repos": "expressjs/express"
   },
   "kotlin": {
-    "engine_edges": 209,
+    "engine_edges": 218,
     "files": 131,
-    "fn": 18,
+    "fn": 3,
     "fp": 0,
     "imports": 377,
     "precision_pct": 100.0,
-    "recall_pct": 95.2,
+    "recall_pct": 99.2,
     "repos": "square/kotlinpoet"
   },
   "lua": {

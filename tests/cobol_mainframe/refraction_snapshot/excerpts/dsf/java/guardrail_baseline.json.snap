@@ -1,0 +1,102 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/DsfApplication.java": {
+      "calls": [],
+      "classes": [
+        "DsfApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "190265909cf408992db4d3cd7e8dbf9263803def9c4f981aad6d1a5866cca8fe"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/FrmerkController.java": {
+      "calls": [
+        "FrmerkService"
+      ],
+      "classes": [
+        "FrmerkController"
+      ],
+      "endpoints": [
+        "executeFrmerkBatch"
+      ],
+      "fields": [
+        "frmerkService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeFrmerkBatch"
+      ],
+      "program": "src/GML/FRMERK.cobol",
+      "sha256": "66577b2d8514bd5324c8bb22bdba9a7ba1593c8585f9ba64465af8ddd6148e65"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/FrmerkParamin.java": {
+      "calls": [],
+      "classes": [
+        "FrmerkParamin"
+      ],
+      "endpoints": [],
+      "fields": [
+        "aarstall",
+        "blk",
+        "gate1",
+        "gate2",
+        "innAar",
+        "innaar",
+        "navn",
+        "navn1",
+        "navn2",
+        "navn22",
+        "navn3",
+        "poststed",
+        "sysId",
+        "teller",
+        "trknr",
+        "trknrL",
+        "utposten"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "3d83e094c726376e0b05145c503e120422fce7ff4918d2b0b4f1285c3cabc24a"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java": {
+      "calls": [],
+      "classes": [
+        "FrmerkService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeFrmerk"
+      ],
+      "program": "src/GML/FRMERK.cobol",
+      "sha256": "768152957b1b018ba1a64884af60221ed056662b8b4a8b2f733c8696c9120613"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "dsf_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

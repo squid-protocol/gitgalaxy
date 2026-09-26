@@ -1,0 +1,630 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/DsfApplication.java": {
+      "calls": [],
+      "classes": [
+        "DsfApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "190265909cf408992db4d3cd7e8dbf9263803def9c4f981aad6d1a5866cca8fe"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/Fo04d1x1Controller.java": {
+      "calls": [
+        "Fo04d1x1Service"
+      ],
+      "classes": [
+        "Fo04d1x1Controller"
+      ],
+      "endpoints": [
+        "executeFo04d1x1Batch"
+      ],
+      "fields": [
+        "fo04d1x1Service"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeFo04d1x1Batch"
+      ],
+      "program": "src/GML/FO04D1X1.cobol",
+      "sha256": "7797b09d150fc7c1e2a750d5c65f23eaaad3969c4fbb79a496f373b0d27f1836"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/Fo04f1x1Controller.java": {
+      "calls": [
+        "Fo04f1x1Service"
+      ],
+      "classes": [
+        "Fo04f1x1Controller"
+      ],
+      "endpoints": [
+        "executeFo04f1x1Batch"
+      ],
+      "fields": [
+        "fo04f1x1Service"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeFo04f1x1Batch"
+      ],
+      "program": "src/GML/FO04F1X1.cobol",
+      "sha256": "644abc7c32fd2cfe9a0e9b132cfa1f18c6955cb68b83560bded36c7eddd18fef"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/FrmerkController.java": {
+      "calls": [
+        "FrmerkService"
+      ],
+      "classes": [
+        "FrmerkController"
+      ],
+      "endpoints": [
+        "executeFrmerkBatch"
+      ],
+      "fields": [
+        "frmerkService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeFrmerkBatch"
+      ],
+      "program": "src/GML/FRMERK.cobol",
+      "sha256": "66577b2d8514bd5324c8bb22bdba9a7ba1593c8585f9ba64465af8ddd6148e65"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/FrredigController.java": {
+      "calls": [
+        "FrredigService"
+      ],
+      "classes": [
+        "FrredigController"
+      ],
+      "endpoints": [
+        "executeFrredigBatch"
+      ],
+      "fields": [
+        "frredigService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeFrredigBatch"
+      ],
+      "program": "src/GML/FRREDIG.cobol",
+      "sha256": "0bedcec39f9cf354a9c8ebdf554f343c22176e58725775935332f2ad4b578fae"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/PlukkfrController.java": {
+      "calls": [
+        "PlukkfrService"
+      ],
+      "classes": [
+        "PlukkfrController"
+      ],
+      "endpoints": [
+        "executePlukkfrBatch"
+      ],
+      "fields": [
+        "plukkfrService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executePlukkfrBatch"
+      ],
+      "program": "src/GML/PLUKKFR.cobol",
+      "sha256": "14f0e5e07a086b0ed26f17b644e9da9d4a268418739fd260f023aaf11ab81327"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/PlukkfrnController.java": {
+      "calls": [
+        "PlukkfrnService"
+      ],
+      "classes": [
+        "PlukkfrnController"
+      ],
+      "endpoints": [
+        "executePlukkfrnBatch"
+      ],
+      "fields": [
+        "plukkfrnService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executePlukkfrnBatch"
+      ],
+      "program": "src/GML/PLUKKFRN.cobol",
+      "sha256": "f9882ac2352f239c7d557992895bf3d7f10dc6afcb8302c3acf27e1b8918be6f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/R001bydlController.java": {
+      "calls": [
+        "R001bydlService"
+      ],
+      "classes": [
+        "R001bydlController"
+      ],
+      "endpoints": [
+        "executeR001bydlBatch"
+      ],
+      "fields": [
+        "r001bydlService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeR001bydlBatch"
+      ],
+      "program": "src/GML/R001BYDL.cobol",
+      "sha256": "16e566a96a75b42520e41e8d5c8699381b8b13c5da160685f4656659ef1c540e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Fo04d1x1Param.java": {
+      "calls": [],
+      "classes": [
+        "Fo04d1x1Param"
+      ],
+      "endpoints": [],
+      "fields": [
+        "i",
+        "i2",
+        "iAfp",
+        "iBaGr",
+        "iBt",
+        "iEkGr",
+        "iEt",
+        "iFnr",
+        "iForvi",
+        "iGp",
+        "iGpN",
+        "iGrad",
+        "iGtTilL92",
+        "iGtTp",
+        "iKt",
+        "iNavn",
+        "iPensjt1",
+        "iPensjt2",
+        "iPensjt3",
+        "iSbGr",
+        "iSbTill",
+        "iSt",
+        "iSumY",
+        "iT851",
+        "iTknr",
+        "iTpN",
+        "iTpavd",
+        "iTpegen",
+        "iVtGp",
+        "iVtTp",
+        "kart",
+        "kkart",
+        "ksortb",
+        "ktrk",
+        "pId",
+        "pMp075",
+        "pMp100",
+        "sTill",
+        "sTill16",
+        "sortb",
+        "sortnavn",
+        "sysId",
+        "tAfp",
+        "tBaGr",
+        "tBfortil",
+        "tEfortil",
+        "tEkGr",
+        "tFnr",
+        "tForinnt",
+        "tGrp",
+        "tGtTilL92",
+        "tGtTp",
+        "tKomptil",
+        "tNavn",
+        "tNettoGp",
+        "tNettoTp",
+        "tPstat1",
+        "tPstat2",
+        "tPstat3",
+        "tSaertil",
+        "tSbGr",
+        "tSbTill",
+        "tSumyd",
+        "tTil851",
+        "tTknr",
+        "tTpavd",
+        "tTpegen",
+        "tUfgrad",
+        "tVgrp",
+        "tVtilp",
+        "trkk"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "bac3325c8a15243ff512e7217120af855a9130fd36f68f241de7c762827a77a6"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Fo04f1x1Arbeidsomraade.java": {
+      "calls": [],
+      "classes": [
+        "Fo04f1x1Arbeidsomraade"
+      ],
+      "endpoints": [],
+      "fields": [
+        "afp",
+        "afpUt",
+        "bDato",
+        "baGr",
+        "belop",
+        "bfortil",
+        "bfortilUt",
+        "efortil",
+        "efortilUt",
+        "ekGr",
+        "fil1",
+        "fil2",
+        "fnr",
+        "fnrUt",
+        "forinnt",
+        "forinntAkk",
+        "forinntUt",
+        "grbelop",
+        "grp",
+        "grpUt",
+        "gtL92",
+        "gtLov92Ut",
+        "gtTp",
+        "gtTpUt",
+        "h2cDato1",
+        "h2cDato2",
+        "idX",
+        "kArt",
+        "kDato",
+        "kSpros",
+        "linjeAkk",
+        "navn",
+        "navnUt",
+        "nettoGp",
+        "nettoGpUt",
+        "nettoTp",
+        "nettoTpUt",
+        "ppstat",
+        "pstat1",
+        "pstat1Ut",
+        "pstat2",
+        "pstat2Ut",
+        "saertil",
+        "saertilUt",
+        "sbGr",
+        "sbTill",
+        "sbtillUt",
+        "sideAkk",
+        "sidenr",
+        "sumyd",
+        "sumydUt",
+        "svar",
+        "swAlle",
+        "sysId",
+        "tai",
+        "til851",
+        "tknavn",
+        "tknr",
+        "tknrTest",
+        "tpavd",
+        "tpavdUt",
+        "tpegen",
+        "tpegenUt",
+        "trkAkk",
+        "trkNavn",
+        "trkNr",
+        "trknr",
+        "trknrUt",
+        "ugrad",
+        "ugradUt",
+        "vgrp",
+        "vgrpUt",
+        "vtlp",
+        "vtlpUt",
+        "wAr",
+        "wAvd",
+        "wFnr",
+        "wMn",
+        "xAlder",
+        "xFelt"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "85ded6b992648656fab2d6253b0f6bb0059de5d1fc084017e3db1e9b38725f28"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/FrmerkParamin.java": {
+      "calls": [],
+      "classes": [
+        "FrmerkParamin"
+      ],
+      "endpoints": [],
+      "fields": [
+        "aarstall",
+        "blk",
+        "gate1",
+        "gate2",
+        "innAar",
+        "innaar",
+        "navn",
+        "navn1",
+        "navn2",
+        "navn22",
+        "navn3",
+        "poststed",
+        "sysId",
+        "teller",
+        "trknr",
+        "trknrL",
+        "utposten"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "3d83e094c726376e0b05145c503e120422fce7ff4918d2b0b4f1285c3cabc24a"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/FrredigParamin.java": {
+      "calls": [],
+      "classes": [
+        "FrredigParamin"
+      ],
+      "endpoints": [],
+      "fields": [
+        "aar",
+        "aaro",
+        "aarstall",
+        "blk",
+        "dag",
+        "dago",
+        "fnr1",
+        "fnr1o",
+        "fnr2",
+        "fnr2o",
+        "gate",
+        "gateo",
+        "innAar",
+        "innaar",
+        "mnd",
+        "mndo",
+        "navn",
+        "navno",
+        "poststed",
+        "poststedo",
+        "sysId",
+        "teller",
+        "trknr",
+        "trknrL",
+        "utposten"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "86dfe9b2ba59bee8c4408035fe2010e855ba7161b445f5ed4595bf2163e09789"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/PlukkfrPrintRec1.java": {
+      "calls": [],
+      "classes": [
+        "PlukkfrPrintRec1"
+      ],
+      "endpoints": [],
+      "fields": [
+        "addr",
+        "innFnr",
+        "innTrknr",
+        "navn",
+        "sysId",
+        "teller1",
+        "trkNr",
+        "utAddr",
+        "utFnr",
+        "utNavn",
+        "utTrknr"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "80229c3baa34b1d2c45eed2c9efc6878fd72a5c9d29339f61c9be11e846d56e9"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/PlukkfrnPrintRec1.java": {
+      "calls": [],
+      "classes": [
+        "PlukkfrnPrintRec1"
+      ],
+      "endpoints": [],
+      "fields": [
+        "addr",
+        "innFnr",
+        "innTrknr",
+        "navn",
+        "sysId",
+        "teller1",
+        "trkNr",
+        "utAddr",
+        "utFnr",
+        "utNavn",
+        "utTrknr"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "13320cf3031ff6d73443a7b369507195cd64d9346475eb38999e87a14649f943"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/R001bydlIpPcb.java": {
+      "calls": [],
+      "classes": [
+        "R001bydlIpPcb"
+      ],
+      "endpoints": [],
+      "fields": [
+        "dliGu",
+        "ip01Bokomm",
+        "ip01FnrSiste",
+        "ip01Persnkey",
+        "ip01Ssa1Persnkey",
+        "ip01Systavd",
+        "ipKeyPack",
+        "ipKeyX",
+        "ipStatus",
+        "sortnavn",
+        "sysId",
+        "tAfp",
+        "tAvd",
+        "tBaGr",
+        "tBfortil",
+        "tEfortil",
+        "tEkGr",
+        "tFnr",
+        "tForinnt",
+        "tGrp",
+        "tGtTilL92",
+        "tGtTp",
+        "tKomptil",
+        "tNavn",
+        "tNettoGp",
+        "tNettoTp",
+        "tPstat1",
+        "tPstat2",
+        "tPstat3",
+        "tSaertil",
+        "tSbGr",
+        "tSbTill",
+        "tSumyd",
+        "tTil851",
+        "tTknr",
+        "tTpavd",
+        "tTpegen",
+        "tUfgrad",
+        "tVgrp",
+        "tVtilp",
+        "wAr",
+        "wDag",
+        "wDd",
+        "wFnr",
+        "wIpFnr",
+        "wIpKeyn",
+        "wIpTknr",
+        "wKomm"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "caeb664ca83c05b412dd2e05813e4ee67527582eb5153ea49d1337095cdea880"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Fo04d1x1Service.java": {
+      "calls": [],
+      "classes": [
+        "Fo04d1x1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeFo04d1x1"
+      ],
+      "program": "src/GML/FO04D1X1.cobol",
+      "sha256": "c34bad1a682072ba90b2fed7d7c42cdb310ad3fca9c71be9c1ab2394b61f19d6"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Fo04f1x1Service.java": {
+      "calls": [],
+      "classes": [
+        "Fo04f1x1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeFo04f1x1"
+      ],
+      "program": "src/GML/FO04F1X1.cobol",
+      "sha256": "6022d432400eaa19e3c03339a753f4af16514ac320ac0cdb3e5802d9ca287676"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java": {
+      "calls": [],
+      "classes": [
+        "FrmerkService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeFrmerk"
+      ],
+      "program": "src/GML/FRMERK.cobol",
+      "sha256": "768152957b1b018ba1a64884af60221ed056662b8b4a8b2f733c8696c9120613"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/FrredigService.java": {
+      "calls": [],
+      "classes": [
+        "FrredigService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeFrredig"
+      ],
+      "program": "src/GML/FRREDIG.cobol",
+      "sha256": "3920915dd4894855c2095d7e7895f7a92094407c389353452bc1834437f392a7"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/PlukkfrService.java": {
+      "calls": [],
+      "classes": [
+        "PlukkfrService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executePlukkfr"
+      ],
+      "program": "src/GML/PLUKKFR.cobol",
+      "sha256": "a602aad054a6b2c6d6b71e3f8f5acc1df180cbda4a349b71839500c2c884d612"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/PlukkfrnService.java": {
+      "calls": [],
+      "classes": [
+        "PlukkfrnService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executePlukkfrn"
+      ],
+      "program": "src/GML/PLUKKFRN.cobol",
+      "sha256": "114e531c69648ce3bca3aaea4b51c08b79cc3071e7f56955e339abee181ef70a"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/R001bydlService.java": {
+      "calls": [],
+      "classes": [
+        "R001bydlService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeR001bydl"
+      ],
+      "program": "src/GML/R001BYDL.cobol",
+      "sha256": "73e19106c63c8235b6b7bc7c13523216ad4a8ad91d4a9a963b750fe7ceae309a"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "dsf_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

@@ -52,6 +52,10 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
 )
+
+# Current Imports
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail import audit_section as guardrail_audit_section
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail import write_baseline
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     java_class_base,
     output_key,
@@ -67,8 +71,6 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
     generate_java_entity,
     is_transient_record,
 )
-
-# Current Imports
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_worklist import NATURES, write_worklist
 from gitgalaxy.tools.cobol_to_java.java_target import (
     DEFAULT_CONFIG,
@@ -328,6 +330,7 @@ def main():
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
     owners: dict[str, str] = {}
+    mock_calls: dict[str, set[str]] = {}
     estate_root = clean_room_path.parent / clean_room_path.name.split("_gitgalaxy_clean")[0]
     if ir_dir.exists():
         for ir_file in sorted(ir_dir.glob("*_ir.json"), key=lambda p: p.name):
@@ -402,6 +405,8 @@ def main():
                     # If it stripped down to nothing, skip it to prevent writing "Service.java"
                     if not safe_sub_name:
                         continue
+                    # #3652: the program may call its mock (the agent is told to wire it)
+                    mock_calls.setdefault(f"{safe_file_name}Service", set()).add(f"{safe_sub_name}Service")
 
                     # Ensure we don't accidentally overwrite a real service if it was already generated
                     out_path_mock = java_dirs["service"] / f"{safe_sub_name}Service.java"
@@ -454,6 +459,8 @@ def main():
         )
     # #3651: every TODO the generators left, as one plan by category and COBOL source
     worklist = write_worklist(java_out_dir, manifest, {"clean_room": clean_room_path.name}, owners)
+    # #3652: the inventory an AI agent's changes are checked against
+    guard_baseline = write_baseline(java_out_dir, {"clean_room": clean_room_path.name}, mock_calls, owners)
 
     audit_report_path = java_out_dir / "java_migration_audit.txt"
     with open(audit_report_path, "w", encoding="utf-8") as f:
@@ -484,6 +491,7 @@ def main():
         if skeletons:
             _write_skeleton_audit(f, skeletons, forges)
         _write_worklist_audit(f, worklist)
+        f.write(guardrail_audit_section(None, guard_baseline))
         f.write("==========================================================\n")
 
     print("\n" + "=" * 70)

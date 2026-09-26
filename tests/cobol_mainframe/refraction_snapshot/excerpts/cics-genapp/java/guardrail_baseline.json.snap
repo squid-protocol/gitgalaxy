@@ -1,0 +1,181 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/CicsGenappApplication.java": {
+      "calls": [],
+      "classes": [
+        "CicsGenappApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "0cf3dd9f68e91f915afe0f69058a1da9bda12751d9d521f88aa407192988e039"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/Lgipdb01DfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "Lgipdb01DfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "absTime",
+        "caData",
+        "date1",
+        "db2BCrimeperilInt",
+        "db2BCrimepremiumInt",
+        "db2BFireperilInt",
+        "db2BFirepremiumInt",
+        "db2BFloodperilInt",
+        "db2BFloodpremiumInt",
+        "db2BStatusInt",
+        "db2BWeatherperilInt",
+        "db2BWeatherpremiumInt",
+        "db2BrokeridInt",
+        "db2CustomernumInt",
+        "db2EPaddingLen",
+        "db2ESumassuredInt",
+        "db2ETermSint",
+        "db2HBedroomsSint",
+        "db2HValueInt",
+        "db2MAccidentsInt",
+        "db2MCcSint",
+        "db2MPremiumInt",
+        "db2MValueInt",
+        "db2PaymentInt",
+        "db2PolicynumInt",
+        "emCusnum",
+        "emDate",
+        "emPolnum",
+        "emSqlrc",
+        "emSqlreq",
+        "emTime",
+        "endPolicyPos",
+        "icomRecord",
+        "icomRecordCount",
+        "indBrokerid",
+        "indBrokersref",
+        "indEPaddingdata",
+        "indEPaddingdatal",
+        "indPayment",
+        "minusOne",
+        "time1",
+        "wsCaHeadertrailerLen",
+        "wsCalen",
+        "wsRequestId",
+        "wsRequiredCaLen",
+        "wsTasknum",
+        "wsTermid",
+        "wsTransid"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "cd640297033dcf65e1df16f018b604071f48e07cdb4c8b43579af0d766263ff0"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/Lgipol01DfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "Lgipol01DfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "absTime",
+        "caData",
+        "date1",
+        "emDate",
+        "emTime",
+        "emVariable",
+        "lgipdb01",
+        "time1",
+        "wsCalen",
+        "wsTasknum",
+        "wsTermid",
+        "wsTransid"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "0f4a4b7c2a3836e7d99d906509153f84bd74601c22c0936e1c7ad19e1f0d9e1e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Lgtestp1CommArea.java": {
+      "calls": [],
+      "classes": [
+        "Lgtestp1CommArea"
+      ],
+      "endpoints": [],
+      "fields": [
+        "msgend",
+        "sysId"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "752c5e5fabd82e7623d16280d0dcc980c2665dda7cc1afa9e53403883efe3d4b"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Lgipdb01Service.java": {
+      "calls": [],
+      "classes": [
+        "Lgipdb01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeLgipdb01"
+      ],
+      "program": "base/src/lgipdb01.cbl",
+      "sha256": "d1deee7c9244c1f98261a98cc6c64ceb68887725808064e9337c6427a1879a63"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Lgipol01Service.java": {
+      "calls": [],
+      "classes": [
+        "Lgipol01Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeLgipol01"
+      ],
+      "program": "base/src/lgipol01.cbl",
+      "sha256": "b86d255ebb64df24342468dba5bf1a235064c13132bdd1dcc6261f6efce45647"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Lgtestp1Service.java": {
+      "calls": [],
+      "classes": [
+        "Lgtestp1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeLgtestp1"
+      ],
+      "program": "base/src/lgtestp1.cbl",
+      "sha256": "71239d8b10bd4bfebd70e7f3cfa2b7ee16a2091b3bae3af86cc104d45c7714a3"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "cics-genapp_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

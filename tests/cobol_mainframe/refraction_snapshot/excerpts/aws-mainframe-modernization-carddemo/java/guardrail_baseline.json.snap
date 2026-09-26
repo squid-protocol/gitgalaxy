@@ -1,0 +1,249 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/AwsMainframeModernizationCarddemoApplication.java": {
+      "calls": [],
+      "classes": [
+        "AwsMainframeModernizationCarddemoApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "4556d12ed0643df09c89d8eb81c1423b94a64839a80b36acf93ce2da567cafb0"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/Cbact01cController.java": {
+      "calls": [
+        "Cbact01cService"
+      ],
+      "classes": [
+        "Cbact01cController"
+      ],
+      "endpoints": [
+        "executeCbact01cBatch"
+      ],
+      "fields": [
+        "cbact01cService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeCbact01cBatch"
+      ],
+      "program": "app/cbl/CBACT01C.cbl",
+      "sha256": "24f34a94abe0bd8480079736de1feef79c1c365b52d86eaabcc89529cab51aba"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/CocrdlicDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "CocrdlicDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "errorFile",
+        "errorOpname",
+        "errorResp",
+        "errorResp2",
+        "flgProtectSelectRows",
+        "i",
+        "iSelected",
+        "litCardFile",
+        "litCarddtlmap",
+        "litCarddtlmapset",
+        "litCarddtlpgm",
+        "litCardupdmap",
+        "litCardupdmapset",
+        "litCardupdpgm",
+        "litMenumapset",
+        "litMenupgm",
+        "litThismap",
+        "litThismapset",
+        "litThispgm",
+        "litThistranid",
+        "wsAllRows",
+        "wsCaFirstCardAcctId",
+        "wsCaFirstCardNum",
+        "wsCaLastCardAcctId",
+        "wsCaLastCardNum",
+        "wsCaLastPageDisplayed",
+        "wsCaNextPageInd",
+        "wsCaScreenNum",
+        "wsCardRidAcctId",
+        "wsCardRidAcctIdX",
+        "wsCardRidCardnum",
+        "wsCommarea",
+        "wsEditSelect",
+        "wsEditSelectErrorFlags",
+        "wsEditSelectFlags",
+        "wsErrorMsg",
+        "wsInfoMsg",
+        "wsLongMsg",
+        "wsMaxScreenLines",
+        "wsReasCd",
+        "wsRespCd",
+        "wsReturnFlag",
+        "wsRowAcctno",
+        "wsRowCardNum",
+        "wsRowCardStatus",
+        "wsRowCrdselectError",
+        "wsScrnCounter",
+        "wsTranid"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "34bdfa7c435a1779ad972c7c7a6284687484f52b56d8be44916e3b60c152e5b5"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/Corpt00cDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "Corpt00cDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "csutldtcDate",
+        "csutldtcDateFormat",
+        "csutldtcResultMsg",
+        "csutldtcResultMsgNum",
+        "csutldtcResultSevCd",
+        "jclRecord",
+        "jobLines",
+        "parmEndDate1",
+        "parmEndDate2",
+        "parmStartDate1",
+        "parmStartDate2",
+        "wsDateFormat",
+        "wsEndDateDd",
+        "wsEndDateMm",
+        "wsEndDateYyyy",
+        "wsErrFlg",
+        "wsIdx",
+        "wsMessage",
+        "wsNum99",
+        "wsNum9999",
+        "wsPgmname",
+        "wsReasCd",
+        "wsReportName",
+        "wsRespCd",
+        "wsStartDateDd",
+        "wsStartDateMm",
+        "wsStartDateYyyy",
+        "wsTranid"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "72bc2530765bf77409047fdf1dddeb02c446f3ae1723737105cc7691d6981590"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Cbact01cWsAcctReissueDate.java": {
+      "calls": [],
+      "classes": [
+        "Cbact01cWsAcctReissueDate"
+      ],
+      "endpoints": [],
+      "fields": [
+        "abcode",
+        "applResult",
+        "arrAcctCurrBal",
+        "arrAcctCurrCycDebit",
+        "arrAcctId",
+        "endOfFile",
+        "ioStat1",
+        "ioStat2",
+        "ioStatus0403",
+        "outAcctActiveStatus",
+        "outAcctCashCreditLimit",
+        "outAcctCreditLimit",
+        "outAcctCurrBal",
+        "outAcctCurrCycCredit",
+        "outAcctCurrCycDebit",
+        "outAcctExpiraionDate",
+        "outAcctGroupId",
+        "outAcctId",
+        "outAcctOpenDate",
+        "outAcctReissueDate",
+        "sysId",
+        "timing",
+        "twoBytesBinary",
+        "twoBytesRight",
+        "vb1AcctActiveStatus",
+        "vb1AcctId",
+        "vb2AcctCreditLimit",
+        "vb2AcctCurrBal",
+        "vb2AcctId",
+        "vb2AcctReissueYyyy",
+        "vbrRec",
+        "wsAcctReissueYyyy",
+        "wsRecdLen",
+        "wsReissueDate"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "ebd7eef16d31c834e2c4dd2932ce65edfeaf8162630402d270a1462ceb11d920"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Cbact01cService.java": {
+      "calls": [],
+      "classes": [
+        "Cbact01cService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCbact01c"
+      ],
+      "program": "app/cbl/CBACT01C.cbl",
+      "sha256": "c32111d7a923f2cbd4f0f0cfb9d5ed7844c1b72de74e9186552b149dae390052"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/CocrdlicService.java": {
+      "calls": [],
+      "classes": [
+        "CocrdlicService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCocrdlic"
+      ],
+      "program": "app/cbl/COCRDLIC.cbl",
+      "sha256": "ca83c945c9500916f6f3eb6194c4e2a0eb4bfc74c7bc485bd4791be705524f2f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Corpt00cService.java": {
+      "calls": [],
+      "classes": [
+        "Corpt00cService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCorpt00c"
+      ],
+      "program": "app/cbl/CORPT00C.cbl",
+      "sha256": "7f0fc0cba6fb11fc3b1b4e20fb49e95d6e8d668b1d6bf6cbad5cdecd73b63d89"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "aws-mainframe-modernization-carddemo_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

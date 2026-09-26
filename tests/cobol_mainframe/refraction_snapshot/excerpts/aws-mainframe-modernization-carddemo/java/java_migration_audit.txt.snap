@@ -22,4 +22,9 @@
     Business logic to port                         3  (port)
     Target configuration                           1  (review)
 
+[4] AI AGENT GUARDRAIL
+----------------------------------------------------------
+  • Baseline : 9 files, 9 classes, 0 SQL tables -> guardrail_baseline.json
+  • Not run  : after agent edits, python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail <this project>
+
 ==========================================================

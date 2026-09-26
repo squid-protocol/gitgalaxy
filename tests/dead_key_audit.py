@@ -78,6 +78,10 @@ ALLOWLIST = {
     "RESP": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "ABCODE": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
+    # --- Written by an external producer ---
+    # The AI agent a Java service ticket goes to returns {"diagnosis", "java_code"}
+    # (cobol_to_java_agent_forge's system prompt); the guardrail (#3652) reads it.
+    "java_code": "AI agent ticket result, written by the agent (cobol_to_java_guardrail.py, #3652)",
     "raw_arch_api": "file_data column read into EngineFile.signals by zip(SIGNAL_COLUMNS, row) (galaxy_ir.py, #3576)",
     "NAME": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "PATHENTRY": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",

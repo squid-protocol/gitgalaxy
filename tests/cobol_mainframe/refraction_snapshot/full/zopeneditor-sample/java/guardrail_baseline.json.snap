@@ -1,0 +1,394 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/ZopeneditorSampleApplication.java": {
+      "calls": [],
+      "classes": [
+        "ZopeneditorSampleApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "a2be81b0f578657b2f82e8cff8cd4ea264f773c5d33ae6bd75b7aa2750dc89fd"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/CobolSam1Controller.java": {
+      "calls": [
+        "CobolSam1Service"
+      ],
+      "classes": [
+        "CobolSam1Controller"
+      ],
+      "endpoints": [
+        "executeCobolSam1Batch"
+      ],
+      "fields": [
+        "cobolSam1Service"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeCobolSam1Batch"
+      ],
+      "program": "COBOL/SAM1.cbl",
+      "sha256": "90820f536dbf293d6fc442874e4ca376736c81048ea36892db67f047a1bd8aeb"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/MultirootSamSam1Controller.java": {
+      "calls": [
+        "MultirootSamSam1Service"
+      ],
+      "classes": [
+        "MultirootSamSam1Controller"
+      ],
+      "endpoints": [
+        "executeMultirootSamSam1Batch"
+      ],
+      "fields": [
+        "multirootSamSam1Service"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeMultirootSamSam1Batch"
+      ],
+      "program": "multiroot/sam/SAM1.cbl",
+      "sha256": "7297aaa938baf77d0c41f71b55093d82b6d0b8400c9700d18bf825da93b82fcb"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/Sam1libController.java": {
+      "calls": [
+        "Sam1libService"
+      ],
+      "classes": [
+        "Sam1libController"
+      ],
+      "endpoints": [
+        "executeSam1libBatch"
+      ],
+      "fields": [
+        "sam1libService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeSam1libBatch"
+      ],
+      "program": "COBOL/SAM1LIB.cbl",
+      "sha256": "675c0741863216baa12a2e51227b972d25163afb04822c5d3d8f0dd5d6a222e8"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/CobolSam1RptStatsDetail.java": {
+      "calls": [],
+      "classes": [
+        "CobolSam1RptStatsDetail"
+      ],
+      "endpoints": [],
+      "fields": [
+        "currentDay",
+        "currentHour",
+        "currentMinute",
+        "currentMonth",
+        "currentSecond",
+        "currentYear",
+        "errMsgData1",
+        "errMsgData2",
+        "errMsgData3",
+        "i",
+        "numAddProcessed",
+        "numAddRequests",
+        "numDeleteProcessed",
+        "numDeleteRequests",
+        "numTranErrors",
+        "numTranRecs",
+        "numUpdateProcessed",
+        "numUpdateRequests",
+        "reportRecord",
+        "rptDd",
+        "rptHh",
+        "rptMin",
+        "rptMm",
+        "rptNumTranErr",
+        "rptNumTranProc",
+        "rptNumTrans",
+        "rptSs",
+        "rptTran",
+        "rptTranMsg1",
+        "rptTranRecord",
+        "rptYy",
+        "sam2",
+        "sysId",
+        "wsCustFileEof",
+        "wsCustfileStatus",
+        "wsCustoutStatus",
+        "wsPrevTranKey",
+        "wsReportStatus",
+        "wsTranEof",
+        "wsTranMsg",
+        "wsTranOk",
+        "wsTranfileStatus"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "0e0264d08141d38ce919475ada1581614c66f8d952ff20319b7ddddacb3fbea1"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/CobolSam2WsFields.java": {
+      "calls": [],
+      "classes": [
+        "CobolSam2WsFields"
+      ],
+      "endpoints": [],
+      "fields": [
+        "loopCount",
+        "monthAverage",
+        "monthSub",
+        "sysId",
+        "tranCount",
+        "tranMsg",
+        "tranOk",
+        "workSum",
+        "wsUpdateNum",
+        "wsUpdateNumNeg"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "d097439099c80f560470a1592869665551952b349b2f683821daac28dc5e8298"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/MultirootSamSam1RptStatsCustDetail.java": {
+      "calls": [],
+      "classes": [
+        "MultirootSamSam1RptStatsCustDetail"
+      ],
+      "endpoints": [],
+      "fields": [
+        "currentDay",
+        "currentHour",
+        "currentMinute",
+        "currentMonth",
+        "currentSecond",
+        "currentYear",
+        "custCntName",
+        "errMsgData1",
+        "errMsgData2",
+        "errMsgData3",
+        "i",
+        "numAddProcessed",
+        "numAddRequests",
+        "numCrunchProcessed",
+        "numCrunchRequests",
+        "numDeleteProcessed",
+        "numDeleteRequests",
+        "numPostCustomers",
+        "numPreCustomers",
+        "numTranErrors",
+        "numTranRecs",
+        "numUpdateProcessed",
+        "numUpdateRequests",
+        "reportRecord",
+        "rptCrunchAvg",
+        "rptCrunchCust",
+        "rptCrunchTotal",
+        "rptDd",
+        "rptHh",
+        "rptMin",
+        "rptMm",
+        "rptNumCust",
+        "rptNumTranErr",
+        "rptNumTranProc",
+        "rptNumTrans",
+        "rptSs",
+        "rptTran",
+        "rptTranMsg1",
+        "rptTranRecord",
+        "rptYy",
+        "sam2",
+        "sysId",
+        "wsCustFileEof",
+        "wsCustfileStatus",
+        "wsCustoutStatus",
+        "wsPrevTranKey",
+        "wsReportStatus",
+        "wsTranEof",
+        "wsTranMsg",
+        "wsTranOk",
+        "wsTranfileStatus"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "b54b83192c0c2e8f8bea70966d7930c742237da510c2e05908ae9018670dc47c"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/MultirootSamSam2WsFields.java": {
+      "calls": [],
+      "classes": [
+        "MultirootSamSam2WsFields"
+      ],
+      "endpoints": [],
+      "fields": [
+        "loopCount",
+        "monthAverage",
+        "monthSub",
+        "sysId",
+        "tranCount",
+        "tranMsg",
+        "tranOk",
+        "workSum",
+        "wsUpdateNum",
+        "wsUpdateNumNeg"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "ae538c5eabc43501bb074f9b1da29a981e23d2e72397c241a7355f281b66960e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Sam1libRptStatsDetail.java": {
+      "calls": [],
+      "classes": [
+        "Sam1libRptStatsDetail"
+      ],
+      "endpoints": [],
+      "fields": [
+        "errMsgData1",
+        "errMsgData2",
+        "errMsgData3",
+        "i",
+        "reportRecord",
+        "rptDd",
+        "rptHh",
+        "rptMin",
+        "rptMm",
+        "rptNumTranErr",
+        "rptNumTranProc",
+        "rptNumTrans",
+        "rptSs",
+        "rptTran",
+        "rptTranMsg1",
+        "rptTranRecord",
+        "rptYy",
+        "sam2",
+        "sysId",
+        "wsCustFileEof",
+        "wsCustfileStatus",
+        "wsCustoutStatus",
+        "wsPrevTranKey",
+        "wsReportStatus",
+        "wsTranEof",
+        "wsTranMsg",
+        "wsTranOk",
+        "wsTranfileStatus"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "dad3c2e3ba699bd6d8453b831def8a78ab1d3e74a562430a0a799d2716fa01f8"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java": {
+      "calls": [
+        "Sam2Service"
+      ],
+      "classes": [
+        "CobolSam1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCobolSam1"
+      ],
+      "program": "COBOL/SAM1.cbl",
+      "sha256": "61df255f1b70a3eca2f63ea91f10d0a533fdc86c023acbc1b0d7d33a36a045d3"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/CobolSam2Service.java": {
+      "calls": [],
+      "classes": [
+        "CobolSam2Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCobolSam2"
+      ],
+      "program": "COBOL/SAM2.cbl",
+      "sha256": "73df8b6f4eb6e3cd5b688b63bcad9f14c249b9600313604bf51553e5d7fbe409"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam1Service.java": {
+      "calls": [
+        "Sam2Service"
+      ],
+      "classes": [
+        "MultirootSamSam1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeMultirootSamSam1"
+      ],
+      "program": "multiroot/sam/SAM1.cbl",
+      "sha256": "cd0d96123035e7136cac3ac93156878f16185e1ecb450132508dd0c326700c2b"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/MultirootSamSam2Service.java": {
+      "calls": [],
+      "classes": [
+        "MultirootSamSam2Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeMultirootSamSam2"
+      ],
+      "program": "multiroot/sam/SAM2.cbl",
+      "sha256": "a2af36e760d4db80e11fe8bdb72749491c89d2f147e2fd38531ec4563be22b32"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Sam1libService.java": {
+      "calls": [
+        "Sam2Service"
+      ],
+      "classes": [
+        "Sam1libService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeSam1lib"
+      ],
+      "program": "COBOL/SAM1LIB.cbl",
+      "sha256": "bb9561755f1c1cd5a9db821378345ffb94cd19e176356dccd008ee5877fcd421"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Sam2Service.java": {
+      "calls": [],
+      "classes": [
+        "Sam2Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeDummyCall"
+      ],
+      "program": null,
+      "sha256": "f49192062920f953297f9169a6a724820967e39823d7af67d5e58ed173281ed4"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "zopeneditor-sample_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

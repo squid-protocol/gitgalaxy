@@ -1,0 +1,349 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/CicsBankingSampleApplicationCbsaApplication.java": {
+      "calls": [],
+      "classes": [
+        "CicsBankingSampleApplicationCbsaApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "232d73ad171f1b18e2b74b07992dddd18360690bf2bb8ad2bf4de0a2be1c1e32"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/BankdataController.java": {
+      "calls": [
+        "BankdataService"
+      ],
+      "classes": [
+        "BankdataController"
+      ],
+      "endpoints": [
+        "executeBankdataBatch"
+      ],
+      "fields": [
+        "bankdataService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeBankdataBatch"
+      ],
+      "program": "src/base/cobol_src/BANKDATA.cbl",
+      "sha256": "fa91c657e79c63adf1aad3d02427834b3c37f30bba83e8b0541c656b0e6a65a8"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/AbndprocDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "AbndprocDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "commTasknoKey",
+        "commUtimeKey",
+        "wsCicsResp",
+        "wsCicsResp2",
+        "wsCustomerRangeBottom",
+        "wsCustomerRangeMiddle",
+        "wsCustomerRangeTop"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "934d12575e111722724199f76e34a95778c297588175e7b28e3d0a0e63bd8809"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/Bnk1cacDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "Bnk1cacDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "actualBalanceDisplay",
+        "availableBalanceDisplay",
+        "commAcctype",
+        "commCustno",
+        "commIntrt",
+        "commOverdr",
+        "endOfSessionMessage",
+        "intrtPic9",
+        "nstNum",
+        "nstmtddNum",
+        "nstmtmmiNum",
+        "nstmtyyiNum",
+        "subpgmAccType",
+        "subpgmActBal",
+        "subpgmAvailBal",
+        "subpgmCustno",
+        "subpgmEyecatcher",
+        "subpgmFailCode",
+        "subpgmIntRt",
+        "subpgmLastStmtDt",
+        "subpgmNextStmtDt",
+        "subpgmNumber",
+        "subpgmOpened",
+        "subpgmOverdrLim",
+        "subpgmSortcode",
+        "subpgmSuccess",
+        "validDataSw",
+        "wsAbendPgm",
+        "wsCicsFailMsg",
+        "wsCicsResp",
+        "wsCicsResp2",
+        "wsCicsResp2Disp",
+        "wsCicsRespDisp",
+        "wsCommAcctype",
+        "wsCommCustno",
+        "wsCommIntrt",
+        "wsCommOverdr",
+        "wsNumCountPoint",
+        "wsNumCountTotal",
+        "wsOrigDate",
+        "wsReverse",
+        "wsTimeNow",
+        "wsTimeNowGrpHh",
+        "wsTimeNowGrpMm",
+        "wsTimeNowGrpSs",
+        "wsUTime"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "0c68dfae1500e5dd908b38a4099c2f02aa7b9ca63f0d07344c378098e5a39820"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/BankdataParmBuffer.java": {
+      "calls": [],
+      "classes": [
+        "BankdataParmBuffer"
+      ],
+      "endpoints": [],
+      "fields": [
+        "accountIntRatesCount",
+        "accountOverdraftCount",
+        "accountTypesCount",
+        "accountTypesPtr",
+        "commitCount",
+        "datmConv",
+        "datmFormat",
+        "datmLength",
+        "dispReasonCode",
+        "dispSign",
+        "dispSqlcd",
+        "endKey",
+        "fc",
+        "forename",
+        "forenamesCnt",
+        "forenamesPtr",
+        "gmtLilian",
+        "houseNumber",
+        "hvAccountActualBalance",
+        "hvAccountAvailableBalance",
+        "hvAccountCustNo",
+        "hvAccountEyecatcher",
+        "hvAccountInterestRate",
+        "hvAccountLastStmtDate",
+        "hvAccountLastStmtDay",
+        "hvAccountLastStmtDelim1",
+        "hvAccountLastStmtDelim2",
+        "hvAccountLastStmtMonth",
+        "hvAccountLastStmtYear",
+        "hvAccountNextStmtDate",
+        "hvAccountNextStmtDay",
+        "hvAccountNextStmtDelim1",
+        "hvAccountNextStmtDelim2",
+        "hvAccountNextStmtMonth",
+        "hvAccountNextStmtYear",
+        "hvAccountNumber",
+        "hvAccountOpened",
+        "hvAccountOpenedDay",
+        "hvAccountOpenedDelim1",
+        "hvAccountOpenedDelim2",
+        "hvAccountOpenedMonth",
+        "hvAccountOpenedYear",
+        "hvAccountOverdraftLimit",
+        "hvAccountSortCode",
+        "hvAccountType",
+        "hvControlName",
+        "hvControlValueNum",
+        "hvControlValueStr",
+        "initialCharacter",
+        "initialsCnt",
+        "initialsPtr",
+        "nextKey",
+        "noOfAccounts",
+        "openedDateAttempts",
+        "openedDateValid",
+        "parm",
+        "parmLength",
+        "periodNextF",
+        "randomSeed",
+        "randomSeedNumeric",
+        "rdate",
+        "sqlcodeDisplay",
+        "startKey",
+        "stepKey",
+        "streetNameRCnt",
+        "streetNameRPtr",
+        "streetNameRoad",
+        "streetNameTCnt",
+        "streetNameTPtr",
+        "streetNameTree",
+        "surname",
+        "surnamesCnt",
+        "surnamesPtr",
+        "sysId",
+        "timestampFunction",
+        "titleNumber",
+        "titleWord",
+        "town",
+        "townCount",
+        "townPtr",
+        "wsAccountIntRate",
+        "wsAccountNumber",
+        "wsAccountOpenedDay",
+        "wsAccountOpenedMonth",
+        "wsAccountOpenedYear",
+        "wsAccountOverdraftLim",
+        "wsAccountType",
+        "wsCnt",
+        "wsCurrentDate9",
+        "wsCurrentDd",
+        "wsCurrentHours",
+        "wsCurrentMilli",
+        "wsCurrentMins",
+        "wsCurrentMm",
+        "wsCurrentSecs",
+        "wsCurrentYyyy",
+        "wsDayOfWeekVal",
+        "wsDayToday",
+        "wsDt",
+        "wsDtRem",
+        "wsNewReviewDateInt",
+        "wsNewReviewYyyymmdd",
+        "wsOverdraftConversion",
+        "wsReviewDateAdd",
+        "wsSqlcodeDisplay",
+        "wsTodayInt",
+        "wsWeekday",
+        "wsWeekdays"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "837dab4f769d3a23b3f2260253ffd4800f8ecb775a1f412a34ed151f4c6aa4fd"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy1AbndinfoRec.java": {
+      "calls": [],
+      "classes": [
+        "Crdtagy1AbndinfoRec"
+      ],
+      "endpoints": [],
+      "fields": [
+        "sysId",
+        "wsAbendPgm",
+        "wsChannelName",
+        "wsCicsResp",
+        "wsCicsResp2",
+        "wsContInBirthDay",
+        "wsContInBirthMonth",
+        "wsContInBirthYear",
+        "wsContInCreditScore",
+        "wsContInNumber",
+        "wsContInSortcode",
+        "wsContainerLen",
+        "wsContainerName",
+        "wsDelayAmt",
+        "wsNewCredscore",
+        "wsOrigDate",
+        "wsSeed",
+        "wsTimeNow",
+        "wsTimeNowGrpHh",
+        "wsTimeNowGrpMm",
+        "wsTimeNowGrpSs",
+        "wsUTime"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "da26fee2c3831efda269f4c523961c7c079abb3e5f6952eb4a73b3c3827b4c1f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java": {
+      "calls": [],
+      "classes": [
+        "AbndprocService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeAbndproc"
+      ],
+      "program": "src/base/cobol_src/ABNDPROC.cbl",
+      "sha256": "c8062df5a0f8d1572f3df8c7bc232b72f66a040f51fdb7f1442ec63fcef8303b"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/BankdataService.java": {
+      "calls": [],
+      "classes": [
+        "BankdataService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeBankdata"
+      ],
+      "program": "src/base/cobol_src/BANKDATA.cbl",
+      "sha256": "392e86d3bbc5264c910502454d844ef271dce8d6570a10ec8f9e1ad6700d45b0"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Bnk1cacService.java": {
+      "calls": [],
+      "classes": [
+        "Bnk1cacService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeBnk1cac"
+      ],
+      "program": "src/base/cobol_src/BNK1CAC.cbl",
+      "sha256": "736b898cbf80d49c49514f56d6fa01ad2683f1ba4a286716758a5a65cbb3d186"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Crdtagy1Service.java": {
+      "calls": [],
+      "classes": [
+        "Crdtagy1Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeCrdtagy1"
+      ],
+      "program": "src/base/cobol_src/CRDTAGY1.cbl",
+      "sha256": "a35d622a0cbb4e0654688a2a5b2db751df29cc39230615664e23550c6acdd89f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "cics-banking-sample-application-cbsa_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

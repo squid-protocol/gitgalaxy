@@ -1,0 +1,92 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/ZecsApplication.java": {
+      "calls": [],
+      "classes": [
+        "ZecsApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "769cd74222cc0a6980cc0c8c9656b4e1fd9b0a61115bbb5670025bf7adb2b7d4"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/Ecs001CicsMsg2.java": {
+      "calls": [],
+      "classes": [
+        "Ecs001CicsMsg2"
+      ],
+      "endpoints": [],
+      "fields": [
+        "bodyData",
+        "bodyDataLen",
+        "cicsMsgCode",
+        "cicsMsgHttp",
+        "cicsMsgResp",
+        "cicsMsgResp2",
+        "cicsMsgStatus",
+        "cicsMsgText",
+        "ecsData",
+        "ecsDataLen",
+        "ecsKey",
+        "ecsKeyLen",
+        "httpStatusCode",
+        "httpStatusLen",
+        "httpStatusText",
+        "i",
+        "inputParm1",
+        "inputParm2",
+        "mediaType",
+        "methodCdva",
+        "pathName",
+        "pathNameLen",
+        "sessionToken",
+        "sysId",
+        "termDataLen",
+        "termLines",
+        "urimapName"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "3769f84401247a815765907f444e758650e3658a186b37efdc75932ab1ea034b"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/Ecs001Service.java": {
+      "calls": [],
+      "classes": [
+        "Ecs001Service"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEcs001"
+      ],
+      "program": "Source/ECS001.cbl",
+      "sha256": "ce08b4c712a836d54952794d03f5a88ee6ca14ead7336850bdaa0c6e7ac0870c"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "520091ea864d66d59f2b02c5b62d725e0f2f137d01e4f41ff14ba92a06ccc2e2"
+    }
+  },
+  "generated_from": {
+    "clean_room": "zecs_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

@@ -7,12 +7,14 @@ name: Graph Accuracy Audit
 #     import statements (python `ast`, tree-sitter elsewhere), on the pinned real
 #     repos in tests/import_graph_corpus.json (tests/tools/import_graph_accuracy.py);
 #   - call resolution, Level 2: confident caller->callee links vs pyan3 on
-#     language-crucible's Python repos (tests/tools/call_graph_resolution.py);
+#     language-crucible's Python repos, and vs the TypeScript compiler's own
+#     type checker on the pinned typescript repo(s) of import_graph_corpus.json
+#     (tests/tools/call_graph_resolution.py + ts_callgraph.js);
 #   - span anchoring: functions whose start_line opens on other code before the
 #     declaration, lower is better (#3543, tests/tools/span_anchor_audit.py).
 # Level 1 (callee names vs tree-sitter) stays in call-graph-accuracy-audit.yml.
 # Every step runs even when an earlier one fails, so a red PR still reports all
-# three. Same corpus pin and fork fallback as call-graph-accuracy-audit.yml.
+# of them. Same corpus pin and fork fallback as call-graph-accuracy-audit.yml.
 
 on:
   pull_request:
@@ -26,10 +28,12 @@ on:
       - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/import_graph_accuracy.py"
       - "tests/tools/call_graph_resolution.py"
+      - "tests/tools/ts_callgraph.js"
       - "tests/tools/span_anchor_audit.py"
       - "tests/import_graph_corpus.json"
       - "tests/import_graph_accuracy_baseline.json"
       - "tests/call_graph_resolution_baseline.json"
+      - "tests/call_graph_resolution_typescript_baseline.json"
       - "tests/span_anchor_baseline.json"
       - ".github/workflows/graph-accuracy-audit.yml"
 
@@ -66,6 +70,11 @@ jobs:
           pip install -e .
           pip install tree-sitter-language-pack "pyan3==2.8.1"
 
+      # The runner's preinstalled node is enough; the version is pinned so the
+      # typescript baseline stays comparable (call_graph_resolution.TYPESCRIPT_VERSION).
+      - name: Install the TypeScript checker (call-resolution reference)
+        run: npm install --global "typescript@6.0.2"
+
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
         run: |
           ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
@@ -98,6 +107,14 @@ jobs:
         run: |
           cd gitgalaxy
           PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py python --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Gate call-resolution (Level 2, vs the TypeScript checker) against the baseline
+        if: ${{ !cancelled() }}
+        env:
+          IMPORT_GRAPH_CORPUS_PATH: ${{ github.workspace }}/import-graph-corpus
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/call_graph_resolution.py typescript --ci --samples 5 --summary "$GITHUB_STEP_SUMMARY"
 
       - name: Gate span anchoring against the baseline
         if: ${{ !cancelled() }}

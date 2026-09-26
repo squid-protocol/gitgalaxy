@@ -69,8 +69,11 @@ function compilerOptions() {
 const files = walk(repo, []).sort();
 const program = ts.createProgram(files, compilerOptions());
 const checker = program.getTypeChecker();
+// The compiler reports file names with forward slashes on every platform.
+const fold = (p) => (process.platform === "win32" ? p.toLowerCase() : p);
+const repoPrefix = fold(repo.split(path.sep).join("/") + "/");
 const inRepo = (sf) =>
-  !!sf && !sf.isDeclarationFile && sf.fileName.startsWith(repo + path.sep) && !sf.fileName.includes("/node_modules/");
+  !!sf && !sf.isDeclarationFile && fold(sf.fileName).startsWith(repoPrefix) && !sf.fileName.includes("/node_modules/");
 
 function unwrap(e) {
   while (ts.isParenthesizedExpression(e) || ts.isAsExpression(e) || ts.isNonNullExpression(e) || ts.isSatisfiesExpression?.(e)) {

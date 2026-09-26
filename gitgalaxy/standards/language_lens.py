@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional, TypedDict, Union
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH
 from gitgalaxy.standards.language_standards import (
     COMPILED_HANDSHAKE_REGISTRY,
@@ -948,8 +949,7 @@ class LanguageDetector:
         votes: dict[str, int] = {}
         for sib in siblings:
             try:
-                with sib.open("r", encoding="utf-8", errors="ignore") as fh:
-                    sample = fh.read(self.SIBLING_SNIFF_BYTES)
+                sample = read_source(sib, limit=self.SIBLING_SNIFF_BYTES).text  # #3813: no byte dropped
             except OSError as e:
                 self.logger.debug(f"Sibling read failed for '{sib}': {e}")
                 continue
@@ -1399,8 +1399,7 @@ class LanguageDetector:
         analyzer at massive log dumps or multi-gigabyte auto-generated monoliths.
         """
         try:
-            with open(file_path, encoding="utf-8", errors="ignore") as f:
-                return f.read(1024 * 50)
+            return read_source(file_path, limit=1024 * 50).text  # #3813: decoded without dropping a byte
         except (PermissionError, FileNotFoundError, OSError) as e:
             self.logger.error(f"Hardware/IO failure reading '{file_path}': {e!s}")
             raise FocusingError(f"Failed to focus lens on {file_path}") from e

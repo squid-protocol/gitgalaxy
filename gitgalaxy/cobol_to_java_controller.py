@@ -467,7 +467,7 @@ def main():
         stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui")}
         stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
         tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
-                                     ir_dir, clean_room_path.name)  # fmt: skip
+                                     ir_dir, clean_room_path.name, clean_room_path)  # fmt: skip
         if tickets:
             worklist = link_tickets(java_out_dir, worklist, tickets)
             stats["agent_jobs"] += len(tickets)

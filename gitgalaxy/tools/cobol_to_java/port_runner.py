@@ -304,6 +304,11 @@ def status(project: Path) -> dict[str, Any]:
     tickets = sorted(
         p.name[: -len("_port_ticket.json")] for p in (project / "ai_agent_jobs").glob("*_port_ticket.json")
     )
+    # #3237: in port order when the project has one -- the most-depended-on programs first.
+    order_file = project / "ai_agent_jobs" / "port_order.json"
+    if order_file.is_file():
+        rank = {o["key"]: o["rank"] for o in json.loads(order_file.read_text(encoding="utf-8"))}
+        tickets.sort(key=lambda t: (rank.get(t, len(rank) + 1), t))
     state: dict[str, dict[str, Any]] = {t: {"state": "open", "attempts": 0, "model": None} for t in tickets}
     models: dict[str, dict[str, int]] = {}
     model_of: dict[tuple[str, int], str] = {}
@@ -327,7 +332,9 @@ def status(project: Path) -> dict[str, Any]:
     counts: dict[str, int] = {}
     for s in state.values():
         counts[s["state"]] = counts.get(s["state"], 0) + 1
-    return {"tickets": state, "models": models, "counts": counts, "total": len(tickets)}
+    # The next ticket to take: the first, in port order, that no one has a port for yet.
+    nxt = next((t for t, s in state.items() if s["state"] == "open"), None)
+    return {"tickets": state, "models": models, "counts": counts, "total": len(tickets), "next": nxt}
 
 
 def cmd_status(opts: argparse.Namespace) -> int:
@@ -337,6 +344,8 @@ def cmd_status(opts: argparse.Namespace) -> int:
         print(
             f"  {m}: {c['proposed']} proposed, {c['proven']} proven, {c['approved']} approved, {c['rejected']} rejected"
         )
+    if st["next"]:
+        print(f"  next in port order: {st['next']}")
     for t, s in st["tickets"].items():
         if s["state"] != "open":
             print(f"  {t}: {s['state']} (attempt {s['attempts']}, {s['model']}) {s.get('summary') or ''}")

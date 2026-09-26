@@ -298,10 +298,18 @@ def render_markdown(wl: dict) -> str:
     programs: dict[str, Counter] = {}
     for it in wl["items"]:
         programs.setdefault(it["program"], Counter())[it["nature"]] += 1
-    md += ["", "## By program source", "", "| source | " + " | ".join(NATURES) + " | total |",
+    # #3237: with a port order (ai_agent_jobs/port_order.json), sources are listed in it -- the programs
+    # the most other code depends on first -- and the rest after, by item count.
+    rank = {o["file"]: o["rank"] for o in wl.get("port_order") or []}
+    order_note = ["", "Listed in port order: the programs the most other code depends on first "
+                  "([ai_agent_jobs/port_order.md](ai_agent_jobs/port_order.md))."] if rank else []  # fmt: skip
+    md += ["", "## By program source", *order_note, "", "| source | " + " | ".join(NATURES) + " | total |",
            "|---|" + "---:|" * (len(NATURES) + 1)]  # fmt: skip
-    for prog, cnt in sorted(programs.items(), key=lambda kv: (-sum(kv[1].values()), kv[0])):
-        md.append(f"| `{prog}` | " + " | ".join(str(cnt[n] or "") for n in NATURES) + f" | {sum(cnt.values())} |")
+    for prog, cnt in sorted(
+        programs.items(), key=lambda kv: (rank.get(kv[0], len(rank) + 1), -sum(kv[1].values()), kv[0])
+    ):
+        label = f"{rank[prog]}. `{prog}`" if prog in rank else f"`{prog}`"
+        md.append(f"| {label} | " + " | ".join(str(cnt[n] or "") for n in NATURES) + f" | {sum(cnt.values())} |")
 
     for cid, c in wl["categories"].items():
         md += ["", f'<a id="{cid}"></a>', f"## {c['title']} ({c['nature']})", "", f"_Resolution:_ {c['resolution']}"]
@@ -319,10 +327,16 @@ def render_markdown(wl: dict) -> str:
 
 
 def link_tickets(java_dir: Path, wl: dict, tickets: dict[str, str]) -> dict:
-    """#3752: each item of a program with a porting ticket names it; the worklist is re-written."""
+    """#3752: each item of a program with a porting ticket names it; the worklist is re-written.
+    #3237: the tickets' port order, when there is one, orders the by-program table."""
     for it in wl["items"]:
         if it["program"] in tickets:
             it["ticket"] = tickets[it["program"]]
+    order_file = java_dir / "ai_agent_jobs" / "port_order.json"
+    if order_file.is_file():
+        wl["port_order"] = [
+            {"rank": o["rank"], "file": o["file"]} for o in json.loads(order_file.read_text(encoding="utf-8"))
+        ]
     (java_dir / "migration_worklist.json").write_text(json.dumps(wl, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (java_dir / "migration_worklist.md").write_text(render_markdown(wl), encoding="utf-8")
     return wl

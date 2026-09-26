@@ -36,6 +36,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from typing import Optional
 from unittest.mock import patch
 
 REPO_ROOT = Path(os.environ.get("GITGALAXY_CODE_ROOT") or Path(__file__).resolve().parents[2]).resolve()
@@ -85,7 +86,9 @@ def refactor(corpus: Path, work: Path, scan: bool = False) -> Path:
     return next(work.glob(f"{corpus.name}_gitgalaxy_clean_*"))
 
 
-def generate(clean: Path, name: str, config: dict, work: Path) -> Path:
+def generate(clean: Path, name: str, config: dict, work: Path, header: Optional[Path] = None) -> Path:
+    """cobol-to-java on a clean room under `config`; `header` is a text file every generated Java
+    file starts with (as a block comment), none by default."""
     import json
 
     from gitgalaxy import cobol_to_java_controller
@@ -94,7 +97,8 @@ def generate(clean: Path, name: str, config: dict, work: Path) -> Path:
     cfg.write_text(json.dumps(config), encoding="utf-8")
     for old in clean.parent.glob(f"{clean.name.replace('clean', 'java_spring')}"):
         shutil.rmtree(old)
-    with patch("sys.argv", ["cobol-to-java", str(clean), "--config", str(cfg), "--header", str(work / "none.txt")]):
+    head = header or work / "none.txt"
+    with patch("sys.argv", ["cobol-to-java", str(clean), "--config", str(cfg), "--header", str(head)]):
         cobol_to_java_controller.main()
     out = clean.parent / clean.name.replace("clean", "java_spring")
     dest = work / f"java_{name}"

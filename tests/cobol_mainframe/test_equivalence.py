@@ -120,3 +120,23 @@ def test_publish_examples_scan_comparison_and_compile_workflow():
     assert "example: [carddemo, zecs]" in wf and "working-directory: examples/${{ matrix.example }}/java" in wf
     assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in wf  # pinned by SHA, as gitgalaxy's own
     assert [s for s, _, _ in pe.EXAMPLES] == ["carddemo", "cbsa", "genapp", "zecs", "zopeneditor", "dsf-pli"]
+
+
+def test_published_examples_carry_their_sources_licences(tmp_path):
+    import publish_examples as pe
+
+    for name in ("LICENSE", "NOTICE", "LICENSE.md", "README.md", "COPYING"):
+        (tmp_path / name).write_text("x")
+    assert [p.name for p in pe.legal_files(tmp_path)] == ["COPYING", "LICENSE", "LICENSE.md", "NOTICE"]
+    entry = {"name": "cbsa", "url": "https://example.org/cbsa", "ref": "4" * 40, "license": "EPL-2.0"}
+    header = pe.file_header(entry)
+    assert "licensed EPL-2.0" in header and "4" * 40 in header and "modified in" in header
+    notices = pe.third_party_notices([{"slug": "cbsa", "corpus": entry, "legal": ["LICENSE", "NOTICES"]}], [])
+    assert (
+        "| `examples/cbsa/` | [cbsa](https://example.org/cbsa) at `444444444444` | EPL-2.0 | LICENSE, NOTICES |"
+        in notices
+    )
+    assert "not affiliated with, sponsored or endorsed" in notices
+    case = eq.CASES / "carddemo-intcalc"
+    assert (case / "LICENSE").is_file() and (case / "NOTICE").is_file()  # the port and data are CardDemo-derived
+    assert "licensed Apache-2.0" in (case / "port/service/Cbact04cService.java").read_text()[:600]

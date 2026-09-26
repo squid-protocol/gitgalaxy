@@ -1,3 +1,10 @@
+/*
+ * A hand translation of CBACT04C (app/cbl/CBACT04C.cbl) from
+ * https://github.com/aws-samples/aws-mainframe-modernization-carddemo at commit
+ * 59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e, onto the Java GitGalaxy generates from it. That source is
+ * Copyright Amazon.com, Inc. or its affiliates and licensed Apache-2.0; this file is derived from it
+ * and modified (translated), under the same licence -- see LICENSE and NOTICE in this case's directory.
+ */
 package com.gitgalaxy.modernized.service;
 
 import com.gitgalaxy.modernized.batch.DatasetResolver;

@@ -31,17 +31,12 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-
-def _eq():
-    """The batch harness, imported on use (it calls this module: a module-level import is a cycle)."""
-    import equivalence
-
-    return equivalence
+import equivalence_common as common
 
 
 def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) -> bytes:
     """A value as the field stores it -- the inverse of equivalence.decode_field."""
-    num = _eq()._pic_numeric(pic) if pic else None
+    num = common._pic_numeric(pic) if pic else None
     if num is None:
         return str(value).encode("latin-1")[:nbytes].ljust(nbytes, b" ")
     signed, digits, scale = num
@@ -87,7 +82,7 @@ def _text_value(rng: random.Random, name: str, nbytes: int, row: int) -> str:
 
 
 def field_value(rng: random.Random, f: dict[str, Any], row: int) -> Any:
-    num = _eq()._pic_numeric(f["pic"]) if f.get("pic") else None
+    num = common._pic_numeric(f["pic"]) if f.get("pic") else None
     if num is None:
         return _text_value(rng, f["name"], f["bytes"], row)
     signed, digits, scale = num
@@ -169,7 +164,7 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
     out: dict[str, bytes] = {}
     for dd in _order(todo):
         spec = todo[dd]
-        fields = _eq().layout_fields(corpus, spec["generate"]["copybook"], spec["generate"].get("record"))
+        fields = common.layout_fields(corpus, spec["generate"]["copybook"], spec["generate"].get("record"))
         width = max(f["offset"] + f["bytes"] for f in fields)
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")

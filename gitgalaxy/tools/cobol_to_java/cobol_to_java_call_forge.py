@@ -157,16 +157,28 @@ class CallForge:
         name = passed.split("(")[0].split(" OF ")[0].strip().upper()
         return prog.segment_dtos[0] if name == prog.commarea["segments"][0]["record"].upper() else None
 
-    def _mismatch(self, passed: str | None, callee: str) -> str | None:
-        """A note when the record a site passes is not the one the target was resolved to receive."""
+    def _mismatch(self, passed: str | None, callee: str, caller: str | None = None) -> str | None:
+        """A note when the record a site passes is not the one the target was resolved to receive.
+        #3688: judged by LAYOUT when the callee kept its own declaration over this caller's record
+        (its alternatives say how they differ) -- two areas both named DFHCOMMAREA can differ."""
         prog = self.cics.programs.get(callee)
         commarea = prog.commarea if prog is not None else None
         receives = commarea.get("record") if commarea else None
         if not passed or not commarea or not receives:
             return None
         name = passed.split("(")[0].split(" OF ")[0].strip().upper()
+        mine = next((a for a in commarea.get("alternatives", []) if "mismatches" in a and a.get("view") != "coarser"
+                     and a["record"].upper() == name and a["file"] == caller), None)  # fmt: skip
+        if mine is not None:
+            size = (
+                f"{mine['bytes']} bytes" if mine["bytes"] is not None and not mine.get("variable") else "no known width"
+            )
+            return (f"TODO: this site passes {name} ({size}); {self.cls_of[callee].upper()} declares {receives} "
+                    f"({commarea['file']}, {commarea['bytes']} bytes) -- map one layout onto the other")  # fmt: skip
         if name == receives.upper() or self._prefix_type(passed, callee):
             return None
+        if any(a.get("view") == "coarser" and a["record"].upper() == name for a in commarea.get("alternatives", [])):
+            return None  # #3688: this site passes the same bytes the callee declares, some as one block
         if commarea.get("basis") == "unpack" and name in {s["record"].upper() for s in commarea["segments"][:1]}:
             return None  # a single unpacked record: the site passes it as is
         if commarea.get("basis") == "unpack":
@@ -218,7 +230,7 @@ class CallForge:
         for (verb, callee), sites in sorted(static.items()):
             where = ", ".join(f"{path}:{s['line']}" for s in sites)
             written = (sites[0].get("target") or self.cls_of[callee]).upper()  # the name as the COBOL writes it
-            gaps = sorted({g for s in sites if (g := self._mismatch(s.get("commarea"), callee))})
+            gaps = sorted({g for s in sites if (g := self._mismatch(s.get("commarea"), callee, path))})
             target = self.cls_of[callee]
             ref = self._inject(key, callee)
             if verb in _LINK_VERBS:

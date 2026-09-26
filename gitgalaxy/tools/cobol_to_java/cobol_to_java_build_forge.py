@@ -20,13 +20,32 @@ from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
+# #3619: springdoc is not in Spring Boot's dependency management, so it carries its own version
+# (the 2.x line is the Spring Boot 3 / jakarta one).
+SPRINGDOC_VERSION = "2.5.0"
 
-def _dependency(group: str, artifact: str, scope: Optional[str] = None, optional: bool = False) -> str:
+
+def ui_dependencies(t: JavaTarget) -> list[tuple[str, str, Optional[str]]]:
+    """(group, artifact, version or None) the BMS screens' UI flavour needs (#3619)."""
+    if t.ui.flavour == "thymeleaf":
+        return [("org.springframework.boot", "spring-boot-starter-thymeleaf", None),
+                ("org.springframework.boot", "spring-boot-starter-validation", None)]  # fmt: skip
+    if t.ui.flavour == "openapi-only":
+        return [("org.springframework.boot", "spring-boot-starter-validation", None),
+                ("org.springdoc", "springdoc-openapi-starter-webmvc-ui", SPRINGDOC_VERSION)]  # fmt: skip
+    return []
+
+
+def _dependency(
+    group: str, artifact: str, scope: Optional[str] = None, optional: bool = False, version: Optional[str] = None
+) -> str:
     lines = [
         "        <dependency>",
         f"            <groupId>{group}</groupId>",
         f"            <artifactId>{artifact}</artifactId>",
     ]
+    if version:
+        lines.append(f"            <version>{version}</version>")
     if scope:
         lines.append(f"            <scope>{scope}</scope>")
     if optional:
@@ -49,6 +68,7 @@ def generate_pom_xml(group_id: str, artifact_id: str, target: Optional[JavaTarge
     ]
     if t.features.batch:
         deps.append(_dependency("org.springframework.boot", "spring-boot-starter-batch"))
+    deps += [_dependency(g, a, version=v) for g, a, v in ui_dependencies(t)]  # #3619
     deps.append(_dependency(drv_group, drv_artifact, scope="runtime"))
     if t.lombok:
         deps.append(_dependency("org.projectlombok", "lombok", optional=True))
@@ -123,6 +143,7 @@ def generate_build_gradle(group_id: str, target: JavaTarget) -> str:
     ]
     if t.features.batch:
         deps.append("    implementation 'org.springframework.boot:spring-boot-starter-batch'")
+    deps += [f"    implementation '{g}:{a}{':' + v if v else ''}'" for g, a, v in ui_dependencies(t)]  # #3619
     deps.append(f"    runtimeOnly '{drv_group}:{drv_artifact}'")
     if t.lombok:
         deps += ["    compileOnly 'org.projectlombok:lombok'", "    annotationProcessor 'org.projectlombok:lombok'"]

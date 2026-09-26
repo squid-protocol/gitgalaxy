@@ -1988,6 +1988,37 @@ class GalaxyIR:
             pos += sg["bytes"]
         return {"segments": ordered, "tiled": tiled, "opaque": opaque, "bytes": pos if tiled else None}
 
+    def _declared_over_callers(self, ef: EngineFile, options: list) -> Optional[dict]:
+        """#3688: the program's own DFHCOMMAREA as its COMMAREA when it is concrete and the
+        best caller record is of unknown width or disagrees with it; else None (the caller
+        record stands). `options` is program_interfaces' sorted caller-record list."""
+        own = self._dfhcommarea(ef)
+        if own is None:
+            return None
+        layout = self.record_layout(ef, own)
+        if layout["variable"] or not layout["bytes"] or len(layout["fields"]) < 2:
+            return None  # opaque (`PIC X OCCURS ... DEPENDING ON EIBCALEN`, one PIC X(n)): callers define it
+        unusable, _, _, _, best, _ = options[0]
+        if not unusable and (not _layout_mismatches(best, layout) or _coarser_view(layout, best)):
+            return None  # the callers pass what the program declares (or a finer view of it): keep theirs
+
+        def verdict(o: tuple) -> dict:
+            if _coarser_view(o[4], layout):  # the same bytes, some kept as one opaque block: compatible
+                return {"mismatches": [], "view": "coarser"}
+            return {"mismatches": _layout_mismatches(o[4], layout), "variable": bool(o[4]["variable"])}
+
+        return {
+            "record": own.name,
+            "file": ef.file_path,
+            "basis": "dfhcommarea",
+            "sources": [s for o in options for s in o[5]],
+            **layout,
+            "extended": False,
+            "alternatives": [
+                {"record": o[3], "file": o[2], "bytes": o[4]["bytes"], "sources": o[5], **verdict(o)} for o in options
+            ],
+        }
+
     def program_interfaces(self, language: str = "cobol") -> dict[str, dict]:
         """What each CICS program receives and hands back (#3615), per program file.
 
@@ -1999,7 +2030,15 @@ class GalaxyIR:
         passes this program a record (`sources` lists those sites; when callers
         pass different records the one most sites pass is chosen -- ties by file,
         name -- and the rest are `alternatives`), else `dfhcommarea`, the program's
-        own fixed-length LINKAGE DFHCOMMAREA. None when neither is known, with
+        own fixed-length LINKAGE DFHCOMMAREA. #3688: a CONCRETE own DFHCOMMAREA
+        (fixed length, known width, two or more elementary fields -- not an opaque
+        byte area) outranks the callers' record when that record's width is unknown
+        or its layout disagrees with it (`_layout_mismatches`: length or field
+        shape): the program reads its own declaration, so `basis` is `dfhcommarea`
+        and every caller's record is an `alternative` carrying its `mismatches`
+        (empty when its width is unknown) -- a conflict for a person to settle, not
+        a choice made silently. A caller record that matches the declaration keeps
+        `caller_record` (same bytes, the caller's names). None when neither is known, with
         the reason in `commarea_gap`: a variable-length DFHCOMMAREA (`OCCURS ...
         DEPENDING ON EIBCALEN`) no caller pairs with, or no DFHCOMMAREA at all.
         `containers` -- every GET / PUT CONTAINER naming a resolved container:
@@ -2107,6 +2146,8 @@ class GalaxyIR:
                         for fld in sg["layout"].get("fields", [])
                     ],
                 }
+            elif options and (declared := self._declared_over_callers(ef, options)) is not None:
+                commarea = declared  # #3688: the program's own concrete layout; the callers disagree
             elif options:
                 _, _, file, name, layout, sources = options[0]
                 commarea = {"record": name, "file": file, "basis": "caller_record", "sources": sources, **layout}
@@ -4527,6 +4568,22 @@ def _layout_mismatches(caller: dict, callee: dict) -> list:
             }
         )
     return out
+
+
+def _coarser_view(coarse: dict, fine: dict) -> bool:
+    """#3688: whether `coarse` lays the same bytes out as `fine` does, only with some runs of
+    `fine`'s fields kept as one alphanumeric block (CardDemo COPAUS1C passes the 200-byte
+    authorization record COPAUS2C declares field by field as one PIC X(200)). Every field of
+    `coarse` is then a field of `fine`, or an X block starting and ending on `fine` boundaries."""
+    if coarse["variable"] or fine["variable"] or not coarse["bytes"] or coarse["bytes"] != fine["bytes"]:
+        return False
+    fine_shape = {(f["offset"], f["bytes"], f["class"]) for f in fine["fields"]}
+    starts = {f["offset"] for f in fine["fields"]}
+    edges = starts | {f["offset"] + f["bytes"] for f in fine["fields"]} | {fine["bytes"]}
+    coarse_shape = [(f["offset"], f["bytes"], f["class"]) for f in coarse["fields"]]
+    if not coarse_shape or set(coarse_shape) == fine_shape:
+        return False  # no fields to compare, or the same layout (not a coarser one)
+    return all(c in fine_shape or (c[2] == "X" and c[0] in starts and c[0] + c[1] in edges) for c in coarse_shape)
 
 
 def _operand_name(operand: Optional[str]) -> tuple[Optional[str], Optional[str]]:

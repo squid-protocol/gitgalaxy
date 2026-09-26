@@ -133,7 +133,9 @@ GATES = [
     Gate("refraction-snapshot", lambda ctx: [ctx.python_exe, "tests/tools/refraction_snapshot.py", "check"]),
     Gate(
         "java-carddemo",
-        _matrix("aws-mainframe-modernization-carddemo", ["default", "plain-records", "gradle-plain-21"]),
+        _matrix(
+            "aws-mainframe-modernization-carddemo", ["default", "plain-records", "gradle-plain-21", "ui-thymeleaf"]
+        ),
         requires_java=True,
     ),  # fmt: skip
     Gate("java-cics-genapp", _matrix("cics-genapp", ["default"]), requires_java=True),

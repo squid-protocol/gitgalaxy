@@ -74,7 +74,7 @@ counted in it (their fact counts are not recorded here).
 | 1 | zopeneditor-sample | public | 940 | 3 | 1 | 1 | 1 |
 | 2 | cics-banking-sample-application-cbsa | public | 3,643 | 43 | 1 | 1 | 0 |
 | 3 | aws-mainframe-modernization-carddemo | public | 4,867 | 26 | 7 | 4 | 1 |
-| 4 | cics-genapp | public | 2,282 | 10 | 2 | 1 | 0 |
+| 4 | cics-genapp | public | 2,282 | 10 | 3 | 1 | 0 |
 | 5 | zecs | public | 1,263 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 1,709 | 4 | 5 | 1 | 0 |
 
@@ -110,6 +110,7 @@ counted in it (their fact counts are not recorded here).
 | D023 | 3 | engine | fact | refmod spans, data moves | #3649 / #3695 | A reference modification of a FUNCTION result (`MOVE FUNCTION CURRENT-DATE(1:4) TO ...`) was read as the function's argument list and dropped: 6 CBIMPORT sources lost their refmod (the key reader shared it). |
 | D024 | 2 | engine | fact | copybook layouts | #3694 / #3700 | `PIC S9(n) DISPLAY SIGN LEADING SEPARATE` was sized n bytes, not n+1: record_data keeps no SIGN clause (3 ABNDINFO items; the key reader shared it). |
 | B004 | 1 | brief | fact | copybook layouts | #3649 / #3695 | The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it. |
+| D025 | 4 | engine | attribute | record fields | #3688 / #3702 | A caller's record always outranked the program's own concrete DFHCOMMAREA: GENAPP's five lg*vs01 took a caller record of unknown width over their declared 32,500 bytes, and CBSA's BNK1UAC / UPDACC silently took a caller layout of another size (now the declaration, with each disagreeing caller a conflict). |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

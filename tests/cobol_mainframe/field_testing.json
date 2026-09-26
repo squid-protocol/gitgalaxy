@@ -480,6 +480,20 @@
       "issue": 3649,
       "summary": "The layouts brief did not say pseudo-text awaiting COPY REPLACING (`:TAG:-REC`) is not a data name, as the key (and the data-move contract) define it.",
       "fixed_by": "#3695"
+    },
+    {
+      "id": "D025",
+      "estate": "cics-genapp",
+      "side": "engine",
+      "fields": [
+        "record fields"
+      ],
+      "language": "cobol",
+      "severity": "attribute",
+      "found_by": "Java conversion review (#3688)",
+      "issue": 3688,
+      "summary": "A caller's record always outranked the program's own concrete DFHCOMMAREA: GENAPP's five lg*vs01 took a caller record of unknown width over their declared 32,500 bytes, and CBSA's BNK1UAC / UPDACC silently took a caller layout of another size (now the declaration, with each disagreeing caller a conflict).",
+      "fixed_by": "#3702"
     }
   ],
   "fields": {

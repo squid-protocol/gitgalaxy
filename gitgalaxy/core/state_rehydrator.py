@@ -856,12 +856,19 @@ class StateRehydrator:
                 )
 
                 # #3451: JCL job flow, aliased back to the payload keys.
+                # #3622: `disp_normal` is NULL on a baseline written before it existed.
+                normal_col = (
+                    "jf.disp_normal"
+                    if _has_table(cursor, "job_flow_data") and _has_column(cursor, "job_flow_data", "disp_normal")
+                    else "NULL"
+                )
                 job_flow_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "job_flow_data",
-                    'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, jf.line_number AS "line" '
+                    'SELECT fd.file_path AS _fp, jf.kind, jf.job_name AS "name", jf.step_ordinal, jf.step_name, jf.program, jf.proc_name AS "proc", jf.cond, jf.if_cond, jf.in_proc, jf.dd_name, jf.dsn, jf.disp, jf.generation, jf.line_number AS "line", '  # noqa: S608 -- normal_col is one of two literals
+                    f"{normal_col} AS disp_normal "
                     "FROM job_flow_data jf JOIN file_data fd ON jf.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY jf.id",
                     lambda r: {
@@ -879,6 +886,7 @@ class StateRehydrator:
                         "disp": r["disp"],
                         "generation": r["generation"],
                         "line": int(r["line"] or 0),
+                        **({"disp_normal": r["disp_normal"]} if r["disp_normal"] else {}),
                     },
                 )
 

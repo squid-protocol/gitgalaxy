@@ -85,6 +85,7 @@ _PROGRAM_KEYS = ("file", "program", "caller", "callee", "from", "to", "resolves_
 ESTATE_JOINS = {
     "job_steps": "JCL job flow",
     "job_dataset_flow": "JCL job flow",
+    "job_dds": "JCL job flow",  # #3622: each job step's DD statements (PROC steps expanded)
     "csd_resources": "CSD resources",
     "cics_file_datasets": "CSD resources",
     "tdqueue_datasets": "CSD resources",

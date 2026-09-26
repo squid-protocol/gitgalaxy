@@ -674,6 +674,7 @@ class EngineJobFlow:
     disp: Optional[str]
     generation: Optional[str]
     line: int
+    disp_normal: Optional[str] = None  # #3622: DISP's normal-end disposition (KEEP / CATLG / DELETE / ...)
 
 
 @dataclass
@@ -3413,6 +3414,65 @@ class GalaxyIR:
             out.append({"file": f.file_path, "job": job.name, "cond": job.cond, "steps": steps})
         return out
 
+    def job_dds(self) -> list:
+        """Every job step's DD statements (#3622): per JCL file with a JOB card, one row per
+        DD of each step -- a PROC call's DDs are its procedure's, per procedure step -- with
+        `file`, `job`, `step` (the job step), `proc_step` (the procedure step, else None),
+        `ordinal`, `dd`, `dsn` (resolved where the engine resolved it, GDG generation apart),
+        `disp`, `generation`, `line` and `source` (the file the DD is written in). The rows
+        are job_flow's DD rows; override DDs (`//STEP.DD`) are out of scope, as there."""
+        resolved: dict[tuple[str, int], str] = {}
+        for f in self.files.values():
+            for ds in f.datasets:
+                if ds.dsn_resolved:
+                    resolved[(f.file_path, ds.line)] = ds.dsn_resolved.upper()
+
+        def row(f: EngineFile, job: str, step: str, proc_step: Optional[str], ordinal: int, r: EngineJobFlow) -> dict:
+            dsn = resolved.get((f.file_path, r.line), r.dsn)
+            gen = r.generation
+            if dsn:
+                m = re.match(r"^(.*)\(([+-]?[0-9]{1,3})\)$", dsn)  # a resolved GDG keeps its generation
+                if m:
+                    dsn, gen = m.group(1), gen or m.group(2)
+            return {"file": job_file, "job": job, "step": step, "proc_step": proc_step, "ordinal": ordinal,
+                    "dd": r.dd_name, "dsn": dsn, "disp": r.disp, "disp_normal": r.disp_normal, "generation": gen,
+                    "line": r.line,
+                    "source": f.file_path}  # fmt: skip
+
+        def by_step(rows: list, in_proc: Optional[str]) -> dict:
+            """A DD belongs to the STEP row it follows (DD rows carry no ordinal)."""
+            out_: dict[int, list] = {}
+            current = None
+            for r in rows:
+                if (r.in_proc or "").upper() != (in_proc or "").upper():
+                    continue
+                if r.kind == "STEP":
+                    current = id(r)
+                elif r.kind == "DD" and current is not None:
+                    out_.setdefault(current, []).append(r)
+            return out_
+
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            job = next((r for r in f.job_flow if r.kind == "JOB"), None)
+            if job is None:
+                continue
+            job_file = f.file_path
+            mine = by_step(f.job_flow, None)
+            for st in (r for r in f.job_flow if r.kind == "STEP" and not r.in_proc):
+                if st.proc:
+                    where, inner = self._proc_steps(f, st.proc)
+                    pf = self.files.get(where or "")
+                    if pf is None:
+                        continue
+                    theirs = by_step(pf.job_flow, inner[0].in_proc if inner else st.proc)
+                    for ps in inner:
+                        out += [row(pf, job.name, st.step_name, ps.step_name, st.step_ordinal, r)
+                                for r in theirs.get(id(ps), [])]  # fmt: skip
+                    continue
+                out += [row(f, job.name, st.step_name, None, st.step_ordinal, r) for r in mine.get(id(st), [])]
+        return out
+
     def job_dataset_flow(self) -> list:
         """Dataset producer -> consumer edges across steps and jobs (#3451).
 
@@ -5110,9 +5170,10 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                     by_id[file_id].entry_points.append(EngineEntryPoint(kind or "", name, params, int(line or 0)))
         # #3451: JCL job flow. A pre-#3451 database has none.
         if _has_table(cur, "job_flow_data"):
+            normal_col = "disp_normal" if _has_column(cur, "job_flow_data", "disp_normal") else "NULL"  # #3622
             for row in cur.execute(
-                "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "
-                "dd_name, dsn, disp, generation, line_number FROM job_flow_data "
+                "SELECT file_id, kind, job_name, step_ordinal, step_name, program, proc_name, cond, if_cond, in_proc, "  # noqa: S608 -- normal_col is one of two literals
+                f"dd_name, dsn, disp, generation, line_number, {normal_col} FROM job_flow_data "
                 "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -5133,6 +5194,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                             disp=row[12],
                             generation=row[13],
                             line=int(row[14] or 0),
+                            disp_normal=row[15],
                         )
                     )
         # #3455: file definitions. A pre-#3455 database has neither table.

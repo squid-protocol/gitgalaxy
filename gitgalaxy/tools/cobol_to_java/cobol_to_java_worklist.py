@@ -71,6 +71,10 @@ CATEGORIES = (
              ("the queue name is data-driven", "is an installation symbol"),
              "Resolve the name (the MOVEs into the operand, or the installation's symbol table) and pass it: "
              "the port takes any queue name."),
+    Category("batch-utility", "Utility job steps to port", "port",
+             ("a utility step to port",),
+             "Replace the utility with its Spring Batch equivalent (SORT -> a sorting step, IDCAMS REPRO -> a copy, "
+             "a TSO / IMS runner -> the program's runBatch), reading its control statements in SYSIN."),
     Category("open-mode", "DDs without an OPEN mode", "fact-gap",
              ("no OPEN mode",),
              "Add the JCL step that runs the program (or state the mode); the access methods are generated from it."),
@@ -90,11 +94,12 @@ CATEGORIES = (
              "End the transaction at the SYNCPOINT the comment cites: a nested REQUIRES_NEW call, or two service "
              "methods."),
     Category("interface-call", "Calls to other services", "port",
-             ("Implement or mock interface call", "submits a job through the internal reader"),
+             ("Implement or mock interface call", "submits a job through the internal reader", "submits job"),
              "Wire the called service (or a mock) in place of the placeholder."),
     Category("business-logic", "Business logic to port", "port",
              ("implement from the program's business rules", "Implement extracted business rules", "port paragraph",
               "port the logic that fills", "port the logic that reads", "port the logic that handles the MQ request",
+              "port the PROCEDURE DIVISION main line",
               "build the response"),
              "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch."),
     Category("configuration", "Target configuration", "review",

@@ -1358,9 +1358,13 @@ class RecordKeeper:
                 disp TEXT,
                 generation TEXT,
                 line_number INTEGER,
+                disp_normal TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+        # #3622: `disp_normal` -- DISP's normal-end disposition (KEEP / CATLG / DELETE / PASS / UNCATLG), NULL
+        # when not written: IEFBR14's `DISP=(MOD,DELETE)` deletes, `(MOD,CATLG)` creates.
+        _ensure_columns(cursor, "job_flow_data", ["disp_normal TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_file_id ON job_flow_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_dsn ON job_flow_data(dsn);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_flow_snapshot ON job_flow_data(repo_name, commit_hash);")
@@ -3222,6 +3226,7 @@ class RecordKeeper:
                 "disp",
                 "generation",
                 "line_number",
+                "disp_normal",
             ),
             "job_flow",
             lambda j: (
@@ -3239,6 +3244,7 @@ class RecordKeeper:
                 j.get("disp"),
                 j.get("generation"),
                 int(j.get("line", 0) or 0),
+                j.get("disp_normal"),  # #3622
             ),
         )
 

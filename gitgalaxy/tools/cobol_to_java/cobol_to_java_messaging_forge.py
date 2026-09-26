@@ -93,6 +93,12 @@ class MessagingForge:
         self.flows = list((sections.get("queue_flows") or {}).get("facts", []))
         self.mq_flows = list((sections.get("mq_flows") or {}).get("facts", []))
         datasets = {d["queue"].upper(): d for d in (sections.get("tdqueue_datasets") or {}).get("facts", [])}
+        # #3622: programs whose internal-reader writes the engine resolved to a job submission --
+        # the batch forge gives them a submit helper, so the route needs no TODO of its own.
+        self.submitters = {
+            key for key, sk in skeletons.items()
+            if any(s.get("via") == "tdq" for s in ((sk.get("sections") or {}).get("job_submissions") or {}).get("facts", []))
+        }  # fmt: skip
         for key, sk in sorted(skeletons.items()):
             secs = sk.get("sections") or {}
             path = sk["program"]["file"]
@@ -394,7 +400,9 @@ public class {cls} {{
         if s.kind == "TD" and s.queue and s.queue in self.routes:
             r = self.routes[s.queue]
             doc.append(f"     *  Route: {r.kind} -- {r.detail or r.kind}.")
-            if r.kind == "reader":
+            if r.kind == "reader" and self.target.features.batch and s.key in self.submitters:
+                doc.append("     *  The job submission itself is this service's submit helper (#3622).")
+            elif r.kind == "reader":
                 todo = "TODO: this program submits a job through the internal reader: launch it (#3622)"
         if todo:
             doc.append(f"     *  {todo}.")

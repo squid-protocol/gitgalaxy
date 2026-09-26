@@ -103,3 +103,20 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     assert all(o["equal"] == o["records"] == 50 for o in report["outputs"].values())
+
+
+def test_the_two_sides_share_the_cases_directory():
+    assert ej.CASES == eq.CASES and (eq.CASES / "carddemo-intcalc" / "case.json").is_file()
+
+
+def test_publish_examples_scan_comparison_and_compile_workflow():
+    import publish_examples as pe
+
+    src = {k: 1 for k, _ in pe._ROWS} | {"languages": {"cobol": 3, "jcl": 2}}
+    java = {k: 2 for k, _ in pe._ROWS} | {"languages": {"java": 9}}
+    md = pe.comparison_markdown("demo", src, java, ("cobol",))
+    assert "| Source files | 1 | 2 |" in md and "Source estate by language: cobol 3, jcl 2." in md
+    wf = pe.compile_workflow(["carddemo", "zecs"])
+    assert "example: [carddemo, zecs]" in wf and "working-directory: examples/${{ matrix.example }}/java" in wf
+    assert "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1" in wf  # pinned by SHA, as gitgalaxy's own
+    assert [s for s, _, _ in pe.EXAMPLES] == ["carddemo", "cbsa", "genapp", "zecs", "zopeneditor", "dsf-pli"]

@@ -28,6 +28,7 @@ from typing import Any
 
 import java_target_matrix as jtm
 
+CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
 PKG = "com.gitgalaxy.modernized"
 PKG_DIR = PKG.replace(".", "/")
 
@@ -131,8 +132,6 @@ def run_java(case: dict[str, Any], corpus: Path, work: Path, inputs: Path, port:
     """Generate, overlay, run; {dd: output bytes}. `inputs` holds the COBOL side's `<DD>.in`
     fixed-length files -- the very bytes the COBOL program read. `port` False runs the generated
     service as generated (the stub), the baseline the port is measured against."""
-    from equivalence import CASES
-
     work.mkdir(parents=True, exist_ok=True)
     clean = jtm.refactor(corpus, work, scan=True)
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)

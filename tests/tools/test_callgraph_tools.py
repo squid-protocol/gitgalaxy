@@ -163,6 +163,34 @@ def test_triage_buckets_account_for_the_whole_recall_gap(scanned, tmp_path, monk
     assert {b: len(v) for b, v in result["recall"].items()} == {"not_extracted/in_string": 1}
     assert result["recall"]["not_extracted/in_string"][0]["site"] == 9
     assert [len(v) for k, v in result["precision"].items() if k == "agree"] == [1]
+    # the JSON form carries each sample's source line
+    out = callgraph_triage.to_json({**result, "_sources": {"tiny": result["sources"]}})
+    (sample,) = out["recall"]["not_extracted/in_string"]["samples"]
+    assert sample["excerpt"] == "const s = `${fmt(2)}`;"
+    # --split classifies the bucket's call sites deterministically
+    text = callgraph_triage.split({**result, "_sources": {"tiny": result["sources"]}}, "not_extracted/in_string")
+    assert "| `template` | 1 |" in text and "const s = `${fmt(2)}`;" in text
+    assert "no bucket 'nope'" in callgraph_triage.split({**result, "_sources": {}}, "nope")
+
+
+@pytest.mark.parametrize(
+    ("line", "name", "shape"),
+    [
+        ("requestedCases.push(...parseCaseValue(value));", "parseCaseValue", ("spread", "")),
+        ("...errorUtil.errToObj(message),", "errToObj", ("spread-qualified", "errorUtil")),
+        ("z.string().min(3)", "string", ("qualified", "z")),
+        ("z.string().min(3)", "min", ("chained", "")),
+        ("const s = `${fmt(2)}`;", "fmt", ("template", "")),
+        ("return new ZodError(issues);", "ZodError", ("constructor", "")),
+        ("processors.number(schema, ctx);", "number", ("qualified", "processors")),
+        ("this._refinement(check);", "_refinement", ("qualified", "this")),
+        ("helper(1);", "helper", ("bare", "")),
+        ("parse<T>(x)", "parse", ("bare", "")),
+        ("reparse(x)", "parse", ("other", "")),  # a longer identifier is not a call of `parse`
+    ],
+)
+def test_call_shape_is_keyed_on_the_callee(line, name, shape):
+    assert callgraph_triage.call_shape(line, name) == shape
 
 
 # ----------------------------------------------------------------------------- explain (#3776)

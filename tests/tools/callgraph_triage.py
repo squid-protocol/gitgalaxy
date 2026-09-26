@@ -28,6 +28,7 @@ PRECISION -- every confident engine call link gets the gate's verdict:
   unconfirmed | unmapped_src | unmapped_dst
 
     python tests/tools/callgraph_triage.py typescript [--samples 3] [--json out.json] [--no-cache]
+    python tests/tools/callgraph_triage.py typescript --split resolved_outside   # one bucket, by call shape
 
 A reference is a reference, not ground truth: a bucket is a lead to check against
 source before anything is claimed (CLAUDE.md, "Comparative-correctness claims").
@@ -285,9 +286,16 @@ def render(result: dict[str, Any], samples: int = 3) -> str:
 
 
 def to_json(result: dict[str, Any], samples: int = 3) -> dict[str, Any]:
+    def with_excerpt(item: dict[str, Any]) -> dict[str, Any]:
+        # the call site's own source line, so a reader (or the callgraph-triage-scout
+        # agent) can classify a sample's shape without opening the corpus
+        src: _Source = result["_sources"][item["repo"]]
+        path = item["caller"].rsplit(":", 1)[0]
+        return {**item, "excerpt": src.line(path, item["site"]) if item.get("site") else ""}
+
     def side(d):
         return {
-            b: {"count": len(v), "hint": HINTS.get(b, ""), "samples": v[:samples]}
+            b: {"count": len(v), "hint": HINTS.get(b, ""), "samples": [with_excerpt(i) for i in v[:samples]]}
             for b, v in sorted(d.items(), key=lambda kv: -len(kv[1]))
         }
 
@@ -298,12 +306,68 @@ def to_json(result: dict[str, Any], samples: int = 3) -> dict[str, Any]:
     }
 
 
+def call_shape(line: str, name: str) -> tuple[str, str]:
+    """(shape, receiver) of the call to `name` on a source line, keyed on the CALLEE --
+    `requestedCases.push(...parseCaseValue(v))` is a spread call of parseCaseValue, not a
+    call qualified by requestedCases. Shapes: template, spread, constructor, qualified
+    (receiver = the chain's head identifier), chained (`).name(`), bare, other."""
+    n = re.escape(name)
+    m = re.search(rf"(\.\.\.\s*)?(new\s+)?((?:[\w$]+\s*\.\s*)*)(\)\s*\.\s*)?(?<![\w$]){n}\s*[(<`]", line)
+    if not m:
+        return "other", ""
+    spread, new, chain, chained = m.group(1), m.group(2), m.group(3), m.group(4)
+    head = chain.split(".")[0].strip() if chain else ""
+    before = line[: m.start()]
+    if "${" in before and before.rfind("${") > before.rfind("}"):
+        return "template", head
+    if spread:
+        return ("spread-qualified" if head else "spread"), head
+    if new:
+        return "constructor", head
+    if chained:
+        return "chained", ""
+    if head:
+        return "qualified", head
+    return "bare", ""
+
+
+def split(result: dict[str, Any], bucket: str, samples: int = 2) -> str:
+    """Every item of one bucket grouped by call_shape, receivers counted -- the
+    deterministic version of reading a bucket's samples by eye."""
+    items = result["recall"].get(bucket) or result["precision"].get(bucket)
+    if not items:
+        return f"callgraph_triage: no bucket {bucket!r} (buckets: {sorted({*result['recall'], *result['precision']})})"
+    shapes: dict[str, list[tuple[str, dict[str, Any]]]] = collections.defaultdict(list)
+    receivers: collections.Counter[str] = collections.Counter()
+    for it in items:
+        src: _Source = result["_sources"][it["repo"]]
+        path = it["caller"].rsplit(":", 1)[0]
+        callee = (it.get("callee") or it.get("target") or "").rsplit(":", 1)[-1].split("@")[0]
+        line = src.line(path, it["site"]) if it.get("site") else ""
+        shape, head = call_shape(line, callee) if line else ("no_site", "")
+        shapes[shape].append((line, it))
+        if head:
+            receivers[f"{shape}:{head}"] += 1
+    out = [f"### `{bucket}` by call shape ({len(items)} items)", "", "| shape | items |", "|---|---|"]
+    out += [f"| `{k}` | {len(v)} |" for k, v in sorted(shapes.items(), key=lambda kv: -len(kv[1]))]
+    out += ["", "| shape:receiver | items |", "|---|---|"]
+    out += [f"| `{k}` | {c} |" for k, c in receivers.most_common(15)]
+    for k, v in sorted(shapes.items(), key=lambda kv: -len(kv[1])):
+        out.append(f"\n**{k}**")
+        out += [
+            f"- `{it['caller']}` -> `{it.get('callee') or it.get('target')}`: `{line[:110]}`"
+            for line, it in v[:samples]
+        ]
+    return "\n".join(out)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("lang", choices=sorted(REFERENCES))
     ap.add_argument("--samples", type=int, default=3)
     ap.add_argument("--json", metavar="PATH")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--split", metavar="BUCKET", help="group one bucket's items by call shape and receiver")
     a = ap.parse_args(argv)
     result = triage(a.lang, use_cache=not a.no_cache)
     # the buckets must account for exactly the recall gap
@@ -314,7 +378,7 @@ def main(argv: list[str] | None = None) -> int:
             f"{result['reference_edges'] - result['linked']}"
         )
         return 1
-    print(render(result, a.samples))
+    print(split(result, a.split, a.samples) if a.split else render(result, a.samples))
     if a.json:
         Path(a.json).write_text(json.dumps(to_json(result, a.samples), indent=2) + "\n")
     return 0

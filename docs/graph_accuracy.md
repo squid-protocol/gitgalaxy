@@ -98,9 +98,14 @@ the engine scan: zod's reference loads in about 1 second, where building it take
 
 | tool | question it answers |
 |---|---|
-| `callgraph_triage.py <lang>` | Where is the gap? Every missed reference edge goes into one bucket (`not_extracted/in_string`, `ambiguous/receiver`, `resolved_outside`, …), and every confident link gets a precision verdict. Buckets are ranked by count, with source lines, and add up exactly to the recall gap. |
+| `callgraph_triage.py <lang>` | Where is the gap? Every missed reference edge goes into one bucket (`not_extracted/in_string`, `ambiguous/receiver`, `resolved_outside`, …), and every confident link gets a precision verdict. Buckets are ranked by count, with source lines, and add up exactly to the recall gap. `--split <bucket>` breaks one bucket down by call-site shape and receiver (`z.x()`, `...f()`, `new X()`), and `--json` adds each sample's source line. |
 | `explain_call.py <db\|repo> <file>:<function> [callee]` | Why did one call resolve the way it did? It re-runs the real resolver on the scan's own inputs, checks the result against the recorded rows, and lists every candidate with its `def_shape` and whether a bare call or a receiver can reach it. |
 | `callgraph_check.py` | Is the PR ready? It runs the per-language gates, the focused tests, crucible, the tree-sitter audit and the lint audits, one line per step, with logs on disk. A missing tool or pin fails the run, and `--regenerate` rewrites baselines only when everything passes. |
+
+Two skills turn these into a routine. `callgraph-language-onboarding` is the checklist for
+adding a language's reference, and `callgraph-miss-sweep` is the fix loop: triage, then the
+known-pattern table, then source verification, then the fix, then the net-change rule. The
+Haiku `callgraph-triage-scout` agent does their mechanical runs.
 
 A fresh Claude Code on the web session installs all of this at CI's pins through
 `.claude/hooks/session-start.sh`. That covers pyan3, typescript 6.0.2, the test and lint

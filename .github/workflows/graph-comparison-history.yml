@@ -29,6 +29,8 @@ on:
       - "tests/call_graph_accuracy_baseline.json"
       - "tests/import_graph_accuracy_baseline.json"
       - "tests/import_graph_corpus.json"
+      - "tests/call_graph_resolution*_baseline.json"
+      - "tests/tools/graph_coverage_chart.py"
 
 permissions:
   contents: read
@@ -100,6 +102,14 @@ jobs:
           cd gitgalaxy
           python tests/tools/import_graph_accuracy.py --fetch --ledger
 
+      # The coverage chart is a pure function of the baselines and the ledger just refreshed
+      # (#3796); the history only gains a snapshot when a number or n moved.
+      - name: Regenerate the graph coverage chart and history
+        run: |
+          cd gitgalaxy
+          python tests/tools/graph_coverage_chart.py --write --history docs/self_scan/graph_coverage_history.csv \
+            --summary "$GITHUB_STEP_SUMMARY"
+
       - name: Open PR with the refreshed ledger
         id: graph-comparison-history-pr
         uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
@@ -113,11 +123,14 @@ jobs:
             call- and import-graph measurements on `main` (#3641): last_seen_count / last_seen_examples /
             still_reproduces on existing shapes, and new `unvalidated` entries for newly-observed
             shapes. Never touches a validated entry's `status` / `verdict` / `credit_tools`, nor
-            the raw baselines.
+            the raw baselines. Also regenerates `docs/self_scan/graph_coverage_chart.svg` and, when a
+            number moved, appends to `docs/self_scan/graph_coverage_history.csv` (#3796).
           branch: auto/graph-comparison-history
           delete-branch: true
           add-paths: |
             docs/self_scan/graph_comparison_ledger.json
+            docs/self_scan/graph_coverage_chart.svg
+            docs/self_scan/graph_coverage_history.csv
 
       # Nothing else gates this PR, so merge it explicitly (same as the tri-comparison history).
       - name: Merge the graph comparison history PR

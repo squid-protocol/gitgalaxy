@@ -1,0 +1,478 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1012 924" width="1012" height="924" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+<style>
+  .surface { fill: #fcfcfb; }
+  .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
+  .subtitle { font-size: 11px; fill: #52514e; }
+  .panel-title { font-size: 11px; font-weight: 600; fill: #0b0b0b; }
+  .panel-sub { font-size: 9.5px; fill: #706f6a; }
+  .lang { font-size: 12px; font-weight: 700; fill: #0b0b0b; }
+  .pr { font-size: 8.5px; font-weight: 600; fill: #706f6a; }
+  .val { font-size: 9.5px; fill: #0b0b0b; }
+  .n { font-size: 9px; fill: #706f6a; }
+  .none { font-size: 9.5px; fill: #9a9a95; font-style: italic; }
+  .note { font-size: 10px; fill: #52514e; }
+  .stripe { fill: #f0efec; }
+  .track { fill: #eeede9; }
+</style>
+<rect class="surface" x="0" y="0" width="1012" height="924"/>
+<text class="title" x="16" y="24">Graph accuracy coverage: imports and calls, per language</text>
+<text class="subtitle" x="16" y="42">Measured: imports 20, callee names 11, call resolution 2 of 59 languages. P = precision, R = recall. Bars are GitGalaxy's score.</text>
+<text class="panel-title" x="120" y="66">Imports</text>
+<text class="panel-sub" x="120" y="79">file -&gt; file, vs import statements</text>
+<text class="panel-title" x="412" y="66">Callee names</text>
+<text class="panel-sub" x="412" y="79">names called, vs tree-sitter</text>
+<text class="panel-title" x="704" y="66">Call resolution</text>
+<text class="panel-sub" x="704" y="79">call -&gt; definition, vs a compiler</text>
+<rect class="stripe" x="16" y="88" width="980" height="34"/>
+<text class="lang" x="22" y="109.0">c</text>
+<g><title>c imports: precision 99.9% of 872, recall 100.0% of 874 (raw 99.9% / 100.0%; 1 shapes without a verdict); corpus libuv/libuv, redis/hiredis</title>
+<text class="pr" x="120" y="102">P</text>
+<rect class="track" x="134" y="95" width="132" height="8" rx="2"/>
+<rect x="134" y="95" width="131.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="103">99.9%*</text>
+<text class="pr" x="120" y="114">R</text>
+<rect class="track" x="134" y="107" width="132" height="8" rx="2"/>
+<rect x="134" y="107" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="115">100.0%</text>
+<text class="n" x="318" y="103">n=874</text>
+<text class="n" x="318" y="115">libuv/libuv +1</text>
+</g>
+<g><title>c callee names: precision 99.3% of 13,060, recall 99.3% of 13,058 (raw 99.3% / 99.3%; 20 shapes without a verdict)</title>
+<text class="pr" x="412" y="102">P</text>
+<rect class="track" x="426" y="95" width="132" height="8" rx="2"/>
+<rect x="426" y="95" width="131.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="103">99.3%*</text>
+<text class="pr" x="412" y="114">R</text>
+<rect class="track" x="426" y="107" width="132" height="8" rx="2"/>
+<rect x="426" y="107" width="131.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="115">99.3%*</text>
+<text class="n" x="610" y="103">n=13,060</text>
+</g>
+<text class="none" x="704" y="108.0">not measured</text>
+<text class="lang" x="22" y="143.0">cpp</text>
+<g><title>cpp imports: precision 99.3% of 134, recall 100.0% of 134 (raw 99.3% / 100.0%; 1 shapes without a verdict); corpus fmtlib/fmt</title>
+<text class="pr" x="120" y="136">P</text>
+<rect class="track" x="134" y="129" width="132" height="8" rx="2"/>
+<rect x="134" y="129" width="131.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="137">99.3%*</text>
+<text class="pr" x="120" y="148">R</text>
+<rect class="track" x="134" y="141" width="132" height="8" rx="2"/>
+<rect x="134" y="141" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="149">100.0%</text>
+<text class="n" x="318" y="137">n=134</text>
+<text class="n" x="318" y="149">fmtlib/fmt</text>
+</g>
+<g><title>cpp callee names: precision 96.5% of 7,963, recall 99.3% of 7,735 (raw 96.5% / 99.3%; 36 shapes without a verdict)</title>
+<text class="pr" x="412" y="136">P</text>
+<rect class="track" x="426" y="129" width="132" height="8" rx="2"/>
+<rect x="426" y="129" width="127.4" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="137">96.5%*</text>
+<text class="pr" x="412" y="148">R</text>
+<rect class="track" x="426" y="141" width="132" height="8" rx="2"/>
+<rect x="426" y="141" width="131.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="149">99.3%*</text>
+<text class="n" x="610" y="137">n=7,963</text>
+</g>
+<text class="none" x="704" y="142.0">not measured</text>
+<rect class="stripe" x="16" y="156" width="980" height="34"/>
+<text class="lang" x="22" y="177.0">csharp</text>
+<text class="none" x="120" y="176.0">not measured</text>
+<g><title>csharp callee names: precision 99.2% of 2,654, recall 99.8% of 2,637 (raw 99.2% / 99.8%; 3 shapes without a verdict)</title>
+<text class="pr" x="412" y="170">P</text>
+<rect class="track" x="426" y="163" width="132" height="8" rx="2"/>
+<rect x="426" y="163" width="130.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="171">99.2%*</text>
+<text class="pr" x="412" y="182">R</text>
+<rect class="track" x="426" y="175" width="132" height="8" rx="2"/>
+<rect x="426" y="175" width="131.7" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="183">99.8%*</text>
+<text class="n" x="610" y="171">n=2,654</text>
+</g>
+<text class="none" x="704" y="176.0">not measured</text>
+<text class="lang" x="22" y="211.0">dart</text>
+<g><title>dart imports: precision 100.0% of 703, recall 100.0% of 744; corpus dart-lang/http</title>
+<text class="pr" x="120" y="204">P</text>
+<rect class="track" x="134" y="197" width="132" height="8" rx="2"/>
+<rect x="134" y="197" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="205">100.0%</text>
+<text class="pr" x="120" y="216">R</text>
+<rect class="track" x="134" y="209" width="132" height="8" rx="2"/>
+<rect x="134" y="209" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="217">100.0%</text>
+<text class="n" x="318" y="205">n=744</text>
+<text class="n" x="318" y="217">dart-lang/http</text>
+</g>
+<text class="none" x="412" y="210.0">not measured</text>
+<text class="none" x="704" y="210.0">not measured</text>
+<rect class="stripe" x="16" y="224" width="980" height="34"/>
+<text class="lang" x="22" y="245.0">go</text>
+<g><title>go imports: precision 90.9% of 11, recall 90.9% of 11 (raw 90.9% / 90.9%; 2 shapes without a verdict); corpus spf13/cobra; small n</title>
+<text class="pr" x="120" y="238">P</text>
+<rect class="track" x="134" y="231" width="132" height="8" rx="2"/>
+<rect x="134" y="231" width="120.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="239">90.9%*</text>
+<text class="pr" x="120" y="250">R</text>
+<rect class="track" x="134" y="243" width="132" height="8" rx="2"/>
+<rect x="134" y="243" width="120.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="251">90.9%*</text>
+<text class="n" x="318" y="239">n=11 small</text>
+<text class="n" x="318" y="251">spf13/cobra</text>
+</g>
+<g><title>go callee names: precision 99.9% of 6,580, recall 99.6% of 6,604 (raw 99.9% / 99.6%; 5 shapes without a verdict)</title>
+<text class="pr" x="412" y="238">P</text>
+<rect class="track" x="426" y="231" width="132" height="8" rx="2"/>
+<rect x="426" y="231" width="131.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="239">99.9%*</text>
+<text class="pr" x="412" y="250">R</text>
+<rect class="track" x="426" y="243" width="132" height="8" rx="2"/>
+<rect x="426" y="243" width="131.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="251">99.6%*</text>
+<text class="n" x="610" y="239">n=6,604</text>
+</g>
+<text class="none" x="704" y="244.0">not measured</text>
+<text class="lang" x="22" y="279.0">haskell</text>
+<g><title>haskell imports: precision 100.0% of 138, recall 100.0% of 139; corpus koalaman/shellcheck</title>
+<text class="pr" x="120" y="272">P</text>
+<rect class="track" x="134" y="265" width="132" height="8" rx="2"/>
+<rect x="134" y="265" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="273">100.0%</text>
+<text class="pr" x="120" y="284">R</text>
+<rect class="track" x="134" y="277" width="132" height="8" rx="2"/>
+<rect x="134" y="277" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="285">100.0%</text>
+<text class="n" x="318" y="273">n=139</text>
+<text class="n" x="318" y="285">koalaman/shell…</text>
+</g>
+<text class="none" x="412" y="278.0">not measured</text>
+<text class="none" x="704" y="278.0">not measured</text>
+<rect class="stripe" x="16" y="292" width="980" height="34"/>
+<text class="lang" x="22" y="313.0">java</text>
+<g><title>java imports: precision 100.0% of 1,022, recall 100.0% of 1,085; corpus google/gson</title>
+<text class="pr" x="120" y="306">P</text>
+<rect class="track" x="134" y="299" width="132" height="8" rx="2"/>
+<rect x="134" y="299" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="307">100.0%</text>
+<text class="pr" x="120" y="318">R</text>
+<rect class="track" x="134" y="311" width="132" height="8" rx="2"/>
+<rect x="134" y="311" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="319">100.0%</text>
+<text class="n" x="318" y="307">n=1,085</text>
+<text class="n" x="318" y="319">google/gson</text>
+</g>
+<g><title>java callee names: precision 100.0% of 1,911, recall 98.2% of 1,946 (raw 100.0% / 98.2%; 1 shapes without a verdict)</title>
+<text class="pr" x="412" y="306">P</text>
+<rect class="track" x="426" y="299" width="132" height="8" rx="2"/>
+<rect x="426" y="299" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="307">100.0%</text>
+<text class="pr" x="412" y="318">R</text>
+<rect class="track" x="426" y="311" width="132" height="8" rx="2"/>
+<rect x="426" y="311" width="129.6" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="319">98.2%*</text>
+<text class="n" x="610" y="307">n=1,946</text>
+</g>
+<text class="none" x="704" y="312.0">not measured</text>
+<text class="lang" x="22" y="347.0">javascript</text>
+<g><title>javascript imports: precision 100.0% of 57, recall 100.0% of 63; corpus expressjs/express; small n</title>
+<text class="pr" x="120" y="340">P</text>
+<rect class="track" x="134" y="333" width="132" height="8" rx="2"/>
+<rect x="134" y="333" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="341">100.0%</text>
+<text class="pr" x="120" y="352">R</text>
+<rect class="track" x="134" y="345" width="132" height="8" rx="2"/>
+<rect x="134" y="345" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="353">100.0%</text>
+<text class="n" x="318" y="341">n=63 small</text>
+<text class="n" x="318" y="353">expressjs/expr…</text>
+</g>
+<g><title>javascript callee names: precision 97.3% of 2,369, recall 97.5% of 2,365 (raw 97.3% / 97.5%; 12 shapes without a verdict)</title>
+<text class="pr" x="412" y="340">P</text>
+<rect class="track" x="426" y="333" width="132" height="8" rx="2"/>
+<rect x="426" y="333" width="128.4" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="341">97.3%*</text>
+<text class="pr" x="412" y="352">R</text>
+<rect class="track" x="426" y="345" width="132" height="8" rx="2"/>
+<rect x="426" y="345" width="128.7" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="353">97.5%*</text>
+<text class="n" x="610" y="341">n=2,369</text>
+</g>
+<text class="none" x="704" y="346.0">not measured</text>
+<rect class="stripe" x="16" y="360" width="980" height="34"/>
+<text class="lang" x="22" y="381.0">kotlin</text>
+<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus square/kotlinpoet</title>
+<text class="pr" x="120" y="374">P</text>
+<rect class="track" x="134" y="367" width="132" height="8" rx="2"/>
+<rect x="134" y="367" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="375">100.0%</text>
+<text class="pr" x="120" y="386">R</text>
+<rect class="track" x="134" y="379" width="132" height="8" rx="2"/>
+<rect x="134" y="379" width="130.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="387">99.2%*</text>
+<text class="n" x="318" y="375">n=377</text>
+<text class="n" x="318" y="387">square/kotlinp…</text>
+</g>
+<text class="none" x="412" y="380.0">not measured</text>
+<text class="none" x="704" y="380.0">not measured</text>
+<text class="lang" x="22" y="415.0">lua</text>
+<g><title>lua imports: precision 100.0% of 351, recall 99.2% of 354 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus luarocks/luarocks</title>
+<text class="pr" x="120" y="408">P</text>
+<rect class="track" x="134" y="401" width="132" height="8" rx="2"/>
+<rect x="134" y="401" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="409">100.0%</text>
+<text class="pr" x="120" y="420">R</text>
+<rect class="track" x="134" y="413" width="132" height="8" rx="2"/>
+<rect x="134" y="413" width="130.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="421">99.2%*</text>
+<text class="n" x="318" y="409">n=354</text>
+<text class="n" x="318" y="421">luarocks/luaro…</text>
+</g>
+<text class="none" x="412" y="414.0">not measured</text>
+<text class="none" x="704" y="414.0">not measured</text>
+<rect class="stripe" x="16" y="428" width="980" height="34"/>
+<text class="lang" x="22" y="449.0">objective-c</text>
+<g><title>objective-c imports: precision 100.0% of 670, recall 100.0% of 671; corpus SDWebImage/SDWebImage</title>
+<text class="pr" x="120" y="442">P</text>
+<rect class="track" x="134" y="435" width="132" height="8" rx="2"/>
+<rect x="134" y="435" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="443">100.0%</text>
+<text class="pr" x="120" y="454">R</text>
+<rect class="track" x="134" y="447" width="132" height="8" rx="2"/>
+<rect x="134" y="447" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="455">100.0%</text>
+<text class="n" x="318" y="443">n=671</text>
+<text class="n" x="318" y="455">SDWebImage/SDW…</text>
+</g>
+<text class="none" x="412" y="448.0">not measured</text>
+<text class="none" x="704" y="448.0">not measured</text>
+<text class="lang" x="22" y="483.0">perl</text>
+<g><title>perl imports: precision 97.9% of 47, recall 100.0% of 49 (raw 97.9% / 100.0%; 1 shapes without a verdict); corpus libwww-perl/HTTP-Message; small n</title>
+<text class="pr" x="120" y="476">P</text>
+<rect class="track" x="134" y="469" width="132" height="8" rx="2"/>
+<rect x="134" y="469" width="129.2" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="477">97.9%*</text>
+<text class="pr" x="120" y="488">R</text>
+<rect class="track" x="134" y="481" width="132" height="8" rx="2"/>
+<rect x="134" y="481" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="489">100.0%</text>
+<text class="n" x="318" y="477">n=49 small</text>
+<text class="n" x="318" y="489">libwww-perl/HT…</text>
+</g>
+<text class="none" x="412" y="482.0">not measured</text>
+<text class="none" x="704" y="482.0">not measured</text>
+<rect class="stripe" x="16" y="496" width="980" height="34"/>
+<text class="lang" x="22" y="517.0">php</text>
+<g><title>php imports: precision 99.2% of 380, recall 100.0% of 390 (raw 99.2% / 100.0%; 1 shapes without a verdict); corpus guzzle/guzzle</title>
+<text class="pr" x="120" y="510">P</text>
+<rect class="track" x="134" y="503" width="132" height="8" rx="2"/>
+<rect x="134" y="503" width="130.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="511">99.2%*</text>
+<text class="pr" x="120" y="522">R</text>
+<rect class="track" x="134" y="515" width="132" height="8" rx="2"/>
+<rect x="134" y="515" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="523">100.0%</text>
+<text class="n" x="318" y="511">n=390</text>
+<text class="n" x="318" y="523">guzzle/guzzle</text>
+</g>
+<g><title>php callee names: precision 99.7% of 6,253, recall 98.8% of 6,309 (raw 99.7% / 98.8%; 18 shapes without a verdict)</title>
+<text class="pr" x="412" y="510">P</text>
+<rect class="track" x="426" y="503" width="132" height="8" rx="2"/>
+<rect x="426" y="503" width="131.6" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="511">99.7%*</text>
+<text class="pr" x="412" y="522">R</text>
+<rect class="track" x="426" y="515" width="132" height="8" rx="2"/>
+<rect x="426" y="515" width="130.4" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="523">98.8%*</text>
+<text class="n" x="610" y="511">n=6,309</text>
+</g>
+<text class="none" x="704" y="516.0">not measured</text>
+<text class="lang" x="22" y="551.0">python</text>
+<g><title>python imports: precision 99.9% of 1,914, recall 100.0% of 2,099 (raw 99.9% / 100.0%; 2 shapes without a verdict); corpus encode/httpx, fastapi/fastapi, pallets/flask</title>
+<text class="pr" x="120" y="544">P</text>
+<rect class="track" x="134" y="537" width="132" height="8" rx="2"/>
+<rect x="134" y="537" width="131.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="545">99.9%*</text>
+<text class="pr" x="120" y="556">R</text>
+<rect class="track" x="134" y="549" width="132" height="8" rx="2"/>
+<rect x="134" y="549" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="557">100.0%*</text>
+<text class="n" x="318" y="545">n=2,099</text>
+<text class="n" x="318" y="557">encode/httpx +2</text>
+</g>
+<g><title>python callee names: precision 99.6% of 11,180, recall 99.2% of 11,230 (raw 99.6% / 99.2%; 9 shapes without a verdict)</title>
+<text class="pr" x="412" y="544">P</text>
+<rect class="track" x="426" y="537" width="132" height="8" rx="2"/>
+<rect x="426" y="537" width="131.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="545">99.6%*</text>
+<text class="pr" x="412" y="556">R</text>
+<rect class="track" x="426" y="549" width="132" height="8" rx="2"/>
+<rect x="426" y="549" width="130.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="557">99.2%*</text>
+<text class="n" x="610" y="545">n=11,230</text>
+</g>
+<g><title>python call resolution: precision 99.8% of 1,806, recall 51.6% of 3,492; vs pyan3 2.8.1; corpus crucible</title>
+<text class="pr" x="704" y="544">P</text>
+<rect class="track" x="718" y="537" width="132" height="8" rx="2"/>
+<rect x="718" y="537" width="131.7" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="855" y="545">99.8%</text>
+<text class="pr" x="704" y="556">R</text>
+<rect class="track" x="718" y="549" width="132" height="8" rx="2"/>
+<rect x="718" y="549" width="68.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="855" y="557">51.6%</text>
+<text class="n" x="902" y="545">n=3,492</text>
+<text class="n" x="902" y="557">vs pyan3 2.8.1</text>
+</g>
+<rect class="stripe" x="16" y="564" width="980" height="34"/>
+<text class="lang" x="22" y="585.0">ruby</text>
+<g><title>ruby imports: precision 99.6% of 239, recall 99.6% of 239 (raw 99.6% / 99.6%; 2 shapes without a verdict); corpus rack/rack</title>
+<text class="pr" x="120" y="578">P</text>
+<rect class="track" x="134" y="571" width="132" height="8" rx="2"/>
+<rect x="134" y="571" width="131.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="579">99.6%*</text>
+<text class="pr" x="120" y="590">R</text>
+<rect class="track" x="134" y="583" width="132" height="8" rx="2"/>
+<rect x="134" y="583" width="131.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="591">99.6%*</text>
+<text class="n" x="318" y="579">n=239</text>
+<text class="n" x="318" y="591">rack/rack</text>
+</g>
+<g><title>ruby callee names: precision 100.0% of 969, recall 93.8% of 1,033 (raw 100.0% / 93.8%; 2 shapes without a verdict)</title>
+<text class="pr" x="412" y="578">P</text>
+<rect class="track" x="426" y="571" width="132" height="8" rx="2"/>
+<rect x="426" y="571" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="579">100.0%</text>
+<text class="pr" x="412" y="590">R</text>
+<rect class="track" x="426" y="583" width="132" height="8" rx="2"/>
+<rect x="426" y="583" width="123.8" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="591">93.8%*</text>
+<text class="n" x="610" y="579">n=1,033</text>
+</g>
+<text class="none" x="704" y="584.0">not measured</text>
+<text class="lang" x="22" y="619.0">rust</text>
+<g><title>rust imports: precision 100.0% of 36, recall 100.0% of 37; corpus serde-rs/json; small n</title>
+<text class="pr" x="120" y="612">P</text>
+<rect class="track" x="134" y="605" width="132" height="8" rx="2"/>
+<rect x="134" y="605" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="613">100.0%</text>
+<text class="pr" x="120" y="624">R</text>
+<rect class="track" x="134" y="617" width="132" height="8" rx="2"/>
+<rect x="134" y="617" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="625">100.0%</text>
+<text class="n" x="318" y="613">n=37 small</text>
+<text class="n" x="318" y="625">serde-rs/json</text>
+</g>
+<g><title>rust callee names: precision 96.6% of 7,439, recall 99.9% of 7,194 (raw 96.6% / 99.9%; 8 shapes without a verdict)</title>
+<text class="pr" x="412" y="612">P</text>
+<rect class="track" x="426" y="605" width="132" height="8" rx="2"/>
+<rect x="426" y="605" width="127.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="613">96.6%*</text>
+<text class="pr" x="412" y="624">R</text>
+<rect class="track" x="426" y="617" width="132" height="8" rx="2"/>
+<rect x="426" y="617" width="131.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="625">99.9%*</text>
+<text class="n" x="610" y="613">n=7,439</text>
+</g>
+<text class="none" x="704" y="618.0">not measured</text>
+<rect class="stripe" x="16" y="632" width="980" height="34"/>
+<text class="lang" x="22" y="653.0">scala</text>
+<g><title>scala imports: precision 98.8% of 488, recall 94.8% of 521 (raw 98.8% / 94.8%; 6 shapes without a verdict); corpus circe/circe</title>
+<text class="pr" x="120" y="646">P</text>
+<rect class="track" x="134" y="639" width="132" height="8" rx="2"/>
+<rect x="134" y="639" width="130.4" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="647">98.8%*</text>
+<text class="pr" x="120" y="658">R</text>
+<rect class="track" x="134" y="651" width="132" height="8" rx="2"/>
+<rect x="134" y="651" width="125.1" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="659">94.8%*</text>
+<text class="n" x="318" y="647">n=521</text>
+<text class="n" x="318" y="659">circe/circe</text>
+</g>
+<text class="none" x="412" y="652.0">not measured</text>
+<text class="none" x="704" y="652.0">not measured</text>
+<text class="lang" x="22" y="687.0">shell</text>
+<g><title>shell imports: precision 100.0% of 28, recall 100.0% of 28; corpus Bash-it/bash-it; small n</title>
+<text class="pr" x="120" y="680">P</text>
+<rect class="track" x="134" y="673" width="132" height="8" rx="2"/>
+<rect x="134" y="673" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="681">100.0%</text>
+<text class="pr" x="120" y="692">R</text>
+<rect class="track" x="134" y="685" width="132" height="8" rx="2"/>
+<rect x="134" y="685" width="132.0" height="8" rx="2" fill="#b9b8b2"/>
+<text class="val" x="271" y="693">100.0%</text>
+<text class="n" x="318" y="681">n=28 small</text>
+<text class="n" x="318" y="693">Bash-it/bash-it</text>
+</g>
+<text class="none" x="412" y="686.0">not measured</text>
+<text class="none" x="704" y="686.0">not measured</text>
+<rect class="stripe" x="16" y="700" width="980" height="34"/>
+<text class="lang" x="22" y="721.0">solidity</text>
+<g><title>solidity imports: precision 100.0% of 810, recall 99.8% of 812 (raw 100.0% / 99.8%; 1 shapes without a verdict); corpus OpenZeppelin/openzeppelin-contracts</title>
+<text class="pr" x="120" y="714">P</text>
+<rect class="track" x="134" y="707" width="132" height="8" rx="2"/>
+<rect x="134" y="707" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="715">100.0%</text>
+<text class="pr" x="120" y="726">R</text>
+<rect class="track" x="134" y="719" width="132" height="8" rx="2"/>
+<rect x="134" y="719" width="131.7" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="727">99.8%*</text>
+<text class="n" x="318" y="715">n=812</text>
+<text class="n" x="318" y="727">OpenZeppelin/o…</text>
+</g>
+<text class="none" x="412" y="720.0">not measured</text>
+<text class="none" x="704" y="720.0">not measured</text>
+<text class="lang" x="22" y="755.0">typescript</text>
+<g><title>typescript imports: precision 100.0% of 629, recall 100.0% of 666; corpus colinhacks/zod</title>
+<text class="pr" x="120" y="748">P</text>
+<rect class="track" x="134" y="741" width="132" height="8" rx="2"/>
+<rect x="134" y="741" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="749">100.0%</text>
+<text class="pr" x="120" y="760">R</text>
+<rect class="track" x="134" y="753" width="132" height="8" rx="2"/>
+<rect x="134" y="753" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="761">100.0%</text>
+<text class="n" x="318" y="749">n=666</text>
+<text class="n" x="318" y="761">colinhacks/zod</text>
+</g>
+<g><title>typescript callee names: precision 99.6% of 6,202, recall 97.2% of 6,356 (raw 99.6% / 97.2%; 11 shapes without a verdict)</title>
+<text class="pr" x="412" y="748">P</text>
+<rect class="track" x="426" y="741" width="132" height="8" rx="2"/>
+<rect x="426" y="741" width="131.5" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="749">99.6%*</text>
+<text class="pr" x="412" y="760">R</text>
+<rect class="track" x="426" y="753" width="132" height="8" rx="2"/>
+<rect x="426" y="753" width="128.3" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="563" y="761">97.2%*</text>
+<text class="n" x="610" y="749">n=6,356</text>
+</g>
+<g><title>typescript call resolution: precision 99.9% of 1,520, recall 57.1% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<text class="pr" x="704" y="748">P</text>
+<rect class="track" x="718" y="741" width="132" height="8" rx="2"/>
+<rect x="718" y="741" width="131.9" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="855" y="749">99.9%</text>
+<text class="pr" x="704" y="760">R</text>
+<rect class="track" x="718" y="753" width="132" height="8" rx="2"/>
+<rect x="718" y="753" width="75.4" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="855" y="761">57.1%</text>
+<text class="n" x="902" y="749">n=2,661</text>
+<text class="n" x="902" y="761">vs tsc 6.0.2</text>
+</g>
+<rect class="stripe" x="16" y="768" width="980" height="34"/>
+<text class="lang" x="22" y="789.0">zig</text>
+<g><title>zig imports: precision 100.0% of 263, recall 100.0% of 272; corpus zigtools/zls</title>
+<text class="pr" x="120" y="782">P</text>
+<rect class="track" x="134" y="775" width="132" height="8" rx="2"/>
+<rect x="134" y="775" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="783">100.0%</text>
+<text class="pr" x="120" y="794">R</text>
+<rect class="track" x="134" y="787" width="132" height="8" rx="2"/>
+<rect x="134" y="787" width="132.0" height="8" rx="2" fill="#2a78d6"/>
+<text class="val" x="271" y="795">100.0%</text>
+<text class="n" x="318" y="783">n=272</text>
+<text class="n" x="318" y="795">zigtools/zls</text>
+</g>
+<text class="none" x="412" y="788.0">not measured</text>
+<text class="none" x="704" y="788.0">not measured</text>
+<text class="panel-title" x="16" y="826">Not measured in any panel (38 of 59)</text>
+<text class="none" x="16" y="842">abap, ada, agc_assembly, apex, assembly, batch, blp, bms, cobol, csd, css, db2_sql, dockerfile, embedded_python, fortran, glsl, groovy, hlasm, hlo, html, jcl, livecode, m4,</text>
+<text class="none" x="16" y="858">makefile, matlab, mlir, nix, pli, powershell, proto, rexx, scheme, sqlite, swift, tcl, td, yacc, yaml</text>
+<text class="note" x="16" y="886">* a disagreement shape behind the number has no verdict yet (docs/self_scan/graph_comparison_ledger.json): not a claim. Grey bars: n below 100, too few to quote.</text>
+<text class="note" x="16" y="901">Call resolution is scored against the reference tool, not ground truth. Generated by tests/tools/graph_coverage_chart.py.</text>
+</svg>

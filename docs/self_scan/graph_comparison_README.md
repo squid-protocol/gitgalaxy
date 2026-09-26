@@ -17,6 +17,37 @@ records a verdict (#3641). Decided 2026-09-25 by Joe:
 - **Two numbers per language.** *Raw* agreement keeps the `--ci` regression gate. *Validated*
   precision and recall apply the verdicts, and are the only numbers to quote.
 
+## The coverage chart
+
+![Graph accuracy coverage](graph_coverage_chart.svg)
+
+`tests/tools/graph_coverage_chart.py` (#3796) draws the chart above. It has one row per
+measured language and three panels:
+- **imports**;
+- **callee names** (Level 1);
+- **call resolution** (Level 2, against a compiler or analyser reference, see
+  [`../graph_accuracy.md`](../graph_accuracy.md)).
+
+**Unmeasured languages are named, not dropped.** The denominator is every language in the
+engine's registry, bar pure data and prose formats. So the chart reports how much is measured,
+as well as how well.
+
+What a cell shows:
+- **Imports and callee names:** the validated numbers above.
+- **`*` on precision or recall:** that side still has a shape with no verdict.
+- **Grey bars:** n below 100, too few to quote.
+- **Call resolution:** "vs <tool> <version>", since it has no per-shape ledger yet.
+
+It is a pure function of the committed baselines and this ledger, so it needs no scan.
+`graph-comparison-history.yml` regenerates it after each ledger refresh. It also appends
+`graph_coverage_history.csv` when a number or an n moved.
+
+```sh
+python tests/tools/graph_coverage_chart.py            # the same data as a markdown table
+python tests/tools/graph_coverage_chart.py --write    # regenerate the SVG
+python tests/tools/graph_coverage_chart.py --check    # is the committed SVG current?
+```
+
 ## How a verdict moves the validated numbers
 
 | shape | verdict | effect |

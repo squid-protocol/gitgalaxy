@@ -10,6 +10,9 @@ field by field, decimals exact.
 A CASE (tests/equivalence/<case>/case.json) names a corpus program, the datasets it
 reads and writes (per DD: the corpus data file, record length, VSAM keys, the
 copybook that lays the record out), the step's PARM, and the pinned clock.
+A dataset's input may be `@generate` (#3804, equivalence_inputs.py): records built from
+its copybook layout -- edge values per PICTURE, unique sorted keys, joins drawn from the
+files they must meet -- so an estate that ships no data can be proven too.
 
 COBOL side -- GnuCOBOL 3.x (BDB indexed files) in a container built from
 tests/equivalence/gnucobol.Dockerfile. Each KSDS input is loaded by a generated
@@ -148,8 +151,13 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
                 shutil.copy(p, src / p.name)
     script = ["set -e", "cd /work"]
     flags = "-std=ibm -fsign=EBCDIC -I /work/src"
+    import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts
+
+    generated = equivalence_inputs.generate_inputs(case, corpus)
     for dd, spec in case["datasets"].items():
-        if "input" in spec:
+        if dd in generated:
+            (work / f"{dd}.in").write_bytes(generated[dd])
+        elif "input" in spec:
             (work / f"{dd}.in").write_bytes(_fixed(_input_path(case, corpus, spec["input"]), spec["reclen"]))
         if spec.get("organization") == "indexed":
             (src / f"LD{dd}.cbl").write_text(cobol_loader(dd, spec["reclen"], spec["keys"]), encoding="ascii")

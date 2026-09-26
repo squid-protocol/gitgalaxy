@@ -137,7 +137,8 @@ def run_java(
     work.mkdir(parents=True, exist_ok=True)
     clean = jtm.refactor(corpus, work, scan=True)
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
-    port_dir = port_dir or CASES / case["name"] / "port"  # #3753: any candidate port, laid out the same way
+    # #3753: any candidate port, laid out the same way; #3804: a case may prove another case's port
+    port_dir = port_dir or CASES / case.get("port_from", case["name"]) / "port"
     for f in port_dir.rglob("*.java") if port else []:
         dest = project / "src/main/java" / PKG_DIR / f.relative_to(port_dir)
         dest.parent.mkdir(parents=True, exist_ok=True)

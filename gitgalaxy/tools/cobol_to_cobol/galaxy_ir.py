@@ -4992,6 +4992,33 @@ def _has_table(cur: sqlite3.Cursor, name: str) -> bool:
     return cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
 
 
+def write_graph_metrics(db_path: Path, commit_hash: str, out: Path) -> dict[str, dict]:
+    """#3237: each file's place in the dependency graph -- callers (in-degree), calls
+    (out-degree) and blast radius (PageRank x 1000) -- from file_data, written to `out`
+    (the clean room's 04_ir_state_dumps/graph_metrics.json) so the Java generator can put
+    its porting tickets in order without the DB. Since #3237 a program's callers include
+    the programs that CALL / LINK / XCTL it and the JCL steps that EXEC it."""
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        rows = conn.execute(
+            "SELECT file_path, popularity, internal_dependency_links, normalized_blast_radius "
+            "FROM file_data WHERE commit_hash = ? ORDER BY file_path",
+            (commit_hash,),
+        ).fetchall()
+    finally:
+        conn.close()
+    metrics = {
+        str(f).replace("\\", "/"): {
+            "callers": int(c or 0),
+            "calls": int(o or 0),
+            "blast_radius": round(float(b or 0), 3),
+        }
+        for f, c, o, b in rows
+    }
+    out.write_text(json.dumps(metrics, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    return metrics
+
+
 def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
     """Loads the latest snapshot of one repo from a master DB, opened read-only."""
     db_path = Path(db_path)

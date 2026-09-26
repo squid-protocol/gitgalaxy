@@ -190,8 +190,12 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
 
 def ticket_markdown(t: dict[str, Any]) -> str:
     p, tg = t["program"], t["target"]
-    md = [f"# {t['ticket']}: port {p['key']} ({p['language']}, `{p['file']}`, {p['lines']} lines)", "",
-          f"Fill `{tg['file']}` ({tg['service']}); return it as `{tg['overlay']}`.", "",
+    md = [f"# {t['ticket']}: port {p['key']} ({p['language']}, `{p['file']}`, {p['lines']} lines)", ""]
+    if t.get("priority"):
+        pr = t["priority"]
+        md += [f"**Port order {pr['rank']} of {pr['of']}** -- {pr['callers']} program(s) and job(s) call it, blast radius "
+               f"{pr['blast_radius']} ([port_order.md](port_order.md)).", ""]  # fmt: skip
+    md += [f"Fill `{tg['file']}` ({tg['service']}); return it as `{tg['overlay']}`.", "",
           "## Methods to port", ""]  # fmt: skip
     md += [f"- `{m}`" for m in tg["methods_to_port"]] or ["- (no method is marked as a TODO; see the worklist)"]
     md += ["", "## Target configuration", "", "```json", json.dumps(tg["config"], indent=2, sort_keys=True), "```"]
@@ -211,10 +215,45 @@ def ticket_markdown(t: dict[str, Any]) -> str:
     return "\n".join(md) + "\n"
 
 
+def graph_metrics(clean_room: Path | None) -> dict[str, dict[str, Any]]:
+    """#3237: {file: callers, calls, blast radius}, which the refractor writes to
+    04_ir_state_dumps/graph_metrics.json when it ran with --scan / --galaxy-db. Empty
+    without one -- the tickets then keep their name order."""
+    f = clean_room / "04_ir_state_dumps" / "graph_metrics.json" if clean_room else None
+    return json.loads(f.read_text(encoding="utf-8")) if f is not None and f.is_file() else {}
+
+
+def _order_key(key: str, metrics: dict[str, Any] | None) -> tuple:
+    """Port the programs the most depend on first: direct callers, then blast radius (transitive:
+    PageRank also flows in from well-linked callers, e.g. a web layer, so it breaks ties rather
+    than leading -- on CBSA it would put a one-caller program above INQCUST's four)."""
+    m = metrics or {}
+    return (-m.get("callers", 0), -m.get("blast_radius", 0.0), key)
+
+
+def write_port_order(out_dir: Path, order: list[dict[str, Any]]) -> None:
+    """ai_agent_jobs/port_order.json / .md: the tickets in the order to port them."""
+    (out_dir / "port_order.json").write_text(json.dumps(order, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    md = ["# Port order", "",
+          ("The porting tickets in the order to take them: the programs the most other code depends on first -- "
+           "a shared service or error handler is ported, proven and approved before the programs that call it. "
+           "Ordered by callers (the programs and JCL steps that CALL / LINK / XCTL / EXEC it), then by blast "
+           "radius (its weight in the dependency graph, PageRank x 1000, which counts callers of callers)."), "",
+          "| order | program | callers | blast radius | ticket |", "|---:|---|---:|---:|---|"]  # fmt: skip
+    md += [f"| {o['rank']} | `{o['file']}` | {o['callers']} | {o['blast_radius']} | [{o['ticket']}]({o['ticket']}) |"
+           for o in order]  # fmt: skip
+    (out_dir / "port_order.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+
+
 def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dict[str, Any] | None,
                        manifest: dict[str, Any] | None, package: str, target: dict[str, Any],
-                       ir_dir: Path | None, clean_room_name: str) -> dict[str, str]:  # fmt: skip
-    """Write a ticket per program with business-logic worklist items; {program source: ticket path}."""
+                       ir_dir: Path | None, clean_room_name: str,
+                       clean_room: Path | None = None) -> dict[str, str]:  # fmt: skip
+    """Write a ticket per program with business-logic worklist items; {program source: ticket path}.
+    With the engine's DB in `clean_room` (#3237) each ticket carries its port order, and
+    port_order.json / .md list them most-depended-on first."""
+    metrics = graph_metrics(clean_room)
+    candidates = []
     items_by_file: dict[str, list[dict[str, Any]]] = {}
     for it in (worklist or {}).get("items", []):
         if it.get("nature") == "port":
@@ -225,8 +264,11 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
         skeleton = json.loads(path.read_text(encoding="utf-8"))
         file = (skeleton.get("program") or {}).get("file")
         items = [it for f, its in items_by_file.items() if f == file for it in its]
-        if not items:
-            continue
+        if items:
+            candidates.append((key, path, skeleton, file, items))
+    candidates.sort(key=lambda c: _order_key(c[0], metrics.get(str(c[3]))))
+    order: list[dict[str, Any]] = []
+    for rank, (key, path, skeleton, file, items) in enumerate(candidates, 1):
         source_root = None
         ir_file = ir_dir / f"{key}_ir.json" if ir_dir else None
         if ir_file is not None and ir_file.is_file():
@@ -235,6 +277,10 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
                 source_root = Path(src[: len(src) - len(file)])
         ticket = build_ticket(key, skeleton, java_dir, package, source_root, manifest, items, target,
                               f"{clean_room_name}/06_skeleton/{path.name}")  # fmt: skip
+        m = metrics.get(str(file))
+        if m is not None:
+            ticket["priority"] = {"rank": rank, "of": len(candidates), **m}
+            order.append({"rank": rank, "key": key, "file": file, "ticket": f"{key}_port_ticket.md", **m})
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / f"{key}_port_ticket.json").write_text(json.dumps(ticket, indent=2, sort_keys=True) + "\n",
                                                          encoding="utf-8")  # fmt: skip
@@ -245,4 +291,6 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
                 listing.parent.mkdir(parents=True, exist_ok=True)
                 listing.write_text("\n".join(_source_text(source_root / s_["file"])) + "\n", encoding="utf-8")
         written[str(file)] = f"ai_agent_jobs/{key}_port_ticket.md"
+    if order:
+        write_port_order(out_dir, order)
     return written

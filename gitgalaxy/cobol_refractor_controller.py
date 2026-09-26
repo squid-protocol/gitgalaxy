@@ -45,6 +45,7 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
     GalaxyIR,
     load_galaxy_ir,
     scan_to_db,
+    write_graph_metrics,
 )
 from gitgalaxy.tools.cobol_to_cobol.skeleton_export import write_skeletons
 
@@ -454,6 +455,8 @@ def main():
 
     for d in directories:
         d.mkdir(parents=True, exist_ok=True)
+    if galaxy_ir is not None:  # #3237: the port order of the Java tickets rests on it
+        write_graph_metrics(db_path, galaxy_ir.commit_hash, ir_dir / "graph_metrics.json")
 
     print("\n" + "=" * 70)
     print(" 🚀 COBOL REFRACTOR CONTROLLER (v4.0) ENGAGED")

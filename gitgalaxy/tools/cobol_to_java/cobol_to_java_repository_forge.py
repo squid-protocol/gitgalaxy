@@ -136,8 +136,8 @@ import java.util.Arrays;
  */
 public final class CobolRecords {
 
-    private static final String POSITIVE = "{ABCDEFGHI";
-    private static final String NEGATIVE = "}JKLMNOPQR";
+    private static final String POSITIVE = "__POSITIVE__";
+    private static final String NEGATIVE = "__NEGATIVE__";
 
     private CobolRecords() {
     }
@@ -612,7 +612,18 @@ class RepositoryForge:
         """#3624: the CobolRecords runtime the record codecs share, or None without an entity."""
         if not self.stores:
             return None
-        return COBOL_RECORDS_JAVA.replace("__PACKAGE__", f"{self.package}.{ENTITY_SUBPACKAGE}")
+        from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+
+        pos, neg = zoned_sign_characters(self.target.data.code_page)
+
+        def escape(s: str) -> str:
+            return "".join(c if 32 <= ord(c) <= 126 and c not in '\\"' else f"\\u{ord(c):04x}" for c in s)
+
+        return (
+            COBOL_RECORDS_JAVA.replace("__PACKAGE__", f"{self.package}.{ENTITY_SUBPACKAGE}")
+            .replace("__POSITIVE__", escape(pos))
+            .replace("__NEGATIVE__", escape(neg))
+        )
 
     def key_source(self, st: Store) -> str | None:
         """The @Embeddable key class of a group key, or None."""

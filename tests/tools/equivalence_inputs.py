@@ -34,7 +34,7 @@ from typing import Any
 import equivalence_common as common
 
 
-def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) -> bytes:
+def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int, code_page: str = "cp037") -> bytes:
     """A value as the field stores it -- the inverse of equivalence.decode_field."""
     num = common._pic_numeric(pic) if pic else None
     if num is None:
@@ -50,7 +50,10 @@ def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) ->
     text = f"{abs(n):0{digits}d}"[-digits:]
     if signed:
         last = int(text[-1])
-        text = text[:-1] + ("}JKLMNOPQR"[last] if n < 0 else "{ABCDEFGHI"[last])
+        from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+
+        pos, neg = zoned_sign_characters(code_page)
+        text = text[:-1] + (neg[last] if n < 0 else pos[last])
     return text.encode("latin-1")
 
 
@@ -90,7 +93,7 @@ def field_value(rng: random.Random, f: dict[str, Any], row: int) -> Any:
 
 
 def generate_dataset(
-    name: str, spec: dict[str, Any], fields: list[dict[str, Any]], pools: dict[str, list[Any]]
+    name: str, spec: dict[str, Any], fields: list[dict[str, Any]], pools: dict[str, list[Any]], code_page: str = "cp037"
 ) -> tuple[bytes, dict[str, list[Any]]]:
     """(the dataset's fixed-length records, {DD.FIELD: the values it holds} for later joins)."""
     gen = spec["generate"]
@@ -128,7 +131,7 @@ def generate_dataset(
             else:
                 v = field_value(rng, f, row if attempts == row + 1 else row + attempts)
             chosen[f["name"]] = v
-            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(v, f["pic"], f["usage"], f["bytes"])
+            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(v, f["pic"], f["usage"], f["bytes"], code_page)
         if key is not None:
             k = bytes(rec[key["offset"] : key["offset"] + key["length"]])
             if k in seen:
@@ -168,6 +171,6 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
         width = max(f["offset"] + f["bytes"] for f in fields)
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")
-        out[dd], values = generate_dataset(dd, spec, fields, pools)
+        out[dd], values = generate_dataset(dd, spec, fields, pools, case.get("code_page", "cp037"))
         pools.update(values)
     return out

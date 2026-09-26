@@ -16,6 +16,7 @@
 # ==============================================================================
 from __future__ import annotations
 
+import codecs
 import json
 import re
 from dataclasses import dataclass, field
@@ -48,6 +49,38 @@ DATABASE_DRIVERS = {
               "org.hibernate.dialect.MySQLDialect", "jdbc:mysql://localhost:3306/{db}"),
     "h2": ("com.h2database", "h2", "org.h2.Driver", "org.hibernate.dialect.H2Dialect", "jdbc:h2:mem:{db}"),
 }  # fmt: skip
+
+
+# #3826: EBCDIC national code pages Python has no codec for. In every Latin EBCDIC page the sign bytes
+# 0xC1-0xC9 / 0xD1-0xD9 are A-I / J-R; only the zero signs 0xC0 (+0) and 0xD0 (-0) are national (IBM CDRA).
+_NATIONAL_ZERO_SIGNS = {
+    "cp277": ("æ", "å"),  # Denmark / Norway
+    "cp278": ("ä", "å"),  # Finland / Sweden
+    "cp280": ("à", "è"),  # Italy
+    "cp284": ("{", "}"),  # Spain / Latin America
+    "cp285": ("{", "}"),  # United Kingdom
+    "cp297": ("é", "è"),  # France
+    "cp1047": ("{", "}"),  # z/OS Open Systems Latin-1 (USS)
+}
+
+
+def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
+    """#3826: the zoned-decimal sign overpunch characters of an EBCDIC code page -- bytes 0xC0-0xC9
+    (positive 0-9) and 0xD0-0xD9 (negative 0-9). cp037 gives the US `{ABCDEFGHI` / `}JKLMNOPQR`;
+    a national code page gives its own zero signs (cp273: `ä...` / `ü...`, cp278: `ä...` / `å...`)."""
+    cp = code_page.lower()
+    if cp in _NATIONAL_ZERO_SIGNS:
+        plus, minus = _NATIONAL_ZERO_SIGNS[cp]
+        return plus + "ABCDEFGHI", minus + "JKLMNOPQR"
+    try:
+        codecs.lookup(cp)
+    except LookupError as e:
+        known = ", ".join(sorted(_NATIONAL_ZERO_SIGNS))
+        raise ConfigError(
+            f"data.code_page {code_page!r}: not a known EBCDIC code page (a Python codec, or {known})"
+        ) from e
+    return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
+
 
 _PACKAGE = re.compile(r"[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*")
 _BOOT_VERSION = re.compile(r"3\.\d+\.\d+")
@@ -111,6 +144,11 @@ class Ui:
 
 
 @dataclass
+class Data:
+    code_page: str = "cp037"
+
+
+@dataclass
 class JavaTarget:
     project: Project = field(default_factory=Project)
     java: Java = field(default_factory=Java)
@@ -119,6 +157,7 @@ class JavaTarget:
     features: Features = field(default_factory=Features)
     integration: Integration = field(default_factory=Integration)
     ui: Ui = field(default_factory=Ui)
+    data: Data = field(default_factory=Data)
 
     @property
     def lombok(self) -> bool:
@@ -139,6 +178,7 @@ _SECTIONS = {
     "features": Features,
     "integration": Integration,
     "ui": Ui,
+    "data": Data,
 }
 
 
@@ -174,6 +214,7 @@ def _check(target: JavaTarget) -> None:
         )
     if not _BOOT_VERSION.fullmatch(str(s.version)):
         raise ConfigError(f"spring_boot.version {s.version!r}: a Spring Boot 3.x.y version (jakarta namespace)")
+    zoned_sign_characters(target.data.code_page)  # #3826: an unknown code page fails at load, not mid-generation
 
 
 def target_from_dict(data: dict[str, Any] | None) -> JavaTarget:
@@ -270,4 +311,7 @@ integration:
 ui:
   flavour: none                         # {" | ".join(UI_FLAVOURS)}  (BMS screens: view models only,
                                         #   + Thymeleaf pages on the 24x80 layout, or + REST endpoints and OpenAPI docs)
+
+data:
+  code_page: cp037                      # the EBCDIC code page for zoned-decimal sign overpunch
 """  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

@@ -7,10 +7,13 @@ equivalence_inputs.py all build on it without an import cycle; equivalence.py re
 
 from __future__ import annotations
 
+import functools
 import sys
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
+
+from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CASES = REPO_ROOT / "tests" / "equivalence"
@@ -33,7 +36,11 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
     return CASES / case["name"] / rel[len("@case/") :] if rel.startswith("@case/") else corpus / rel
 
 
-_OVERPUNCH = {**{c: (i, 1) for i, c in enumerate("{ABCDEFGHI")}, **{c: (i, -1) for i, c in enumerate("}JKLMNOPQR")}}
+@functools.lru_cache(maxsize=None)
+def _overpunch(code_page: str = "cp037") -> dict[str, tuple[int, int]]:
+    """#3826: the zoned sign table of the data's code page, the one the generated CobolRecords uses."""
+    pos, neg = zoned_sign_characters(code_page)
+    return {**{c: (i, 1) for i, c in enumerate(pos)}, **{c: (i, -1) for i, c in enumerate(neg)}}
 
 
 def _pic_numeric(pic: str) -> Optional[tuple[bool, int, int]]:
@@ -47,7 +54,7 @@ def _pic_numeric(pic: str) -> Optional[tuple[bool, int, int]]:
     return p.startswith("S"), whole.count("9") + frac.count("9"), frac.count("9")
 
 
-def decode_field(raw: bytes, pic: Optional[str], usage: Optional[str]) -> Any:
+def decode_field(raw: bytes, pic: Optional[str], usage: Optional[str], code_page: str = "cp037") -> Any:
     """A field's value: an exact Decimal for numeric DISPLAY / COMP-3 / COMP, else its text."""
     num = _pic_numeric(pic) if pic else None
     u = (usage or "DISPLAY").upper()
@@ -63,8 +70,9 @@ def decode_field(raw: bytes, pic: Optional[str], usage: Optional[str]) -> Any:
             return Decimal(int.from_bytes(raw, "big", signed=signed)).scaleb(-scale)
         text = raw.decode("latin-1")
         last, sign = text[-1], 1
-        if last in _OVERPUNCH:
-            d, sign = _OVERPUNCH[last]
+        op = _overpunch(code_page)
+        if last in op:
+            d, sign = op[last]
             text = text[:-1] + str(d)
         return (Decimal(int(text)) * sign).scaleb(-scale)
     except (ValueError, IndexError):

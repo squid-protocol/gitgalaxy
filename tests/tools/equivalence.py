@@ -187,7 +187,9 @@ def build_image() -> None:
 
 
 # ---- the field-by-field diff ---------------------------------------------------------
-def diff_records(left: bytes, right: bytes, reclen: int, fields: list[dict[str, Any]]) -> dict[str, Any]:
+def diff_records(
+    left: bytes, right: bytes, reclen: int, fields: list[dict[str, Any]], code_page: str = "cp037"
+) -> dict[str, Any]:
     """Pair records in order; per pair, every differing field (value left vs right). A FILLER is counted
     apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
     INITIALIZE or a new record is the runtime's leftover record area, not the program's logic."""
@@ -203,7 +205,10 @@ def diff_records(left: bytes, right: bytes, reclen: int, fields: list[dict[str, 
         bad, filler_bad = [], False
         for f in fields:
             sl = slice(f["offset"], f["offset"] + f["bytes"])
-            va, vb = decode_field(a[sl], f["pic"], f["usage"]), decode_field(b[sl], f["pic"], f["usage"])
+            va, vb = (
+                decode_field(a[sl], f["pic"], f["usage"], code_page),
+                decode_field(b[sl], f["pic"], f["usage"], code_page),
+            )
             if va != vb and f["name"] == "FILLER":
                 filler_bad = True
             elif va != vb:
@@ -298,7 +303,7 @@ def main() -> int:
         if not spec.get("compare"):
             continue
         fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
-        d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields)
+        d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"))
         report["outputs"][dd] = d
         ok &= d["equal"] == d["records"] and not d["diffs"]
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

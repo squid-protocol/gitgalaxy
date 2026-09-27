@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, SMALL
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -47,7 +49,28 @@ DEFINITION: dict[str, Any] = {
     "case_insensitive_imports": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": re.compile(r"\b(?:(?<=\()\s*|(?=[a-zA-Z][\w']*\s*\())([a-z][\w']*)\b"),
+        "calls_out": re.compile(
+            r"\b(?:(?<=\()\s*|(?=(?!_)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"']*\s*\())((?!_)["
+            + SMALL
+            + r"]["
+            + ID_CONTINUE
+            + r"']*)"
+            # #3814: the `\b` it ended on, in the same class -- a name may end on a combining mark
+            # (Tamil's virama, a decomposed accent), where `\b` sees no word end
+            r"(?:(?<=["
+            + ID_CONTINUE
+            + r"])(?!["
+            + ID_CONTINUE
+            + r"])|(?<!["
+            + ID_CONTINUE
+            + r"])(?=["
+            + ID_CONTINUE
+            + r"]))"
+        ),
         "_calls_out_ignore": frozenset(
             {
                 "where",
@@ -139,14 +162,18 @@ DEFINITION: dict[str, Any] = {
         # functions get a wrong (0) arg count instead of simply being
         # absent as before.
         "args": re.compile(
-            r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:[a-zA-Z0-9_\'.,()\[\]]|=>|->|⊸)(?:[a-zA-Z0-9_\'.\s,()\[\]]|=>|->|⊸)*)"
-            r"|\\([a-zA-Z0-9_\'\s,()\[\]{} -]+)->"
-            r"|@[A-Z][a-zA-Z0-9_\']*"
+            r"::(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*((?:["
+            + ID_CONTINUE
+            + r"\'.,()\[\]]|=>|->|⊸)(?:["
+            + ID_CONTINUE
+            + r"\'.\s,()\[\]]|=>|->|⊸)*)"
+            r"|\\([" + ID_CONTINUE + r"\'\s,()\[\]{} -]+)->"
+            r"|@[A-Z][" + ID_CONTINUE + r"\']*"
             r"|^[ \t]*(?:(?:let|where)[ \t]+)?(?!(?:let|in|where|do|mdo|if|then|else|case|of|module|import"
             r"|class|instance|data|type|newtype|deriving|foreign|default"
-            r"|infixl|infixr|infix)\b)[a-zA-Z_][a-zA-Z0-9_']*[ \t]+"
-            r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+)"
-            r"(?:[ \t]+(?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[a-zA-Z0-9_'!]+))*)"
+            r"|infixl|infixr|infix)\b)[" + ID_START + r"][" + ID_CONTINUE + r"']*[ \t]+"
+            r"((?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[" + ID_CONTINUE + r"'!]+)"
+            r"(?:[ \t]+(?:\"[^\"\n]*\"|\([^()\n]*\)|\[[^\[\]\n]*\]|[" + ID_CONTINUE + r"'!]+))*)"
             r"[ \t]*(?:=(?!=)(?!>)|\n[ \t]+\|)"
         ),
         # Which `args` capture-group index represents a `::` type
@@ -237,13 +264,35 @@ DEFINITION: dict[str, Any] = {
         # documented and ReDoS safe since the same-line prefix scan `[^\n=]*`
         # still fails closed if it hits a real `=` or crosses a newline.
         "func_start": re.compile(
-            r"^[ \t]*(?:foreign\s+(?:import|export)\s+[a-zA-Z0-9_]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:([a-zA-Z_][a-zA-Z0-9_\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
-            r"|^([ \t]+)(?:(?:let|where)[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)([a-z_][a-zA-Z0-9_\']*)(?=[ \t]+[^\s=][^\n=]*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
+            r"^[ \t]*(?:foreign\s+(?:import|export)\s+["
+            + ID_CONTINUE
+            + r"]+\s+(?:(?:unsafe|safe|interruptible)\s+)?(?:\"[^\"]*\"\s+)?)?(?!(?:data|type|newtype|class|instance|let|in|where|do|deriving)\b)(?:(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"\']*)|(\([^)]+\)))(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*::)"
+            r"|^([ \t]+)(?:(?:let|where)[ \t]+)?(?!(?:case|class|data|default|deriving|do|else|foreign|if|import|in|infix|infixl|infixr|instance|let|mdo|module|newtype|of|then|type|where)\b)(["
+            + SMALL
+            + r"]["
+            + ID_CONTINUE
+            + r"\']*)(?=[ \t]+[^\s=][^\n=]*(?:(?<![!<>/])=(?![=>])|\n\3[ \t]+\|))",
             re.M,
         ),
         # class_start: Object / Entity Declarations. Defines structural entities and typeclass boundaries.
         "class_start": re.compile(
-            r"^[ \t]*(?:data(?:\s+family)?|newtype|class|type(?:\s+family)?)(?:(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:\([^)]+\)(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>|[A-Z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>))?(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*([A-Z][a-zA-Z0-9_\']*)(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:[a-z][a-zA-Z0-9_\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*)*(?:=|\||where|deriving|::|\n|$))",
+            r"^[ \t]*(?:data(?:\s+family)?|newtype|class|type(?:\s+family)?)(?:(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:\([^)]+\)(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>|[A-Z]["
+            + ID_CONTINUE
+            + r"\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?!_)["
+            + SMALL
+            + r"]["
+            + ID_CONTINUE
+            + r"\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*=>))?(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*([A-Z]["
+            + ID_CONTINUE
+            + r"\']*)(?=(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*(?:(?!_)["
+            + SMALL
+            + r"]["
+            + ID_CONTINUE
+            + r"\']*(?:[ \t\n]|--[^\n]*\n|\{-(?:[^-]|-(?!\}))*-\})*)*(?:=|\||where|deriving|::|\n|$))",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -264,7 +313,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # api: Public Surface Area. Captured via module headers. Captures both explicit lists and implicit "all" exports.
         "api": re.compile(
-            r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*(?:\s*\([^)]*\))?\s*where|\bforeign\s+export\b",
+            r"^[ \t]*module\s+[A-Z][" + ID_CONTINUE + r".]*(?:\s*\([^)]*\))?\s*where|\bforeign\s+export\b",
             re.M,
         ),
         # #2823: the plural form of #2774's `_visibility_export`. Naming a
@@ -291,7 +340,7 @@ DEFINITION: dict[str, Any] = {
         # 7183 chars). A header with no export list (`module Main where`) has no
         # `(` to match and is skipped.
         "_visibility_export_list": re.compile(
-            r"^module[ \t]+[A-Z][\w.']*\s*\(([\s\S]{0,20000}?)\)\s*where",
+            r"^module[ \t]+[A-Z][" + ID_CONTINUE + r".']*\s*\(([\s\S]{0,20000}?)\)\s*where",
             re.M,
         ),
         # flux: State Mutation. State mutation (IORef/MVar) and monadic binds (<-).
@@ -318,7 +367,9 @@ DEFINITION: dict[str, Any] = {
         "doc": re.compile(r"--\s*\||--\s*\^|\{-\||--\s*@(?:param|return)"),
         # test: Testing & Assertions. Verification framework keywords (QuickCheck/Hspec).
         "test": re.compile(
-            r'\b(?:hspec|QuickCheck|prop_[a-zA-Z0-9_\']+|assertEqual|shouldBe|testGroup|testCase)\b|\b(?:describe|it|property)\s+"'
+            r"\b(?:hspec|QuickCheck|prop_["
+            + ID_CONTINUE
+            + r'\']+|assertEqual|shouldBe|testGroup|testCase)\b|\b(?:describe|it|property)\s+"'
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # concurrency: Temporal Static. STM, async, and thread forking.
@@ -326,7 +377,7 @@ DEFINITION: dict[str, Any] = {
         # ui_framework: UI / View Components. Functional reactive GUI and web components.
         "ui_framework": re.compile(r"\b(Threepenny|Brick|Reflex|Miso|Gtk|widget|vBox|hBox|Lucid|Blaze|Monomer)\b"),
         # closures: Closures / Anonymous Functions. Anonymous lambda depth.
-        "closures": re.compile(r"\\[a-zA-Z0-9_\'\s(),\[\]]+\s*->|\\cases?"),
+        "closures": re.compile(r"\\[" + ID_CONTINUE + r"\'\s(),\[\]]+\s*->|\\cases?"),
         # globals: Global / Shared State. Top-level state hacks (typically MVars using unsafePerformIO).
         # BUG FIX: `[^=]*` blocked crossing the `=` that MUST appear
         # before `unsafePerformIO` in any real usage (the binding's own
@@ -337,7 +388,7 @@ DEFINITION: dict[str, Any] = {
         # both `=` and intervening lines (e.g. a `{-# NOINLINE #-}`
         # pragma between the signature and the binding).
         "globals": re.compile(
-            r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO"
+            r"^[ \t]*[" + SMALL + r"][" + ID_CONTINUE + r"\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO"
             # #2858 contract corollary 2: the ambient reads (System.Environment).
             r"|\b(?:getEnv|lookupEnv|getEnvironment|setEnv|getArgs|getProgName)\b",
             re.M,
@@ -346,7 +397,13 @@ DEFINITION: dict[str, Any] = {
         "decorators": re.compile(r"\{-#\s*(?:INLINE|NOINLINE|LANGUAGE|OPTIONS_GHC|RULES|MINIMAL)\s+[^#]*#-\}"),
         # generics: Generics / Type Parameters. forall quantification and constraints.
         "generics": re.compile(
-            r"\bforall\s+[^.]+\.|\b(?:[A-Z][a-zA-Z0-9_\']*\s+[a-z][a-zA-Z0-9_\']*[ \t]*=>)|\([^)]+\)[ \t]*=>"
+            r"\bforall\s+[^.]+\.|\b(?:[A-Z]["
+            + ID_CONTINUE
+            + r"\']*\s+(?!_)["
+            + SMALL
+            + r"]["
+            + ID_CONTINUE
+            + r"\']*[ \t]*=>)|\([^)]+\)[ \t]*=>"
         ),
         # comprehensions: Iterators / Comprehensions. List comprehensions and dense monad applicatives.
         "comprehensions": re.compile(r"\[\s*[^|\]]+\s*\|[^\]]+\]|<\$>|<\*>|>>="),
@@ -356,12 +413,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # heat_triggers: Metaprogramming & Reflection. QuasiQuotes and Template Haskell.
         "reflection_metaprogramming": re.compile(
-            r"\b(TemplateHaskell|QuasiQuotes|TypeFamilies|GHC\.Generics|Generic)\b|\[[a-z_]+\||\$\([a-zA-Z0-9_\']+\)"
+            r"\b(TemplateHaskell|QuasiQuotes|TypeFamilies|GHC\.Generics|Generic)\b|\[[a-z_]+\||\$\(["
+            + ID_CONTINUE
+            + r"\']+\)"
         ),
         # import: Dependency Inclusions. Module resolution.
-        "import": re.compile(r"^[ \t]*import\s+(?:qualified[ \t]+)?[A-Z][a-zA-Z0-9_.]*", re.M),
+        "import": re.compile(r"^[ \t]*import\s+(?:qualified[ \t]+)?[A-Z][" + ID_CONTINUE + r".]*", re.M),
         "_dependency_capture": re.compile(
-            r"^[ \t]*import\b[\s\S]{0,100}?(?:qualified\b[\s\S]{0,100}?)?([A-Z][a-zA-Z0-9_.]*)", re.M
+            r"^[ \t]*import\b[\s\S]{0,100}?(?:qualified\b[\s\S]{0,100}?)?([A-Z][" + ID_CONTINUE + r".]*)", re.M
         ),
         # ownership: Authorship indicators in comments.
         # #2882 contract: C2 `License:`/`Copyright:` out; C1 the GHC header's `Maintainer  :` (spaces before the colon, unprefixed inside `{- |`) in; `-- @author` is ownership's (doc released it, C4)
@@ -379,7 +438,9 @@ DEFINITION: dict[str, Any] = {
         "events": re.compile(
             r"\b(Event|Behavior|Dynamic|reactive-banana|reflex|frp|stepper|accumE|conduit|Pipes|Stream)\b"
         ),
-        "dependency_injection": re.compile(r"\b(ReaderT|MonadReader|Has[A-Z][a-zA-Z0-9_\']+|ask|asks|local)\b"),
+        "dependency_injection": re.compile(
+            r"\b(ReaderT|MonadReader|Has[A-Z][" + ID_CONTINUE + r"\']+|ask|asks|local)\b"
+        ),
         "macros": re.compile(
             r"\{-#\s*LANGUAGE\s+[^#]*#-\}|\$[(a-z_A-Z0-9\']|^[ \t]*#(?:define|undef|if|ifdef|ifndef|elif|else|endif|include)\b",
             re.M,
@@ -409,7 +470,7 @@ DEFINITION: dict[str, Any] = {
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(r"\b(hClose|close|free|bracket|finally|onException)\b"),
         # 47. encapsulation (Encapsulation / Access Modifiers)
-        "encapsulation": re.compile(r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*\s*\([^)]*\)\s*where", re.M),
+        "encapsulation": re.compile(r"^[ \t]*module\s+[A-Z][" + ID_CONTINUE + r".]*\s*\([^)]*\)\s*where", re.M),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(subscribe|onEvent|addEventListener|watch)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.

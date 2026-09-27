@@ -310,7 +310,8 @@ CALLS_OUT_CALL_VERB = re.compile(r"(?i)\bCALL\s+['\"]?((?:[^\W\d]|[$#@])[\w$#@-]
 
 # Lisp family (scheme): the callee is the first symbol after an open paren.
 # Charset includes lisp identifier punctuation (probe-branch, null?, set!).
-CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([A-Za-z_][A-Za-z0-9_!?*<>=+-]*)")
+# #3814: the letters and digits are UAX #31's (`probe-नाम`), the punctuation stays.
+CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([" + ID_START + r"][" + ID_CONTINUE + r"!?*<>=+-]*)")
 
 # Command-position family (tcl, powershell, livecode): the callee is the first
 # word on a statement line. Charset covers tcl `ns::proc` interior colons and
@@ -318,4 +319,9 @@ CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([A-Za-z_][A-Za-z0-9_!?*<>=+-]*)")
 # (the first character must be a letter/underscore for precision).
 # Consumers MUST pair this with a `calls_out_ignore` set of the language's
 # statement keywords, since those also appear in command position.
-CALLS_OUT_COMMAND_POSITION = re.compile(r"(?m)^[ \t]*([A-Za-z_][\w:-]*)\b")
+# #3814: UAX #31 letters, digits and marks (`Get-नाम`). The trailing `\b` became what it meant
+# here -- the name ends on a name character and no name character follows -- in the same class,
+# so a name is never cut after a combining mark.
+CALLS_OUT_COMMAND_POSITION = re.compile(
+    r"(?m)^[ \t]*([" + ID_START + r"][" + ID_CONTINUE + r":-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r"])"
+)

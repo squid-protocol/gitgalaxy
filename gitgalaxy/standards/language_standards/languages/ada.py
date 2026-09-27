@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -97,7 +99,7 @@ DEFINITION: dict[str, Any] = {
         # expressions routinely contain nested calls/aggregates, e.g.
         # `Y : Integer := Compute(A, (B + C))`.
         "args": re.compile(
-            r"\b(?:procedure|function)\b[ \t\n]+[A-Za-z_][A-Za-z0-9_]*[ \t\n]*"
+            r"\b(?:procedure|function)\b[ \t\n]+[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t\n]*"
             r"\(((?:[^()]|\((?:[^()]|\([^()]*\))*\))*)\)",
             re.I,
         ),
@@ -118,9 +120,9 @@ DEFINITION: dict[str, Any] = {
         # bounded (not unbounded `.*`) so it can't cross a statement
         # terminator or blow up on an adversarial payload.
         "func_start": re.compile(
-            r"\b(?:procedure|function)[ \t\n]+([A-Za-z_][A-Za-z0-9_]*)"
+            r"\b(?:procedure|function)[ \t\n]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)"
             r"(?:[ \t\n]*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))?"
-            r"(?:[ \t\n]+return[ \t\n]+[A-Za-z_][A-Za-z0-9_.]*)?"
+            r"(?:[ \t\n]+return[ \t\n]+[" + ID_START + r"][" + ID_CONTINUE + r".]*)?"
             r"(?:[ \t\n]+with[ \t\n]+[^;{}]{0,300}?)?"
             r"[ \t\n]*is\b(?![ \t\n]*(?:abstract|null|new)\b)",
             re.I,
@@ -133,9 +135,9 @@ DEFINITION: dict[str, Any] = {
         # need their own alternative or the (more common, in an
         # OOP-heavy codebase) derived form is entirely invisible).
         "class_start": re.compile(
-            r"\btype[ \t]+([A-Za-z_][A-Za-z0-9_]*)[ \t\n]+is[ \t\n]+"
+            r"\btype[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)[ \t\n]+is[ \t\n]+"
             r"(?:(?:abstract[ \t\n]+)?(?:limited[ \t\n]+)?tagged\b"
-            r"|(?:abstract[ \t\n]+)?new[ \t\n]+[A-Za-z_][A-Za-z0-9_.]*[ \t\n]+with\b)",
+            r"|(?:abstract[ \t\n]+)?new[ \t\n]+[" + ID_START + r"][" + ID_CONTINUE + r".]*[ \t\n]+with\b)",
             re.I,
         ),
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
@@ -200,8 +202,12 @@ DEFINITION: dict[str, Any] = {
         # `^[ \t]*` here would count the private ones too. Needs re.M
         # (Rule 13).
         "api": re.compile(
-            r"\bpackage[ \t]+(?!body\b)(?:private[ \t]+)?([A-Za-z_][A-Za-z0-9_.]*)[ \t\n]+is\b(?![ \t\n]*new\b)|"
-            r"^(?:procedure|function)[ \t]+[A-Za-z_]",
+            r"\bpackage[ \t]+(?!body\b)(?:private[ \t]+)?(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".]*)[ \t\n]+is\b(?![ \t\n]*new\b)|"
+            r"^(?:procedure|function)[ \t]+[" + ID_START + r"]",
             re.M | re.I,
         ),
         # state_mutation: Ada's assignment operator `:=` is lexically
@@ -209,7 +215,7 @@ DEFINITION: dict[str, Any] = {
         "state_mutation": re.compile(
             # #2765 contract: `X := v` at statement start writes; `X : T := v` declares
             # (the `:` before the type breaks the match), as does `X : constant T := v`.
-            r"^[ \t]*[A-Za-z_][\w.]*(?:[ \t]*\([^()\n]{0,80}\))?[ \t]*:=",
+            r"^[ \t]*[" + ID_START + r"][" + ID_CONTINUE + r".]*(?:[ \t]*\([^()\n]{0,80}\))?[ \t]*:=",
             re.M,
         ),
         # dead_code: commented-out structural code (line_exclusive_dash
@@ -274,7 +280,11 @@ DEFINITION: dict[str, Any] = {
         # with ...`), a genuinely different construct sharing the same
         # two words.
         "generics": re.compile(
-            r"\bgeneric\b|\b(?:package|procedure|function)\b[ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t\n]+is[ \t\n]+new\b",
+            r"\bgeneric\b|\b(?:package|procedure|function)\b[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]+is[ \t\n]+new\b",
             re.I,
         ),
         # comprehensions: Ada 2012 quantified expressions (`for all` /
@@ -296,7 +306,15 @@ DEFINITION: dict[str, Any] = {
             r"|Convention|Import|Export|Inline|Volatile|Atomic|Pack|SPARK_Mode|No_Return"
             r"|Pure|Preelaborate|Elaborate_Body"
             r"|Abstract_State|Initializes|Refined_Global|Refined_Post|Refined_State|Refined_Depends)\b)"
-            r"[A-Za-z_][A-Za-z0-9_.]*(?:[ \t\n]*,[ \t\n]*[A-Za-z_][A-Za-z0-9_.]*){0,20}[ \t\n]*;",
+            r"["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".]*(?:[ \t\n]*,[ \t\n]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".]*){0,20}[ \t\n]*;",
             re.I | re.M,
         ),
         "_dependency_capture": re.compile(
@@ -304,7 +322,7 @@ DEFINITION: dict[str, Any] = {
             r"|Convention|Import|Export|Inline|Volatile|Atomic|Pack|SPARK_Mode|No_Return"
             r"|Pure|Preelaborate|Elaborate_Body"
             r"|Abstract_State|Initializes|Refined_Global|Refined_Post|Refined_State|Refined_Depends)\b)"
-            r"([A-Za-z_][A-Za-z0-9_.]*)",
+            r"([" + ID_START + r"][" + ID_CONTINUE + r".]*)",
             re.I | re.M,
         ),
         # ownership: header comment convention, same shape as the JCL/
@@ -321,7 +339,7 @@ DEFINITION: dict[str, Any] = {
         # for common secret-shaped identifiers.
         "hardcoded_secrets": re.compile(
             r"\b(?:password|secret|token|api[_-]?key|private[_-]?key|client[_-]?secret)\b"
-            r"[ \t]*:[ \t]*(?:constant[ \t]+)?[A-Za-z_][A-Za-z0-9_.]*[ \t]*:=[ \t]*\"[^\"]{8,}\"",
+            r"[ \t]*:[ \t]*(?:constant[ \t]+)?[" + ID_START + r"][" + ID_CONTINUE + r".]*[ \t]*:=[ \t]*\"[^\"]{8,}\"",
             re.I,
         ),
         "spec_exposure": re.compile(r"\[(?:SPEC[ \t]*-[ \t]*\d{1,6}|spec|audit)\]", re.I),
@@ -350,7 +368,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # memory_alloc: the `new` allocator.
-        "memory_alloc": re.compile(r"\bnew[ \t]+[A-Za-z_]", re.I),
+        "memory_alloc": re.compile(r"\bnew[ \t]+[" + ID_START + r"]", re.I),
         # inline_asm: System.Machine_Code's Asm construct -- a real,
         # if niche, GNAT-standard extension used in kernel/embedded Ada.
         "inline_asm": re.compile(r"\bSystem\.Machine_Code\b|\bAsm[ \t]*\(", re.I),
@@ -367,7 +385,9 @@ DEFINITION: dict[str, Any] = {
         # explicit type conversion/qualification (unlike a bare type
         # conversion `T(Expr)`, which is syntactically identical to a
         # function call and can't be told apart without semantic info).
-        "explicit_casts": re.compile(r"\b[A-Za-z_][A-Za-z0-9_.]*'\(", re.I),
+        "explicit_casts": re.compile(
+            r"\b(?<![" + ID_CONTINUE + r"])[" + ID_START + r"][" + ID_CONTINUE + r".]*'\(", re.I
+        ),
         # panics_and_aborts: `raise` (exception propagation) and
         # `abort` (forceful task termination -- the schema's own
         # baseline definition lists "abort()" as a canonical example).

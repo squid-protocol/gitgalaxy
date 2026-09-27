@@ -1978,6 +1978,10 @@ def _name_boundary_pattern_for(func_name: str, extra_chars: str) -> str:
 # scheme `set!`, C++ `operator==`) do NOT qualify and take the exact fallback.
 _WORD_NAME_RE = re.compile(r"\w+")
 
+# #3814: a character that continues a Haskell name (UAX #31, or a prime), compiled once -- a
+# per-name `name(?![...])` pattern would recompile the wide class for every function.
+_HASKELL_NAME_CHAR = re.compile(r"['" + ID_CONTINUE + r"]")
+
 # #3182: a name that is a single maximal word-or-hyphen run. The bisect fast
 # path in `_is_orphan` accepts these too, because coding_analysis indexes the
 # segment-aligned hyphenated sub-runs of every `[\w-]+` token (see the
@@ -7192,7 +7196,11 @@ class StructuralExtractor:
                         # signature line -- caught and dropped by the `< 2`
                         # line-count floor below on every single-signature
                         # function, which is nearly all of them.
-                        if lang_id == "haskell" and re.match(re.escape(name) + r"(?!['\w])", stripped):
+                        if (
+                            lang_id == "haskell"
+                            and stripped.startswith(name)
+                            and not _HASKELL_NAME_CHAR.match(stripped, len(name))
+                        ):
                             if equation_start_idx is None:
                                 equation_start_idx = scan_pos
                             scan_pos = line_end
@@ -9177,7 +9185,10 @@ class StructuralExtractor:
         last_constraint = type_str.rfind("=>")
         if last_constraint != -1:
             type_str = type_str[last_constraint + 2 :].strip()
-        head_match = re.match(r"\(*\s*([A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)*)", type_str)
+        head_match = re.match(
+            r"\(*\s*([" + ID_START + r"][" + ID_CONTINUE + r"']*(?:\.[" + ID_START + r"][" + ID_CONTINUE + r"']*)*)",
+            type_str,
+        )
         if not head_match:
             return False
         head = head_match.group(1)

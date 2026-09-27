@@ -340,7 +340,7 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
 _NATIONAL_PICTURE = re.compile(r"[NGB0/()0-9]*[NG][NGB0/()0-9]*")  # #3816: N / G with national editing only
 # #3816: USAGE NATIONAL, looked for only inside the entry's own text (see _cobol_records)
-_NATIONAL_USAGE = re.compile(r"(?<![A-Z0-9-])NATIONAL(?![A-Z0-9-])", re.I)
+_NATIONAL_USAGE = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])NATIONAL(?![A-Z" + NATIONAL + r"0-9-])", re.I)
 _QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"

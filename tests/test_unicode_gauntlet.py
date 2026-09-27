@@ -58,3 +58,20 @@ def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path):
     assert set(ascii_cells) == {"mainframe|ascii|utf-8", "mainframe|ascii|utf-8-sig", "mainframe|ascii|crlf"}
     assert all(not d for d in ascii_cells.values()), ascii_cells
     assert any(r["script"] == "nordic" for r in results.values())  # the national-letter cells were built
+
+
+def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):
+    """One `cell<TAB>difference` line per failing cell, no counts, merged by git as a union
+    (.gitattributes): two PRs fixing different cells merge cleanly; a stale line is harmless."""
+    monkeypatch.setattr(ug, "BASELINE", tmp_path / "baseline.txt")
+    ug.write_baseline({"b|x|utf-8": "b/a: function_data missing [('f',\n 'doc\tline')]", "a|x|utf-8": "a/a: n 3 -> 0"})
+    lines = (tmp_path / "baseline.txt").read_text(encoding="utf-8").splitlines()
+    body = [line for line in lines if not line.startswith("#")]
+    assert body == ["a|x|utf-8\ta/a: n 3 -> 0", "b|x|utf-8\tb/a: function_data missing [('f', 'doc line')]"]
+    assert ug.read_baseline() == {
+        "a|x|utf-8": "a/a: n 3 -> 0",
+        "b|x|utf-8": "b/a: function_data missing [('f', 'doc line')]",
+    }
+    attrs = (Path(__file__).resolve().parents[1] / ".gitattributes").read_text(encoding="utf-8")
+    assert "tests/unicode_gauntlet/baseline.txt merge=union" in attrs
+    assert ug.ROSETTA_REF.read_text(encoding="utf-8").strip()  # the pinned corpus commit CI checks out

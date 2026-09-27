@@ -5,7 +5,7 @@ name: unicode-gauntlet
 # tests/unicode_gauntlet/mainframe) is rewritten -- names in another script where the language
 # allows it, files re-encoded (UTF-8 BOM, UTF-16, cp1252, Shift-JIS, GB18030, CRLF) -- and each
 # variant's scanned facts must equal its ASCII twin's with the same renaming. The baseline is a
-# ratchet: a cell failing that tests/unicode_gauntlet/baseline.json does not list fails the run; a
+# ratchet: a cell failing that tests/unicode_gauntlet/baseline.txt does not list fails the run; a
 # fix lowers the baseline. The rosetta corpus is checked out at the commit the baseline recorded, so
 # a corpus change cannot move the cells under a PR.
 
@@ -47,7 +47,7 @@ jobs:
       - name: Read the pinned rosetta commit
         id: pin
         run: |
-          ref=$(python3 -c "import json; print(json.load(open('gitgalaxy/tests/unicode_gauntlet/baseline.json'))['rosetta_ref'])")
+          ref=$(tr -d '[:space:]' < gitgalaxy/tests/unicode_gauntlet/rosetta_ref)
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
       - name: Checkout keyword-rosetta (pinned)

@@ -26,8 +26,12 @@ Seeds:
     python tests/tools/unicode_gauntlet.py --ci                   # fail on a cell not in the baseline
     python tests/tools/unicode_gauntlet.py --update-baseline      # record today's failing cells
 
-The baseline (tests/unicode_gauntlet/baseline.json) is a ratchet: known failing cells are listed
-with their first difference, a new failing cell fails CI, and a fix removes cells from it.
+The baseline (tests/unicode_gauntlet/baseline.txt) is a ratchet: known failing cells are listed
+with their first difference, a new failing cell fails CI, and a fix removes cells from it. It is one
+line per cell with no counts, and git merges it as a UNION (.gitattributes): two PRs that each fix
+cells merge without a conflict, and a line left for a cell that now passes is harmless (--ci reports
+it as "lower the baseline", never as a failure). The rosetta commit the cells were measured at is
+tests/unicode_gauntlet/rosetta_ref.
 """
 
 from __future__ import annotations
@@ -46,7 +50,32 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HERE = REPO_ROOT / "tests" / "unicode_gauntlet"
-BASELINE = HERE / "baseline.json"
+BASELINE = HERE / "baseline.txt"
+ROSETTA_REF = HERE / "rosetta_ref"
+_BASELINE_HEADER = (
+    "# #3812: the Unicode Gauntlet's known failing cells -- a ratchet. CI fails on a failing cell not listed\n"
+    "# here; a fix removes cells (--update-baseline). One `cell<TAB>first difference` per line, sorted; git\n"
+    "# merges this file as a union, so a stale line is possible and harmless. Cells were measured at the\n"
+    "# keyword-rosetta commit in rosetta_ref.\n"
+)
+
+
+def read_baseline() -> dict[str, str]:
+    """{cell: its first difference} of the committed baseline (empty without one)."""
+    if not BASELINE.is_file():
+        return {}
+    rows = (line.split("\t", 1) for line in BASELINE.read_text(encoding="utf-8").splitlines())
+    return {r[0]: (r[1] if len(r) > 1 else "") for r in rows if r[0] and not r[0].startswith("#")}
+
+
+def write_baseline(failing: dict[str, str]) -> None:
+    def one_line(diff: str) -> str:  # a difference may quote multi-line source: keep it on its line
+        return " ".join(diff.split())[:240]
+
+    body = "".join(f"{cid}\t{one_line(d)}\n" for cid, d in sorted(failing.items()))
+    BASELINE.write_text(_BASELINE_HEADER + body, encoding="utf-8")
+
+
 LEGALITY = json.loads((HERE / "legality.json").read_text(encoding="utf-8"))
 
 # A word per script, appended to a unit name. Each exercises a failure class: ß upper-cases to SS
@@ -464,15 +493,13 @@ def main(argv: list[str] | None = None) -> int:
 
         ref = subprocess.run(["git", "-C", str(args.corpus), "rev-parse", "HEAD"], capture_output=True, text=True,  # noqa: S603, S607
                              check=False).stdout.strip() or None  # fmt: skip
-        doc = {"about": "#3812: the Unicode Gauntlet's known failing cells -- a ratchet. CI fails on a failing cell "
-                        "not listed here; a fix removes cells (--update-baseline). Cells depend on the rosetta "
-                        "corpus, so CI checks it out at rosetta_ref.",
-               "rosetta_ref": ref, "cells": len(results), "passing": len(results) - len(failing), "failing": failing}  # fmt: skip
-        BASELINE.write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+        write_baseline(failing)
+        if ref:
+            ROSETTA_REF.write_text(ref + "\n", encoding="utf-8")
         print(f"baseline: {len(failing)} failing cells recorded")
         return 0
     if args.ci:
-        known = json.loads(BASELINE.read_text(encoding="utf-8"))["failing"] if BASELINE.is_file() else {}
+        known = read_baseline()
         new = sorted(set(failing) - set(known))
         fixed = sorted(set(known) - set(failing) & set(results))
         for cid in new:

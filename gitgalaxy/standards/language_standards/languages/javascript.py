@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
     GLOBAL_DL_FRAMEWORKS,
@@ -129,9 +131,13 @@ DEFINITION: dict[str, Any] = {
             # Name groups added to branches 1/3 too, purely so existing
             # extraction tests keep passing.
             r"(?:"
-            r"\b(?:async[ \t\n]+)?function[ \t\n]*\*?[ \t\n]*(\w*)[ \t\n]*(\([^)]*\))|"
-            r"(\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
-            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return|with)\b)(#?[a-zA-Z_$][\w$]*)[ \t\n]*(\([^)]*\))(?=[ \t\n]*\{)"
+            r"\b(?:async[ \t\n]+)?function[ \t\n]*\*?[ \t\n]*([" + ID_CONTINUE + r"]*)[ \t\n]*(\([^)]*\))|"
+            r"(\([^)]*\)|[" + ID_START + r"$][" + ID_CONTINUE + r"$]{0,100})[ \t\n]*=>|"
+            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return|with)\b)(#?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)[ \t\n]*(\([^)]*\))(?=[ \t\n]*\{)"
             r")",
             re.M,
         ),
@@ -146,7 +152,7 @@ DEFINITION: dict[str, Any] = {
         # object literal methods (foo: function), and ES6 methods.
         "func_start": re.compile(
             r"(?:"
-            r"\b(?:async\s+)?function\s*\*?\s+[a-zA-Z_$][\w$]*(?=\s*\()|"
+            r"\b(?:async\s+)?function\s*\*?\s+[" + ID_START + r"$][" + ID_CONTINUE + r"$]*(?=\s*\()|"
             # =====================================================================
             # [ THE VERTICAL ASSIGNMENT SHIELD ] (Hard-learned lesson from Pathological Fuzzer)
             # PURPOSE: JavaScript developers frequently format complex asynchronous
@@ -160,8 +166,24 @@ DEFINITION: dict[str, Any] = {
             # first line start / the file start -- a bare `^` rescanned a blanked
             # multi-line template literal from every one of its lines (quadratic).
             # Full rationale on typescript.py's identical anchor.
-            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?:\[[^\]\n]+\])?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
-            r"^[ \t]*(?:\[[^\]\n]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*(?<!\.\.\.)\b["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?:\[[^\]\n]+\])?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*=>))|"
+            r"^[ \t]*(?:\[[^\]\n]+\]|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*=>))|"
             # GENERATOR METHOD FIX (epic #813/#814): class/object-literal generator
             # methods (`*foo() {}`, `async *foo() {}`, `static *foo() {}`) were
             # completely invisible -- this branch had no allowance for the leading
@@ -196,13 +218,21 @@ DEFINITION: dict[str, Any] = {
             # statement) has the exact `keyword (...) {` shape this branch matches,
             # so it was counted as a method named `with`. `do` can't be caught the
             # same way (`do {` has no parens), so it needs no entry.
-            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|with)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)(]*\)[ \t\n]*(?::[^{=;]+)?[ \t\n]*(?:=>[ \t\n]*)?\{)"
+            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|with)\b|\$)#?["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?=[ \t\n]*\([^)(]*\)[ \t\n]*(?::[^{=;]+)?[ \t\n]*(?:=>[ \t\n]*)?\{)"
             r")",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]+){0,5}(?:export[ \t]+)?(?:default[ \t]+)?class\s+([a-zA-Z_$][\w$]*)(?:\s+extends\s+([a-zA-Z_$][\w$.]*))?",
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]+){0,5}(?:export[ \t]+)?(?:default[ \t]+)?class\s+(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:\s+extends\s+([a-zA-Z_$][\w$.]*))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -252,7 +282,19 @@ DEFINITION: dict[str, Any] = {
             # (corollary 3): the write is `x = v`, `this.x = v`, `x++`, or an in-place
             # mutator on a receiver. `=` directly followed by `{`/quote is a JSX attribute
             # (`bar={x}`), not a statement.
-            r"(?:^|[;{})])[ \t]*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\?\.[A-Za-z_$][\w$]*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{})])[ \t]*["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?:\.["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\?\.["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|\*\*|<<|>>>?|&&|\|\||\?\?)?=(?![=>{\"'`])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_$(]"
             r"|\bsetState\s*\("

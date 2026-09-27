@@ -35,6 +35,13 @@ DDL_AUTO = ("none", "validate", "update", "create", "create-drop")
 UI_FLAVOURS = ("none", "thymeleaf", "openapi-only")  # #3619: what the BMS screens become beyond view models
 MESSAGING = ("in-memory", "jms", "kafka")  # #3620: the adapter behind the TD / MQ message port
 REMOTE_CALLS = ("http", "local")  # a DPL LINK to another region: an HTTP client, or the in-process bean
+# #3819: the culture section. The first value of each is COBOL's own behaviour (the default);
+# anything else is a business choice the run declares as a deviation.
+ROUNDING = ("cobol", "half_even")  # ROUNDED: half away from zero (ROUNDED MODE honoured) | banker's
+OVERFLOW = ("cobol", "error")  # a result too long for its PICTURE: high-order digits lost | an exception
+DECIMAL_POINTS = ("auto", "period", "comma")  # auto = SPECIAL-NAMES DECIMAL-POINT IS COMMA, else period
+KEY_COLLATIONS = ("ebcdic", "binary", "database")  # key order: the code page's bytes | UTF-8 bytes | the DB's
+DB2_DATE_FORMATS = ("iso", "eur", "usa", "jis", "local")  # the DB2 subsystem's DATE/TIME character format
 
 # Per database: (Maven groupId, artifactId) of the JDBC driver -- versions come from the
 # Spring Boot BOM -- the driver class, the Hibernate dialect, and a JDBC URL template.
@@ -83,6 +90,8 @@ def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
 
 
 _PACKAGE = re.compile(r"[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*")
+_LOCALE_TAG = re.compile(r"ROOT|[a-z]{2,3}(?:-[A-Z][a-z]{3})?(?:-(?:[A-Z]{2}|[0-9]{3}))?")  # BCP-47: de-DE, zh-Hant-TW
+_ZONE_ID = re.compile(r"UTC|[A-Za-z_]{1,30}(?:/[A-Za-z0-9_+-]{1,30}){1,2}")  # an IANA id's shape
 _BOOT_VERSION = re.compile(r"3\.\d+\.\d+")
 _ARTIFACT = re.compile(r"[a-z0-9][a-z0-9._-]*")
 
@@ -149,6 +158,23 @@ class Data:
 
 
 @dataclass
+class Culture:
+    """#3819: the program's cultural and regional assumptions. Every default reproduces what the COBOL
+    program does on its mainframe; a non-default is a business decision, listed by JavaTarget.deviations()
+    in the migration audit. This section declares; the behaviour behind each option lands in its issue."""
+
+    rounding: str = "cobol"  # TODO(#3825): ROUNDED / ROUNDED MODE in generated arithmetic and porting rules
+    overflow: str = "cobol"  # TODO(#3825): high-order truncation vs ON SIZE ERROR
+    zone: str = "UTC"  # TODO(#3824): MainframeClock's zone and CURRENT-DATE's UTC offset
+    format_locale: str = "ROOT"  # generated formatting / case mapping (#3823 made it Locale.ROOT)
+    display_locale: str = "ROOT"  # TODO(#3819): screens only -- never used for stored data
+    decimal_point: str = "auto"  # TODO(#3827): DECIMAL-POINT IS COMMA in edited PICTUREs and schemas
+    currency: str = "auto"  # TODO(#3820): CURRENCY SIGN / PICTURE SYMBOL in edited PICTUREs
+    key_collation: str = "ebcdic"  # TODO(#3822): key order of generated repositories
+    db2_date_format: str = "iso"  # TODO(#3828): the DB2 subsystem's DATE/TIME format for character dates
+
+
+@dataclass
 class JavaTarget:
     project: Project = field(default_factory=Project)
     java: Java = field(default_factory=Java)
@@ -158,6 +184,7 @@ class JavaTarget:
     integration: Integration = field(default_factory=Integration)
     ui: Ui = field(default_factory=Ui)
     data: Data = field(default_factory=Data)
+    culture: Culture = field(default_factory=Culture)
 
     @property
     def lombok(self) -> bool:
@@ -169,6 +196,25 @@ class JavaTarget:
     def driver(self) -> tuple[str, str, str, str, str]:
         return DATABASE_DRIVERS[self.database.engine]
 
+    def deviations(self) -> list[str]:
+        """#3819: every culture choice that departs from the COBOL program's own behaviour, in words."""
+        c, out = self.culture, []
+        if c.rounding == "half_even":
+            out.append(
+                "culture.rounding: half_even -- ROUNDED uses banker's rounding (COBOL rounds half away from zero)"
+            )
+        if c.overflow == "error":
+            out.append("culture.overflow: error -- a result too long for its PICTURE throws (COBOL keeps the "
+                       "low-order digits unless ON SIZE ERROR)")  # fmt: skip
+        if c.format_locale != "ROOT":
+            out.append(f"culture.format_locale: {c.format_locale} -- generated formatting and case mapping follow "
+                       "a locale (COBOL's are fixed; digits and case can change)")  # fmt: skip
+        if c.key_collation != "ebcdic":
+            out.append(f"culture.key_collation: {c.key_collation} -- keys order by "
+                       f"{'UTF-8 bytes' if c.key_collation == 'binary' else 'the database default collation'}, "
+                       f"not {self.data.code_page} byte order (browses and sorts can differ)")  # fmt: skip
+        return out
+
 
 _SECTIONS = {
     "project": Project,
@@ -179,6 +225,7 @@ _SECTIONS = {
     "integration": Integration,
     "ui": Ui,
     "data": Data,
+    "culture": Culture,
 }
 
 
@@ -215,6 +262,43 @@ def _check(target: JavaTarget) -> None:
     if not _BOOT_VERSION.fullmatch(str(s.version)):
         raise ConfigError(f"spring_boot.version {s.version!r}: a Spring Boot 3.x.y version (jakarta namespace)")
     zoned_sign_characters(target.data.code_page)  # #3826: an unknown code page fails at load, not mid-generation
+    _check_culture(target.culture)
+
+
+def _known_zone(zone: str) -> bool:
+    """An IANA time zone the system knows -- by shape alone where Python has no tz database (zero-dep)."""
+    if zone == "UTC":
+        return True
+    try:
+        import zoneinfo  # Python 3.9+
+    except ImportError:
+        return bool(_ZONE_ID.fullmatch(zone))
+    if not zoneinfo.available_timezones():
+        return bool(_ZONE_ID.fullmatch(zone))
+    try:
+        zoneinfo.ZoneInfo(zone)
+        return True
+    except (KeyError, ValueError, OSError):  # ZoneInfoNotFoundError is a KeyError; a malformed key a ValueError
+        return False
+
+
+def _check_culture(c: Culture) -> None:
+    for key, value, allowed in (
+        ("culture.rounding", c.rounding, ROUNDING),
+        ("culture.overflow", c.overflow, OVERFLOW),
+        ("culture.decimal_point", c.decimal_point, DECIMAL_POINTS),
+        ("culture.key_collation", c.key_collation, KEY_COLLATIONS),
+        ("culture.db2_date_format", c.db2_date_format, DB2_DATE_FORMATS),
+    ):
+        if value not in allowed:
+            raise ConfigError(f"{key} {value!r} is not supported; choose one of {', '.join(allowed)}")
+    if not isinstance(c.zone, str) or not _known_zone(c.zone):
+        raise ConfigError(f"culture.zone {c.zone!r}: an IANA time zone id such as UTC, Europe/Oslo, Asia/Kolkata")
+    for key, value in (("culture.format_locale", c.format_locale), ("culture.display_locale", c.display_locale)):
+        if not isinstance(value, str) or not _LOCALE_TAG.fullmatch(value):
+            raise ConfigError(f"{key} {value!r}: ROOT or a BCP-47 language tag such as de-DE, hi-IN, zh-Hant-TW")
+    if not isinstance(c.currency, str) or not c.currency or len(c.currency) > 8 or "\n" in c.currency:
+        raise ConfigError(f"culture.currency {c.currency!r}: auto, or the symbol / string itself (1-8 characters)")
 
 
 def target_from_dict(data: dict[str, Any] | None) -> JavaTarget:
@@ -314,4 +398,24 @@ ui:
 
 data:
   code_page: cp037                      # the EBCDIC code page for zoned-decimal sign overpunch
+
+# Cultural and regional assumptions (#3819). Every default is what the COBOL program does on its
+# mainframe; anything else is a business choice, listed under "Declared cultural deviations" in
+# java_migration_audit.txt and shown to every porting ticket.
+culture:
+  rounding: cobol                       # {" | ".join(ROUNDING)}  (cobol: ROUNDED is half away from zero, ROUNDED MODE
+                                        #   honoured, unrounded results truncate; half_even: banker's rounding -- a deviation)
+  overflow: cobol                       # {" | ".join(OVERFLOW)}  (cobol: a result too long for its PICTURE loses its
+                                        #   high-order digits unless ON SIZE ERROR; error: throw instead -- a deviation)
+  zone: UTC                             # the mainframe's time zone, an IANA id (e.g. Asia/Kolkata, Europe/Oslo):
+                                        #   the pinned clock and CURRENT-DATE's UTC offset
+  format_locale: ROOT                   # formatting / case mapping in generated code: ROOT keeps digits and case
+                                        #   locale-proof; a BCP-47 tag here is a deviation
+  display_locale: ROOT                  # screens only (presentation): ROOT or a BCP-47 tag such as de-DE; never stored data
+  decimal_point: auto                   # {" | ".join(DECIMAL_POINTS)}  (auto: the program's SPECIAL-NAMES DECIMAL-POINT IS COMMA)
+  currency: auto                        # auto (the program's CURRENCY SIGN), or the symbol itself, e.g. "£" or "EUR "
+  key_collation: ebcdic                 # {" | ".join(KEY_COLLATIONS)}  (ebcdic: keys order as on the mainframe, the
+                                        #   code page's byte order; binary / database: a deviation -- browses can differ)
+  db2_date_format: iso                  # {" | ".join(DB2_DATE_FORMATS)}  (the DB2 subsystem's DATE/TIME format for
+                                        #   character dates)
 """  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

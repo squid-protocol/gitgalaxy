@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -135,11 +137,17 @@ DEFINITION: dict[str, Any] = {
             # (confirmed: `Binder.java`'s `handleBindResult`, 6 real params,
             # measured 1 -- borrowed from a `(dataObjectBinder) ->` lambda
             # three lines into the body).
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<(?:[^<>]|<[^<>]*>)*>|@[\w.]+(?:\([^)]*\))?)[ \t\n]+){0,5}(?:[\w<>\[\]?.,]+[ \t\n]+)(\w+)[ \t\n]*(\([^)]*\))|"
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static|final|abstract|synchronized|native|default|strictfp|<(?:[^<>]|<[^<>]*>)*>|@[\w.]+(?:\([^)]*\))?)[ \t\n]+){0,5}(?:[\w<>\[\]?.,]+[ \t\n]+)(["
+            + ID_CONTINUE
+            + r"]+)[ \t\n]*(\([^)]*\))|"
             # 2. Constructors
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static)[ \t\n]+)?([A-Z]\w*)[ \t\n]*(\([^)]*\))[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}(?!(?:new|return|throw|if|else|while|for|switch|catch)\b)(?:(?:public|protected|private|static)[ \t\n]+)?(["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)[ \t\n]*(\([^)]*\))[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{]|"
             # 3. Lambdas & Method Refs
-            r"(\([^)]*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*->|::"
+            r"(\([^)]*\)|[" + ID_START + r"$][" + ID_CONTINUE + r"$]{0,100})[ \t\n]*->|::"
             r")",
             re.M,
         ),
@@ -191,9 +199,17 @@ DEFINITION: dict[str, Any] = {
             # return type, and constructors always have a body.
             r"(?:"
             r"(?:[a-zA-Z_$][\w<>$\[\]?.,]*[ \t\n]+){1,5}"
-            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\((?=[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{;])"
+            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)\s*\((?=[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w., \t\n]+)?[{;])"
             r"|"
-            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)([A-Za-z_$][\w_$]*)\s*\((?=[^)]*\)[ \t\n]*\{)"
+            r"(?!(?:if|for|while|switch|catch|new|return|class|interface|enum|record)\b)(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)\s*\((?=[^)]*\)[ \t\n]*\{)"
             r")",
             re.M,
         ),
@@ -207,7 +223,11 @@ DEFINITION: dict[str, Any] = {
         # losing the entire inheritance capture (group 2) even though the
         # class name (group 1) still matched fine.
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|protected|private|static|final|sealed|non-sealed|abstract|strictfp)[ \t]+){0,5}(?:class|interface|enum|record)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s+(?:extends|implements)\s+([A-Za-z_$][\w_$, \t<>\?]*))?",
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|protected|private|static|final|sealed|non-sealed|abstract|strictfp)[ \t]+){0,5}(?:class|interface|enum|record)\s+(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s+(?:extends|implements)\s+([A-Za-z_$][\w_$, \t<>\?]*))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -250,8 +270,16 @@ DEFINITION: dict[str, Any] = {
             r"(?:(?:static|final|abstract|synchronized|native|strictfp|default|sealed|non-sealed|transient|volatile|@[\w.]+(?:\([^)\n]{0,200}\))?)[ \t\n]+){0,5}"
             r"(?:<(?:[^<>]|<[^<>]*>){0,200}>[ \t\n]*)?"
             r"(?:class|interface|enum|record|@interface|void\b"
-            r"|[A-Za-z_$][\w$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+[A-Za-z_$][\w$]*[ \t\n]*[({=;,]"
-            r"|[A-Za-z_$][\w$]*[ \t\n]*\()"
+            r"|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*[({=;,]"
+            r"|[" + ID_START + r"$][" + ID_CONTINUE + r"$]*[ \t\n]*\()"
             r"|@(RestController|Controller|Service|Component|Bean|Produces|Consumes|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Endpoint|WebFilter)\b"
         ),
         # 11. flux (State Mutation)
@@ -278,7 +306,15 @@ DEFINITION: dict[str, Any] = {
             # accessors (corollary 2); the write is `x = v`, `x++`, `.set(`/`.add(`... A
             # mutator needs its receiver's dot so a setter DECLARATION (`void setX(`) is
             # not counted as a call.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>>?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
             r"|\.(?:set[A-Z]\w*|add|addAll|put|putAll|remove|clear|replace|computeIfAbsent|merge|offer|poll|push|pop"

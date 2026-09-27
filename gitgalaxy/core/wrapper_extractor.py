@@ -45,6 +45,7 @@ from typing import Any, Callable, Optional
 # like `printf` are calls, #3361), shared with detector.py's own `calls_out_to`
 # filter so a macro body's `while (0)` is not recorded as a callee.
 from gitgalaxy.core.detector import _CALLS_OUT_GLOBAL_IGNORE
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 # A C/C++ macro body: C++'s `throw` is a keyword there (#3645 moved it out of the global set).
 _MACRO_IGNORE = _CALLS_OUT_GLOBAL_IGNORE | {"throw"}
@@ -69,9 +70,13 @@ _DEFINE = re.compile(
 # A call-shaped name inside a macro body.
 _CALLED = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
 # An UNQUALIFIED call-shaped name: `x.f(`, `x::f(` and `x->f(` are calls on
-# something else and are never counted.
-_UNQUALIFIED_CALL = re.compile(r"(?<![\w$.:>])([A-Za-z_$][\w$]*)\s*\(")
-_IDENT = re.compile(r"[A-Za-z_$][\w$]*")
+# something else and are never counted. #3814: names are UAX #31 (`probeRiskनाम(`), and the
+# lookbehind uses the same class so a match cannot start after a combining mark mid-name.
+_UNQUALIFIED_CALL = re.compile(r"(?<![" + ID_CONTINUE + r"$.:>])([" + ID_START + r"$][" + ID_CONTINUE + r"$]*)\s*\(")
+_IDENT = re.compile(r"[" + ID_START + r"$][" + ID_CONTINUE + r"$]*")
+# a name standing alone: not part of a longer (Unicode) name
+_NOT_NAME_BEFORE = r"(?<![" + ID_CONTINUE + r"$])"
+_NOT_NAME_AFTER = r"(?![" + ID_CONTINUE + r"$])"
 # Callees kept per candidate / macro. The closure only needs to know whether ONE
 # callee is a wrapper; a cap keeps a generated file's payload bounded.
 _MAX_CALLEES = 24
@@ -151,7 +156,7 @@ def extract_wrapper_facts(
         loc = func.get("loc") or 0
         if loc > CANDIDATE_MAX_LOC:
             continue
-        own = [m.span() for m in re.finditer(r"(?<![\w$])" + re.escape(name) + r"(?![\w$])", body)]
+        own = [m.span() for m in re.finditer(_NOT_NAME_BEFORE + re.escape(name) + _NOT_NAME_AFTER, body)]
         hits = sorted(
             rule
             for rule, pattern in patterns.items()
@@ -168,7 +173,7 @@ def extract_wrapper_facts(
                 # The engine's span names the function within its first 3 lines
                 # (C puts the return type on its own line). When it does not,
                 # the span is not the function's and its hits are other code's.
-                "aligned": bool(re.search(r"(?<![\w$])" + re.escape(name) + r"(?![\w$])", "\n".join(lines[:3]))),
+                "aligned": bool(re.search(_NOT_NAME_BEFORE + re.escape(name) + _NOT_NAME_AFTER, "\n".join(lines[:3]))),
                 "method": is_method_definition(lang_id, lines[0], name),
                 "hits": hits,
                 "callees": callees[:_MAX_CALLEES],

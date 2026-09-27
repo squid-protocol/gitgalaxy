@@ -189,14 +189,22 @@ CALLS_OUT_C_STYLE_GENERIC = re.compile(
 #     `ready ? a : b` is not a call.
 # A bare word with no dot, paren or argument (`foo`) is never matched: without
 # a symbol table Ruby cannot tell a local variable from a call (issue #3377).
+# #3814: every name class is UAX #31 (a receiver `பெயர்.save` ends in a virama, not `\w`); the
+# cheap `(?<=\.)` runs first so the wide class is only tried after a dot.
 _RUBY_KEYWORD = (
     r"(?:alias|and|begin|break|case|class|def|defined\?|do|else|elsif|end|ensure|false|for|if|in|module"
     r"|next|nil|not|or|redo|rescue|retry|return|self|super|then|true|undef|unless|until|when|while|yield)"
-    r"(?![\w?!])"
+    r"(?![" + ID_CONTINUE + r"?!])"
 )
 _RUBY_CALLEE = rf"[{ID_START}][{ID_CONTINUE}]*(?:[?!](?![=~:]))?"
 CALLS_OUT_RUBY = re.compile(
-    r"(?:(?<=[\w)\]}?!\"'`]\.)|(?<=[\w)\]}?!\"'`]&\.)|(?<=[ \t\n]\.)|(?<=\A\.)|(?<=\w::)(?=[a-z_])"
+    r"(?:(?<=\.)(?<=["
+    + ID_CONTINUE
+    + r")\]}?!\"'`]\.)|(?<=&\.)(?<=["
+    + ID_CONTINUE
+    + r")\]}?!\"'`]&\.)|(?<=[ \t\n]\.)|(?<=\A\.)|(?<=::)(?<=["
+    + ID_CONTINUE
+    + r"]::)(?=[a-z_])"
     r"|(?<![@$.:])\b(?!"
     + _RUBY_KEYWORD
     + r")(?="
@@ -206,8 +214,8 @@ CALLS_OUT_RUBY = re.compile(
     + r"]["
     + ID_CONTINUE
     + r"]*[?!](?![=~:]))"
-    r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_]\w*!?[ \t]+"
-    r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[\w:\"'@$\[%]))"
+    r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_][" + ID_CONTINUE + r"]*!?[ \t]+"
+    r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[" + ID_CONTINUE + r":\"'@$\[%]))"
     r"(" + _RUBY_CALLEE + r")",
     re.M,
 )
@@ -230,6 +238,7 @@ CALLS_OUT_RUBY = re.compile(
 #     (`Type::Array(_)\n| Type::Tuple(_) =>`).
 # Every quantifier is bounded or runs over characters its neighbours cannot start
 # with (Rules 1-3); the pattern check runs only at a capitalised word start.
+# #3814: the pattern's name continues through combining marks (UAX #31).
 _RUST_GENERIC_CHAR = r"[^<>(){}\n\"]"
 _RUST_TURBOFISH = (
     r"::<(?:" + _RUST_GENERIC_CHAR + r"|<(?:" + _RUST_GENERIC_CHAR + r"|<" + _RUST_GENERIC_CHAR + r"{0,200}>){0,200}>)"
@@ -238,7 +247,7 @@ _RUST_TURBOFISH = (
 _RUST_BALANCED_ARGS = r"\((?:[^()\n]|\((?:[^()\n]|\([^()\n]{0,200}\)){0,200}\)){0,200}\)"
 _RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b)|\s{0,16}\|(?![|=]))"
 CALLS_OUT_RUST = re.compile(
-    r"\b(?![A-Z]\w{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
+    r"\b(?![A-Z][" + ID_CONTINUE + r"]{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
     rf"([{ID_START}][{ID_CONTINUE}]*)"
     r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
 )

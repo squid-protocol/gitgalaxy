@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -79,7 +81,19 @@ DEFINITION: dict[str, Any] = {
             # signature by +1 the same way Python's did (#1199). Name
             # group added to the first alternative too, purely so
             # existing extraction tests keep passing.
-            r"\b((?:func|init\??|subscript)[ \t\n]*(?:[a-zA-Z_]\w*)?)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)(]*(?:\([^)]*\)[^)(]*)*\))*\))|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})?[ \t\n]*in\b",
+            r"\b((?:func|init\??|subscript)[ \t\n]*(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)?)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?[ \t\n]*(\((?:[^)(]|\([^)(]*(?:\([^)]*\)[^)(]*)*\))*\))|\{[ \t\n]*(?:\[[^\]]*\][ \t\n]*)?(\([^)]*\)|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t\n]*,[ \t\n]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,50})?[ \t\n]*in\b",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -101,9 +115,13 @@ DEFINITION: dict[str, Any] = {
             # constraint (`func foo<T: Collection<Int>>(x: T) {`, Swift 5.7+, mainstream) --
             # same gap as args above. Widened to the established one-level-nesting idiom.
             # =====================================================================
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t\n]*){0,5}"
+            r"^[ \t]*(?:@[" + ID_CONTINUE + r".]+(?:\([^)]*\))?[ \t\n]*){0,5}"
             r"(?:(?:public|private|fileprivate|internal|open|package|override|final|static|class|mutating|nonmutating|isolated|nonisolated(?:\(unsafe\))?|distributed|required|convenience)[ \t\n]+){0,5}"
-            r"(?:func[ \t\n]+([a-zA-Z_]\w*|[=/\-+!*%<>&|^?~]+)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
+            r"(?:func[ \t\n]+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|[=/\-+!*%<>&|^?~]+)(?:[ \t\n]*<(?:[^<>]|<[^<>]*(?:<[^<>]*>[^<>]*)*>)*>)?|(init\??)|(subscript))(?=[ \t\n]*\()",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
@@ -116,7 +134,17 @@ DEFINITION: dict[str, Any] = {
         # mainstream in real Swift error-handling code) capture their
         # full qualified name instead of truncating at the first dot.
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed|indirect)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*)",
+            r"^[ \t]*(?:@["
+            + ID_CONTINUE
+            + r".]+(?:\([^)]*\))?[ \t]*){0,5}(?:(?:public|private|fileprivate|internal|open|package|final|distributed|indirect)[ \t]+){0,5}(?:class|struct|enum|protocol|actor|extension|macro)\s+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -195,7 +223,15 @@ DEFINITION: dict[str, Any] = {
             # `var`/`inout`/`mutating`/`didSet`/`willSet`/`@State`... declare or annotate
             # mutable state (corollaries 1 and 2); the write is `x = v`, `x += 1`,
             # `.append(`... Named arguments use `:`, so `(` is not a statement start.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
             r"|\.(?:append|insert|remove|removeAll|removeLast|removeFirst|toggle|updateValue|swapAt|sort|reverse|popLast)\s*\(",
             re.M,
@@ -231,7 +267,15 @@ DEFINITION: dict[str, Any] = {
         ),
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(
-            r"completion:[ \t]*\{|\{\s*(?:\[[^\]]*\]\s*)?(?:\([^)]*\)|[a-zA-Z_]\w*(?:[ \t\n]*,[ \t\n]*[a-zA-Z_]\w*){0,50})[ \t\n]+in\b"
+            r"completion:[ \t]*\{|\{\s*(?:\[[^\]]*\]\s*)?(?:\([^)]*\)|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t\n]*,[ \t\n]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,50})[ \t\n]+in\b"
         ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
@@ -242,9 +286,19 @@ DEFINITION: dict[str, Any] = {
             r"|\.(?:shared|standard|default)\b(?![ \t]*:)|@Environment\b"
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"@[a-zA-Z_]\w*(?:\([^)]*\))?"),
+        "decorators": re.compile(r"@[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\([^)]*\))?"),
         # 20. generics (Generics / Type Parameters)
-        "generics": re.compile(r"<\s*[A-Z][^>]*>|\bwhere\s+[a-zA-Z_]\w*\s*:|\b(?:some|any|each)\s+[A-Z]\w*"),
+        "generics": re.compile(
+            r"<\s*[A-Z][^>]*>|\bwhere\s+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*:|\b(?:some|any|each)\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*"
+        ),
         # 21. comprehensions (Iterators / Comprehensions)
         "comprehensions": re.compile(
             r"\.(?:map|compactMap|flatMap|filter|reduce|forEach|allSatisfy|contains)\s*(?:\(|\{)"
@@ -257,12 +311,20 @@ DEFINITION: dict[str, Any] = {
         # Reflection and Dynamic Dispatch.
         # BUG FIX: `@objc` is `@`-prefixed -- same leading-\b bug.
         "reflection_metaprogramming": re.compile(
-            r"\b(?:dynamic|Mirror\(|unsafeBitCast|withUnsafe\w+|KeyPath|WritableKeyPath)\b|@objc|\\\.[\w.]+"
+            r"\b(?:dynamic|Mirror\(|unsafeBitCast|withUnsafe["
+            + ID_CONTINUE
+            + r"]+|KeyPath|WritableKeyPath)\b|@objc|\\\.["
+            + ID_CONTINUE
+            + r".]+"
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"^[ \t]*(?:@_exported[ \t]+)?import\s+[a-zA-Z_]\w*", re.M),
+        "import": re.compile(r"^[ \t]*(?:@_exported[ \t]+)?import\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*", re.M),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:@_exported[ \t]+)?import\s+(?:(?:typealias|struct|class|enum|protocol|let|var|func)\s+)?([a-zA-Z_][\w.]*)",
+            r"^[ \t]*(?:@_exported[ \t]+)?import\s+(?:(?:typealias|struct|class|enum|protocol|let|var|func)\s+)?(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".]*)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -309,11 +371,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # 34. macros (Preprocessor Directives / Macros)
         "macros": re.compile(
-            r"#(?:Preview|Predicate|OptionSet|Rule|warning|error)\b|@(?:freestanding|attached)|#[A-Z]\w*"
+            r"#(?:Preview|Predicate|OptionSet|Rule|warning|error)\b|@(?:freestanding|attached)|#["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*"
         ),
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         "pointers": re.compile(
-            r"\b(?:Unsafe(?:Mutable)?(?:Raw|Buffer)?Pointer|OpaquePointer|CVaListPointer|Unmanaged)\b|\.pointee\b|(?<=[=\s,(])&\w+"
+            r"\b(?:Unsafe(?:Mutable)?(?:Raw|Buffer)?Pointer|OpaquePointer|CVaListPointer|Unmanaged)\b|\.pointee\b|(?<=[=\s,(])&["
+            + ID_CONTINUE
+            + r"]+"
         ),
         # 36. memory_alloc (Manual Memory Management)
         # BUG FIX: `\.allocate\(capacity:` ends on `:` and
@@ -332,7 +400,15 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(print|debugPrint|dump)\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
-            r"\bas[!?]?\s+[A-Z]\w*|\bis\s+[A-Z]\w*|\b(?:Int|Double|Float|Float16|CGFloat|String|Bool)\s*\("
+            r"\bas[!?]?\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\bis\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\b(?:Int|Double|Float|Float16|CGFloat|String|Bool)\s*\("
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(throw|fatalError|abort|exit|preconditionFailure)\b"),

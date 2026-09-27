@@ -85,7 +85,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
-from gitgalaxy.core.compiler_options import compiler_options
+from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
@@ -342,7 +342,7 @@ _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
     r"(?<![A-Z"
     + NATIONAL
-    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
+    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER|NATIONAL)"
     r"(?![A-Z" + NATIONAL + r"0-9-])",
     re.I,
 )
@@ -803,8 +803,11 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
         ):
             continue
         entries.append(m)
+    # #3816: a bare PIC N is USAGE NATIONAL (UTF-16) unless the compiler option NSYMBOL(DBCS) makes it DISPLAY-1
+    is_dbcs = effective(compiler_options(code_stream)).get("NSYMBOL") == "DBCS"
+
     records: list[dict[str, Any]] = []
-    stack: list[tuple[int, int]] = []  # (level, ordinal) of the open group items
+    stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, usage) of the open group items
     last_item_ordinal: Optional[int] = None
 
     for pos, level_match in enumerate(entries):
@@ -821,17 +824,32 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
         ordinal = len(records)
         if level in _CONDITION_LEVELS:
             parent_ordinal: Optional[int] = last_item_ordinal
+            parent_usage = stack[-1][2] if stack else None
         else:
             while stack and stack[-1][0] >= level:
                 stack.pop()
             parent_ordinal = stack[-1][1] if stack else None
-            stack.append((level, ordinal))
-            last_item_ordinal = ordinal
+            parent_usage = stack[-1][2] if stack else None
 
         pic_match = _PIC_CLAUSE.search(window)
         pic = pic_match.group(1).rstrip(".") if pic_match else None
         usage_match = _USAGE_CLAUSE.search(window)
         usage = usage_match.group(1).upper() if usage_match else None
+
+        # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
+        # USAGE NATIONAL / DISPLAY-1 applies to its members. (Other group usages are not inherited here.)
+        if usage is None and pic:
+            if "G" in pic.upper():
+                usage = "DISPLAY-1"
+            elif "N" in pic.upper():
+                usage = "DISPLAY-1" if is_dbcs else "NATIONAL"
+        if usage is None and parent_usage in ("NATIONAL", "DISPLAY-1"):
+            usage = parent_usage
+
+        if level not in _CONDITION_LEVELS:
+            stack.append((level, ordinal, usage))
+            last_item_ordinal = ordinal
+
         occurs_match = _OCCURS_CLAUSE.search(window)
         occurs_min = occurs_max = None
         depending = None

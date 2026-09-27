@@ -138,6 +138,7 @@ class Ui:
 @dataclass
 class Data:
     code_page: str = "cp037"
+    dbcs_code_page: str | None = None
 
 
 @dataclass

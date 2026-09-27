@@ -4945,7 +4945,7 @@ def _item_class(item: EngineDataItem) -> str:
     pic = (item.pic or "").upper()
     if not pic:
         return "?"
-    if "N" in pic or "G" in pic or usage == "DISPLAY-1":
+    if "N" in pic or "G" in pic or usage in ("DISPLAY-1", "NATIONAL"):
         return "N"
     if set(pic) & set("XA"):
         return "X"
@@ -4988,7 +4988,9 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
             return None
         return 2 if digits <= 4 else 4 if digits <= 9 else 8
     storage = [p for p in positions if p not in ("S", "V", "P")]
-    width = sum(2 if p in ("N", "G") else 1 for p in storage)
+    # #3816: NATIONAL (UTF-16) and DISPLAY-1 (DBCS) take 2 bytes a position, N / G whatever the usage says
+    wide = usage in ("NATIONAL", "DISPLAY-1")
+    width = sum(2 if wide or p in ("N", "G") else 1 for p in storage)
     if width and item.sign_separate and "S" in positions:
         width += 1  # #3694: SIGN ... SEPARATE -- the sign is a character of its own
     return (width + extra) or None

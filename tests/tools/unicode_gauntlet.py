@@ -17,6 +17,12 @@ edges, and the mainframe channels (call sites, datasets, CSD and CICS resources,
 job flow), each keyed by path, names mapped. A CELL is one (seed language, script, encoding)
 variant; it passes when nothing differs.
 
+A Shift-JIS or GB18030 estate is scanned with its code page declared (`--source-encoding`), as a
+real one is (#3878). Neither can be told from cp1252 by its bytes -- GB18030 decodes almost any
+byte string -- so the engine never guesses one; a cell that scanned them undeclared would test a
+case the engine rules out by design, and hide whether the declared path works. cp1252 cells stay
+undeclared: that fallback is what they test.
+
 Seeds:
   rosetta     keyword-rosetta's corpus (every language's planted probes; ../keyword-rosetta)
   mainframe   tests/unicode_gauntlet/mainframe/ -- PL/I, COBOL, JCL, CSD, HLASM, CICS with every
@@ -104,6 +110,9 @@ SCRIPTS: dict[str, str] = {
 NATIONAL = {"nordic": "ÆØÅ", "german": "ÄÖÜ"}
 
 ENCODINGS = ["utf-8", "utf-8-sig", "utf-16", "utf-16-be", "cp1252", "shift_jis", "gb18030", "crlf"]
+# Code pages an estate must declare (see the module docstring): the scan of a `<script>__<codec>`
+# estate passes `--source-encoding <codec>` for these.
+DECLARED = {"shift_jis", "gb18030"}
 
 # Counters a new name changes by design (a suffix changes the case style and the length) and the
 # token mass (a different script tokenises differently). Everything else must not move.
@@ -168,8 +177,9 @@ def scan(estate: Path, out: Path) -> Path:
     saved = {k: os.environ.get(k) for k in keys}
     os.environ.setdefault("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")
     os.environ["GITGALAXY_DISABLE_GIT_HISTORY"] = "1"
+    codec = estate.name.rpartition("__")[2]
     try:
-        return scan_to_db(estate, out)
+        return scan_to_db(estate, out, extra_args=("--source-encoding", codec) if codec in DECLARED else ())
     finally:
         for k, v in saved.items():
             if v is None:

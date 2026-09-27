@@ -155,6 +155,7 @@ import sqlite3
 import subprocess
 import sys
 import unicodedata
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -5859,8 +5860,9 @@ def _symbolic_map_files(files: dict[str, EngineFile]) -> dict[str, EngineFile]:
     return made
 
 
-def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600) -> Path:
-    """Runs a `galaxyscope --db-only` scan of `target` and returns the master DB path."""
+def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600, extra_args: Sequence[str] = ()) -> Path:
+    """Runs a `galaxyscope --db-only` scan of `target` and returns the master DB path. `extra_args`
+    go to galaxyscope as given (e.g. `--source-encoding shift_jis`, #3878)."""
     target = Path(target).resolve()
     out_dir = Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -5868,7 +5870,16 @@ def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600) -> Path:
     # Plain directory walk: the refraction target is often not a git checkout.
     env.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")
     subprocess.run(  # noqa: S603 -- this interpreter + fixed module; target/out_dir are argv entries, no shell
-        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(target), "--db-only", "--output", str(out_dir)],
+        [
+            sys.executable,
+            "-m",
+            "gitgalaxy.galaxyscope",
+            str(target),
+            "--db-only",
+            "--output",
+            str(out_dir),
+            *extra_args,
+        ],
         check=True,
         env=env,
         timeout=timeout,

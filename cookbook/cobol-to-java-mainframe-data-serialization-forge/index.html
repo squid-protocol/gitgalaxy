@@ -12106,7 +12106,7 @@
 <tbody>
 <tr>
 <td style="text-align: left;"><strong>Code Page Translation</strong></td>
-<td style="text-align: left;"><code>Cp1047</code> Charset Decoding</td>
+<td style="text-align: left;">Code-page Charset Decoding (<code>data.code_page</code>, default <code>IBM037</code>)</td>
 <td style="text-align: left;">Translates 8-bit IBM EBCDIC characters into native Java UTF-8 strings.</td>
 <td style="text-align: left;">Eliminates silent data corruption caused by ASCII-biased native Java decoders handling legacy text payloads.</td>
 </tr>
@@ -12139,7 +12139,7 @@
 <h2 id="3-notable-structures-execution-logic">3. Notable Structures &amp; Execution Logic</h2>
 <p>The Python script scaffolds a Java utility governed by two primary operational pillars:</p>
 <h3 id="ebcdic-decoding-decodeebcdicstring">EBCDIC Decoding (decodeEbcdicString)</h3>
-<p>Mainframe text relies on specific IBM code pages. The Forge hardcodes the <code>Cp1047</code> character set into the utility. By wrapping the byte array conversion in a standard try-catch block and explicitly trimming trailing whitespace (a common artifact of fixed-length COBOL string allocation), the generated method ensures that the Spring Boot application receives sanitized, sanitized UTF-8 strings.</p>
+<p>Mainframe text relies on specific IBM code pages. The Forge decodes with the conversion's declared code page (<code>data.code_page</code>: cp037 becomes <code>IBM037</code>, cp277 <code>IBM277</code>, cp1140 <code>IBM01140</code>), so national letters and <code>[ ] ! ^ |</code> come out as the estate wrote them. By wrapping the byte array conversion in a standard try-catch block and explicitly trimming trailing whitespace (a common artifact of fixed-length COBOL string allocation), the generated method ensures that the Spring Boot application receives sanitized, sanitized UTF-8 strings.</p>
 <h3 id="comp-3-unpacking-unpackcomp3">COMP-3 Unpacking (unpackComp3)</h3>
 <p>This is the most critical logic block scaffolded by the Forge. Packed decimal formats store two digits per byte, utilizing the final nibble (half-byte) to store the numeric sign. The generated Java code uses bitwise operators to iterate through the payload. </p>
 <p>Crucially, the Forge implements defensive guardrails for dirty data. In mainframe environments, memory is frequently overridden or improperly initialized, leading to non-numeric hex values inside a COMP-3 field. The scaffolded Java method validates that every data nibble is between <code>0-9</code> and that the sign nibble is a valid hex character (<code>A-F</code>). If a corruption boundary is breached, it safely logs a warning and returns <code>BigDecimal.ZERO</code>, shielding the web server from <code>NumberFormatException</code> thread panics.</p>
@@ -12162,7 +12162,7 @@
 <p>To mature this specific artifact generator for high-throughput enterprise data processing, the following architectural enhancements should be implemented:</p>
 <ol>
 <li><strong>Zoned Decimal Support:</strong> The current Forge focuses exclusively on COMP-3 and EBCDIC strings. Extend the generator to scaffold decoders for standard PIC 9 numerics (Zoned Decimals) and COMP-1/COMP-2 floating points to ensure 100% coverage of mainframe data types.</li>
-<li><strong>Configurable Endianness and Code Pages:</strong> Abstract the <code>Cp1047</code> charset into a configurable parameter injected from an <code>application.yml</code> file. Mainframes operating in different geographic regions or on different hardware architectures (e.g., AS/400 vs z/OS) utilize localized code pages (like <code>Cp500</code> or <code>Cp037</code>) and alternative Endian byte-orders.</li>
+<li><strong>Configurable Endianness:</strong> The code page already follows the conversion's <code>data.code_page</code>; mainframes on different hardware architectures (e.g., AS/400 vs z/OS) can also use alternative Endian byte-orders.</li>
 <li><strong>High-Performance Buffer Optimization:</strong> The current <code>unpackComp3</code> method utilizes a <code>StringBuilder</code> to parse digits before casting to a <code>BigDecimal</code>. For microservices handling multi-gigabyte batch files, this creates excessive garbage collection pressure. Refactor the generated template to construct a <code>BigInteger</code> directly via bitwise accumulation, bypassing string instantiation entirely to reduce heap allocations.</li>
 </ol>
 <hr />

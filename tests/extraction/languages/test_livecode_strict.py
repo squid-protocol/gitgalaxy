@@ -21,7 +21,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _detonate, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import _detonate, _plain, assert_redos_immune  # noqa: E402 # type: ignore
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -605,7 +605,7 @@ def test_livecode_ambiguity_explicit_casts_vs_pointers_no_collision():
 def _measure_scaling_point(pattern: re.Pattern, payload: str, timeout_sec: float = 2.0) -> float:
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
-    p = ctx.Process(target=_detonate, args=(pattern, payload, result_queue))
+    p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue))
     p.start()
     p.join(timeout_sec)
     if p.is_alive():

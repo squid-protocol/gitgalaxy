@@ -16,6 +16,16 @@ import time
 # ==============================================================================
 # THE BLAST CHAMBER (ReDoS Detonator)
 # ==============================================================================
+def _plain(pattern: re.Pattern) -> re.Pattern:
+    """A real compiled pattern for `pattern` (#3914: registry rules are `LazyPattern`s). A
+    LazyPattern unpickles through gitgalaxy's language registry, so a spawned child would import
+    all of it (~1.6 s) inside the ReDoS timeout and be read as hung; a plain pattern unpickles
+    through `re` alone. Compiling here, in the parent, also keeps compilation out of any timing."""
+    if isinstance(pattern, re.Pattern) or not hasattr(pattern, "pattern"):
+        return pattern  # a real pattern, or a disabled rule (None) the sweeps pass through as they always did
+    return re.compile(pattern.pattern, pattern.flags)
+
+
 def _detonate(pattern: re.Pattern, payload: str, result_queue: multiprocessing.Queue):
     """
     Executes a regex against a payload inside an isolated OS process.
@@ -35,7 +45,7 @@ def assert_redos_immune(pattern: re.Pattern, payload: str, timeout_sec: float = 
     ctx = multiprocessing.get_context("spawn")
     result_queue = ctx.Queue()
 
-    p = ctx.Process(target=_detonate, args=(pattern, payload, result_queue))
+    p = ctx.Process(target=_detonate, args=(_plain(pattern), payload, result_queue))
     p.start()
     p.join(timeout_sec)
 
@@ -67,6 +77,7 @@ def _best_of_timing(pattern: re.Pattern, payload: str, trials: int = 5) -> float
     under heavy parallel load. More trials tightens the min-of-N
     distribution further without changing what's being proven.
     """
+    pattern = _plain(pattern)  # compiled before the clock starts
     best = float("inf")
     for _ in range(trials):
         start = time.perf_counter()

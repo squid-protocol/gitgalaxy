@@ -109,8 +109,7 @@ CATEGORIES = (
     Category("configuration", "Target configuration", "review",
              ("Update these credentials", "declare data.dbcs_code_page"),
              "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD "
-             "at run time, never from a file. A DISPLAY-1 (DBCS) field needs the estate's double-byte page "
-             "declared as data.dbcs_code_page (#3816)."),
+             "at run time, never from a file."),
 )  # fmt: skip
 UNCATEGORISED = Category("uncategorised", "Other TODOs", "review", (), "Read the TODO; it has no category yet.")
 

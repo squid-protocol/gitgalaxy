@@ -91,3 +91,26 @@ def test_the_detector_runs_on_real_patterns(lang, embedded):
         rules = _compiled_rules(defs[embedded])
         assert rules is defs[embedded]["rules"]  # compiled in place, once
         assert not any(isinstance(v, LazyPattern) for v in rules.values())
+
+
+def test_a_forked_pool_inherits_every_claimant_compiled(monkeypatch):
+    """#3929: forked workers share the parent's memory, so the parent compiles the scan's languages
+    once before the fork -- every claimant of each extension, because the lens scores an ambiguous
+    `.h` with c's and objective-c's rules alike (each of curl's 12 workers compiled
+    objective-c for itself). Under spawn nothing is compiled: the workers' state comes from pickles."""
+    from gitgalaxy import galaxyscope
+
+    defs = copy.deepcopy(LANGUAGE_DEFINITIONS)
+    assert galaxyscope._active_languages(defs, {".h": 3}) == {"plaintext", "markdown", "c"}
+    claimants = galaxyscope._active_languages(defs, {".h": 3}, every_claimant=True)
+    assert {"c", "objective-c"} <= claimants
+
+    monkeypatch.setattr(galaxyscope.multiprocessing, "get_start_method", lambda allow_none=False: "spawn")
+    galaxyscope._precompile_for_fork(defs, {".h": 3})
+    assert any(isinstance(v, LazyPattern) for v in defs["objective-c"]["rules"].values())
+
+    monkeypatch.setattr(galaxyscope.multiprocessing, "get_start_method", lambda allow_none=False: "fork")
+    galaxyscope._precompile_for_fork(defs, {".h": 3})
+    for lang in ("c", "objective-c"):
+        assert not any(isinstance(v, LazyPattern) for v in defs[lang]["rules"].values()), lang
+    assert any(isinstance(v, LazyPattern) for v in defs["python"]["rules"].values())  # not a claimant

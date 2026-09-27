@@ -85,3 +85,21 @@ def register() -> None:
         codecs.lookup("cp277")
     except LookupError:
         codecs.register(_codec_info)
+
+
+def java_charset_name(encoding: str) -> str:
+    """#3908: the JDK charset name of a Python codec, for generated Java that decodes the same bytes:
+    cp037 -> IBM037, cp277 -> IBM277, cp1047 -> IBM1047, cp1140 -> IBM01140 (the euro pages are
+    zero-padded), cp1252 -> windows-1252, latin-1 -> ISO-8859-1, utf-8 -> UTF-8. An unknown codec
+    raises LookupError: generated code must not decode with a guessed table."""
+    register()
+    name = codecs.lookup(encoding).name
+    if name.startswith("iso8859-"):
+        return "ISO-8859-" + name[len("iso8859-") :]
+    if name.startswith("cp125") and len(name) == 6:
+        return "windows-" + name[2:]
+    if name.startswith("cp114") and len(name) == 6:
+        return "IBM0" + name[2:]  # IBM01140 ... IBM01149
+    if name.startswith("cp") and name[2:].isdigit():
+        return "IBM" + name[2:]  # IBM037, IBM273, IBM277, IBM1047
+    return name.upper()  # UTF-8, UTF-16

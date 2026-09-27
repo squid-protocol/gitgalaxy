@@ -59,16 +59,17 @@ def code_view(content: str) -> str:
     return "\n".join(out)
 
 
-def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optional[dict]:
+def extract_lineage(filepath: Path, dead_paras: Optional[set] = None, declared: Optional[str] = None) -> Optional[dict]:
     """
     Analyzes a COBOL program to map internal variables to external physical files.
     Utilizes shared IR state to mask out unreachable logic and prevent hallucinated dependencies.
+    #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
     """
     if dead_paras is None:
         dead_paras = set()
 
     try:
-        content = code_view(read_source(filepath).text.upper())
+        content = code_view(read_source(filepath, declared=declared).text.upper())
     except Exception:
         return None
 

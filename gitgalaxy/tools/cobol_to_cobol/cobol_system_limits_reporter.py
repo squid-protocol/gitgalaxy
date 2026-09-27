@@ -19,7 +19,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from gitgalaxy.core.source_text import read_source
 
@@ -52,15 +52,16 @@ SYSTEM_LIMIT_RULES: dict[str, dict[str, Any]] = {
 }
 
 
-def scan_system_limits(filepath: Path) -> list:
+def scan_system_limits(filepath: Path, declared: Optional[str] = None) -> list:
     """
     Scans a COBOL file for structural anomalies that break deterministic mapping.
     Returns a list of formatted warning strings to be consumed by the Agent Task Forge.
+    #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
     """
     anomalies = []
     try:
         # #3813: legacy encodings decoded without dropping a byte
-        lines = read_source(filepath).text.splitlines(keepends=True)
+        lines = read_source(filepath, declared=declared).text.splitlines(keepends=True)
     except Exception as e:
         return [f"[{filepath.name}] ERROR: Failed to read file - {e}"]
 

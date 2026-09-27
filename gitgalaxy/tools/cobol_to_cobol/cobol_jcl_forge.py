@@ -32,8 +32,10 @@ _FILE_ASSIGN_ANCHOR = re.compile(
 )
 
 
-def analyze_cobol_intent(filepath: Path) -> dict:
-    """Extracts execution intent and data boundaries from legacy source code."""
+def analyze_cobol_intent(filepath: Path, declared: Optional[str] = None) -> dict:
+    """Extracts execution intent and data boundaries from legacy source code.
+    #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
+    """
     intent: dict[str, Any] = {
         "program_id": "UNKNOWN",
         "files_requested": [],
@@ -44,7 +46,7 @@ def analyze_cobol_intent(filepath: Path) -> dict:
     }
 
     try:
-        raw_content = read_source(filepath).text
+        raw_content = read_source(filepath, declared=declared).text
 
         # 1. FORMAT NORMALIZER: Strip legacy margin formatting
         clean_lines = []

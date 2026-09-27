@@ -240,6 +240,7 @@ def process_payload(
     patched_dir: Optional[Path] = None,
     source_root: Optional[Path] = None,
     program_key: Optional[str] = None,
+    declared: Optional[str] = None,
 ) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline.
 
@@ -258,6 +259,10 @@ def process_payload(
     the forge tools read that copy (#3206). Without `patched_dir` nothing is patched.
     `source_root` is also where copybooks are looked up. `program_key` names the
     program in the IR state (default: its stem; see `_output_keys`).
+
+    #3909: `declared` is the code page the scan decoded the program with (`GalaxyIR.source_page`):
+    every pass below reads the program and its COPY members in it, and `metadata.source_encoding`
+    carries it to the port tickets. None reads them unaided (UTF-8, else a guess).
     """
     print(f" ⚙️ Analyzing {filepath.name}...")
     program_id = program_key or filepath.stem
@@ -276,13 +281,15 @@ def process_payload(
     # Check for the Corporate Header stamp
     header_file = filepath.parent / "corporate_header.txt"
     if header_file.exists():
-        ir["metadata"]["corporate_header"] = read_source(header_file).text
+        ir["metadata"]["corporate_header"] = read_source(header_file, declared=declared).text
 
     try:
-        source_text = read_source(filepath).text
+        source_text = read_source(filepath, declared=declared).text
     except Exception:
         return ir
     ir["metadata"]["loc"] = len(source_text.splitlines())
+    if declared:  # #3909: only then, so an undeclared estate's IR dump is as before
+        ir["metadata"]["source_encoding"] = declared
 
     # --- PHASE 0: PRE-PROCESSING (Sanitizing the code) ---
     # The patch lands in the clean room, never in the target repository (#3206).
@@ -303,7 +310,9 @@ def process_payload(
     # --- PHASE 1: RECONNAISSANCE & ANALYSIS ---
 
     # A. Deprecated Trails Analyzer (Identifies Dead Memory & Unreachable Logic)
-    graveyard_data = x_ray_dead_code(work_path, copybook_root=source_root or filepath.parent, origin=filepath)
+    graveyard_data = x_ray_dead_code(
+        work_path, copybook_root=source_root or filepath.parent, origin=filepath, declared=declared
+    )
     ir["analysis"]["dead_code"] = graveyard_data
 
     if graveyard_data:
@@ -322,12 +331,14 @@ def process_payload(
     # #3348: from the DB's dataset / call channels when it has them, else the forge.
     lineage = engine_lineage(engine_file, dead_paras) if engine_file is not None else None
     sources = {"lineage": "galaxy_db" if lineage is not None else "forge"}
-    ir["analysis"]["lineage"] = lineage if lineage is not None else extract_lineage(work_path, dead_paras=dead_paras)
+    ir["analysis"]["lineage"] = (
+        lineage if lineage is not None else extract_lineage(work_path, dead_paras=dead_paras, declared=declared)
+    )
 
     # C. JCL Forge (Extracts Program ID and Subsystems)
-    ir["analysis"]["base_intent"] = analyze_cobol_intent(work_path)
+    ir["analysis"]["base_intent"] = analyze_cobol_intent(work_path, declared=declared)
 
-    ir["analysis"]["honesty_flags"] = scan_system_limits(work_path)
+    ir["analysis"]["honesty_flags"] = scan_system_limits(work_path, declared=declared)
 
     if engine_file is not None:
         ir["metadata"]["ir_source"] = "galaxy_db"
@@ -347,7 +358,7 @@ def process_payload(
     schemas = engine_schemas(engine_file, filepath.stem, orphans, header) if engine_file is not None else False
     sources["schemas"] = "forge" if schemas is False else "galaxy_db"
     if schemas is False:
-        schemas = forge_schemas(work_path, ignore_vars=orphans, corporate_header=header)
+        schemas = forge_schemas(work_path, ignore_vars=orphans, corporate_header=header, declared=declared)
     ir["generation"]["schemas"] = schemas
     ir["metadata"]["ir_sources"] = sources
 
@@ -369,6 +380,7 @@ def process_payload(
             initial_var=target_var,
             dead_paras=dead_paras,
             orphaned_vars=orphans,
+            declared=declared,
         )
         if slice_result:
             logic_slice, aliases = slice_result
@@ -413,7 +425,14 @@ def main():
         action="store_true",
         help="Run galaxyscope on TARGET first and use its master DB as the IR source",
     )
+    parser.add_argument(
+        "--source-encoding",
+        help="With --scan: the estate's code page (cp277, or GLOB=CODEC,...), as galaxyscope's own flag; "
+        "a --galaxy-db already records the page each file was decoded with",
+    )
     args = parser.parse_args()
+    if args.source_encoding and not args.scan:  # #3909: the DB is the declaration; a second one could disagree
+        parser.error("--source-encoding declares the page for --scan")
 
     target_path = Path(args.target).resolve()
     if not target_path.exists():
@@ -443,7 +462,8 @@ def main():
     galaxy_ir: Optional[GalaxyIR] = None
     program_files: Optional[list[Path]] = None
     if args.galaxy_db or args.scan:
-        db_path = scan_to_db(target_path, ir_dir) if args.scan else args.galaxy_db.resolve()
+        scan_args = ("--source-encoding", args.source_encoding) if args.source_encoding else ()  # #3909
+        db_path = scan_to_db(target_path, ir_dir, extra_args=scan_args) if args.scan else args.galaxy_db.resolve()
         galaxy_ir = load_galaxy_ir(db_path)
         galaxy_ir.source_root = target_path  # #3710: SYSTSIN members a runner step reads
         # #3815: the DB stores NFC paths; open each by its on-disk (maybe NFD) name.
@@ -503,6 +523,7 @@ def main():
             patched_dir=patched_dir,
             source_root=target_path,
             program_key=key,
+            declared=galaxy_ir.source_page(rel) if galaxy_ir else None,  # #3909
         )
 
         # Write JSON IR Dump for downstream visualizers

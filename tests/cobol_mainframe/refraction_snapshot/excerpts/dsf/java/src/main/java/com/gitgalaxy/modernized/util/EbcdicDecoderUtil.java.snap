@@ -9,8 +9,8 @@ public class EbcdicDecoderUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EbcdicDecoderUtil.class);
 
-    // Cp1047 is the standard IBM EBCDIC character set (US/Canada)
-    private static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
+    // The estate's EBCDIC code page (data.code_page: cp037); national letters and [ ] ! ^ | move per page
+    private static final Charset EBCDIC_CHARSET = Charset.forName("IBM037");
 
     /**
      * Decodes a raw EBCDIC byte array into a standard Java UTF-8 String.

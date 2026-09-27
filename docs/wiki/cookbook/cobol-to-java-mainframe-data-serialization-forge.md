@@ -20,7 +20,7 @@ The generated Java artifact executes a strict, bitwise deterministic extraction 
 
 | Processing Stage | Deterministic Operation | Architectural Purpose | Legacy Modernization Value |
 | :--- | :--- | :--- | :--- |
-| **Code Page Translation** | `Cp1047` Charset Decoding | Translates 8-bit IBM EBCDIC characters into native Java UTF-8 strings. | Eliminates silent data corruption caused by ASCII-biased native Java decoders handling legacy text payloads. |
+| **Code Page Translation** | Code-page Charset Decoding (`data.code_page`, default `IBM037`) | Translates 8-bit IBM EBCDIC characters into native Java UTF-8 strings. | Eliminates silent data corruption caused by ASCII-biased native Java decoders handling legacy text payloads. |
 | **Nibble Extraction** | Bitwise Shifts (`>>> 4`, `& 0x0F`) | Isolates the high and low 4-bit nibbles from a single compressed byte. | Rehydrates the original decimal values from the dense COMP-3 physical storage architecture. |
 | **Sign Evaluation** | Hexadecimal Boundary Checks | Evaluates the final low nibble of the byte array for specific IBM sign markers (`0x0D` or `0x0B`). | Mathematically proves if the rehydrated `BigDecimal` should carry a negative value. |
 | **Precision Scaling** | `BigDecimal.movePointLeft()` | Injects the implied decimal precision extracted previously from the COBOL `V99` declarations. | Restores the exact financial precision of the mainframe application without relying on unstable floating-point math. |
@@ -31,7 +31,7 @@ The generated Java artifact executes a strict, bitwise deterministic extraction 
 The Python script scaffolds a Java utility governed by two primary operational pillars:
 
 ### EBCDIC Decoding (decodeEbcdicString)
-Mainframe text relies on specific IBM code pages. The Forge hardcodes the `Cp1047` character set into the utility. By wrapping the byte array conversion in a standard try-catch block and explicitly trimming trailing whitespace (a common artifact of fixed-length COBOL string allocation), the generated method ensures that the Spring Boot application receives sanitized, sanitized UTF-8 strings.
+Mainframe text relies on specific IBM code pages. The Forge decodes with the conversion's declared code page (`data.code_page`: cp037 becomes `IBM037`, cp277 `IBM277`, cp1140 `IBM01140`), so national letters and `[ ] ! ^ |` come out as the estate wrote them. By wrapping the byte array conversion in a standard try-catch block and explicitly trimming trailing whitespace (a common artifact of fixed-length COBOL string allocation), the generated method ensures that the Spring Boot application receives sanitized, sanitized UTF-8 strings.
 
 ### COMP-3 Unpacking (unpackComp3)
 This is the most critical logic block scaffolded by the Forge. Packed decimal formats store two digits per byte, utilizing the final nibble (half-byte) to store the numeric sign. The generated Java code uses bitwise operators to iterate through the payload. 
@@ -62,7 +62,7 @@ with open(output_path, "w") as f:
 To mature this specific artifact generator for high-throughput enterprise data processing, the following architectural enhancements should be implemented:
 
 1. **Zoned Decimal Support:** The current Forge focuses exclusively on COMP-3 and EBCDIC strings. Extend the generator to scaffold decoders for standard PIC 9 numerics (Zoned Decimals) and COMP-1/COMP-2 floating points to ensure 100% coverage of mainframe data types.
-2. **Configurable Endianness and Code Pages:** Abstract the `Cp1047` charset into a configurable parameter injected from an `application.yml` file. Mainframes operating in different geographic regions or on different hardware architectures (e.g., AS/400 vs z/OS) utilize localized code pages (like `Cp500` or `Cp037`) and alternative Endian byte-orders.
+2. **Configurable Endianness:** The code page already follows the conversion's `data.code_page`; mainframes on different hardware architectures (e.g., AS/400 vs z/OS) can also use alternative Endian byte-orders.
 3. **High-Performance Buffer Optimization:** The current `unpackComp3` method utilizes a `StringBuilder` to parse digits before casting to a `BigDecimal`. For microservices handling multi-gigabyte batch files, this creates excessive garbage collection pressure. Refactor the generated template to construct a `BigInteger` directly via bitwise accumulation, bypassing string instantiation entirely to reduce heap allocations.
 
 - - - -

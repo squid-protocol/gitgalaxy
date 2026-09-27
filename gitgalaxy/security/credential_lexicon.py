@@ -10,9 +10,10 @@
 """The multilingual credential lexicon behind the hardcoded-secrets signature.
 
 A credential is named in the language its programmers speak. The signature used
-to know only English (`password`, `secret`, `token`...), so `String senha = "..."`
-in a Brazilian service and `05 WS-PASSWORT PIC X(16) VALUE '...'` in a German
-COBOL estate were invisible to it (#3832).
+to know only English (`password`, `secret`, `token`...), so a Java `senha` string
+assigned a literal in a Brazilian service, or a COBOL `WS-PASSWORT` item with a VALUE
+in a German estate, was invisible to it (#3832). (Described, not written out: this file
+must not itself look like the secret it teaches the scanner to find.)
 
 Each entry is a regex FRAGMENT, matched case-insensitively and bounded by `\\b`
 by the caller. Accented letters are spelled as `(?:n|ñ)`-style alternatives

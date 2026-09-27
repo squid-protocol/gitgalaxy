@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.unicode_paths import nfc, on_disk
 from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
@@ -445,7 +446,8 @@ def main():
         db_path = scan_to_db(target_path, ir_dir) if args.scan else args.galaxy_db.resolve()
         galaxy_ir = load_galaxy_ir(db_path)
         galaxy_ir.source_root = target_path  # #3710: SYSTSIN members a runner step reads
-        program_files = [target_path / ef.file_path for ef in galaxy_ir.programs("cobol")]
+        # #3815: the DB stores NFC paths; open each by its on-disk (maybe NFD) name.
+        program_files = [on_disk(target_path, ef.file_path) for ef in galaxy_ir.programs("cobol")]
         missing = [p for p in program_files if not p.is_file()]
         if missing:
             print(
@@ -558,13 +560,13 @@ def main():
     # facts alone (engine_ir_dump), and they get a verified skeleton like any COBOL program.
     pli_written = 0
     if galaxy_ir is not None:
-        pli_files = [target_path / ef.file_path for ef in galaxy_ir.programs("pli")]
+        pli_files = [on_disk(target_path, ef.file_path) for ef in galaxy_ir.programs("pli")]  # #3815
         all_keys = _output_keys(cobol_files + pli_files, target_path)
         for file_path in pli_files:
             key = all_keys[file_path]
             rel = _rel(file_path, target_path).as_posix()
             ir_keys[rel] = key
-            ef = galaxy_ir.files[rel]
+            ef = galaxy_ir.files[nfc(rel)]  # #3815: the on-disk name, looked up in its stored form
             (ir_dir / f"{key}_ir.json").write_text(_ir_to_json(engine_ir_dump(galaxy_ir, ef, file_path)))
             pli_written += 1
 

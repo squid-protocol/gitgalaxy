@@ -51,3 +51,4 @@ tests/cobol_mainframe/refraction_excerpts/** -text linguist-vendored
 # uncollapsed on purpose, because the diff is the review surface.
 tests/cobol_mainframe/refraction_snapshot/** text eol=lf
 tests/unicode_gauntlet/baseline.txt merge=union
+tests/cultural_gauntlet/baseline.txt merge=union

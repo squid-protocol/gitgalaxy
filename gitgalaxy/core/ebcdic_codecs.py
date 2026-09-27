@@ -26,6 +26,8 @@ import codecs
 import encodings.cp037
 from typing import Any
 
+from gitgalaxy.core import ebcdic_dbcs
+
 # {code page: {byte: code point}} -- where each page differs from cp037
 _OVERRIDES: dict[str, dict[int, int]] = {
     "cp277": {0x47: 0x007D, 0x4A: 0x0023, 0x4F: 0x0021, 0x5A: 0x00A4, 0x5B: 0x00C5, 0x5F: 0x005E, 0x67: 0x0024, 0x6A: 0x00F8, 0x70: 0x00A6, 0x7B: 0x00C6, 0x7C: 0x00D8, 0x80: 0x0040, 0x9C: 0x007B, 0x9E: 0x005B, 0x9F: 0x005D, 0xA1: 0x00FC, 0xB0: 0x00A2, 0xBA: 0x00AC, 0xBB: 0x007C, 0xC0: 0x00E6, 0xD0: 0x00E5, 0xDC: 0x007E},
@@ -43,7 +45,7 @@ _ALIASES = {alias: cp for cp in _OVERRIDES for alias in (cp, "ibm" + cp[2:], "ib
 def _codec_info(name: str) -> codecs.CodecInfo | None:
     cp = _ALIASES.get(name.lower().replace("-", "_"))
     if cp is None:
-        return None
+        return ebcdic_dbcs.codec_info(name)  # #3816 part 3a: the mixed CJK pages
     table = list(encodings.cp037.decoding_table)
     for byte, code_point in _OVERRIDES[cp].items():
         table[byte] = chr(code_point)
@@ -71,7 +73,9 @@ def _codec_info(name: str) -> codecs.CodecInfo | None:
 
 
 # EBCDIC pages, Python's and these: a file decoded with one is a record-oriented mainframe file
-EBCDIC_CODE_PAGES = frozenset({"cp037", "cp273", "cp500", "cp1140", "cp875", "cp1026", *_OVERRIDES})
+EBCDIC_CODE_PAGES = frozenset(
+    {"cp037", "cp273", "cp500", "cp1140", "cp875", "cp1026", *_OVERRIDES, *ebcdic_dbcs.DBCS_CODE_PAGES}
+)
 
 
 def register() -> None:

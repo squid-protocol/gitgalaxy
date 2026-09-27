@@ -40,6 +40,7 @@ from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
+from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.core.wrapper_extractor import extract_wrapper_facts
 from gitgalaxy.core.wrapper_resolver import attach_wrappers, resolve_wrappers
 from gitgalaxy.metrics.chronometer import Chronometer
@@ -358,6 +359,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
 
     root = _worker_state["root"]
     full_path_str = str(root / rel_path)
+    # #3815: `rel_path` arrives as the on-disk name (the one opened); every path this
+    # worker reports is its NFC form, so an NFD checkout records what an NFC one does.
+    rel_path = nfc(rel_path)
 
     # --- NEW: PARALLEL PHANTOM CHECK ---
     # Silently evaporates files missing on disk to prevent main-thread anomaly logging
@@ -1213,6 +1217,10 @@ class Orchestrator:
         # ==============================================================================
         self.census: set[str] = set()
         self.stem_map: dict[str, str] = {}
+        # #3815: stored path (NFC) -> the on-disk relative path, for the files whose
+        # on-disk name is NOT already NFC (an NFD checkout). Every other file opens
+        # by its stored path; see gitgalaxy/core/unicode_paths.py.
+        self.disk_paths: dict[str, str] = {}
         # #3175: physical byte size per valid file, captured for free during the
         # Phase 0 walk and used only to dispatch the worker pool largest-first (LPT
         # scheduling) so one mega-file cannot land in the tail and stall the pool.
@@ -1456,7 +1464,7 @@ class Orchestrator:
             guidestar_config = self.config.get("GUIDESTAR_CONFIG", {})
             target_manifests = set(guidestar_config.get("MANIFEST_MAP", {}).keys()) | set(SUPPORTED_MANIFEST_FILENAMES)
             manifest_paths = [
-                str(self.root / rel_path)
+                str(self.root / self.disk_paths.get(rel_path, rel_path))  # #3815: the on-disk name
                 for rel_path in self.stem_map.values()
                 # Suffix check covers per-project-named manifests (e.g. *.csproj)
                 # that can't live in the exact-filename SUPPORTED_MANIFEST_FILENAMES set.
@@ -1942,6 +1950,21 @@ class Orchestrator:
         finally:
             self.cleanup()
 
+    def _stored_path(self, disk_rel: str, is_valid: bool, reason: Any) -> tuple[str, bool, Any]:
+        """#3815: the path a file is stored under (NFC), recording its on-disk name when that
+        differs (an excluded file keeps it too: the model-weights scan still opens it). Two
+        on-disk names with ONE NFC form (`é` and `e`+U+0301 side by side, which Linux allows)
+        cannot both be stored: the second is excluded with a reason, never silently merged."""
+        rel_path = nfc(disk_rel)
+        if is_valid and rel_path in self.stem_map:  # its Unicode-equivalent twin is already stored
+            return rel_path, False, "Excluded: Unicode-equivalent duplicate of another path (NFC/NFD)"
+        if rel_path != disk_rel:
+            if rel_path not in self.stem_map and (is_valid or rel_path not in self.disk_paths):
+                self.disk_paths[rel_path] = disk_rel
+        elif is_valid:
+            self.disk_paths.pop(rel_path, None)  # the stored file is this one, not an excluded twin
+        return rel_path, is_valid, reason
+
     def _build_file_census(self):
         """Phase 0: Building the Census via Git Authority with Fallback."""
         try:
@@ -1974,7 +1997,7 @@ class Orchestrator:
                 inspections = executor.map(_inspect_path, git_paths)
 
             # Process the results synchronously to prevent race conditions on state maps
-            for rel_path, path_obj, is_valid, size_bytes, reason in inspections:
+            for disk_rel, path_obj, is_valid, size_bytes, reason in inspections:
                 # ---> NEW: THE NEIGHBORHOOD MICRO-MASS QUOTA <---
                 # Exempt legitimately-tiny-and-legitimately-numerous file kinds (see
                 # MICRO_MASS_EXEMPT_EXTENSIONS above) from being flagged as micro-debris.
@@ -1991,11 +2014,13 @@ class Orchestrator:
                         is_valid = False
                         reason = "Excluded: Neighborhood Micro-Mass Limit Exceeded"
                 # ------------------------------------------------
+                # #3815: the census, and everything after it, keys a file by its NFC path.
+                rel_path, is_valid, reason = self._stored_path(disk_rel, is_valid, reason)
 
                 if is_valid:
-                    stem = path_obj.stem.lower()
+                    stem = Path(rel_path).stem.lower()
                     ext = path_obj.suffix.lower()
-                    name = path_obj.name.lower()
+                    name = Path(rel_path).name.lower()
 
                     self.census.add(stem)
                     self.stem_map[rel_path] = rel_path
@@ -2055,11 +2080,13 @@ class Orchestrator:
                 # ------------------------------------------------
 
                 rel_p = str(full_p.relative_to(self.root))
+                # #3815: the census, and everything after it, keys a file by its NFC path.
+                rel_p, is_valid, reason = self._stored_path(rel_p, is_valid, reason)
 
                 if is_valid:
-                    stem = full_p.stem.lower()
+                    stem = Path(rel_p).stem.lower()
                     ext = full_p.suffix.lower()
-                    name = full_p.name.lower()  # <-- Extract lowercased filename
+                    name = Path(rel_p).name.lower()  # <-- Extract lowercased filename
 
                     self.census.add(stem)
                     self.stem_map[rel_p] = rel_p
@@ -2138,7 +2165,11 @@ class Orchestrator:
                 key=lambda p: self.file_size_map.get(p, 0),
                 reverse=True,
             )
-            active_futures = {executor.submit(_process_file_worker, rel_path): rel_path for rel_path in dispatch_order}
+            # #3815: the worker opens the on-disk name; its result is keyed by the stored (NFC) path.
+            active_futures = {
+                executor.submit(_process_file_worker, self.disk_paths.get(rel_path, rel_path)): rel_path
+                for rel_path in dispatch_order
+            }
 
             # THE STARVATION MONITOR (Event-Driven Generator)
             # as_completed yields instantly upon future completion, averting O(N^2) polling wait states.
@@ -2438,7 +2469,8 @@ class Orchestrator:
                 if "from" in clean_path:
                     clean_path = clean_path.split("from")[-1]
 
-                clean_path = clean_path.strip("<>\"'; ()").replace("\\", "/")
+                # #3815: the stored paths are NFC, so the name the source spells is compared in NFC too.
+                clean_path = nfc(clean_path.strip("<>\"'; ()").replace("\\", "/"))
                 if not clean_path:
                     continue
 
@@ -3047,7 +3079,7 @@ class Orchestrator:
             for model in models:
                 rel_path = model["path"]
                 size_bytes = model.get("size_bytes", 0)
-                full_path_str = str(self.root / rel_path)
+                full_path_str = str(self.root / self.disk_paths.get(rel_path, rel_path))  # #3815: on-disk name
 
                 logger.info(f"🧠 TENSOR SCAN: Auditing local model weights for {rel_path}...")
 
@@ -3358,7 +3390,10 @@ class Orchestrator:
         try:
             # 1. Inject the surviving state
             self.ram_cache = ram_cache
-            for d_file in deleted:
+            # #3815: git names a changed file by its on-disk (maybe NFD) path; the baseline
+            # stores it in NFC. Compare in NFC, or an NFD checkout's edit reads as a new file
+            # beside the stale old one -- a rename that never happened.
+            for d_file in (nfc(d) for d in deleted):
                 if d_file in self.ram_cache:
                     del self.ram_cache[d_file]
 
@@ -3376,7 +3411,10 @@ class Orchestrator:
                 self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
 
             # 3. Target the New/Modified files for Pass 1 (Surgical Strike)
-            for rel_path in added + modified:
+            for disk_rel in added + modified:
+                rel_path = nfc(disk_rel)  # #3815: stored in NFC, opened by its on-disk name
+                if rel_path != disk_rel:
+                    self.disk_paths[rel_path] = disk_rel
                 stem = Path(rel_path).stem.lower()
                 ext = Path(rel_path).suffix.lower()
                 name = Path(rel_path).name.lower()
@@ -3892,8 +3930,10 @@ def main():
                     # Safe: _GIT_BIN resolved absolute; baseline_commit is our own
                     # previously-saved commit hash (StateRehydrator), passed as a single argv
                     # element (no shell=True), not interpolated into a shell string.
+                    # #3815: `core.quotepath=off` -- by default git octal-escapes a non-ASCII
+                    # path (`"caf\303\251.cbl"`), which then matched no stored path at all.
                     diff_output = subprocess.check_output(  # noqa: S603
-                        [_GIT_BIN, "diff", "--name-status", baseline_commit],
+                        [_GIT_BIN, "-c", "core.quotepath=off", "diff", "--name-status", baseline_commit],
                         cwd=target_path,
                         text=True,
                         stderr=subprocess.DEVNULL,

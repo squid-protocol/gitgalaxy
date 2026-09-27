@@ -48,6 +48,7 @@ from typing import Any
 
 from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
 from gitgalaxy.core.path_proximity import nearest_path
+from gitgalaxy.core.unicode_paths import nfc
 
 # Languages whose `classes` entries are program declarations a call can target.
 # cobol only today: a JCL `EXEC PGM=` and a COBOL `CALL` both name a COBOL
@@ -83,7 +84,10 @@ _EXEC_VERBS = ("EXEC PGM",)
 
 
 def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
-    """PROGRAM-ID (upper-cased) -> the paths declaring it, in scan order."""
+    """PROGRAM-ID (upper-cased, NFC) -> the paths declaring it, in scan order.
+
+    #3815: keyed in NFC, as the stored paths are, so a name spelled decomposed in the
+    source (or on a macOS-exported file name) meets the one spelled composed."""
     index: dict[str, list[str]] = {}
     for f in parsed_files:
         lang = str(f.get("lang_id", "")).lower()
@@ -93,7 +97,7 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
                 path = f.get("path", "")
                 # The outermost procedure opens first (`functions` is ordered by size).
                 outer = min(functions, key=lambda fn: int(fn.get("start_line") or 0))
-                names = {Path(path).stem.upper(), str(outer.get("name", "")).strip().upper()}
+                names = {nfc(Path(path).stem.upper()), nfc(str(outer.get("name", "")).strip().upper())}
                 for name in sorted(n for n in names if n):
                     index.setdefault(name, []).append(path)
             continue
@@ -101,14 +105,14 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
             for fn in f.get("functions", []) or []:
                 name = str(fn.get("name", "")).strip().upper()
                 if name:
-                    index.setdefault(name, []).append(f.get("path", ""))
+                    index.setdefault(nfc(name), []).append(f.get("path", ""))
             continue
         if lang not in PROGRAM_DECLARING_LANGUAGES:
             continue
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name", "")).strip().upper()
             if name:
-                index.setdefault(name, []).append(f.get("path", ""))
+                index.setdefault(nfc(name), []).append(f.get("path", ""))
     return index
 
 
@@ -165,7 +169,7 @@ def resolve_invocations(
             # never matched against the PROGRAM-ID index here. It still rides in
             # call_site_data as a row, just with no program destination.
             if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
-                resolved = nearest_path(index.get(str(target).upper(), []), src_path)
+                resolved = nearest_path(index.get(nfc(str(target).upper()), []), src_path)
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason.
                 if resolved == src_path:
@@ -213,7 +217,7 @@ def resolve_transactions(parsed_files: list[dict[str, Any]]) -> list[dict[str, A
         src_path = f.get("path", "")
         for txn in f.get("transaction_defs", []) or []:
             program = txn.get("program")
-            resolved = nearest_path(index.get(str(program).upper(), []), src_path) if program else None
+            resolved = nearest_path(index.get(nfc(str(program).upper()), []), src_path) if program else None
             record = dict(txn)
             record["src_path"] = src_path
             record["resolved_path"] = resolved

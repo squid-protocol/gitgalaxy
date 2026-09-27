@@ -17,7 +17,9 @@ came out truncated), and a UTF-16 file decoded full of NULs, so the binary gate 
    the declared codec cannot decode falls through to the guesses rather than failing. #3816: the
    national EBCDIC pages Python lacks (cp277, cp278, cp280, cp284, cp285, cp297, cp1047) are
    registered by `ebcdic_codecs`; a raw EBCDIC file's NEL (0x15) ends a line, and a file with no
-   line ends at all is a fixed-block download (FB80), split into its 80-byte records;
+   line ends at all is a fixed-block download (FB80), split into its 80-byte records. The mixed
+   CJK pages (cp930, cp939, cp935, cp937, cp933) are split on bytes, and a record's sequence area
+   (bytes 73-80) stays at column 73 however many characters its Kanji make (`_dbcs_records`);
 5. strict cp1252 -- a guess: the commonest legacy code page;
 6. Latin-1 -- a guess that cannot fail (every byte maps).
 
@@ -41,6 +43,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 from gitgalaxy.core.ebcdic_codecs import EBCDIC_CODE_PAGES, register
+from gitgalaxy.core.ebcdic_dbcs import DBCS_CODE_PAGES, decode_record
 
 register()  # #3816: cp277 / cp278 / ... resolve wherever a source is decoded
 
@@ -164,6 +167,44 @@ def _ebcdic_records(text: str) -> str:
     return text
 
 
+_SEQUENCE_COLUMN = 72  # bytes 1-72 are the program; 73-80 the sequence area
+
+
+def _dbcs_records(data: bytes, cp: str, truncated: bool) -> str:
+    """#3816 part 3a: `_ebcdic_records` for a mixed single/double-byte page, done on bytes -- a
+    Shift-Out / pair / Shift-In run is one character per two bytes, and the shifts none, so a record's
+    80 bytes are fewer characters and a character split would cut records mid-line. NEL (0x15) and the
+    record boundaries are found in the bytes (a pair's bytes are 0x40-0xFE, never 0x15), and each
+    record is decoded on its own, starting in single-byte mode.
+
+    Columns are bytes on the host: the compiler reads a record's first 72 bytes as the program and the
+    last 8 as the sequence area, however many characters the Kanji make of them. So a record longer
+    than 72 bytes that shifts out is decoded in two parts, the first padded to 72 characters -- the
+    sequence area stays at index 72, where every fixed-format reader slices it off. A pair the byte-72
+    boundary would cut (malformed, but it happens) decodes the record whole instead."""
+    if b"\x15" in data:
+        records = data.split(b"\x15")
+        ends = "\n"
+    elif b"\x25" not in data and len(data) >= _FB_LRECL and len(data) % _FB_LRECL == 0:
+        records = [data[i : i + _FB_LRECL] for i in range(0, len(data), _FB_LRECL)] + [b""]
+        ends = "\n"
+    else:
+        records, ends = [data], ""
+    lines = []
+    for n, record in enumerate(records):
+        final = not truncated or n < len(records) - 1  # only the last record can be cut by the read
+        if len(record) > _SEQUENCE_COLUMN and b"\x0e" in record and final:
+            try:
+                head = decode_record(cp, record[:_SEQUENCE_COLUMN])
+            except UnicodeDecodeError:
+                pass
+            else:
+                lines.append(head.ljust(_SEQUENCE_COLUMN) + decode_record(cp, record[_SEQUENCE_COLUMN:]))
+                continue
+        lines.append(decode_record(cp, record, final))
+    return ends.join(lines)
+
+
 # #3878: the double-byte code pages a legacy-guessed file may really be in. GB18030 is left out: it
 # decodes almost any bytes, so "it decodes" is no evidence (GBK, its strict subset, stands for it).
 _CJK_CANDIDATES = ("shift_jis", "euc_jp", "gbk", "big5", "euc_kr")
@@ -219,7 +260,10 @@ def decode_source(data: bytes, *, truncated: bool = False, declared: str | None 
         pass
     if declared:
         try:
-            text, name = _decode(data, declared, truncated), codecs.lookup(declared).name
+            name = codecs.lookup(declared).name
+            if name in DBCS_CODE_PAGES:
+                return SourceText(_dbcs_records(data, name, truncated), name, "declared")
+            text = _decode(data, declared, truncated)
             if name in EBCDIC_CODE_PAGES:
                 text = _ebcdic_records(text)
             return SourceText(text, name, "declared")

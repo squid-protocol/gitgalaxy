@@ -26,6 +26,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+import equivalence_common as common
 import java_target_matrix as jtm
 
 CASES = Path(__file__).resolve().parents[1] / "equivalence"  # == equivalence.CASES
@@ -124,7 +125,7 @@ class EquivalenceRunTest {{
         java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(System.getProperty("equivalence.tz", "UTC")));
     }}
 
-    static final Charset TEXT = StandardCharsets.ISO_8859_1;
+    static final Charset TEXT = {common.java_charset(common.data_encoding(case))};
     final Path in = Path.of(System.getProperty("equivalence.in"));
     final Path out = Path.of(System.getProperty("equivalence.out"));
     final Path datasets = Path.of(System.getProperty("equivalence.datasets"));

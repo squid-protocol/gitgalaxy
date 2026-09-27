@@ -122,6 +122,7 @@ exclude = [
 # Ship the frozen archetype brains (JSON) so non-editable installs can classify.
 [tool.setuptools.package-data]
 "gitgalaxy.standards" = ["archetype_brains/*.json", "fact_channel_confidence.json"]
+"gitgalaxy.core" = ["ebcdic_dbcs/*.json"]  # #3816: the mixed CJK EBCDIC tables
 
 [tool.setuptools_scm]
 # This tells it to expect tags like "v2.0.5" instead of just "2.0.5"

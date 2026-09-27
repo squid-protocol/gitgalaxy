@@ -58,6 +58,7 @@ import statistics
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 _PHASE_RE = re.compile(r"^\s*([0-9.]+)s\s*\|\s*[^\|]*\|\s*(.+?)(?:\s*\(Avg:.*)?$")
@@ -76,8 +77,11 @@ _DRIVER = (
 
 
 def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
-    """One scan. Returns (raw_stdout, {'wall': float|None, 'files': int|None,
-    'phases': {label: seconds}})."""
+    """One scan. Returns (raw_stdout, {'wall': float|None, 'process': float, 'files': int|None,
+    'phases': {label: seconds}}). `wall` is the engine's own PIPELINE_SUCCESS duration, timed
+    inside the scan; `process` is the whole command, the import included (#3929: an engine that
+    moves work between import and scan -- #3914's lazy rule compilation -- moves it across `wall`'s
+    start line, so `wall` alone mis-states what a user waits for)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     argv = ["galaxyscope", str(repo), "--output", str(out_dir) + "/", "--file-speed", "--splicing-speed"]
     env = {
@@ -92,6 +96,7 @@ def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
     # label silently imported THAT checkout (#3182: a "main vs mine" A/B that
     # was really mine vs mine). Running from the engine's own root makes the
     # cwd entry and PYTHONPATH agree.
+    t0 = time.perf_counter()
     proc = subprocess.run(  # noqa: S603
         [sys.executable, "-c", _DRIVER.format(argv=argv)],
         env=env,
@@ -100,8 +105,10 @@ def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
         text=True,
         timeout=1800,
     )
+    process = time.perf_counter() - t0
     text = proc.stdout + proc.stderr
     parsed = _parse(text)
+    parsed["process"] = process
     if parsed["wall"] is None and proc.returncode != 0:
         sys.stderr.write(f"  !! scan failed (rc={proc.returncode}); tail:\n")
         sys.stderr.write("\n".join(text.splitlines()[-15:]) + "\n")
@@ -191,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"target={args.repo}  rounds={args.rounds}  engines={[n for n, _ in engines]}")
     print(f"phases={phases}\nscratch={work}\n")
 
-    samples: dict[str, dict] = {n: {"wall": [], **{p: [] for p in phases}} for n, _ in engines}
+    samples: dict[str, dict] = {n: {"wall": [], "process": [], **{p: [] for p in phases}} for n, _ in engines}
     last_dir: dict[str, Path] = {}
     for rnd in range(1, args.rounds + 1):
         for name, epath in engines:
@@ -199,7 +206,8 @@ def main(argv: list[str] | None = None) -> int:
             _text, parsed = _run(epath, args.repo, out_dir)
             last_dir[name] = out_dir
             samples[name]["wall"].append(parsed["wall"])
-            row = [f"wall={parsed['wall']}s" if parsed["wall"] else "wall=FAIL"]
+            samples[name]["process"].append(parsed["process"])
+            row = [f"wall={parsed['wall']}s" if parsed["wall"] else "wall=FAIL", f"process={parsed['process']:.2f}s"]
             for p in phases:
                 v = _match_phase(parsed["phases"], p)
                 samples[name][p].append(v)
@@ -212,10 +220,10 @@ def main(argv: list[str] | None = None) -> int:
         return statistics.mean(good) if good else None
 
     base_name = engines[0][0]
-    base_means = {m: _mean(samples[base_name][m]) for m in ["wall", *phases]}
+    base_means = {m: _mean(samples[base_name][m]) for m in ["wall", "process", *phases]}
     print(f"{'engine':16s} {'metric':22s} {'mean':>10s} {'Δ vs base':>14s}")
     for name, _ in engines:
-        for metric in ["wall", *phases]:
+        for metric in ["wall", "process", *phases]:
             mean = _mean(samples[name][metric])
             base = base_means[metric]
             if mean is None:

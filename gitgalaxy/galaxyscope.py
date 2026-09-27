@@ -30,7 +30,7 @@ from typing import Any, Optional, Union, cast
 
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
-from gitgalaxy.core.detector import HAS_TIKTOKEN
+from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
@@ -209,12 +209,7 @@ def _init_worker(
         detector_cache[fallback_id] = OpticalDetector(fallback_id, lang_defs, parent_logger=worker_logger)
 
     # 2. Warm up active project languages based on extensions found in Pass 0.
-    active_langs = set()
-    for ext in ext_tally:
-        for l_id, l_cfg in lang_defs.items():
-            if ext in l_cfg.get("extensions", []):
-                active_langs.add(l_id)
-                break
+    active_langs = _active_languages(lang_defs, ext_tally)
 
     for lang_id in active_langs:
         if lang_id not in detector_cache:
@@ -304,6 +299,35 @@ def _can_run_inline() -> bool:
     import threading
 
     return threading.current_thread() is threading.main_thread()
+
+
+def _active_languages(lang_defs: dict[str, Any], ext_tally: dict[str, int], every_claimant: bool = False) -> set[str]:
+    """The languages a scan's extensions name, the fallbacks included: the first to claim each
+    extension (what `_init_worker` warms an extractor for), or with `every_claimant` all of them --
+    the language lens's lexical scan runs every claimant's rules on an ambiguous file (`.h`: c and
+    objective-c)."""
+    active = {"plaintext", "markdown"}
+    for ext in ext_tally:
+        for l_id, l_cfg in lang_defs.items():
+            if ext in l_cfg.get("extensions", []):
+                active.add(l_id)
+                if not every_claimant:
+                    break
+    return active
+
+
+def _precompile_for_fork(lang_defs: dict[str, Any], ext_tally: dict[str, int]) -> None:
+    """#3914: rules compile on first use. A forked pool's workers inherit this process's memory, so
+    compiling the scan's languages here once, before the fork, spares every worker compiling them
+    again -- as the eager registry did. A spawned pool re-creates its workers' state from pickles
+    (a pattern travels as its source), so there it would only cost this process time.
+
+    Every claimant of each extension, not the first: the lens scores an ambiguous file with all of
+    theirs (#3929: every worker on curl compiled objective-c's rules for its `.h` files)."""
+    if multiprocessing.get_start_method(allow_none=False) != "fork":
+        return
+    for lang_id in _active_languages(lang_defs, ext_tally, every_claimant=True):
+        _compiled_rules(lang_defs.get(lang_id, {}))
 
 
 def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def: dict[str, Any]) -> set[str]:
@@ -2207,6 +2231,8 @@ class Orchestrator:
         # single worker) -- the files are extracted in this process, by the same worker code.
         max_workers = min(max_workers, total_files)
         inline = (max_workers == 1 or total_files <= _INLINE_MAX_FILES) and _can_run_inline()
+        if not inline:
+            _precompile_for_fork(self.config.get("LANGUAGE_DEFINITIONS", {}), self.ext_tally)
         pool: Any = (
             _InlineExecutor(_init_worker, initargs)
             if inline

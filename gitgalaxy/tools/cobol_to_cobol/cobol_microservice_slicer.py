@@ -26,11 +26,16 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
 
 
 def slice_business_logic(
-    filepath: Path, initial_var: str, dead_paras: Optional[set] = None, orphaned_vars: Optional[set] = None
+    filepath: Path,
+    initial_var: str,
+    dead_paras: Optional[set] = None,
+    orphaned_vars: Optional[set] = None,
+    declared: Optional[str] = None,
 ):
     """
     Recursively tracks a variable and its aliases through the AST.
     Utilizes shared IR context to prevent mapping logic inside unreachable code.
+    #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
     """
     if dead_paras is None:
         dead_paras = set()
@@ -49,7 +54,7 @@ def slice_business_logic(
         return [], {initial_var: "ORPHANED_MEMORY"}
 
     try:
-        content = read_source(filepath).text.upper()
+        content = read_source(filepath, declared=declared).text.upper()
     except Exception:
         return None
 

@@ -17,9 +17,14 @@
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
+from gitgalaxy.core.ebcdic_codecs import java_charset_name
 
-def generate_decoder_util(package_name: str) -> str:
-    """Generates the EBCDIC and Packed Decimal (COMP-3) decoder utility with strict bounds validation."""
+
+def generate_decoder_util(package_name: str, code_page: str = "cp037") -> str:
+    """Generates the EBCDIC and Packed Decimal (COMP-3) decoder utility with strict bounds validation.
+    #3908: text decodes with the conversion's `data.code_page` (its JDK name: cp037 -> IBM037,
+    cp277 -> IBM277), not a hard-coded Cp1047 -- the default page is cp037."""
+    charset = java_charset_name(code_page)
     java = f"""package {package_name}.util;
 
 import java.math.BigDecimal;
@@ -31,8 +36,8 @@ public class EbcdicDecoderUtil {{
 
     private static final Logger log = LoggerFactory.getLogger(EbcdicDecoderUtil.class);
 
-    // Cp1047 is the standard IBM EBCDIC character set (US/Canada)
-    private static final Charset EBCDIC_CHARSET = Charset.forName("Cp1047");
+    // The estate's EBCDIC code page (data.code_page: {code_page}); national letters and [ ] ! ^ | move per page
+    private static final Charset EBCDIC_CHARSET = Charset.forName("{charset}");
 
     /**
      * Decodes a raw EBCDIC byte array into a standard Java UTF-8 String.

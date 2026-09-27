@@ -150,12 +150,12 @@ def _nearest(candidates: list[Path], origin: Path) -> list[Path]:
     return sorted(candidates, key=lambda p: (-shared(p), p.suffix.lower() != ".cpy", str(p)))
 
 
-def find_copybook(name: str, copybook_root: Path, origin: Path) -> Optional[Path]:
+def find_copybook(name: str, copybook_root: Path, origin: Path, declared: Optional[str] = None) -> Optional[Path]:
     """The member `COPY name` resolves to: searched under `copybook_root` (the
     repository, not just the program's directory: real layouts keep copybooks in
     COPYBOOK/ or cobol_copy/), nearest to `origin` first, never a program (#3203)."""
     for candidate in _nearest(_copybook_index(copybook_root).get(name.upper(), []), origin):
-        if not _PROGRAM_ID.search(read_source(candidate).text):
+        if not _PROGRAM_ID.search(read_source(candidate, declared=declared).text):
             return candidate
     return None
 
@@ -424,10 +424,12 @@ def resolve_copybooks(
     source_path: Path,
     copybook_root: Optional[Path] = None,
     origin: Optional[Path] = None,
+    declared: Optional[str] = None,
 ) -> str:
     """
     Recursively hunts for COBOL 'COPY' statements and injects the contents of the
     target .cpy file directly into the memory string to ensure accurate structural scanning.
+    #3909: `declared` is the program's code page: its compiler reads the COPY members in it too.
     """
     # ==========================================================================
     # DEFENSIVE DESIGN (INLINE COPYBOOK EXPANSION):
@@ -444,9 +446,9 @@ def resolve_copybooks(
     def replacer(match):
         copy_name = copy_member(match)
         replacing_clause = match.group("rep")
-        cpy_file = find_copybook(copy_name, root, origin)
+        cpy_file = find_copybook(copy_name, root, origin, declared)
         if cpy_file is not None:
-            cpy_content = read_source(cpy_file).text.upper()
+            cpy_content = read_source(cpy_file, declared=declared).text.upper()
             # ==============================================================
             # DEFENSIVE DESIGN (DYNAMIC ALIASING):
             # COBOL's 'REPLACING' clause allows dynamic text substitution at
@@ -483,20 +485,22 @@ def x_ray_dead_code(
     filepath: Path,
     copybook_root: Optional[Path] = None,
     origin: Optional[Path] = None,
+    declared: Optional[str] = None,
 ) -> Optional[dict]:
     """Parses a fully-expanded COBOL file to find mathematically unreachable logic and memory.
 
     `copybook_root` is where COPY members are searched (default: the file's own
     directory); `origin` is the program's path in the repository when `filepath`
     is a patched copy elsewhere, used to pick the nearest of several same-named copybooks.
+    #3909: `declared` is the estate's code page for the program and its COPY members (None: unaided).
     """
     try:
-        raw_content = read_source(filepath).text.upper()
+        raw_content = read_source(filepath, declared=declared).text.upper()
     except Exception:
         return None
 
     # Resolve all external memory layouts into the local string before structural validation
-    content = resolve_copybooks(raw_content, filepath, copybook_root, origin)
+    content = resolve_copybooks(raw_content, filepath, copybook_root, origin, declared)
 
     # COBOL is strictly divided. We need to split the data from the execution.
     split = split_procedure_division(content)

@@ -296,10 +296,11 @@ def trim_ticket(ticket: dict[str, Any], budget: int) -> None:
         ticket["over_budget"] = {"budget": budget, "tokens": t_after}
 
 
-def _source_text(path: Path) -> list[str]:
-    """Numbered source lines, columns 1-72 (the sequence area dropped)."""
+def _source_text(path: Path, declared: str | None = None) -> list[str]:
+    """Numbered source lines, columns 1-72 (the sequence area dropped). #3909: `declared` is the code
+    page the refractor read the program in (its IR dump's metadata.source_encoding)."""
     try:
-        lines = read_source(path).text.splitlines()
+        lines = read_source(path, declared=declared).text.splitlines()
     except OSError:
         return []
     return [f"{n:5d} | {line[:72].rstrip()}" for n, line in enumerate(lines, 1)]
@@ -341,7 +342,8 @@ def _class_path(fqcn: str) -> str:
 
 def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: str, source_root: Path | None,
                  manifest: dict[str, Any] | None, items: list[dict[str, Any]], target: dict[str, Any],
-                 skeleton_file: str | None) -> dict[str, Any]:  # fmt: skip
+                 skeleton_file: str | None, declared: str | None = None) -> dict[str, Any]:  # fmt: skip
+    """#3909: `declared` is the code page the program was decoded in (None: read unaided)."""
     prog = skeleton.get("program", {})
     service = java_class_base(key) + "Service"
     service_rel = _class_path(f"{package}.service.{service}")
@@ -364,7 +366,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
-    text = read_source(on_disk(source_root, prog["file"])).text if readable and source_root is not None else ""
+    text = read_source(on_disk(source_root, prog["file"]), declared=declared).text if readable and source_root else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
@@ -513,14 +515,18 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
     candidates.sort(key=lambda c: _order_key(c[0], metrics.get(str(c[3]))))
     order: list[dict[str, Any]] = []
     for rank, (key, path, skeleton, file, items) in enumerate(candidates, 1):
-        source_root = None
+        source_root: Path | None = None
+        declared: str | None = None
         ir_file = ir_dir / f"{key}_ir.json" if ir_dir else None
         if ir_file is not None and ir_file.is_file():
-            src = (json.loads(ir_file.read_text(encoding="utf-8")).get("metadata") or {}).get("path")
+            meta = json.loads(ir_file.read_text(encoding="utf-8")).get("metadata") or {}
+            src = meta.get("path")
             if src and file and src.replace("\\", "/").endswith(file):
                 source_root = Path(src[: len(src) - len(file)])
+            # #3909: the page the refractor read the program in; its COPY members compile in it too
+            declared = meta.get("source_encoding")
         ticket = build_ticket(key, skeleton, java_dir, package, source_root, manifest, items, target,
-                              f"{clean_room_name}/06_skeleton/{path.name}")  # fmt: skip
+                              f"{clean_room_name}/06_skeleton/{path.name}", declared)  # fmt: skip
         if budget > 0:
             trim_ticket(ticket, budget)
         m = metrics.get(str(file))
@@ -535,7 +541,8 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
             listing = out_dir / s_["listing"] if s_["listing"] else None
             if listing is not None and source_root is not None and not listing.exists():
                 listing.parent.mkdir(parents=True, exist_ok=True)
-                listing.write_text("\n".join(_source_text(on_disk(source_root, s_["file"]))) + "\n", encoding="utf-8")
+                lines = _source_text(on_disk(source_root, s_["file"]), declared)
+                listing.write_text("\n".join(lines) + "\n", encoding="utf-8")
         written[str(file)] = f"ai_agent_jobs/{key}_port_ticket.md"
     if order:
         write_port_order(out_dir, order)

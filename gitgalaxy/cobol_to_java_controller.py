@@ -286,7 +286,7 @@ def main():
 
     # --- Generate EBCDIC Decoder Utility ---
     if target.features.ebcdic_decoder:
-        decoder_content = generate_decoder_util(args.pkg)
+        decoder_content = generate_decoder_util(args.pkg, target.data.code_page)  # #3908
         if java_header:
             decoder_content = java_header + decoder_content
         (java_dirs["util"] / "EbcdicDecoderUtil.java").write_text(decoder_content, encoding="utf-8")

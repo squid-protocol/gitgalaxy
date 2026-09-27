@@ -2096,6 +2096,15 @@ class StructuralExtractor:
     # whose first byte opened the block. Entries carry #2549's `open_delimiter`.
     HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = COMPILED_HANDSHAKE_REGISTRY
 
+    def _rules_of(self, lang_config: dict[str, Any]) -> dict[str, Any]:
+        """`lang_config`'s rules, compiled (`_compiled_rules`) the first time this extractor reads them."""
+        rules: dict[str, Any] = lang_config.get("rules", {})
+        if id(rules) not in self._compiled_rule_ids:
+            _compiled_rules(lang_config)
+            if rules:  # an empty default `{}` is a temporary: its id may be reused by a real rules dict
+                self._compiled_rule_ids.add(id(rules))
+        return rules
+
     def __init__(
         self,
         lang_id: str,
@@ -2119,7 +2128,10 @@ class StructuralExtractor:
         self.languages: dict[str, Any] = language_definitions
 
         lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
-        self.primary_rules: dict[str, Any] = _compiled_rules(lang_config)
+        # #3914: the rule dicts this extractor has already compiled (by identity; self.languages keeps
+        # them alive) -- the per-segment lookups below then cost a set probe, not a rules scan.
+        self._compiled_rule_ids: set[int] = set()
+        self.primary_rules: dict[str, Any] = self._rules_of(lang_config)
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
         # #3360: (unit, callees seen only on a nested header) pairs one segment's
         # slicing collects; _function_slice resolves them. None outside a slice.
@@ -2207,7 +2219,7 @@ class StructuralExtractor:
                 # renamed (not reusing lang_config): mypy rejects
                 # re-annotating the same name twice in one scope.
                 healed_lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
-                self.primary_rules = _compiled_rules(healed_lang_config)
+                self.primary_rules = self._rules_of(healed_lang_config)
                 self.primary_family = healed_lang_config.get("lexical_family", "c_style_comment")
 
                 self.logger.warning(f"[AUTO-HEAL] Re-injected LANGUAGE_DEFINITIONS for '{self.primary_lang_id}'")
@@ -2442,7 +2454,7 @@ class StructuralExtractor:
             # deleting the line break) -- no new stream is needed, just a
             # second pattern pass over a stream `splice()` already has.
             doc_positional_end_lines: list[int] = []
-            _doc_pattern = _compiled_rules(self.languages.get(self.primary_lang_id, {})).get("doc")
+            _doc_pattern = self._rules_of(self.languages.get(self.primary_lang_id, {})).get("doc")
             if _doc_pattern is not None:
                 _doc_end_lines: set[int] = set()
                 for _doc_stream in (positional_comment_stream, code_stream):
@@ -2505,7 +2517,7 @@ class StructuralExtractor:
             # with sharing", C#'s "internal sealed partial"). Everyone else
             # stays on the legacy fallback until their own class_start is
             # hardened for this use (see the frozenset's comment).
-            rules = _compiled_rules(self.languages.get(self.primary_lang_id, {}))
+            rules = self._rules_of(self.languages.get(self.primary_lang_id, {}))
             if (
                 "class_start" in rules and rules["class_start"] is None
             ) or self.primary_lang_id in _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS:
@@ -3583,7 +3595,7 @@ class StructuralExtractor:
         cached = cache.get(seg_lang)
         if cached is not None:
             return cached
-        rules_dict = _compiled_rules(self.languages.get(seg_lang, {}))
+        rules_dict = self._rules_of(self.languages.get(seg_lang, {}))
         line_gate_names = rules_dict.get("_line_gates") or ()
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
         active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]] = []
@@ -3650,7 +3662,7 @@ class StructuralExtractor:
 
         for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
-            rules = _compiled_rules(self.languages.get(seg_lang, {})).copy()
+            rules = self._rules_of(self.languages.get(seg_lang, {})).copy()
 
             # #2814: blank statically-dead C-family preprocessor branches before
             # any rule runs, so a hit inside `#if 0` is not counted at file or
@@ -3889,7 +3901,7 @@ class StructuralExtractor:
         if not comment_stream:
             return counts
 
-        rules = _compiled_rules(self.languages.get(lang_id, {}))
+        rules = self._rules_of(self.languages.get(lang_id, {}))
 
         # The specific rules designed to extract telemetry from human-readable text
         comment_rules = [
@@ -4322,7 +4334,7 @@ class StructuralExtractor:
 
         for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
             lang_config = self.languages.get(lang_id, {})
-            rules = _compiled_rules(lang_config)
+            rules = self._rules_of(lang_config)
             family = lang_config.get("lexical_family", "c_style_comment")
 
             integration_mode = ScopeParsingRegistry.get_mode(lang_id)

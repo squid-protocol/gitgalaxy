@@ -128,16 +128,19 @@ def data_entries(content: str) -> list[dict]:
     return entries
 
 
-def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_header: str = ""):
+def forge_schemas(
+    filepath: Path, ignore_vars: Optional[set] = None, corporate_header: str = "", declared: Optional[str] = None
+):
     """
     Analyzes a COBOL/Copybook file and generates modern schemas.
     Upgraded to utilize shared IR context to drop unused memory addresses.
+    #3909: `declared` is the estate's code page for the file (a raw EBCDIC download); None reads it unaided.
     """
     if ignore_vars is None:
         ignore_vars = set()
 
     try:
-        content = read_source(filepath).text.upper()
+        content = read_source(filepath, declared=declared).text.upper()
     except Exception:
         return None
 

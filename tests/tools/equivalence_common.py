@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
+from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
@@ -106,21 +107,12 @@ def text_bytes(text: str, nbytes: int, enc: str = DEFAULT_DATA_ENCODING) -> byte
 
 
 def java_charset(enc: str = DEFAULT_DATA_ENCODING) -> str:
-    """#3815: the Java expression for `enc`, the Charset the generated test's record codecs use."""
-    name = codecs.lookup(enc).name
-    if name == "iso8859-1":
+    """#3815: the Java expression for `enc`, the Charset the generated test's record codecs use.
+    #3908: the JDK name comes from gitgalaxy (java_charset_name), the one mapping the generated
+    EbcdicDecoderUtil uses too."""
+    if codecs.lookup(enc).name == "iso8859-1":
         return "StandardCharsets.ISO_8859_1"  # the default: the generated test byte-identical to before
-    if name.startswith("iso8859-"):
-        java = "ISO-8859-" + name[len("iso8859-") :]
-    elif name.startswith("cp125"):
-        java = "windows-" + name[2:]
-    elif name.startswith("cp114") and len(name) == 6:
-        java = "IBM0" + name[2:]  # IBM01140 ... IBM01149
-    elif name.startswith("cp") and name[2:].isdigit():
-        java = "IBM" + name[2:]  # IBM037, IBM273, IBM277, IBM1047
-    else:
-        java = name.upper()  # UTF-8
-    return f'Charset.forName("{java}")'
+    return f'Charset.forName("{java_charset_name(enc)}")'
 
 
 def _fixed(src: Path, reclen: int, enc: str = DEFAULT_DATA_ENCODING) -> bytes:

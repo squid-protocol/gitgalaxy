@@ -1,8 +1,6 @@
 # #3834: the Cultural Gauntlet's known failing cells -- a ratchet. CI fails on a failing cell not listed
 # here; a fix removes cells (--full --update-baseline). One `cell<TAB>first difference` per line, sorted;
 # git merges this file as a union, so a stale line is possible and harmless.
-currency_eur_u|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
-currency_eur_u|cp037|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp037|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_eur_u|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_eur_u|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
@@ -12,24 +10,10 @@ currency_eur_u|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_
 currency_eur_u|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 currency_eur_u|cp273|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp273|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
-currency_eur_u|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-currency_eur_u|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
-currency_eur_u|cp277|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp277|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
-currency_eur_u|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-currency_eur_u|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
-currency_eur_u|cp278|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp278|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
-currency_eur_u|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-currency_eur_u|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
-currency_eur_u|cp285|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp285|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
-currency_eur_u|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-currency_eur_u|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
-currency_eur_u|cp297|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp297|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
-currency_eur_u|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-currency_eur_u|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 currency_eur_u|utf8|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_euro|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
 currency_euro|cp1140|refractor	refractor read lines: want 37, got 1
@@ -138,26 +122,12 @@ decimal_comma|cp1140|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp1140|refractor	refractor read lines: want 37, got 1
 decimal_comma|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 decimal_comma|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
+decimal_comma|cp037|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp273|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
-decimal_comma|cp273|refractor	refractor read lines: want 37, got 1
-decimal_comma|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-decimal_comma|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
 decimal_comma|cp277|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
-decimal_comma|cp277|refractor	refractor read lines: want 37, got 1
-decimal_comma|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-decimal_comma|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
 decimal_comma|cp278|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
-decimal_comma|cp278|refractor	refractor read lines: want 37, got 1
-decimal_comma|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-decimal_comma|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
 decimal_comma|cp285|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
-decimal_comma|cp285|refractor	refractor read lines: want 37, got 1
-decimal_comma|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-decimal_comma|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
 decimal_comma|cp297|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
-decimal_comma|cp297|refractor	refractor read lines: want 37, got 1
-decimal_comma|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
-decimal_comma|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 decimal_comma|utf8|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 intdate_lilian|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 intdate_lilian|cp037|refractor	refractor read lines: want 35, got 1

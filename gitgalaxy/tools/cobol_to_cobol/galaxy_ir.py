@@ -911,6 +911,14 @@ class GalaxyIR:
     # #3710: the scanned source tree, when the caller has it: a runner step's SYSTSIN read
     # from a dataset member (a `.ctl` file the scan does not record) is read from here.
     source_root: Optional[Path] = None
+    # #3909: {file_path: code page} of each file the scan decoded with the estate's declared page
+    # (file_data.source_decode 'declared'), so every later read of it decodes it the same way.
+    source_pages: dict[str, str] = field(default_factory=dict)
+
+    def source_page(self, file_path: str) -> Optional[str]:
+        """#3909: the declared code page the scan decoded `file_path` (repo-relative) with; None for a
+        file it read as UTF-8 or by a guess -- a later read then takes the same ladder unaided."""
+        return self.source_pages.get(nfc(file_path.replace("\\", "/")))
 
     def programs(self, language: str = "cobol") -> list[EngineFile]:
         return sorted(
@@ -3701,7 +3709,7 @@ class GalaxyIR:
         if not step.runs and step.runs_via == "TSO commands":
             out.append({"program": None, "via": "TSO commands", "source": "systsin"})
         if step.systsin_member:
-            text = self._systsin_member_text(step.systsin_member)
+            text = self._systsin_member_text(step.systsin_member, from_file)
             if text is None:
                 out.append({"program": None, "via": None, "source": "member", "member": step.systsin_member})
             elif not systsin_programs(text):  # FREE / BIND / RACF commands: it runs no program
@@ -3715,7 +3723,7 @@ class GalaxyIR:
             e["resolves_to"] = self._nearest_program(e["program"], from_file) if load_module else None
         return out
 
-    def _systsin_member_text(self, member: str) -> Optional[str]:
+    def _systsin_member_text(self, member: str, from_file: str = "") -> Optional[str]:
         """The text of the one file under `source_root` whose name is `member` (any extension),
         else None: no root, no such file, or two of them."""
         if self.source_root is None:
@@ -3728,7 +3736,8 @@ class GalaxyIR:
                     index.setdefault(nfc(p.stem.upper()), []).append(p)  # #3815: an NFD file name too
             self.__dict__["_member_index"] = index
         hits = index.get(nfc(member.upper()), [])
-        return read_source(hits[0]).text if len(hits) == 1 else None
+        # #3909: a member the scan did not record is in the page of the job that reads it
+        return read_source(hits[0], declared=self.source_page(from_file)).text if len(hits) == 1 else None
 
     def job_dds(self) -> list:
         """Every job step's DD statements (#3622): per JCL file with a JOB card, one row per
@@ -5197,6 +5206,15 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 by_id[src].copy_deps.append(by_id[dst].file_path)
         for ef in files.values():
             ef.copy_deps.sort()
+        source_pages: dict[str, str] = {}
+        if _has_column(cur, "file_data", "source_decode"):  # #3909: NULL / absent on a pre-#3813 DB
+            for path, codec in cur.execute(
+                "SELECT file_path, source_encoding FROM file_data "
+                "WHERE repo_name = ? AND commit_hash = ? AND source_decode = 'declared'",
+                (repo_name, commit_hash),
+            ):
+                if path and codec:
+                    source_pages[path.replace("\\", "/")] = codec
         if _has_column(cur, "file_data", "raw_imports"):
             for file_id, raw in cur.execute(
                 "SELECT id, raw_imports FROM file_data WHERE repo_name = ? AND commit_hash = ? AND language = 'pli'",
@@ -5835,7 +5853,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
 
     _attach_symbolic_maps(files)
     _name_pli_programs(files)
-    return GalaxyIR(db_path, repo_name, commit_hash, files)
+    return GalaxyIR(db_path, repo_name, commit_hash, files, source_pages=source_pages)
 
 
 def _name_pli_programs(files: dict[str, EngineFile]) -> None:

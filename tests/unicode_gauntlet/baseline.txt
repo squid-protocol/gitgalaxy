@@ -2,5 +2,3 @@
 # here; a fix removes cells (--update-baseline). One `cell<TAB>first difference` per line, sorted; git
 # merges this file as a union, so a stale line is possible and harmless. Cells were measured at the
 # keyword-rosetta commit in rosetta_ref.
-mainframe|german|utf-16	mainframe/pli/INCAÄÖÜ.inc: language c -> assembly
-mainframe|nordic|utf-8-sig	mainframe/pli/INCAÆØÅ.inc: language c -> assembly

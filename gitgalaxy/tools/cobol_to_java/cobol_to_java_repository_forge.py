@@ -125,6 +125,7 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * #3624: COBOL storage for the entities' record codecs (fromRecord / toRecord) -- DISPLAY text, zoned
@@ -133,6 +134,11 @@ import java.util.Arrays;
  * COMP-3 packed decimal and COMP binary (big-endian). Storing follows COBOL MOVE: a value too long for
  * the field loses its high-order digits, decimals beyond the scale are truncated, an unsigned field
  * keeps the magnitude. Invalid data (a space in a numeric field) is an error, not a zero.
+ *
+ * #3831: a digit is `0`-`9` and nothing else. Java's own parsers take any Unicode decimal digit --
+ * BigInteger, BigDecimal and Integer.parseInt read Arabic-Indic, Devanagari and full-width digits as
+ * numbers -- where COBOL's NUMERIC test and NUMVAL reject them, so every parse here checks the
+ * characters itself before handing them to BigInteger / BigDecimal.
  */
 public final class CobolRecords {
 
@@ -162,6 +168,9 @@ public final class CobolRecords {
 
     public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
         String s = new String(rec, offset, length, text);
+        if (s.length() != length) {  // #3831: a multi-byte character is no zoned digit
+            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+        }
         char last = s.charAt(length - 1);
         boolean negative = false;
         int digit;
@@ -176,7 +185,7 @@ public final class CobolRecords {
             throw new NumberFormatException("invalid zoned sign '" + last + "' at offset " + (offset + length - 1));
         }
         String digits = s.substring(0, length - 1) + digit;
-        if (!digits.chars().allMatch(Character::isDigit)) {
+        if (!isAsciiDigits(digits)) {
             throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
         }
         BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
@@ -244,6 +253,11 @@ public final class CobolRecords {
     }
 
     public static BigDecimal decimal(Object value) {
+        return decimal(value, '.');
+    }
+
+    /** A value as a decimal; text is read as NUMVAL reads it, with the program's DECIMAL-POINT. */
+    public static BigDecimal decimal(Object value, char decimalPoint) {
         if (value == null) {
             return BigDecimal.ZERO;
         }
@@ -253,7 +267,61 @@ public final class CobolRecords {
         if (value instanceof Number n) {
             return new BigDecimal(n.toString());
         }
-        return new BigDecimal(value.toString().trim());
+        return numval(value.toString(), decimalPoint);
+    }
+
+    public static BigDecimal numval(String text) {
+        return numval(text, '.');
+    }
+
+    /**
+     * #3831: COBOL's FUNCTION NUMVAL. Leading and trailing spaces; one sign, either leading (`+` / `-`)
+     * or trailing (`+` / `-` / `CR` / `DB`), spaces allowed between it and the number; ASCII digits with
+     * at most one decimal point -- `decimalPoint`, which is `,` in a program that codes DECIMAL-POINT IS
+     * COMMA (so `1,5` is one and a half there, and `1.5` is invalid). Anything else is invalid data: a
+     * NumberFormatException, never a best guess.
+     */
+    public static BigDecimal numval(String text, char decimalPoint) {
+        if (text == null) {
+            throw new NumberFormatException("invalid numeric: null");
+        }
+        String s = text.strip();
+        boolean negative = false;
+        String upper = s.toUpperCase(Locale.ROOT);
+        if (upper.endsWith("CR") || upper.endsWith("DB")) {
+            negative = true;
+            s = s.substring(0, s.length() - 2).stripTrailing();
+        } else if (s.endsWith("-") || s.endsWith("+")) {
+            negative = s.endsWith("-");
+            s = s.substring(0, s.length() - 1).stripTrailing();
+        } else if (s.startsWith("-") || s.startsWith("+")) {
+            negative = s.startsWith("-");
+            s = s.substring(1).stripLeading();
+        }
+        int point = s.indexOf(decimalPoint);
+        String whole = point < 0 ? s : s.substring(0, point);
+        String frac = point < 0 ? "" : s.substring(point + 1);
+        boolean valid = !(whole.isEmpty() && frac.isEmpty())
+                && (whole.isEmpty() || isAsciiDigits(whole))
+                && (frac.isEmpty() || isAsciiDigits(frac));
+        if (!valid) {
+            throw new NumberFormatException("invalid numeric '" + text + "'");
+        }
+        BigDecimal v = new BigDecimal(new BigInteger((whole.isEmpty() ? "0" : whole) + frac), frac.length());
+        return negative ? v.negate() : v;
+    }
+
+    private static boolean isAsciiDigits(String s) {
+        if (s.isEmpty()) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c < '0' || c > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static Integer toInteger(BigDecimal v) {

@@ -75,6 +75,12 @@ PORTING_RULES = [
         "methods) or the entity codecs, never a hand-written decoder."
     ),
     (
+        "Read a number from text (a screen field, FUNCTION NUMVAL, a PARM) only through "
+        "CobolRecords.numval(text, decimalPoint), with ',' when the program codes DECIMAL-POINT IS COMMA; "
+        "never Integer.parseInt or new BigDecimal(String), which accept Arabic-Indic, Devanagari and "
+        "full-width digits that COBOL rejects (#3831)."
+    ),
+    (
         "Format and case-map with Locale.ROOT (String.format(Locale.ROOT, ...), toUpperCase(Locale.ROOT)): "
         "the default locale prints other digits (Arabic, Devanagari) and maps case differently (Turkish)."
     ),

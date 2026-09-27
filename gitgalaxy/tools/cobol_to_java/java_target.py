@@ -171,7 +171,7 @@ class Culture:
     decimal_point: str = "auto"  # #3827: DECIMAL-POINT IS COMMA in edited PICTUREs and schemas
     currency: str = "auto"  # TODO(#3820): CURRENCY SIGN / PICTURE SYMBOL in edited PICTUREs
     key_collation: str = "ebcdic"  # #3822: key order and comparison of generated repositories
-    db2_date_format: str = "iso"  # TODO(#3828): the DB2 subsystem's DATE/TIME format for character dates
+    db2_date_format: str = "iso"  # #3828: the DB2 subsystem's DATE/TIME format for character dates (Db2Dates)
 
 
 @dataclass
@@ -416,6 +416,7 @@ culture:
   currency: auto                        # auto (the program's CURRENCY SIGN), or the symbol itself, e.g. "£" or "EUR "
   key_collation: ebcdic                 # {" | ".join(KEY_COLLATIONS)}  (ebcdic: keys order as on the mainframe, the
                                         #   code page's byte order; binary / database: a deviation -- browses can differ)
-  db2_date_format: iso                  # {" | ".join(DB2_DATE_FORMATS)}  (the DB2 subsystem's DATE/TIME format for
-                                        #   character dates)
+  db2_date_format: iso                  # {" | ".join(DB2_DATE_FORMATS)}  (the DB2 subsystem's DATE/TIME format,
+                                        #   DSNHDECP DATE= / TIME=: a DATE fetched into PIC X(10) reads 26.09.2026
+                                        #   under eur; the generated Db2Dates converts in it)
 """  # noqa: S608 -- a YAML template: "update | create" are ddl-auto values, not SQL

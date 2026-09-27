@@ -21,6 +21,11 @@ under a generated driver that passes the JCL PARM through LINKAGE, with
 COB_CURRENT_DATE pinning FUNCTION CURRENT-DATE; each output (and each KSDS the
 program opens I-O) is unloaded to fixed-length records. Compiled `-std=ibm
 -fsign=EBCDIC`: the corpus data is EBCDIC-style zoned (`{` = +0) in ASCII text.
+#3828: the program's CBL / PROCESS cards, and a case's `"compiler_options": ["TRUNC(BIN)"]`
+(the compile step's PARM; the cards override it), become cobc flags where GnuCOBOL has one
+(TRUNC(BIN) -> -fnotrunc); one it cannot honour -- INTDATE(LILIAN), ARITH(EXTEND),
+NUMPROC(PFD), TRUNC(OPT) -- stops the run (equivalence_common.compile_options). A case's
+`"culture"` (e.g. {"db2_date_format": "eur"}) is the Java side's target config.
 
 Java side -- the generated project (the refractor + cobol-to-java pipeline, target
 config `h2`) with the case's hand-ported sources overlaid (the vertical slice), run
@@ -53,7 +58,7 @@ from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
-from equivalence_common import CASES, IMAGE, _fixed, _input_path, decode_field, layout_fields
+from equivalence_common import CASES, IMAGE, _fixed, _input_path, compile_options, decode_field, layout_fields
 
 
 # ---- COBOL side ----------------------------------------------------------------------
@@ -133,13 +138,15 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
     src.mkdir(exist_ok=True)
-    shutil.copy(corpus / case["program_source"], src / "PROGRAM.cbl")
+    # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
+    program, option_flags = compile_options(case, (corpus / case["program_source"]).read_text(encoding="latin-1"))
+    (src / "PROGRAM.cbl").write_text(program, encoding="latin-1")
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
             if p.is_file():
                 shutil.copy(p, src / p.name)
     script = ["set -e", "cd /work"]
-    flags = "-std=ibm -fsign=EBCDIC -I /work/src"
+    flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, "-I /work/src"])
     import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts
 
     generated = equivalence_inputs.generate_inputs(case, corpus)

@@ -1,0 +1,757 @@
+{
+  "groups": {
+    "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/XML1.cbl": [
+        {
+          "Line": 1,
+          "Option": "XMLPARSE",
+          "Value": "XMLSS",
+          "Written": "XMLPARSE(XMLSS)"
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/special_schema.cbl": [
+        {
+          "Line": 1,
+          "Option": "CODEPAGE",
+          "Value": "1140",
+          "Written": "CODEPAGE(1140)"
+        },
+        {
+          "Line": 2,
+          "Option": "XMLPARSE",
+          "Value": "XMLSS",
+          "Written": "XMLPARSE(XMLSS)"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF,DLI'",
+          "Written": "CICS('SP,EDF,DLI')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 3,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF,DLI'",
+          "Written": "CICS('SP,EDF,DLI')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF,DLI'",
+          "Written": "CICS('SP,EDF,DLI')"
+        },
+        {
+          "Line": 2,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF,DLI'",
+          "Written": "CICS('SP,EDF,DLI')"
+        },
+        {
+          "Line": 3,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF,DLI'",
+          "Written": "CICS('SP,EDF,DLI')"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": null,
+          "Written": "CICS"
+        },
+        {
+          "Line": 1,
+          "Option": "NODYNAM",
+          "Value": null,
+          "Written": "NODYNAM"
+        },
+        {
+          "Line": 1,
+          "Option": "NSYMBOL",
+          "Value": "NATIONAL",
+          "Written": "NSYMBOL(NATIONAL)"
+        },
+        {
+          "Line": 1,
+          "Option": "TRUNC",
+          "Value": "STD",
+          "Written": "TRUNC(STD)"
+        },
+        {
+          "Line": 2,
+          "Option": "CICS",
+          "Value": "'SP,EDF'",
+          "Written": "CICS('SP,EDF')"
+        },
+        {
+          "Line": 3,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ]
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgacdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgacdb02.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgapdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgdpdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgicdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgipdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgucdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ],
+      "cobol/cics-genapp/lgupdb01.cbl": [
+        {
+          "Line": 1,
+          "Option": "SQL",
+          "Value": null,
+          "Written": "SQL"
+        }
+      ]
+    },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "SP",
+          "Written": "CICS(SP)"
+        }
+      ],
+      "cobol/zECS/ZECS000.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "SP",
+          "Written": "CICS(SP)"
+        }
+      ],
+      "cobol/zECS/ZECS003.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "SP",
+          "Written": "CICS(SP)"
+        }
+      ],
+      "cobol/zECS/ZECSPLT.cbl": [
+        {
+          "Line": 1,
+          "Option": "CICS",
+          "Value": "SP",
+          "Written": "CICS(SP)"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Compiler Options"
+  ]
+}

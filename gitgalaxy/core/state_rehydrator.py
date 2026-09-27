@@ -1051,6 +1051,23 @@ class StateRehydrator:
                     },
                 )
 
+                # #3828: CBL / PROCESS compiler options.
+                options_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "compiler_options_data",
+                    'SELECT fd.file_path AS _fp, co.option, co.value, co.written, co.line_number AS "line" '
+                    "FROM compiler_options_data co JOIN file_data fd ON co.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY co.id",
+                    lambda r: {
+                        "option": r["option"],
+                        "value": r["value"],
+                        "written": r["written"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 # #3452: field-level data movement.
                 # #3655: the refmod texts; a pre-#3655 DB has neither column.
                 refmod_cols = (
@@ -1133,6 +1150,7 @@ class StateRehydrator:
                     node["data_moves"] = moves_by_file.get(rel_path, [])
                     node["web_services"] = web_by_file.get(rel_path, [])
                     node["special_names"] = special_by_file.get(rel_path, [])  # #3820
+                    node["compiler_options"] = options_by_file.get(rel_path, [])  # #3828
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

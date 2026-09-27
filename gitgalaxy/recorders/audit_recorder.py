@@ -524,6 +524,18 @@ class AuditRecorder:
                 }
                 for n in special
             ]
+        options = file_data.get("compiler_options") or []
+        if options:
+            # #3828: CBL / PROCESS compiler options, mirroring compiler_options_data.
+            block["Compiler Options"] = [
+                {
+                    "Option": o.get("option"),
+                    "Value": o.get("value"),
+                    "Written": o.get("written"),
+                    "Line": o.get("line", 0),
+                }
+                for o in options
+            ]
         moves = file_data.get("data_moves") or []
         if moves:
             # #3452: field-level data movement, one compact line per source -> target pair.

@@ -85,6 +85,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.compiler_options import compiler_options
 from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
@@ -2150,6 +2151,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE / STRING / UNSTRING / INITIALIZE.
     #3820: cobol also carries `special_names` -- the SPECIAL-NAMES CURRENCY and
     DECIMAL-POINT clauses, which change what a PIC's symbols are worth.
+    #3828: cobol also carries `compiler_options` -- the CBL / PROCESS card options
+    (INTDATE, TRUNC, ARITH, NUMPROC ...), which change what some statements compute.
     #3496: jcl also carries `web_services` -- the web-services assistant steps
     (DFHLS2WS / DFHLS2JS providers, DFHWS2LS / DFHJS2LS requesters).
     #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
@@ -2180,6 +2183,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "file_control": cobol_file_control(code_stream),  # #3455
             "data_moves": data_moves(code_stream),  # #3452
             "special_names": special_names(code_stream),  # #3820
+            "compiler_options": compiler_options(code_stream),  # #3828
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)

@@ -531,7 +531,8 @@ class RecordKeeper:
         Field-level data movement (#3452) rides on `data_moves` -> data_move_data.
         Web-services assistant steps (#3496) ride on `web_services` -> web_service_data.
         SPECIAL-NAMES currency strings and decimal point (#3820) ride on
-        `special_names` -> special_names_data.
+        `special_names` -> special_names_data. CBL / PROCESS compiler options
+        (#3828) ride on `compiler_options` -> compiler_options_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1555,6 +1556,28 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_special_names_file_id ON special_names_data(file_id);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_special_names_snapshot ON special_names_data(repo_name, commit_hash);"
+        )
+
+        # #3828: the CBL / PROCESS card options (core/compiler_options.py): one row
+        # per option in source order -- option (full name, abbreviations spelled
+        # out), value (between its parentheses, as written), written (as on the
+        # card). INTDATE / TRUNC / ARITH / NUMPROC change what a program computes.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS compiler_options_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                option TEXT,
+                value TEXT,
+                written TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_compiler_options_file_id ON compiler_options_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_compiler_options_snapshot ON compiler_options_data(repo_name, commit_hash);"
         )
 
         # #3452: field-level data movement (core/data_moves.py), one row per source ->
@@ -3464,6 +3487,19 @@ class RecordKeeper:
             ("clause", "value", "symbol", "line_number"),
             "special_names",
             lambda n: (n.get("clause"), n.get("value"), n.get("symbol"), int(n.get("line", 0) or 0)),
+        )
+
+        # #3828: CBL / PROCESS compiler options -- per-file.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "compiler_options_data",
+            ("option", "value", "written", "line_number"),
+            "compiler_options",
+            lambda o: (o.get("option"), o.get("value"), o.get("written"), int(o.get("line", 0) or 0)),
         )
 
         # #3496: web-services assistant steps -- per-file.

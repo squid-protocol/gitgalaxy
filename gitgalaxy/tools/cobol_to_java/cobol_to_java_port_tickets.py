@@ -19,6 +19,8 @@
 #                the traceability manifest ties to this program;
 #   worklist     this program's worklist items;
 #   rules        the porting rules the #3624 slice proved (storage semantics, behaviour kept);
+#   compiler_options  the program's CBL / PROCESS card options (#3828), and a rule for each
+#                one that changes what it computes (INTDATE(LILIAN), TRUNC(BIN) ...);
 #   deliverable  what to return and how the port is proven (tests/tools/equivalence.py).
 # Deterministic: no timestamps, estate-relative paths, sorted keys.
 # ==============================================================================
@@ -29,6 +31,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
@@ -123,10 +126,59 @@ PORTING_RULES = [
         "pinned to be compared with the original."
     ),
     (
+        "A DB2 DATE / TIME / TIMESTAMP fetched into, or bound from, a character host variable (a DCLGEN DATE is "
+        "PIC X(10)) is in the DB2 subsystem's format, the target config's culture.db2_date_format -- eur "
+        "26.09.2026 and 14.30.05, usa 09/26/2026 and 02:30 PM, iso 2026-09-26 and 14.30.05, jis 2026-09-26 and "
+        "14:30:05 -- and a TIMESTAMP is 2026-09-26-14.30.05.000000: convert only through the generated Db2Dates "
+        "(date / time / timestamp, parseDate / parseTime / parseTimestamp), never LocalDate.toString() or "
+        "LocalDate.parse (#3828)."
+    ),
+    (
+        "FUNCTION INTEGER-OF-DATE / INTEGER-OF-DAY count days from day 1 = 1601-01-01 under INTDATE(ANSI), the "
+        "default, but from day 1 = 1582-10-15 under INTDATE(LILIAN) (the same date is 6653 higher); "
+        "DATE-OF-INTEGER / DAY-OF-INTEGER invert the same count. Port as ChronoUnit.DAYS.between(dayZero, date) "
+        "with dayZero 1600-12-31 (ANSI) or 1582-10-14 (LILIAN). The ticket's compiler_options are the program's "
+        "CBL / PROCESS cards; options given by the compile step's PARM or the installation defaults are not seen "
+        "there (#3828)."
+    ),
+    (
         "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "
         "field-tested: where the source contradicts it, follow the source and say so in the port's notes."
     ),
 ]
+
+
+# #3828: what each non-default semantic compiler option means for the port, keyed (option, value).
+_OPTION_RULES = {
+    ("INTDATE", "LILIAN"): (
+        "INTDATE(LILIAN): INTEGER-OF-DATE / DATE-OF-INTEGER / INTEGER-OF-DAY / DAY-OF-INTEGER count from "
+        "1582-10-15 = day 1 (dayZero 1582-10-14), not 1601-01-01."
+    ),
+    ("TRUNC", "BIN"): (
+        "TRUNC(BIN): a COMP / BINARY item keeps any value its bytes hold (PIC S9(4) COMP holds -32768..32767), "
+        "not truncated to its PICTURE's digits."
+    ),
+    ("TRUNC", "OPT"): (
+        "TRUNC(OPT): IBM truncates binary items only as the generated code finds convenient; where a value "
+        "can exceed its PICTURE, the equivalence harness is the oracle."
+    ),
+    ("ARITH", "EXTEND"): "ARITH(EXTEND): numeric items may have 31 digits and intermediates carry 31, not 18.",
+    ("NUMPROC", "PFD"): (
+        "NUMPROC(PFD): the compiler trusts signs to be preferred (C / D / F) and does not repair them; a "
+        "non-preferred sign can compare or move differently than under NOPFD."
+    ),
+}
+
+
+def option_rules(options: list[dict[str, Any]]) -> list[str]:
+    """#3828: one rule per CBL / PROCESS option that changes what the program computes."""
+    line_of = {str(o.get("option")): o.get("line") for o in options}
+    out: list[str] = []
+    now = effective(options)
+    for (option, value), text in _OPTION_RULES.items():
+        if str(now.get(option) or "").upper() == value:
+            out.append(f"This program's CBL / PROCESS card (line {line_of.get(option)}) sets {text}")
+    return out
 
 
 def _source_text(path: Path) -> list[str]:
@@ -196,8 +248,10 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
-    rounding = rounding_facts(read_source(source_root / prog["file"]).text) if readable else []  # #3825
-    rules = list(PORTING_RULES)
+    text = read_source(source_root / prog["file"]).text if readable else ""
+    rounding = rounding_facts(text) if readable else []  # #3825
+    options = compiler_options(text)  # #3828
+    rules = list(PORTING_RULES) + option_rules(options)
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "
@@ -228,6 +282,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "generated": generated,
         "worklist": [{k: it[k] for k in ("id", "category", "file", "line", "text")} for it in items],
         "rounding": rounding,
+        "compiler_options": options,
         "rules": rules,
         "deliverable": {
             "return": (
@@ -262,6 +317,10 @@ def ticket_markdown(t: dict[str, Any]) -> str:
         for r in t["rounding"]:
             tgts = ", ".join(f"`{x['target']}`: {x['java']} ({x['mode']})" for x in r["targets"]) or "(truncates)"
             md.append(f"| {r['line']} | {r['verb']} | {tgts} | {'yes' if r['size_error'] else ''} |")
+    if t.get("compiler_options"):  # #3828: the program's CBL / PROCESS cards
+        md += ["", "## Compiler options (CBL / PROCESS cards)", "", "| line | option | as written |", "|---:|---|---|"]
+        md += [f"| {o['line']} | {o['option']}{'(' + o['value'] + ')' if o.get('value') else ''} | `{o['written']}` |"
+               for o in t["compiler_options"]]  # fmt: skip
     md += ["", "## Worklist items for this program", ""]
     md += [f"- **{w['id']}** ({w['category']}) `{w['file']}:{w['line']}`: {w['text']}" for w in t["worklist"]]
     md += ["", "## Generated code it builds on", ""] + [f"- `{g['class']}`" for g in t["generated"]["imports"]]

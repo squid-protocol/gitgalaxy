@@ -166,3 +166,35 @@ def test_the_scans_are_bounded():
     cobol_file_control(src)
     jcl_vsam_defines(jcl)
     assert time.perf_counter() - started < 5.0
+
+
+def test_sequential_synonyms():
+    """#3898: ORGANIZATION is optional, so a bare `LINE SEQUENTIAL` is LINE SEQUENTIAL, not SEQUENTIAL;
+    Micro Focus `RECORD SEQUENTIAL` is SEQUENTIAL; RECORD KEY / ALTERNATE RECORD KEY are untouched."""
+    PROGRAM_SEQ = (
+        "       FILE-CONTROL.\n"
+        "           SELECT BARE-LINE-SEQ ASSIGN TO '1.txt' LINE SEQUENTIAL.\n"
+        "           SELECT ORG-LINE-SEQ ASSIGN TO '2.txt' ORGANIZATION LINE SEQUENTIAL.\n"
+        "           SELECT ORG-IS-LINE-SEQ ASSIGN TO '3.txt' ORGANIZATION IS LINE SEQUENTIAL.\n"
+        "           SELECT BARE-REC-SEQ ASSIGN TO '4.txt' RECORD SEQUENTIAL.\n"
+        "           SELECT ORG-IS-REC-SEQ ASSIGN TO '5.txt' ORGANIZATION IS RECORD SEQUENTIAL.\n"
+        "           SELECT PLAIN-SEQ ASSIGN TO '6.txt' SEQUENTIAL.\n"
+        "           SELECT IDX-FILE ASSIGN TO '7.txt'\n"
+        "                  ORGANIZATION IS INDEXED\n"
+        "                  RECORD KEY IS WS-REC-KEY\n"
+        "                  ALTERNATE RECORD KEY IS WS-ALT-KEY WITH DUPLICATES.\n"
+    )
+    rows = extract_boundary("cobol", PROGRAM_SEQ)["file_control"]
+    got = [(r["select_name"], r["organization"]) for r in rows]
+    assert got == [
+        ("BARE-LINE-SEQ", "LINE SEQUENTIAL"),
+        ("ORG-LINE-SEQ", "LINE SEQUENTIAL"),
+        ("ORG-IS-LINE-SEQ", "LINE SEQUENTIAL"),
+        ("BARE-REC-SEQ", "SEQUENTIAL"),
+        ("ORG-IS-REC-SEQ", "SEQUENTIAL"),
+        ("PLAIN-SEQ", "SEQUENTIAL"),
+        ("IDX-FILE", "INDEXED"),
+    ]
+    idx_row = rows[-1]
+    assert idx_row["record_key"] == "WS-REC-KEY"
+    assert idx_row["alternate_keys"] == "WS-ALT-KEY+DUP"

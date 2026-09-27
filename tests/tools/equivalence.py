@@ -190,7 +190,9 @@ def build_image() -> None:
 def diff_records(
     left: bytes, right: bytes, reclen: int, fields: list[dict[str, Any]], code_page: str = "cp037"
 ) -> dict[str, Any]:
-    """Pair records in order; per pair, every differing field (value left vs right). A FILLER is counted
+    """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
+    equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
+    shown as hex (#3830): the files differ, and a later program may test the sign. A FILLER is counted
     apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
     INITIALIZE or a new record is the runtime's leftover record area, not the program's logic."""
     lrecs = [left[i : i + reclen] for i in range(0, len(left), reclen)]
@@ -205,14 +207,17 @@ def diff_records(
         bad, filler_bad = [], False
         for f in fields:
             sl = slice(f["offset"], f["offset"] + f["bytes"])
+            sep = f.get("sign_separate", False)
             va, vb = (
-                decode_field(a[sl], f["pic"], f["usage"], code_page),
-                decode_field(b[sl], f["pic"], f["usage"], code_page),
+                decode_field(a[sl], f["pic"], f["usage"], code_page, sep),
+                decode_field(b[sl], f["pic"], f["usage"], code_page, sep),
             )
-            if va != vb and f["name"] == "FILLER":
+            if a[sl] != b[sl] and f["name"] == "FILLER":
                 filler_bad = True
             elif va != vb:
                 bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
+            elif a[sl] != b[sl]:  # #3830: same value, other bytes -- a C vs F sign nibble, -0 vs +0, ...
+                bad.append({"field": f["name"], "cobol": a[sl].hex(), "java": b[sl].hex(), "raw": True})
         filler += filler_bad
         if bad:
             diffs.append({"record": n + 1, "fields": bad})
@@ -239,7 +244,8 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
                     lines.append(f"| {x['record']} | (record) | {'-' if x['missing'] == 'cobol' else 'present'} | "
                                  f"{'-' if x['missing'] == 'java' else 'present'} |")  # fmt: skip
                 for fd in x.get("fields", []):
-                    lines.append(f"| {x['record']} | {fd['field']} | `{fd['cobol']}` | `{fd['java']}` |")
+                    kind = " (bytes; same value)" if fd.get("raw") else ""
+                    lines.append(f"| {x['record']} | {fd['field']}{kind} | `{fd['cobol']}` | `{fd['java']}` |")
     return "\n".join(lines) + "\n"
 
 

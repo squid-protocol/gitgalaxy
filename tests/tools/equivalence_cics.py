@@ -371,7 +371,7 @@ def decode_record(data: bytes, fields: list[dict[str, Any]]) -> dict[str, str]:
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
             continue
-        v = common.decode_field(raw, f["pic"], f["usage"])
+        v = common.decode_field(raw, f["pic"], f["usage"], sign_separate=f.get("sign_separate", False))
         out[f["name"]] = str(v) if not isinstance(v, str) else v.rstrip(" \x00")
     return out
 

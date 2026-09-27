@@ -41,6 +41,32 @@ def test_decode_field_reads_cobol_storage_exactly():
     assert str(eq.decode_field(b"00 00", "9(05)", None)).startswith("<invalid")  # a space is not a zero
 
 
+@pytest.mark.parametrize("raw, pic, usage", [(b"  12", "9(4)", None), (b"+012", "9(4)", None), (b"1_20", "9(4)", None),
+                                         ("١٢٣٤".encode(), "9(8)", None), (b" 12{", "S9(4)", None),
+                                         (bytes.fromhex("1a2c"), "S9(3)", "COMP-3"), (bytes.fromhex("0123"), "S9(3)", "COMP-3")])  # fmt: skip
+def test_storage_a_numeric_test_would_reject_is_never_a_number(raw, pic, usage):
+    """#3830: `int()` takes spaces, `+`, `_` and non-ASCII digits; COBOL's NUMERIC does not."""
+    assert str(eq.decode_field(raw, pic, usage)).startswith("<invalid")
+
+
+def test_a_separate_sign_is_read_at_either_end():
+    assert eq.decode_field(b"+0012", "S9(4)", None, sign_separate=True) == Decimal("12")
+    assert eq.decode_field(b"0012-", "S9(4)", None, sign_separate=True) == Decimal("-12")
+    assert str(eq.decode_field(b"00012", "S9(4)", None, sign_separate=True)).startswith("<invalid")
+
+
+def test_same_value_other_bytes_is_a_difference_shown_as_bytes():
+    """#3830: a C vs F sign nibble, or -0 vs +0, decodes to the same number -- but the files differ."""
+    fields = [{"name": "AMT", "offset": 0, "bytes": 2, "pic": "S9(3)", "usage": "COMP-3"}]
+    d = eq.diff_records(bytes.fromhex("012c"), bytes.fromhex("012f"), 2, fields)
+    assert d["equal"] == 0 and d["diffs"] == [
+        {"record": 1, "fields": [{"field": "AMT", "cobol": "012c", "java": "012f", "raw": True}]}]  # fmt: skip
+    assert eq.diff_records(bytes.fromhex("000d"), bytes.fromhex("000c"), 2, fields)["equal"] == 0  # -0 vs +0
+    assert "AMT (bytes; same value)" in eq.report_markdown(
+        {"program": "P", "name": "c", "corpus": "x", "program_source": "p"}, {"java": "j", "outputs": {"OUT": d}}
+    )
+
+
 def test_diff_pairs_records_and_names_the_differing_fields():
     fields = [{"name": "ID", "offset": 0, "bytes": 3, "pic": "9(3)", "usage": None},
               {"name": "AMT", "offset": 3, "bytes": 5, "pic": "S9(3)V99", "usage": None}]  # fmt: skip

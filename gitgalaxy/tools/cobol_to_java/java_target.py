@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.ebcdic_codecs import register
 from gitgalaxy.standards.yaml_reader import YamlError, load_yaml
 
 # Supported values. Each combination is compile-checked (see tests/tools/java_target_matrix.py).
@@ -58,34 +59,16 @@ DATABASE_DRIVERS = {
 }  # fmt: skip
 
 
-# #3826: EBCDIC national code pages Python has no codec for. In every Latin EBCDIC page the sign bytes
-# 0xC1-0xC9 / 0xD1-0xD9 are A-I / J-R; only the zero signs 0xC0 (+0) and 0xD0 (-0) are national (IBM CDRA).
-_NATIONAL_ZERO_SIGNS = {
-    "cp277": ("æ", "å"),  # Denmark / Norway
-    "cp278": ("ä", "å"),  # Finland / Sweden
-    "cp280": ("à", "è"),  # Italy
-    "cp284": ("{", "}"),  # Spain / Latin America
-    "cp285": ("{", "}"),  # United Kingdom
-    "cp297": ("é", "è"),  # France
-    "cp1047": ("{", "}"),  # z/OS Open Systems Latin-1 (USS)
-}
-
-
 def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
     """#3826: the zoned-decimal sign overpunch characters of an EBCDIC code page -- bytes 0xC0-0xC9
     (positive 0-9) and 0xD0-0xD9 (negative 0-9). cp037 gives the US `{ABCDEFGHI` / `}JKLMNOPQR`;
     a national code page gives its own zero signs (cp273: `ä...` / `ü...`, cp278: `ä...` / `å...`)."""
     cp = code_page.lower()
-    if cp in _NATIONAL_ZERO_SIGNS:
-        plus, minus = _NATIONAL_ZERO_SIGNS[cp]
-        return plus + "ABCDEFGHI", minus + "JKLMNOPQR"
+    register()  # #3816: cp277 / cp278 / cp280 / cp284 / cp285 / cp297 / cp1047, beside Python's own
     try:
         codecs.lookup(cp)
     except LookupError as e:
-        known = ", ".join(sorted(_NATIONAL_ZERO_SIGNS))
-        raise ConfigError(
-            f"data.code_page {code_page!r}: not a known EBCDIC code page (a Python codec, or {known})"
-        ) from e
+        raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC code page") from e
     return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
 
 

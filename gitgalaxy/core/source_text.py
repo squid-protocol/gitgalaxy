@@ -14,7 +14,10 @@ came out truncated), and a UTF-16 file decoded full of NULs, so the binary gate 
    integers must stay binary, NULs and all, for the binary gate;
 3. strict UTF-8;
 4. the estate's declared code page (`--source-encoding`, or a per-glob map), strictly -- a file
-   the declared codec cannot decode falls through to the guesses rather than failing;
+   the declared codec cannot decode falls through to the guesses rather than failing. #3816: the
+   national EBCDIC pages Python lacks (cp277, cp278, cp280, cp284, cp285, cp297, cp1047) are
+   registered by `ebcdic_codecs`; a raw EBCDIC file's NEL (0x15) ends a line, and a file with no
+   line ends at all is a fixed-block download (FB80), split into its 80-byte records;
 5. strict cp1252 -- a guess: the commonest legacy code page;
 6. Latin-1 -- a guess that cannot fail (every byte maps).
 
@@ -35,6 +38,10 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Union
+
+from gitgalaxy.core.ebcdic_codecs import EBCDIC_CODE_PAGES, register
+
+register()  # #3816: cp277 / cp278 / ... resolve wherever a source is decoded
 
 _BOMS = (  # longest first: the UTF-32 LE mark begins with the UTF-16 LE one
     (codecs.BOM_UTF32_LE, "utf-32-le"),
@@ -142,6 +149,19 @@ def _utf16_without_bom(data: bytes) -> str | None:
     return None
 
 
+_FB_LRECL = 80  # a card image: the record length of source PDSes (JCL, COBOL, PL/I, HLASM)
+
+
+def _ebcdic_records(text: str) -> str:
+    """#3816: lines of a file decoded from raw EBCDIC. z/OS text ends a line with NEL (0x15, U+0085); a
+    binary download of a fixed-block member has no line ends at all, only 80-byte records back to back
+    -- split, so fixed-format columns (7, 72, 73-80) stay where the language reads them."""
+    text = text.replace("\x85", "\n")
+    if "\n" not in text and len(text) >= _FB_LRECL and len(text) % _FB_LRECL == 0:
+        text = "\n".join(text[i : i + _FB_LRECL] for i in range(0, len(text), _FB_LRECL)) + "\n"
+    return text
+
+
 def decode_source(data: bytes, *, truncated: bool = False, declared: str | None = None) -> SourceText:
     """Decode source bytes without losing any. `truncated`: the bytes are a prefix of the file, so a
     multi-byte character cut at the end must not make valid UTF-8 look invalid. `declared`: the
@@ -166,7 +186,10 @@ def decode_source(data: bytes, *, truncated: bool = False, declared: str | None 
         pass
     if declared:
         try:
-            return SourceText(_decode(data, declared, truncated), codecs.lookup(declared).name, "declared")
+            text, name = _decode(data, declared, truncated), codecs.lookup(declared).name
+            if name in EBCDIC_CODE_PAGES:
+                text = _ebcdic_records(text)
+            return SourceText(text, name, "declared")
         except UnicodeDecodeError:
             pass  # the declaration does not fit this file: guess rather than drop a byte
     try:

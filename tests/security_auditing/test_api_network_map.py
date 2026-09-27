@@ -180,7 +180,11 @@ def test_physical_mapper_exception_handling(tmp_path):
     """Verifies the physical mapper skips unreadable or corrupted files without crashing."""
     (tmp_path / "app.py").write_text('@app.get("/api/test")', encoding="utf-8")
 
-    with patch("pathlib.Path.read_text", side_effect=PermissionError("Locked file!")):
+    # #3813: source reads go through read_source (bytes, then a lossless decode), not Path.read_text
+    with patch(
+        "gitgalaxy.tools.network_auditing.full_api_network_map.read_source",
+        side_effect=PermissionError("Locked file!"),
+    ):
         apis, frameworks = map_physical_codebase(tmp_path)
 
     assert len(apis) == 0, "The engine failed to safely catch and ignore the I/O exception!"

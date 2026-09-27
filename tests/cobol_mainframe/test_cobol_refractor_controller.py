@@ -119,7 +119,8 @@ def test_process_payload_corporate_header_and_exception(tmp_path):
     header_file.unlink()
 
     # 2. Test Exception block (File Read Error)
-    with patch("pathlib.Path.read_text", side_effect=PermissionError("Locked file!")):
+    # #3813: source reads go through read_source (bytes, then a lossless decode), not Path.read_text
+    with patch.object(controller_module, "read_source", side_effect=PermissionError("Locked file!")):
         ir_fail = controller_module.process_payload(cbl_file, mgr)
         assert "loc" not in ir_fail["metadata"], "Orchestrator failed to gracefully catch the read exception!"
 

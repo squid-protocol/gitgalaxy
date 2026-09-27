@@ -221,3 +221,15 @@ def test_national_in_a_value_literal_is_not_a_usage():
     records = extract_boundary("cobol", src)["records"]
     assert records[1]["usage"] is None
     assert records[2]["usage"] == "NATIONAL"
+
+
+def test_a_malformed_picture_with_a_g_is_not_dbcs():
+    """#3816: GnuCOBOL's sqlda.cpy has `PIC USAGE BINARY-SHORT` -- the captured "picture" USAGE is not PIC G."""
+    src = """
+       01 R.
+          07 SQLNAMEL PIC USAGE BINARY-SHORT.
+          07 E PIC NNBNN.
+          07 X PIC X(4).
+"""
+    usages = [r["usage"] for r in extract_boundary("cobol", src)["records"][1:]]
+    assert usages == [None, "NATIONAL", None]

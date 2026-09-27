@@ -338,6 +338,7 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # The keyword is delimited by COBOL name-character boundaries, not `\b`: `-` is a
 # name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
+_NATIONAL_PICTURE = re.compile(r"[NGB0/()0-9]*[NG][NGB0/()0-9]*")  # #3816: N / G with national editing only
 _QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
@@ -844,11 +845,9 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
 
         # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
         # USAGE NATIONAL / DISPLAY-1 applies to its members. (Other group usages are not inherited here.)
-        if usage is None and pic:
-            if "G" in pic.upper():
-                usage = "DISPLAY-1"
-            elif "N" in pic.upper():
-                usage = "DISPLAY-1" if is_dbcs else "NATIONAL"
+        if usage is None and pic and _NATIONAL_PICTURE.fullmatch(pic.upper()):
+            # (a real national picture only: GnuCOBOL's malformed `PIC USAGE BINARY-SHORT` has a G in it)
+            usage = "DISPLAY-1" if "G" in pic.upper() or is_dbcs else "NATIONAL"
         if usage is None and parent_usage in ("NATIONAL", "DISPLAY-1"):
             usage = parent_usage
 

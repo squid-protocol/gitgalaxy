@@ -1,0 +1,31 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RND.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  A     PIC S9(3)V9 VALUE 0.
+       01  R     PIC -9(3).
+       01  T     PIC S9(3).
+       PROCEDURE DIVISION.
+           PERFORM VARYING A FROM -2.6 BY 0.1 UNTIL A > 2.6
+             IF A = -2.5 OR A = -1.5 OR A = -0.5 OR A = 0.5
+                OR A = 1.5 OR A = 2.5 OR A = 2.4 OR A = -2.6
+               DISPLAY "A=" A WITH NO ADVANCING
+               COMPUTE T = A
+               MOVE T TO R DISPLAY " NONE=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED = A
+               MOVE T TO R DISPLAY " ROUNDED=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE NEAREST-EVEN = A
+               MOVE T TO R DISPLAY " EVEN=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE AWAY-FROM-ZERO = A
+               MOVE T TO R DISPLAY " AWAY=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE NEAREST-TOWARD-ZERO = A
+               MOVE T TO R DISPLAY " NTZ=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE TOWARD-GREATER = A
+               MOVE T TO R DISPLAY " CEIL=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE TOWARD-LESSER = A
+               MOVE T TO R DISPLAY " FLOOR=" R WITH NO ADVANCING
+               COMPUTE T ROUNDED MODE TRUNCATION = A
+               MOVE T TO R DISPLAY " TRUNC=" R
+             END-IF
+           END-PERFORM
+           STOP RUN.

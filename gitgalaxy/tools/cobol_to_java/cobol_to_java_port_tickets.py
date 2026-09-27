@@ -29,6 +29,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.data_moves import rounding_facts
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -48,6 +50,15 @@ PORTING_RULES = [
         "aside); MOVE to a numeric field aligns on the decimal point and truncates both ends; MOVE to "
         "alphanumeric pads with spaces or truncates on the right. Use BigDecimal with RoundingMode.DOWN, "
         "never double, for PIC 9 / COMP-3 data."
+    ),
+    (
+        "ROUNDED (#3825) rounds half AWAY from zero: setScale(scale, RoundingMode.HALF_UP) -- 2.5 -> 3, "
+        "-2.5 -> -3. Never HALF_EVEN (banker's rounding) and never Math.round (-2.5 -> -2). ROUNDED MODE "
+        "maps one to one: NEAREST-EVEN HALF_EVEN, AWAY-FROM-ZERO UP, NEAREST-TOWARD-ZERO HALF_DOWN, "
+        "TOWARD-GREATER CEILING, TOWARD-LESSER FLOOR, TRUNCATION DOWN. The ticket's `rounding` list names "
+        "every rounding or SIZE ERROR statement with the RoundingMode of each target. Round the final result "
+        "only: compute intermediates exactly (IBM's ARITH intermediates carry 18 or 31 digits; the "
+        "equivalence harness is the oracle when a result differs)."
     ),
     (
         "Keep the program's behaviour, including what looks like a defect (an unreachable branch, a field "
@@ -166,6 +177,13 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
+    rounding = rounding_facts(read_source(source_root / prog["file"]).text) if readable else []  # #3825
+    rules = list(PORTING_RULES)
+    if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
+        rules.append(
+            "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "
+            "uses RoundingMode.HALF_EVEN; an explicit ROUNDED MODE keeps its own mapping."
+        )
     return {
         "ticket": f"PORT-{key}",
         "version": TICKET_VERSION,
@@ -190,7 +208,8 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "facts": ticket_skeleton(skeleton, skeleton_file),
         "generated": generated,
         "worklist": [{k: it[k] for k in ("id", "category", "file", "line", "text")} for it in items],
-        "rules": PORTING_RULES,
+        "rounding": rounding,
+        "rules": rules,
         "deliverable": {
             "return": (
                 f"One complete Java file for {service_rel}: the same package, class name and public method "
@@ -218,6 +237,12 @@ def ticket_markdown(t: dict[str, Any]) -> str:
     md += [f"- `{m}`" for m in tg["methods_to_port"]] or ["- (no method is marked as a TODO; see the worklist)"]
     md += ["", "## Target configuration", "", "```json", json.dumps(tg["config"], indent=2, sort_keys=True), "```"]
     md += ["", "## Porting rules", ""] + [f"{i}. {r}" for i, r in enumerate(t["rules"], 1)]
+    if t.get("rounding"):  # #3825: every statement whose rounding or SIZE ERROR the port must keep
+        md += ["", "## Rounding and SIZE ERROR statements", "", "| line | verb | target: RoundingMode | ON SIZE ERROR |",
+               "|---:|---|---|---|"]  # fmt: skip
+        for r in t["rounding"]:
+            tgts = ", ".join(f"`{x['target']}`: {x['java']} ({x['mode']})" for x in r["targets"]) or "(truncates)"
+            md.append(f"| {r['line']} | {r['verb']} | {tgts} | {'yes' if r['size_error'] else ''} |")
     md += ["", "## Worklist items for this program", ""]
     md += [f"- **{w['id']}** ({w['category']}) `{w['file']}:{w['line']}`: {w['text']}" for w in t["worklist"]]
     md += ["", "## Generated code it builds on", ""] + [f"- `{g['class']}`" for g in t["generated"]["imports"]]

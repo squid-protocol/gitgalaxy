@@ -413,7 +413,22 @@ def build(seeds: dict[str, Path], seed_facts: dict[str, Any], root: Path, full: 
             cells.append({"id": f"{lang}|{script}|{enc}", "language": lang, "script": script, "encoding": enc,
                           "estate": f"{script}__{enc}", "reference": f"twin__{script}",
                           "mapping": {twin_map[u]: var_map[u] for u in units}, "id_chars": rule["id_chars"]})  # fmt: skip
+    _complete_ebcdic_estates(cells, root)
     return cells
+
+
+def _complete_ebcdic_estates(cells: list[dict[str, Any]], root: Path) -> None:
+    """An EBCDIC estate holds only the mainframe seed's variant, but the engine reads a file in its
+    project's context (an ambiguous `.inc` is resolved by the languages around it, #3867): give it
+    every other language exactly as its reference estate holds them, so the one thing that differs
+    from the reference is the mainframe files' encoding."""
+    for cell in cells:
+        estate, reference = root / cell["estate"], root / cell["reference"]
+        if cell["encoding"] not in EBCDIC or not reference.is_dir():
+            continue
+        for lang_dir in reference.iterdir():
+            if lang_dir.is_dir() and not (estate / lang_dir.name).exists():
+                shutil.copytree(lang_dir, estate / lang_dir.name)
 
 
 def _scan_facts(args: tuple[str, str]) -> dict[str, Any]:

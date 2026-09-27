@@ -138,6 +138,8 @@ def test_the_ebcdic_cells_are_in_the_sampled_plan_for_the_mainframe_seed_only(tm
     (tmp_path / "seed_python").mkdir()
     (tmp_path / "seed_python" / "a.py").write_text("def calculate(x):\n    return x\n", encoding="utf-8")
     seed_facts = {"python/a.py": {"function_data": [("calculate",)]}}
+    for lang, folder in seeds.items():  # run() writes the seed estate before it builds the cells
+        ug._write(folder, tmp_path / "estates" / "seed" / lang, lambda t: t, "utf-8")
     cells = ug.build(seeds, seed_facts, tmp_path / "estates", full=False)
     ebcdic = {(c["language"], c["script"], c["encoding"]) for c in cells if c["encoding"] in ug.EBCDIC}
     assert {("mainframe", "ascii", cp) for cp in ug.EBCDIC} <= ebcdic
@@ -147,3 +149,6 @@ def test_the_ebcdic_cells_are_in_the_sampled_plan_for_the_mainframe_seed_only(tm
         ("mainframe", "german", "cp273"),
     } <= ebcdic
     assert not {cell for cell in ebcdic if cell[0] != "mainframe"}
+    # the estate keeps its reference's other languages, in UTF-8 as they are: `.inc` resolves by context
+    python_copy = tmp_path / "estates" / "ascii__cp037" / "python" / "a.py"
+    assert python_copy.read_bytes() == (tmp_path / "seed_python" / "a.py").read_bytes()

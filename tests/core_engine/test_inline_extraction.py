@@ -103,3 +103,48 @@ def test_a_scan_off_the_main_thread_keeps_the_pool():
     assert galaxyscope._can_run_inline()
     with concurrent.futures.ThreadPoolExecutor(1) as ex:
         assert ex.submit(galaxyscope._can_run_inline).result() is False
+
+
+_SPAWN_SCAN = """
+import multiprocessing, sys
+if __name__ == "__main__":
+    multiprocessing.set_start_method("spawn", force=True)
+    import gitgalaxy.galaxyscope as g
+    sys.argv = ["galaxyscope", *sys.argv[1:]]
+    g.main()
+"""
+
+
+def test_a_spawned_pool_is_the_forked_pools_output(tmp_path):
+    """#3913: Windows and macOS start pool workers with `spawn`, which pickles each worker's rules.
+    The C-style call family was recognised by object identity (`pattern is p`), which pickling
+    breaks: every spawned scan dropped its call qualifiers. The spawned pool must read as the
+    in-process path does, on any OS (here forced on Linux too)."""
+    estate = tmp_path / "estate"
+    for rel, text in FILES.items():
+        (estate / rel).parent.mkdir(parents=True, exist_ok=True)
+        (estate / rel).write_text(text, encoding="utf-8")
+    harness = tmp_path / "spawn_scan.py"
+    harness.write_text(_SPAWN_SCAN, encoding="utf-8")
+    env = {k: v for k, v in os.environ.items() if k != "GALAXYSCOPE_MAX_WORKERS"}
+    env.update(GITGALAXY_LICENSE_KEY="COMMUNITY_FREE_TIER", GITGALAXY_DISABLE_GIT_HISTORY="1")
+    out = tmp_path / "spawned"
+    subprocess.run([sys.executable, str(harness), str(estate), "--db-only", "--output", str(out)],
+                   check=True, env=env, capture_output=True)  # fmt: skip
+    (spawned,) = out.glob("*_galaxy_master.db")
+    inline = _scan(estate, tmp_path / "inline", workers=1)
+    assert _facts(spawned) == _facts(inline)
+    quals = {r[0] for r in sqlite3.connect(spawned).execute("SELECT calls_out_qualifiers FROM function_data")}
+    assert '["b"]' in quals  # `b.push(x)` keeps its receiver
+
+
+def test_the_qualified_call_family_survives_pickling():
+    import pickle
+
+    from gitgalaxy.core import detector
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    rule = LANGUAGE_DEFINITIONS["javascript"]["rules"]["calls_out"]
+    assert detector._is_qualified_calls_out(rule)
+    assert detector._is_qualified_calls_out(pickle.loads(pickle.dumps(rule)))
+    assert not detector._is_qualified_calls_out(LANGUAGE_DEFINITIONS["cobol"]["rules"].get("calls_out"))

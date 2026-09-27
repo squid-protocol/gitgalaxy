@@ -128,6 +128,10 @@ EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047"]
 EBCDIC_SCRIPTS = {"nordic": ["cp277", "cp278"], "german": ["cp273"]}
 FB_LRECL = 80  # a card image: the record length of a source PDS
 DECLARED = {"shift_jis", "gb18030", *EBCDIC}
+# #3815: the mainframe seed's national names with the FILE NAMES written decomposed (NFD), as a macOS
+# export or zip writes them; the content stays UTF-8 NFC. The engine stores paths in NFC, so the facts
+# must equal the NFC estate's -- and `%INCLUDE INCAÄÖÜ` must still find the NFD-named INCAÄÖÜ.inc.
+NFD_PATHS = "nfd-paths"
 
 # Counters a new name changes by design (a suffix changes the case style and the length) and the
 # token mass (a different script tokenises differently). Everything else must not move.
@@ -158,6 +162,8 @@ def encode(text: str, encoding: str) -> bytes | None:
     """The file's bytes in `encoding`, or None when the text cannot be written in it."""
     if encoding in EBCDIC:
         return fixed_block(text, encoding)
+    if encoding == NFD_PATHS:
+        return text.encode("utf-8")
     if encoding == "crlf":
         return text.replace("\r\n", "\n").replace("\n", "\r\n").encode("utf-8")
     if encoding == "utf-16-be":
@@ -272,7 +278,10 @@ def expected(control: dict[str, Any], rename, prefix_from: str, prefix_to: str) 
     every text value renamed."""
 
     def path(p: str | None) -> str | None:
-        return None if p is None else rename(prefix_to + p[len(prefix_from) :]) if p.startswith(prefix_from) else p
+        if p is None or not p.startswith(prefix_from):
+            return p
+        # #3815: the engine stores paths in NFC (a renamed path carrying the `nfd` word included)
+        return _nfc(rename(prefix_to + p[len(prefix_from) :]))
 
     out = {}
     for p, f in control.items():
@@ -285,6 +294,10 @@ def expected(control: dict[str, Any], rename, prefix_from: str, prefix_to: str) 
                            for row in f[c]), key=repr)  # fmt: skip
         out[path(p)] = g
     return out
+
+
+def _nfc(text: str) -> str:
+    return unicodedata.normalize("NFC", text)
 
 
 def actual(variant: dict[str, Any], prefix: str) -> dict[str, Any]:
@@ -353,6 +366,8 @@ def _write(folder: Path, dest: Path, rename, enc: str) -> bool:
         if data is None:
             return False
         out = dest / rename(src.relative_to(folder).as_posix())
+        if enc == NFD_PATHS:
+            out = dest / unicodedata.normalize("NFD", rename(src.relative_to(folder).as_posix()))
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(data)
     return True
@@ -392,6 +407,7 @@ def build(seeds: dict[str, Path], seed_facts: dict[str, Any], root: Path, full: 
         if lang == "mainframe":  # #3816: every EBCDIC cell, in the sampled plan too, so CI runs them
             plan += [("ascii", e) for e in EBCDIC]
             plan += [(sc, e) for sc in scripts for e in EBCDIC_SCRIPTS.get(sc, [])]
+            plan += [(sc, NFD_PATHS) for sc in scripts]  # #3815: file names decomposed
         twins_done: set[str] = set()
         for script, enc in plan:
             if script == "ascii":

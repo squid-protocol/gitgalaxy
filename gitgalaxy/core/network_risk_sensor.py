@@ -25,6 +25,7 @@ from gitgalaxy.core.graph_engine import (
 )
 from gitgalaxy.core.invocation_resolver import PROGRAM_DECLARING_LANGUAGES
 from gitgalaxy.core.path_proximity import proximity_rank
+from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -328,6 +329,9 @@ class NetworkRiskSensor:
         ambiguous stem from the repository's own facts. Without them the
         resolver behaves exactly as it did before #3199 and drops the edge.
         """
+        # #3815: the engine stores every path in NFC; an include / COPY the source spells
+        # decomposed (NFD) must name the same file, so the token is compared in NFC too.
+        target_token = nfc(target_token)
         src_def = LANGUAGE_DEFINITIONS.get(src_lang or "", {})
         # #3554: a language whose module separator is not `.` (perl
         # `HTTP::Headers` -> HTTP/Headers.pm) spells the path with it.

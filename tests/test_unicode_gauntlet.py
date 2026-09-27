@@ -64,6 +64,10 @@ def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path):
     ebcdic = {cid: r["diffs"] for cid, r in results.items() if r["script"] == "ascii" and r["encoding"] in ug.EBCDIC}
     assert set(ebcdic) == {f"mainframe|ascii|{cp}" for cp in ug.EBCDIC}
     assert all(not d for d in ebcdic.values()), ebcdic
+    # #3815: file names written decomposed (a macOS export) store and resolve as the NFC estate does
+    nfd = {cid: r["diffs"] for cid, r in results.items() if r["encoding"] == ug.NFD_PATHS}
+    assert set(nfd) == {"mainframe|nordic|nfd-paths", "mainframe|german|nfd-paths"}
+    assert all(not d for d in nfd.values()), nfd
 
 
 def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):

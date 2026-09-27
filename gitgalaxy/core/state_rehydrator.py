@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.core.call_resolver import decode_qualifiers
+from gitgalaxy.core.unicode_paths import nfc
 
 
 def _json_dict(value: Any) -> dict:
@@ -1155,6 +1156,11 @@ class StateRehydrator:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 
             conn.close()
+
+            # #3815: a baseline written before stored paths were NFC can hold an NFD path. Key
+            # it as today's scan stores it, or the delta scan reads the file as renamed.
+            if not all(p.isascii() for p in ram_state):
+                ram_state = {nfc(p): {**node, "path": nfc(p)} for p, node in ram_state.items()}
 
             # Return the standardized payload
             return {"commit_hash": baseline_hash, "ram_cache": ram_state}

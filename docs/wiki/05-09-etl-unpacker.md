@@ -16,8 +16,10 @@ Mainframe binary datasets lack row delimiters (newlines) and utilize specialized
 - **Packed Decimal (COMP-3) Decoding**: 
   - Calculates physical footprint using `ceil((digits + 1) / 2)`.
   - Inspects final nibble for sign (`D`/`B` negative; `C`/`A`/`F`/`E` positive).
-  - Divides integer by `10^decimals` according to schema scale.
-- **EBCDIC Encoding Conversion**: Decodes alphanumeric text and Zoned Decimal numbers to UTF-8 using the IBM US EBCDIC code page (`cp037`), preserving special characters.
+  - Scales the digits by `10^-decimals` as an exact `Decimal` (never `float`: 0.10 stays `0.10`), written with the field's scale and no exponent.
+- **Zoned Decimal Decoding**: Reads the sign from the last byte's overpunch in the data's own code page (cp037 `{A-I` / `}J-R`; cp277 `æ` / `å`; ...).
+- **EBCDIC Encoding Conversion**: Decodes alphanumeric text and Zoned Decimal numbers to UTF-8 in the data's EBCDIC code page: `--code-page` (default `cp037`; also cp273, cp277, cp278, cp280, cp284, cp285, cp297, cp500, cp1047, ...).
+- **Invalid Data Is Loud**: A zoned or packed field that is not a valid number (spaces included) stops the run with an error naming the record and field; no partial CSV is left and no value is written as `0.0`.
 
 ## Pipeline Integration
 **Inputs received:** Raw mainframe binary datasets and GitGalaxy JSON schemas.
@@ -35,7 +37,6 @@ graph TD
 - Decoding entirely in memory row-by-row instead of utilizing native database extensions. Chosen to maximize portability across target database engines, sacrificing raw ingestion speed for platform independence.
 
 ## Limitations
-- Only supports standard IBM `cp037` encoding; international EBCDIC code pages require manual configuration.
 - Does not automatically resolve nested OCCURS DEPENDING ON (variable length records) without explicit length headers.
 
 ## Performance Notes

@@ -66,7 +66,8 @@ def test_equivalence_harness_zone_plumbing(tmp_path, monkeypatch):
     assert '"gitgalaxy.zone=UTC"' in java_src_no
 
     def fake_run(*args, **kwargs):
-        work_dir = args[0][4].split(":")[0]
+        # the volume is f"{work}:/work"; cut at the last colon, as a Windows path has a drive letter
+        work_dir = args[0][4].rpartition(":")[0]
         (Path(work_dir) / "RETURN-CODE").write_text("0")
 
         class Proc:

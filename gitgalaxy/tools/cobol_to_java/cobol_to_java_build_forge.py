@@ -180,6 +180,11 @@ java {{
     }}
 }}
 
+// #3815: sources carry national names (`Økonomi`); never compile them in the platform encoding
+tasks.withType(JavaCompile).configureEach {{
+    options.encoding = 'UTF-8'
+}}
+
 repositories {{
     mavenCentral()
 }}

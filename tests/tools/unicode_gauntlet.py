@@ -23,6 +23,12 @@ byte string -- so the engine never guesses one; a cell that scanned them undecla
 case the engine rules out by design, and hide whether the declared path works. cp1252 cells stay
 undeclared: that fallback is what they test.
 
+The mainframe seed is also written as raw EBCDIC (#3816): each file a fixed-block download in one of
+the Western European pages, every line padded to an 80-byte card image and no line ends at all, as a
+binary transfer of a PDS member arrives. Those estates declare their page too, and the engine must
+read the same facts out of them as out of the UTF-8 seed. Nordic names go into cp277 / cp278 and
+German names into cp273, the pages whose `@ # $` positions carry those letters.
+
 Seeds:
   rosetta     keyword-rosetta's corpus (every language's planted probes; ../keyword-rosetta)
   mainframe   tests/unicode_gauntlet/mainframe/ -- PL/I, COBOL, JCL, CSD, HLASM, CICS with every
@@ -53,6 +59,10 @@ import tempfile
 import unicodedata
 from pathlib import Path
 from typing import Any
+
+from gitgalaxy.core.ebcdic_codecs import register as register_ebcdic_codecs
+
+register_ebcdic_codecs()  # #3816: cp277 / cp278 / cp297 / cp1047 are not in Python's codec table
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HERE = REPO_ROOT / "tests" / "unicode_gauntlet"
@@ -112,7 +122,12 @@ NATIONAL = {"nordic": "ÆØÅ", "german": "ÄÖÜ"}
 ENCODINGS = ["utf-8", "utf-8-sig", "utf-16", "utf-16-be", "cp1252", "shift_jis", "gb18030", "crlf"]
 # Code pages an estate must declare (see the module docstring): the scan of a `<script>__<codec>`
 # estate passes `--source-encoding <codec>` for these.
-DECLARED = {"shift_jis", "gb18030"}
+# #3816: raw EBCDIC, for the mainframe seed only (a Python file in EBCDIC is not a real estate).
+EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047"]
+# the pages each national script is tested in: the ones whose national positions hold its letters
+EBCDIC_SCRIPTS = {"nordic": ["cp277", "cp278"], "german": ["cp273"]}
+FB_LRECL = 80  # a card image: the record length of a source PDS
+DECLARED = {"shift_jis", "gb18030", *EBCDIC}
 
 # Counters a new name changes by design (a suffix changes the case style and the length) and the
 # token mass (a different script tokenises differently). Everything else must not move.
@@ -125,8 +140,24 @@ CHANNELS = ["function_data", "fcall_data", "call_site_data", "dataset_data", "cs
 
 
 # ---- the transforms ---------------------------------------------------------------------
+def fixed_block(text: str, codec: str, lrecl: int = FB_LRECL) -> bytes | None:
+    """#3816: `text` as a raw fixed-block EBCDIC download -- every line padded to `lrecl` bytes, back to
+    back, no line ends. None when a line is longer than a record or a character is not in the page."""
+    lines = text.replace("\r\n", "\n").split("\n")
+    if lines[-1] == "":
+        lines.pop()
+    if any(len(line) > lrecl for line in lines):
+        return None
+    try:
+        return "".join(line.ljust(lrecl) for line in lines).encode(codec)
+    except UnicodeEncodeError:
+        return None
+
+
 def encode(text: str, encoding: str) -> bytes | None:
     """The file's bytes in `encoding`, or None when the text cannot be written in it."""
+    if encoding in EBCDIC:
+        return fixed_block(text, encoding)
     if encoding == "crlf":
         return text.replace("\r\n", "\n").replace("\n", "\r\n").encode("utf-8")
     if encoding == "utf-16-be":
@@ -358,6 +389,9 @@ def build(seeds: dict[str, Path], seed_facts: dict[str, Any], root: Path, full: 
         for i, sc in enumerate(scripts):
             encs = ENCODINGS if full else ["utf-8", ENCODINGS[1 + i % (len(ENCODINGS) - 1)]]
             plan += [(sc, e) for e in encs]
+        if lang == "mainframe":  # #3816: every EBCDIC cell, in the sampled plan too, so CI runs them
+            plan += [("ascii", e) for e in EBCDIC]
+            plan += [(sc, e) for sc in scripts for e in EBCDIC_SCRIPTS.get(sc, [])]
         twins_done: set[str] = set()
         for script, enc in plan:
             if script == "ascii":
@@ -379,7 +413,22 @@ def build(seeds: dict[str, Path], seed_facts: dict[str, Any], root: Path, full: 
             cells.append({"id": f"{lang}|{script}|{enc}", "language": lang, "script": script, "encoding": enc,
                           "estate": f"{script}__{enc}", "reference": f"twin__{script}",
                           "mapping": {twin_map[u]: var_map[u] for u in units}, "id_chars": rule["id_chars"]})  # fmt: skip
+    _complete_ebcdic_estates(cells, root)
     return cells
+
+
+def _complete_ebcdic_estates(cells: list[dict[str, Any]], root: Path) -> None:
+    """An EBCDIC estate holds only the mainframe seed's variant, but the engine reads a file in its
+    project's context (an ambiguous `.inc` is resolved by the languages around it, #3867): give it
+    every other language exactly as its reference estate holds them, so the one thing that differs
+    from the reference is the mainframe files' encoding."""
+    for cell in cells:
+        estate, reference = root / cell["estate"], root / cell["reference"]
+        if cell["encoding"] not in EBCDIC or not reference.is_dir():
+            continue
+        for lang_dir in reference.iterdir():
+            if lang_dir.is_dir() and not (estate / lang_dir.name).exists():
+                shutil.copytree(lang_dir, estate / lang_dir.name)
 
 
 def _scan_facts(args: tuple[str, str]) -> dict[str, Any]:

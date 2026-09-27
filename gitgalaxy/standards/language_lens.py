@@ -114,6 +114,35 @@ _BOOTSTRAP_SHELL_LANGS = frozenset({"shell"})
 # inner extension is absent or itself unregistered.
 _TEMPLATE_EXTENSIONS = frozenset({".in", ".template", ".tmpl", ".dist"})
 
+# #3867: a PL/I `%INCLUDE` member is routinely a `.inc` beside the `.pli` that
+# pulls it in, but PL/I deliberately does not claim `.inc` (pli.py: PHP, Pascal,
+# NASM and C use it too), so it was never a candidate and a one-line member fell
+# to the ESTATE-wide language mix -- `c` via the global C-family fallback, or
+# `assembly` from the lexical scan. The folder's own PL/I programs plus a PL/I
+# statement in the member's body decide it instead. Each alternative is a shape
+# no other `.inc` claimant writes: `DCL`/`DECLARE` with a level number or a PL/I
+# data attribute, a labelled `PROC`/`PROCEDURE`, or `%INCLUDE member;` (NASM's
+# `%include` takes a quoted path and no `;`).
+_PLI_SIBLING_EXTENSIONS = frozenset({".pli", ".pl1", ".plinc"})
+# Built from short pieces: one long literal of regex punctuation reads as an
+# encrypted payload to the X-Ray entropy gate.
+_PLI_ATTRIBUTES = "|".join(
+    (
+        *("CHARACTER", "CHAR", "FIXED", "FLOAT", "BINARY", "BIN", "DECIMAL", "DEC", "BIT", "PICTURE", "PIC"),
+        *("POINTER", "PTR", "LIKE", "BASED", "ENTRY", "FILE", "LABEL", "AREA", "OFFSET", "HANDLE"),
+    )
+)
+_PLI_NAME = r"[^\s;,():]{1,64}"
+_PLI_GAP = r"[ \t]+"
+_PLI_DECLARE = "(?:DCL|DECLARE)" + _PLI_GAP
+_PLI_STATEMENTS = (
+    _PLI_DECLARE + r"\d{1,2}" + _PLI_GAP + _PLI_NAME + r"[ \t]*[,;(]",  # DCL 1 CUSTREC,
+    _PLI_DECLARE + _PLI_NAME + _PLI_GAP + "(?:" + _PLI_ATTRIBUTES + r")\b",  # DCL CODEA CHAR(2);
+    _PLI_NAME + r"[ \t]*:[ \t]*PROC(?:EDURE)?\b",  # SUBA: PROC;
+    "%INCLUDE" + _PLI_GAP + r"[^\s;,():'\"]{1,64}[ \t]*;",  # %INCLUDE INCB; (never NASM's quoted path)
+)
+_PLI_INCLUDE_BODY = re.compile(r"^[ \t]*(?:" + "|".join(_PLI_STATEMENTS) + ")", re.M | re.I)
+
 
 def _trampoline_interpreter(content: str) -> str:
     """The interpreter a trampoline re-execs, lowercased, or "" if none."""
@@ -198,6 +227,8 @@ class LanguageDetector:
         # imports/headers near the top of a file, so a bounded sniff is enough
         # and keeps the extra reads cheap on mega-repos.
         self.SIBLING_SNIFF_BYTES = 65536
+        # #3867: does a directory hold a PL/I program? Memoised per directory.
+        self._pli_sibling_cache: dict[str, bool] = {}
 
         # Compile syntactic disqualifiers on boot to save CPU cycles per file
         self.DISQUALIFIERS = {}
@@ -490,6 +521,14 @@ class LanguageDetector:
         # 1. Gather Physical Signals
         ext_lang = self._tier_1_metadata_lock(ext, name)
         shebang_lang, evidence_kind = self._tier_2_fingerprint_check(content_sample, ext)
+
+        # #3867: a PL/I include beside PL/I programs. Only when no shebang or
+        # internal signature already claimed it, and ahead of ecosystem gravity,
+        # whose estate-wide tally must not outvote the file's own folder.
+        if ext == ".inc" and not shebang_lang and self._is_pli_include(file_path, content_sample):
+            return self._forge_result(
+                "pli", 0.95, 1.5, "PL/I Include Anchor (PL/I siblings + PL/I body)", result, content_sample
+            )
 
         # =========================================================================
         # DEFENSIVE GUARD: IDENTITY CONFLICT TRAP
@@ -975,6 +1014,27 @@ class LanguageDetector:
 
         self._sibling_vote_cache[cache_key] = result
         return result
+
+    def _is_pli_include(self, file_path: Union[str, Path], content: str) -> bool:
+        """#3867: True for a `.inc` whose folder holds a PL/I program and whose
+        body is PL/I (see `_PLI_INCLUDE_BODY`). The folder check is memoised
+        per directory, so a folder of includes costs one listing."""
+        if not _PLI_INCLUDE_BODY.search(content):
+            return False
+        try:
+            parent_dir = Path(file_path).parent
+        except Exception:
+            return False
+        key = str(parent_dir)
+        cached = self._pli_sibling_cache.get(key)
+        if cached is None:
+            try:
+                cached = any(c.suffix.lower() in _PLI_SIBLING_EXTENSIONS and c.is_file() for c in parent_dir.iterdir())
+            except OSError as e:
+                self.logger.debug(f"PL/I sibling census failed for '{file_path}': {e}")
+                cached = False
+            self._pli_sibling_cache[key] = cached
+        return cached
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> Optional[str]:
         if file_name in self.anchor_map:

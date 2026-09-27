@@ -11,17 +11,54 @@
 # tooling to extract datasets from EBCDIC layouts. By leveraging the JSON
 # schemas generated from our COBOL copybook extraction, this utility bridges the
 # gap natively in Python. It calculates precise byte offsets to decode Zoned
-# Decimals and un-packs COMP-3 nibbles directly into floating-point numerics
+# Decimals and un-packs COMP-3 nibbles directly into exact decimal numerics
 # for seamless ingestion into modern data lakes.
+#
+# #3833: the code page is a parameter (`--code-page`, default cp037), so a German,
+# Nordic or French file decodes to its own letters; numbers are decimal.Decimal
+# (binary floating point cannot hold 0.10); a zoned or packed field that is not a
+# valid number stops the run naming the record and field -- never a silent 0.0.
 # ==============================================================================
+from __future__ import annotations
+
 import argparse
+import codecs
 import csv
 import json
 import math
 import re
 import sys
+from decimal import Decimal
+from functools import cache
 from pathlib import Path
 from typing import Any
+
+from gitgalaxy.core.ebcdic_codecs import register
+from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+
+DEFAULT_CODE_PAGE = "cp037"
+_EBCDIC_DIGITS = bytes(range(0xF0, 0xFA))  # the zone-F digits 0-9: the same bytes on every EBCDIC page
+
+
+class UnpackError(ValueError):
+    """#3833: a field whose bytes are not a valid value of its PIC; the message names where."""
+
+
+def resolve_code_page(code_page: str) -> str:
+    """#3833: the canonical codec name of an EBCDIC code page, or UnpackError. Registers the national
+    pages Python lacks (cp277 / cp278 / cp280 / cp284 / cp285 / cp297 / cp1047, #3816) first."""
+    register()
+    try:
+        name = codecs.lookup(code_page).name
+    except LookupError as e:
+        raise UnpackError(f"--code-page {code_page!r}: not a known code page") from e
+    try:
+        is_ebcdic = _EBCDIC_DIGITS.decode(name) == "0123456789"
+    except UnicodeDecodeError:
+        is_ebcdic = False
+    if not is_ebcdic:  # e.g. utf-8 or latin-1: zoned digits would not decode
+        raise UnpackError(f"--code-page {code_page!r}: not an EBCDIC code page")
+    return name
 
 
 def calculate_byte_layout(schema_json: dict) -> list:
@@ -85,31 +122,63 @@ def calculate_byte_layout(schema_json: dict) -> list:
     return layout
 
 
-def unpack_comp3(raw_bytes: bytes, decimals: int) -> float:
-    """Decodes IBM Packed Decimal (COMP-3) hex values into standard Python floats."""
-    if not raw_bytes:
-        return 0.0
+def _scaled(negative: bool, digits: str, decimals: int) -> Decimal:
+    """#3833: the exact value digits x 10^-decimals, keeping the field's scale (V99 -> 12.50)."""
+    return Decimal((1 if negative and digits.strip("0") else 0, tuple(int(d) for d in digits or "0"), -decimals))
 
-    hex_str = raw_bytes.hex()
+
+def unpack_comp3(raw_bytes: bytes, decimals: int) -> Decimal:
+    """Decodes IBM Packed Decimal (COMP-3) into an exact Decimal (#3833: never float).
+
+    Raises UnpackError for a digit nibble above 9 or a sign nibble that is not A-F."""
+    hex_str = raw_bytes.hex().upper()
     digits = hex_str[:-1]
-    sign_nibble = hex_str[-1].upper()
+    sign_nibble = hex_str[-1:]
 
-    # D and B indicate negative numbers in EBCDIC hex. C, A, F, E are positive.
-    is_negative = sign_nibble in ("D", "B")
-
-    try:
-        value = float(digits) if digits else 0.0
-    except ValueError:
-        return 0.0  # Fallback for corrupted data
-
-    if decimals > 0:
-        value = value / (10**decimals)
-
-    return -value if is_negative else value
+    # D and B indicate negative numbers in EBCDIC hex. C, A, F (unsigned), E are positive.
+    if (digits and not digits.isdigit()) or sign_nibble not in ("A", "B", "C", "D", "E", "F"):
+        raise UnpackError(f"not a valid packed decimal: X'{hex_str}'")
+    return _scaled(sign_nibble in ("D", "B"), digits, decimals)
 
 
-def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_filepath: Path):
-    """Parses the mainframe binary file according to the calculated layout."""
+@cache
+def _sign_characters(code_page: str) -> tuple[str, str]:
+    """The page's 10 positive and 10 negative overpunch characters, looked up once per page."""
+    return zoned_sign_characters(code_page)
+
+
+def unpack_zoned(raw_bytes: bytes, decimals: int, code_page: str = DEFAULT_CODE_PAGE) -> Decimal:
+    """#3833: decodes zoned decimal into an exact Decimal. The last byte may carry the sign as an
+    overpunch, read from the code page's own sign characters (cp037 `{A-I` / `}J-R`, cp277 `æ` / `å`...).
+
+    Raises UnpackError for anything else: spaces, letters, a sign anywhere but the last byte."""
+    text = raw_bytes.decode(code_page)
+    positive, negative = _sign_characters(code_page)
+    body, last = text[:-1], text[-1:]
+    negative_value = False
+    if last in positive:
+        last = str(positive.index(last))
+    elif last in negative:
+        last, negative_value = str(negative.index(last)), True
+    digits = body + last
+    if not digits or not all("0" <= c <= "9" for c in digits):
+        raise UnpackError(f"not a valid zoned decimal: {text!r} (X'{raw_bytes.hex().upper()}')")
+    return _scaled(negative_value, digits, decimals)
+
+
+def format_number(value: Decimal) -> str:
+    """#3833: a plain decimal string for the CSV -- no exponent, trailing zeros kept to the scale."""
+    return format(value, "f")
+
+
+def unpack_ebcdic_file(
+    binary_filepath: Path, schema_filepath: Path, output_filepath: Path, code_page: str = DEFAULT_CODE_PAGE
+):
+    """Parses the mainframe binary file according to the calculated layout.
+
+    #3833: text and zoned digits decode in `code_page`. A field that is not a valid value raises
+    UnpackError naming the record (1-based) and field; there is no lenient mode writing 0.0."""
+    code_page = resolve_code_page(code_page)
     try:
         schema_json = json.loads(schema_filepath.read_text(encoding="utf-8"))
     except Exception as e:
@@ -121,8 +190,10 @@ def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_file
 
     print(f" 📏 Calculated Record Length: {record_length} bytes per row")
     print(f" 🗄️  Outputting to: {output_filepath.name}")
+    print(f" 🔤 Code page      : {code_page}")
 
     total_records = 0
+    unfilled = 0  # numeric fields never filled (all spaces / low-values): empty cells
 
     with (
         open(binary_filepath, "rb") as f_in,
@@ -150,28 +221,30 @@ def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_file
                 chunk = record_bytes[cursor : cursor + field["bytes"]]
                 cursor += field["bytes"]
 
-                if field["is_comp3"]:
-                    value = unpack_comp3(chunk, field["decimals"])
-                    row_data.append(value)
-                elif field["is_numeric"]:
-                    # Standard EBCDIC numeric (Zoned Decimal)
-                    try:
-                        decoded = chunk.decode("cp037").strip()
-                        # Simple sign handling for zoned (often the last byte carries the sign)
-                        value = float(decoded) if decoded else 0.0
-                        if field["decimals"] > 0:
-                            value = value / (10 ** field["decimals"])
-                        row_data.append(value)
-                    except ValueError:
-                        row_data.append(0.0)
-                else:
-                    # Standard EBCDIC text (cp037 is the standard IBM US EBCDIC code page)
-                    decoded = chunk.decode("cp037").strip()  # cp037 maps all 256 bytes: nothing to drop
-                    row_data.append(decoded)
+                if (field["is_comp3"] or field["is_numeric"]) and chunk.strip(b"\x40\x00") == b"":
+                    # #3833: a numeric field of all EBCDIC spaces / low-values was never filled -- an empty
+                    # cell (a NULL downstream), counted and reported; neither 0.0 nor a failed run
+                    row_data.append("")
+                    unfilled += 1
+                    continue
+                try:
+                    if field["is_comp3"]:
+                        row_data.append(format_number(unpack_comp3(chunk, field["decimals"])))
+                    elif field["is_numeric"]:
+                        # Standard EBCDIC numeric (Zoned Decimal), sign overpunched on the last byte
+                        row_data.append(format_number(unpack_zoned(chunk, field["decimals"], code_page)))
+                    else:
+                        # EBCDIC text: the EBCDIC pages map all 256 bytes, so nothing is dropped
+                        row_data.append(chunk.decode(code_page).strip())
+                except (UnpackError, UnicodeDecodeError) as e:
+                    # #3833: bad data is loud -- it used to become a silent 0.0
+                    raise UnpackError(f"record {total_records + 1}, field {field['name']}: {e}") from e
 
             writer.writerow(row_data)
             total_records += 1
 
+    if unfilled:
+        print(f" ⚠️  {unfilled} numeric field(s) never filled (all spaces / low-values): written as empty cells")
     return total_records
 
 
@@ -184,7 +257,18 @@ def main():
     parser.add_argument("binary_file", help="The raw EBCDIC binary file from the mainframe")
     parser.add_argument("schema_file", help="The GitGalaxy generated _schema.json file")
     parser.add_argument("--out", type=str, help="Optional: Custom output CSV path")
+    parser.add_argument(
+        "--code-page",
+        default=DEFAULT_CODE_PAGE,
+        help="EBCDIC code page of the data (#3833), e.g. cp037 (default), cp273, cp277, cp278, cp297, cp1047",
+    )
     args = parser.parse_args()
+
+    try:
+        code_page = resolve_code_page(args.code_page)
+    except UnpackError as e:
+        print(f"Error: {e}")
+        sys.exit(2)
 
     binary_path = Path(args.binary_file).resolve()
     schema_path = Path(args.schema_file).resolve()
@@ -201,7 +285,13 @@ def main():
     print(f" 📦 Ingesting Binary : {binary_path.name}")
     print(f" 🗺️  Mapping Schema   : {schema_path.name}")
 
-    records = unpack_ebcdic_file(binary_path, schema_path, out_path)
+    try:
+        records = unpack_ebcdic_file(binary_path, schema_path, out_path, code_page)
+    except UnpackError as e:
+        # #3833: stop on bad data rather than write a wrong value; the partial CSV is removed
+        out_path.unlink(missing_ok=True)
+        print(f"Error: {e}")
+        sys.exit(1)
 
     print("-" * 70)
     print(f" ✅ OPERATION COMPLETE: Successfully migrated {records:,} records.")

@@ -160,6 +160,7 @@ from pathlib import Path
 from typing import Optional
 
 from gitgalaxy.core.jcl_runners import systsin_programs
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
 
 # Subsystem hit columns carried per file. They are rule-hit counts, not block
@@ -3701,7 +3702,7 @@ class GalaxyIR:
                     index.setdefault(p.stem.upper(), []).append(p)
             self.__dict__["_member_index"] = index
         hits = index.get(member.upper(), [])
-        return hits[0].read_text(encoding="utf-8", errors="ignore") if len(hits) == 1 else None
+        return read_source(hits[0]).text if len(hits) == 1 else None
 
     def job_dds(self) -> list:
         """Every job step's DD statements (#3622): per JCL file with a JOB card, one row per

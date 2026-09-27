@@ -25,6 +25,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
+
 # A CSD command opens a line (tolerating a leading blank column or JCL-inline
 # indentation). Only DEFINE carries a resource we keep; the rest merely terminate
 # the record before them.
@@ -159,9 +161,9 @@ def extract_transactions(repo: Path) -> dict[str, set[str]]:
             continue
         suffix = path.suffix.lower()
         if suffix in (".csd", ".rdo"):  # #3495: `.rdo` is a DFHCSDUP member too
-            _add(_deck_transactions(path.read_text(encoding="utf-8", errors="ignore")))
+            _add(_deck_transactions(read_source(path).text))
         elif suffix == ".jcl":
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            text = read_source(path).text
             if _DFHCSDUP.search(text):
                 _add(_deck_transactions(text))
     return by_program

@@ -262,6 +262,11 @@ class StateRehydrator:
                     "declared_names": (
                         json.loads(f["declared_names"]) if "declared_names" in row_keys and f["declared_names"] else []
                     ),
+                    # #3813: how the file's bytes were decoded, so an unchanged file keeps
+                    # its source_encoding / source_decode across a delta. NULL on a DB that
+                    # predates the columns: unknown, not a guess.
+                    "source_encoding": f["source_encoding"] if "source_encoding" in row_keys else None,
+                    "source_decode": f["source_decode"] if "source_decode" in row_keys else None,
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

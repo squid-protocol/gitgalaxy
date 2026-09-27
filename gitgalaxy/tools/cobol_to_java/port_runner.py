@@ -45,12 +45,14 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.source_text import read_source
+
 PORTS = Path("ai_agent_jobs") / "ports"
 
 
 # ---- the prompt ----------------------------------------------------------------------
 def _read(path: Path) -> str:
-    return path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
+    return read_source(path).text if path.is_file() else ""
 
 
 # The generated runtime a port reads datasets, the pinned clock and record fields through.

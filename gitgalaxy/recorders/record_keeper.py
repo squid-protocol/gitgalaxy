@@ -755,7 +755,9 @@ class RecordKeeper:
                 wrapped_debug_prints INTEGER DEFAULT 0,
                 wrapped_panics_and_aborts INTEGER DEFAULT 0,
                 wrapped_memory_alloc INTEGER DEFAULT 0,
-                declared_names TEXT
+                declared_names TEXT,
+                source_encoding TEXT,
+                source_decode TEXT
             )
         """)
 
@@ -798,6 +800,12 @@ class RecordKeeper:
         # Resolution is repo-wide, so an unchanged file's names must survive a delta
         # scan -- the #3220 raw_imports precedent. JSON list; NULL when none.
         _ensure_columns(cursor, "file_data", ["declared_names TEXT"])
+
+        # #3813: how each file's bytes became text -- the codec (utf-8, cp1252, utf-16-le,
+        # shift_jis, ...) and the decode path (bom / utf-8 / utf-16-heuristic / declared are
+        # certain; cp1252-fallback / latin-1-fallback are guesses a reader should know about).
+        # NULL on a file rehydrated from a DB that predates the columns.
+        _ensure_columns(cursor, "file_data", ["source_encoding TEXT", "source_decode TEXT"])
 
         # #3313 step 4: the wrapper-aware count -- per rule, the call sites in this
         # file that reach the rule's behaviour through a project wrapper recorded in
@@ -2545,6 +2553,9 @@ class RecordKeeper:
             # #3660: declared top-level names (sorted, deterministic), NULL if none.
             declared = sorted(file_data.get("declared_names") or ())
             row_data.append(json.dumps(declared) if declared else None)
+            # #3813: the decode record (see the schema note).
+            row_data.append(file_data.get("source_encoding"))
+            row_data.append(file_data.get("source_decode"))
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -2662,7 +2673,7 @@ class RecordKeeper:
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports,
                     wrapper_facts, wrapped_debug_prints, wrapped_panics_and_aborts, wrapped_memory_alloc,
-                    declared_names
+                    declared_names, source_encoding, source_decode
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,

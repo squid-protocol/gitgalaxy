@@ -34,6 +34,8 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
+from gitgalaxy.core.source_text import read_source
+
 WORKLIST_VERSION = 1
 NATURES = ("conflict", "fact-gap", "review", "port")
 
@@ -148,7 +150,7 @@ def java_todos(java_dir: Path) -> list[dict]:
     """Every TODO comment in the generated project: file (project-relative), line, text."""
     out = []
     for path in _project_files(java_dir) if (java_dir / "src").is_dir() else []:
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = read_source(path).text.splitlines()
         rel = path.relative_to(java_dir).as_posix()
         for i, line in enumerate(lines):
             if "TODO" not in line or not _TODO.search(line):

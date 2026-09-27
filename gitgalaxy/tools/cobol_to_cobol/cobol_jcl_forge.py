@@ -20,6 +20,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
+
 _FILE_ASSIGN_ANCHOR = re.compile(
     r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9\-]+)",
     re.IGNORECASE,
@@ -38,7 +40,7 @@ def analyze_cobol_intent(filepath: Path) -> dict:
     }
 
     try:
-        raw_content = filepath.read_text(encoding="utf-8", errors="ignore")
+        raw_content = read_source(filepath).text
 
         # 1. FORMAT NORMALIZER: Strip legacy margin formatting
         clean_lines = []

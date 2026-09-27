@@ -22,6 +22,7 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import open_source
 from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
@@ -252,7 +253,7 @@ class Chronometer:
 
         if ignore_file.exists():
             try:
-                with open(ignore_file, encoding="utf-8") as f:
+                with open_source(ignore_file) as f:
                     for line in f:
                         line = line.strip()
                         # Skip comments and empty lines

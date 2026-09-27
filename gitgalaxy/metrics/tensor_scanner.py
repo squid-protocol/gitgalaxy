@@ -122,7 +122,9 @@ class TensorScanner:
             # This guarantees an O(1) time complexity and O(1) space complexity.
             # ==================================================================
             chunk = f.read(1024 * 1024)
-            chunk_str = chunk.decode("ascii", errors="ignore")
+            # Latin-1 maps every byte (#3813: no errors="ignore"), so the ASCII signatures read as
+            # they are and the binary bytes around them stay put rather than vanishing.
+            chunk_str = chunk.decode("latin-1")
 
             # Heuristic extraction from the binary string chunk
             arch = "Unknown GGUF"

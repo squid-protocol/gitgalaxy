@@ -119,7 +119,7 @@ PORTING_RULES = [
 def _source_text(path: Path) -> list[str]:
     """Numbered source lines, columns 1-72 (the sequence area dropped)."""
     try:
-        lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = read_source(path).text.splitlines()
     except OSError:
         return []
     return [f"{n:5d} | {line[:72].rstrip()}" for n, line in enumerate(lines, 1)]

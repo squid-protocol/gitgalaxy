@@ -18,6 +18,8 @@ import re
 import sys
 from pathlib import Path
 
+from gitgalaxy.core.source_text import read_source
+
 # Execution constraint to prevent resource starvation from cyclic copybooks
 MAX_RECURSION_DEPTH = 10
 
@@ -67,7 +69,7 @@ def flatten_copybooks(source_text: str, base_dir: Path, current_depth: int = 0) 
 
                     # Pass current_depth + 1 into the recursive call to advance the safety counter
                     inlined_text = flatten_copybooks(
-                        copy_file.read_text(errors="ignore"),
+                        read_source(copy_file).text,
                         base_dir,
                         current_depth + 1,
                     )
@@ -180,7 +182,7 @@ def main():
         sys.exit(1)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    cobol_files = [f for f in src_path.rglob("*.cbl") if "PROGRAM-ID" in f.read_text(errors="ignore").upper()]
+    cobol_files = [f for f in src_path.rglob("*.cbl") if "PROGRAM-ID" in read_source(f).text.upper()]
 
     print("\n" + "=" * 70)
     print(" 🏗️  GITGALAXY MAINFRAME COMPILER GENERATOR (PRE-COMPILER ACTIVE)")
@@ -188,7 +190,7 @@ def main():
 
     for file_path in cobol_files:
         try:
-            raw_text = file_path.read_text(encoding="utf-8", errors="ignore")
+            raw_text = read_source(file_path).text
 
             # 1. Flatten the copybooks
             flattened_source = flatten_copybooks(raw_text, src_path)

@@ -14,6 +14,8 @@ import re
 from pathlib import Path
 from typing import Any, Optional, TypedDict, Union
 
+from gitgalaxy.core.source_text import open_source
+
 # ==============================================================================
 # GitGalaxy Phase 0.1: Ingestion & Filtering (The Aperture Filter)
 # Strategy: (Monolith Ceilings, Array Shields & Intent Overrides)
@@ -587,7 +589,7 @@ class ApertureFilter:
 
         if ignore_file.exists():
             try:
-                with ignore_file.open("r", encoding="utf-8") as f:
+                with open_source(ignore_file) as f:
                     for line in f:
                         clean_line = line.strip()
                         if clean_line and not clean_line.startswith("#"):

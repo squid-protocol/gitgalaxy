@@ -21,6 +21,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import _blank_literals, unit_header
 
 _OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
@@ -67,7 +68,7 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
         dead_paras = set()
 
     try:
-        content = code_view(filepath.read_text(encoding="utf-8", errors="ignore").upper())
+        content = code_view(read_source(filepath).text.upper())
     except Exception:
         return None
 

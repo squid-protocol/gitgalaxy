@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_agent_task_forge import forge_agent_jobs
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
@@ -274,10 +275,10 @@ def process_payload(
     # Check for the Corporate Header stamp
     header_file = filepath.parent / "corporate_header.txt"
     if header_file.exists():
-        ir["metadata"]["corporate_header"] = header_file.read_text(encoding="utf-8", errors="ignore")
+        ir["metadata"]["corporate_header"] = read_source(header_file).text
 
     try:
-        source_text = filepath.read_text(encoding="utf-8", errors="ignore")
+        source_text = read_source(filepath).text
     except Exception:
         return ir
     ir["metadata"]["loc"] = len(source_text.splitlines())

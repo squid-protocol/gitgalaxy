@@ -1,6 +1,7 @@
 """#3813: every source read decodes without losing a byte.
 
-Each decode path (BOM, BOM-less UTF-16, UTF-8, the cp1252 and Latin-1 guesses), the size cap
+Each decode path (BOM, BOM-less UTF-16, UTF-8, a declared code page, the cp1252 and Latin-1
+guesses), the size cap
 (a cut through a multi-byte character is still UTF-8), and the traps: a stray NUL is not UTF-16,
 and a binary of 16-bit integers is not text -- its NULs must reach the binary gate.
 """
@@ -11,7 +12,16 @@ import struct
 
 import pytest
 
-from gitgalaxy.core.source_text import decode_source, read_source
+import json
+
+from gitgalaxy.core.source_text import (
+    decode_bytes,
+    decode_source,
+    open_source,
+    parse_source_encoding,
+    read_source,
+    resolve_declared_encoding,
+)
 
 SOURCE = "def beløp(ärende):\n    return 'Ω≈ç'  # π\n"
 
@@ -110,3 +120,81 @@ def test_line_endings_become_lf_as_text_mode_open_made_them(tmp_path, ending):
     p = tmp_path / "crlf.cbl"
     p.write_bytes((("MOVE A TO B." + ending) * 3 + "STOP RUN.").encode("utf-16-le"))
     assert read_source(p).text == "MOVE A TO B.\n" * 3 + "STOP RUN."
+
+
+# ---- a declared estate code page ------------------------------------------------------------
+
+JAPANESE = "      * 顧客マスタ更新\n       01 顧客-名前 PIC X(20).\n"
+
+
+def test_a_declared_code_page_decodes_what_the_guess_would_mangle():
+    data = JAPANESE.encode("shift_jis")
+    guessed = decode_source(data)
+    assert guessed.how in ("cp1252-fallback", "latin-1-fallback") and guessed.text != JAPANESE
+    got = decode_source(data, declared="shift_jis")
+    assert (got.text, got.encoding, got.how) == (JAPANESE, "shift_jis", "declared")
+
+
+def test_utf8_and_a_bom_outrank_the_declaration():
+    assert decode_source(SOURCE.encode("utf-8"), declared="shift_jis").how == "utf-8"
+    assert decode_source(codecs.BOM_UTF8 + SOURCE.encode("utf-8"), declared="cp1252").how == "bom"
+
+
+def test_a_declaration_that_does_not_fit_falls_back_to_the_guess_not_an_error():
+    data = "PROGRAM-ID. BELØP.\n".encode("cp1252") + b"\x81"  # neither Ø nor 0x81 is ASCII
+    got = decode_source(data, declared="ascii")
+    assert got.how in ("cp1252-fallback", "latin-1-fallback")
+    assert got.text.encode(got.encoding) == data
+
+
+def test_read_source_passes_the_declaration_through(tmp_path):
+    p = tmp_path / "cust.cbl"
+    p.write_bytes(JAPANESE.encode("shift_jis"))
+    assert read_source(p, declared="shift_jis").text == JAPANESE
+    assert open_source(p, declared="shift_jis").read() == JAPANESE
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (None, None),
+        ("", None),
+        ("shift_jis", "shift_jis"),
+        (" cp1252 ", "cp1252"),
+        ("legacy/**=cp1252, *.sjis=shift_jis", {"legacy/**": "cp1252", "*.sjis": "shift_jis"}),
+        ({"*.cbl": "cp037"}, {"*.cbl": "cp037"}),
+    ],
+)
+def test_parse_source_encoding(value, expected):
+    assert parse_source_encoding(value) == expected
+
+
+@pytest.mark.parametrize("value", ["utf-9", "*.cbl=nonsense", "*.cbl", "=cp1252", {"*.cbl": 37}, 1252])
+def test_a_bad_declaration_fails_loudly_rather_than_meaning_guess(value):
+    with pytest.raises(ValueError):
+        parse_source_encoding(value)
+
+
+def test_resolve_declared_encoding_first_glob_wins():
+    spec = {"legacy/**": "cp1252", "*.sjis": "shift_jis", "*": "latin-1"}
+    assert resolve_declared_encoding("legacy/a/b.cbl", spec) == "cp1252"
+    assert resolve_declared_encoding("src/x.sjis", spec) == "shift_jis"  # a bare-name glob
+    assert resolve_declared_encoding("legacy\\x.sjis", spec) == "cp1252"  # Windows separators
+    assert resolve_declared_encoding("src/y.py", {"*.sjis": "shift_jis"}) is None
+    assert resolve_declared_encoding("any/path.c", "cp1252") == "cp1252"
+    assert resolve_declared_encoding("any/path.c", None) is None
+
+
+# ---- the helpers built on it -----------------------------------------------------------------
+
+
+def test_decode_bytes_is_lossless_for_a_log_line():
+    line = "2026-09-27 12:00 Fehler: Größe überschritten\n".encode("cp1252")
+    assert decode_bytes(line) == line.decode("cp1252")
+
+
+def test_open_source_lets_json_load_read_a_bom_manifest(tmp_path):
+    p = tmp_path / "package.json"
+    p.write_bytes(codecs.BOM_UTF8 + json.dumps({"name": "bélø"}).encode("utf-8"))
+    with open_source(p) as f:
+        assert json.load(f) == {"name": "bélø"}

@@ -42,6 +42,7 @@ import re
 import sys
 from pathlib import Path
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
 BASELINE_FILE = "guardrail_baseline.json"
@@ -172,7 +173,7 @@ def _kind(rel: str) -> str:
 
 def _project_java(java_dir: Path) -> dict[str, str]:
     src = java_dir / "src"
-    return {p.relative_to(java_dir).as_posix(): p.read_text(encoding="utf-8", errors="replace")
+    return {p.relative_to(java_dir).as_posix(): read_source(p).text
             for p in sorted(src.rglob("*.java"))} if src.is_dir() else {}  # fmt: skip
 
 

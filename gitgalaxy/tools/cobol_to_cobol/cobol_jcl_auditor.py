@@ -22,6 +22,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.source_text import read_source
+
 SYSTEM_DDS = {
     "STEPLIB",
     "SYSOUT",
@@ -51,24 +53,24 @@ def parse_jcl_intent(filepath: Path) -> dict:
     dd_pattern = re.compile(r"^//([A-Z0-9@#$\-]+)\s+DD\s+", re.IGNORECASE)
 
     try:
-        with open(filepath, encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith("//*"):
-                    continue
-                metrics["lines_of_code"] += 1
+        # #3813: decoded without dropping a byte
+        for line in read_source(filepath).text.splitlines():
+            line = line.strip()
+            if not line or line.startswith("//*"):
+                continue
+            metrics["lines_of_code"] += 1
 
-                pgm_match = pgm_pattern.search(line)
-                if pgm_match:
-                    pgm = pgm_match.group(1).upper()
-                    if pgm not in SYSTEM_PGMS:
-                        metrics["exec_pgms"].add(pgm)
+            pgm_match = pgm_pattern.search(line)
+            if pgm_match:
+                pgm = pgm_match.group(1).upper()
+                if pgm not in SYSTEM_PGMS:
+                    metrics["exec_pgms"].add(pgm)
 
-                dd_match = dd_pattern.search(line)
-                if dd_match:
-                    dd_name = dd_match.group(1).upper()
-                    if dd_name not in SYSTEM_DDS:
-                        metrics["data_definitions"].add(dd_name)
+            dd_match = dd_pattern.search(line)
+            if dd_match:
+                dd_name = dd_match.group(1).upper()
+                if dd_name not in SYSTEM_DDS:
+                    metrics["data_definitions"].add(dd_name)
     except Exception as e:
         logging.getLogger("cobol_jcl_auditor").debug(f"Failed to parse JCL file '{filepath}': {e}")
     return metrics

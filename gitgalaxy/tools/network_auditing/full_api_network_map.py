@@ -26,6 +26,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.source_text import read_source
+
 # ==============================================================================
 # 1. ROUTER STRUCTURAL SIGNATURES (EXPANDED FRAMEWORK REGEX PATTERNS)
 # ==============================================================================
@@ -143,14 +145,14 @@ def auto_discover_swagger(target_dir: Path) -> list:
         # maintaining extreme pipeline velocity.
         # ==============================================================================
         try:
-            with open(filepath, encoding="utf-8", errors="ignore") as f:
-                head = f.read(1000)
-                # Extra validation to ensure it's a real spec, not just a package.json mentioning swagger
-                if re.search(
-                    r'("swagger"\s*:\s*"2\.\d"|"openapi"\s*:\s*"3\.\d\.\d"|swagger\s*:\s*["\']?2\.\d|openapi\s*:\s*["\']?3\.\d\.\d)',
-                    head,
-                ):
-                    candidates.add(filepath)
+            # #3813: decoded without dropping a byte
+            head = read_source(filepath, limit=4000).text[:1000]
+            # Extra validation to ensure it's a real spec, not just a package.json mentioning swagger
+            if re.search(
+                r'("swagger"\s*:\s*"2\.\d"|"openapi"\s*:\s*"3\.\d\.\d"|swagger\s*:\s*["\']?2\.\d|openapi\s*:\s*["\']?3\.\d\.\d)',
+                head,
+            ):
+                candidates.add(filepath)
         except Exception as e:
             logging.getLogger("full_api_network_map").debug(f"Failed to probe candidate spec '{filepath}': {e}")
 
@@ -208,7 +210,7 @@ def map_physical_codebase(target_dir: Path) -> tuple:
         for framework, config in FRAMEWORK_SIGNATURES.items():
             if filepath.suffix.lower() in config["ext"]:
                 try:
-                    content = filepath.read_text(encoding="utf-8", errors="ignore")
+                    content = read_source(filepath).text
                     hits = config["regex"].findall(content)
                     if hits:
                         frameworks_detected.add(framework)

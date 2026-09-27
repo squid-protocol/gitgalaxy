@@ -20,6 +20,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
+
 # Copybook members are found by stem. .cbl/.cob are allowed because some shops keep
 # copybooks under program extensions, but a member with a PROGRAM-ID is a program
 # and is never inlined (#3203: `COPY ACCTCTRL` used to inline ACCTCTRL.cbl).
@@ -153,7 +155,7 @@ def find_copybook(name: str, copybook_root: Path, origin: Path) -> Optional[Path
     repository, not just the program's directory: real layouts keep copybooks in
     COPYBOOK/ or cobol_copy/), nearest to `origin` first, never a program (#3203)."""
     for candidate in _nearest(_copybook_index(copybook_root).get(name.upper(), []), origin):
-        if not _PROGRAM_ID.search(candidate.read_text(encoding="utf-8", errors="ignore")):
+        if not _PROGRAM_ID.search(read_source(candidate).text):
             return candidate
     return None
 
@@ -444,7 +446,7 @@ def resolve_copybooks(
         replacing_clause = match.group("rep")
         cpy_file = find_copybook(copy_name, root, origin)
         if cpy_file is not None:
-            cpy_content = cpy_file.read_text(encoding="utf-8", errors="ignore").upper()
+            cpy_content = read_source(cpy_file).text.upper()
             # ==============================================================
             # DEFENSIVE DESIGN (DYNAMIC ALIASING):
             # COBOL's 'REPLACING' clause allows dynamic text substitution at
@@ -489,7 +491,7 @@ def x_ray_dead_code(
     is a patched copy elsewhere, used to pick the nearest of several same-named copybooks.
     """
     try:
-        raw_content = filepath.read_text(encoding="utf-8", errors="ignore").upper()
+        raw_content = read_source(filepath).text.upper()
     except Exception:
         return None
 

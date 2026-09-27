@@ -652,6 +652,11 @@ class AuditRecorder:
             if "AI Threat Score" in domain_data:
                 identity_block["AI Threat Confidence"] = domain_data["AI Threat Score"]
 
+            # #3813: how the bytes became text. A cp1252-fallback / latin-1-fallback decode is a
+            # guess (no BOM, not UTF-8, nothing declared), so a reader can weigh its names.
+            identity_block["Source Encoding"] = file_data.get("source_encoding") or "Unknown"
+            identity_block["Source Decode"] = file_data.get("source_decode") or "Unknown"
+
             # --- EXPOSURE FORMATTER ---
             exposures_dict = {}
             raw_risk = file_data.get("risk_vector")

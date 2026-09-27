@@ -22,7 +22,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import open_source, read_source
 from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
 
 # ==============================================================================
@@ -266,7 +266,7 @@ class GuideStarLens:
     def _parse_package_json(self, path: Path):
         """Extracts 'main', 'bin', and 'scripts' from Node/JS manifests."""
         try:
-            with open(path, encoding="utf-8") as f:
+            with open_source(path) as f:
                 data = json.load(f)
 
                 # Main Entry Point
@@ -295,7 +295,7 @@ class GuideStarLens:
     def _parse_makefile(self, path: Path):
         """Parses Makefiles to find source variables and targets."""
         try:
-            with open(path, encoding="utf-8") as f:
+            with open_source(path) as f:
                 content = f.read()
 
                 # Strategy 1: Find variable assignments like SRCS = main.c ...
@@ -317,7 +317,7 @@ class GuideStarLens:
     def _parse_toml_style_manifest(self, path: Path, lang: str):
         """Simple regex-based TOML parser for script/entry points."""
         try:
-            with open(path, encoding="utf-8") as f:
+            with open_source(path) as f:
                 content = f.read()
 
                 matches = re.findall(r'path\s*=\s*"(.*)"', content)
@@ -374,7 +374,7 @@ class GuideStarLens:
         }
 
         try:
-            with open(gitattr_path, encoding="utf-8") as f:
+            with open_source(gitattr_path) as f:
                 for line in f:
                     line = line.strip()
                     if not line or line.startswith("#"):
@@ -427,7 +427,7 @@ class GuideStarLens:
         hostile_bins = {".so", ".dll", ".exe", ".dylib", ".bin", ".xz", ".gz", ".zip"}
 
         try:
-            with open(gitignore_path, encoding="utf-8") as f:
+            with open_source(gitignore_path) as f:
                 for line in f:
                     line = line.strip()
 

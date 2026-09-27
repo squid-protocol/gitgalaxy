@@ -15,6 +15,7 @@ from pathlib import Path
 
 # Import exclusively from the GitGalaxy Hub
 from gitgalaxy.core.aperture import ApertureFilter
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.config_resolver import resolve_config
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
@@ -126,8 +127,7 @@ def main():
 
     for file_path, rel_path_str, is_whitelisted in files_to_deep_scan:
         try:
-            with open(file_path, encoding="utf-8", errors="ignore") as f:
-                content = f.read()
+            content = read_source(file_path).text  # #3813: no byte dropped
 
             sec_results = security.scan_content(content)
 

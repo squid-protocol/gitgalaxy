@@ -20,6 +20,10 @@ Data flows through these modules sequentially. If a file is unparsable by this e
 **Role:** Zero-Trust Ingestion.
 Information hits this filter first. It evaluates OS-level metadata (file path, extension, byte size) *before* executing any disk I/O. It actively shunts massive data dumps, neural network weights (`.safetensors`), and binary payloads masking as text files (via null-byte detection). This protects the Python memory space from immediate exhaustion.
 
+### 1a. `source_text.py` (The Decoder, #3813)
+**Role:** Every read of an estate file, decoded without losing a byte.
+`read_source` tries, in order of certainty: a byte-order mark, BOM-less UTF-16, strict UTF-8, the estate's declared code page (`--source-encoding`, one codec or a `GLOB=CODEC` map), then the cp1252 / Latin-1 guesses. Nothing is dropped or replaced, and the binary gate runs on the decoded text, so a UTF-16 file is no longer "binary". Each file's codec and decode path go to `file_data.source_encoding` / `source_decode`, the audit's Artifact Identity and the LLM brief, so a guessed decode is visible. `tests/test_source_reads.py` gates the package: no `errors="ignore"|"replace"` anywhere, and no text-mode read of an estate file outside this module.
+
 ### 2. `guidestar_lens.py` (Contextual Baselines)
 **Role:** Architectural Intelligence.
 Rather than guessing what a file does, this module parses explicit project manifests (`package.json`, `.gitattributes`, `Cargo.toml`). If a file is defined as a roadmap anchor or test suite by the developer, GuideStar assigns an **Intent Lock**. This provides a contextual baseline that bypasses expensive heuristic guessing downstream.

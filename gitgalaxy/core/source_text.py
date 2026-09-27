@@ -13,17 +13,25 @@ came out truncated), and a UTF-16 file decoded full of NULs, so the binary gate 
    mostly NUL, the other lane clean, the result reads as text) -- a binary of 16-bit
    integers must stay binary, NULs and all, for the binary gate;
 3. strict UTF-8;
-4. strict cp1252 -- a guess: the commonest legacy code page;
-5. Latin-1 -- a guess that cannot fail (every byte maps).
+4. the estate's declared code page (`--source-encoding`, or a per-glob map), strictly -- a file
+   the declared codec cannot decode falls through to the guesses rather than failing;
+5. strict cp1252 -- a guess: the commonest legacy code page;
+6. Latin-1 -- a guess that cannot fail (every byte maps).
 
 No decode ever drops or replaces a byte; `read_source` then applies universal newlines (CRLF and CR
 become LF), as the text-mode `open()` it replaces did. `how` records which path was taken, so a guess
 (`cp1252-fallback`, `latin-1-fallback`) can be surfaced rather than trusted silently.
+
+`decode_bytes` is the same ladder for bytes that are not a whole file (a log line, a sniffed head),
+and `resolve_declared_encoding` maps a file's path to the estate's declared code page.
 """
 
 from __future__ import annotations
 
 import codecs
+import fnmatch
+import io
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,7 +50,67 @@ _TEXT_CONTROLS = frozenset("\t\n\r\f\v")
 class SourceText:
     text: str
     encoding: str  # the codec that decoded it
-    how: str  # "bom" | "utf-16-heuristic" | "utf-8" | "cp1252-fallback" | "latin-1-fallback"
+    how: str  # "bom" | "utf-16-heuristic" | "utf-8" | "declared" | "cp1252-fallback" | "latin-1-fallback"
+
+
+# What the estate declares: one codec for every file, or {glob: codec} matched in order against the
+# file's repo-relative POSIX path (first match wins; a glob without "/" also matches the bare name).
+DeclaredEncoding = str | Mapping[str, str] | None
+
+
+def validate_declared_encoding(spec: DeclaredEncoding) -> None:
+    """Fail loudly, up front, on an unknown codec name -- a typo must not silently mean 'guess'."""
+    if spec is None:
+        return
+    codecs_named = [spec] if isinstance(spec, str) else list(spec.values())
+    if not isinstance(spec, (str, Mapping)) or not all(isinstance(c, str) for c in codecs_named):
+        raise ValueError(f"source encoding must be a codec name or a {{glob: codec}} map, not {spec!r}")
+    unknown = [codec for codec in codecs_named if not _is_codec(codec)]
+    if unknown:
+        raise ValueError(f"unknown source encoding {unknown[0]!r}")
+
+
+def _is_codec(name: str) -> bool:
+    try:
+        codecs.lookup(name)
+    except LookupError:
+        return False
+    return True
+
+
+def parse_source_encoding(value: object) -> DeclaredEncoding:
+    """The declared encoding from `--source-encoding` or `.galaxyscope.yaml`, validated: None, a
+    codec name, "GLOB=CODEC,GLOB=CODEC" (the CLI form of a map), or a {glob: codec} mapping."""
+    if value is None or value == "":
+        return None
+    spec: DeclaredEncoding
+    if isinstance(value, str) and "=" in value:
+        spec = {}
+        for pair in value.split(","):
+            glob, sep, codec = pair.partition("=")
+            if not sep or not glob.strip() or not codec.strip():
+                raise ValueError(f"source encoding pair {pair!r} is not GLOB=CODEC")
+            spec[glob.strip()] = codec.strip()
+    elif isinstance(value, str):
+        spec = value.strip()
+    elif isinstance(value, Mapping):
+        spec = {str(k): v for k, v in value.items()}
+    else:
+        raise ValueError(f"source encoding must be a codec name or a {{glob: codec}} map, not {value!r}")
+    validate_declared_encoding(spec)
+    return spec
+
+
+def resolve_declared_encoding(rel_path: str, spec: DeclaredEncoding) -> str | None:
+    """The code page the estate declares for `rel_path`, or None when it declares none."""
+    if spec is None or isinstance(spec, str):
+        return spec or None
+    posix = rel_path.replace("\\", "/")
+    name = posix.rsplit("/", 1)[-1]
+    for glob, codec in spec.items():
+        if fnmatch.fnmatchcase(posix, glob) or ("/" not in glob and fnmatch.fnmatchcase(name, glob)):
+            return codec
+    return None
 
 
 def _decode(data: bytes, codec: str, truncated: bool) -> str:
@@ -73,9 +141,10 @@ def _utf16_without_bom(data: bytes) -> str | None:
     return None
 
 
-def decode_source(data: bytes, *, truncated: bool = False) -> SourceText:
+def decode_source(data: bytes, *, truncated: bool = False, declared: str | None = None) -> SourceText:
     """Decode source bytes without losing any. `truncated`: the bytes are a prefix of the file, so a
-    multi-byte character cut at the end must not make valid UTF-8 look invalid."""
+    multi-byte character cut at the end must not make valid UTF-8 look invalid. `declared`: the
+    estate's code page for this file, tried strictly after UTF-8 and before the legacy guesses."""
     for bom, codec in _BOMS:
         if data.startswith(bom):
             try:
@@ -94,20 +163,39 @@ def decode_source(data: bytes, *, truncated: bool = False) -> SourceText:
         return SourceText(_decode(data, "utf-8", truncated), "utf-8", "utf-8")
     except UnicodeDecodeError:
         pass
+    if declared:
+        try:
+            return SourceText(_decode(data, declared, truncated), codecs.lookup(declared).name, "declared")
+        except UnicodeDecodeError:
+            pass  # the declaration does not fit this file: guess rather than drop a byte
     try:
         return SourceText(data.decode("cp1252"), "cp1252", "cp1252-fallback")
     except UnicodeDecodeError:  # cp1252 leaves 0x81 0x8D 0x8F 0x90 0x9D unmapped
         return SourceText(data.decode("latin-1"), "latin-1", "latin-1-fallback")
 
 
-def read_source(path: str | Path, limit: int | None = None) -> SourceText:
+def decode_bytes(data: bytes, declared: str | None = None) -> str:
+    """Text for bytes that are not a whole source file (a log line, a sniffed head): the same
+    lossless ladder, minus universal newlines -- the caller owns its own line splitting."""
+    return decode_source(data, declared=declared).text
+
+
+def read_source(path: str | Path, limit: int | None = None, declared: str | None = None) -> SourceText:
     """A source file's text, decoded without losing a byte. `limit`: read at most that many bytes (a
-    guard against multi-GB logs) -- the file is then decoded as the prefix it is."""
+    guard against multi-GB logs) -- the file is then decoded as the prefix it is. `declared`: the
+    estate's code page for this file (see `resolve_declared_encoding`)."""
     with open(path, "rb") as f:
         data = f.read() if limit is None else f.read(limit)
-    src = decode_source(data, truncated=limit is not None and len(data) == limit)
+    src = decode_source(data, truncated=limit is not None and len(data) == limit, declared=declared)
     if "\r" not in src.text:
         return src
     # universal newlines, as text-mode open() gave every caller: CRLF and lone CR become LF, so line
     # counts, `$` anchors and fixed-format columns see one line ending whatever the file used
     return SourceText(src.text.replace("\r\n", "\n").replace("\r", "\n"), src.encoding, src.how)
+
+
+def open_source(path: str | Path, declared: str | None = None) -> io.StringIO:
+    """`read_source` as a text stream, for a `with open(path) as f:` body (json.load, f.read(), line
+    iteration) that should decode like every other source read -- a strict UTF-8 open raised on a
+    cp1252 manifest, and json.load refused a BOM."""
+    return io.StringIO(read_source(path, declared=declared).text)

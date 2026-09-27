@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
+
 
 def parse_cobol_picture(pic_clause: str) -> dict:
     """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type."""
@@ -138,7 +140,7 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         ignore_vars = set()
 
     try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore").upper()
+        content = read_source(filepath).text.upper()
     except Exception:
         return None
 

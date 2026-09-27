@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
 
 
@@ -48,7 +49,7 @@ def slice_business_logic(
         return [], {initial_var: "ORPHANED_MEMORY"}
 
     try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore").upper()
+        content = read_source(filepath).text.upper()
     except Exception:
         return None
 

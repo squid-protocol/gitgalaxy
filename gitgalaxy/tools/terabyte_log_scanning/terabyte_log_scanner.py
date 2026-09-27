@@ -14,6 +14,8 @@ import time
 from collections import defaultdict
 from pathlib import Path
 
+from gitgalaxy.core.source_text import decode_bytes
+
 
 def draw_ascii_histogram(time_buckets: dict, keyword: str):
     """
@@ -183,13 +185,11 @@ Expected JSON Schema:
             for line in f_in:
                 for kw, pattern in keyword_patterns.items():
                     if pattern.search(line):
-                        decoded_line = line.decode("utf-8", errors="ignore").strip()
+                        decoded_line = decode_bytes(line).strip()
                         ts_match = ts_pattern.search(line)
 
                         # Bucket by hour
-                        bucket = (
-                            ts_match.group(1).decode("utf-8", errors="ignore") + ":00" if ts_match else "Unknown Time"
-                        )
+                        bucket = decode_bytes(ts_match.group(1)) + ":00" if ts_match else "Unknown Time"
                         histograms[kw][bucket] += 1
 
                         f_out.write(f"{decoded_line}\n")

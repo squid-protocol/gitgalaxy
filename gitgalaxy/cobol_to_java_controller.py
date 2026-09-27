@@ -36,6 +36,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import (
     generate_java_agent_ticket,
 )
@@ -244,7 +245,7 @@ def main():
     header_file = Path(args.header).resolve()
     java_header = ""
     if header_file.exists():
-        raw_header = header_file.read_text(encoding="utf-8", errors="ignore")
+        raw_header = read_source(header_file).text
         java_header = format_java_header(raw_header)
         print(f"  🛡️  Compliance Header Loaded from: {header_file.name}")
     else:

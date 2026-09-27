@@ -37,7 +37,7 @@ from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_tran
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import parse_source_encoding, read_source, resolve_declared_encoding
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
 from gitgalaxy.core.wrapper_extractor import extract_wrapper_facts
@@ -491,7 +491,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # (UTF-8 EF BB BF, and now UTF-16/32 too); left as U+FEFF, every `^`-anchored
             # line-1 rule (class_start / func_start / the manifest capture) silently failed
             # -- 58 corpus files (38 livecode `script "Name"`, csharp / powershell / xml / ...).
-            source = read_source(full_path_str)
+            declared = resolve_declared_encoding(rel_path, _worker_state["config"].get("SOURCE_ENCODING"))
+            source = read_source(full_path_str, declared=declared)
             content_buffer = source.text
             observation["source_encoding"] = source.encoding
             observation["source_decode"] = source.how
@@ -970,6 +971,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
             "declared_names": sorted(declared_names),
+            # #3813: how the file's bytes became text -- the codec, and whether it was certain
+            # (bom / utf-8 / utf-16-heuristic / declared) or a legacy guess (cp1252 / latin-1).
+            "source_encoding": source.encoding,
+            "source_decode": source.how,
             # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,
@@ -3598,6 +3603,17 @@ def main():
             "at ceiling and the vector is a constant. Enable it only if your codebase uses spec tags."
         ),
     )
+    parser.add_argument(
+        "--source-encoding",
+        default=None,
+        metavar="CODEC|GLOB=CODEC,...",
+        help=(
+            "The estate's declared code page (#3813), tried after a BOM, UTF-16 and strict UTF-8 and "
+            "before the cp1252 / Latin-1 guesses: one codec for every file (e.g. shift_jis), or "
+            "comma-separated GLOB=CODEC pairs, first match wins (e.g. 'legacy/**=cp1252,*.sjis=shift_jis'). "
+            "In .galaxyscope.yaml, `source_encoding:` also takes a {glob: codec} map."
+        ),
+    )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
@@ -3822,6 +3838,8 @@ def main():
             "NO_DEPENDENCY_CACHE": args.no_dependency_cache,
             "FULL_DEPENDENCY_SCAN": args.full_dependency_scan,
             "DEPENDENCY_SCAN_BUDGET": args.dependency_scan_budget,
+            # #3813: validated here, so an unknown codec fails the scan before any file is read.
+            "SOURCE_ENCODING": parse_source_encoding(args.source_encoding),
         }
 
         # ---------------------------------------------------------

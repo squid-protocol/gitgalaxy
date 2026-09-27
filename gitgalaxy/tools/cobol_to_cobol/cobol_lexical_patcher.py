@@ -17,6 +17,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import read_source
+
 
 def detect_cobol_dialect(content: str) -> str:
     """
@@ -72,7 +74,7 @@ def patch_lexical_traps(filepath: Path, dest: Optional[Path] = None) -> bool:
     Returns True if a patched file was written, False otherwise.
     """
     try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore")
+        content = read_source(filepath).text
     except Exception as e:
         print(f"Error reading {filepath.name}: {e}")
         return False

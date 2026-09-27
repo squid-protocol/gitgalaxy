@@ -16,6 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
+
 # UniversalManifestSlicer now lives in the canonical manifest module (PR A of
 # the dependency-audit overhaul). Re-imported here so existing consumers and
 # tests importing it from this module keep working unchanged.
@@ -233,8 +235,7 @@ class SbomRecorder:
         """Runs the security lens + language detector on one file.
         Returns (is_spoof, notes) or None if the file was unreadable."""
         try:
-            with open(file_path, encoding="utf-8", errors="ignore") as f:
-                content = f.read(8192)
+            content = read_source(file_path, limit=8192).text  # #3813: no byte dropped
         except Exception as e:
             self.logger.debug(f"Skipped unreadable file during physical audit ({file_path}): {e}")
             return None

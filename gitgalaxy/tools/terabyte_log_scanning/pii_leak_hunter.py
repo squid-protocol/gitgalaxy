@@ -15,6 +15,8 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Callable, Optional
 
+from gitgalaxy.core.source_text import decode_bytes
+
 # ==============================================================================
 # 1. REGEX PATTERNS (PII SIGNATURES)
 # ==============================================================================
@@ -189,7 +191,7 @@ def _mask_validated(text: str, name: str, render) -> str:
     """Mask every match of a region-pack pattern its validator accepts."""
     pattern, validator = _PACK_ENTRY_BY_NAME[name]
     str_pattern = re.compile(pattern.pattern.decode("ascii"))
-    line = text.encode("utf-8", errors="ignore")
+    line = text.encode("utf-8", errors="surrogatepass")  # lossless: a lone surrogate kept, not dropped
 
     def _sub(m):
         if validator is not None and not validator(m.group(0).encode("ascii"), line):
@@ -356,13 +358,13 @@ Masked evidence logs are safely written to disk without exposing the full PII.
                 for pii_type in find_pii(line, active_patterns):
                     # Only decode the line if a physical hit is detected to save CPU cycles
                     if not hit_found:
-                        decoded_line = line.decode("utf-8", errors="ignore").strip()
+                        decoded_line = decode_bytes(line).strip()
                         safe_line = mask_pii(decoded_line)
                         f_out.write(f"[{pii_type}] {safe_line}\n")
                         hit_found = True  # Prevent duplicate writes if a line has multiple PII types
 
                     ts_match = ts_pattern.search(line)
-                    bucket = ts_match.group(1).decode("utf-8", errors="ignore") + ":00" if ts_match else "Unknown Time"
+                    bucket = decode_bytes(ts_match.group(1)) + ":00" if ts_match else "Unknown Time"
                     histograms[pii_type][bucket] += 1
     except OSError as e:
         print(f"\n[FATAL ERROR] I/O failure during streaming: {e}")

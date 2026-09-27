@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.source_text import read_source
+
 # ==============================================================================
 # DEFENSIVE DESIGN (STRUCTURAL ANOMALY SIGNATURES):
 # These rules strictly target legacy commands that compromise static analysis.
@@ -57,9 +59,8 @@ def scan_system_limits(filepath: Path) -> list:
     """
     anomalies = []
     try:
-        # Open file with error handling for legacy encodings
-        with open(filepath, encoding="utf-8", errors="ignore") as f:
-            lines = f.readlines()
+        # #3813: legacy encodings decoded without dropping a byte
+        lines = read_source(filepath).text.splitlines(keepends=True)
     except Exception as e:
         return [f"[{filepath.name}] ERROR: Failed to read file - {e}"]
 

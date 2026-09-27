@@ -17,6 +17,7 @@
 import logging
 import sqlite3
 import statistics
+from collections import Counter
 from pathlib import Path
 from typing import Any, Optional
 
@@ -512,6 +513,36 @@ class LLMRecorder:
                 f"| {r['language']} | {t} | {pct(r['scoped'], t)} | {pct(r['unique'], t)} | "
                 f"{pct(r['ambiguous'], t)} | {pct(r['external'], t)} |"
             )
+        lines.append("")
+        return lines
+
+    # #3813: decode paths that were a guess rather than a certainty
+    _GUESSED_DECODES = frozenset({"cp1252-fallback", "latin-1-fallback"})
+
+    def _source_encoding_lines(self, parsed_files: list[dict[str, Any]]) -> list[str]:
+        """#3813: how the parsed files' bytes became text. One line when every file is UTF-8;
+        otherwise a table per (encoding, decode path), guessed decodes named, so a reader knows
+        which files' national characters rest on a cp1252 / Latin-1 guess."""
+        tally: Counter[tuple[str, str]] = Counter(
+            (str(f.get("source_encoding") or "unknown"), str(f.get("source_decode") or "unknown")) for f in parsed_files
+        )
+        if not tally:
+            return []
+        lines = ["## 4.1 SOURCE ENCODINGS"]
+        if set(tally) == {("utf-8", "utf-8")}:
+            lines.append(f"All {tally[('utf-8', 'utf-8')]} parsed files are UTF-8.")
+            lines.append("")
+            return lines
+        guessed = sum(n for (_, how), n in tally.items() if how in self._GUESSED_DECODES)
+        if guessed:
+            lines.append(
+                f"> {guessed} file(s) had no BOM, were not UTF-8 and matched no declared code page: "
+                "decoded by a legacy guess (`--source-encoding` declares the real one)."
+            )
+        lines.append("| Encoding | Decode | Files |")
+        lines.append("|---|---|---|")
+        for (enc, how), n in sorted(tally.items(), key=lambda kv: (-kv[1], kv[0])):
+            lines.append(f"| {enc} | {how} | {n} |")
         lines.append("")
         return lines
 
@@ -1162,6 +1193,8 @@ class LLMRecorder:
                 pct = (stats.get("files", 0) / total_visible) * 100
                 lines.append(f"| {lang.upper()} | {stats.get('files', 0)} | {stats.get('loc', 0)} | {pct:.1f}% |")
         lines.append("")
+
+        lines.extend(self._source_encoding_lines(parsed_files))
 
         # --- 4.5 REPOSITORY ECOSYSTEM BASELINE ---
         lines.append("## 4.5 REPOSITORY ECOSYSTEM BASELINE (GLOBAL ARCHITECTURE)")

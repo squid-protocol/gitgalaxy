@@ -11,6 +11,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.source_text import open_source, read_source
+
 
 class ManifestParser:
     """
@@ -80,7 +82,7 @@ class ManifestParser:
         Parses active NPM dependencies. Normalizes NPM aliases to their upstream package names
         and flags Direct URI resolutions that bypass Subresource Integrity (SRI) checks.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             data = json.load(f)
 
         deps = data.get("dependencies", {})
@@ -112,7 +114,7 @@ class ManifestParser:
         Extracts absolute resolution URLs from package-lock.json v2/v3.
         Neutralizes Namespace Hijacking by verifying internal packages point to the correct registry.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             data = json.load(f)
 
         packages = data.get("packages", {})
@@ -136,7 +138,7 @@ class ManifestParser:
         """
         Extracts direct Python packages and flags absolute VCS/URI references.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -163,25 +165,25 @@ class ManifestParser:
         Audits Python configuration files (pip.conf, .pypirc) for Dependency Confusion vulnerabilities
         caused by insecure protocol routing or untrusted secondary index URLs.
         """
-        with open(filepath, encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith(("#", ";")):
-                    continue
+        # #3813: decoded without dropping a byte
+        for line in read_source(filepath).text.splitlines():
+            line = line.strip()
+            if not line or line.startswith(("#", ";")):
+                continue
 
-                # Look for custom registry routing definitions
-                if "index-url" in line or "extra-index-url" in line or "repository" in line:
-                    parts = line.split("=", 1)
-                    if len(parts) == 2:
-                        url = parts[1].strip()
+            # Look for custom registry routing definitions
+            if "index-url" in line or "extra-index-url" in line or "repository" in line:
+                parts = line.split("=", 1)
+                if len(parts) == 2:
+                    url = parts[1].strip()
 
-                        # DEFENSIVE GUARD: Insecure Protocols & Tunneling
-                        # HTTP connections allow Man-in-the-Middle (MitM) package injection.
-                        # Tunneling services (ngrok) in production configs indicate severe architectural risk.
-                        if url.startswith("http://") or "ngrok" in url or "localtunnel" in url:
-                            self.logger.warning(f"🚨 Manifest Parser: INSECURE REGISTRY PROTOCOL DETECTED -> {url}")
-                            # Prefix with INSECURE_REGISTRY so the Supply Chain Firewall can instantly block it
-                            resolution_map[f"INSECURE_REGISTRY_{filepath.name}"] = url
+                    # DEFENSIVE GUARD: Insecure Protocols & Tunneling
+                    # HTTP connections allow Man-in-the-Middle (MitM) package injection.
+                    # Tunneling services (ngrok) in production configs indicate severe architectural risk.
+                    if url.startswith("http://") or "ngrok" in url or "localtunnel" in url:
+                        self.logger.warning(f"🚨 Manifest Parser: INSECURE REGISTRY PROTOCOL DETECTED -> {url}")
+                        # Prefix with INSECURE_REGISTRY so the Supply Chain Firewall can instantly block it
+                        resolution_map[f"INSECURE_REGISTRY_{filepath.name}"] = url
 
     def _parse_pyproject_toml(self, filepath: Path, resolution_map: dict):
         """
@@ -189,7 +191,7 @@ class ManifestParser:
         Poetry's `[tool.poetry.dependencies]` table) for the same Direct URI bypass
         risk requirements.txt is already audited for.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             content = f.read()
 
         # PEP 621: dependencies = ["requests>=2.0", "mypkg @ git+https://evil.com/x.git"]
@@ -236,7 +238,7 @@ class ManifestParser:
         followed by a `resolved "..."` URL. Flags resolutions outside Yarn's/npm's
         standard registries the same way package-lock.json resolutions are.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             content = f.read()
 
         for block in content.split("\n\n"):
@@ -263,7 +265,7 @@ class ManifestParser:
         repository declarations -- the Maven/Gradle equivalent of pip.conf's
         insecure index-url check.
         """
-        with open(filepath, encoding="utf-8") as f:
+        with open_source(filepath) as f:
             content = f.read()
 
         insecure_urls = re.findall(r'url\s*[=(]?\s*["\']?(http://[^"\'\s)]+)', content)
@@ -340,14 +342,14 @@ class UniversalManifestSlicer:
         try:
             if filename == "package.json":
                 ecosystem = "npm"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     data = json.load(f)
                     deps.update(data.get("dependencies", {}))
                     deps.update(data.get("devDependencies", {}))
 
             elif filename == "composer.json":
                 ecosystem = "packagist"  # PHP Composer
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     data = json.load(f)
                     deps.update(data.get("require", {}))
                     deps.update(data.get("require-dev", {}))
@@ -356,7 +358,7 @@ class UniversalManifestSlicer:
 
             elif filename == "requirements.txt":
                 ecosystem = "pypi"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     for line in f:
                         line = line.strip()
                         if line and not line.startswith("#"):
@@ -367,7 +369,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Cargo.toml":
                 ecosystem = "cargo"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                     # Universal regex to grab [dependencies] blocks
                     dep_blocks = re.findall(r"\[(?:dev-)?dependencies\](.*?)(\n\[|$)", content, re.DOTALL)
@@ -380,7 +382,7 @@ class UniversalManifestSlicer:
 
             elif filename == "go.mod":
                 ecosystem = "golang"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     in_require_block = False
                     for line in f:
                         line = line.strip()
@@ -401,7 +403,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Gemfile":
                 ecosystem = "rubygems"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     for line in f:
                         line = line.strip()
                         # Extract: gem 'nokogiri', '~> 1.11'
@@ -413,7 +415,7 @@ class UniversalManifestSlicer:
 
             elif filename == "pom.xml":
                 ecosystem = "maven"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                     # Extract artifactId and version from XML blocks
                     deps_raw = re.findall(
@@ -426,7 +428,7 @@ class UniversalManifestSlicer:
 
             elif filename == "pyproject.toml":
                 ecosystem = "pypi"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 # PEP 621: [project] dependencies = ["requests>=2.0", ...]
                 array_match = re.search(r"dependencies\s*=\s*\[(.*?)\]", content, re.DOTALL)
@@ -451,7 +453,7 @@ class UniversalManifestSlicer:
 
             elif filename == "poetry.lock":
                 ecosystem = "pypi"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 for block in re.findall(r"\[\[package\]\](.*?)(?=\n\[\[package\]\]|\Z)", content, re.DOTALL):
                     name_match = re.search(r'name\s*=\s*"([^"]+)"', block)
@@ -461,7 +463,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Pipfile":
                 ecosystem = "pypi"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 for block in re.findall(r"\[(?:dev-)?packages\](.*?)(?=\n\[|\Z)", content, re.DOTALL):
                     for line in block.splitlines():
@@ -474,14 +476,14 @@ class UniversalManifestSlicer:
 
             elif filename == "packages.config":
                 ecosystem = "nuget"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 for pkg_id, version in re.findall(r'<package\s+id="([^"]+)"(?:\s+version="([^"]+)")?', content):
                     deps[pkg_id] = version if version else "latest"
 
             elif filename.endswith(".csproj"):
                 ecosystem = "nuget"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 for pkg_id, version in re.findall(
                     r'<PackageReference\s+Include="([^"]+)"(?:\s+Version="([^"]+)")?', content
@@ -490,7 +492,7 @@ class UniversalManifestSlicer:
 
             elif filename == "conanfile.txt":
                 ecosystem = "conan"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 req_block = re.search(r"\[requires\](.*?)(?=\n\[|\Z)", content, re.DOTALL)
                 if req_block:
@@ -502,7 +504,7 @@ class UniversalManifestSlicer:
 
             elif filename == "vcpkg.json":
                 ecosystem = "vcpkg"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     data = json.load(f)
                 for dep in data.get("dependencies", []):
                     if isinstance(dep, str):
@@ -512,7 +514,7 @@ class UniversalManifestSlicer:
 
             elif filename in ("build.gradle", "build.gradle.kts"):
                 ecosystem = "gradle"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 # Narrow to the dependencies { ... } block when present so unrelated
                 # quoted strings elsewhere in the build script aren't misread as coordinates.
@@ -524,7 +526,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Podfile":
                 ecosystem = "cocoapods"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     for line in f:
                         line = line.strip()
                         # Extract: pod 'Alamofire', '~> 5.4'
@@ -536,7 +538,7 @@ class UniversalManifestSlicer:
 
             elif filename == "Package.swift":
                 ecosystem = "swiftpm"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 # Capture each .package(...) call's full argument list (tolerating one
                 # level of nesting, e.g. `.upToNextMajor(from: "1.0.0")`) so `url:` and
@@ -553,7 +555,7 @@ class UniversalManifestSlicer:
 
             elif filename == "pubspec.yaml":
                 ecosystem = "pub"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 dep_block = re.search(r"^dependencies:\n((?:[ \t]+.*\n?)*)", content, re.MULTILINE)
                 if dep_block:
@@ -565,7 +567,7 @@ class UniversalManifestSlicer:
 
             elif filename == "yarn.lock":
                 ecosystem = "npm"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 for block in content.split("\n\n"):
                     block = block.strip("\n")
@@ -576,7 +578,7 @@ class UniversalManifestSlicer:
 
             elif filename == "pnpm-lock.yaml":
                 ecosystem = "npm"
-                with open(manifest_path, encoding="utf-8") as f:
+                with open_source(manifest_path) as f:
                     content = f.read()
                 # pnpm lockfile v6+: top-level `dependencies:`/`devDependencies:` blocks,
                 # each entry `  pkg-name:\n    version: 1.2.3` (a `specifier:` sibling

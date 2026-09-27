@@ -55,6 +55,13 @@ ALLOWED: dict[tuple[str, str, str], str] = {
         "run_xray_audit",
         "lossy-errors",
     ): "binary entropy sniff",
+    # #3816 part 3a: the mixed CJK EBCDIC codec must honour Python's error-handler protocol like any
+    # codec; this test checks it does (no source read goes through it).
+    (
+        "tests/core_engine/test_ebcdic_dbcs.py",
+        "test_a_bad_pair_is_an_error_not_a_guess",
+        "lossy-errors",
+    ): "tests the codec's error-handler protocol",
     # `--config`: the scan's own YAML configuration, not a file of the estate being scanned.
     ("gitgalaxy/galaxyscope.py", "main", "text-read"): "the scan's own --config YAML",
 }

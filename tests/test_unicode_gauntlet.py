@@ -124,6 +124,13 @@ def test_a_line_or_a_letter_that_does_not_fit_is_refused():
     assert ug.fixed_block("X" * ug.FB_LRECL + "\n", "cp037") is not None  # a full card fits
 
 
+def test_a_kanji_line_is_padded_in_bytes_not_characters():
+    """#3816 part 3a: on a mixed CJK page a Kanji is two bytes plus its shifts -- the record is 80 bytes."""
+    data = ug.fixed_block("      * \u9867\u5ba2\u30de\u30b9\u30bf\n       PROGRAM-ID. PGMA.\n", "cp930")
+    assert len(data) == 2 * ug.FB_LRECL and data[8:9] == b"\x0e"
+    assert ug.fixed_block("*" + "\u540d" * 39 + "\n", "cp930") is None  # 1 + 1 + 78 + 1 = 81 bytes
+
+
 def test_the_mainframe_seed_fits_a_card_image():
     """Every seed line, renamed with the longest national name, stays within 80 columns."""
     for path in (ug.HERE / "mainframe").rglob("*"):

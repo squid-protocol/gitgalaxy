@@ -24,8 +24,9 @@ case the engine rules out by design, and hide whether the declared path works. c
 undeclared: that fallback is what they test.
 
 The mainframe seed is also written as raw EBCDIC (#3816): each file a fixed-block download in one of
-the Western European pages, every line padded to an 80-byte card image and no line ends at all, as a
-binary transfer of a PDS member arrives. Those estates declare their page too, and the engine must
+the Western European pages or the mixed CJK host pages (cp930 / cp939 / cp935 / cp937 / cp933), every
+line padded to an 80-byte card image and no line ends at all, as a binary transfer of a PDS member
+arrives. Those estates declare their page too, and the engine must
 read the same facts out of them as out of the UTF-8 seed. Nordic names go into cp277 / cp278 and
 German names into cp273, the pages whose `@ # $` positions carry those letters.
 
@@ -123,7 +124,9 @@ ENCODINGS = ["utf-8", "utf-8-sig", "utf-16", "utf-16-be", "cp1252", "shift_jis",
 # Code pages an estate must declare (see the module docstring): the scan of a `<script>__<codec>`
 # estate passes `--source-encoding <codec>` for these.
 # #3816: raw EBCDIC, for the mainframe seed only (a Python file in EBCDIC is not a real estate).
-EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047"]
+# The mixed CJK pages (part 3a) hold the seed in their single-byte half, read through the byte-level
+# record split that a Kanji comment or N-literal also goes through.
+EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047", "cp930", "cp939", "cp935", "cp937", "cp933"]
 # the pages each national script is tested in: the ones whose national positions hold its letters
 EBCDIC_SCRIPTS = {"nordic": ["cp277", "cp278"], "german": ["cp273"]}
 FB_LRECL = 80  # a card image: the record length of a source PDS
@@ -141,17 +144,20 @@ CHANNELS = ["function_data", "fcall_data", "call_site_data", "dataset_data", "cs
 
 # ---- the transforms ---------------------------------------------------------------------
 def fixed_block(text: str, codec: str, lrecl: int = FB_LRECL) -> bytes | None:
-    """#3816: `text` as a raw fixed-block EBCDIC download -- every line padded to `lrecl` bytes, back to
-    back, no line ends. None when a line is longer than a record or a character is not in the page."""
+    """#3816: `text` as a raw fixed-block EBCDIC download -- every line padded to `lrecl` bytes (0x40,
+    the EBCDIC space), back to back, no line ends. Bytes, not characters: on a mixed CJK page a
+    double-byte character is two bytes and its shifts one each. None when a line is longer than a
+    record or a character is not in the page."""
     lines = text.replace("\r\n", "\n").split("\n")
     if lines[-1] == "":
         lines.pop()
-    if any(len(line) > lrecl for line in lines):
-        return None
     try:
-        return "".join(line.ljust(lrecl) for line in lines).encode(codec)
+        records = [line.encode(codec) for line in lines]
     except UnicodeEncodeError:
         return None
+    if any(len(record) > lrecl for record in records):
+        return None
+    return b"".join(record.ljust(lrecl, b"\x40") for record in records)
 
 
 def encode(text: str, encoding: str) -> bytes | None:

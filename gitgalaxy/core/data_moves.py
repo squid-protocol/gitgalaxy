@@ -433,7 +433,7 @@ def rounding_facts(code_stream: str) -> list[dict[str, Any]]:
     [{target, mode, java}], size_error}. `mode` is the ROUNDED MODE as written, `NEAREST-AWAY-FROM-ZERO`
     for a plain ROUNDED (or the program's DEFAULT ROUNDED MODE), None for a truncating target; `java`
     is the RoundingMode that reproduces it. A statement with neither phrase truncates and is not listed."""
-    if not code_stream or "ROUNDED" not in code_stream.upper() and "SIZE" not in code_stream.upper():
+    if not code_stream or ("ROUNDED" not in code_stream.upper() and "SIZE" not in code_stream.upper()):
         return []
     default = _DEFAULT_MODE.search(code_stream)
     plain = (

@@ -26,7 +26,7 @@ from gitgalaxy.core.special_names import special_names
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 
 
-def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False, usage: str | None = None) -> dict:
+def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False, usage: Optional[str] = None) -> dict:
     """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type."""
     if not pic_clause:
         return {"sql": "VARCHAR(255)", "json": "string"}

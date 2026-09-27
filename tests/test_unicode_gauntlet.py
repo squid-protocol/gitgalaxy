@@ -52,8 +52,14 @@ def test_the_diff_names_what_moved():
     assert ug.diff_cell(want, {}) == ["x/a.py: missing file"]
 
 
-def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path):
-    """Every ASCII cell (the seed re-encoded, or CRLF) passes: the gauntlet does not fail itself."""
+def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path, monkeypatch):
+    """Every ASCII cell (the seed re-encoded, or CRLF) passes: the gauntlet does not fail itself.
+
+    Each cell is a full scan, so here the EBCDIC pages are one per family (US, German, Nordic, mixed
+    CJK) -- the full suite runs on every OS, where a scan costs minutes, not seconds. unicode-gauntlet.yml
+    runs every page."""
+    monkeypatch.setattr(ug, "EBCDIC", ["cp037", "cp273", "cp277", "cp930"])
+    monkeypatch.setattr(ug, "EBCDIC_SCRIPTS", {"nordic": ["cp277"], "german": ["cp273"]})
     results = ug.run(tmp_path / "no-corpus", {"mainframe"}, False, tmp_path / "work", jobs=2)
     ascii_cells = {cid: r["diffs"] for cid, r in results.items() if r["script"] == "ascii"
                    and r["encoding"] in ("utf-8", "utf-8-sig", "crlf")}  # fmt: skip

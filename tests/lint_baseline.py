@@ -35,6 +35,8 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Callable, NamedTuple
 
+from gitgalaxy.core.source_text import read_source
+
 HASH_LEN = 12
 
 
@@ -74,7 +76,7 @@ def source_reader(repo_root: Path) -> Callable[[str, int], str]:
     def read(rel_path: str, line: int) -> str:
         if rel_path not in cache:
             try:
-                cache[rel_path] = (repo_root / rel_path).read_text(encoding="utf-8", errors="replace").splitlines()
+                cache[rel_path] = read_source(repo_root / rel_path).text.splitlines()
             except OSError:
                 cache[rel_path] = []
         lines = cache[rel_path]

@@ -101,6 +101,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import decode_bytes, read_source
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 BASELINE_PATH = Path(__file__).resolve().parent / "ast_accuracy_baseline.json"
 CORPUS_REF = "v2.4.7"
@@ -119,7 +121,7 @@ def _git_archive_extract(ref: str, dest: Path) -> None:
             f"ast_accuracy_audit: `git archive {ref}` failed -- is the {ref!r} tag present locally?\n"
             "CI checkouts default to a shallow clone; this check needs full history/tags "
             "(actions/checkout with `fetch-depth: 0`). Locally, `git fetch --tags` first.\n"
-            f"stderr: {result.stderr.decode(errors='replace')}"
+            f"stderr: {decode_bytes(result.stderr)}"
         )
     dest.mkdir(parents=True, exist_ok=True)
     with tarfile.open(fileobj=BytesIO(result.stdout)) as tar:
@@ -220,7 +222,7 @@ def measure(verbose: bool = False) -> dict:
                 if not path.exists():
                     continue
                 try:
-                    tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"), filename=str(path))
+                    tree = ast.parse(read_source(path).text, filename=str(path))
                 except SyntaxError:
                     continue
 

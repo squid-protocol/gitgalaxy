@@ -1,4 +1,4 @@
-"""The decoding lint gate (#3813): no read in `gitgalaxy/` may lose a byte of source.
+"""The decoding lint gate (#3813, #3869): no read in `gitgalaxy/` or `tests/` may lose a byte of source.
 
 Every source read used to be `encoding="utf-8", errors="ignore"`: a cp1252 / Latin-1 / Shift-JIS
 file silently lost its national characters (names came out truncated), and a UTF-16 file decoded
@@ -8,8 +8,10 @@ that merely mentions `errors="ignore"` is not a finding.
 
 Two rules:
 
-1. Nowhere in `gitgalaxy/` may a call pass `errors="ignore"` or `errors="replace"` -- both lose
-   bytes silently. (A lossless handler such as `surrogatepass` is fine.)
+1. Nowhere in `gitgalaxy/` or `tests/` may a call pass `errors="ignore"` or `errors="replace"` --
+   both lose bytes silently. (A lossless handler such as `surrogatepass` is fine.) `tests/` counts
+   because its tools are the ruler: an answer key or accuracy audit that drops the same national
+   character the engine drops agrees with it, and reports a false pass (#3869).
 2. In the modules that read the SCANNED ESTATE (the engine, recorders, security, metrics and the
    language lens), a text-mode `open()` / `Path.open()` / `read_text()` is a finding: estate files
    go through `read_source` / `open_source`, so a BOM, UTF-16 or a legacy code page decodes the
@@ -26,6 +28,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 PACKAGE = REPO / "gitgalaxy"
+TESTS = REPO / "tests"  # rule 1 only: rule 2's scope is gitgalaxy/ paths
 
 LOSSY_HANDLERS = frozenset({"ignore", "replace"})
 
@@ -121,7 +124,7 @@ def findings(
 
 
 def test_no_source_read_loses_a_byte():
-    found = findings()
+    found = findings() + findings(TESTS)
     assert not found, (
         "#3813: decode through gitgalaxy.core.source_text (read_source / open_source / decode_bytes) "
         "instead of a lossy errors= handler or a text-mode read of an estate file:\n"
@@ -131,7 +134,7 @@ def test_no_source_read_loses_a_byte():
 
 def test_every_allowlist_entry_is_still_needed():
     """A stale entry would silently license a future lossy read in that function."""
-    unfiltered = {(path, func, rule) for path, func, rule, _ in findings(allowed={})}
+    unfiltered = {(path, func, rule) for path, func, rule, _ in findings(allowed={}) + findings(TESTS, allowed={})}
     stale = sorted(set(ALLOWED) - unfiltered)
     assert not stale, f"allowlist entries that no longer match a read: {stale}"
 

@@ -51,6 +51,8 @@ sys.path.insert(0, str(TOOLS))
 import call_graph_resolution as cgr  # noqa: E402
 from callgraph_refs import REFERENCES, corpus_repos, reference_graph  # noqa: E402
 
+from gitgalaxy.core.source_text import read_source
+
 # What a bucket usually means, and the issue that fixed or tracks that pattern.
 HINTS = {
     "caller_unmapped": "the caller is not extracted as a unit (string-keyed methods, anonymous callbacks, naming)",
@@ -115,7 +117,7 @@ class _Source:
     def line(self, path: str, line: int) -> str:
         if path not in self._cache:
             try:
-                self._cache[path] = (self.root / path).read_text(encoding="utf-8", errors="replace").splitlines()
+                self._cache[path] = read_source(self.root / path).text.splitlines()
             except OSError:
                 self._cache[path] = []
         lines = self._cache[path]

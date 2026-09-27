@@ -75,6 +75,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from gitgalaxy.core.prism import Prism  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -159,7 +160,7 @@ def probe(
     per: dict[str, dict] = {}
     for name, root, path in corpus_files(lang, corpus):
         try:
-            src = path.read_text(encoding="utf-8", errors="replace")
+            src = read_source(path).text
         except OSError:
             continue
         split = prism.split_streams(src, lang)
@@ -244,7 +245,7 @@ def _context_lines(lang: str, rel: str, lineno: int, n: int) -> list[str]:
         p = root / rel
         if p.is_file():
             try:
-                src = p.read_text(encoding="utf-8", errors="replace").splitlines()
+                src = read_source(p).text.splitlines()
             except OSError:
                 return []
             lo, hi = max(0, lineno - 1 - n), min(len(src), lineno + n)
@@ -267,12 +268,8 @@ def diff_lines(before: dict, after: dict, langs: list[str], context: int) -> int
         for corpus in ("crucible", "rosetta"):
             b = ((before.get(lang) or {}).get(corpus) or {}).get("lines", {})
             a = ((after.get(lang) or {}).get(corpus) or {}).get("lines", {})
-            bc: collections.Counter = collections.Counter(
-                (rel, ln, txt) for rel, ms in b.items() for ln, txt in ms
-            )
-            ac: collections.Counter = collections.Counter(
-                (rel, ln, txt) for rel, ms in a.items() for ln, txt in ms
-            )
+            bc: collections.Counter = collections.Counter((rel, ln, txt) for rel, ms in b.items() for ln, txt in ms)
+            ac: collections.Counter = collections.Counter((rel, ln, txt) for rel, ms in a.items() for ln, txt in ms)
             lost, gained = bc - ac, ac - bc
             if not lost and not gained:
                 continue
@@ -280,7 +277,7 @@ def diff_lines(before: dict, after: dict, langs: list[str], context: int) -> int
             total_gained += sum(gained.values())
             print(f"\n{lang} / {corpus}: -{sum(lost.values())} lost, +{sum(gained.values())} gained")
             for label, bag in (("LOST", lost), ("GAINED", gained)):
-                for (rel, ln, txt) in sorted(bag):
+                for rel, ln, txt in sorted(bag):
                     n = bag[(rel, ln, txt)]
                     mark = f" x{n}" if n > 1 else ""
                     if "\n" in txt:

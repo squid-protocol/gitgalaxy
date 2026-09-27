@@ -33,6 +33,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 import tree_sitter_accuracy_audit as tsaa
 from tri_comparison_gatherer import gather_language
 
+from gitgalaxy.core.source_text import read_source
+
 # The languages with a tree-sitter baseline (NODE_MAPS) plus the ctags-comparable gg-only set --
 # the exact universe where a "GitGalaxy misses X" question is answerable.
 _TS_LANGS = sorted(tsaa.NODE_MAPS)
@@ -41,7 +43,7 @@ _TS_LANGS = sorted(tsaa.NODE_MAPS)
 def _src_line(corpus_dir: Path, relpath: str, lineno: int) -> str:
     p = corpus_dir / relpath
     try:
-        lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+        lines = read_source(p).text.splitlines()
     except OSError:
         return "<source unavailable>"
     if 1 <= lineno <= len(lines):

@@ -49,6 +49,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterator, Optional
 
+from gitgalaxy.core.source_text import read_source
+
 # ----------------------------------------------------------------------------- protobuf
 
 
@@ -273,7 +275,7 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
     sources: dict[str, list[str]] = {}
     for d in docs:
         try:
-            sources[d.path] = (root / d.path).read_text(encoding="utf-8", errors="replace").splitlines() or [""]
+            sources[d.path] = read_source(root / d.path).text.splitlines() or [""]
         except OSError:
             sources[d.path] = [""]
 

@@ -52,6 +52,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rule_probe import corpus_files  # noqa: E402
 
 from gitgalaxy.core.rule_prefilter import fold_haystack  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.security.security_lens import SecurityLens  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -82,7 +83,7 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
 
     for _corpus_name, root, path in _all_corpus_files(corpus):
         try:
-            src = path.read_text(encoding="utf-8", errors="replace")
+            src = read_source(path).text
         except OSError:
             continue
         files += 1

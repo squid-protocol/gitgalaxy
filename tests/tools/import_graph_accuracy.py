@@ -149,6 +149,8 @@ BASELINE = REPO_ROOT / "tests" / "import_graph_accuracy_baseline.json"
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import graph_ledger as gl  # noqa: E402
 
+from gitgalaxy.core.source_text import read_source
+
 LANGS = (
     "python",
     "go",
@@ -212,7 +214,7 @@ class Group:
         if self.root is None or rel not in self.files:
             return None
         try:
-            return json.loads((self.root / rel).read_text(encoding="utf-8", errors="replace"))
+            return json.loads(read_source(self.root / rel).text)
         except (OSError, ValueError):
             return None
 
@@ -226,7 +228,7 @@ class Group:
                 if "/vendor/" in f"/{f}" or "/testdata/" in f"/{f}":
                     continue
                 try:
-                    text = gomod.read_text(encoding="utf-8", errors="replace")
+                    text = read_source(gomod).text
                 except OSError:
                     continue
                 module = next((ln.split()[1].strip('"') for ln in text.splitlines() if ln.startswith("module ")), None)
@@ -242,7 +244,7 @@ class Group:
             for build in sorted(self.root.rglob("build.zig")) if self.root is not None else []:
                 base = build.parent.relative_to(self.root).as_posix()
                 try:
-                    text = build.read_text(encoding="utf-8", errors="replace")
+                    text = read_source(build).text
                 except OSError:
                     continue
                 for m in _ZIG_B_PATH.finditer(text):
@@ -780,7 +782,7 @@ def dart_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
         pkgs = {}
         for spec in sorted(group.root.rglob("pubspec.yaml")) if group.root is not None else []:
             try:
-                text = spec.read_text(encoding="utf-8", errors="replace")
+                text = read_source(spec).text
             except OSError:
                 continue
             m = re.search(r"^name:\s*([\w.]+)", text, re.M)
@@ -861,7 +863,7 @@ def solidity_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
             if "node_modules" in pj.parts:
                 continue
             try:
-                name = json.loads(pj.read_text(encoding="utf-8", errors="replace")).get("name")
+                name = json.loads(read_source(pj).text).get("name")
             except (OSError, ValueError, AttributeError):
                 continue
             if isinstance(name, str):

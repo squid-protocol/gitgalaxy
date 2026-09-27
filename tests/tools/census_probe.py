@@ -65,6 +65,7 @@ import rule_probe  # noqa: E402  (corpus discovery, shared deliberately)
 
 from gitgalaxy.core.detector import StructuralExtractor  # noqa: E402
 from gitgalaxy.core.prism import Prism  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -78,7 +79,7 @@ def probe(lang: str, corpus: str, prism: Prism, detail: bool) -> dict[str, list[
     out: dict[str, list[dict]] = {}
     for corpus_name, root, path in rule_probe.corpus_files(lang, corpus):
         try:
-            src = path.read_text(encoding="utf-8", errors="replace")
+            src = read_source(path).text
         except OSError:
             continue
         streams = prism.split_streams(src, lang)

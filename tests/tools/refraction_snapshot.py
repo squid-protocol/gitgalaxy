@@ -40,6 +40,8 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
+from gitgalaxy.core.source_text import read_source
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -113,7 +115,7 @@ def run_pipeline(source: Path, work: Path) -> dict[str, str]:
                 obj = _normalise_json(json.loads(path.read_text(encoding="utf-8")), variants)
                 out[rel] = json.dumps(obj, indent=2, ensure_ascii=False) + "\n"
             else:
-                out[rel] = _normalise_str(path.read_text(encoding="utf-8", errors="replace"), variants)
+                out[rel] = _normalise_str(read_source(path).text, variants)
     return out
 
 

@@ -48,6 +48,8 @@ import tempfile
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "span_anchor_baseline.json"
@@ -128,7 +130,7 @@ def measure(crucible: Path, samples: int = 0) -> dict[str, dict[str, Any]]:
             continue  # synthetic buckets and anonymous units have no declaration to find
         if path not in cache:
             try:
-                cache[path] = (crucible / "data" / path).read_text(encoding="utf-8", errors="replace").split("\n")
+                cache[path] = read_source(crucible / "data" / path).text.split("\n")
             except OSError:
                 cache[path] = None
         lines = cache[path]

@@ -81,6 +81,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E402
@@ -221,7 +222,7 @@ def compare_pli(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
         if ef.language != "pli":
             continue
-        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        text = read_source(repo / ef.file_path).text
         rows.append(
             {
                 "file": ef.file_path,
@@ -243,7 +244,7 @@ def compare_sql_tables(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
         if ef.language not in ("cobol", "pli"):
             continue
-        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        text = read_source(repo / ef.file_path).text
         old = ak.sql_column_keys(ak.sql_table_columns(text, ef.language == "pli"))
         db = {
             ak.sql_column_key(t.name, c.name, c.sql_type, c.length, c.scale, c.nullable)
@@ -298,9 +299,7 @@ def compare_bms(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 "file": ef.file_path,
                 "language": "bms",
                 "bms_fields": {
-                    "old": sorted(
-                        ak.bms_layout_units(ak.bms_screen_items(path.read_text(encoding="utf-8", errors="ignore")))
-                    ),
+                    "old": sorted(ak.bms_layout_units(ak.bms_screen_items(read_source(path).text))),
                     "db": sorted(ak.bms_layout_units(engine)),
                 },
                 "bms_symbolic": (
@@ -345,7 +344,7 @@ def compare_jcl(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
         if ef.language != "jcl":
             continue
-        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        text = read_source(repo / ef.file_path).text
         rows.append(
             {
                 "file": ef.file_path,
@@ -372,7 +371,7 @@ def compare_csd(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         if ef.language not in ("csd", "jcl"):
             continue
         path = repo / ef.file_path
-        text = path.read_text(encoding="utf-8", errors="ignore")
+        text = read_source(path).text
         if not ak.is_csd_deck(path, text) and not ef.csd_resources:
             continue
         old = ak.csd_resource_values(ak.csd_resource_definitions(text)) if ak.is_csd_deck(path, text) else set()
@@ -767,7 +766,7 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
 def _seq_field_copies(path: Path) -> set[str]:
     """Names of members COPY'd on a line that carries a cols-1..6 sequence field."""
     out: set[str] = set()
-    for raw in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+    for raw in read_source(path).text.splitlines():
         if len(raw) > 6 and raw[6] in "*/Dd":
             continue
         if not raw[:6].strip():

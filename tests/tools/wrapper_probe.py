@@ -85,6 +85,7 @@ import rule_probe  # noqa: E402  (corpus discovery, shared deliberately)
 
 from gitgalaxy.core.detector import StructuralExtractor  # noqa: E402
 from gitgalaxy.core.prism import Prism  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -156,7 +157,7 @@ def probe_group(
             continue
         rel = str(path.relative_to(group_dir))
         try:
-            code = prism.split_streams(path.read_text(encoding="utf-8", errors="ignore"), lang)["code_stream"]
+            code = prism.split_streams(read_source(path).text, lang)["code_stream"]
             functions = extractor.splice(code, "")["functions"]
         except Exception:  # a probe reports what it can read; one bad file is not a finding
             continue
@@ -257,7 +258,7 @@ def macro_aliases(
             continue
         if path.stat().st_size > rule_probe.MAX_FILE_BYTES:
             continue
-        texts[str(path.relative_to(group_dir))] = path.read_text(encoding="utf-8", errors="ignore")
+        texts[str(path.relative_to(group_dir))] = read_source(path).text
     definitions: dict[str, list[tuple[str, str]]] = collections.defaultdict(list)
     for rel, text in texts.items():
         for m in _DEFINE.finditer(text):

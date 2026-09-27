@@ -102,6 +102,7 @@ _REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH  # noqa: E402
 from gitgalaxy.standards.language_lens import LanguageDetector  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS, LENS_CONFIG  # noqa: E402
@@ -312,7 +313,7 @@ def measure() -> dict[str, Any]:
         if expected is None:
             continue
         try:
-            content = path.read_text(encoding="utf-8", errors="ignore")
+            content = read_source(path).text
         except OSError:
             sources["unreadable"] += 1
             continue

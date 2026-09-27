@@ -84,6 +84,9 @@ import unicodedata
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from key_text import read_key_text  # noqa: E402 -- #3869: the key's own decoder, never the engine's
+
 SCHEMA_VERSION = 1
 
 # How strongly a `validated` program's truth is backed, weakest first. Every
@@ -200,7 +203,7 @@ class Source:
         self.path = path
         if lines is None:
             lines = []
-            for no, raw in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+            for no, raw in enumerate(read_key_text(path).splitlines(), 1):
                 if len(raw) > 6 and raw[6] in "*/Dd":
                     continue
                 area = raw[7:72] if len(raw) > 7 else ""
@@ -254,7 +257,7 @@ class HlasmSource(Source):
     """An assembler source as a `Source`: statements joined, each EXEC CICS closed."""
 
     def __init__(self, path: Path):
-        physical = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        physical = read_key_text(path).splitlines()
         lines: list[tuple[int, str]] = []
         self.dc: dict[str, str] = {}
         i = 0
@@ -296,7 +299,7 @@ class PliSource(Source):
     `INIT('...')` of their DCL (a qualified reference: of its last field)."""
 
     def __init__(self, path: Path):
-        raw = path.read_text(encoding="utf-8", errors="ignore")
+        raw = read_key_text(path)
         text = re.sub(r"/\*.*?(?:\*/|\Z)", lambda m: re.sub(r"[^\n]", " ", m.group(0)), raw, flags=re.S)
         text = _pli_source_lines(text).upper()
         out, pos = [], 0
@@ -557,7 +560,7 @@ def _zapp_locations(zapp: Path) -> dict[str, list[str]]:
     deliberately small reader for the zapp.yaml shape (no YAML dependency)."""
     libs: dict[str, list[str]] = {}
     group_lang, lib_name, lib_type, in_locations = None, None, None, False
-    for line in zapp.read_text(encoding="utf-8", errors="ignore").splitlines():
+    for line in read_key_text(zapp).splitlines():
         s = line.strip()
         if m := re.match(r"language:\s*(\S+)", s):
             group_lang, lib_name, in_locations = m.group(1), None, False
@@ -923,7 +926,7 @@ def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts:
-            items = pli_data_items(p.read_text(encoding="utf-8", errors="ignore"))
+            items = pli_data_items(read_key_text(p))
             out[p.relative_to(repo).as_posix()] = {
                 "records": items,
                 "records_validated": False,
@@ -1192,7 +1195,7 @@ def draft_pli_layouts(repo: Path) -> dict[str, dict[str, Any]]:
     for p in sorted(repo.rglob("*")):
         if not p.is_file() or p.suffix.lower() not in PLI_EXTS or ".git" in p.parts:
             continue
-        units, skipped = pli_layout(p.read_text(encoding="utf-8", errors="ignore"))
+        units, skipped = pli_layout(read_key_text(p))
         if units or skipped:
             out[p.relative_to(repo).as_posix()] = {
                 "units": sorted(units),
@@ -1335,7 +1338,7 @@ def engine_pli_call_row(c: Any) -> dict[str, Any]:
 
 def _pli_files(repo: Path) -> dict[str, str]:
     return {
-        p.relative_to(repo).as_posix(): p.read_text(encoding="utf-8", errors="ignore")
+        p.relative_to(repo).as_posix(): read_key_text(p)
         for p in sorted(repo.rglob("*"))
         if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts
     }
@@ -1559,7 +1562,7 @@ def draft_pli_moves(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, An
         scope = {"files": scope["files"], "keyed": len(files), "seed": PLI_MOVES_SEED}
     out = {
         rel: {
-            "moves": sorted(data_move_keys(pli_move_rows((repo / rel).read_text(encoding="utf-8", errors="ignore")))),
+            "moves": sorted(data_move_keys(pli_move_rows(read_key_text(repo / rel)))),
             "pli_moves_validated": False,
             "verification": {"status": "draft", "notes": []},
         }
@@ -1709,7 +1712,7 @@ def draft_sql_tables(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in SQL_TABLE_EXTS and ".git" not in p.parts:
-            cols = sql_table_columns(p.read_text(encoding="utf-8", errors="ignore"), p.suffix.lower() in PLI_EXTS)
+            cols = sql_table_columns(read_key_text(p), p.suffix.lower() in PLI_EXTS)
             if cols:
                 out[p.relative_to(repo).as_posix()] = {
                     "columns": cols,
@@ -1874,7 +1877,7 @@ def draft_sql_access(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in SQL_TABLE_EXTS and ".git" not in p.parts:
-            acc = sql_table_access(p.read_text(encoding="utf-8", errors="ignore"), p.suffix.lower() in PLI_EXTS)
+            acc = sql_table_access(read_key_text(p), p.suffix.lower() in PLI_EXTS)
             if acc:
                 out[p.relative_to(repo).as_posix()] = {
                     "accesses": acc,
@@ -2073,7 +2076,7 @@ def draft_bms(repo: Path) -> dict[str, dict[str, Any]]:
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in BMS_EXTS and ".git" not in p.parts:
             out[p.relative_to(repo).as_posix()] = {
-                "fields": bms_screen_items(p.read_text(encoding="utf-8", errors="ignore")),
+                "fields": bms_screen_items(read_key_text(p)),
                 "fields_validated": False,
                 "verification": {"status": "draft", "notes": []},
             }
@@ -2329,7 +2332,7 @@ def draft_jcl(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
-            rows = jcl_dataset_bindings(p.read_text(encoding="utf-8", errors="ignore"))
+            rows = jcl_dataset_bindings(read_key_text(p))
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
                     "bindings": rows,
@@ -2501,7 +2504,7 @@ def draft_csd(repo: Path) -> dict[str, dict[str, Any]]:
     for p in sorted(repo.rglob("*")):
         if not p.is_file() or ".git" in p.parts:
             continue
-        text = p.read_text(encoding="utf-8", errors="ignore") if p.suffix.lower() in CSD_EXTS + JCL_EXTS else ""
+        text = read_key_text(p) if p.suffix.lower() in CSD_EXTS + JCL_EXTS else ""
         if text and is_csd_deck(p, text):
             rows = csd_resource_definitions(text)
             if rows:
@@ -3136,7 +3139,7 @@ def draft_job_submissions(repo: Path) -> dict[str, dict[str, Any]]:
         suffix = p.suffix.lower()
         if suffix not in CSD_EXTS + JCL_EXTS:
             continue
-        text = p.read_text(encoding="utf-8", errors="ignore")
+        text = read_key_text(p)
         if is_csd_deck(p, text):
             for r in csd_resource_definitions(text):
                 if r["resource_type"] == "TDQUEUE" and (r["queue_type"] or "").startswith("EXTRA"):
@@ -3618,7 +3621,7 @@ def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
     out.sort(key=lambda x: (x[0], x[1]))
     rows = [r for _p, _k, r in out]
     if isinstance(src, PliSource):  # #3491: PL/I's own condition handling
-        rows += pli_on_rows(path.read_text(encoding="utf-8", errors="ignore"))
+        rows += pli_on_rows(read_key_text(path))
     return rows
 
 
@@ -3734,7 +3737,7 @@ def draft_tdq_triggers(repo: Path) -> dict[str, dict[str, Any]]:
     for p in sorted(repo.rglob("*")):
         if not p.is_file() or ".git" in p.parts or p.suffix.lower() not in CSD_EXTS + JCL_EXTS:
             continue
-        text = p.read_text(encoding="utf-8", errors="ignore")
+        text = read_key_text(p)
         if not is_csd_deck(p, text):
             continue
         for r in csd_resource_definitions(text):
@@ -3993,10 +3996,7 @@ def draft_file_defs(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, di
                     "verification": {"status": "draft", "notes": []},
                 }
         elif p.suffix.lower() in JCL_EXTS:
-            text = "\n".join(
-                "" if line.startswith("//*") else line
-                for line in p.read_text(encoding="utf-8", errors="ignore").split("\n")
-            )
+            text = "\n".join("" if line.startswith("//*") else line for line in read_key_text(p).split("\n"))
             rows = vsam_define_rows(text.upper())
             if rows:
                 vd[rel] = {"defines": rows, "vsam_validated": False, "verification": {"status": "draft", "notes": []}}
@@ -4265,7 +4265,7 @@ def draft_runner_steps(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
-            units = runner_step_units(p.read_text(encoding="utf-8", errors="ignore"))
+            units = runner_step_units(read_key_text(p))
             if units:
                 out[p.relative_to(repo).as_posix()] = {
                     "units": sorted(units),
@@ -4295,7 +4295,7 @@ def draft_job_flow(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
-            rows = job_flow_rows(p.read_text(encoding="utf-8", errors="ignore").upper())
+            rows = job_flow_rows(read_key_text(p).upper())
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
                     "rows": rows,
@@ -4814,9 +4814,9 @@ def draft_ims_gen(repo: Path, dli: dict[str, dict[str, Any]]) -> dict[str, dict[
             continue
         ext = p.suffix.lower()
         if ext in IMS_GEN_EXTS:
-            rows = ims_gen_rows(p.read_text(encoding="utf-8", errors="ignore"))
+            rows = ims_gen_rows(read_key_text(p))
         elif ext in JCL_EXTS:
-            rows = ims_region_rows(p.read_text(encoding="utf-8", errors="ignore"))
+            rows = ims_region_rows(read_key_text(p))
         else:
             continue
         if rows:
@@ -5446,7 +5446,7 @@ def draft_jcics(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*.java")):
         if p.is_file() and ".git" not in p.parts:
-            units = jcics_units(p.read_text(encoding="utf-8", errors="ignore"))
+            units = jcics_units(read_key_text(p))
             if units:
                 out[p.relative_to(repo).as_posix()] = {
                     "calls": units,
@@ -5513,7 +5513,7 @@ def draft_web_services(repo: Path) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
-            rows = web_service_rows(p.read_text(encoding="utf-8", errors="ignore"))
+            rows = web_service_rows(read_key_text(p))
             if rows:
                 out[p.relative_to(repo).as_posix()] = {
                     "services": sorted(web_service_keys(rows)),
@@ -5760,7 +5760,7 @@ def draft_symbolic_maps(repo: Path) -> dict[str, dict[str, Any]]:
     A mapset defined by several BMS sources is the one in the file named after it
     (a COPY of it can only mean one); its other definitions are not keyed."""
     per_file = {
-        p: symbolic_map_units(p.read_text(encoding="utf-8", errors="ignore"))
+        p: symbolic_map_units(read_key_text(p))
         for p in sorted(repo.rglob("*"))
         if p.is_file() and p.suffix.lower() in BMS_EXTS and ".git" not in p.parts
     }
@@ -5862,7 +5862,7 @@ _COPY_STMT = re.compile(r"^.{6}[ ]+COPY[ ]+[A-Z0-9]", re.I | re.M)
 
 def copybook_record_units(path: Path) -> Optional[set[str]]:
     """`ROOT/NAME @offset+bytes` of a copybook's elementary PIC items, or None when it COPYs."""
-    text = path.read_text(encoding="utf-8", errors="ignore")
+    text = read_key_text(path)
     if _COPY_STMT.search(text):
         return None
     items = [it for it in _data_items(Source(path)) if it["level"] not in (66, 88)]
@@ -6181,7 +6181,7 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
         unit_headers,
     )
 
-    content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
+    content = resolve_copybooks(read_key_text(path).upper(), path, repo)
     split = split_procedure_division(content)
     return set(unit_headers(split[1])) if split else set()
 
@@ -6197,9 +6197,7 @@ def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
     )
 
     # Cols 73-80 trimmed first, exactly as resolve_copybooks does before matching.
-    text = "\n".join(
-        _trim_fixed_format(line) for line in path.read_text(encoding="utf-8", errors="ignore").splitlines()
-    )
+    text = "\n".join(_trim_fixed_format(line) for line in read_key_text(path).splitlines())
     named = {copy_member(m) for m in COPY_PATTERN.finditer(text)}
     resolved = {n: hit for n in named if (hit := find_copybook(n, repo, path)) is not None}
     return named, resolved
@@ -6261,9 +6259,9 @@ def _key_transactions(repo: Path) -> dict[str, set[str]]:
             continue
         suffix = path.suffix.lower()
         if suffix in CSD_EXTS:
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            text = read_key_text(path)
         elif suffix == ".jcl":
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            text = read_key_text(path)
             if not _CSD_DFHCSDUP.search(text):
                 continue
         else:

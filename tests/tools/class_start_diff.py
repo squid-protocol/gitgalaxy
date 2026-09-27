@@ -74,6 +74,7 @@ from gitgalaxy.core.detector import (  # noqa: E402
     _CLASS_START_NAMED_EXTRACTION_LANGS,
     _resolve_class_start_match,
 )
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
 
@@ -175,7 +176,7 @@ def diff_language(lang: str) -> dict[str, Any]:
             continue
         try:
             code_bytes = path.read_bytes()
-            text = code_bytes.decode("utf-8", errors="ignore")
+            text = read_source(path).text  # #3869: the engine's own decode (tree-sitter keeps the bytes)
             tree = parser.parse(code_bytes)
         except Exception:  # noqa: S112 -- triage tool, skip unparsable files rather than aborting the run
             continue

@@ -79,6 +79,8 @@ from collections.abc import Iterable, Mapping
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from gitgalaxy.core.source_text import decode_bytes
+
 FORMAT_NAME = "gitgalaxy-golden-master-split"
 FORMAT_VERSION = 1
 LAYOUT_FILE = "_layout.json"
@@ -424,7 +426,7 @@ def load_from_git(rev: str, rel: str, repo: str | os.PathLike | None = None) -> 
         check=False,
     )
     if ls.returncode != 0:
-        raise GoldenStoreError(f"git ls-tree {rev} failed: {ls.stderr.decode(errors='replace')}")
+        raise GoldenStoreError(f"git ls-tree {rev} failed: {decode_bytes(ls.stderr)}")
     entries = []
     for rec in ls.stdout.split(b"\0"):
         if not rec:

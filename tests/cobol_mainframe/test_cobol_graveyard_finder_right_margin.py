@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder as graveyard_module
+from gitgalaxy.core.source_text import read_source
 
 
 def test_fixed_format_right_margin_sequence_numbers_are_ignored(tmp_path: Path):
@@ -34,5 +35,5 @@ def test_fixed_format_right_margin_sequence_numbers_are_ignored(tmp_path: Path):
         encoding="utf-8",
     )
 
-    expanded = graveyard_module.resolve_copybooks(source.read_text(encoding="utf-8", errors="ignore").upper(), source, repo)
+    expanded = graveyard_module.resolve_copybooks(read_source(source).text.upper(), source, repo)
     assert "01 COPY-ITEM PIC X" in expanded

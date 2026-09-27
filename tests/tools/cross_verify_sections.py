@@ -141,6 +141,7 @@ from typing import Any, Callable, Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mainframe_corpus as mc  # noqa: E402
 from cross_verify import FIXED_FORMAT_RULES, load_key, parse_answers  # noqa: E402
+from key_text import read_key_text  # noqa: E402 -- #3869: independent of the engine's decoder
 
 REPO_ROOT = mc.REPO_ROOT
 COBOL_EXTS = (".cbl", ".cob", ".cobol", ".ccp", ".cpy", ".copy")
@@ -930,7 +931,7 @@ def lineage_plan(key: dict[str, Any], repo: Path, budget: int, seed: int) -> lis
     dm = key.get("data_moves", {})
     lengths: dict[str, tuple[int, int]] = {}
     for rel in corpus_files(repo):
-        lines = (repo / rel).read_text(encoding="utf-8", errors="ignore").split("\n")
+        lines = read_key_text(repo / rel).split("\n")
         start = next((i + 1 for i, ln in enumerate(lines) if re.search(r"PROCEDURE\s+DIVISION", ln[6:72], re.I)), None)
         if start is not None or rel in dm:  # a data-only copybook can hold no statement
             lengths[rel] = (start or 1, len(lines))
@@ -1141,7 +1142,7 @@ def corpus_files_io(key: dict[str, Any], repo: Path) -> list[str]:
     SECTION or an ACCEPT (so a reviewer checks the ones the key says have none)."""
     out = set(key.get("io_moves", {}))
     for rel in corpus_files(repo):
-        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper()
+        text = read_key_text(repo / rel).upper()
         if re.search(r"\bFILE\s+SECTION\b|\bACCEPT\s", text):
             out.add(rel)
     return sorted(out)
@@ -1238,7 +1239,7 @@ def corpus_files_dynamic(key: dict[str, Any], repo: Path) -> list[str]:
     for rel in corpus_files(repo):
         if not rel.lower().endswith((".cbl", ".cob", ".cobol", ".ccp")):
             continue
-        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper()
+        text = read_key_text(repo / rel).upper()
         if re.search(r"\b(?:XCTL|LINK)\b|\bCALL\s", text):
             out.add(rel)
     return sorted(out)
@@ -1376,7 +1377,7 @@ def corpus_files_jcics(key: dict[str, Any], repo: Path) -> list[str]:
         | {
             p.relative_to(repo).as_posix()
             for p in repo.rglob("*.java")
-            if ".git" not in p.parts and "com.ibm.cics.server" in p.read_text(encoding="utf-8", errors="ignore")
+            if ".git" not in p.parts and "com.ibm.cics.server" in read_key_text(p)
         }
     )
 
@@ -1463,7 +1464,7 @@ def corpus_files_resources(key: dict[str, Any], repo: Path) -> list[str]:
     found = set(key.get("cics_resources", {}))
     for p in repo.rglob("*"):
         if p.is_file() and ".git" not in p.parts and p.suffix.lower() in COBOL_EXTS + HLASM_EXTS:
-            if re.search(r"EXEC\s+CICS", p.read_text(encoding="utf-8", errors="ignore"), re.I):
+            if re.search(r"EXEC\s+CICS", read_key_text(p), re.I):
                 found.add(p.relative_to(repo).as_posix())
     return sorted(found)
 
@@ -1843,7 +1844,7 @@ def corpus_files_csd(key: dict[str, Any], repo: Path) -> list[str]:
     found = set(key.get("csd_decks", {}))
     for p in repo.rglob("*"):
         if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".csd", ".rdo", ".jcl", ".prc"):
-            if is_csd_deck(p, p.read_text(encoding="utf-8", errors="ignore")):
+            if is_csd_deck(p, read_key_text(p)):
                 found.add(p.relative_to(repo).as_posix())
     return sorted(found)
 
@@ -2546,7 +2547,7 @@ def pli_moves_plan(key: dict[str, Any], repo: Path, seed: int) -> list[dict[str,
     for rel, entry in sorted(pm.items()):
         for fact in entry.get("moves", []):
             by_kind[_pli_move_kind(fact)].append((rel, _line_of(fact)))
-    lengths = {rel: len((repo / rel).read_text(encoding="utf-8", errors="ignore").split("\n")) for rel in pm}
+    lengths = {rel: len(read_key_text(repo / rel).split("\n")) for rel in pm}
     by_kind["random"] = [(rel, n) for rel, total in sorted(lengths.items()) for n in range(1, total + 1, WINDOW)]
     windows: list[dict[str, Any]] = []
     for kind, n in PLI_MOVE_WINDOWS.items():
@@ -2694,7 +2695,7 @@ def _layout_candidates(repo: Path, task: str) -> set[str]:
         if not p.is_file() or ".git" in p.parts:
             continue
         rel, low = p.relative_to(repo).as_posix(), p.name.lower()
-        text = p.read_text(encoding="utf-8", errors="ignore")
+        text = read_key_text(p)
         code = "\n".join(ln[6:72] for ln in text.splitlines() if len(ln) > 6 and ln[6] not in "*/")
         if task == "cblayout" and low.endswith(_LAYOUT_COPYBOOK_EXTS):
             if re.search(r"\bPIC(?:TURE)?\b", code, re.I) and not re.search(r"^\s*COPY\s", code, re.I | re.M):
@@ -2712,7 +2713,7 @@ def _layout_strata(task: str, rel: str, units: list[str], repo: Path) -> set[str
     """What a sampled plan should cover at least once."""
     if task == "ridfld":
         return {u.split()[1] for u in units}  # each verb
-    text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper() if (repo / rel).is_file() else ""
+    text = read_key_text(repo / rel).upper() if (repo / rel).is_file() else ""
     return {s for s, pat in (("occurs", r"\bOCCURS\b"), ("packed", r"COMP(?:UTATIONAL)?-3|PACKED-DECIMAL"),
                               ("binary", r"\bCOMP(?:UTATIONAL)?(?:-[45])?\b|\bBINARY\b"), ("redefines", r"\bREDEFINES\b"))
             if re.search(pat, text)}  # fmt: skip
@@ -2976,7 +2977,7 @@ def _pli_layout_candidates(repo: Path) -> set[str]:
     out = set()
     for p in sorted(repo.rglob("*")):
         if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts:
-            text = p.read_text(encoding="utf-8", errors="ignore")
+            text = read_key_text(p)
             if re.search(r"\b(?:DCL|DECLARE)[ \t\r\n]+1[ \t\r\n]", text, re.I):
                 out.add(p.relative_to(repo).as_posix())
     return out
@@ -2993,7 +2994,7 @@ def pli_layouts_plan(key: dict[str, Any], repo: Path, seed: int) -> dict[str, An
     rng.shuffle(order)
 
     def strata(rel: str) -> set[str]:
-        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper() if (repo / rel).is_file() else ""
+        text = read_key_text(repo / rel).upper() if (repo / rel).is_file() else ""
         got = {s for s, pat in PLI_LAYOUT_STRATA.items() if pat and re.search(pat, text)}
         return got | ({"skipped"} if key["pli_layouts"][rel].get("skipped") else set())
 
@@ -3160,7 +3161,7 @@ def runners_plan(key: dict[str, Any], repo: Path) -> dict[str, Any]:
     cands = set()
     for p in sorted(repo.rglob("*")):
         if p.is_file() and ".git" not in p.parts and p.suffix.lower() in (".jcl", ".prc"):
-            if _RUNNER_STEP.search(p.read_text(encoding="utf-8", errors="ignore")):
+            if _RUNNER_STEP.search(read_key_text(p)):
                 cands.add(p.relative_to(repo).as_posix())
     return {"mode": "full", "files": sorted(set(key.get("runner_steps", {})) | cands)}
 

@@ -44,6 +44,8 @@ from typing import Any, Callable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import scip_callgraph  # noqa: E402
 
+from gitgalaxy.core.source_text import read_source
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
@@ -93,7 +95,7 @@ def load_contract(raw: dict[str, Any]) -> RefGraph:
 def _compiles(path: str) -> bool:
     """pyan aborts the whole run on one file Python itself cannot compile."""
     try:
-        compile(Path(path).read_text(encoding="utf-8", errors="replace"), path, "exec")
+        compile(read_source(Path(path)).text, path, "exec")
     except (SyntaxError, ValueError):
         return False
     return True

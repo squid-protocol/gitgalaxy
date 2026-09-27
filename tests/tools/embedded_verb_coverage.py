@@ -77,6 +77,7 @@ REPO_ROOT = TOOLS_DIR.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from gitgalaxy.core.prism import Prism  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -667,7 +668,7 @@ def build_rows(lang: str, corpus: str, extra: list[Path]) -> list[Row]:
             if exts and p.suffix.lower() not in exts and p.name.lower() not in exts:
                 continue
             try:
-                src = p.read_text(encoding="utf-8", errors="replace")
+                src = read_source(p).text
             except OSError:
                 continue
             code = prism.split_streams(src, lang)["code_stream"]

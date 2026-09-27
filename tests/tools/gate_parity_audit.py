@@ -67,6 +67,7 @@ from gitgalaxy.core.rule_prefilter import (  # noqa: E402
     fold_haystack,
     line_gated_finditer,
 )
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -125,7 +126,7 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
 
         for _corpus_name, root, path in corpus_files(lang, corpus):
             try:
-                src = path.read_text(encoding="utf-8", errors="replace")
+                src = read_source(path).text
             except OSError:
                 continue
             stats["files"] += 1

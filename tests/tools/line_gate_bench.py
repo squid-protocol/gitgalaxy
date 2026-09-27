@@ -47,6 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rule_probe import corpus_files  # noqa: E402
 
 from gitgalaxy.core.rule_prefilter import build_line_gate, line_gated_finditer  # noqa: E402
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
 _SPARSE_BLOCK = (
@@ -58,7 +59,7 @@ _SPARSE_BLOCK = (
     "   one genuine survivor per block so windows are still exercised */\n"
     "typedef unsigned long long tick_counter_t;\n"
     "void log_tick(tick_counter_t tick);\n"
-    "#include \"flux.h\"\n"
+    '#include "flux.h"\n'
     "int classify(int levels);\n"
 )
 
@@ -106,9 +107,7 @@ def main(argv: list[str] | None = None) -> int:
     dense = _synthetic(_DENSE_BLOCK, args.lines)
 
     failures: list[str] = []
-    header = (
-        f"{'lang::rule':24s} {'input':7s} {'ungated':>9s} {'gated':>9s} {'speedup':>8s} {'matches':>9s}"
-    )
+    header = f"{'lang::rule':24s} {'input':7s} {'ungated':>9s} {'gated':>9s} {'speedup':>8s} {'matches':>9s}"
     print(header)
     print("-" * len(header))
 
@@ -126,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
             corpus_texts = []
             for _corpus_name, _root, path in corpus_files(lang, "crucible"):
                 try:
-                    corpus_texts.append(path.read_text(encoding="utf-8", errors="replace"))
+                    corpus_texts.append(read_source(path).text)
                 except OSError:
                     continue
 

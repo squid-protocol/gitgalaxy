@@ -982,6 +982,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # (bom / utf-8 / utf-16-heuristic / declared) or a legacy guess (cp1252 / latin-1).
             "source_encoding": source.encoding,
             "source_decode": source.how,
+            # #3878: a guessed file that decodes strictly as a CJK code page (the report says so).
+            **({"cjk_candidates": list(source.cjk_candidates)} if source.cjk_candidates else {}),
             # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,

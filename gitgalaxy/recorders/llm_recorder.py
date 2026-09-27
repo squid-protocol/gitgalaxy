@@ -544,6 +544,23 @@ class LLMRecorder:
         lines.append("|---|---|---|")
         for (enc, how), n in sorted(tally.items(), key=lambda kv: (-kv[1], kv[0])):
             lines.append(f"| {enc} | {how} | {n} |")
+
+        # #3878: a guessed file that decodes strictly as a CJK code page probably is one; the engine
+        # never switches on its own, so the report names the declaration to make.
+        hinted: dict[tuple[str, ...], list[str]] = {}
+        for f in parsed_files:
+            if f.get("cjk_candidates"):
+                hinted.setdefault(tuple(f["cjk_candidates"]), []).append(str(f.get("path", "?")))
+        for codecs, paths in sorted(hinted.items(), key=lambda kv: (-len(kv[1]), kv[0])):
+            examples = ", ".join(f"`{p}`" for p in paths[:5]) + (
+                f" and {len(paths) - 5} more" if len(paths) > 5 else ""
+            )
+            lines.append("")
+            lines.append(
+                f"> {len(paths)} guessed file(s) read as double-byte text that decodes strictly as {' / '.join(codecs)}: "
+                f"if that is the estate's code page, rescan with `--source-encoding {codecs[0]}` (or the right one "
+                f"of those). E.g. {examples}."
+            )
         lines.append("")
         return lines
 

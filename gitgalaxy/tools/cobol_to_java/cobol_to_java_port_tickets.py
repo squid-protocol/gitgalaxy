@@ -21,6 +21,7 @@
 #   rules        the porting rules the #3624 slice proved (storage semantics, behaviour kept);
 #   compiler_options  the program's CBL / PROCESS card options (#3828), and a rule for each
 #                one that changes what it computes (INTDATE(LILIAN), TRUNC(BIN) ...);
+#                a program with a LINE SEQUENTIAL file gets a rule naming it (#3833);
 #   deliverable  what to return and how the port is proven (tests/tools/equivalence.py).
 # Deterministic: no timestamps, estate-relative paths, sorted keys.
 # ==============================================================================
@@ -121,6 +122,14 @@ PORTING_RULES = [
         "as moved, an edited PICTURE formatted as COBOL formats it."
     ),
     (
+        "Dates and times only through java.time -- LocalDate, LocalDateTime, LocalTime and DateTimeFormatter "
+        "with Locale.ROOT, in the ISO chronology -- never Calendar.getInstance(), new GregorianCalendar(), "
+        "SimpleDateFormat or WeekFields.of(Locale.getDefault()): a th_TH default locale gives Buddhist-era years "
+        "(2569), ja_JP_JP the Japanese imperial calendar, and US week fields start on Sunday. FUNCTION "
+        "DAY-OF-WEEK and ACCEPT ... FROM DAY-OF-WEEK are Monday = 1 ... Sunday = 7, which is "
+        "DayOfWeek.getValue() (#3833)."
+    ),
+    (
         "Read the time only from the generated batch runtime's MainframeClock (now() for local, currentDate() for "
         "FUNCTION CURRENT-DATE), never from the system clock directly or ZoneId.systemDefault(): it is how a run is "
         "pinned to be compared with the original."
@@ -168,6 +177,22 @@ _OPTION_RULES = {
         "non-preferred sign can compare or move differently than under NOPFD."
     ),
 }
+
+
+def line_sequential_rules(file_control: list[dict[str, Any]]) -> list[str]:
+    """#3833: a LINE SEQUENTIAL file (Micro Focus, GnuCOBOL, Windows estates) is one record per line, not the
+    RECFM=FB records the sequential rule describes; one rule naming this program's such files."""
+    names = sorted({str(f.get("select_name")) for f in file_control
+                    if str(f.get("organization") or "").upper() == "LINE SEQUENTIAL"})  # fmt: skip
+    if not names:
+        return []
+    return [
+        f"This program's {', '.join(names)} {'is' if len(names) == 1 else 'are'} ORGANIZATION LINE SEQUENTIAL "
+        "(see the facts' file_control), not RECFM=FB, so the sequential-dataset rule does not apply to "
+        f"{'it' if len(names) == 1 else 'them'}: read one record per line (the line terminator is not data) and "
+        "pad a short line with spaces to the record length; on write, strip the record's trailing spaces and end "
+        "the line with the platform's terminator -- \\n, or \\r\\n when the estate runs on Windows (#3833)."
+    ]
 
 
 def option_rules(options: list[dict[str, Any]]) -> list[str]:
@@ -251,7 +276,8 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     text = read_source(source_root / prog["file"]).text if readable else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
-    rules = list(PORTING_RULES) + option_rules(options)
+    file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
+    rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "
@@ -321,6 +347,12 @@ def ticket_markdown(t: dict[str, Any]) -> str:
         md += ["", "## Compiler options (CBL / PROCESS cards)", "", "| line | option | as written |", "|---:|---|---|"]
         md += [f"| {o['line']} | {o['option']}{'(' + o['value'] + ')' if o.get('value') else ''} | `{o['written']}` |"
                for o in t["compiler_options"]]  # fmt: skip
+    fc = ((t["facts"].get("sections") or {}).get("file_control") or {}).get("facts") or []
+    if any(str(f.get("organization") or "").upper() == "LINE SEQUENTIAL" for f in fc):
+        # #3833: which files are LINE SEQUENTIAL (one record per line) and which are fixed-length records
+        md += ["", "## Files (FILE-CONTROL)", "", "| line | file | ASSIGN | organization |", "|---:|---|---|---|"]
+        md += [f"| {f.get('line')} | {f.get('select_name')} | {f.get('assign') or ''} | "
+               f"{f.get('organization') or 'SEQUENTIAL (default)'} |" for f in fc]  # fmt: skip
     md += ["", "## Worklist items for this program", ""]
     md += [f"- **{w['id']}** ({w['category']}) `{w['file']}:{w['line']}`: {w['text']}" for w in t["worklist"]]
     md += ["", "## Generated code it builds on", ""] + [f"- `{g['class']}`" for g in t["generated"]["imports"]]

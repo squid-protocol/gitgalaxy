@@ -166,7 +166,7 @@ def unpack_ebcdic_file(binary_filepath: Path, schema_filepath: Path, output_file
                         row_data.append(0.0)
                 else:
                     # Standard EBCDIC text (cp037 is the standard IBM US EBCDIC code page)
-                    decoded = chunk.decode("cp037")  # cp037 maps all 256 bytes: nothing to drop.strip()
+                    decoded = chunk.decode("cp037").strip()  # cp037 maps all 256 bytes: nothing to drop
                     row_data.append(decoded)
 
             writer.writerow(row_data)

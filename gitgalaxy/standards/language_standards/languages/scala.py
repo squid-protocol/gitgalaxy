@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -95,7 +97,15 @@ DEFINITION: dict[str, Any] = {
         # to the first alternative too, purely so existing extraction
         # tests keep passing.
         "args": re.compile(
-            r"\bdef\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*(\((?:[^()]|\([^()]*\))*\))|(\((?:[^()]|\([^()]*\))*\))[ \t]*=>|\b([a-zA-Z_]\w*)[ \t]*=>"
+            r"\bdef\s+(`[^`\n]{1,200}`|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?\s*(\((?:[^()]|\([^()]*\))*\))|(\((?:[^()]|\([^()]*\))*\))[ \t]*=>|\b(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)[ \t]*=>"
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
         "structural_boundaries": re.compile(
@@ -127,7 +137,7 @@ DEFINITION: dict[str, Any] = {
             # all -- not a partial/wrong match, a total miss.
             r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
             r"(?:(?:override|private(?:\[[\w.]+\])?|protected(?:\[[\w.]+\])?|final|implicit|inline|transparent|open|lazy)[ \t\n]+){0,3}"
-            r"def[ \t\n]+(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*))(?=[ \t\n]*[\[(:=]|$)",
+            r"def[ \t\n]+(?:`([^`\n]{1,200})`|([" + ID_START + r"][" + ID_CONTINUE + r"]*))(?=[ \t\n]*[\[(:=]|$)",
             re.M,
         ),
         # 5. class_start: Object / Entity Declarations. Defines structural entities and OO boundaries.
@@ -139,7 +149,11 @@ DEFINITION: dict[str, Any] = {
         "class_start": re.compile(
             r"^[ \t]*(?:@[\w.]+(?:\((?:[^()]|\([^()]*\))*\))?[ \t\n]*){0,5}"
             r"(?:(?:sealed|abstract|final|case|open|opaque|transparent|private(?:\[[\w.]+\])?|protected(?:\[[\w.]+\])?)[ \t\n]+){0,3}"
-            r"(?:class|trait|object|enum)\s+([A-Za-z_]\w*)(?=[ \t]*[\[({]|\s+extends|\n|$)",
+            r"(?:class|trait|object|enum)\s+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?=[ \t]*[\[({]|\s+extends|\n|$)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -165,7 +179,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api: Public Surface Area. Implicit public visibility and Scala 3 @main entry points.
         "api": re.compile(
-            r"\b(export)\b|@(?:main|GetMapping|PostMapping|Endpoint|Path)\b|^[ \t]*(?:override\s+|inline\s+|transparent[ \t]+)?def\s+[^_]\w+",
+            r"\b(export)\b|@(?:main|GetMapping|PostMapping|Endpoint|Path)\b|^[ \t]*(?:override\s+|inline\s+|transparent[ \t]+)?def\s+[^_]["
+            + ID_CONTINUE
+            + r"]+",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (var and mutable collection updates).
@@ -180,7 +196,15 @@ DEFINITION: dict[str, Any] = {
             # `var x = v` declares and `mutable`/`Atomic*` name mutable state (corollaries
             # 1 and 2). `=>` (case / lambda) and `==` are excluded; a trailing-comma line
             # is a named argument.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\([^()\n]{0,80}\))*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\([^()\n]{0,80}\))*"
             r"[ \t]*(?:[-+*/%])?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
             r"|\.(?:update|append|addOne|prepend|remove|clear|put|getAndSet|compareAndSet|incrementAndGet|decrementAndGet|set)\s*\(",
             re.M,
@@ -215,10 +239,14 @@ DEFINITION: dict[str, Any] = {
         "closures": re.compile(r"=>|(?<=\()\s*_\s*(?=[\),])|(?<=\W)_\s*(?=\W)"),
         # 18. globals: Global / Shared State. Singletons (objects) and JVM environment bindings.
         "globals": re.compile(
-            r"\b(object\s+[A-Z]\w*|sys\.env|sys\.props|System\.getProperty|scala\.util\.Properties)\b"
+            r"\b(object\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|sys\.env|sys\.props|System\.getProperty|scala\.util\.Properties)\b"
         ),
         # 19. decorators: Decorators / Annotations. Method and class annotations.
-        "decorators": re.compile(r"@[A-Za-z_]\w*(?:\([^)]*\))?"),
+        "decorators": re.compile(r"@[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\([^)]*\))?"),
         # 20. generics: Generics / Type Parameters. Type parameterization and HKT constraints.
         "generics": re.compile(r"\[\s*[+-]?[A-Z][^\]]*\]|\bF\[_\]|<:|>:|\[[ \t]*_\s*\]"),
         # 21. comprehensions: Iterators / Comprehensions. For-comprehensions and monadic chains.
@@ -273,7 +301,7 @@ DEFINITION: dict[str, Any] = {
             # is bounded per-statement by construction -- there is no `\s`/`.` left dangling
             # outside an explicit brace block for it to bleed through.
             # =====================================================================
-            r"\b(?:import|export)\s+((?:[\w]+\.)*(?:\{[^{}]*\}|[\w*]+))",
+            r"\b(?:import|export)\s+((?:[\w]+\.)*(?:\{[^{}]*\}|[" + ID_CONTINUE + r"*]+))",
             re.M,
         ),
         # 25. ownership: Authorship indicators.
@@ -303,7 +331,11 @@ DEFINITION: dict[str, Any] = {
         # the shared trailing \b could never fire. Neither of Play's
         # two most common Result constructors ever matched.
         "ssr_boundaries": re.compile(
-            r"\b(?:Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.[a-zA-Z_]\w*)\b|\bOk\(|\bBadRequest\("
+            r"\b(?:Action|Controller|HttpRoutes|ServerEndpoint|twirl|html\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)\b|\bOk\(|\bBadRequest\("
         ),
         # 32. events: Pub/Sub Network. Stream processing and event bus signatures.
         "events": re.compile(r"\b(Source|Flow|Sink|fs2\.Stream|ZStream|EventBus|system\.eventStream|Observable)\b"),
@@ -364,7 +396,7 @@ DEFINITION: dict[str, Any] = {
         "sync_locks": re.compile(r"\b(synchronized|volatile|Semaphore|Mutex|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints) Immutability.
         "immutability_locks": re.compile(
-            r"\bfinal[ \t]+val\b|\bimmutable\.[A-Z]\w*"
+            r"\bfinal[ \t]+val\b|\bimmutable\.[" + CAPITAL + r"][" + ID_CONTINUE + r"]*"
         ),  # #2772 C1: `val` is scala's ordinary binding and `sealed` locks a hierarchy, not data; `final val` and choosing collection.immutable are the added locks
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(

@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -122,11 +124,17 @@ DEFINITION: dict[str, Any] = {
             # extraction tests keep passing.
             r"(?:"
             # 1. Standard Methods
-            r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)(?:[\w<>\[\]?,.*]|\([^()]{0,100}\))+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)\w+)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
+            r"^[ \t]*(?:\[[^\]]*\][ \t\n]*){0,5}(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|scoped|readonly)[ \t\n]+){0,5}(?:(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)(?:[\w<>\[\]?,.*]|\([^()]{0,100}\))+[ \t\n]{1,200}){1,10}(operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|(?!(?:new|if|for|while|switch|return|yield|delegate|event)\b)["
+            + ID_CONTINUE
+            + r"]+)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
             # 2. Constructors
-            r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?([A-Z]\w*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
+            r"^[ \t]*(?:(?:public|private|protected|internal|static|unsafe)[ \t\n]+)?(["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*(?::[ \t\n]*(?:base|this)|[{])|"
             # 3. Lambdas
-            r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)|[a-zA-Z_$][\w_$]{0,100})[ \t\n]*=>"
+            r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)|[" + ID_START + r"$][" + ID_CONTINUE + r"$]{0,100})[ \t\n]*=>"
             r")",
             re.M,
         ),
@@ -169,7 +177,7 @@ DEFINITION: dict[str, Any] = {
             # FIX: Forcefully abort matching if the sequence begins with the 'new' keyword
             # followed immediately by an identifier and an opening parenthesis.
             # =====================================================================
-            r"(?!new[ \t\n]+[@A-Za-z_$][\w_$.]*(?:<[^>]{0,100}>)?[ \t\n]*\()"
+            r"(?!new[ \t\n]+[@" + ID_START + r"$][" + ID_CONTINUE + r"$.]*(?:<[^>]{0,100}>)?[ \t\n]*\()"
             r"(?:"
             # 2. MODIFIERS (Linkage, Storage, & Access)
             # Matches `public async`, `protected internal static`, etc.
@@ -248,7 +256,11 @@ DEFINITION: dict[str, Any] = {
             # - `(?:[ \t\n]*<[^>]{0,100}>)?` safely steps over method-level generic definitions
             #   like `<T, U>` BEFORE hitting the opening parenthesis.
             # [VERTICAL FIX]: Removed `\n` exclusion from the generic stepper to support multi-line generics.
-            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
             r"|"
             # Branch B: Has return type (no modifier)
             r"(?:(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly)[ \t\n]+){0,5}"
@@ -257,7 +269,11 @@ DEFINITION: dict[str, Any] = {
             # tokens; `(?!\?)` closes a ternary `?` being consumed as a nullable-type marker).
             r"(?:(?![ \t]*#)(?!(?:public|private|protected|internal|static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|file|ref|readonly|delegate|event|if|for|foreach|while|switch|catch|using|lock|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|var|in|when|or|and|not|is)\b)(?!\?)(?:[a-zA-Z0-9_<>\[\]?.*]|\([^()]{0,80}\)|<[^<>]{0,100}(?:<[^<>]{0,100}>[^<>]{0,100}){0,5}>|\[[^\]]{0,80}\])+[ \t\n]{1,200}){1,10}"
             r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
-            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
             r"|"
             # Branch C: Zero-prefix (No modifier, No return type)
             # #1418: The zero-prefix branch matches ordinary multi-line bare call statements if their
@@ -277,7 +293,11 @@ DEFINITION: dict[str, Any] = {
             # segment containing a `(` (the old `\([^)]*\)` arm), the final segment is free.
             # Identical match set by construction; linear per attempt.
             r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
-            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
+            r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@"
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
             r"(?=(?:[^()]*\([^)]*\))*[^)]*\)[ \t\n]*(?:\{|=>))"
             r")",
             re.M,
@@ -300,7 +320,15 @@ DEFINITION: dict[str, Any] = {
         # (`readonly ref struct ParserSyntaxContextResetter`): found_classes 22 -> 24,
         # class recall 91.7% -> 100%, zero precision cost (extra_classes still 0).
         "class_start": re.compile(
-            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+([A-Za-z_$][\w_$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\((?:[^()]|\([^()]*\))*\))?(?:\s*:\s*([A-Za-z_$][\w_$, \t<>\?]*))?",
+            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:\s*<(?:[^<>]|<[^<>]*>)*>)?(?:\s*\((?:[^()]|\([^()]*\))*\))?(?:\s*:\s*(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$, \t<>\?]*))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -341,9 +369,17 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:public|internal)[ \t\n]+"
             r"(?:(?:static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|readonly|const|volatile|required|ref|event|delegate|implicit|explicit|file)[ \t\n]+){0,5}"
             r"(?:class|interface|struct|record|enum|delegate|event|void\b"
-            r"|(?:\((?:[^()\n]|\([^()\n]*\))*\)\??|[@A-Za-z_][\w.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?\??(?:\[[ \t\n,]*\])*)"
-            r"[ \t\n]+[@A-Za-z_]\w*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?[ \t\n]*[({=;,]"
-            r"|[@A-Za-z_]\w*[ \t\n]*\()"
+            r"|(?:\((?:[^()\n]|\([^()\n]*\))*\)\??|[@"
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?\??(?:\[[ \t\n,]*\])*)"
+            r"[ \t\n]+[@"
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?[ \t\n]*[({=;,]"
+            r"|[@" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t\n]*\()"
             r"|\[(?:HttpGet|HttpPost|HttpPut|HttpDelete|Route|ApiController|HubMethodName)\]|\bapp\.Map(?:Get|Post|Put|Delete|Group)\b"
         ),
         # 11. flux (State Mutation)
@@ -367,10 +403,18 @@ DEFINITION: dict[str, Any] = {
             # `ref x` / `out x` count at a CALL site, where the callee writes the caller's
             # variable: one identifier then `,`/`)`. A parameter declaration (`ref int x`)
             # carries a type and is not matched; `out var x` declares.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>|\?\?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
-            r"|(?<=[(,])[ \t]*(?:ref|out)[ \t]+[A-Za-z_][\w.]*[ \t]*(?=[,)])"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
+            r"|(?<=[(,])[ \t]*(?:ref|out)[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r".]*[ \t]*(?=[,)])"
             r"|\.(?:Add|AddRange|Remove|RemoveAt|Clear|Insert|Push|Pop|Enqueue|Dequeue|TryAdd|Set|Update)\s*\(",
             re.M,
         ),
@@ -427,15 +471,21 @@ DEFINITION: dict[str, Any] = {
             # #2858 rule saw. The `[=;]` terminator excludes `static` methods (a `(`
             # follows) and `static { get; }` auto-properties (a `{` follows).
             r"\b(?:ConfigurationManager|AsyncLocal)\b|\bEnvironment\.(?!(?:Exit|FailFast)\b)|"
-            r"\b(?:private|protected|internal|public)?[ \t]*static[ \t]+(?:readonly[ \t]+)?[\w<>\[\].]+[ \t]+\w+[ \t]*[=;]|\[ThreadStatic\]"
+            r"\b(?:private|protected|internal|public)?[ \t]*static[ \t]+(?:readonly[ \t]+)?["
+            + ID_CONTINUE
+            + r"<>\[\].]+[ \t]+["
+            + ID_CONTINUE
+            + r"]+[ \t]*[=;]|\[ThreadStatic\]"
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"^[ \t]*\[[A-Za-z_][^\]]*\]", re.M),
+        "decorators": re.compile(r"^[ \t]*\[[" + ID_START + r"][^\]]*\]", re.M),
         # 20. generics (Generics / Type Parameters)
-        "generics": re.compile(r"<\s*[A-Z][^>]*>|\bwhere\s+\w+\s*:"),
+        "generics": re.compile(r"<\s*[A-Z][^>]*>|\bwhere\s+[" + ID_CONTINUE + r"]+\s*:"),
         # 21. comprehensions (Iterators / Comprehensions)
         "comprehensions": re.compile(
-            r"\.(?:Select|Where|OrderBy|GroupBy|Aggregate|Any|All|ToList|ToArray|SelectMany)\(|^[ \t]*from\s+\w+\s+in\s+",
+            r"\.(?:Select|Where|OrderBy|GroupBy|Aggregate|Any|All|ToList|ToArray|SelectMany)\(|^[ \t]*from\s+["
+            + ID_CONTINUE
+            + r"]+\s+in\s+",
             re.M,
         ),
         # 22. scientific (Numerical / Compute Libraries)
@@ -450,7 +500,11 @@ DEFINITION: dict[str, Any] = {
         # unit (the capture below already reads it); a `using` statement/declaration
         # (`using (var x = …)`, `using var f = …;`) is a scope, not a binding.
         "import": re.compile(
-            r"^[ \t]*(?:global[ \t]+)?using[ \t]+(?:static[ \t]+)?(?:\w+[ \t]*=[ \t]*)?[\w.]+(?:<[^;\n]*>)?[ \t]*;",
+            r"^[ \t]*(?:global[ \t]+)?using[ \t]+(?:static[ \t]+)?(?:["
+            + ID_CONTINUE
+            + r"]+[ \t]*=[ \t]*)?["
+            + ID_CONTINUE
+            + r".]+(?:<[^;\n]*>)?[ \t]*;",
             re.M,
         ),
         # ALIAS DIRECTIVE FIX (epic #813/#820): `using Alias = Target.Namespace;` (a using-alias
@@ -500,7 +554,11 @@ DEFINITION: dict[str, Any] = {
         # like "MyEvent += handler" (spaced on both sides). Split out
         # unguarded, same fix shape as #621's dash/hash families.
         "events": re.compile(
-            r"\b(event\s+[\w<>]+\s+\w+|EventHandler|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b|\+=\s*|-=\s*"
+            r"\b(event\s+["
+            + ID_CONTINUE
+            + r"<>]+\s+["
+            + ID_CONTINUE
+            + r"]+|EventHandler|Invoke|Raise|MediatR|INotification|IRequest|Publish)\b|\+=\s*|-=\s*"
         ),
         # 33. dependency_injection (Dependency Injection / IoC)
         "dependency_injection": re.compile(
@@ -529,7 +587,15 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(Console\.(?:Write|WriteLine|Error)|Debug\.(?:Write|WriteLine|Print))\b"),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
-            r"\bas\s+[A-Z]\w*|\(\s*(?:int|long|short|byte|char|float|double|decimal|bool|string|[A-Z][A-Za-z0-9_]*)\s*\)\s*[a-zA-Z_$]"
+            r"\bas\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\(\s*(?:int|long|short|byte|char|float|double|decimal|bool|string|["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(throw|abort|FailFast|Environment\.Exit)\b"),
@@ -548,7 +614,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(const|readonly|init|Immutable[A-Z]\w*)\b"),
+        "immutability_locks": re.compile(
+            r"\b(const|readonly|init|Immutable[" + CAPITAL + r"][" + ID_CONTINUE + r"]*)\b"
+        ),
         # 46. cleanup (Resource Cleanup / Teardown)
         # BUG FIX (grammar mismatch): this was entirely case-sensitive
         # and only matched lowercase `dispose(`/`close(`/etc -- but

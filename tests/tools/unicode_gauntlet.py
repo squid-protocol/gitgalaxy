@@ -347,7 +347,11 @@ def _write(folder: Path, dest: Path, rename, enc: str) -> bool:
             continue
         raw = src.read_bytes()
         try:
-            data = encode(rename(raw.decode("utf-8")), enc)
+            text = raw.decode("utf-8")
+            # #3814: Perl takes Unicode names only under `use utf8`; the seed gets it too, so both sides match
+            if src.suffix in (".pl", ".pm", ".t") and "use utf8;" not in text:
+                text = "use utf8;\n" + text
+            data = encode(rename(text), enc)
         except UnicodeDecodeError:  # not text we can transform (an image, a legacy file): as it is
             data = raw
         if data is None:

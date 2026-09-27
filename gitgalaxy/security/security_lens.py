@@ -11,6 +11,7 @@ import bisect
 import logging
 import math
 import re
+import unicodedata
 from collections import Counter, defaultdict
 from typing import Any
 
@@ -19,6 +20,100 @@ from gitgalaxy.security.credential_lexicon import COBOL_CREDENTIAL_ALTERNATION, 
 from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
+
+# #3885: a homoglyph is a name that LOOKS Latin but is not (`requests` spelled with a Cyrillic small
+# ie for its `e`), never a name that is simply written in another script (a Russian or Greek word).
+# Unicode's rule (UTS #39) is the "skeleton": replace each confusable character by the Latin letter it
+# imitates; a token that is not ASCII but whose skeleton is ASCII is a mixed- or whole-script
+# confusable. The table below is the Cyrillic and Greek LETTERS whose UTS #39 confusables.txt
+# prototype is one ASCII letter -- escaped, so the source shows what each is. Digit look-alikes
+# (Cyrillic capital ze for `3`) are left out: a spoofed import name is a spoofed word. NFKC runs
+# first, so mathematical alphanumerics and full-width forms reduce to ASCII on their own.
+_LATIN_LOOKALIKES = str.maketrans(
+    {
+        # Cyrillic
+        "\u0430": "a",  # small letter a
+        "\u0435": "e",  # small letter ie
+        "\u043e": "o",  # small letter o
+        "\u0440": "p",  # small letter er
+        "\u0441": "c",  # small letter es
+        "\u0443": "y",  # small letter u
+        "\u0445": "x",  # small letter ha
+        "\u0455": "s",  # small letter dze
+        "\u0456": "i",  # small letter byelorussian-ukrainian i
+        "\u0458": "j",  # small letter je
+        "\u0501": "d",  # small letter komi de
+        "\u04bb": "h",  # small letter shha
+        "\u04cf": "l",  # small letter palochka
+        "\u051b": "q",  # small letter qa
+        "\u051d": "w",  # small letter we
+        "\u04af": "y",  # small letter straight u
+        "\u0410": "A",  # capital letter a
+        "\u0412": "B",  # capital letter ve
+        "\u0415": "E",  # capital letter ie
+        "\u041a": "K",  # capital letter ka
+        "\u041c": "M",  # capital letter em
+        "\u041d": "H",  # capital letter en
+        "\u041e": "O",  # capital letter o
+        "\u0420": "P",  # capital letter er
+        "\u0421": "C",  # capital letter es
+        "\u0422": "T",  # capital letter te
+        "\u0425": "X",  # capital letter ha
+        "\u0423": "Y",  # capital letter u
+        "\u0405": "S",  # capital letter dze
+        "\u0406": "I",  # capital letter byelorussian-ukrainian i
+        "\u0408": "J",  # capital letter je
+        "\u04ae": "Y",  # capital letter straight u
+        "\u04ba": "H",  # capital letter shha
+        "\u051a": "Q",  # capital letter qa
+        "\u051c": "W",  # capital letter we
+        "\u04c0": "I",  # letter palochka
+        # Greek
+        "\u03b1": "a",  # small letter alpha
+        "\u03b3": "y",  # small letter gamma
+        "\u03b9": "i",  # small letter iota
+        "\u03bd": "v",  # small letter nu
+        "\u03bf": "o",  # small letter omicron
+        "\u03c1": "p",  # small letter rho
+        "\u03c5": "u",  # small letter upsilon
+        "\u0391": "A",  # capital letter alpha
+        "\u0392": "B",  # capital letter beta
+        "\u0395": "E",  # capital letter epsilon
+        "\u0396": "Z",  # capital letter zeta
+        "\u0397": "H",  # capital letter eta
+        "\u0399": "I",  # capital letter iota
+        "\u039a": "K",  # capital letter kappa
+        "\u039c": "M",  # capital letter mu
+        "\u039d": "N",  # capital letter nu
+        "\u039f": "O",  # capital letter omicron
+        "\u03a1": "P",  # capital letter rho
+        "\u03a4": "T",  # capital letter tau
+        "\u03a5": "Y",  # capital letter upsilon
+        "\u03a7": "X",  # capital letter chi
+    }
+)
+# Invisible Hangul fillers: a name that renders as blank space is a spoof whatever its skeleton.
+_INVISIBLE_FILLERS = frozenset("\u3164\u115f\u1160\uffa0")
+_WORD = re.compile(r"\w+")
+
+
+def is_confusable_token(token: str) -> bool:
+    """True for a token that passes for ASCII without being it (#3885): not ASCII, yet its UTS #39
+    skeleton is -- `requests` with a Cyrillic `e`, `apple` spelled all in Cyrillic, a name in
+    mathematical bold -- but never a Russian or Greek word, nor `calc_` followed by Greek letters."""
+    if token.isascii():
+        return False
+    skeleton = unicodedata.normalize("NFKC", token).translate(_LATIN_LOOKALIKES)
+    return skeleton.isascii()
+
+
+def carries_homoglyph(line: str) -> bool:
+    """A candidate line from the `homoglyphs` signature is a threat only when it really spoofs: an
+    invisible filler, or a confusable token (#3885). Any other Cyrillic / Greek text on it -- a name,
+    a comment -- is a culture, not an attack."""
+    if not _INVISIBLE_FILLERS.isdisjoint(line):
+        return True
+    return any(is_confusable_token(t) for t in _WORD.findall(line) if not t.isascii())
 
 
 class SecurityLens:
@@ -394,6 +489,12 @@ class SecurityLens:
             # keeps the 250-char ReDoS armor intact.
             new_hits = 0
             for match in regex.finditer(safe_content):
+                if key == "homoglyphs":
+                    # #3885: the signature only finds candidates; a script is not a spoof
+                    line_start = safe_content.rfind("\n", 0, match.start()) + 1
+                    line_end = safe_content.find("\n", match.end())
+                    if not carries_homoglyph(safe_content[line_start : line_end if line_end >= 0 else None]):
+                        continue
                 new_hits += 1
                 snip = match.group(0).strip()
                 if len(snippets[key]) < 3 and snip not in snippets[key]:

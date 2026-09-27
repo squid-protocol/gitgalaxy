@@ -818,3 +818,48 @@ def test_hardcoded_secrets_knows_non_english_credential_names(lens, src):
 )
 def test_hardcoded_secrets_non_english_names_keep_the_shape_guards(lens, src):
     assert lens.scan_content(src)["counts"].get("hardcoded_secrets", 0) == 0, src
+
+
+# ==============================================================================
+# Homoglyphs are confusables, not scripts (#3885)
+# ==============================================================================
+# Escaped on purpose: the look-alikes are the point, and a reader must see which is which.
+@pytest.mark.parametrize(
+    "src",
+    [
+        "import r\u0435quests\n",  # Cyrillic small ie for the `e`
+        "from \u0430\u0440\u0440\u04cf\u0435 import x\n",  # `apple` spelled entirely in Cyrillic
+        "import \U0001d42b\U0001d41e\U0001d42a\U0001d42e\U0001d41e\U0001d42c\U0001d42d\U0001d42c\n",  # math bold
+        "const r = require('\u0430xios');\n",  # Cyrillic small a
+        "import \u03bfs\n",  # Greek small omicron for the `o`
+        "import a\u3164b\n",  # invisible Hangul filler
+    ],
+)
+def test_a_name_that_passes_for_latin_is_a_homoglyph(lens, src):
+    assert lens.scan_content(src)["counts"]["homoglyphs"] == 1
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        "from \u0434\u0430\u043d\u043d\u044b\u0435 import \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c\n",  # Russian
+        "import \u03b1\u03b2\u03b3\n",  # Greek
+        "from calc_\u03b1\u03b2\u03b3 import f\n",  # Latin + Greek, but the Greek looks like nothing Latin
+        "const m = require('./\u0436\u0437\u0438');\n",
+        "import os  # \u043a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439\n",  # a Russian comment
+        "use \u043c\u043e\u0434\u0443\u043b\u044c;\n",
+    ],
+)
+def test_a_name_in_another_script_is_not_a_threat(lens, src):
+    assert lens.scan_content(src)["counts"]["homoglyphs"] == 0
+
+
+def test_the_skeleton_is_uts39s():
+    from gitgalaxy.security.security_lens import is_confusable_token
+
+    assert is_confusable_token("r\u0435quests")
+    assert is_confusable_token("\uff52\uff45\uff51")  # full-width: NFKC reduces it to ASCII
+    assert not is_confusable_token("requests")  # ASCII is not a homoglyph of itself
+    assert not is_confusable_token(
+        "\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c"
+    )  # has letters with no Latin twin

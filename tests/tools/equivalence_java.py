@@ -33,6 +33,34 @@ PKG = "com.gitgalaxy.modernized"
 PKG_DIR = PKG.replace(".", "/")
 
 
+# #3821: the JVM environments an equivalence claim can be made under -- a BCP-47 default locale and a
+# default time zone, applied by the generated test before Spring starts. The mainframe's own zone is the
+# case's `zone` (gitgalaxy.zone, #3824), never these: a port that reads the JVM's locale or zone shows
+# up as a difference between environments. `default` pins what the harness used to inherit from the host.
+ENVIRONMENTS: dict[str, dict[str, str]] = {
+    "default": {"locale": "en-US", "tz": "UTC"},
+    "turkish": {"locale": "tr-TR", "tz": "Europe/Istanbul"},  # dotless i: toUpperCase("i") is "İ"
+    "arabic": {"locale": "ar-EG", "tz": "Africa/Cairo"},  # Arabic-Indic digits in String.format
+    "thai": {"locale": "th-TH-u-nu-thai", "tz": "Asia/Bangkok"},  # Thai digits, Buddhist-era calendar
+    "german": {"locale": "de-DE", "tz": "Europe/Berlin"},  # decimal comma in NumberFormat, DST
+    "hindi": {"locale": "hi-IN", "tz": "Asia/Kolkata"},  # a +05:30 offset
+}
+
+
+def environment(name: str) -> dict[str, str]:
+    """#3821: a named environment, or `LOCALE[/TZ]` (e.g. `sv-SE/Europe/Stockholm`) as written."""
+    if name in ENVIRONMENTS:
+        return {"name": name, **ENVIRONMENTS[name]}
+    locale, _, tz = name.partition("/")
+    return {"name": name, "locale": locale, "tz": tz or "UTC"}
+
+
+def jvm_args(env: dict[str, str]) -> str:
+    """The system properties that put the generated test in `env` (see EquivalenceRunTest's static block)."""
+    args = f"-Dequivalence.locale={env['locale']} -Dequivalence.tz={env['tz']}"
+    return args + (f" -Dfile.encoding={env['encoding']}" if env.get("encoding") else "")
+
+
 def _service_class(program: str) -> str:
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -90,6 +118,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={_clock(case)}",
         "gitgalaxy.zone={case.get("zone", "UTC")}", "gitgalaxy.datasets.directory=${{equivalence.datasets}}"}})
 class EquivalenceRunTest {{
+
+    static {{  // #3821: the environment the claim is made under, before Spring reads the default locale
+        java.util.Locale.setDefault(java.util.Locale.forLanguageTag(System.getProperty("equivalence.locale", "en-US")));
+        java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone(System.getProperty("equivalence.tz", "UTC")));
+    }}
 
     static final Charset TEXT = StandardCharsets.ISO_8859_1;
     final Path in = Path.of(System.getProperty("equivalence.in"));
@@ -149,16 +182,17 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     return project
 
 
-def run_maven(project: Path, work: Path, inputs: Path) -> Path:
-    """Run EquivalenceRunTest; the directory it wrote its outputs to."""
+def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None) -> Path:
+    """Run EquivalenceRunTest in `env` (#3821; default: `default`); the directory it wrote its outputs to."""
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
-    env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
-    env["PATH"] = str(Path(env["JAVA_HOME"]) / "bin") + os.pathsep + env["PATH"]
+    props = jvm_args(env or environment("default"))
+    shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
+    shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
     cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-           f"-DargLine=-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets}"]  # fmt: skip
-    proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603
+           f"-DargLine=-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"]  # fmt: skip
+    proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
     (work / "maven.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])
@@ -172,16 +206,28 @@ def run_java(
     """Generate, overlay, run; {dd: output bytes}. `inputs` holds the COBOL side's `<DD>.in`
     fixed-length files -- the very bytes the COBOL program read. `port` False runs the generated
     service as generated (the stub), the baseline the port is measured against."""
+    return run_java_environments(case, corpus, work, inputs, [environment("default")], port, port_dir)["default"]
+
+
+def run_java_environments(
+    case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
+    port_dir: Path | None = None,
+) -> dict[str, dict[str, bytes]]:  # fmt: skip
+    """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}."""
     project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
-    datasets = work / "datasets"
-    datasets.mkdir(parents=True, exist_ok=True)
-    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
-        if "input" in spec and not spec.get("entity"):
-            shutil.copy(inputs / f"{dd}.in", datasets / dd)
-    out = run_maven(project, work, inputs)
-    outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
-    outs["RETURN-CODE"] = out / "RETURN-CODE"
-    read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
-    if "RETURN-CODE" in read:
-        read["RETURN-CODE"] = read["RETURN-CODE"].strip()  # a number, not a record: whitespace is not data
-    return read
+    runs: dict[str, dict[str, bytes]] = {}
+    for env in envs:
+        area = work if len(envs) == 1 else work / f"env-{env['name'].replace('/', '_')}"
+        datasets = area / "datasets"
+        datasets.mkdir(parents=True, exist_ok=True)
+        for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+            if "input" in spec and not spec.get("entity"):
+                shutil.copy(inputs / f"{dd}.in", datasets / dd)
+        out = run_maven(project, area, inputs, env)
+        outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
+        outs["RETURN-CODE"] = out / "RETURN-CODE"
+        read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+        if "RETURN-CODE" in read:
+            read["RETURN-CODE"] = read["RETURN-CODE"].strip()  # a number, not a record: whitespace is not data
+        runs[env["name"]] = read
+    return runs

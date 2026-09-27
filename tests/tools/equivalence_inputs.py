@@ -6,7 +6,9 @@ dataset whose case says `"input": "@generate"` is built from its copybook record
 the same layout the diff reads (equivalence.layout_fields) -- deterministically (a seed),
 with each field's values chosen for its storage:
 
-* text: letters and digits at full width, a short value, and blanks;
+* text: letters and digits at full width, a short value, and blanks; #3821: with
+  `"alphabet": "mixed"`, also lower case, national letters and punctuation -- the keys and
+  values whose order and comparisons differ between collations and locales;
 * numeric DISPLAY / COMP-3 / COMP: zero, one, the PICTURE's maximum and its negative
   where signed, the smallest fraction at its scale, exact halves (2.5, 0.5, 0.05 ...: the ties
   where ROUNDED modes differ, #3825), and values in between;
@@ -84,6 +86,9 @@ def _numeric_value(rng: random.Random, signed: bool, digits: int, scale: int, ro
 
 
 _TEXT = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+# #3821: `"alphabet": "mixed"` -- what makes key order and comparisons culture-sensitive: lower case, national
+# letters (ISO-8859-1, as the inputs are written) and punctuation, beside the upper case and digits
+_MIXED = _TEXT + "abcdefghijklmnopqrstuvwxyz" + "ÆØÅæøåÄÖÜäöüßÉéÑñÇç" + " -.&/#@$"
 # #3829: "date" in the languages mainframe estates are written in -- de/nl/sv/no, es, pt/it/pl, da/no, ms/hi,
 # ja (romanised), vi -- matched as a whole part of a hyphenated name (WS-FECHA-ALTA, DATUM-VON), never inside
 # a word (CANDIDATE, UPDATE-FLAG, KDATO)
@@ -109,20 +114,20 @@ def _date_shape(name: str, nbytes: int) -> str | None:
     return None
 
 
-def _text_value(rng: random.Random, name: str, nbytes: int, row: int) -> str:
+def _text_value(rng: random.Random, name: str, nbytes: int, row: int, alphabet: str = _TEXT) -> str:
     shape = _date_shape(name, nbytes)
     if shape:
         return date_value(rng, shape)
     if row % 7 == 3:
         return ""  # blanks: the field INITIALIZEd / never filled
     width = nbytes if row % 3 else max(1, nbytes // 2)
-    return "".join(rng.choice(_TEXT) for _ in range(width))
+    return "".join(rng.choice(alphabet) for _ in range(width))
 
 
-def field_value(rng: random.Random, f: dict[str, Any], row: int) -> Any:
+def field_value(rng: random.Random, f: dict[str, Any], row: int, alphabet: str = _TEXT) -> Any:
     num = common._pic_numeric(f["pic"]) if f.get("pic") else None
     if num is None:
-        return _text_value(rng, f["name"], f["bytes"], row)
+        return _text_value(rng, f["name"], f["bytes"], row, alphabet)
     signed, digits, scale = num
     return _numeric_value(rng, signed, digits, scale, row)
 
@@ -134,6 +139,7 @@ def generate_dataset(
     gen = spec["generate"]
     rng = random.Random(f"{gen.get('seed', 0)}:{name}")
     rules = gen.get("fields", {})
+    alphabet = {"upper": _TEXT, "mixed": _MIXED}[gen.get("alphabet", "upper")]  # #3821
     reclen = spec["reclen"]
     key = (spec.get("keys") or [None])[0]
     rows: list[bytes] = []
@@ -165,15 +171,15 @@ def generate_dataset(
                     raise ValueError(f"{name}.{f['name']}: nothing generated yet for {rule['from']}")
                 v = rng.choice(pool)
                 if rng.random() < rule.get("miss", 0):
-                    v = field_value(rng, f, len(pool) + attempts)  # a value the joined file does not hold
+                    v = field_value(rng, f, len(pool) + attempts, alphabet)  # a value the joined file does not hold
             elif f["name"] == "FILLER":
                 v = ""  # unnamed padding: blanks, as the corpus files carry it
             elif key is not None and key["offset"] <= f["offset"] < key["offset"] + key["length"]:
-                v = field_value(rng, f, 7 + row + attempts)  # a key part: never blank, never an edge repeat
+                v = field_value(rng, f, 7 + row + attempts, alphabet)  # a key part: never blank, never an edge repeat
                 if isinstance(v, str):
-                    v = "".join(rng.choice(_TEXT) for _ in range(f["bytes"]))
+                    v = "".join(rng.choice(alphabet) for _ in range(f["bytes"]))
             else:
-                v = field_value(rng, f, row if attempts == row + 1 else row + attempts)
+                v = field_value(rng, f, row if attempts == row + 1 else row + attempts, alphabet)
             chosen[f["name"]] = v
             rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(v, f["pic"], f["usage"], f["bytes"], code_page)
         if key is not None:

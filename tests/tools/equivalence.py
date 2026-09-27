@@ -38,6 +38,11 @@ copybook layout compared -- numeric DISPLAY / COMP-3 / COMP as exact decimals,
 everything else byte for byte. The report gives, per program, records equal /
 total and every differing field.
 
+#3821 -- one claim, many environments: `--environments turkish,thai` (or `all`, or a case's
+`"environments"`) runs the Java side under each JVM default locale / time zone
+(equivalence_java.ENVIRONMENTS, or `LOCALE/TZ` as written) and diffs every run against the one
+COBOL run. The report says which environments and which key order the claim covers.
+
 A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
 EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key
 pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
@@ -260,9 +265,14 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
              f"{case.get('step')}, PARM `{case.get('parm')}`, clock `{case.get('clock')}`.", "",
              f"RETURN-CODE: COBOL `{report.get('return_code', {}).get('cobol')}`, Java "
              f"`{report.get('return_code', {}).get('java')}`.", "",
+             f"Key order covered: {report.get('collation', COLLATION)}.", "",
              "| output | records equal | total | FILLER differs (not compared) |", "|---|---|---|---|"]  # fmt: skip
     for dd, d in report["outputs"].items():
         lines.append(f"| {dd} | {d['equal']} | {d['records']} | {d.get('filler_differs', 0)} |")
+    if report.get("environments"):  # #3821
+        lines += ["", "| JVM environment | locale | time zone | equal to COBOL |", "|---|---|---|---|"]
+        for e in report["environments"]:
+            lines.append(f"| {e['name']} | {e['locale']} | {e['tz']} | {'yes' if e['ok'] else '**no**'} |")
     for dd, d in report["outputs"].items():
         if d["diffs"]:
             lines += ["", f"## {dd}: differences", "", "| record | field | COBOL | Java |", "|---|---|---|---|"]
@@ -274,6 +284,20 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
                     kind = " (bytes; same value)" if fd.get("raw") else ""
                     lines.append(f"| {x['record']} | {fd['field']}{kind} | `{fd['cobol']}` | `{fd['java']}` |")
     return "\n".join(lines) + "\n"
+
+
+# #3821: what a KSDS browse or a sorted output was compared in -- both sides here, not the mainframe's
+# EBCDIC order (#3834 adds that dimension). A claim holds for the order it was made in.
+COLLATION = "ASCII / ISO-8859-1 byte order on both sides (GnuCOBOL BDB, H2), not the mainframe's EBCDIC order"
+
+
+def _environments(arg: Optional[str], case: dict[str, Any]) -> list[dict[str, str]]:
+    """#3821: `--environments a,b` / `all`, else the case's own list, else the pinned default."""
+    import equivalence_java as ej
+
+    names = (arg.split(",") if arg and arg != "all" else list(ej.ENVIRONMENTS) if arg == "all"
+             else case.get("environments") or ["default"])  # fmt: skip
+    return [ej.environment(n.strip()) for n in names if n.strip()]
 
 
 # ---- CLI -----------------------------------------------------------------------------
@@ -295,6 +319,8 @@ def main() -> int:
         type=Path,
         help="a port directory to prove instead of the case's own (laid out under com/gitgalaxy/modernized)",
     )
+    r.add_argument("--environments", help="#3821: JVM environments to run the Java side under: NAME,NAME | "
+                   "all | LOCALE/TZ (default: the case's `environments`, else `default`)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     sub.add_parser("list")
@@ -325,22 +351,31 @@ def main() -> int:
         return 0
     import equivalence_java as ej
 
-    java = ej.run_java(case, corpus, work / "java", work / "cobol", port=not args.generated_only, port_dir=args.port)
+    envs = _environments(args.environments, case)
+    runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs, port=not args.generated_only,
+                                    port_dir=args.port)  # fmt: skip
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
-                              "java": "generated" if args.generated_only else "ported",
+                              "java": "generated" if args.generated_only else "ported", "collation": COLLATION,
                               "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
-    rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
-    report["return_code"] = rc
-    ok = rc["cobol"] == rc["java"]
-    for dd, spec in case["datasets"].items():
-        if not spec.get("compare"):
-            continue
-        fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
-        d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"))
-        if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
-            print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
-        report["outputs"][dd] = d
-        ok &= d["equal"] == d["records"] and not d["diffs"]
+    ok = True
+    for i, env in enumerate(envs):
+        java = runs[env["name"]]
+        rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
+        env_ok, outputs = rc["cobol"] == rc["java"], {}
+        for dd, spec in case["datasets"].items():
+            if not spec.get("compare"):
+                continue
+            fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
+            d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"))
+            if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
+                print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
+            outputs[dd] = d
+            env_ok &= d["equal"] == d["records"] and not d["diffs"]
+        if i == 0:  # the first environment's outputs are the report's, as before #3821
+            report["return_code"], report["outputs"] = rc, outputs
+        report.setdefault("environments", []).append({**env, "ok": env_ok, "return_code": rc, "outputs": outputs})
+        ok &= env_ok
+    rc = report["return_code"]
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
     print(
@@ -351,6 +386,10 @@ def main() -> int:
         print(f"{case['program']} {dd}: {d['equal']}/{d['records']} records equal")
         for x in d["diffs"][:10]:
             print(f"   record {x['record']}: {(x.get('missing') and 'missing on ' + x['missing']) or x['fields'][:4]}")
+    if len(envs) > 1:
+        for e in report["environments"]:
+            print(f"{case['program']} under {e['name']} ({e['locale']}, {e['tz']}): "
+                  f"{'equal to COBOL' if e['ok'] else 'DIFFERS'}")  # fmt: skip
     print(f"report: {work / 'report.json'}")
     return 0 if ok else 1
 

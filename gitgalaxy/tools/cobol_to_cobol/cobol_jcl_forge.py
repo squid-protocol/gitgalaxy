@@ -22,8 +22,12 @@ from typing import Any, Optional
 
 from gitgalaxy.core.source_text import read_source
 
+# #3815: a COBOL word may carry national letters (`SELECT KUNDER-ÆØÅ`, a CP277 DD name); `_W` is one name
+# character, ASCII exactly as before or any non-ASCII letter or digit. Missing such a SELECT turned the program
+# from batch into transactional and its controller named a DTO nothing generates, so the Java did not compile.
+_W = r"(?:[A-Z0-9\-]|[^\W\x00-\x7f])"
 _FILE_ASSIGN_ANCHOR = re.compile(
-    r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9\-]+)",
+    rf"SELECT\s+({_W}+)\s+ASSIGN\s+(?:TO\s+)?({_W}+)",
     re.IGNORECASE,
 )
 
@@ -58,7 +62,7 @@ def analyze_cobol_intent(filepath: Path) -> dict:
         # A COBOL user-defined word contains a letter; a digits-only token is a
         # sequence number, never the name.
         prog_id_match = re.search(
-            r'PROGRAM-ID\.\s+[\'"]?([0-9\-]*[A-Z][A-Z0-9\-]*)[\'"]?', monolith_code, re.IGNORECASE
+            rf'PROGRAM-ID\.\s+[\'"]?([0-9\-]*(?:[A-Z]|[^\W\d_\x00-\x7f]){_W}*)[\'"]?', monolith_code, re.IGNORECASE
         )
         if prog_id_match:
             intent["program_id"] = prog_id_match.group(1).strip()

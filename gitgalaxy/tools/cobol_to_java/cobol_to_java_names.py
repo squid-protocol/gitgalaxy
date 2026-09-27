@@ -21,11 +21,72 @@
 # only a genuinely colliding program is renamed.
 # ==============================================================================
 import re
+import unicodedata
 from pathlib import Path
 from typing import Optional
 
 # `COBOL__SAM2` -> ["COBOL", "SAM2"]; `WS-CUST_REC` -> ["WS", "CUST", "REC"].
 _SEPARATORS = re.compile(r"[^A-Za-z0-9]+")
+# #3815: the same split for names, but a non-ASCII character is part of a word, not a break: `[^A-Za-z0-9]`
+# made `ØKONOMI` the class `Konomi` (and `KONOMI` its twin). Over pure ASCII both splits are identical.
+_WORD_BREAKS = re.compile(r"[^A-Za-z0-9\u0080-\U0010FFFF]+")
+
+# #3815: the Unicode categories Java's Character.isJavaIdentifierStart / isJavaIdentifierPart accept (letters,
+# letter numbers, currency symbols, connector punctuation; a part adds digits and combining marks). The ignorable
+# format controls Java also lets through are invisible, so they are replaced like any other illegal character.
+_JAVA_START = frozenset({"Lu", "Ll", "Lt", "Lm", "Lo", "Nl", "Sc", "Pc"})
+_JAVA_PART = _JAVA_START | {"Nd", "Mn", "Mc"}
+
+
+def java_start_ok(ch: str) -> bool:
+    """Whether `ch` may start a Java identifier."""
+    return unicodedata.category(ch) in _JAVA_START
+
+
+def java_legal_chars(name: str) -> str:
+    """#3815: every non-ASCII character Java does not allow in an identifier (CP273 shows `@` as `§`) becomes
+    `_` -- replaced, never dropped, so `KUNDE§NR` cannot collapse onto `KUNDENR`. ASCII is left alone: the
+    ASCII sanitising each caller already does is what the refraction snapshots pin."""
+    return "".join(ch if ch.isascii() or unicodedata.category(ch) in _JAVA_PART else "_" for ch in name)
+
+
+# #3815: str.lower/title/capitalize map some letters to several (`ß`.title() is `Ss`, `İ`.lower() is `i̇`), which
+# changes a name's length and can fold two names into one (`STRASSE-ß` and `STRASSE-SS`). These per-character
+# forms keep such a letter as it is; for every other character they give exactly what the str methods give.
+def _lower1(ch: str) -> str:
+    low = ch.lower()
+    return low if len(low) == 1 else ch
+
+
+def _title1(ch: str) -> str:
+    title = ch.title()
+    return title if len(title) == 1 else ch
+
+
+def _cased(ch: str) -> bool:
+    return ch.islower() or ch.isupper() or ch.istitle()
+
+
+def lower_name(text: str) -> str:
+    """`text.lower()`, one character per character (#3815)."""
+    return "".join(_lower1(ch) for ch in text)
+
+
+def title_name(word: str) -> str:
+    """`word.title()`, one character per character (#3815): a character after a cased one is lowered, any
+    other is title-cased, as CPython's str.title does."""
+    out = []
+    prev_cased = False
+    for ch in word:
+        out.append(_lower1(ch) if prev_cased else _title1(ch))
+        prev_cased = _cased(ch)
+    return "".join(out)
+
+
+def capitalize_name(word: str) -> str:
+    """`word.capitalize()`, one character per character (#3815)."""
+    return _title1(word[0]) + lower_name(word[1:]) if word else word
+
 
 # A Java class name that would shadow something every generated file imports.
 RESERVED_CLASSES = frozenset(
@@ -60,12 +121,16 @@ def java_class_base(key: str, prefix: str = "Legacy") -> str:
     over the old program id yielded, which is why non-colliding programs keep
     their current class names.
     """
-    name = "".join(word.capitalize() for word in _SEPARATORS.split(key) if word)
-    if not name or name[0].isdigit() or name in RESERVED_CLASSES:
+    # #3815: NFC first, so a name that arrived decomposed (a macOS path) is the same class, and file, as its
+    # composed form; national letters stay, and a character Java rejects becomes `_`.
+    key = unicodedata.normalize("NFC", key)
+    name = java_legal_chars("".join(capitalize_name(word) for word in _WORD_BREAKS.split(key) if word))
+    if not name or name[0].isdigit() or not java_start_ok(name[0]) or name in RESERVED_CLASSES:
         # An empty, digit-leading or shadowing name is not a legal or safe class
         # name; `prefix` is what the entity forge already used for the last case.
         name = prefix + name
-    return name
+    # #3815: a prefix before a leading combining mark composes with it (`Legacy` + U+0308 -> `Legacÿ`)
+    return unicodedata.normalize("NFC", name)
 
 
 def java_url_segment(key: str) -> str:

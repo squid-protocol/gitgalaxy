@@ -15,6 +15,13 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
+    java_legal_chars,
+    java_start_ok,
+    lower_name,
+    title_name,
+)
+
 
 @dataclass
 class TraceEntry:
@@ -141,18 +148,22 @@ def java_identifier(col_name: str) -> str:
     COBOL names use hyphens, Java keywords and leading digits freely; we normalise
     so the generated field is always a legal, non-colliding Java identifier.
     """
+    # #3815: NFC, so the decomposed and composed spellings of `KUNDNAVN-ÆØÅ` are one field; the case mapping
+    # keeps each letter one letter (`ß` does not become `Ss`), and a character Java rejects becomes `_`.
+    col_name = unicodedata.normalize("NFC", col_name)
     # Replace hyphens with underscores before splitting to catch all legacy variations
-    clean_col = col_name.lower().replace("-", "_")
+    clean_col = lower_name(col_name).replace("-", "_")
     parts = clean_col.split("_")
-    camel_name = parts[0] + "".join(word.title() for word in parts[1:])
+    camel_name = java_legal_chars(parts[0] + "".join(title_name(word) for word in parts[1:]))
 
-    # Java variables cannot start with a number. Prefix with 'v'.
-    if camel_name and camel_name[0].isdigit():
+    # Java variables cannot start with a number (nor, #3815, a combining mark). Prefix with 'v'.
+    if camel_name and (camel_name[0].isdigit() or not (camel_name[0].isascii() or java_start_ok(camel_name[0]))):
         camel_name = "v" + camel_name
 
     if camel_name in _RESERVED_VARS:
         camel_name += "Val"
-    return camel_name
+    # #3815: the `v` prefix before a leading combining mark composes with it, so re-normalise
+    return unicodedata.normalize("NFC", camel_name)
 
 
 # Checked after the `(n)` repeat counts are stripped, so anything but 9 S V P is an editing symbol
@@ -246,7 +257,8 @@ def java_type(fld: dict) -> str:
 def container_var(name: str) -> str:
     """A Java field for a container name, which may hold any character: `DFHEP.DATA.00001` ->
     `dfhepData00001`."""
-    return java_identifier("-".join(w for w in re.split(r"[^A-Za-z0-9]+", name) if w) or "container")
+    # #3815: split on ASCII punctuation only, so a national letter in the name survives
+    return java_identifier("-".join(w for w in re.split(r"[^A-Za-z0-9\u0080-\U0010FFFF]+", name) if w) or "container")
 
 
 def status_text(section: dict | None) -> str:

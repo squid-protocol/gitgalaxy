@@ -36,6 +36,7 @@ from typing import Any
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -345,10 +346,11 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     java = (java_dir / service_rel).read_text(encoding="utf-8") if (java_dir / service_rel).is_file() else ""
     # Listings are written once per source (write_port_tickets), not per ticket: an include member is
     # shared by hundreds of programs (DSF). `listing` is relative to ai_agent_jobs/; None when unread.
-    readable = source_root is not None and prog.get("file") and (source_root / prog["file"]).is_file()
+    # #3815: a stored path is NFC; on_disk finds the file where the checkout spelled its name NFD
+    readable = source_root is not None and prog.get("file") and on_disk(source_root, prog["file"]).is_file()
     source: dict[str, Any] = {
         "program": {"file": prog.get("file"), "listing": _listing(prog["file"]) if readable else None},
-        "copybooks": [{"file": c, "listing": _listing(c) if source_root and (source_root / c).is_file() else None}
+        "copybooks": [{"file": c, "listing": _listing(c) if source_root and on_disk(source_root, c).is_file() else None}
                       for c in prog.get("copybooks", [])],
     }  # fmt: skip
     units = (skeleton.get("sections", {}).get("units") or {}).get("facts") or []
@@ -360,7 +362,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
-    text = read_source(source_root / prog["file"]).text if readable else ""
+    text = read_source(on_disk(source_root, prog["file"])).text if readable and source_root is not None else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
@@ -531,7 +533,7 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
             listing = out_dir / s_["listing"] if s_["listing"] else None
             if listing is not None and source_root is not None and not listing.exists():
                 listing.parent.mkdir(parents=True, exist_ok=True)
-                listing.write_text("\n".join(_source_text(source_root / s_["file"])) + "\n", encoding="utf-8")
+                listing.write_text("\n".join(_source_text(on_disk(source_root, s_["file"]))) + "\n", encoding="utf-8")
         written[str(file)] = f"ai_agent_jobs/{key}_port_ticket.md"
     if order:
         write_port_order(out_dir, order)

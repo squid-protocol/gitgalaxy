@@ -123,6 +123,9 @@ museum_2/
 # committed and reviewed like the ledger above. A new key file dropped silently by
 # the *.json rule above is how its first PR shipped without its own data.
 !tests/cobol_mainframe/answer_key/*.json
+# ...and the mixed CJK EBCDIC code-page tables (#3816 part 3a): package data the decoder
+# loads at run time, generated once from the JDK by tests/tools/gen_ebcdic_dbcs.py.
+!gitgalaxy/core/ebcdic_dbcs/*.json
 # ...and the pinned mainframe corpus manifest (#3213) and the refraction tools'
 # ReDoS baseline (#3214): committed source, same reason.
 !tests/cobol_mainframe/corpora.json

@@ -43,11 +43,19 @@ from typing import Any
 import equivalence_common as common
 
 
-def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int, code_page: str = "cp037") -> bytes:
-    """A value as the field stores it -- the inverse of equivalence.decode_field."""
+def encode_field(
+    value: Any,
+    pic: str | None,
+    usage: str | None,
+    nbytes: int,
+    code_page: str = "cp037",
+    data_encoding: str = common.DEFAULT_DATA_ENCODING,
+) -> bytes:
+    """A value as the field stores it -- the inverse of equivalence.decode_field. #3815: text and zoned
+    digits in `data_encoding` (the zoned sign from `code_page`'s table, as the generated CobolRecords)."""
     num = common._pic_numeric(pic) if pic else None
     if num is None:
-        return str(value).encode("latin-1")[:nbytes].ljust(nbytes, b" ")
+        return common.text_bytes(str(value), nbytes, data_encoding)
     signed, digits, scale = num
     n = int((Decimal(str(value)) * (Decimal(10) ** scale)).to_integral_value())
     u = (usage or "DISPLAY").upper()
@@ -63,7 +71,7 @@ def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int, co
 
         pos, neg = zoned_sign_characters(code_page)
         text = text[:-1] + (neg[last] if n < 0 else pos[last])
-    return text.encode("latin-1")
+    return text.encode(data_encoding)
 
 
 def _numeric_value(rng: random.Random, signed: bool, digits: int, scale: int, row: int) -> Decimal:
@@ -87,7 +95,8 @@ def _numeric_value(rng: random.Random, signed: bool, digits: int, scale: int, ro
 
 _TEXT = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 # #3821: `"alphabet": "mixed"` -- what makes key order and comparisons culture-sensitive: lower case, national
-# letters (ISO-8859-1, as the inputs are written) and punctuation, beside the upper case and digits
+# letters (ISO-8859-1, as the inputs are written by default; #3815: in the case's data_encoding) and
+# punctuation, beside the upper case and digits
 _MIXED = _TEXT + "abcdefghijklmnopqrstuvwxyz" + "ÆØÅæøåÄÖÜäöüßÉéÑñÇç" + " -.&/#@$"
 # #3829: "date" in the languages mainframe estates are written in -- de/nl/sv/no, es, pt/it/pl, da/no, ms/hi,
 # ja (romanised), vi -- matched as a whole part of a hyphenated name (WS-FECHA-ALTA, DATUM-VON), never inside
@@ -133,7 +142,12 @@ def field_value(rng: random.Random, f: dict[str, Any], row: int, alphabet: str =
 
 
 def generate_dataset(
-    name: str, spec: dict[str, Any], fields: list[dict[str, Any]], pools: dict[str, list[Any]], code_page: str = "cp037"
+    name: str,
+    spec: dict[str, Any],
+    fields: list[dict[str, Any]],
+    pools: dict[str, list[Any]],
+    code_page: str = "cp037",
+    data_encoding: str = common.DEFAULT_DATA_ENCODING,
 ) -> tuple[bytes, dict[str, list[Any]]]:
     """(the dataset's fixed-length records, {DD.FIELD: the values it holds} for later joins)."""
     gen = spec["generate"]
@@ -150,7 +164,7 @@ def generate_dataset(
         attempts += 1
         if attempts > gen.get("records", 20) * 50:
             raise ValueError(f"{name}: cannot make {gen.get('records')} records with a unique key")
-        row, rec = len(rows), bytearray(b" " * reclen)
+        row, rec = len(rows), bytearray(" ".encode(data_encoding) * reclen)  # #3815: the page's space
         chosen: dict[str, Any] = {}
         for f in fields:
             rule = rules.get(f["name"], {})
@@ -181,7 +195,9 @@ def generate_dataset(
             else:
                 v = field_value(rng, f, row if attempts == row + 1 else row + attempts, alphabet)
             chosen[f["name"]] = v
-            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(v, f["pic"], f["usage"], f["bytes"], code_page)
+            rec[f["offset"] : f["offset"] + f["bytes"]] = encode_field(
+                v, f["pic"], f["usage"], f["bytes"], code_page, data_encoding
+            )
         if key is not None:
             k = bytes(rec[key["offset"] : key["offset"] + key["length"]])
             if k in seen:
@@ -221,6 +237,8 @@ def generate_inputs(case: dict[str, Any], corpus: Path) -> dict[str, bytes]:
         width = max(f["offset"] + f["bytes"] for f in fields)
         if width > spec["reclen"]:
             raise ValueError(f"{dd}: the layout is {width} bytes, wider than reclen {spec['reclen']}")
-        out[dd], values = generate_dataset(dd, spec, fields, pools, case.get("code_page", "cp037"))
+        out[dd], values = generate_dataset(
+            dd, spec, fields, pools, case.get("code_page", "cp037"), common.data_encoding(case)
+        )
         pools.update(values)
     return out

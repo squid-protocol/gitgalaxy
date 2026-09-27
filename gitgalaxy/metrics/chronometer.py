@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.core.source_text import open_source
+from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.config_resolver import resolve_config
 
 # ==============================================================================
@@ -284,7 +285,7 @@ class Chronometer:
                 text=True,
                 check=True,
             )
-            tracked_files = {p for p in res.stdout.split("\0") if p}
+            tracked_files = {nfc(p) for p in res.stdout.split("\0") if p}  # #3815: keyed as the scan stores
             total_files = len(tracked_files)
         except Exception as e:
             self.logger.warning(f"Chronometer: git ls-files failed ({e}). Aborting stream to prevent timeout trap.")
@@ -320,8 +321,12 @@ class Chronometer:
         # tracked-files denominator and the scanner's scan-root-relative rel_path,
         # and every lookup would miss. At the repository root both flags are no-ops:
         # the output is byte-identical to the previous command.
+        # #3815: `core.quotepath=off` -- by default git octal-escapes a non-ASCII path in
+        # `--name-only` output, so such a file never matched its churn / author / mtime entry.
         cmd = [
             _GIT_BIN,
+            "-c",
+            "core.quotepath=off",
             "log",
             "--since=1.year",
             "--name-only",
@@ -421,7 +426,7 @@ class Chronometer:
                 if clean_line.startswith('"') and clean_line.endswith('"'):
                     clean_line = clean_line[1:-1]
 
-                path_key = Path(clean_line).as_posix()
+                path_key = nfc(Path(clean_line).as_posix())  # #3815: the scan's stored (NFC) path
 
                 # Only count towards our goal if it's an active file (avoids being tricked by renamed/deleted files)
                 if path_key in tracked_files:
@@ -468,7 +473,7 @@ class Chronometer:
             for name in files:
                 try:
                     full_path = Path(root) / name
-                    rel_path = full_path.relative_to(self.root).as_posix()
+                    rel_path = nfc(full_path.relative_to(self.root).as_posix())  # #3815: stored form
                     self.mtime_map[rel_path] = os.path.getmtime(full_path)
                 except (OSError, ValueError):  # noqa: PERF203 -- per-iteration isolation: skip an unreadable file, continue the os.walk scan
                     continue
@@ -483,7 +488,7 @@ class Chronometer:
         are guaranteed to be O(1) RAM dictionary accesses.
         ========================================================================
         """
-        lookup_key = Path(rel_path).as_posix()
+        lookup_key = nfc(Path(rel_path).as_posix())  # #3815: the maps are keyed in NFC
 
         # Stability (MTime) lookup
         mtime = self.mtime_map.get(lookup_key)

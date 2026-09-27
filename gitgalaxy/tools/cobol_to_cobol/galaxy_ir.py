@@ -167,6 +167,7 @@ from typing import Optional
 from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
 
 # Subsystem hit columns carried per file. They are rule-hit counts, not block
@@ -1333,8 +1334,9 @@ class GalaxyIR:
         into. None when no edge names it (a system copybook, or one not in the
         repository): the layout is then reported unexpanded, never guessed.
         """
+        member = nfc(member)  # #3815: a member name and a file stem meet in NFC
         for ctx in contexts:
-            hits = [p for p in ctx.copy_deps if Path(p).stem.upper() == member]
+            hits = [p for p in ctx.copy_deps if nfc(Path(p).stem.upper()) == member]
             if len(hits) == 1 and hits[0] in self.files:
                 return self.files[hits[0]]
         for ctx in contexts:  # #3490: a symbolic map generated from BMS source
@@ -1600,10 +1602,10 @@ class GalaxyIR:
         copybooks: dict = {}
         for path, f in self.files.items():
             if f.language == "cobol" and not f.is_program:
-                copybooks.setdefault(Path(path).stem.upper(), []).append(path)
+                copybooks.setdefault(nfc(Path(path).stem.upper()), []).append(path)  # #3815: NFC keys
 
         def book(member: Optional[str]) -> Optional[str]:
-            hits = copybooks.get((member or "").upper(), [])
+            hits = copybooks.get(nfc((member or "").upper()), [])
             return hits[0] if len(hits) == 1 else None
 
         services = [
@@ -1745,13 +1747,13 @@ class GalaxyIR:
         COPY; this finds the entries after the closing COPY (see
         `_expanded_children`) so the copied record's layout can carry them.
         """
-        member = Path(cb.file_path).stem.upper()
+        member = nfc(Path(cb.file_path).stem.upper())  # #3815: compared in NFC
         roots = [r for r in cb.records if r.level not in (66, 88)]
         if not roots:
             return []
         by_ordinal = {it.ordinal: it for it in ef.data_items}
         for it in ef.data_items:
-            if member not in (it.copy_members or "").split(","):
+            if member not in nfc(it.copy_members or "").split(","):
                 continue
             group = it if not _is_elementary(it) else by_ordinal.get(it.parent_ordinal)
             if group is None or not all(r.level <= group.level for r in roots):
@@ -1767,9 +1769,9 @@ class GalaxyIR:
         items carry section `%INCLUDE` -- preferring the includer's resolved include edges."""
         if ef is None:
             return None
-        want = member.upper()
-        paths = [p for p in ef.copy_deps if Path(p).stem.upper() == want]
-        paths += sorted(p for p, f in self.files.items() if f.language == "pli" and Path(p).stem.upper() == want)
+        want = nfc(member.upper())  # #3815: a member name and a file stem meet in NFC
+        paths = [p for p in ef.copy_deps if nfc(Path(p).stem.upper()) == want]
+        paths += sorted(p for p, f in self.files.items() if f.language == "pli" and nfc(Path(p).stem.upper()) == want)
         for p in paths:
             f = self.files.get(p)
             if f is not None and any(r.section == "%INCLUDE" for r in f.records):
@@ -2038,8 +2040,8 @@ class GalaxyIR:
         entry = next((e for e in ef.entry_points if e.kind == "PROCEDURE"), None)
         if entry is None or not entry.parameters:
             return "the main procedure takes no parameter, and no resolved caller passes this program a COMMAREA"
-        found = {Path(p).stem.upper() for p in ef.copy_deps}
-        missing = [m for m in ef.includes if m not in found and not _SYSTEM_COPYBOOK.match(m)]
+        found = {nfc(Path(p).stem.upper()) for p in ef.copy_deps}  # #3815: compared in NFC
+        missing = [m for m in ef.includes if nfc(m) not in found and not _SYSTEM_COPYBOOK.match(m)]
         where = f"; %INCLUDE members not in the repository: {', '.join(missing)}" if missing else ""
         return (
             f"no structure parameter, or structure BASED on the main procedure's parameter {entry.parameters[0]}, "
@@ -3723,9 +3725,9 @@ class GalaxyIR:
             index = {}
             for p in self.source_root.rglob("*"):
                 if p.is_file() and ".git" not in p.parts:
-                    index.setdefault(p.stem.upper(), []).append(p)
+                    index.setdefault(nfc(p.stem.upper()), []).append(p)  # #3815: an NFD file name too
             self.__dict__["_member_index"] = index
-        hits = index.get(member.upper(), [])
+        hits = index.get(nfc(member.upper()), [])
         return read_source(hits[0]).text if len(hits) == 1 else None
 
     def job_dds(self) -> list:
@@ -4784,7 +4786,7 @@ class GalaxyIR:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
         except ValueError:
             return None
-        return self.files.get(rel)
+        return self.files.get(nfc(rel))  # #3815: an on-disk (maybe NFD) name, stored in NFC
 
 
 # ---- #3355: the COMMAREA contract join -------------------------------------

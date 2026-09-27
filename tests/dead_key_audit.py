@@ -253,6 +253,12 @@ ALLOWLIST = {
             "TYPE",
         )
     },
+    # --- Generated code-page tables (#3816 part 3a) ---
+    # ebcdic_dbcs.py reads gitgalaxy/core/ebcdic_dbcs/*.json, which tests/tools/gen_ebcdic_dbcs.py
+    # writes from the JDK -- the writer lives outside gitgalaxy/, where the walker does not look.
+    "sbcs": "EBCDIC DBCS table key (JSON-written by tests/tools/gen_ebcdic_dbcs.py)",
+    "dbcs": "EBCDIC DBCS table key (JSON-written by tests/tools/gen_ebcdic_dbcs.py)",
+    "encode_overrides": "EBCDIC DBCS table key (JSON-written by tests/tools/gen_ebcdic_dbcs.py)",
 }
 
 

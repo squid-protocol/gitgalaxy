@@ -24,8 +24,9 @@ case the engine rules out by design, and hide whether the declared path works. c
 undeclared: that fallback is what they test.
 
 The mainframe seed is also written as raw EBCDIC (#3816): each file a fixed-block download in one of
-the Western European pages, every line padded to an 80-byte card image and no line ends at all, as a
-binary transfer of a PDS member arrives. Those estates declare their page too, and the engine must
+the Western European pages or the mixed CJK host pages (cp930 / cp939 / cp935 / cp937 / cp933), every
+line padded to an 80-byte card image and no line ends at all, as a binary transfer of a PDS member
+arrives. Those estates declare their page too, and the engine must
 read the same facts out of them as out of the UTF-8 seed. Nordic names go into cp277 / cp278 and
 German names into cp273, the pages whose `@ # $` positions carry those letters.
 
@@ -123,11 +124,17 @@ ENCODINGS = ["utf-8", "utf-8-sig", "utf-16", "utf-16-be", "cp1252", "shift_jis",
 # Code pages an estate must declare (see the module docstring): the scan of a `<script>__<codec>`
 # estate passes `--source-encoding <codec>` for these.
 # #3816: raw EBCDIC, for the mainframe seed only (a Python file in EBCDIC is not a real estate).
-EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047"]
+# The mixed CJK pages (part 3a) hold the seed in their single-byte half, read through the byte-level
+# record split that a Kanji comment or N-literal also goes through.
+EBCDIC = ["cp037", "cp273", "cp277", "cp278", "cp297", "cp1047", "cp930", "cp939", "cp935", "cp937", "cp933"]
 # the pages each national script is tested in: the ones whose national positions hold its letters
 EBCDIC_SCRIPTS = {"nordic": ["cp277", "cp278"], "german": ["cp273"]}
 FB_LRECL = 80  # a card image: the record length of a source PDS
 DECLARED = {"shift_jis", "gb18030", *EBCDIC}
+# #3815: the mainframe seed's national names with the FILE NAMES written decomposed (NFD), as a macOS
+# export or zip writes them; the content stays UTF-8 NFC. The engine stores paths in NFC, so the facts
+# must equal the NFC estate's -- and `%INCLUDE INCAÄÖÜ` must still find the NFD-named INCAÄÖÜ.inc.
+NFD_PATHS = "nfd-paths"
 
 # Counters a new name changes by design (a suffix changes the case style and the length) and the
 # token mass (a different script tokenises differently). Everything else must not move.
@@ -141,23 +148,28 @@ CHANNELS = ["function_data", "fcall_data", "call_site_data", "dataset_data", "cs
 
 # ---- the transforms ---------------------------------------------------------------------
 def fixed_block(text: str, codec: str, lrecl: int = FB_LRECL) -> bytes | None:
-    """#3816: `text` as a raw fixed-block EBCDIC download -- every line padded to `lrecl` bytes, back to
-    back, no line ends. None when a line is longer than a record or a character is not in the page."""
+    """#3816: `text` as a raw fixed-block EBCDIC download -- every line padded to `lrecl` bytes (0x40,
+    the EBCDIC space), back to back, no line ends. Bytes, not characters: on a mixed CJK page a
+    double-byte character is two bytes and its shifts one each. None when a line is longer than a
+    record or a character is not in the page."""
     lines = text.replace("\r\n", "\n").split("\n")
     if lines[-1] == "":
         lines.pop()
-    if any(len(line) > lrecl for line in lines):
-        return None
     try:
-        return "".join(line.ljust(lrecl) for line in lines).encode(codec)
+        records = [line.encode(codec) for line in lines]
     except UnicodeEncodeError:
         return None
+    if any(len(record) > lrecl for record in records):
+        return None
+    return b"".join(record.ljust(lrecl, b"\x40") for record in records)
 
 
 def encode(text: str, encoding: str) -> bytes | None:
     """The file's bytes in `encoding`, or None when the text cannot be written in it."""
     if encoding in EBCDIC:
         return fixed_block(text, encoding)
+    if encoding == NFD_PATHS:
+        return text.encode("utf-8")
     if encoding == "crlf":
         return text.replace("\r\n", "\n").replace("\n", "\r\n").encode("utf-8")
     if encoding == "utf-16-be":
@@ -272,7 +284,10 @@ def expected(control: dict[str, Any], rename, prefix_from: str, prefix_to: str) 
     every text value renamed."""
 
     def path(p: str | None) -> str | None:
-        return None if p is None else rename(prefix_to + p[len(prefix_from) :]) if p.startswith(prefix_from) else p
+        if p is None or not p.startswith(prefix_from):
+            return p
+        # #3815: the engine stores paths in NFC (a renamed path carrying the `nfd` word included)
+        return _nfc(rename(prefix_to + p[len(prefix_from) :]))
 
     out = {}
     for p, f in control.items():
@@ -285,6 +300,10 @@ def expected(control: dict[str, Any], rename, prefix_from: str, prefix_to: str) 
                            for row in f[c]), key=repr)  # fmt: skip
         out[path(p)] = g
     return out
+
+
+def _nfc(text: str) -> str:
+    return unicodedata.normalize("NFC", text)
 
 
 def actual(variant: dict[str, Any], prefix: str) -> dict[str, Any]:
@@ -353,6 +372,8 @@ def _write(folder: Path, dest: Path, rename, enc: str) -> bool:
         if data is None:
             return False
         out = dest / rename(src.relative_to(folder).as_posix())
+        if enc == NFD_PATHS:
+            out = dest / unicodedata.normalize("NFD", rename(src.relative_to(folder).as_posix()))
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(data)
     return True
@@ -392,6 +413,7 @@ def build(seeds: dict[str, Path], seed_facts: dict[str, Any], root: Path, full: 
         if lang == "mainframe":  # #3816: every EBCDIC cell, in the sampled plan too, so CI runs them
             plan += [("ascii", e) for e in EBCDIC]
             plan += [(sc, e) for sc in scripts for e in EBCDIC_SCRIPTS.get(sc, [])]
+            plan += [(sc, NFD_PATHS) for sc in scripts]  # #3815: file names decomposed
         twins_done: set[str] = set()
         for script, enc in plan:
             if script == "ascii":

@@ -43,6 +43,11 @@ total and every differing field.
 (equivalence_java.ENVIRONMENTS, or `LOCALE/TZ` as written) and diffs every run against the one
 COBOL run. The report says which environments and which key order the claim covers.
 
+#3815 -- declared encodings: `--source-encoding` / a case's `"source_encoding"` (how the COBOL
+sources are read; default the engine's read_source ladder) and `--data-encoding` / `"data_encoding"`
+(the record bytes' code page -- inputs, generated records, outputs, the diff and the Java side's
+record Charset; default Latin-1, as before). See equivalence_common.
+
 A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
 EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key
 pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
@@ -53,6 +58,7 @@ are compared field by field.
 from __future__ import annotations
 
 import argparse
+import codecs
 import json
 import shutil
 import subprocess
@@ -63,7 +69,19 @@ from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
-from equivalence_common import CASES, IMAGE, _fixed, _input_path, compile_options, decode_field, layout_fields
+from equivalence_common import (
+    CASES,
+    DEFAULT_DATA_ENCODING,
+    IMAGE,
+    _fixed,
+    _input_path,
+    compile_options,
+    data_encoding,
+    decode_field,
+    layout_fields,
+    read_program,
+    require_ascii_runtime,
+)
 
 
 # ---- COBOL side ----------------------------------------------------------------------
@@ -144,8 +162,12 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     src = work / "src"
     src.mkdir(exist_ok=True)
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
-    program, option_flags = compile_options(case, (corpus / case["program_source"]).read_text(encoding="latin-1"))
-    (src / "PROGRAM.cbl").write_text(program, encoding="latin-1")
+    require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
+    enc = data_encoding(case)
+    # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
+    source, staged = read_program(case, corpus / case["program_source"])
+    program, option_flags = compile_options(case, source)
+    (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
             if p.is_file():
@@ -159,7 +181,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
         if dd in generated:
             (work / f"{dd}.in").write_bytes(generated[dd])
         elif "input" in spec:
-            (work / f"{dd}.in").write_bytes(_fixed(_input_path(case, corpus, spec["input"]), spec["reclen"]))
+            (work / f"{dd}.in").write_bytes(_fixed(_input_path(case, corpus, spec["input"]), spec["reclen"], enc))
         if spec.get("organization") == "indexed":
             (src / f"LD{dd}.cbl").write_text(cobol_loader(dd, spec["reclen"], spec["keys"]), encoding="ascii")
             (src / f"UL{dd}.cbl").write_text(cobol_unloader(dd, spec["reclen"], spec["keys"]), encoding="ascii")
@@ -200,8 +222,26 @@ def build_image() -> None:
 
 
 # ---- the field-by-field diff ---------------------------------------------------------
+# #3815: the usages whose bytes are characters in the data's page (the rest -- COMP, COMP-3 -- are binary)
+_TEXT_USAGES = frozenset({"DISPLAY"})
+
+
+def _as_text(raw: bytes, enc: str) -> Any:
+    """#3815: bytes as text in `enc`, or the bytes themselves when they are not text there (never lost)."""
+    try:
+        return raw.decode(enc)
+    except UnicodeDecodeError:
+        return raw
+
+
 def diff_records(
-    left: bytes, right: bytes, reclen: int, fields: list[dict[str, Any]], code_page: str = "cp037"
+    left: bytes,
+    right: bytes,
+    reclen: int,
+    fields: list[dict[str, Any]],
+    code_page: str = "cp037",
+    data_encoding: str = DEFAULT_DATA_ENCODING,
+    right_encoding: Optional[str] = None,
 ) -> dict[str, Any]:
     """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
     equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
@@ -212,7 +252,21 @@ def diff_records(
     #3820: the bytes no field covers are compared too, as `(bytes outside the layout)`. The layout is
     read from the copybook, so a width it gets wrong (a currency string sized as one byte) leaves the
     record's tail -- where the real later fields sit -- unread: comparing only the listed fields let
-    two different records pass as equal. `layout_bytes` reports the layout's own width beside `reclen`."""
+    two different records pass as equal. `layout_bytes` reports the layout's own width beside `reclen`.
+
+    #3815: text and zoned fields are decoded in `data_encoding` (the case's page, default Latin-1), the right
+    side in `right_encoding` when it was written in another (a mainframe's cp277 unload against a run in
+    ISO-8859-1): then the same text in two pages is equal, and only a binary field's (COMP / COMP-3) bytes,
+    which no page changes, are compared as bytes; FILLER and the bytes outside the layout are compared as text.
+    Across pages, a record's layout must fit both (single-byte pages): offsets are bytes."""
+    renc = right_encoding or data_encoding
+    same_page = codecs.lookup(renc).name == codecs.lookup(data_encoding).name
+
+    def same_bytes(x: bytes, y: bytes, usage: Optional[str] = None) -> bool:
+        if same_page or (usage or "DISPLAY").upper() not in _TEXT_USAGES:
+            return x == y
+        return _as_text(x, data_encoding) == _as_text(y, renc)
+
     covered = bytearray(reclen)
     for f in fields:
         for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
@@ -232,17 +286,19 @@ def diff_records(
             sl = slice(f["offset"], f["offset"] + f["bytes"])
             sep = f.get("sign_separate", False)
             va, vb = (
-                decode_field(a[sl], f["pic"], f["usage"], code_page, sep),
-                decode_field(b[sl], f["pic"], f["usage"], code_page, sep),
+                decode_field(a[sl], f["pic"], f["usage"], code_page, sep, data_encoding),
+                decode_field(b[sl], f["pic"], f["usage"], code_page, sep, renc),
             )
-            if a[sl] != b[sl] and f["name"] == "FILLER":
+            if not same_bytes(a[sl], b[sl], f["usage"]) and f["name"] == "FILLER":
                 filler_bad = True
             elif va != vb:
                 bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
-            elif a[sl] != b[sl]:  # #3830: same value, other bytes -- a C vs F sign nibble, -0 vs +0, ...
+            elif not same_bytes(a[sl], b[sl], f["usage"]):  # #3830: same value, other bytes -- C vs F sign, -0 / +0
                 bad.append({"field": f["name"], "cobol": a[sl].hex(), "java": b[sl].hex(), "raw": True})
         outside = [
-            i for i in range(max(len(a), len(b))) if (i >= reclen or not covered[i]) and a[i : i + 1] != b[i : i + 1]
+            i
+            for i in range(max(len(a), len(b)))
+            if (i >= reclen or not covered[i]) and not same_bytes(a[i : i + 1], b[i : i + 1])
         ]
         if outside:
             lo, hi = outside[0], outside[-1] + 1
@@ -321,6 +377,10 @@ def main() -> int:
     )
     r.add_argument("--environments", help="#3821: JVM environments to run the Java side under: NAME,NAME | "
                    "all | LOCALE/TZ (default: the case's `environments`, else `default`)")  # fmt: skip
+    r.add_argument("--source-encoding", help="#3815: the COBOL sources' code page (default: the case's "
+                   "`source_encoding`, else the engine's read_source ladder: BOM, UTF-8, cp1252, Latin-1)")  # fmt: skip
+    r.add_argument("--data-encoding", help="#3815: the record bytes' code page, e.g. cp277, utf-8 (default: "
+                   "the case's `data_encoding`, else latin-1)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     sub.add_parser("list")
@@ -332,6 +392,10 @@ def main() -> int:
     import mainframe_corpus as mc
 
     case = load_case(args.case)
+    for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
+        if getattr(args, key):
+            case[key] = getattr(args, key)
+    data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
@@ -366,7 +430,8 @@ def main() -> int:
             if not spec.get("compare"):
                 continue
             fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
-            d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"))
+            d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"),
+                             data_encoding(case))  # fmt: skip
             if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
                 print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
             outputs[dd] = d

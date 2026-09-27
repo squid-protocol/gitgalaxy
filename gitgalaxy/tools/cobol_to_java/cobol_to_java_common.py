@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
@@ -171,12 +172,15 @@ def java_identifier(col_name: str) -> str:
 _EDITED = re.compile(r"[^9SVP]")
 
 
-def parse_pic_precision(pic: str, decimal_comma: bool) -> tuple[int, int]:
+def parse_pic_precision(pic: str, decimal_comma: bool, currency_symbols: Iterable[str] = ()) -> tuple[int, int]:
     """(total digits, scale) of a numeric or numeric-edited PIC: `S9(7)V99` -> (9, 2), `ZZZ.ZZ9,99` with
     `decimal_comma` -> (8, 2). #3827: under DECIMAL-POINT IS COMMA the `,` is the decimal point and `.` an
     insertion character. Digit positions are 9, Z and *, plus a floating +, - or currency string (every
-    symbol of it but the first)."""
-    pic = "".join("$" if unicodedata.category(ch) == "Sc" else ch for ch in pic.upper())
+    symbol of it but the first). #3910: `currency_symbols` are the program's declared PICTURE SYMBOLs
+    (SPECIAL-NAMES CURRENCY ... WITH PICTURE SYMBOL 'U'): each is a currency symbol like `$`, so
+    `UUU,UU9.99` is (7, 2) and the lakh-grouped `KK,KK,KK9.99` (8, 2), as the record layout sizes them."""
+    symbols = {s.upper() for s in currency_symbols if s and len(s) == 1}
+    pic = "".join("$" if unicodedata.category(ch) == "Sc" or ch in symbols else ch for ch in pic.upper())
     expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic)
 
     decimal_char = "," if decimal_comma else "."

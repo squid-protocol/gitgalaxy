@@ -231,8 +231,8 @@ def count_tokens(text: str) -> tuple[int, int, str]:
     if _TIKTOKEN_ENCODING is not None:
         try:
             return b, len(_TIKTOKEN_ENCODING.encode(text)), "tiktoken(o200k_base)"
-        except Exception:
-            pass
+        except Exception:  # a broken tokenizer must not stop a ticket: count bytes from now on
+            _TIKTOKEN_ENCODING = None
 
     return b, math.ceil(b / 4), "bytes/4"
 

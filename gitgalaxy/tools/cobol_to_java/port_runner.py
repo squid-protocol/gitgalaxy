@@ -45,7 +45,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import decode_bytes, read_source
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import count_tokens
 
 PORTS = Path("ai_agent_jobs") / "ports"
@@ -245,7 +245,7 @@ def cmd_run(opts: argparse.Namespace) -> int:
     try:
         answer = ask(opts.backend, system, user, opts, work)
     except urllib.error.HTTPError as e:
-        error_msg = f"HTTP Error {e.code}: {e.read().decode(errors='replace')}"
+        error_msg = f"HTTP Error {e.code}: {decode_bytes(e.read())}"
         log_event(
             project,
             {

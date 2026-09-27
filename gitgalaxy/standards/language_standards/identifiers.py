@@ -47,8 +47,8 @@ def _class_contents(codepoints: list[int]) -> str:
     return "".join(out)
 
 
-def _build() -> tuple[str, str, str, str]:
-    start, cont, virama, capital = [], [], [], []
+def _build() -> tuple[str, str, str, str, str]:
+    start, cont, virama, capital, small = [], [], [], [], []
     category, combining = unicodedata.category, unicodedata.combining
     for plane in _PLANES:
         for cp in plane:
@@ -59,9 +59,12 @@ def _build() -> tuple[str, str, str, str]:
                     start.append(cp)
                 if cat in ("Lu", "Lt", "Lo"):
                     capital.append(cp)
+                if cat in ("Ll", "Lm", "Lo") or cp == 0x5F:
+                    small.append(cp)
                 if combining(chr(cp)) == 9:
                     virama.append(cp)
-    return _class_contents(start), _class_contents(cont), _class_contents(virama), _class_contents(capital)
+    c = _class_contents
+    return c(start), c(cont), c(virama), c(capital), c(small)
 
 
 # CAPITAL: what `[A-Z]` meant for a name that must start with a capital (a Java constructor):
@@ -69,7 +72,10 @@ def _build() -> tuple[str, str, str, str]:
 # VIRAMA: the marks (canonical combining class 9: Devanagari ्, Tamil ், ...) after which UAX #31
 # allows a ZWNJ / ZWJ inside a name (rules A1/A2) -- the one place those joiners are spelling,
 # not hidden text.
-ID_START, ID_CONTINUE, VIRAMA, CAPITAL = _build()
+# SMALL: what `[a-z_]` meant for a name that must NOT start with a capital (a Haskell variable, whose
+# first letter tells it from a constructor): lower-case letters, `_`, and letters of scripts with no
+# case (GHC reads an uncased letter as small).
+ID_START, ID_CONTINUE, VIRAMA, CAPITAL, SMALL = _build()
 NAME = f"[{ID_START}][{ID_CONTINUE}]*"
 
 # #3814 / #3810: MAINFRAME national characters. EBCDIC's national bytes 0x5B / 0x7B / 0x7C -- `$ # @`

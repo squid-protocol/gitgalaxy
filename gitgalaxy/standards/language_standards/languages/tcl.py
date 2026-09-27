@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -43,8 +45,10 @@ DEFINITION: dict[str, Any] = {
             r"(?m)^[ \t]*(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
             r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"
             r"|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|TRIGGER|BEGIN|COMMIT|ROLLBACK|PRAGMA|COALESCE|CASE|WHEN"
-            r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?![\w:-]))"
-            r"([A-Za-z_][\w:-]*)\b"
+            r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?!["
+            + ID_CONTINUE
+            + r":-]))"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r":-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r"])"
         ),
         "_calls_out_ignore": frozenset(
             {
@@ -78,7 +82,9 @@ DEFINITION: dict[str, Any] = {
             # =====================================================================
             # BUG FIX: Expanded to support 3 levels of nesting to handle deeply nested default values.
             # BUG FIX: Expanded name character set to include -, !, ?
-            r"^[ \t]*proc[ \t\n]+[a-zA-Z0-9_:\-!?]+[ \t\n]+\{((?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\}",
+            r"^[ \t]*proc[ \t\n]+["
+            + ID_CONTINUE
+            + r":\-!?]+[ \t\n]+\{((?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*)\}",
             re.M,
         ),
         # Tcl default-value argument lists (#1512): opt-in for depth-aware braced parameter parsing.
@@ -91,14 +97,18 @@ DEFINITION: dict[str, Any] = {
         # Captures standard procs and namespaced procs (e.g., `proc ::my::func`).
         # BUG FIX: Expanded name character set to include -, !, ?
         "func_start": re.compile(
-            r"^[ \t]*proc[ \t\n]+([a-zA-Z0-9_:\-!?]+)(?:[ \t\n]+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\})?(?=[ \t\n]*\{|[ \t\n]|$)",
+            r"^[ \t]*proc[ \t\n]+(["
+            + ID_CONTINUE
+            + r":\-!?]+)(?:[ \t\n]+\{(?:[^{}]|\{(?:[^{}]|\{(?:[^{}]|\{[^{}]*\})*\})*\})*\})?(?=[ \t\n]*\{|[ \t\n]|$)",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
         # Captures TclOO, Snit, and Itcl class definitions.
         # BUG FIX: Expanded name character set to include -, !, ?
         "class_start": re.compile(
-            r"^[ \t]*(?:oo::class[ \t\n]+create|snit::type|itcl::class)[ \t\n]+([a-zA-Z0-9_:\-!?]+)(?=[ \t]*\{|[ \t\n]|$)",
+            r"^[ \t]*(?:oo::class[ \t\n]+create|snit::type|itcl::class)[ \t\n]+(["
+            + ID_CONTINUE
+            + r":\-!?]+)(?=[ \t]*\{|[ \t\n]|$)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -112,7 +122,7 @@ DEFINITION: dict[str, Any] = {
         # OS command execution and process termination.
         # #2878 contract C2: hyphen-guarded (`ports_deactivate_no-exec`); C4 `file delete -force`
         # is a path deletion (cleanup's question, #2843).
-        "high_risk_execution": re.compile(r"(?<![-\w])(?:exec|exit)(?![-\w])"),
+        "high_risk_execution": re.compile(r"(?<![-" + ID_CONTINUE + r"])(?:exec|exit)(?![-" + ID_CONTINUE + r"])"),
         # 9. io (I/O & Network Boundaries)
         # File system, sockets, and configuration. (Excludes puts which is mapped to print_hits).
         "io": re.compile(
@@ -145,11 +155,13 @@ DEFINITION: dict[str, Any] = {
         # opts in by declaring it, and the other 41 are unchanged by
         # construction. Leading `_` keeps it out of `coding_analysis`'s rule
         # loop and the counts schema, the same way `_scope_filters` does.
-        "_visibility_export": re.compile(r"^[ \t]*namespace[ \t]+export[ \t]+([a-zA-Z_]\w*)", re.M),
+        "_visibility_export": re.compile(
+            r"^[ \t]*namespace[ \t]+export[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)", re.M
+        ),
         # 11. flux (State Mutation)
         # Variable state mutations.
         "state_mutation": re.compile(
-            r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[a-zA-Z0-9_:]+"
+            r"\b(?:set|lappend|dict[ \t]+set|array[ \t]+set|incr|append)\b[ \t]+[" + ID_CONTINUE + r":]+"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented out structural code.
@@ -160,7 +172,9 @@ DEFINITION: dict[str, Any] = {
         # 14. test (Testing & Assertions)
         # *THE SQLITE MEGA-SENSOR*: Accurately maps the SQLite custom test harnesses alongside standard tcltest.
         "test": re.compile(
-            r"\b(?:do_test|do_execsql_test|do_catchsql_test|do_eqp_test|do_ioerr_test|do_faultsim_test|test\s+[a-zA-Z0-9_-]+|tcltest::|finish_test)\b"
+            r"\b(?:do_test|do_execsql_test|do_catchsql_test|do_eqp_test|do_ioerr_test|do_faultsim_test|test\s+["
+            + ID_CONTINUE
+            + r"-]+|tcltest::|finish_test)\b"
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
@@ -248,10 +262,10 @@ DEFINITION: dict[str, Any] = {
         "sync_locks": re.compile(r"\b(?:thread::mutex|thread::rwmutex|thread::cond)\b"),
         # 45. immutability_locks (Immutability Constraints)
         # Tcl lacks `const`, but setting a trace to prevent writes is the Tcl idiom for freezing.
-        "immutability_locks": re.compile(r"\btrace[ \t]+add[ \t]+variable[ \t]+[a-zA-Z0-9_:]+[ \t]+write\b"),
+        "immutability_locks": re.compile(r"\btrace[ \t]+add[ \t]+variable[ \t]+[" + ID_CONTINUE + r":]+[ \t]+write\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
-            r'\b(?:close|unset)\b|\bfile[ \t]+delete\b|rename[ \t]+[a-zA-Z0-9_:]+[ \t]+""'
+            r"\b(?:close|unset)\b|\bfile[ \t]+delete\b|rename[ \t]+[" + ID_CONTINUE + r':]+[ \t]+""'
         ),  # #2888/#2843: file delete destroys external state
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Internal namespaces and private `_` prefixed procs.
@@ -264,6 +278,8 @@ DEFINITION: dict[str, Any] = {
         "listeners": re.compile(r"\b(?:bind|fileevent)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         # Using TclTest constraints to silently skip tests on certain OS environments.
-        "test_skip": re.compile(r"-constraints[ \t]+[a-zA-Z0-9_]+\b|\btestConstraint\b"),
+        "test_skip": re.compile(
+            r"-constraints[ \t]+[" + ID_CONTINUE + r"]+(?![" + ID_CONTINUE + r"])|\btestConstraint\b"
+        ),
     },
 }

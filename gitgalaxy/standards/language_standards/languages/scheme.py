@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE
+
 from .._shared_patterns import CALLS_OUT_LISP_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -157,7 +159,7 @@ DEFINITION: dict[str, Any] = {
             # the S-expression structure to ensure the parser can track the
             # identifier no matter how deeply it is vertically nested.
             # =====================================================================
-            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
+            r"^[ \t\n]*\([ \t\n]*define[ \t\n]+\([ \t\n]*([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
@@ -166,7 +168,9 @@ DEFINITION: dict[str, Any] = {
         # missed the extremely common `<TypeName>` angle-bracket naming
         # convention for record types (SRFI-9/R6RS idiom, e.g. `<point>`).
         "class_start": re.compile(
-            r"^[ \t\n]*\([ \t\n]*define-record-type[ \t\n]+(?:\([ \t\n]*)?([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
+            r"^[ \t\n]*\([ \t\n]*define-record-type[ \t\n]+(?:\([ \t\n]*)?(["
+            + ID_CONTINUE
+            + r"!?*+/<>=.~$%^&:-]+)(?![^ \t\n)\]\r])",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -247,7 +251,7 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: same identifier-class defect as func_start/class_start --
         # a top-level binding using the "X->Y" convention (e.g.
         # `default->value`) failed to match at all.
-        "globals": re.compile(r"^[ \t]*\([ \t]*define\s+[a-zA-Z0-9_!?*+/<>=.~$%^&:-]+\s+[^(\s]", re.M),
+        "globals": re.compile(r"^[ \t]*\([ \t]*define\s+[" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+\s+[^(\s]", re.M),
         # #2674: the regex above matches BOTH a module-level `(define x v)` (a
         # real global) and an internal define inside a lambda/let/procedure
         # body (a local binding, R7RS 5.3.2) -- and in Scheme indentation
@@ -295,8 +299,8 @@ DEFINITION: dict[str, Any] = {
         # keep this ReDoS-safe (no nested unbounded quantifiers).
         "_dependency_capture": re.compile(
             r"^[ \t]*\([ \t\n]*(?:import|use-modules|require)[ \t\n]+"
-            r"\(?[ \t\n]*(?:[a-zA-Z0-9_!?*+/<>=.~$%^&:-]+[ \t\n]+){0,6}"
-            r"([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)[ \t\n]*\)?[ \t\n]*\)",
+            r"\(?[ \t\n]*(?:[" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+[ \t\n]+){0,6}"
+            r"([" + ID_CONTINUE + r"!?*+/<>=.~$%^&:-]+)[ \t\n]*\)?[ \t\n]*\)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -132,16 +134,18 @@ DEFINITION: dict[str, Any] = {
         # 2/3 too, purely so existing extraction tests keep passing.
         "args": re.compile(
             r"\b(param)\s*(\((?:[^()]|\([^()]*\))*\))"
-            r"|\bfunction\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)\s*(\((?:[^()]|\([^()]*\))*\))"
+            r"|\bfunction\s+(?:(?:global|script|local|private):)?(["
+            + ID_CONTINUE
+            + r"-]+)\s*(\((?:[^()]|\([^()]*\))*\))"
             r"|^[ \t]*(?:(?:hidden|static)\s+)*(?:\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+)?"
             r"(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch)\b)"
-            r"([A-Za-z_]\w*)\s*(\((?:[^()]|\([^()]*\))*\))\s*[ \t\n]*\{",
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*(\((?:[^()]|\([^()]*\))*\))\s*[ \t\n]*\{",
             re.I | re.M,
         ),
         # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope (process, begin, end).
         # EXCLUDES access modifiers (hidden, static) to prevent Structural Complexity Inflation.
         "structural_boundaries": re.compile(
-            r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[a-zA-Z_]"
+            r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[" + ID_START + r"]"
             r"|(?:process|begin|end|clean)\s*\{"
             r"|(?:return|exit|throw)\b(?![-])"
             r"|using\s+(?:namespace|module)\b)",
@@ -177,10 +181,14 @@ DEFINITION: dict[str, Any] = {
         # {`, `foreach (...) {`, `elseif (...) {`). Fixed with the same negative-lookahead
         # keyword exclusion.
         "func_start": re.compile(
-            r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([a-zA-Z0-9_-]+)"
-            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)([a-zA-Z_]\w*)(?=\s*\()"
+            r"^[ \t]*(?:function|filter|workflow)\s+(?:(?:global|script|local|private):)?([" + ID_CONTINUE + r"-]+)"
+            r"|^[ \t]*(?:(?:hidden|static)\s+)*\[(?:[^\[\]]|\[[^\[\]]*\])+\]\s+(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?=\s*\()"
             r"|^[ \t]*(?:(?:hidden|static)\s+)*(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)"
-            r"([A-Za-z_]\w*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*\((?:[^()]|\([^()]*\))*\)\s*[ \t\n]*\{",
             re.I | re.M,
         ),
         # class_start: Object / Entity Declarations. Defines OO boundaries (Classes and Enums).
@@ -189,7 +197,7 @@ DEFINITION: dict[str, Any] = {
         # _CLASS_START_NAMED_EXTRACTION_LANGS since #1264, but this specific gap was never
         # caught (real_classes=5 in the corpus, found_classes=0). Purely additive change --
         # doesn't alter which lines match or how many, only makes match.groups() richer.
-        "class_start": re.compile(r"^[ \t]*(?:class|enum)\s+([a-zA-Z_]\w*)", re.I | re.M),
+        "class_start": re.compile(r"^[ \t]*(?:class|enum)\s+([" + ID_START + r"][" + ID_CONTINUE + r"]*)", re.I | re.M),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # safety: Defensive Programming. Strict mode, validation attributes, and null-conditional access (?.).
         "safety": re.compile(
@@ -232,7 +240,9 @@ DEFINITION: dict[str, Any] = {
         # capture's own span, so naming a function in an export statement stops
         # counting as a use. Leading `_` keeps it out of `coding_analysis`'s
         # rule loop and the counts schema, the same way `_scope_filters` does.
-        "_visibility_export": re.compile(r"\bExport-ModuleMember[ \t]+-Function[ \t]+([a-zA-Z_]\w*)", re.I),
+        "_visibility_export": re.compile(
+            r"\bExport-ModuleMember[ \t]+-Function[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)", re.I
+        ),
         # 11. flux (State Mutation)
         # Mutation of state. Captures assignments, scoped variables, array indexing, and anchored increments.
         "state_mutation": re.compile(
@@ -240,17 +250,25 @@ DEFINITION: dict[str, Any] = {
             r"\bSet-Variable\b|"
             # PATH B: STANDARD ASSIGNMENT (Variables, Scopes, Properties, and Arrays)
             # Safely captures $var, $global:var, $env:PATH
-            r"\$(?:[a-zA-Z]+:)?[a-zA-Z_]\w*"
+            r"\$(?:[a-zA-Z]+:)?[" + ID_START + r"][" + ID_CONTINUE + r"]*"
             # The Chain: Safely captures .Property OR ['Index'], clamped to {0,4} to prevent runaway depth
-            r"(?:\.[a-zA-Z_]\w*|\[[^\]\n]+\]){0,4}"
+            r"(?:\.[" + ID_START + r"][" + ID_CONTINUE + r"]*|\[[^\]\n]+\]){0,4}"
             # The Operator: Uses [ \t]* instead of \s* to prevent O(N^2) vertical newline bleeding
             r"[ \t]*(?:\+|-|\*|/|%)?=|"
             # PATH C: PRE-INCREMENT / PRE-DECREMENT
             # Anchored to a variable to prevent matching "C++" in strings
-            r"(?:\+\+|--)[ \t]*\$(?:[a-zA-Z]+:)?[a-zA-Z_]\w*|"
+            r"(?:\+\+|--)[ \t]*\$(?:[a-zA-Z]+:)?[" + ID_START + r"][" + ID_CONTINUE + r"]*|"
             # PATH D: POST-INCREMENT / POST-DECREMENT
             # Includes property/array chaining before the increment (e.g. $arr[0]++)
-            r"\$(?:[a-zA-Z]+:)?[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*|\[[^\]\n]+\]){0,4}[ \t]*(?:\+\+|--)",
+            r"\$(?:[a-zA-Z]+:)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]+\]){0,4}[ \t]*(?:\+\+|--)",
             re.I,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -293,7 +311,11 @@ DEFINITION: dict[str, Any] = {
         "closures": re.compile(r"\{\s{0,20}(?:param\s{0,10}\([^)]{0,300}\))?[^}]{0,500}\}", re.I),
         # globals: Global / Shared State. Environment and global/script scope variables.
         "globals": re.compile(
-            r"\$(?:global|env|script):[a-zA-Z_]\w*|\b(?:ErrorActionPreference|WarningPreference|ConfirmPreference)\b",
+            r"\$(?:global|env|script):["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\b(?:ErrorActionPreference|WarningPreference|ConfirmPreference)\b",
             re.I,
         ),
         # decorators: Decorators / Annotations. Cmdlet and Parameter attributes.
@@ -302,7 +324,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # generics: Generics / Type Parameters. .NET generic type invocations.
-        "generics": re.compile(r"\[[a-zA-Z_.]+(?:`\d+)?\[[^\]]*\]\]", re.I),
+        "generics": re.compile(r"\[[" + ID_START + r".]+(?:`\d+)?\[[^\]]*\]\]", re.I),
         # comprehensions: Iterators / Comprehensions. Pipeline filtering and projection.
         "comprehensions": re.compile(
             r"\|\s*(?:Where-Object|\?|Select-Object|select|ForEach-Object|%)[ \t]*\{",
@@ -315,7 +337,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # heat_triggers: Metaprogramming & Reflection. Reflection and on-the-fly C# compilation via Add-Type.
         "reflection_metaprogramming": re.compile(
-            r"\b(Add-Type|System\.Reflection|System\.Management\.Automation\.Language|Invoke-Expression|iex)\b|&\s*\$[a-zA-Z_]\w*",
+            r"\b(Add-Type|System\.Reflection|System\.Management\.Automation\.Language|Invoke-Expression|iex)\b|&\s*\$["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*",
             re.I,
         ),
         # import: Dependency Inclusions. Module and assembly loading.
@@ -371,7 +397,7 @@ DEFINITION: dict[str, Any] = {
         "macros": None,  # PowerShell lacks a preprocessor
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         # PHP natively lacks pointers, but FFI (Foreign Function Interface) memory bounds are safely captured.
-        "pointers": re.compile(r"\[(?:IntPtr|UIntPtr)\]|\[ref\]\s*\$[a-zA-Z_]\w*", re.I),
+        "pointers": re.compile(r"\[(?:IntPtr|UIntPtr)\]|\[ref\]\s*\$[" + ID_START + r"][" + ID_CONTINUE + r"]*", re.I),
         "memory_alloc": re.compile(
             r"\[System\.Runtime\.InteropServices\.Marshal\]::(?:AllocHGlobal|AllocCoTaskMem)",
             re.I,

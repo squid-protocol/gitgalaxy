@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
     GLOBAL_DL_FRAMEWORKS,
@@ -146,12 +148,26 @@ DEFINITION: dict[str, Any] = {
         # truncate the capture at the default's own closing paren and
         # silently drop every parameter after it.
         "args": re.compile(
-            r"(?:async[ \t]+)?def[ \t]+(\w+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
+            r"(?:async[ \t]+)?def[ \t]+(["
+            + ID_CONTINUE
+            + r"]+)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
             r"\blambda\b[ \t]*([^:]*):|"
             r"^[ \t]*cp?def[ \t]+(?!(?:class|struct|enum|union|extern|packed|fused)\b)"
             r"(?:(?:inline|public|readonly|api)[ \t]+){0,3}"
-            r"(?:(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|\{\{[ \t]*[A-Za-z_]\w*[ \t]*\}\})[ \t]+){0,2}"
-            r"\*{0,2}[ \t]*(\w+)[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
+            r"(?:(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*|\{\{[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*\}\})[ \t]+){0,2}"
+            r"\*{0,2}[ \t]*([" + ID_CONTINUE + r"]+)[ \t]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -187,12 +203,28 @@ DEFINITION: dict[str, Any] = {
         # return-type group (`\{\{...\}\}`, one identifier only -- no nested unbounded
         # quantifier, same ReDoS discipline as everything else in this rule).
         "func_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+\w+(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\("
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:async[ \t]+)?def[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t]*\("
             r"|"
             r"^[ \t]*cp?def[ \t]+(?!(?:class|struct|enum|union|extern|packed|fused)\b)"
             r"(?:(?:inline|public|readonly|api)[ \t]+){0,3}"
-            r"(?:(?:[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*|\{\{[ \t]*[A-Za-z_]\w*[ \t]*\}\})[ \t]+){0,2}"
-            r"\*{0,2}[ \t]*\w+[ \t]*\(",
+            r"(?:(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*|\{\{[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*\}\})[ \t]+){0,2}"
+            r"\*{0,2}[ \t]*[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*\(",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
@@ -202,14 +234,22 @@ DEFINITION: dict[str, Any] = {
         # easy miss for the same reason java's #816 class_start bug was (name looks fine,
         # inheritance info silently vanishes).
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:cdef[ \t]+|cpdef[ \t]+)?class[ \t]+([a-zA-Z_]\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\(([^)]*)\))?",
+            r"^[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]+){0,5}(?:cdef[ \t]+|cpdef[ \t]+)?class[ \t]+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?(?:[ \t]*\(([^)]*)\))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         # C3: blanket except is safety_bypasses'; bare getattr is reflection_metaprogramming's. C1: dataclass/Field/TypeGuard/override are declaration/type-level.
         "safety": re.compile(
-            r"\b(try|finally|assert|isinstance|issubclass|hasattr|BaseModel)\b|\bexcept\*?\s+(?!(?:Base)?Exception\b)[A-Za-z_]\w*"
+            r"\b(try|finally|assert|isinstance|issubclass|hasattr|BaseModel)\b|\bexcept\*?\s+(?!(?:Base)?Exception\b)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Swallowed errors, wildcard imports, and Any bypasses.
@@ -254,7 +294,15 @@ DEFINITION: dict[str, Any] = {
             # guard drops a spaced kwarg on its own line (`x = 1,`); `x: int = 1` is
             # a declaration-with-initializer (the `:` breaks the lvalue) and is not a
             # write. Needs re.M for the `^` anchor.
-            r"(?:^|;)[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"(?:^|;)[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=])(?![^\n(]{0,300},[ \t]*$)"
             r"|\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\(",
             re.M,
         ),
@@ -436,7 +484,7 @@ DEFINITION: dict[str, Any] = {
             # _single and __mangled stay.
             r"^[ \t]*(?:async[ \t]+)?def[ \t]+(?!__\w+__[ \t]*\()_\w+"
             r"|^[ \t]*class[ \t]+(?!__\w+__\b)_\w+"
-            r"|^(?!__\w+__[ \t]*=)_[a-zA-Z_]\w*[ \t]*=(?!=)"
+            r"|^(?!__\w+__[ \t]*=)_[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*=(?!=)"
             r"|self\.(?!__\w+__[ \t]*=)_\w+[ \t]*=(?!=)",
             re.M,
         ),

@@ -10,6 +10,8 @@
 
 import re
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 # ------------------------------------------------------------------------------
 # 3. UNIVERSAL DOMAIN SENSORS (Applied to ALL languages)
 # Consumed by: detector.py (LogicSplicer)
@@ -145,7 +147,7 @@ HTML_NONEXECUTABLE_SCRIPT_TAG = re.compile(
 # ------------------------------------------------------------------------------
 
 # C-Family / Algol-Family (name followed by optional space and open parenthesis)
-CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
+CALLS_OUT_C_STYLE = re.compile(rf"\b([{ID_START}][{ID_CONTINUE}]*)\s*\(")
 
 # #3359 (contract C1): the C-style pattern for languages whose `@Name(...)` is a
 # metadata annotation -- a declaration, never an invocation (java, kotlin, swift,
@@ -154,7 +156,7 @@ CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 # (`@javax.annotation.Generated(`) still leaks its last segment, a known gap:
 # the lookbehind is fixed-width on purpose (Rule 5). detector.py treats this
 # pattern exactly like CALLS_OUT_C_STYLE (qualifier capture included).
-CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(r"(?<!@)\b([a-zA-Z_]\w*)\s*\(")
+CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)\s*\(")
 
 # #3644 (contract C3): the C-style pattern for languages that write a type-argument
 # list between a callee and its `(` -- C++ `static_cast<int>(`,
@@ -166,7 +168,7 @@ CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(r"(?<!@)\b([a-zA-Z_]\w*)\s*\(")
 # characters (Rules 1-3). detector.py treats it exactly like CALLS_OUT_C_STYLE.
 _GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
-    r"\b([a-zA-Z_]\w*)"
+    rf"\b([{ID_START}][{ID_CONTINUE}]*)"
     r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){1,200}>[ \t]*)?"
     r"\s*\("
 )
@@ -192,10 +194,18 @@ _RUBY_KEYWORD = (
     r"|next|nil|not|or|redo|rescue|retry|return|self|super|then|true|undef|unless|until|when|while|yield)"
     r"(?![\w?!])"
 )
-_RUBY_CALLEE = r"[a-zA-Z_]\w*(?:[?!](?![=~:]))?"
+_RUBY_CALLEE = rf"[{ID_START}][{ID_CONTINUE}]*(?:[?!](?![=~:]))?"
 CALLS_OUT_RUBY = re.compile(
     r"(?:(?<=[\w)\]}?!\"'`]\.)|(?<=[\w)\]}?!\"'`]&\.)|(?<=[ \t\n]\.)|(?<=\A\.)|(?<=\w::)(?=[a-z_])"
-    r"|(?<![@$.:])\b(?!" + _RUBY_KEYWORD + r")(?=" + _RUBY_CALLEE + r"[ \t]*\(|[a-zA-Z_]\w*[?!](?![=~:]))"
+    r"|(?<![@$.:])\b(?!"
+    + _RUBY_KEYWORD
+    + r")(?="
+    + _RUBY_CALLEE
+    + r"[ \t]*\(|["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]*[?!](?![=~:]))"
     r"|^[ \t]*(?!" + _RUBY_KEYWORD + r")(?=[a-z_]\w*!?[ \t]+"
     r"(?!(?:if|unless|while|until|rescue|and|or|then|do|in)\b)[\w:\"'@$\[%]))"
     r"(" + _RUBY_CALLEE + r")",
@@ -229,7 +239,7 @@ _RUST_BALANCED_ARGS = r"\((?:[^()\n]|\((?:[^()\n]|\([^()\n]{0,200}\)){0,200}\)){
 _RUST_PATTERN_TAIL = r"(?:[ \t]{0,8}[)\]]){0,8}(?:[ \t]{0,8}(?:=>|=(?![=>])|if\b)|\s{0,16}\|(?![|=]))"
 CALLS_OUT_RUST = re.compile(
     r"\b(?![A-Z]\w{0,63}[ \t]{0,8}" + _RUST_BALANCED_ARGS + _RUST_PATTERN_TAIL + r")"
-    r"([a-zA-Z_]\w*)"
+    rf"([{ID_START}][{ID_CONTINUE}]*)"
     r"(?:![ \t]{0,8}[(\[{]|(?:" + _RUST_TURBOFISH + r")?\s*\()"
 )
 
@@ -246,10 +256,22 @@ CALLS_OUT_RUST = re.compile(
 # (`h(next)(w)`, a call of the returned func) is no prefix: the `(` may not follow a
 # name, `)` or `]`. Every quantifier is bounded or runs over disjoint characters
 # (Rules 1-3).
-_GO_CONVERSION_PREFIX = r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[a-zA-Z_]\w{0,63}\.)?"
+_GO_CONVERSION_PREFIX = (
+    r"(?<![\w)\]])\(\*{0,2}(?:\[[^\]\n]{0,64}\])?(?:[" + ID_START + r"][" + ID_CONTINUE + r"]{0,63}\.)?"
+)
 CALLS_OUT_GO = re.compile(
-    r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([a-zA-Z_]\w*))"
-    r"(?:" + _GO_CONVERSION_PREFIX + r"[a-zA-Z_]\w{0,63}\)\(|\b[a-zA-Z_]\w*(?=\s*\())"
+    r"(?=(?:" + _GO_CONVERSION_PREFIX + r")?(?<!\w)([" + ID_START + r"][" + ID_CONTINUE + r"]*))"
+    r"(?:"
+    + _GO_CONVERSION_PREFIX
+    + r"["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]{0,63}\)\(|\b["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]*(?=\s*\())"
 )
 
 # The invocation patterns detector.py treats as the C-style family: group 1 is

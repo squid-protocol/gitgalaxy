@@ -16,9 +16,10 @@
 # ==============================================================================
 
 
+import json
 from typing import Optional
 
-from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
+from gitgalaxy.tools.cobol_to_java.java_target import Culture, JavaTarget
 
 # #3619: springdoc is not in Spring Boot's dependency management, so it carries its own version
 # (the 2.x line is the Spring Boot 3 / jakarta one).
@@ -238,7 +239,20 @@ spring:
         format_sql: true
         dialect: {dialect}
 {batch}"""
-    return yml
+    return yml + _culture_yml(t)
+
+
+def _culture_yml(t: JavaTarget) -> str:
+    """#3819: `gitgalaxy.culture.*`, where generated code reads the culture choices
+    (`@Value("${gitgalaxy.culture.zone:UTC}")`). Written only when a choice departs from the
+    defaults, whose values the readers carry -- the default run's file is unchanged."""
+    if t.culture == Culture():
+        return ""
+    lines = [
+        f"    {key.replace('_', '-')}: {json.dumps(value, ensure_ascii=False)}"
+        for key, value in vars(t.culture).items()
+    ]
+    return "\ngitgalaxy:\n  culture:\n" + "\n".join(lines) + "\n"
 
 
 def generate_main_class(package_name: str, class_name: str) -> str:

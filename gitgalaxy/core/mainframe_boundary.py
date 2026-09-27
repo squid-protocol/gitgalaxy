@@ -339,13 +339,14 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
 _NATIONAL_PICTURE = re.compile(r"[NGB0/()0-9]*[NG][NGB0/()0-9]*")  # #3816: N / G with national editing only
-_ENTRY_END = re.compile(r"\.(?=\s|$)")  # the period ending a data description entry (not PIC 9.99's)
+# #3816: USAGE NATIONAL, looked for only inside the entry's own text (see _cobol_records)
+_NATIONAL_USAGE = re.compile(r"(?<![A-Z0-9-])NATIONAL(?![A-Z0-9-])", re.I)
 _QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
     r"(?<![A-Z"
     + NATIONAL
-    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER|NATIONAL)"
+    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
     r"(?![A-Z" + NATIONAL + r"0-9-])",
     re.I,
 )
@@ -836,15 +837,16 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
 
         pic_match = _PIC_CLAUSE.search(window)
         pic = pic_match.group(1).rstrip(".") if pic_match else None
-        usage_match = _USAGE_CLAUSE.search(window)
-        usage = usage_match.group(1).upper() if usage_match else None
-        if usage == "NATIONAL":
-            # #3816: NATIONAL is also prose -- NIST's `VALUE "... NATIONAL INSTITUTE OF STD & TECH"` -- and a
-            # verb option (`XML PARSE ... RETURNING NATIONAL` after the last item). It counts only outside a
-            # quoted literal and before the period ending this entry (the older usages keep their exact behaviour).
-            entry = _QUOTED.sub(lambda q: " " * len(q.group(0)), window)
-            entry = _ENTRY_END.split(entry, maxsplit=1)[0]
-            usage_match = _USAGE_CLAUSE.search(entry)
+        # #3816: NATIONAL counts only in this entry's own text -- before the period that ends it and outside
+        # quoted literals: it is also prose (NIST's `VALUE "... NATIONAL INSTITUTE ..."`) and a verb option
+        # (`XML PARSE ... RETURNING NATIONAL`, which the last item's window runs on into). Every other usage
+        # is found exactly as before.
+        entry = _ENTRY_END.split(_QUOTED.sub(lambda q: " " * len(q.group(0)), window), maxsplit=1)[0]
+        usage: Optional[str]
+        if _NATIONAL_USAGE.search(entry):
+            usage = "NATIONAL"
+        else:
+            usage_match = _USAGE_CLAUSE.search(window)
             usage = usage_match.group(1).upper() if usage_match else None
 
         # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's

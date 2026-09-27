@@ -8,8 +8,9 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
-import re
 from typing import Any
+
+from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 
 DEFINITION: dict[str, Any] = {
     "_meta": {"target_version": "Windows CMD/Batch", "status": "production"},

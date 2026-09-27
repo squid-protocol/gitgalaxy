@@ -8,9 +8,9 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
-import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
 from .._shared_patterns import CALLS_OUT_GO, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT

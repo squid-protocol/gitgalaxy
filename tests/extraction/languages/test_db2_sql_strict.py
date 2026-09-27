@@ -18,6 +18,7 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.language_standards._lazy_re import is_pattern  # #3914: rules compile lazily
 
 _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
@@ -265,7 +266,7 @@ def test_db2_sql_delimited_and_national_identifiers():
 # TEST 5: RE.M COMPLETENESS AUDIT (Rule 13)
 # ==============================================================================
 def test_db2_sql_caret_anchored_rules_all_set_multiline_flag():
-    caret = [k for k, p in DB2_RULES.items() if isinstance(p, re.Pattern) and re.search(r"(?<!\\)(?<!\[)\^", p.pattern)]
+    caret = [k for k, p in DB2_RULES.items() if is_pattern(p) and re.search(r"(?<!\\)(?<!\[)\^", p.pattern)]
     assert caret, "expected ^-anchored rules (func_start/class_start/api/...) -- audit is a no-op otherwise"
     for key in caret:
         assert DB2_RULES[key].flags & re.M, f"db2_sql {key!r} uses ^ without re.M"

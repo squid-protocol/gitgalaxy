@@ -16,40 +16,40 @@ public class ZecspltTdRecord {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "EOF")
+    @Column(name = "EOF", length = 1)
     private String eof;
 
-    @Column(name = "ZC")
+    @Column(name = "ZC", length = 2)
     private String zc;
 
-    @Column(name = "URI_PREFIX")
+    @Column(name = "URI_PREFIX", length = 4)
     private String uriPrefix;
 
-    @Column(name = "URI_SUFFIX")
+    @Column(name = "URI_SUFFIX", length = 4)
     private String uriSuffix;
 
-    @Column(name = "URI_TRAN")
+    @Column(name = "URI_TRAN", length = 4)
     private String uriTran;
 
-    @Column(name = "ZX_SUFFIX")
+    @Column(name = "ZX_SUFFIX", length = 2)
     private String zxSuffix;
 
-    @Column(name = "CSSL")
+    @Column(name = "CSSL", length = 4)
     private String cssl;
 
     @Column(name = "TD_LENGTH")
     private Integer tdLength;
 
-    @Column(name = "TD_SUFFIX")
+    @Column(name = "TD_SUFFIX", length = 2)
     private String tdSuffix;
 
-    @Column(name = "TD_TRAN")
+    @Column(name = "TD_TRAN", length = 4)
     private String tdTran;
 
-    @Column(name = "TD_PATH")
+    @Column(name = "TD_PATH", length = 80)
     private String tdPath;
 
-    @Column(name = "URI_PATH")
+    @Column(name = "URI_PATH", length = 256)
     private String uriPath;
 
 }

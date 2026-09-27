@@ -676,6 +676,13 @@ class RepositoryForge:
             "    }",
         ]
 
+    def edit_source(self) -> str | None:
+        """#3827: the CobolEdit runtime (numeric-edited PICTUREs), beside CobolRecords, or None without an
+        entity."""
+        if not self.stores:
+            return None
+        return cobol_edit_source(self.target.project.package)
+
     def records_source(self) -> str | None:
         """#3624: the CobolRecords runtime the record codecs share, or None without an entity."""
         if not self.stores:
@@ -954,3 +961,120 @@ class RepositoryForge:
             return None
         return {"imports": sorted(ex["imports"]), "fields": [(t, n) for n, t in ex["fields"].items()],
                 "methods": ex["methods"]}  # fmt: skip
+
+
+def cobol_edit_source(package: str) -> str:
+    """#3827: the generated CobolEdit class, in `<package>.entity.vsam`."""
+    return f"package {package}.entity.vsam;\n\n" + _COBOL_EDIT
+
+
+_COBOL_EDIT = """import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+/** #3827: a number rendered through a numeric-edited PICTURE as COBOL renders it -- Z / * zero suppression,
+ *  9, the `.` and `,` insertion characters (which one is the decimal point follows DECIMAL-POINT IS COMMA),
+ *  a trailing or leading fixed - / +, CR / DB, the currency sign, B, 0 and /. Floating insertion strings
+ *  (`$$$9`, `---9`) are not handled: port those by hand. Porting rules require it for edited fields. */
+public final class CobolEdit {
+    private CobolEdit() {}
+
+    public static String format(String pic, BigDecimal value, boolean decimalComma, String currency) {
+        pic = expand(pic);
+        if (value == null) return pic.replaceAll("[9Z*]", "0");
+        boolean neg = value.compareTo(BigDecimal.ZERO) < 0;
+        BigDecimal abs = value.abs();
+
+        int digits = 0;
+        int scale = 0;
+        char decChar = decimalComma ? ',' : '.';
+
+        int decIdx = pic.indexOf('V');
+        if (decIdx == -1) decIdx = pic.indexOf(decChar);
+        if (decIdx == -1) decIdx = pic.length();
+
+        for (int i = 0; i < pic.length(); i++) {
+            char c = pic.charAt(i);
+            if (c == '9' || c == 'Z' || c == '*') {
+                digits++;
+                if (i > decIdx) scale++;
+            }
+        }
+
+        String raw = abs.setScale(scale, RoundingMode.HALF_UP).toPlainString().replace(".", "");
+        while (raw.length() < digits) raw = "0" + raw;
+        if (raw.length() > digits) raw = raw.substring(raw.length() - digits);
+
+        StringBuilder out = new StringBuilder();
+        int rawIdx = 0;
+        boolean zeroSuppression = true;
+
+        for (int i = 0; i < pic.length(); i++) {
+            char c = pic.charAt(i);
+            if (c == '9' || c == 'Z' || c == '*') {
+                char d = raw.charAt(rawIdx++);
+                if (c == 'Z') {
+                    if (d == '0' && zeroSuppression) out.append(' ');
+                    else { out.append(d); zeroSuppression = false; }
+                } else if (c == '*') {
+                    if (d == '0' && zeroSuppression) out.append('*');
+                    else { out.append(d); zeroSuppression = false; }
+                } else {
+                    out.append(d);
+                    zeroSuppression = false;
+                }
+            } else if (c == '.' || c == ',') {
+                if (zeroSuppression && (pic.indexOf('Z') != -1 || pic.indexOf('*') != -1)) {
+                    if (c == decChar) {
+                        out.append(c);
+                        zeroSuppression = false; // Decimal point cancels zero suppression
+                    } else {
+                        out.append(pic.indexOf('*') != -1 ? '*' : ' ');
+                    }
+                } else {
+                    out.append(c);
+                }
+            } else if (c == '-') {
+                out.append(neg ? '-' : ' ');
+            } else if (c == '+') {
+                out.append(neg ? '-' : '+');
+            } else if (c == 'C' && i + 1 < pic.length() && pic.charAt(i + 1) == 'R') {
+                out.append(neg ? "CR" : "  ");
+                i++;
+            } else if (c == 'D' && i + 1 < pic.length() && pic.charAt(i + 1) == 'B') {
+                out.append(neg ? "DB" : "  ");
+                i++;
+            } else if (c == '$') {
+                out.append(currency != null ? currency : "$");
+            } else if (c == 'B') {
+                out.append(' ');
+            } else if (c == '0' || c == '/') {
+                if (zeroSuppression) out.append(pic.indexOf('*') != -1 ? '*' : ' ');
+                else out.append(c);
+            } else if (c == 'V') {
+                // Implicit, do nothing
+            } else {
+                out.append(c);
+            }
+        }
+        return out.toString();
+    }
+
+    /** `Z(3)9(2)` -> `ZZZ99`, upper case, without S and P (a sign and scaling have no display position). */
+    private static String expand(String pic) {
+        StringBuilder ex = new StringBuilder();
+        for (int i = 0; i < pic.length(); i++) {
+            char c = Character.toUpperCase(pic.charAt(i));
+            if (c == '(' && ex.length() > 0) {
+                int j = pic.indexOf(')', i);
+                int n = Integer.parseInt(pic.substring(i + 1, j).trim());
+                char r = ex.charAt(ex.length() - 1);
+                for (int k = 1; k < n; k++) ex.append(r);
+                i = j;
+            } else if (c != 'S' && c != 'P') {
+                ex.append(c);
+            }
+        }
+        return ex.toString();
+    }
+}
+"""

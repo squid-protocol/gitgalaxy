@@ -19,16 +19,16 @@ public class R001bydlIpPcb {
     @Column(name = "T_FNR")
     private Integer tFnr;
 
-    @Column(name = "T_NAVN")
+    @Column(name = "T_NAVN", length = 25)
     private String tNavn;
 
-    @Column(name = "T_PSTAT1")
+    @Column(name = "T_PSTAT1", length = 1)
     private String tPstat1;
 
-    @Column(name = "T_PSTAT2")
+    @Column(name = "T_PSTAT2", length = 1)
     private String tPstat2;
 
-    @Column(name = "T_PSTAT3")
+    @Column(name = "T_PSTAT3", length = 1)
     private String tPstat3;
 
     @Column(name = "T_GRP")
@@ -100,25 +100,25 @@ public class R001bydlIpPcb {
     @Column(name = "T_AFP")
     private Integer tAfp;
 
-    @Column(name = "SORTNAVN")
+    @Column(name = "SORTNAVN", length = 25)
     private String sortnavn;
 
-    @Column(name = "T_AVD")
+    @Column(name = "T_AVD", length = 1)
     private String tAvd;
 
-    @Column(name = "IP01_PERSNKEY")
+    @Column(name = "IP01_PERSNKEY", length = 7)
     private String ip01Persnkey;
 
-    @Column(name = "IP01_FNR_SISTE")
+    @Column(name = "IP01_FNR_SISTE", length = 1)
     private String ip01FnrSiste;
 
-    @Column(name = "IP01_BOKOMM")
+    @Column(name = "IP01_BOKOMM", length = 4)
     private String ip01Bokomm;
 
-    @Column(name = "IP01_SYSTAVD")
+    @Column(name = "IP01_SYSTAVD", length = 1)
     private String ip01Systavd;
 
-    @Column(name = "IP01_SSA1_PERSNKEY")
+    @Column(name = "IP01_SSA1_PERSNKEY", length = 7)
     private String ip01Ssa1Persnkey;
 
     @Column(name = "W_AR")
@@ -142,7 +142,7 @@ public class R001bydlIpPcb {
     @Column(name = "IP_KEY_PACK")
     private Integer ipKeyPack;
 
-    @Column(name = "IP_KEY_X")
+    @Column(name = "IP_KEY_X", length = 7)
     private String ipKeyX;
 
     @Column(name = "W_DD")
@@ -151,10 +151,10 @@ public class R001bydlIpPcb {
     @Column(name = "W_KOMM")
     private Integer wKomm;
 
-    @Column(name = "DLI_GU")
+    @Column(name = "DLI_GU", length = 4)
     private String dliGu;
 
-    @Column(name = "IP_STATUS")
+    @Column(name = "IP_STATUS", length = 2)
     private String ipStatus;
 
 }

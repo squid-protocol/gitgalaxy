@@ -19,31 +19,31 @@ public class CsutldtcFeedbackCode {
     @Column(name = "VSTRING_LENGTH")
     private Integer vstringLength;
 
-    @Column(name = "VSTRING_CHAR")
+    @Column(name = "VSTRING_CHAR", length = 1)
     private String vstringChar;
 
     @Column(name = "OUTPUT_LILLIAN")
     private Integer outputLillian;
 
-    @Column(name = "WS_SEVERITY")
+    @Column(name = "WS_SEVERITY", length = 4)
     private String wsSeverity;
 
     @Column(name = "WS_SEVERITY_N")
     private Integer wsSeverityN;
 
-    @Column(name = "WS_MSG_NO")
+    @Column(name = "WS_MSG_NO", length = 4)
     private String wsMsgNo;
 
     @Column(name = "WS_MSG_NO_N")
     private Integer wsMsgNoN;
 
-    @Column(name = "WS_RESULT")
+    @Column(name = "WS_RESULT", length = 15)
     private String wsResult;
 
-    @Column(name = "WS_DATE")
+    @Column(name = "WS_DATE", length = 10)
     private String wsDate;
 
-    @Column(name = "WS_DATE_FMT")
+    @Column(name = "WS_DATE_FMT", length = 10)
     private String wsDateFmt;
 
     @Column(name = "SEVERITY")
@@ -58,19 +58,19 @@ public class CsutldtcFeedbackCode {
     @Column(name = "CAUSE_CODE")
     private Integer causeCode;
 
-    @Column(name = "CASE_SEV_CTL")
+    @Column(name = "CASE_SEV_CTL", length = 1)
     private String caseSevCtl;
 
-    @Column(name = "FACILITY_ID")
+    @Column(name = "FACILITY_ID", length = 3)
     private String facilityId;
 
-    @Column(name = "LS_DATE")
+    @Column(name = "LS_DATE", length = 10)
     private String lsDate;
 
-    @Column(name = "LS_DATE_FORMAT")
+    @Column(name = "LS_DATE_FORMAT", length = 10)
     private String lsDateFormat;
 
-    @Column(name = "LS_RESULT")
+    @Column(name = "LS_RESULT", length = 80)
     private String lsResult;
 
 }

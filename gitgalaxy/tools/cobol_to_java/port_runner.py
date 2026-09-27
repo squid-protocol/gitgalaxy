@@ -56,7 +56,12 @@ def _read(path: Path) -> str:
 
 
 # The generated runtime a port reads datasets, the pinned clock and record fields through.
-_RUNTIME_HELPERS = ("batch/DatasetResolver.java", "batch/MainframeClock.java", "entity/vsam/CobolRecords.java")
+_RUNTIME_HELPERS = (
+    "batch/DatasetResolver.java",
+    "batch/MainframeClock.java",
+    "entity/vsam/CobolRecords.java",
+    "entity/vsam/CobolEdit.java",
+)
 
 
 def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:

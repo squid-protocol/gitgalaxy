@@ -1228,7 +1228,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "837dab4f769d3a23b3f2260253ffd4800f8ecb775a1f412a34ed151f4c6aa4fd"
+      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/BnkmenuAbndinfoRec.java": {
       "calls": [],
@@ -1257,7 +1257,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "afdc236e2366608991c93440934c8ae9e0dc07bf8678024fa022f3561c3de1c4"
+      "sha256": "722e647e9ee6bbd3e139a3c17377ba0dbe0751ba5207a61918df26053c0797c2"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy1AbndinfoRec.java": {
       "calls": [],
@@ -1292,7 +1292,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "da26fee2c3831efda269f4c523961c7c079abb3e5f6952eb4a73b3c3827b4c1f"
+      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy2AbndinfoRec.java": {
       "calls": [],
@@ -1327,7 +1327,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "ae8b03dc4405eb043d0032abb14f518afe0ba506df72f2601815a9f8480190ea"
+      "sha256": "fad4464f7c6fdc6f645f0f57bbd8579279daae7c3fff6b9f9e3dd0563b90da8b"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy3AbndinfoRec.java": {
       "calls": [],
@@ -1362,7 +1362,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "819d64ded0a9b2ed83be663c911645488067b36f09ee634fadeef9999c99c0b6"
+      "sha256": "11d4798a82171b0436a190c69370abad0a75c15283066c8f7894ef13ed612721"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy4AbndinfoRec.java": {
       "calls": [],
@@ -1397,7 +1397,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0b6e87cdb2a581ecf74cb44c394f76b987c5b6749689b6be0daeb813708d6ea2"
+      "sha256": "f1b1f989744f8a635ddfb0a83b9233b8208b6e148a43ef1a18f6258bb85c191f"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy5AbndinfoRec.java": {
       "calls": [],
@@ -1432,7 +1432,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "23ad485e9ff1704c94a0432dca70339a596fcc3f45b08c932b7a9d51c10aa8c4"
+      "sha256": "2355e197c61ec8ffd4093c55036e5aaee39df9473e848b1432c27caca2b5782e"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/DelaccAbndinfoRec.java": {
       "calls": [],
@@ -1483,7 +1483,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "3bb7545a66b71d95ab4e9fb6c5f136e12dfba6b89dd902de7800b5f4272a6493"
+      "sha256": "57d0f62c14de899d7ce06cb16f45d06324f20b43a0fd6898a15d69799a638861"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/InqaccAbndinfoRec.java": {
       "calls": [],
@@ -1533,7 +1533,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "416fb17122e304a8169d180560bee3aa9fe06536b1583929f006b34013054e88"
+      "sha256": "04bb52c9bcad771a29b5a5ff00addb17354014d11e0fb54163750b4b576abf09"
     },
     "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java": {
       "calls": [],

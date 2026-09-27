@@ -62,7 +62,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "3d83e094c726376e0b05145c503e120422fce7ff4918d2b0b4f1285c3cabc24a"
+      "sha256": "4632d82161dfc8de2602aa1512375b46e077ba26fce43632b5a6d9c67812dc77"
     },
     "src/main/java/com/gitgalaxy/modernized/service/FrmerkService.java": {
       "calls": [],

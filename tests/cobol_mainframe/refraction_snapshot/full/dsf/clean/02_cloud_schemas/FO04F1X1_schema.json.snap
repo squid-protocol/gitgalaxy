@@ -228,7 +228,7 @@
       "description": "Legacy PIC: X"
     },
     "UGRAD_UT": {
-      "type": "string",
+      "type": "integer",
       "description": "Legacy PIC: ZZZ"
     },
     "GRP_UT": {

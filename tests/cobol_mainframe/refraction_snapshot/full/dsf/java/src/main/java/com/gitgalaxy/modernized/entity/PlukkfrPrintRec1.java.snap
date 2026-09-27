@@ -22,13 +22,13 @@ public class PlukkfrPrintRec1 {
     @Column(name = "INN_FNR")
     private Integer innFnr;
 
-    @Column(name = "NAVN")
+    @Column(name = "NAVN", length = 26)
     private String navn;
 
     @Column(name = "INN_TRKNR")
     private Integer innTrknr;
 
-    @Column(name = "ADDR")
+    @Column(name = "ADDR", length = 71)
     private String addr;
 
     @Column(name = "UT_TRKNR")
@@ -37,10 +37,10 @@ public class PlukkfrPrintRec1 {
     @Column(name = "UT_FNR")
     private Integer utFnr;
 
-    @Column(name = "UT_NAVN")
+    @Column(name = "UT_NAVN", length = 26)
     private String utNavn;
 
-    @Column(name = "UT_ADDR")
+    @Column(name = "UT_ADDR", length = 71)
     private String utAddr;
 
     @Column(name = "TELLER1")

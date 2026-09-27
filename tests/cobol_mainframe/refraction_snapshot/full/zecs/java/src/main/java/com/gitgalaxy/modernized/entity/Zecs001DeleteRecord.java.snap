@@ -16,40 +16,40 @@ public class Zecs001DeleteRecord {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "USERID")
+    @Column(name = "USERID", length = 8)
     private String userid;
 
-    @Column(name = "BINARY_ZEROES")
+    @Column(name = "BINARY_ZEROES", length = 1)
     private String binaryZeroes;
 
-    @Column(name = "DUPLICATE_POST")
+    @Column(name = "DUPLICATE_POST", length = 1)
     private String duplicatePost;
 
-    @Column(name = "ZECS002")
+    @Column(name = "ZECS002", length = 8)
     private String zecs002;
 
-    @Column(name = "ZECS003")
+    @Column(name = "ZECS003", length = 8)
     private String zecs003;
 
-    @Column(name = "INTERNAL_KEY")
+    @Column(name = "INTERNAL_KEY", length = 8)
     private String internalKey;
 
-    @Column(name = "RESOURCES")
+    @Column(name = "RESOURCES", length = 10)
     private String resources;
 
-    @Column(name = "REPLICATE")
+    @Column(name = "REPLICATE", length = 10)
     private String replicate;
 
-    @Column(name = "DEPLICATE")
+    @Column(name = "DEPLICATE", length = 10)
     private String deplicate;
 
-    @Column(name = "CRLF")
+    @Column(name = "CRLF", length = 2)
     private String crlf;
 
-    @Column(name = "ZUIDSTCK")
+    @Column(name = "ZUIDSTCK", length = 8)
     private String zuidstck;
 
-    @Column(name = "THE_TOD")
+    @Column(name = "THE_TOD", length = 16)
     private String theTod;
 
     @Column(name = "CACHE_ADDRESS_X")
@@ -61,13 +61,13 @@ public class Zecs001DeleteRecord {
     @Column(name = "GETMAIN_LENGTH")
     private Integer getmainLength;
 
-    @Column(name = "NC_TRANID")
+    @Column(name = "NC_TRANID", length = 4)
     private String ncTranid;
 
     @Column(name = "ZECS_VALUE")
     private Integer zecsValue;
 
-    @Column(name = "ZECS_NC_HW")
+    @Column(name = "ZECS_NC_HW", length = 2)
     private String zecsNcHw;
 
     @Column(name = "ZECS_INCREMENT")
@@ -136,34 +136,34 @@ public class Zecs001DeleteRecord {
     @Column(name = "CLIENT_CONVERT")
     private Integer clientConvert;
 
-    @Column(name = "HTTP_HEADER")
+    @Column(name = "HTTP_HEADER", length = 13)
     private String httpHeader;
 
-    @Column(name = "HTTP_HEADER_VALUE")
+    @Column(name = "HTTP_HEADER_VALUE", length = 64)
     private String httpHeaderValue;
 
     @Column(name = "HEADER_ACAO_LENGTH")
     private Integer headerAcaoLength;
 
-    @Column(name = "VALUE_ACAO")
+    @Column(name = "VALUE_ACAO", length = 1)
     private String valueAcao;
 
     @Column(name = "VALUE_ACAO_LENGTH")
     private Integer valueAcaoLength;
 
-    @Column(name = "CA_TYPE")
+    @Column(name = "CA_TYPE", length = 3)
     private String caType;
 
-    @Column(name = "CA_URI_FIELD_01")
+    @Column(name = "CA_URI_FIELD_01", length = 10)
     private String caUriField01;
 
-    @Column(name = "CA_RETURN_CODE")
+    @Column(name = "CA_RETURN_CODE", length = 2)
     private String caReturnCode;
 
-    @Column(name = "CA_USERID")
+    @Column(name = "CA_USERID", length = 8)
     private String caUserid;
 
-    @Column(name = "CA_ENCODE")
+    @Column(name = "CA_ENCODE", length = 24)
     private String caEncode;
 
     @Column(name = "HTTP_STATUS_200")
@@ -187,46 +187,46 @@ public class Zecs001DeleteRecord {
     @Column(name = "HTTP_STATUS_507")
     private Integer httpStatus507;
 
-    @Column(name = "HTTP_201_TEXT")
+    @Column(name = "HTTP_201_TEXT", length = 32)
     private String http201Text;
 
     @Column(name = "HTTP_201_LENGTH")
     private Integer http201Length;
 
-    @Column(name = "HTTP_204_TEXT")
+    @Column(name = "HTTP_204_TEXT", length = 24)
     private String http204Text;
 
     @Column(name = "HTTP_204_LENGTH")
     private Integer http204Length;
 
-    @Column(name = "HTTP_400_TEXT")
+    @Column(name = "HTTP_400_TEXT", length = 32)
     private String http400Text;
 
     @Column(name = "HTTP_400_LENGTH")
     private Integer http400Length;
 
-    @Column(name = "HTTP_409_TEXT")
+    @Column(name = "HTTP_409_TEXT", length = 32)
     private String http409Text;
 
     @Column(name = "HTTP_409_LENGTH")
     private Integer http409Length;
 
-    @Column(name = "HTTP_507_TEXT")
+    @Column(name = "HTTP_507_TEXT", length = 24)
     private String http507Text;
 
     @Column(name = "HTTP_507_LENGTH")
     private Integer http507Length;
 
-    @Column(name = "HTTP_OK")
+    @Column(name = "HTTP_OK", length = 2)
     private String httpOk;
 
-    @Column(name = "HTTP_NOT_FOUND")
+    @Column(name = "HTTP_NOT_FOUND", length = 16)
     private String httpNotFound;
 
-    @Column(name = "HTTP_KEY_ERROR")
+    @Column(name = "HTTP_KEY_ERROR", length = 16)
     private String httpKeyError;
 
-    @Column(name = "HTTP_FILE_ERROR")
+    @Column(name = "HTTP_FILE_ERROR", length = 16)
     private String httpFileError;
 
     @Column(name = "HTTP_ABSTIME")
@@ -244,25 +244,25 @@ public class Zecs001DeleteRecord {
     @Column(name = "HTTP_ABSTIME_LENGTH")
     private Integer httpAbstimeLength;
 
-    @Column(name = "TEXT_ANYTHING")
+    @Column(name = "TEXT_ANYTHING", length = 4)
     private String textAnything;
 
-    @Column(name = "TEXT_PLAIN")
+    @Column(name = "TEXT_PLAIN", length = 56)
     private String textPlain;
 
-    @Column(name = "APPLICATION_XML")
+    @Column(name = "APPLICATION_XML", length = 56)
     private String applicationXml;
 
-    @Column(name = "AUTHENTICATE")
+    @Column(name = "AUTHENTICATE", length = 1)
     private String authenticate;
 
-    @Column(name = "USER_ACCESS")
+    @Column(name = "USER_ACCESS", length = 1)
     private String userAccess;
 
-    @Column(name = "PROCESS_COMPLETE")
+    @Column(name = "PROCESS_COMPLETE", length = 1)
     private String processComplete;
 
-    @Column(name = "ZF_SUCCESSFUL")
+    @Column(name = "ZF_SUCCESSFUL", length = 1)
     private String zfSuccessful;
 
     @Column(name = "CURRENT_ABS")
@@ -280,22 +280,22 @@ public class Zecs001DeleteRecord {
     @Column(name = "TTL_TIME")
     private Integer ttlTime;
 
-    @Column(name = "URI_FIELD_00")
+    @Column(name = "URI_FIELD_00", length = 1)
     private String uriField00;
 
-    @Column(name = "URI_FIELD_01")
+    @Column(name = "URI_FIELD_01", length = 64)
     private String uriField01;
 
-    @Column(name = "URI_FIELD_02")
+    @Column(name = "URI_FIELD_02", length = 64)
     private String uriField02;
 
-    @Column(name = "URI_FIELD_03")
+    @Column(name = "URI_FIELD_03", length = 64)
     private String uriField03;
 
-    @Column(name = "URI_FIELD_04")
+    @Column(name = "URI_FIELD_04", length = 64)
     private String uriField04;
 
-    @Column(name = "URI_KEY")
+    @Column(name = "URI_KEY", length = 255)
     private String uriKey;
 
     @Column(name = "URI_PATH_POINTER")
@@ -304,28 +304,28 @@ public class Zecs001DeleteRecord {
     @Column(name = "URI_PATH_LENGTH")
     private Integer uriPathLength;
 
-    @Column(name = "WEB_MEDIA_TYPE")
+    @Column(name = "WEB_MEDIA_TYPE", length = 56)
     private String webMediaType;
 
     @Column(name = "SLASH_COUNTER")
     private Integer slashCounter;
 
-    @Column(name = "SLASH")
+    @Column(name = "SLASH", length = 1)
     private String slash;
 
-    @Column(name = "QUERY_TEXT")
+    @Column(name = "QUERY_TEXT", length = 10)
     private String queryText;
 
-    @Column(name = "CLEAR_TEXT")
+    @Column(name = "CLEAR_TEXT", length = 1)
     private String clearText;
 
-    @Column(name = "TTL_TYPE")
+    @Column(name = "TTL_TYPE", length = 3)
     private String ttlType;
 
-    @Column(name = "LAST_ACCESS_TIME")
+    @Column(name = "LAST_ACCESS_TIME", length = 3)
     private String lastAccessTime;
 
-    @Column(name = "LAST_UPDATE_TIME")
+    @Column(name = "LAST_UPDATE_TIME", length = 3)
     private String lastUpdateTime;
 
     @Column(name = "RECEIVE_LENGTH")
@@ -382,67 +382,67 @@ public class Zecs001DeleteRecord {
     @Column(name = "WEB_PORT_NUMBER")
     private Integer webPortNumber;
 
-    @Column(name = "WEB_HTTPMETHOD")
+    @Column(name = "WEB_HTTPMETHOD", length = 10)
     private String webHttpmethod;
 
-    @Column(name = "WEB_HTTP_PUT")
+    @Column(name = "WEB_HTTP_PUT", length = 10)
     private String webHttpPut;
 
-    @Column(name = "WEB_HTTP_GET")
+    @Column(name = "WEB_HTTP_GET", length = 10)
     private String webHttpGet;
 
-    @Column(name = "WEB_HTTP_POST")
+    @Column(name = "WEB_HTTP_POST", length = 10)
     private String webHttpPost;
 
-    @Column(name = "WEB_HTTP_DELETE")
+    @Column(name = "WEB_HTTP_DELETE", length = 10)
     private String webHttpDelete;
 
-    @Column(name = "WEB_HTTPVERSION")
+    @Column(name = "WEB_HTTPVERSION", length = 15)
     private String webHttpversion;
 
-    @Column(name = "WEB_HOST")
+    @Column(name = "WEB_HOST", length = 120)
     private String webHost;
 
-    @Column(name = "WEB_PATH")
+    @Column(name = "WEB_PATH", length = 512)
     private String webPath;
 
-    @Column(name = "WEB_QUERYSTRING")
+    @Column(name = "WEB_QUERYSTRING", length = 256)
     private String webQuerystring;
 
-    @Column(name = "FC_READ")
+    @Column(name = "FC_READ", length = 7)
     private String fcRead;
 
-    @Column(name = "FC_WRITE")
+    @Column(name = "FC_WRITE", length = 7)
     private String fcWrite;
 
-    @Column(name = "FC_REWRITE")
+    @Column(name = "FC_REWRITE", length = 7)
     private String fcRewrite;
 
-    @Column(name = "CSSL")
+    @Column(name = "CSSL", length = 4)
     private String cssl;
 
     @Column(name = "TD_LENGTH")
     private Integer tdLength;
 
-    @Column(name = "TD_DATE")
+    @Column(name = "TD_DATE", length = 10)
     private String tdDate;
 
-    @Column(name = "TD_TIME")
+    @Column(name = "TD_TIME", length = 8)
     private String tdTime;
 
-    @Column(name = "TD_TRANID")
+    @Column(name = "TD_TRANID", length = 4)
     private String tdTranid;
 
-    @Column(name = "TD_MESSAGE")
+    @Column(name = "TD_MESSAGE", length = 90)
     private String tdMessage;
 
-    @Column(name = "NO_SPACE_MESSAGE")
+    @Column(name = "NO_SPACE_MESSAGE", length = 8)
     private String noSpaceMessage;
 
-    @Column(name = "FE_DS")
+    @Column(name = "FE_DS", length = 8)
     private String feDs;
 
-    @Column(name = "FE_FN")
+    @Column(name = "FE_FN", length = 7)
     private String feFn;
 
     @Column(name = "FE_RESP")
@@ -451,19 +451,19 @@ public class Zecs001DeleteRecord {
     @Column(name = "FE_RESP2")
     private Integer feResp2;
 
-    @Column(name = "FE_PARAGRAPH")
+    @Column(name = "FE_PARAGRAPH", length = 4)
     private String feParagraph;
 
-    @Column(name = "FE_NOSPACE")
+    @Column(name = "FE_NOSPACE", length = 8)
     private String feNospace;
 
-    @Column(name = "FE_RCODE")
+    @Column(name = "FE_RCODE", length = 6)
     private String feRcode;
 
-    @Column(name = "KE_DS")
+    @Column(name = "KE_DS", length = 8)
     private String keDs;
 
-    @Column(name = "KE_FN")
+    @Column(name = "KE_FN", length = 7)
     private String keFn;
 
     @Column(name = "KE_RESP")
@@ -472,10 +472,10 @@ public class Zecs001DeleteRecord {
     @Column(name = "KE_RESP2")
     private Integer keResp2;
 
-    @Column(name = "KE_PARAGRAPH")
+    @Column(name = "KE_PARAGRAPH", length = 4)
     private String keParagraph;
 
-    @Column(name = "KE_NOSPACE")
+    @Column(name = "KE_NOSPACE", length = 8)
     private String keNospace;
 
     @Column(name = "WEB_RESP")
@@ -493,70 +493,70 @@ public class Zecs001DeleteRecord {
     @Column(name = "SD_LENGTH")
     private Integer sdLength;
 
-    @Column(name = "SD_SELECT")
+    @Column(name = "SD_SELECT", length = 6)
     private String sdSelect;
 
-    @Column(name = "SD_UPDATE")
+    @Column(name = "SD_UPDATE", length = 6)
     private String sdUpdate;
 
-    @Column(name = "SD_DELETE")
+    @Column(name = "SD_DELETE", length = 6)
     private String sdDelete;
 
-    @Column(name = "SD_TOKEN")
+    @Column(name = "SD_TOKEN", length = 16)
     private String sdToken;
 
-    @Column(name = "SD_TRANID")
+    @Column(name = "SD_TRANID", length = 4)
     private String sdTranid;
 
-    @Column(name = "SD_USER_ID")
+    @Column(name = "SD_USER_ID", length = 8)
     private String sdUserId;
 
-    @Column(name = "SD_COMMA")
+    @Column(name = "SD_COMMA", length = 1)
     private String sdComma;
 
-    @Column(name = "SD_ACCESS")
+    @Column(name = "SD_ACCESS", length = 6)
     private String sdAccess;
 
-    @Column(name = "SD_CRLF")
+    @Column(name = "SD_CRLF", length = 2)
     private String sdCrlf;
 
-    @Column(name = "LAT_TRANID")
+    @Column(name = "LAT_TRANID", length = 4)
     private String latTranid;
 
-    @Column(name = "ETTL_TRANID")
+    @Column(name = "ETTL_TRANID", length = 4)
     private String ettlTranid;
 
     @Column(name = "THE_OTHER_DC_LENGTH")
     private Integer theOtherDcLength;
 
-    @Column(name = "DC_TOKEN")
+    @Column(name = "DC_TOKEN", length = 16)
     private String dcToken;
 
     @Column(name = "DC_LENGTH")
     private Integer dcLength;
 
-    @Column(name = "DC_TRANID")
+    @Column(name = "DC_TRANID", length = 4)
     private String dcTranid;
 
-    @Column(name = "DC_TYPE")
+    @Column(name = "DC_TYPE", length = 2)
     private String dcType;
 
-    @Column(name = "THE_OTHER_DC")
+    @Column(name = "THE_OTHER_DC", length = 160)
     private String theOtherDc;
 
-    @Column(name = "ACTIVE_SINGLE")
+    @Column(name = "ACTIVE_SINGLE", length = 2)
     private String activeSingle;
 
-    @Column(name = "ACTIVE_ACTIVE")
+    @Column(name = "ACTIVE_ACTIVE", length = 2)
     private String activeActive;
 
-    @Column(name = "ACTIVE_STANDBY")
+    @Column(name = "ACTIVE_STANDBY", length = 2)
     private String activeStandby;
 
     @Column(name = "SESSION_TOKEN")
     private Integer sessionToken;
 
-    @Column(name = "URL_SCHEME_NAME")
+    @Column(name = "URL_SCHEME_NAME", length = 16)
     private String urlSchemeName;
 
     @Column(name = "URL_SCHEME")
@@ -565,7 +565,7 @@ public class Zecs001DeleteRecord {
     @Column(name = "URL_PORT")
     private Integer urlPort;
 
-    @Column(name = "URL_HOST_NAME")
+    @Column(name = "URL_HOST_NAME", length = 80)
     private String urlHostName;
 
     @Column(name = "URL_HOST_NAME_LENGTH")
@@ -577,19 +577,19 @@ public class Zecs001DeleteRecord {
     @Column(name = "WEB_STATUS_LENGTH")
     private Integer webStatusLength;
 
-    @Column(name = "WEB_STATUS_TEXT")
+    @Column(name = "WEB_STATUS_TEXT", length = 24)
     private String webStatusText;
 
     @Column(name = "CONVERSE_LENGTH")
     private Integer converseLength;
 
-    @Column(name = "CONVERSE_RESPONSE")
+    @Column(name = "CONVERSE_RESPONSE", length = 40)
     private String converseResponse;
 
-    @Column(name = "ZK_TRANID")
+    @Column(name = "ZK_TRANID", length = 4)
     private String zkTranid;
 
-    @Column(name = "ZF_TRANID")
+    @Column(name = "ZF_TRANID", length = 4)
     private String zfTranid;
 
     @Column(name = "ZK_LENGTH")
@@ -598,7 +598,7 @@ public class Zecs001DeleteRecord {
     @Column(name = "ZF_LENGTH")
     private Integer zfLength;
 
-    @Column(name = "DELETE_KEY")
+    @Column(name = "DELETE_KEY", length = 8)
     private String deleteKey;
 
     @Column(name = "DELETE_SEGMENT")
@@ -613,7 +613,7 @@ public class Zecs001DeleteRecord {
     @Column(name = "CACHE_LENGTH")
     private Integer cacheLength;
 
-    @Column(name = "CACHE_MESSAGE")
+    @Column(name = "CACHE_MESSAGE", length = 32000)
     private String cacheMessage;
 
 }

@@ -52,7 +52,7 @@ public class Zecs000DcControl {
     @Column(name = "FIFTEEN")
     private Integer fifteen;
 
-    @Column(name = "ZX_FCT")
+    @Column(name = "ZX_FCT", length = 8)
     private String zxFct;
 
     @Column(name = "ZX_RESP")
@@ -61,7 +61,7 @@ public class Zecs000DcControl {
     @Column(name = "ZX_LENGTH")
     private Integer zxLength;
 
-    @Column(name = "ZX_KEY")
+    @Column(name = "ZX_KEY", length = 4)
     private String zxKey;
 
     @Column(name = "ZX_ABSTIME")
@@ -70,13 +70,13 @@ public class Zecs000DcControl {
     @Column(name = "ZX_INTERVAL")
     private Integer zxInterval;
 
-    @Column(name = "ZX_DATE")
+    @Column(name = "ZX_DATE", length = 10)
     private String zxDate;
 
-    @Column(name = "ZX_TIME")
+    @Column(name = "ZX_TIME", length = 8)
     private String zxTime;
 
-    @Column(name = "ZX_APPLID")
+    @Column(name = "ZX_APPLID", length = 8)
     private String zxApplid;
 
     @Column(name = "ZX_TASKID")
@@ -91,64 +91,64 @@ public class Zecs000DcControl {
     @Column(name = "TTL_TIME")
     private Integer ttlTime;
 
-    @Column(name = "APPLID")
+    @Column(name = "APPLID", length = 8)
     private String applid;
 
-    @Column(name = "EOF")
+    @Column(name = "EOF", length = 1)
     private String eof;
 
-    @Column(name = "SLASH")
+    @Column(name = "SLASH", length = 1)
     private String slash;
 
-    @Column(name = "ZC_TRANID")
+    @Column(name = "ZC_TRANID", length = 4)
     private String zcTranid;
 
-    @Column(name = "ZC_KEY")
+    @Column(name = "ZC_KEY", length = 16)
     private String zcKey;
 
     @Column(name = "ZC_LENGTH")
     private Integer zcLength;
 
-    @Column(name = "DC_TRANID")
+    @Column(name = "DC_TRANID", length = 4)
     private String dcTranid;
 
-    @Column(name = "ZC_ENQ_TRANID")
+    @Column(name = "ZC_ENQ_TRANID", length = 4)
     private String zcEnqTranid;
 
-    @Column(name = "ZK_TRANID")
+    @Column(name = "ZK_TRANID", length = 4)
     private String zkTranid;
 
-    @Column(name = "ZF_TRANID")
+    @Column(name = "ZF_TRANID", length = 4)
     private String zfTranid;
 
     @Column(name = "ZF_LENGTH")
     private Integer zfLength;
 
-    @Column(name = "CSSL")
+    @Column(name = "CSSL", length = 4)
     private String cssl;
 
     @Column(name = "TD_LENGTH")
     private Integer tdLength;
 
-    @Column(name = "TD_DATE")
+    @Column(name = "TD_DATE", length = 10)
     private String tdDate;
 
-    @Column(name = "TD_TIME")
+    @Column(name = "TD_TIME", length = 8)
     private String tdTime;
 
-    @Column(name = "TD_TRANID")
+    @Column(name = "TD_TRANID", length = 4)
     private String tdTranid;
 
-    @Column(name = "URI_MAP")
+    @Column(name = "URI_MAP", length = 8)
     private String uriMap;
 
-    @Column(name = "URI_PATH")
+    @Column(name = "URI_PATH", length = 255)
     private String uriPath;
 
-    @Column(name = "RESOURCES")
+    @Column(name = "RESOURCES", length = 10)
     private String resources;
 
-    @Column(name = "DEPLICATE")
+    @Column(name = "DEPLICATE", length = 10)
     private String deplicate;
 
     @Column(name = "HTTP_STATUS_201")
@@ -166,25 +166,25 @@ public class Zecs000DcControl {
     @Column(name = "WEB_PATH_LENGTH")
     private Integer webPathLength;
 
-    @Column(name = "ACTIVE_SINGLE")
+    @Column(name = "ACTIVE_SINGLE", length = 2)
     private String activeSingle;
 
-    @Column(name = "ACTIVE_ACTIVE")
+    @Column(name = "ACTIVE_ACTIVE", length = 2)
     private String activeActive;
 
-    @Column(name = "ACTIVE_STANDBY")
+    @Column(name = "ACTIVE_STANDBY", length = 2)
     private String activeStandby;
 
-    @Column(name = "DC_TYPE")
+    @Column(name = "DC_TYPE", length = 2)
     private String dcType;
 
-    @Column(name = "THE_OTHER_DC")
+    @Column(name = "THE_OTHER_DC", length = 160)
     private String theOtherDc;
 
     @Column(name = "DC_LENGTH")
     private Integer dcLength;
 
-    @Column(name = "DC_TOKEN")
+    @Column(name = "DC_TOKEN", length = 16)
     private String dcToken;
 
     @Column(name = "THE_OTHER_DC_LENGTH")
@@ -196,7 +196,7 @@ public class Zecs000DcControl {
     @Column(name = "SESSION_TOKEN")
     private Integer sessionToken;
 
-    @Column(name = "URL_SCHEME_NAME")
+    @Column(name = "URL_SCHEME_NAME", length = 16)
     private String urlSchemeName;
 
     @Column(name = "URL_SCHEME")
@@ -205,7 +205,7 @@ public class Zecs000DcControl {
     @Column(name = "URL_PORT")
     private Integer urlPort;
 
-    @Column(name = "URL_HOST_NAME")
+    @Column(name = "URL_HOST_NAME", length = 80)
     private String urlHostName;
 
     @Column(name = "URL_HOST_NAME_LENGTH")
@@ -220,13 +220,13 @@ public class Zecs000DcControl {
     @Column(name = "WEB_STATUS_ABSTIME")
     private Integer webStatusAbstime;
 
-    @Column(name = "WEB_PATH")
+    @Column(name = "WEB_PATH", length = 512)
     private String webPath;
 
     @Column(name = "CONVERSE_LENGTH")
     private Integer converseLength;
 
-    @Column(name = "CONVERSE_RESPONSE")
+    @Column(name = "CONVERSE_RESPONSE", length = 40)
     private String converseResponse;
 
 }

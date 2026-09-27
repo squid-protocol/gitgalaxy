@@ -138,7 +138,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "3769f84401247a815765907f444e758650e3658a186b37efdc75932ab1ea034b"
+      "sha256": "140b70f5e1949b95bbe43cf8c9478c3cb1da24f06c9b932a3c48b126a98318f9"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Zecs000DcControl.java": {
       "calls": [],
@@ -223,7 +223,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "581adf9afa5bac25a07463784d5e6c1026b109abc5478f5de6f22b10b090f47b"
+      "sha256": "7b3daf70918b9b319ad2b9e885ea91e3691fc7db144620616d4b58055439e133"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Zecs001DeleteRecord.java": {
       "calls": [],
@@ -437,7 +437,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "00df7fae76177602dd61a337aa908d9000d50979963d0e4d657d19d04580cafd"
+      "sha256": "e17c8cb32ed85a08983b40b663fef6a8ef0db187dc364246bb898fdb67c552a8"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/ZecspltTdRecord.java": {
       "calls": [],
@@ -463,7 +463,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "64d9b66277433f034ae47eac3182055fffac52cda956b8abf9b3b3f3cb688dde"
+      "sha256": "dd8d9c21ef3d3b56a629f7fbd538f3c8e12cb6fcd3d4a14c24e757c3c2d4895b"
     },
     "src/main/java/com/gitgalaxy/modernized/service/Ecs001Service.java": {
       "calls": [],

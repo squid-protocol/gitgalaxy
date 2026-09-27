@@ -19,13 +19,13 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "FNR")
     private Integer fnr;
 
-    @Column(name = "NAVN")
+    @Column(name = "NAVN", length = 25)
     private String navn;
 
-    @Column(name = "PSTAT1")
+    @Column(name = "PSTAT1", length = 1)
     private String pstat1;
 
-    @Column(name = "PSTAT2")
+    @Column(name = "PSTAT2", length = 1)
     private String pstat2;
 
     @Column(name = "GRP")
@@ -97,7 +97,7 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "AFP")
     private Integer afp;
 
-    @Column(name = "K_ART")
+    @Column(name = "K_ART", length = 1)
     private String kArt;
 
     @Column(name = "TKNR")
@@ -115,16 +115,16 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "TKNR_TEST")
     private Integer tknrTest;
 
-    @Column(name = "SVAR")
+    @Column(name = "SVAR", length = 1)
     private String svar;
 
     @Column(name = "TRK_NR")
     private Integer trkNr;
 
-    @Column(name = "TRK_NAVN")
+    @Column(name = "TRK_NAVN", length = 23)
     private String trkNavn;
 
-    @Column(name = "SW_ALLE")
+    @Column(name = "SW_ALLE", length = 1)
     private String swAlle;
 
     @Column(name = "FORINNT_AKK")
@@ -145,7 +145,7 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "W_AR")
     private Integer wAr;
 
-    @Column(name = "W_AVD")
+    @Column(name = "W_AVD", length = 1)
     private String wAvd;
 
     @Column(name = "SIDENR")
@@ -154,38 +154,38 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "TRKNR_UT")
     private Integer trknrUt;
 
-    @Column(name = "TKNAVN")
+    @Column(name = "TKNAVN", length = 23)
     private String tknavn;
 
-    @Column(name = "FIL_1")
+    @Column(name = "FIL_1", length = 10)
     private String fil1;
 
-    @Column(name = "FIL_2")
+    @Column(name = "FIL_2", length = 1)
     private String fil2;
 
-    @Column(name = "H2C_DATO1")
+    @Column(name = "H2C_DATO1", length = 13)
     private String h2cDato1;
 
     @Column(name = "BELOP")
     private Integer belop;
 
-    @Column(name = "H2C_DATO2")
+    @Column(name = "H2C_DATO2", length = 12)
     private String h2cDato2;
 
     @Column(name = "FNR_UT")
     private Integer fnrUt;
 
-    @Column(name = "NAVN_UT")
+    @Column(name = "NAVN_UT", length = 9)
     private String navnUt;
 
-    @Column(name = "PSTAT1_UT")
+    @Column(name = "PSTAT1_UT", length = 1)
     private String pstat1Ut;
 
-    @Column(name = "PSTAT2_UT")
+    @Column(name = "PSTAT2_UT", length = 1)
     private String pstat2Ut;
 
     @Column(name = "UGRAD_UT")
-    private String ugradUt;
+    private Integer ugradUt;
 
     @Column(name = "GRP_UT")
     private Integer grpUt;
@@ -235,22 +235,22 @@ public class Fo04f1x1Arbeidsomraade {
     @Column(name = "SUMYD_UT")
     private Integer sumydUt;
 
-    @Column(name = "ID_X")
+    @Column(name = "ID_X", length = 9)
     private String idX;
 
     @Column(name = "GRBELOP")
     private Integer grbelop;
 
-    @Column(name = "PPSTAT")
+    @Column(name = "PPSTAT", length = 1)
     private String ppstat;
 
-    @Column(name = "K_SPROS")
+    @Column(name = "K_SPROS", length = 4)
     private String kSpros;
 
-    @Column(name = "K_DATO")
+    @Column(name = "K_DATO", length = 13)
     private String kDato;
 
-    @Column(name = "B_DATO")
+    @Column(name = "B_DATO", length = 13)
     private String bDato;
 
 }

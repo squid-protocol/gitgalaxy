@@ -19,58 +19,58 @@ public class Cbact01cWsAcctReissueDate {
     @Column(name = "OUT_ACCT_ID")
     private Integer outAcctId;
 
-    @Column(name = "OUT_ACCT_ACTIVE_STATUS")
+    @Column(name = "OUT_ACCT_ACTIVE_STATUS", length = 1)
     private String outAcctActiveStatus;
 
-    @Column(name = "OUT_ACCT_CURR_BAL")
+    @Column(name = "OUT_ACCT_CURR_BAL", precision = 12, scale = 2)
     private BigDecimal outAcctCurrBal;
 
-    @Column(name = "OUT_ACCT_CREDIT_LIMIT")
+    @Column(name = "OUT_ACCT_CREDIT_LIMIT", precision = 12, scale = 2)
     private BigDecimal outAcctCreditLimit;
 
-    @Column(name = "OUT_ACCT_CASH_CREDIT_LIMIT")
+    @Column(name = "OUT_ACCT_CASH_CREDIT_LIMIT", precision = 12, scale = 2)
     private BigDecimal outAcctCashCreditLimit;
 
-    @Column(name = "OUT_ACCT_OPEN_DATE")
+    @Column(name = "OUT_ACCT_OPEN_DATE", length = 10)
     private String outAcctOpenDate;
 
-    @Column(name = "OUT_ACCT_EXPIRAION_DATE")
+    @Column(name = "OUT_ACCT_EXPIRAION_DATE", length = 10)
     private String outAcctExpiraionDate;
 
-    @Column(name = "OUT_ACCT_REISSUE_DATE")
+    @Column(name = "OUT_ACCT_REISSUE_DATE", length = 10)
     private String outAcctReissueDate;
 
-    @Column(name = "OUT_ACCT_CURR_CYC_CREDIT")
+    @Column(name = "OUT_ACCT_CURR_CYC_CREDIT", precision = 12, scale = 2)
     private BigDecimal outAcctCurrCycCredit;
 
-    @Column(name = "OUT_ACCT_CURR_CYC_DEBIT")
+    @Column(name = "OUT_ACCT_CURR_CYC_DEBIT", precision = 12, scale = 2)
     private BigDecimal outAcctCurrCycDebit;
 
-    @Column(name = "OUT_ACCT_GROUP_ID")
+    @Column(name = "OUT_ACCT_GROUP_ID", length = 10)
     private String outAcctGroupId;
 
     @Column(name = "ARR_ACCT_ID")
     private Integer arrAcctId;
 
-    @Column(name = "ARR_ACCT_CURR_BAL")
+    @Column(name = "ARR_ACCT_CURR_BAL", precision = 12, scale = 2)
     private BigDecimal arrAcctCurrBal;
 
-    @Column(name = "ARR_ACCT_CURR_CYC_DEBIT")
+    @Column(name = "ARR_ACCT_CURR_CYC_DEBIT", precision = 12, scale = 2)
     private BigDecimal arrAcctCurrCycDebit;
 
-    @Column(name = "VBR_REC")
+    @Column(name = "VBR_REC", length = 80)
     private String vbrRec;
 
-    @Column(name = "IO_STAT1")
+    @Column(name = "IO_STAT1", length = 1)
     private String ioStat1;
 
-    @Column(name = "IO_STAT2")
+    @Column(name = "IO_STAT2", length = 1)
     private String ioStat2;
 
     @Column(name = "TWO_BYTES_BINARY")
     private Integer twoBytesBinary;
 
-    @Column(name = "TWO_BYTES_RIGHT")
+    @Column(name = "TWO_BYTES_RIGHT", length = 1)
     private String twoBytesRight;
 
     @Column(name = "IO_STATUS_0403")
@@ -79,7 +79,7 @@ public class Cbact01cWsAcctReissueDate {
     @Column(name = "APPL_RESULT")
     private Integer applResult;
 
-    @Column(name = "END_OF_FILE")
+    @Column(name = "END_OF_FILE", length = 1)
     private String endOfFile;
 
     @Column(name = "ABCODE")
@@ -94,25 +94,25 @@ public class Cbact01cWsAcctReissueDate {
     @Column(name = "VB1_ACCT_ID")
     private Integer vb1AcctId;
 
-    @Column(name = "VB1_ACCT_ACTIVE_STATUS")
+    @Column(name = "VB1_ACCT_ACTIVE_STATUS", length = 1)
     private String vb1AcctActiveStatus;
 
     @Column(name = "VB2_ACCT_ID")
     private Integer vb2AcctId;
 
-    @Column(name = "VB2_ACCT_CURR_BAL")
+    @Column(name = "VB2_ACCT_CURR_BAL", precision = 12, scale = 2)
     private BigDecimal vb2AcctCurrBal;
 
-    @Column(name = "VB2_ACCT_CREDIT_LIMIT")
+    @Column(name = "VB2_ACCT_CREDIT_LIMIT", precision = 12, scale = 2)
     private BigDecimal vb2AcctCreditLimit;
 
-    @Column(name = "VB2_ACCT_REISSUE_YYYY")
+    @Column(name = "VB2_ACCT_REISSUE_YYYY", length = 4)
     private String vb2AcctReissueYyyy;
 
-    @Column(name = "WS_ACCT_REISSUE_YYYY")
+    @Column(name = "WS_ACCT_REISSUE_YYYY", length = 4)
     private String wsAcctReissueYyyy;
 
-    @Column(name = "WS_REISSUE_DATE")
+    @Column(name = "WS_REISSUE_DATE", length = 10)
     private String wsReissueDate;
 
 }

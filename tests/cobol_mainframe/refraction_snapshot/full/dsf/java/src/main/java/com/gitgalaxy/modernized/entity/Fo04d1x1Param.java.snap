@@ -19,16 +19,16 @@ public class Fo04d1x1Param {
     @Column(name = "T_FNR")
     private Integer tFnr;
 
-    @Column(name = "T_NAVN")
+    @Column(name = "T_NAVN", length = 25)
     private String tNavn;
 
-    @Column(name = "T_PSTAT1")
+    @Column(name = "T_PSTAT1", length = 1)
     private String tPstat1;
 
-    @Column(name = "T_PSTAT2")
+    @Column(name = "T_PSTAT2", length = 1)
     private String tPstat2;
 
-    @Column(name = "T_PSTAT3")
+    @Column(name = "T_PSTAT3", length = 1)
     private String tPstat3;
 
     @Column(name = "T_GRP")
@@ -100,31 +100,31 @@ public class Fo04d1x1Param {
     @Column(name = "T_AFP")
     private Integer tAfp;
 
-    @Column(name = "SORTNAVN")
+    @Column(name = "SORTNAVN", length = 25)
     private String sortnavn;
 
-    @Column(name = "KKART")
+    @Column(name = "KKART", length = 1)
     private String kkart;
 
     @Column(name = "KTRK")
     private Integer ktrk;
 
-    @Column(name = "KSORTB")
+    @Column(name = "KSORTB", length = 1)
     private String ksortb;
 
     @Column(name = "I_FNR")
     private Integer iFnr;
 
-    @Column(name = "I_NAVN")
+    @Column(name = "I_NAVN", length = 25)
     private String iNavn;
 
-    @Column(name = "I_PENSJT1")
+    @Column(name = "I_PENSJT1", length = 1)
     private String iPensjt1;
 
-    @Column(name = "I_PENSJT2")
+    @Column(name = "I_PENSJT2", length = 1)
     private String iPensjt2;
 
-    @Column(name = "I_PENSJT3")
+    @Column(name = "I_PENSJT3", length = 1)
     private String iPensjt3;
 
     @Column(name = "I_GP")
@@ -202,16 +202,16 @@ public class Fo04d1x1Param {
     @Column(name = "I2")
     private Integer i2;
 
-    @Column(name = "KART")
+    @Column(name = "KART", length = 1)
     private String kart;
 
     @Column(name = "TRKK")
     private Integer trkk;
 
-    @Column(name = "SORTB")
+    @Column(name = "SORTB", length = 1)
     private String sortb;
 
-    @Column(name = "P_ID")
+    @Column(name = "P_ID", length = 9)
     private String pId;
 
     @Column(name = "S_TILL")

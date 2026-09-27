@@ -92,6 +92,12 @@ PORTING_RULES = [
         "full-width digits that COBOL rejects (#3831)."
     ),
     (
+        "Format a numeric-edited field (a display string mapped from a number, often for a "
+        "screen or print line) only through CobolEdit.format(pic, value, decimalComma, currency), "
+        "which honours the COBOL picture (Z, 9, ., ,, -, +, CR/DB, $/currency, B, 0, /) as the "
+        "mainframe does."
+    ),
+    (
         "Format and case-map with Locale.ROOT (String.format(Locale.ROOT, ...), toUpperCase(Locale.ROOT)): "
         "the default locale prints other digits (Arabic, Devanagari) and maps case differently (Turkish)."
     ),

@@ -37,7 +37,7 @@ CREATE TABLE RPT_STATS_DETAIL (
     RPT_TRAN_MSG1                  VARCHAR(31),
     RPT_TRAN_RECORD                VARCHAR(80),
     RPT_TRAN                       VARCHAR(10),
-    RPT_NUM_TRANS                  SMALLINT,
-    RPT_NUM_TRAN_PROC              SMALLINT,
-    RPT_NUM_TRAN_ERR               SMALLINT
+    RPT_NUM_TRANS                  INTEGER,
+    RPT_NUM_TRAN_PROC              INTEGER,
+    RPT_NUM_TRAN_ERR               INTEGER
 );

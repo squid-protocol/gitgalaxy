@@ -65,6 +65,9 @@ class SkeletonForges:
         records = repos.records_source()  # #3624: the runtime the entities' record codecs share
         if records:
             entities["CobolRecords"] = records
+        edit = repos.edit_source()
+        if edit:
+            entities["CobolEdit"] = edit
         out: dict[tuple[str, ...], dict[str, str]] = {
             ("entity", "vsam"): entities,
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},

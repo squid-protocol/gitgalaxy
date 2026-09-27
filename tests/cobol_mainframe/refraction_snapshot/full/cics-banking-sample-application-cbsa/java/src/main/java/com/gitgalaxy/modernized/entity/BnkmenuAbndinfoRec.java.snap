@@ -22,7 +22,7 @@ public class BnkmenuAbndinfoRec {
     @Column(name = "WS_CICS_RESP2")
     private Integer wsCicsResp2;
 
-    @Column(name = "WS_CICS_FAIL_MSG")
+    @Column(name = "WS_CICS_FAIL_MSG", length = 70)
     private String wsCicsFailMsg;
 
     @Column(name = "WS_CICS_RESP_DISP")
@@ -31,19 +31,19 @@ public class BnkmenuAbndinfoRec {
     @Column(name = "WS_CICS_RESP2_DISP")
     private Integer wsCicsResp2Disp;
 
-    @Column(name = "VALID_DATA_SW")
+    @Column(name = "VALID_DATA_SW", length = 1)
     private String validDataSw;
 
-    @Column(name = "END_OF_SESSION_MESSAGE")
+    @Column(name = "END_OF_SESSION_MESSAGE", length = 13)
     private String endOfSessionMessage;
 
-    @Column(name = "COMMUNICATION_AREA")
+    @Column(name = "COMMUNICATION_AREA", length = 1)
     private String communicationArea;
 
     @Column(name = "WS_U_TIME")
     private Integer wsUTime;
 
-    @Column(name = "WS_ORIG_DATE")
+    @Column(name = "WS_ORIG_DATE", length = 10)
     private String wsOrigDate;
 
     @Column(name = "WS_TIME_NOW")
@@ -58,7 +58,7 @@ public class BnkmenuAbndinfoRec {
     @Column(name = "WS_TIME_NOW_GRP_SS")
     private Integer wsTimeNowGrpSs;
 
-    @Column(name = "WS_ABEND_PGM")
+    @Column(name = "WS_ABEND_PGM", length = 8)
     private String wsAbendPgm;
 
 }

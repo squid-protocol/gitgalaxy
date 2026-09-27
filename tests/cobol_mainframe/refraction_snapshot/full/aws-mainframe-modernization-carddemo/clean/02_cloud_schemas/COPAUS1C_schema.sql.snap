@@ -7,7 +7,7 @@ CREATE TABLE DFHCOMMAREA (
     WS_ERR_FLG                     VARCHAR(01),
     WS_ACCT_ID                     BIGINT,
     WS_AUTH_KEY                    VARCHAR(08),
-    WS_AUTH_AMT                    DECIMAL(3, 2),
+    WS_AUTH_AMT                    DECIMAL(10, 2),
     WS_AUTH_DATE                   VARCHAR(08),
     WS_AUTH_TIME                   VARCHAR(08),
     DECL_CODE                      VARCHAR(4),

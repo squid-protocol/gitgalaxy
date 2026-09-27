@@ -16,16 +16,16 @@ public class Cbact02cIoStatus04 {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "IO_STAT1")
+    @Column(name = "IO_STAT1", length = 1)
     private String ioStat1;
 
-    @Column(name = "IO_STAT2")
+    @Column(name = "IO_STAT2", length = 1)
     private String ioStat2;
 
     @Column(name = "TWO_BYTES_BINARY")
     private Integer twoBytesBinary;
 
-    @Column(name = "TWO_BYTES_RIGHT")
+    @Column(name = "TWO_BYTES_RIGHT", length = 1)
     private String twoBytesRight;
 
     @Column(name = "IO_STATUS_0403")
@@ -34,7 +34,7 @@ public class Cbact02cIoStatus04 {
     @Column(name = "APPL_RESULT")
     private Integer applResult;
 
-    @Column(name = "END_OF_FILE")
+    @Column(name = "END_OF_FILE", length = 1)
     private String endOfFile;
 
     @Column(name = "ABCODE")

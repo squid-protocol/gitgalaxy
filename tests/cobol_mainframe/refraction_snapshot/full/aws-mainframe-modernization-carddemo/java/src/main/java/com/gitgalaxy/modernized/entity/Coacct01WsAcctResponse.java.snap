@@ -28,10 +28,10 @@ public class Coacct01WsAcctResponse {
     @Column(name = "WS_CICS_RESP2_CD_D")
     private Integer wsCicsResp2CdD;
 
-    @Column(name = "MQ_QUEUE")
+    @Column(name = "MQ_QUEUE", length = 48)
     private String mqQueue;
 
-    @Column(name = "MQ_QUEUE_REPLY")
+    @Column(name = "MQ_QUEUE_REPLY", length = 48)
     private String mqQueueReply;
 
     @Column(name = "MQ_HCONN")
@@ -52,34 +52,34 @@ public class Coacct01WsAcctResponse {
     @Column(name = "MQ_BUFFER_LENGTH")
     private Integer mqBufferLength;
 
-    @Column(name = "MQ_BUFFER")
+    @Column(name = "MQ_BUFFER", length = 1000)
     private String mqBuffer;
 
     @Column(name = "MQ_DATA_LENGTH")
     private Integer mqDataLength;
 
-    @Column(name = "MQ_CORRELID")
+    @Column(name = "MQ_CORRELID", length = 24)
     private String mqCorrelid;
 
-    @Column(name = "MQ_MSG_ID")
+    @Column(name = "MQ_MSG_ID", length = 24)
     private String mqMsgId;
 
     @Column(name = "MQ_MSG_COUNT")
     private Integer mqMsgCount;
 
-    @Column(name = "SAVE_CORELID")
+    @Column(name = "SAVE_CORELID", length = 24)
     private String saveCorelid;
 
-    @Column(name = "SAVE_MSGID")
+    @Column(name = "SAVE_MSGID", length = 24)
     private String saveMsgid;
 
-    @Column(name = "SAVE_REPLY2Q")
+    @Column(name = "SAVE_REPLY2Q", length = 48)
     private String saveReply2Q;
 
-    @Column(name = "MQ_ERROR_PARA")
+    @Column(name = "MQ_ERROR_PARA", length = 25)
     private String mqErrorPara;
 
-    @Column(name = "MQ_APPL_RETURN_MESSAGE")
+    @Column(name = "MQ_APPL_RETURN_MESSAGE", length = 25)
     private String mqApplReturnMessage;
 
     @Column(name = "MQ_APPL_CONDITION_CODE")
@@ -88,19 +88,19 @@ public class Coacct01WsAcctResponse {
     @Column(name = "MQ_APPL_REASON_CODE")
     private Integer mqApplReasonCode;
 
-    @Column(name = "MQ_APPL_QUEUE_NAME")
+    @Column(name = "MQ_APPL_QUEUE_NAME", length = 48)
     private String mqApplQueueName;
 
-    @Column(name = "QMGR_NAME")
+    @Column(name = "QMGR_NAME", length = 48)
     private String qmgrName;
 
-    @Column(name = "INPUT_QUEUE_NAME")
+    @Column(name = "INPUT_QUEUE_NAME", length = 48)
     private String inputQueueName;
 
-    @Column(name = "REPLY_QUEUE_NAME")
+    @Column(name = "REPLY_QUEUE_NAME", length = 48)
     private String replyQueueName;
 
-    @Column(name = "ERROR_QUEUE_NAME")
+    @Column(name = "ERROR_QUEUE_NAME", length = 48)
     private String errorQueueName;
 
     @Column(name = "INPUT_QUEUE_HANDLE")
@@ -115,25 +115,25 @@ public class Coacct01WsAcctResponse {
     @Column(name = "QMGR_HANDLE_CONN")
     private Integer qmgrHandleConn;
 
-    @Column(name = "QUEUE_MESSAGE")
+    @Column(name = "QUEUE_MESSAGE", length = 1000)
     private String queueMessage;
 
-    @Column(name = "REQUEST_MESSAGE")
+    @Column(name = "REQUEST_MESSAGE", length = 1000)
     private String requestMessage;
 
-    @Column(name = "REPLY_MESSAGE")
+    @Column(name = "REPLY_MESSAGE", length = 1000)
     private String replyMessage;
 
-    @Column(name = "ERROR_MESSAGE")
+    @Column(name = "ERROR_MESSAGE", length = 1000)
     private String errorMessage;
 
-    @Column(name = "WS_FUNC")
+    @Column(name = "WS_FUNC", length = 4)
     private String wsFunc;
 
     @Column(name = "WS_KEY")
     private Integer wsKey;
 
-    @Column(name = "LIT_ACCTFILENAME")
+    @Column(name = "LIT_ACCTFILENAME", length = 8)
     private String litAcctfilename;
 
     @Column(name = "WS_RESP_CD")
@@ -145,40 +145,40 @@ public class Coacct01WsAcctResponse {
     @Column(name = "WS_CARD_RID_ACCT_ID")
     private Integer wsCardRidAcctId;
 
-    @Column(name = "WS_CARD_RID_ACCT_ID_X")
+    @Column(name = "WS_CARD_RID_ACCT_ID_X", length = 11)
     private String wsCardRidAcctIdX;
 
     @Column(name = "WS_ACCT_ID")
     private Integer wsAcctId;
 
-    @Column(name = "WS_ACCT_ACTIVE_STATUS")
+    @Column(name = "WS_ACCT_ACTIVE_STATUS", length = 1)
     private String wsAcctActiveStatus;
 
-    @Column(name = "WS_ACCT_CURR_BAL")
+    @Column(name = "WS_ACCT_CURR_BAL", precision = 12, scale = 2)
     private BigDecimal wsAcctCurrBal;
 
-    @Column(name = "WS_ACCT_CREDIT_LIMIT")
+    @Column(name = "WS_ACCT_CREDIT_LIMIT", precision = 12, scale = 2)
     private BigDecimal wsAcctCreditLimit;
 
-    @Column(name = "WS_ACCT_CASH_CREDIT_LIMIT")
+    @Column(name = "WS_ACCT_CASH_CREDIT_LIMIT", precision = 12, scale = 2)
     private BigDecimal wsAcctCashCreditLimit;
 
-    @Column(name = "WS_ACCT_OPEN_DATE")
+    @Column(name = "WS_ACCT_OPEN_DATE", length = 10)
     private String wsAcctOpenDate;
 
-    @Column(name = "WS_ACCT_EXPIRAION_DATE")
+    @Column(name = "WS_ACCT_EXPIRAION_DATE", length = 10)
     private String wsAcctExpiraionDate;
 
-    @Column(name = "WS_ACCT_REISSUE_DATE")
+    @Column(name = "WS_ACCT_REISSUE_DATE", length = 10)
     private String wsAcctReissueDate;
 
-    @Column(name = "WS_ACCT_CURR_CYC_CREDIT")
+    @Column(name = "WS_ACCT_CURR_CYC_CREDIT", precision = 12, scale = 2)
     private BigDecimal wsAcctCurrCycCredit;
 
-    @Column(name = "WS_ACCT_CURR_CYC_DEBIT")
+    @Column(name = "WS_ACCT_CURR_CYC_DEBIT", precision = 12, scale = 2)
     private BigDecimal wsAcctCurrCycDebit;
 
-    @Column(name = "WS_ACCT_GROUP_ID")
+    @Column(name = "WS_ACCT_GROUP_ID", length = 10)
     private String wsAcctGroupId;
 
 }

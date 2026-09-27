@@ -16,73 +16,73 @@ public class DelaccAbndinfoRec {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "HV_ACCOUNT_EYECATCHER")
+    @Column(name = "HV_ACCOUNT_EYECATCHER", length = 4)
     private String hvAccountEyecatcher;
 
-    @Column(name = "HV_ACCOUNT_CUST_NO")
+    @Column(name = "HV_ACCOUNT_CUST_NO", length = 10)
     private String hvAccountCustNo;
 
-    @Column(name = "HV_ACCOUNT_SORTCODE")
+    @Column(name = "HV_ACCOUNT_SORTCODE", length = 6)
     private String hvAccountSortcode;
 
-    @Column(name = "HV_ACCOUNT_ACC_NO")
+    @Column(name = "HV_ACCOUNT_ACC_NO", length = 8)
     private String hvAccountAccNo;
 
-    @Column(name = "HV_ACCOUNT_ACC_TYPE")
+    @Column(name = "HV_ACCOUNT_ACC_TYPE", length = 8)
     private String hvAccountAccType;
 
-    @Column(name = "HV_ACCOUNT_INT_RATE")
+    @Column(name = "HV_ACCOUNT_INT_RATE", precision = 6, scale = 2)
     private BigDecimal hvAccountIntRate;
 
-    @Column(name = "HV_ACCOUNT_OPENED")
+    @Column(name = "HV_ACCOUNT_OPENED", length = 10)
     private String hvAccountOpened;
 
     @Column(name = "HV_ACCOUNT_OVERDRAFT_LIM")
     private Integer hvAccountOverdraftLim;
 
-    @Column(name = "HV_ACCOUNT_LAST_STMT")
+    @Column(name = "HV_ACCOUNT_LAST_STMT", length = 10)
     private String hvAccountLastStmt;
 
-    @Column(name = "HV_ACCOUNT_NEXT_STMT")
+    @Column(name = "HV_ACCOUNT_NEXT_STMT", length = 10)
     private String hvAccountNextStmt;
 
-    @Column(name = "HV_ACCOUNT_AVAIL_BAL")
+    @Column(name = "HV_ACCOUNT_AVAIL_BAL", precision = 12, scale = 2)
     private BigDecimal hvAccountAvailBal;
 
-    @Column(name = "HV_ACCOUNT_ACTUAL_BAL")
+    @Column(name = "HV_ACCOUNT_ACTUAL_BAL", precision = 12, scale = 2)
     private BigDecimal hvAccountActualBal;
 
-    @Column(name = "HV_PROCTRAN_EYECATCHER")
+    @Column(name = "HV_PROCTRAN_EYECATCHER", length = 4)
     private String hvProctranEyecatcher;
 
-    @Column(name = "HV_PROCTRAN_SORT_CODE")
+    @Column(name = "HV_PROCTRAN_SORT_CODE", length = 6)
     private String hvProctranSortCode;
 
-    @Column(name = "HV_PROCTRAN_ACC_NUMBER")
+    @Column(name = "HV_PROCTRAN_ACC_NUMBER", length = 8)
     private String hvProctranAccNumber;
 
-    @Column(name = "HV_PROCTRAN_DATE")
+    @Column(name = "HV_PROCTRAN_DATE", length = 10)
     private String hvProctranDate;
 
-    @Column(name = "HV_PROCTRAN_TIME")
+    @Column(name = "HV_PROCTRAN_TIME", length = 6)
     private String hvProctranTime;
 
-    @Column(name = "HV_PROCTRAN_REF")
+    @Column(name = "HV_PROCTRAN_REF", length = 12)
     private String hvProctranRef;
 
-    @Column(name = "HV_PROCTRAN_TYPE")
+    @Column(name = "HV_PROCTRAN_TYPE", length = 3)
     private String hvProctranType;
 
-    @Column(name = "HV_PROCTRAN_DESC")
+    @Column(name = "HV_PROCTRAN_DESC", length = 40)
     private String hvProctranDesc;
 
-    @Column(name = "HV_PROCTRAN_AMOUNT")
+    @Column(name = "HV_PROCTRAN_AMOUNT", precision = 12, scale = 2)
     private BigDecimal hvProctranAmount;
 
     @Column(name = "SQLCODE_DISPLAY")
     private Integer sqlcodeDisplay;
 
-    @Column(name = "ACCOUNT_ACT_BAL_STORE")
+    @Column(name = "ACCOUNT_ACT_BAL_STORE", precision = 12, scale = 2)
     private BigDecimal accountActBalStore;
 
     @Column(name = "RETURNED_SORT_CODE")
@@ -109,7 +109,7 @@ public class DelaccAbndinfoRec {
     @Column(name = "WS_U_TIME")
     private Integer wsUTime;
 
-    @Column(name = "WS_ORIG_DATE")
+    @Column(name = "WS_ORIG_DATE", length = 10)
     private String wsOrigDate;
 
     @Column(name = "WS_TIME_NOW")
@@ -124,7 +124,7 @@ public class DelaccAbndinfoRec {
     @Column(name = "WS_TIME_NOW_GRP_SS")
     private Integer wsTimeNowGrpSs;
 
-    @Column(name = "WS_ABEND_PGM")
+    @Column(name = "WS_ABEND_PGM", length = 8)
     private String wsAbendPgm;
 
 }

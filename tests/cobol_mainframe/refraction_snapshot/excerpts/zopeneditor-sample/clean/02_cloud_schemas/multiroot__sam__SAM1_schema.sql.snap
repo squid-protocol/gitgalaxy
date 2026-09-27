@@ -41,12 +41,12 @@ CREATE TABLE RPT_STATS_CUST_DETAIL (
     RPT_TRAN_MSG1                  VARCHAR(31),
     RPT_TRAN_RECORD                VARCHAR(80),
     RPT_CRUNCH_CUST                VARCHAR(14),
-    RPT_CRUNCH_TOTAL               SMALLINT,
-    RPT_CRUNCH_AVG                 SMALLINT,
+    RPT_CRUNCH_TOTAL               BIGINT,
+    RPT_CRUNCH_AVG                 BIGINT,
     RPT_TRAN                       VARCHAR(10),
-    RPT_NUM_TRANS                  SMALLINT,
-    RPT_NUM_TRAN_PROC              SMALLINT,
-    RPT_NUM_TRAN_ERR               SMALLINT,
+    RPT_NUM_TRANS                  INTEGER,
+    RPT_NUM_TRAN_PROC              INTEGER,
+    RPT_NUM_TRAN_ERR               INTEGER,
     CUST_CNT_NAME                  VARCHAR(30),
-    RPT_NUM_CUST                   SMALLINT
+    RPT_NUM_CUST                   INTEGER
 );

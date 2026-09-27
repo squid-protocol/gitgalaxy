@@ -232,7 +232,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "837dab4f769d3a23b3f2260253ffd4800f8ecb775a1f412a34ed151f4c6aa4fd"
+      "sha256": "a7eaf9384463ff9568253f71df977adee3310a7c29c47f22b022d889a8fc0bcf"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Crdtagy1AbndinfoRec.java": {
       "calls": [],
@@ -267,7 +267,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "da26fee2c3831efda269f4c523961c7c079abb3e5f6952eb4a73b3c3827b4c1f"
+      "sha256": "75d905e51e50354db3081199e510f3dd9b310fdc694b90fa44995e23eed771f1"
     },
     "src/main/java/com/gitgalaxy/modernized/service/AbndprocService.java": {
       "calls": [],

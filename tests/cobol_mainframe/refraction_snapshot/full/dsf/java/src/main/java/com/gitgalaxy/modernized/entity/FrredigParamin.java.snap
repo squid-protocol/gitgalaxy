@@ -16,7 +16,7 @@ public class FrredigParamin {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "INN_AAR")
+    @Column(name = "INN_AAR", length = 80)
     private String innAar;
 
     @Column(name = "TRKNR")
@@ -37,16 +37,16 @@ public class FrredigParamin {
     @Column(name = "FNR2")
     private Integer fnr2;
 
-    @Column(name = "NAVN")
+    @Column(name = "NAVN", length = 26)
     private String navn;
 
-    @Column(name = "GATE")
+    @Column(name = "GATE", length = 50)
     private String gate;
 
-    @Column(name = "POSTSTED")
+    @Column(name = "POSTSTED", length = 21)
     private String poststed;
 
-    @Column(name = "UTPOSTEN")
+    @Column(name = "UTPOSTEN", length = 133)
     private String utposten;
 
     @Column(name = "TELLER")
@@ -67,25 +67,25 @@ public class FrredigParamin {
     @Column(name = "FNR2O")
     private Integer fnr2o;
 
-    @Column(name = "NAVNO")
+    @Column(name = "NAVNO", length = 26)
     private String navno;
 
-    @Column(name = "GATEO")
+    @Column(name = "GATEO", length = 50)
     private String gateo;
 
-    @Column(name = "POSTSTEDO")
+    @Column(name = "POSTSTEDO", length = 21)
     private String poststedo;
 
     @Column(name = "TRKNR_L")
     private Integer trknrL;
 
-    @Column(name = "AARSTALL")
+    @Column(name = "AARSTALL", length = 4)
     private String aarstall;
 
-    @Column(name = "INNAAR")
+    @Column(name = "INNAAR", length = 4)
     private String innaar;
 
-    @Column(name = "BLK")
+    @Column(name = "BLK", length = 133)
     private String blk;
 
 }

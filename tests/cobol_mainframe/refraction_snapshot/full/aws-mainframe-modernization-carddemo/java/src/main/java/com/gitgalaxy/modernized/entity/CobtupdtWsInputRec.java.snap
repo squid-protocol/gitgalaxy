@@ -16,22 +16,22 @@ public class CobtupdtWsInputRec {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "LASTREC")
+    @Column(name = "LASTREC", length = 1)
     private String lastrec;
 
-    @Column(name = "WS_RETURN_MSG")
+    @Column(name = "WS_RETURN_MSG", length = 80)
     private String wsReturnMsg;
 
     @Column(name = "WS_VAR_SQLCODE")
     private Integer wsVarSqlcode;
 
-    @Column(name = "INPUT_REC_TYPE")
+    @Column(name = "INPUT_REC_TYPE", length = 1)
     private String inputRecType;
 
-    @Column(name = "INPUT_REC_NUMBER")
+    @Column(name = "INPUT_REC_NUMBER", length = 2)
     private String inputRecNumber;
 
-    @Column(name = "INPUT_REC_DESC")
+    @Column(name = "INPUT_REC_DESC", length = 50)
     private String inputRecDesc;
 
 }

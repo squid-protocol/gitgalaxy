@@ -16,7 +16,7 @@ public class CobolSam1RptStatsDetail {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "REPORT_RECORD")
+    @Column(name = "REPORT_RECORD", length = 132)
     private String reportRecord;
 
     @Column(name = "CURRENT_YEAR")
@@ -61,46 +61,46 @@ public class CobolSam1RptStatsDetail {
     @Column(name = "NUM_DELETE_PROCESSED")
     private Integer numDeleteProcessed;
 
-    @Column(name = "WS_CUSTFILE_STATUS")
+    @Column(name = "WS_CUSTFILE_STATUS", length = 2)
     private String wsCustfileStatus;
 
-    @Column(name = "WS_CUSTOUT_STATUS")
+    @Column(name = "WS_CUSTOUT_STATUS", length = 2)
     private String wsCustoutStatus;
 
-    @Column(name = "WS_TRANFILE_STATUS")
+    @Column(name = "WS_TRANFILE_STATUS", length = 2)
     private String wsTranfileStatus;
 
-    @Column(name = "WS_REPORT_STATUS")
+    @Column(name = "WS_REPORT_STATUS", length = 2)
     private String wsReportStatus;
 
-    @Column(name = "WS_TRAN_EOF")
+    @Column(name = "WS_TRAN_EOF", length = 1)
     private String wsTranEof;
 
-    @Column(name = "WS_TRAN_OK")
+    @Column(name = "WS_TRAN_OK", length = 1)
     private String wsTranOk;
 
-    @Column(name = "WS_CUST_FILE_EOF")
+    @Column(name = "WS_CUST_FILE_EOF", length = 1)
     private String wsCustFileEof;
 
-    @Column(name = "WS_TRAN_MSG")
+    @Column(name = "WS_TRAN_MSG", length = 50)
     private String wsTranMsg;
 
-    @Column(name = "WS_PREV_TRAN_KEY")
+    @Column(name = "WS_PREV_TRAN_KEY", length = 13)
     private String wsPrevTranKey;
 
-    @Column(name = "SAM2")
+    @Column(name = "SAM2", length = 8)
     private String sam2;
 
     @Column(name = "I")
     private Integer i;
 
-    @Column(name = "ERR_MSG_DATA1")
+    @Column(name = "ERR_MSG_DATA1", length = 35)
     private String errMsgData1;
 
-    @Column(name = "ERR_MSG_DATA2")
+    @Column(name = "ERR_MSG_DATA2", length = 66)
     private String errMsgData2;
 
-    @Column(name = "ERR_MSG_DATA3")
+    @Column(name = "ERR_MSG_DATA3", length = 80)
     private String errMsgData3;
 
     @Column(name = "RPT_MM")
@@ -121,13 +121,13 @@ public class CobolSam1RptStatsDetail {
     @Column(name = "RPT_SS")
     private Integer rptSs;
 
-    @Column(name = "RPT_TRAN_MSG1")
+    @Column(name = "RPT_TRAN_MSG1", length = 31)
     private String rptTranMsg1;
 
-    @Column(name = "RPT_TRAN_RECORD")
+    @Column(name = "RPT_TRAN_RECORD", length = 80)
     private String rptTranRecord;
 
-    @Column(name = "RPT_TRAN")
+    @Column(name = "RPT_TRAN", length = 10)
     private String rptTran;
 
     @Column(name = "RPT_NUM_TRANS")

@@ -19,12 +19,15 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
+
+from gitgalaxy.core.special_names import special_names
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 
 from gitgalaxy.core.source_text import read_source
 
 
-def parse_cobol_picture(pic_clause: str) -> dict:
+def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False) -> dict:
     """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type."""
     if not pic_clause:
         return {"sql": "VARCHAR(255)", "json": "string"}
@@ -37,27 +40,18 @@ def parse_cobol_picture(pic_clause: str) -> dict:
         length = match.group(1) if match else sum(c in "XA" for c in pic)
         return {"sql": f"VARCHAR({length})", "json": "string"}
 
-    # Decimals/Money: PIC S9(7)V99
-    if "V" in pic or "." in pic:
-        parts = pic.split("V") if "V" in pic else pic.split(".")
-        left, right = parts[0], parts[1] if len(parts) > 1 else ""
+    # #3827: digit positions and scale, the decimal point being `,` under DECIMAL-POINT IS COMMA
+    total_p, scale = parse_pic_precision(pic, decimal_comma)
 
-        def count_nines(s):
-            m = re.search(r"9\((\d+)\)", s)
-            return int(m.group(1)) if m else s.count("9")
+    if total_p > 0 and ("V" in pic or "." in pic or "," in pic or "Z" in pic or "9" in pic):
+        # Decimals/Money
+        if scale > 0 or "V" in pic or "." in pic or ("," in pic and decimal_comma):
+            return {"sql": f"DECIMAL({total_p}, {scale})", "json": "number"}
 
-        p_left = count_nines(left)
-        p_right = count_nines(right)
-        total_p = p_left + p_right
-        return {"sql": f"DECIMAL({total_p}, {p_right})", "json": "number"}
-
-    # Integers: PIC 9(4)
-    if "9" in pic:
-        match = re.search(r"9\((\d+)\)", pic)
-        length = int(match.group(1)) if match else pic.count("9")
-        if length <= 4:
+        # Integers
+        if total_p <= 4:
             return {"sql": "SMALLINT", "json": "integer"}
-        elif length <= 9:
+        elif total_p <= 9:
             return {"sql": "INTEGER", "json": "integer"}
         else:
             return {"sql": "BIGINT", "json": "integer"}
@@ -144,6 +138,9 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
     except Exception:
         return None
 
+    # #3827: SPECIAL-NAMES sits in the ENVIRONMENT DIVISION, so read it before the cut below
+    decimal_comma = any(sn["clause"] == "DECIMAL-POINT" for sn in special_names(content))
+
     # Focus only on the Data Division or raw Copybooks
     # #3533: `PROCEDURE        DIVISION.` (navikt/DSF PLUKKFR) is the same header.
     content = re.sub(r"PROCEDURE[ \t]+DIVISION", "PROCEDURE DIVISION", content)
@@ -152,11 +149,15 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         if "DATA DIVISION" in content:
             content = content.split("DATA DIVISION")[1]
 
-    return render_schemas(data_entries(content), filepath.stem.upper(), ignore_vars, corporate_header)
+    return render_schemas(data_entries(content), filepath.stem.upper(), ignore_vars, corporate_header, decimal_comma)
 
 
 def render_schemas(
-    entries: list[dict], table_name: str, ignore_vars: Optional[set] = None, corporate_header: str = ""
+    entries: list[dict],
+    table_name: str,
+    ignore_vars: Optional[set] = None,
+    corporate_header: str = "",
+    decimal_comma: bool = False,
 ) -> Optional[dict]:
     """The SQL DDL and JSON Schema of a program's data description entries, in source order.
 
@@ -194,7 +195,7 @@ def render_schemas(
             continue
 
         safe_name = name.replace("-", "_")
-        types = parse_cobol_picture(pic)
+        types = parse_cobol_picture(pic, decimal_comma)
 
         # ======================================================================
         # ARCHITECTURAL ANOMALY (DYNAMIC MEMORY ARRAY):
@@ -208,7 +209,7 @@ def render_schemas(
         columns.append(f"    {safe_name.ljust(30)} {types['sql']}{comment}{warning}")
         json_properties[safe_name] = {
             "type": types["json"],
-            "description": f"Legacy PIC: {pic}",
+            "description": f"Legacy PIC: {pic}" + (" (DECIMAL-POINT IS COMMA)" if decimal_comma else ""),
         }
 
     if not columns:
@@ -226,12 +227,14 @@ def render_schemas(
     sql_ddl += "\n);"
 
     # Generate JSON Schema
-    json_schema = {
+    json_schema: dict[str, Any] = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": table_name,
         "type": "object",
         "properties": json_properties,
     }
+    if decimal_comma:  # #3827: the Java forges read the edited PICTUREs by it
+        json_schema["decimal_comma"] = True
 
     return {"table": table_name, "sql": sql_ddl, "json": json_schema}
 

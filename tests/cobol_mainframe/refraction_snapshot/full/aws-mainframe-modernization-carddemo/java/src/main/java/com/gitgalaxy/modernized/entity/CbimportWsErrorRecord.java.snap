@@ -16,34 +16,34 @@ public class CbimportWsErrorRecord {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "ERROR_OUTPUT_RECORD")
+    @Column(name = "ERROR_OUTPUT_RECORD", length = 132)
     private String errorOutputRecord;
 
-    @Column(name = "WS_EXPORT_STATUS")
+    @Column(name = "WS_EXPORT_STATUS", length = 2)
     private String wsExportStatus;
 
-    @Column(name = "WS_CUSTOMER_STATUS")
+    @Column(name = "WS_CUSTOMER_STATUS", length = 2)
     private String wsCustomerStatus;
 
-    @Column(name = "WS_ACCOUNT_STATUS")
+    @Column(name = "WS_ACCOUNT_STATUS", length = 2)
     private String wsAccountStatus;
 
-    @Column(name = "WS_XREF_STATUS")
+    @Column(name = "WS_XREF_STATUS", length = 2)
     private String wsXrefStatus;
 
-    @Column(name = "WS_TRANSACTION_STATUS")
+    @Column(name = "WS_TRANSACTION_STATUS", length = 2)
     private String wsTransactionStatus;
 
-    @Column(name = "WS_CARD_STATUS")
+    @Column(name = "WS_CARD_STATUS", length = 2)
     private String wsCardStatus;
 
-    @Column(name = "WS_ERROR_STATUS")
+    @Column(name = "WS_ERROR_STATUS", length = 2)
     private String wsErrorStatus;
 
-    @Column(name = "WS_IMPORT_DATE")
+    @Column(name = "WS_IMPORT_DATE", length = 10)
     private String wsImportDate;
 
-    @Column(name = "WS_IMPORT_TIME")
+    @Column(name = "WS_IMPORT_TIME", length = 8)
     private String wsImportTime;
 
     @Column(name = "WS_TOTAL_RECORDS_READ")
@@ -70,16 +70,16 @@ public class CbimportWsErrorRecord {
     @Column(name = "WS_UNKNOWN_RECORD_TYPE_COUNT")
     private Integer wsUnknownRecordTypeCount;
 
-    @Column(name = "ERR_TIMESTAMP")
+    @Column(name = "ERR_TIMESTAMP", length = 26)
     private String errTimestamp;
 
-    @Column(name = "ERR_RECORD_TYPE")
+    @Column(name = "ERR_RECORD_TYPE", length = 1)
     private String errRecordType;
 
     @Column(name = "ERR_SEQUENCE")
     private Integer errSequence;
 
-    @Column(name = "ERR_MESSAGE")
+    @Column(name = "ERR_MESSAGE", length = 50)
     private String errMessage;
 
 }

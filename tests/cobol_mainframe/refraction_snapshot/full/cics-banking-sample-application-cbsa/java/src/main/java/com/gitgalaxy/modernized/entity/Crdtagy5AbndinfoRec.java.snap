@@ -43,10 +43,10 @@ public class Crdtagy5AbndinfoRec {
     @Column(name = "WS_DELAY_AMT")
     private Integer wsDelayAmt;
 
-    @Column(name = "WS_CONTAINER_NAME")
+    @Column(name = "WS_CONTAINER_NAME", length = 16)
     private String wsContainerName;
 
-    @Column(name = "WS_CHANNEL_NAME")
+    @Column(name = "WS_CHANNEL_NAME", length = 16)
     private String wsChannelName;
 
     @Column(name = "WS_CONTAINER_LEN")
@@ -61,7 +61,7 @@ public class Crdtagy5AbndinfoRec {
     @Column(name = "WS_U_TIME")
     private Integer wsUTime;
 
-    @Column(name = "WS_ORIG_DATE")
+    @Column(name = "WS_ORIG_DATE", length = 10)
     private String wsOrigDate;
 
     @Column(name = "WS_TIME_NOW")
@@ -76,7 +76,7 @@ public class Crdtagy5AbndinfoRec {
     @Column(name = "WS_TIME_NOW_GRP_SS")
     private Integer wsTimeNowGrpSs;
 
-    @Column(name = "WS_ABEND_PGM")
+    @Column(name = "WS_ABEND_PGM", length = 8)
     private String wsAbendPgm;
 
 }

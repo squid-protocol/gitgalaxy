@@ -19,7 +19,7 @@ public class CobswaitCobswait {
     @Column(name = "MVSWAIT_TIME")
     private Integer mvswaitTime;
 
-    @Column(name = "PARM_VALUE")
+    @Column(name = "PARM_VALUE", length = 8)
     private String parmValue;
 
 }

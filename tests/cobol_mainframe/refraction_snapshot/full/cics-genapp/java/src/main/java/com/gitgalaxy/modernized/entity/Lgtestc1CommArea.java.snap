@@ -22,34 +22,34 @@ public class Lgtestc1CommArea {
     @Column(name = "WS_ITEM_COUNT")
     private Integer wsItemCount;
 
-    @Column(name = "WS_FLAG_TSQH")
+    @Column(name = "WS_FLAG_TSQH", length = 1)
     private String wsFlagTsqh = "N/A";
 
-    @Column(name = "READ_MSG_MSG")
+    @Column(name = "READ_MSG_MSG", length = 80)
     private String readMsgMsg;
 
-    @Column(name = "WRITE_MSG_E")
+    @Column(name = "WRITE_MSG_E", length = 20)
     private String writeMsgE;
 
-    @Column(name = "WRITE_MSG_L")
+    @Column(name = "WRITE_MSG_L", length = 13)
     private String writeMsgL;
 
     @Column(name = "WRITE_MSG_LOW")
     private Integer writeMsgLow;
 
-    @Column(name = "WRITE_MSG_H")
+    @Column(name = "WRITE_MSG_H", length = 14)
     private String writeMsgH;
 
     @Column(name = "WRITE_MSG_HIGH")
     private Integer writeMsgHigh;
 
-    @Column(name = "STSQ_NAME")
+    @Column(name = "STSQ_NAME", length = 8)
     private String stsqName;
 
     @Column(name = "F24")
     private Integer f24;
 
-    @Column(name = "MSGEND")
+    @Column(name = "MSGEND", length = 24)
     private String msgend;
 
 }

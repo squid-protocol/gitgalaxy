@@ -16,13 +16,13 @@ public class Ecs001CicsMsg2 {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "URIMAP_NAME")
+    @Column(name = "URIMAP_NAME", length = 8)
     private String urimapName;
 
-    @Column(name = "SESSION_TOKEN")
+    @Column(name = "SESSION_TOKEN", length = 8)
     private String sessionToken;
 
-    @Column(name = "ECS_KEY")
+    @Column(name = "ECS_KEY", length = 80)
     private String ecsKey;
 
     @Column(name = "ECS_KEY_LEN")
@@ -31,19 +31,19 @@ public class Ecs001CicsMsg2 {
     @Column(name = "TERM_DATA_LEN")
     private Integer termDataLen;
 
-    @Column(name = "BODY_DATA")
+    @Column(name = "BODY_DATA", length = 3000)
     private String bodyData;
 
     @Column(name = "BODY_DATA_LEN")
     private Integer bodyDataLen;
 
-    @Column(name = "ECS_DATA")
+    @Column(name = "ECS_DATA", length = 3000)
     private String ecsData;
 
     @Column(name = "ECS_DATA_LEN")
     private Integer ecsDataLen;
 
-    @Column(name = "PATH_NAME")
+    @Column(name = "PATH_NAME", length = 400)
     private String pathName;
 
     @Column(name = "PATH_NAME_LEN")
@@ -55,7 +55,7 @@ public class Ecs001CicsMsg2 {
     @Column(name = "HTTP_STATUS_LEN")
     private Integer httpStatusLen;
 
-    @Column(name = "HTTP_STATUS_TEXT")
+    @Column(name = "HTTP_STATUS_TEXT", length = 100)
     private String httpStatusText;
 
     @Column(name = "METHOD_CDVA")
@@ -64,19 +64,19 @@ public class Ecs001CicsMsg2 {
     @Column(name = "I")
     private Integer i;
 
-    @Column(name = "MEDIA_TYPE")
+    @Column(name = "MEDIA_TYPE", length = 56)
     private String mediaType;
 
-    @Column(name = "INPUT_PARM1")
+    @Column(name = "INPUT_PARM1", length = 80)
     private String inputParm1;
 
-    @Column(name = "INPUT_PARM2")
+    @Column(name = "INPUT_PARM2", length = 80)
     private String inputParm2;
 
-    @Column(name = "TERM_LINES")
+    @Column(name = "TERM_LINES", length = 80)
     private String termLines;
 
-    @Column(name = "CICS_MSG_TEXT")
+    @Column(name = "CICS_MSG_TEXT", length = 34)
     private String cicsMsgText;
 
     @Column(name = "CICS_MSG_RESP")
@@ -85,13 +85,13 @@ public class Ecs001CicsMsg2 {
     @Column(name = "CICS_MSG_RESP2")
     private Integer cicsMsgResp2;
 
-    @Column(name = "CICS_MSG_HTTP")
+    @Column(name = "CICS_MSG_HTTP", length = 20)
     private String cicsMsgHttp;
 
     @Column(name = "CICS_MSG_CODE")
     private Integer cicsMsgCode;
 
-    @Column(name = "CICS_MSG_STATUS")
+    @Column(name = "CICS_MSG_STATUS", length = 31)
     private String cicsMsgStatus;
 
 }

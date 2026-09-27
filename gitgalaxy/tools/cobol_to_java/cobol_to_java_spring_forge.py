@@ -27,6 +27,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier as _java_field_name
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
@@ -40,7 +41,7 @@ def map_type_to_java(json_type: str, description: str) -> str:
     return "String"
 
 
-def parse_pic_clause(description: str) -> dict:
+def parse_pic_clause(description: str, decimal_comma: bool) -> dict:
     """
     Analyzes COBOL PIC, OCCURS, and REDEFINES clauses in the description
     to extract exact memory boundaries and structural directives.
@@ -58,7 +59,8 @@ def parse_pic_clause(description: str) -> dict:
         constraints["occurs"] = int(occurs_match.group(1))
 
     # 3. Isolate the PIC clause for precision mapping
-    pic_match = re.search(r"PIC\s+([A-Z0-9\(\)V\.]+)", description, re.IGNORECASE)
+    # #3827: the whole PICTURE -- `ZZZ.ZZ9,99` goes on past the comma; the schema forge writes `PIC: `
+    pic_match = re.search(r"PIC:?\s+([^\s;]+)", description, re.IGNORECASE)
     if not pic_match:
         return constraints
 
@@ -73,35 +75,17 @@ def parse_pic_clause(description: str) -> dict:
             constraints["length"] = max(pic_string.count("X"), pic_string.count("A"), 1)
         return constraints
 
-    # Handle Numbers: PIC S9(7)V99, PIC 9(4)
-    if "9" in pic_string or "V" in pic_string or "Z" in pic_string:
-        precision = 0
-        scale = 0
-        parts = pic_string.split("V")
+    total_p, scale = parse_pic_precision(pic_string, decimal_comma)
 
-        def count_nines(part):
-            count = 0
-            paren_match = re.search(r"9\((\d+)\)", part)
-            if paren_match:
-                count += int(paren_match.group(1))
-            else:
-                count += part.count("9") + part.count("Z")
-            return count
-
-        precision += count_nines(parts[0])
-
-        if len(parts) > 1:
-            scale = count_nines(parts[1])
-            precision += scale
+    if total_p > 0:
+        constraints["precision"] = total_p
+        if scale > 0:
             constraints["scale"] = scale
-
-        if precision > 0:
-            constraints["precision"] = precision
 
     return constraints
 
 
-def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool) -> list[str]:
+def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool, decimal_comma: bool) -> list[str]:
     """Render one COBOL column as Java field lines.
 
     Shared by the JPA entity and the plain DTO paths. With ``jpa=True`` the field
@@ -112,7 +96,7 @@ def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool) 
     """
     description = col_data.get("description", "")
     base_java_type = map_type_to_java(col_data.get("type", ""), description)
-    constraints = parse_pic_clause(description)
+    constraints = parse_pic_clause(description, decimal_comma)
     camel_name = _java_field_name(col_name)
 
     lines: list[str] = []
@@ -218,13 +202,23 @@ def _accessors(class_name: str, fields: list[tuple[str, str]]) -> list[str]:
     return out
 
 
+def _decimal_comma(schema_json: dict, target: JavaTarget) -> bool:
+    """#3827: the program's own DECIMAL-POINT IS COMMA (the schema records it), unless culture.decimal_point
+    overrides it."""
+    if target.culture.decimal_point == "auto":
+        return bool(schema_json.get("decimal_comma", False))
+    return target.culture.decimal_point == "comma"
+
+
 def generate_java_entity(
     schema_json: dict, package_name: str, unit_key: Optional[str] = None, target: Optional[JavaTarget] = None
 ) -> str:
     """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps.
 
     `target` (#3613): Lombok `@Data` (the default), or plain explicit accessors."""
-    lombok = (target or JavaTarget()).lombok
+    t = target or JavaTarget()
+    decimal_comma = _decimal_comma(schema_json, t)
+    lombok = t.lombok
     # The table keeps the legacy record name: the class is disambiguated, the
     # COBOL 01-level it maps is not renamed.
     table_name = schema_json.get("title", "UnknownTable")
@@ -261,7 +255,7 @@ def generate_java_entity(
 
     body: list[str] = []
     for col_name, col_data in properties.items():
-        body.extend(_render_field(col_name, col_data, table_name, jpa=True))
+        body.extend(_render_field(col_name, col_data, table_name, jpa=True, decimal_comma=decimal_comma))
     java.extend(body)
     if not lombok:
         java.extend(_accessors(class_name, [("Long", "sysId"), *_declared_fields(body)]))
@@ -285,6 +279,7 @@ def generate_java_dto(
     accessors, or (`dto_style: record`) a Java record of the same fields.
     """
     t = target or JavaTarget()
+    decimal_comma = _decimal_comma(schema_json, t)
     class_name = dto_class_name(schema_json, unit_key)
     properties = schema_json.get("properties", {})
 
@@ -292,7 +287,7 @@ def generate_java_dto(
 
     body: list[str] = []
     for col_name, col_data in properties.items():
-        body.extend(_render_field(col_name, col_data, class_name, jpa=False))
+        body.extend(_render_field(col_name, col_data, class_name, jpa=False, decimal_comma=decimal_comma))
 
     return render_dto_class(f"{package_name}.dto", class_name, body, requires_list, t)
 

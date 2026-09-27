@@ -16,10 +16,10 @@ public class CobolSam2WsFields {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "WS_UPDATE_NUM")
+    @Column(name = "WS_UPDATE_NUM", precision = 11, scale = 2)
     private BigDecimal wsUpdateNum;
 
-    @Column(name = "WS_UPDATE_NUM_NEG")
+    @Column(name = "WS_UPDATE_NUM_NEG", length = 1)
     private String wsUpdateNumNeg;
 
     @Column(name = "TRAN_COUNT")
@@ -37,10 +37,10 @@ public class CobolSam2WsFields {
     @Column(name = "MONTH_SUB")
     private Integer monthSub;
 
-    @Column(name = "TRAN_OK")
+    @Column(name = "TRAN_OK", length = 1)
     private String tranOk;
 
-    @Column(name = "TRAN_MSG")
+    @Column(name = "TRAN_MSG", length = 50)
     private String tranMsg;
 
 }

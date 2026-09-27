@@ -16,40 +16,40 @@ public class InqaccAbndinfoRec {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "HV_ACCOUNT_EYECATCHER")
+    @Column(name = "HV_ACCOUNT_EYECATCHER", length = 4)
     private String hvAccountEyecatcher;
 
-    @Column(name = "HV_ACCOUNT_CUST_NO")
+    @Column(name = "HV_ACCOUNT_CUST_NO", length = 10)
     private String hvAccountCustNo;
 
-    @Column(name = "HV_ACCOUNT_SORTCODE")
+    @Column(name = "HV_ACCOUNT_SORTCODE", length = 6)
     private String hvAccountSortcode;
 
-    @Column(name = "HV_ACCOUNT_ACC_NO")
+    @Column(name = "HV_ACCOUNT_ACC_NO", length = 8)
     private String hvAccountAccNo;
 
-    @Column(name = "HV_ACCOUNT_ACC_TYPE")
+    @Column(name = "HV_ACCOUNT_ACC_TYPE", length = 8)
     private String hvAccountAccType;
 
-    @Column(name = "HV_ACCOUNT_INT_RATE")
+    @Column(name = "HV_ACCOUNT_INT_RATE", precision = 6, scale = 2)
     private BigDecimal hvAccountIntRate;
 
-    @Column(name = "HV_ACCOUNT_OPENED")
+    @Column(name = "HV_ACCOUNT_OPENED", length = 10)
     private String hvAccountOpened;
 
     @Column(name = "HV_ACCOUNT_OVERDRAFT_LIM")
     private Integer hvAccountOverdraftLim;
 
-    @Column(name = "HV_ACCOUNT_LAST_STMT")
+    @Column(name = "HV_ACCOUNT_LAST_STMT", length = 10)
     private String hvAccountLastStmt;
 
-    @Column(name = "HV_ACCOUNT_NEXT_STMT")
+    @Column(name = "HV_ACCOUNT_NEXT_STMT", length = 10)
     private String hvAccountNextStmt;
 
-    @Column(name = "HV_ACCOUNT_AVAIL_BAL")
+    @Column(name = "HV_ACCOUNT_AVAIL_BAL", precision = 12, scale = 2)
     private BigDecimal hvAccountAvailBal;
 
-    @Column(name = "HV_ACCOUNT_ACTUAL_BAL")
+    @Column(name = "HV_ACCOUNT_ACTUAL_BAL", precision = 12, scale = 2)
     private BigDecimal hvAccountActualBal;
 
     @Column(name = "WS_CICS_RESP")
@@ -76,25 +76,25 @@ public class InqaccAbndinfoRec {
     @Column(name = "REQUIRED_SORT_CODE")
     private Integer requiredSortCode;
 
-    @Column(name = "MY_ABEND_CODE")
+    @Column(name = "MY_ABEND_CODE", length = 4)
     private String myAbendCode;
 
-    @Column(name = "WS_STORM_DRAIN")
+    @Column(name = "WS_STORM_DRAIN", length = 1)
     private String wsStormDrain;
 
-    @Column(name = "STORM_DRAIN_CONDITION")
+    @Column(name = "STORM_DRAIN_CONDITION", length = 20)
     private String stormDrainCondition;
 
     @Column(name = "SQLCODE_DISPLAY")
     private Integer sqlcodeDisplay;
 
-    @Column(name = "NCS_ACC_NO_ACT_NAME")
+    @Column(name = "NCS_ACC_NO_ACT_NAME", length = 8)
     private String ncsAccNoActName;
 
-    @Column(name = "NCS_ACC_NO_TEST_SORT")
+    @Column(name = "NCS_ACC_NO_TEST_SORT", length = 6)
     private String ncsAccNoTestSort;
 
-    @Column(name = "NCS_ACC_NO_FILL")
+    @Column(name = "NCS_ACC_NO_FILL", length = 2)
     private String ncsAccNoFill;
 
     @Column(name = "NCS_ACC_NO_VALUE")
@@ -106,7 +106,7 @@ public class InqaccAbndinfoRec {
     @Column(name = "WS_U_TIME")
     private Integer wsUTime;
 
-    @Column(name = "WS_ORIG_DATE")
+    @Column(name = "WS_ORIG_DATE", length = 10)
     private String wsOrigDate;
 
     @Column(name = "WS_TIME_NOW")
@@ -121,7 +121,7 @@ public class InqaccAbndinfoRec {
     @Column(name = "WS_TIME_NOW_GRP_SS")
     private Integer wsTimeNowGrpSs;
 
-    @Column(name = "WS_ABEND_PGM")
+    @Column(name = "WS_ABEND_PGM", length = 8)
     private String wsAbendPgm;
 
 }

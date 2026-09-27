@@ -1447,7 +1447,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "ebd7eef16d31c834e2c4dd2932ce65edfeaf8162630402d270a1462ceb11d920"
+      "sha256": "83618bad8ef9de0cfb02992b50d54e804f3bcd30a2265263be81f87aa183ff21"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbact02cIoStatus04.java": {
       "calls": [],
@@ -1470,7 +1470,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "9df44c9b3e377f0e4bf6f156ab51d1a59668db685abe3f22d0424cd4315a6f43"
+      "sha256": "2ccf3ba0b9ba04cf3bbee2633a764b126c5799531e45d6d3cb59a8f5c2e3a21d"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbact03cIoStatus04.java": {
       "calls": [],
@@ -1493,7 +1493,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "b6d32db6b97a4c1471225bb38a9dbefc85dba2dbfb04ba3fe204e3c13c25d3c9"
+      "sha256": "53fc95b3e92520952dee69d9596ed2148a5687afbd1729dbbe556949b55fe42c"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbact04cExternalParms.java": {
       "calls": [],
@@ -1553,7 +1553,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "1913cc07908b63a2f96e824af91d51da6c517d8ebe06dc8ee0e656cc66d96526"
+      "sha256": "ede073514aed16e660a76d45b311be468db884d768d6d57b8811ecfa969b50c8"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbcus01cIoStatus04.java": {
       "calls": [],
@@ -1576,7 +1576,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "6c8eacb5da5c74021b7fe0eaefc3a008a0ae0081f136c9334993a831e8429322"
+      "sha256": "67e9527e2698849e2182b3892208d8a3a9893aef760da0229367770b11ea647c"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CbexportWsExportStatistics.java": {
       "calls": [],
@@ -1614,7 +1614,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "bfa27cd8be82d162eea903dcf7848e38f9ba85cb280a9e83dc352f4db540b07e"
+      "sha256": "2ac8978742d42f9d8490601b311f96d4dc5e0335fd8209e34f02888dad7ed3ee"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CbimportWsErrorRecord.java": {
       "calls": [],
@@ -1650,7 +1650,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "bd5e24fc4bb5f4f6515d4036a394d0e9462dec8e4aae31f3f6d5b73f647d2e2c"
+      "sha256": "d6fbb893fb6ac23fd0256b1727ba49858bbad7cee87eb6c292c92d73b1748e19"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbpaup0cPendingAuthDetails.java": {
       "calls": [],
@@ -1684,7 +1684,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "6df8b537288912aab2cfb8821083ce2b986252a18802d1338e48fe594dfea096"
+      "sha256": "d5b9ecab6285e3ca8149bb1faaac000aabe31c6238271ed9b101445cbb7f3f4b"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbtrn01cWsMiscVariables.java": {
       "calls": [],
@@ -1711,7 +1711,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0ae50bf6d83df903334006ece8b859b0565186429523e38a942ba74142c57be2"
+      "sha256": "747056038e73a1b0d357119fd4c595a789212b9037ef70d0309fcd2d29880926"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbtrn02cWsFlags.java": {
       "calls": [],
@@ -1769,7 +1769,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "a65d598627895a83dec2bd7cfacbd2778558fde6fca3e23a3288ca78b034d963"
+      "sha256": "5c7935dc2fa083a29e5cda01d7abc2d96d97b95cdc0d57066516bd1f396db77c"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbtrn03cIoStatus04.java": {
       "calls": [],
@@ -1807,7 +1807,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "8a33260a4263b2d362d0ef6ec77388ff0992df4bac2c4c3c2f9c24476639a5e9"
+      "sha256": "b9e21bcbb682ed17df64a020733bc249d9e2c71da915ee79aa0c60e5acb6086a"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Coacct01WsAcctResponse.java": {
       "calls": [],
@@ -1876,7 +1876,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "25fde85a409b3156d64060f6a05e4e95c769eb3aaf4ecfd40635668b1b12046e"
+      "sha256": "b57e43f3686ebd8f81edada3bc174e39c269a19dc6cb5cea027411dd374fc421"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CobswaitCobswait.java": {
       "calls": [],
@@ -1892,7 +1892,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "d13d8335bf5fe944fdec0efb72d400e6a61ebc944fa4b50a84781ede5448e07d"
+      "sha256": "6434cf9ce8438820975fc18eee2d97db8a271eaf7e972113b923db0646e167ff"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CobtupdtWsInputRec.java": {
       "calls": [],
@@ -1912,7 +1912,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "b217b6fe4ce1e3ee5f9b7dc046f66913a08b24b6f1cfbc72a457b4ca596c5d00"
+      "sha256": "8d4415a072bad3eb9e88c771575a7b71ae9d17af58463c9158cc35924afa9402"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Codate01WsVariables.java": {
       "calls": [],
@@ -1966,7 +1966,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "7b04df5c8e6ab3b6ca2362beddff9eb37c3599022679f718673f633983fe5848"
+      "sha256": "53f7a9f37218710704695583f57fc9cb5b2dc8758f5b2c74431a21c487c8fbe7"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CsutldtcFeedbackCode.java": {
       "calls": [],
@@ -1999,7 +1999,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "63812bfc3674250e95e6123b5821557c351c961a5ac3618735df4cc7d0daca05"
+      "sha256": "02f0d9abcb7d5095e22f0dd9474410fd49893fa6dd7c5691f5b7ac12efd0a990"
     },
     "src/main/java/com/gitgalaxy/modernized/service/Cbact01cService.java": {
       "calls": [],

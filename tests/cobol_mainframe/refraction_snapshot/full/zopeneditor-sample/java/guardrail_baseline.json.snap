@@ -127,7 +127,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "0e0264d08141d38ce919475ada1581614c66f8d952ff20319b7ddddacb3fbea1"
+      "sha256": "294cfde3fa34413d6dc8025924de3904abec60a1fc6ac4df62cc322d3303fb64"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/CobolSam2WsFields.java": {
       "calls": [],
@@ -150,7 +150,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "d097439099c80f560470a1592869665551952b349b2f683821daac28dc5e8298"
+      "sha256": "86f2976940db638979cb0a71b1c18f26f48ed630d001384ba825f54a4f68ca38"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/MultirootSamSam1RptStatsCustDetail.java": {
       "calls": [],
@@ -214,7 +214,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "b54b83192c0c2e8f8bea70966d7930c742237da510c2e05908ae9018670dc47c"
+      "sha256": "f8ae81b7f04740a3b236a5d59b4b259b74dac3af12e7f3a7e9a0cb2c58ed97b1"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/MultirootSamSam2WsFields.java": {
       "calls": [],
@@ -237,7 +237,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "ae538c5eabc43501bb074f9b1da29a981e23d2e72397c241a7355f281b66960e"
+      "sha256": "da334c304b9af94572cfb3b583c19fb4b12261da9faf58a4dac05468dce8c4f1"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Sam1libRptStatsDetail.java": {
       "calls": [],
@@ -278,7 +278,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "dad3c2e3ba699bd6d8453b831def8a78ab1d3e74a562430a0a799d2716fa01f8"
+      "sha256": "b4afde7f4adb31d3a315cb78545c54384f703d19e1e620fef1834b39cf5490fd"
     },
     "src/main/java/com/gitgalaxy/modernized/service/CobolSam1Service.java": {
       "calls": [

@@ -31,16 +31,16 @@ public class Codate01WsVariables {
     @Column(name = "WS_ABS_TIME")
     private Integer wsAbsTime;
 
-    @Column(name = "WS_MMDDYYYY")
+    @Column(name = "WS_MMDDYYYY", length = 10)
     private String wsMmddyyyy;
 
-    @Column(name = "WS_TIME")
+    @Column(name = "WS_TIME", length = 8)
     private String wsTime;
 
-    @Column(name = "MQ_QUEUE")
+    @Column(name = "MQ_QUEUE", length = 48)
     private String mqQueue;
 
-    @Column(name = "MQ_QUEUE_REPLY")
+    @Column(name = "MQ_QUEUE_REPLY", length = 48)
     private String mqQueueReply;
 
     @Column(name = "MQ_HCONN")
@@ -61,34 +61,34 @@ public class Codate01WsVariables {
     @Column(name = "MQ_BUFFER_LENGTH")
     private Integer mqBufferLength;
 
-    @Column(name = "MQ_BUFFER")
+    @Column(name = "MQ_BUFFER", length = 1000)
     private String mqBuffer;
 
     @Column(name = "MQ_DATA_LENGTH")
     private Integer mqDataLength;
 
-    @Column(name = "MQ_CORRELID")
+    @Column(name = "MQ_CORRELID", length = 24)
     private String mqCorrelid;
 
-    @Column(name = "MQ_MSG_ID")
+    @Column(name = "MQ_MSG_ID", length = 24)
     private String mqMsgId;
 
     @Column(name = "MQ_MSG_COUNT")
     private Integer mqMsgCount;
 
-    @Column(name = "SAVE_CORELID")
+    @Column(name = "SAVE_CORELID", length = 24)
     private String saveCorelid;
 
-    @Column(name = "SAVE_MSGID")
+    @Column(name = "SAVE_MSGID", length = 24)
     private String saveMsgid;
 
-    @Column(name = "SAVE_REPLY2Q")
+    @Column(name = "SAVE_REPLY2Q", length = 48)
     private String saveReply2Q;
 
-    @Column(name = "MQ_ERROR_PARA")
+    @Column(name = "MQ_ERROR_PARA", length = 25)
     private String mqErrorPara;
 
-    @Column(name = "MQ_APPL_RETURN_MESSAGE")
+    @Column(name = "MQ_APPL_RETURN_MESSAGE", length = 25)
     private String mqApplReturnMessage;
 
     @Column(name = "MQ_APPL_CONDITION_CODE")
@@ -97,19 +97,19 @@ public class Codate01WsVariables {
     @Column(name = "MQ_APPL_REASON_CODE")
     private Integer mqApplReasonCode;
 
-    @Column(name = "MQ_APPL_QUEUE_NAME")
+    @Column(name = "MQ_APPL_QUEUE_NAME", length = 48)
     private String mqApplQueueName;
 
-    @Column(name = "QMGR_NAME")
+    @Column(name = "QMGR_NAME", length = 48)
     private String qmgrName;
 
-    @Column(name = "INPUT_QUEUE_NAME")
+    @Column(name = "INPUT_QUEUE_NAME", length = 48)
     private String inputQueueName;
 
-    @Column(name = "REPLY_QUEUE_NAME")
+    @Column(name = "REPLY_QUEUE_NAME", length = 48)
     private String replyQueueName;
 
-    @Column(name = "ERROR_QUEUE_NAME")
+    @Column(name = "ERROR_QUEUE_NAME", length = 48)
     private String errorQueueName;
 
     @Column(name = "INPUT_QUEUE_HANDLE")
@@ -124,16 +124,16 @@ public class Codate01WsVariables {
     @Column(name = "QMGR_HANDLE_CONN")
     private Integer qmgrHandleConn;
 
-    @Column(name = "QUEUE_MESSAGE")
+    @Column(name = "QUEUE_MESSAGE", length = 1000)
     private String queueMessage;
 
-    @Column(name = "REQUEST_MESSAGE")
+    @Column(name = "REQUEST_MESSAGE", length = 1000)
     private String requestMessage;
 
-    @Column(name = "REPLY_MESSAGE")
+    @Column(name = "REPLY_MESSAGE", length = 1000)
     private String replyMessage;
 
-    @Column(name = "ERROR_MESSAGE")
+    @Column(name = "ERROR_MESSAGE", length = 1000)
     private String errorMessage;
 
 }

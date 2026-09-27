@@ -77,4 +77,5 @@ def engine_schemas(ef: Any, table_name: str, ignore_vars: set | None = None, cor
         }
         for it in sorted(ef.data_items, key=lambda it: it.ordinal)
     ]
-    return render_schemas(entries, table_name, ignore_vars, corporate_header)
+    decimal_comma = any(sn.clause == "DECIMAL-POINT" and sn.value == "COMMA" for sn in ef.special_names)
+    return render_schemas(entries, table_name, ignore_vars, corporate_header, decimal_comma)

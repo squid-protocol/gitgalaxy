@@ -168,7 +168,7 @@ class Culture:
     zone: str = "UTC"  # #3824: MainframeClock's zone and CURRENT-DATE's UTC offset
     format_locale: str = "ROOT"  # generated formatting / case mapping (#3823 made it Locale.ROOT)
     display_locale: str = "ROOT"  # TODO(#3819): screens only -- never used for stored data
-    decimal_point: str = "auto"  # TODO(#3827): DECIMAL-POINT IS COMMA in edited PICTUREs and schemas
+    decimal_point: str = "auto"  # #3827: DECIMAL-POINT IS COMMA in edited PICTUREs and schemas
     currency: str = "auto"  # TODO(#3820): CURRENCY SIGN / PICTURE SYMBOL in edited PICTUREs
     key_collation: str = "ebcdic"  # TODO(#3822): key order of generated repositories
     db2_date_format: str = "iso"  # TODO(#3828): the DB2 subsystem's DATE/TIME format for character dates

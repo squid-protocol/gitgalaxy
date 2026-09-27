@@ -16,52 +16,52 @@ public class FrmerkParamin {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "INN_AAR")
+    @Column(name = "INN_AAR", length = 80)
     private String innAar;
 
     @Column(name = "TRKNR")
     private Integer trknr;
 
-    @Column(name = "NAVN")
+    @Column(name = "NAVN", length = 26)
     private String navn;
 
-    @Column(name = "GATE1")
+    @Column(name = "GATE1", length = 25)
     private String gate1;
 
-    @Column(name = "GATE2")
+    @Column(name = "GATE2", length = 25)
     private String gate2;
 
-    @Column(name = "POSTSTED")
+    @Column(name = "POSTSTED", length = 21)
     private String poststed;
 
-    @Column(name = "UTPOSTEN")
+    @Column(name = "UTPOSTEN", length = 133)
     private String utposten;
 
     @Column(name = "TELLER")
     private Integer teller;
 
-    @Column(name = "NAVN1")
+    @Column(name = "NAVN1", length = 33)
     private String navn1;
 
-    @Column(name = "NAVN2")
+    @Column(name = "NAVN2", length = 33)
     private String navn2;
 
-    @Column(name = "NAVN22")
+    @Column(name = "NAVN22", length = 33)
     private String navn22;
 
-    @Column(name = "NAVN3")
+    @Column(name = "NAVN3", length = 33)
     private String navn3;
 
     @Column(name = "TRKNR_L")
     private Integer trknrL;
 
-    @Column(name = "AARSTALL")
+    @Column(name = "AARSTALL", length = 4)
     private String aarstall;
 
-    @Column(name = "INNAAR")
+    @Column(name = "INNAAR", length = 4)
     private String innaar;
 
-    @Column(name = "BLK")
+    @Column(name = "BLK", length = 133)
     private String blk;
 
 }

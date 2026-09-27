@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass, field
 
 
@@ -159,11 +160,39 @@ def java_identifier(col_name: str) -> str:
 _EDITED = re.compile(r"[^9SVP]")
 
 
-def _digits_and_scale(pic: str) -> tuple[int, int]:
-    """(digit positions, positions after V) of a numeric PIC: `S9(7)V99` -> (9, 2)."""
-    expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic.upper())
-    whole, _, frac = expanded.partition("V")
-    return whole.count("9") + frac.count("9"), frac.count("9")
+def parse_pic_precision(pic: str, decimal_comma: bool) -> tuple[int, int]:
+    """(total digits, scale) of a numeric or numeric-edited PIC: `S9(7)V99` -> (9, 2), `ZZZ.ZZ9,99` with
+    `decimal_comma` -> (8, 2). #3827: under DECIMAL-POINT IS COMMA the `,` is the decimal point and `.` an
+    insertion character. Digit positions are 9, Z and *, plus a floating +, - or currency string (every
+    symbol of it but the first)."""
+    pic = "".join("$" if unicodedata.category(ch) == "Sc" else ch for ch in pic.upper())
+    expanded = re.sub(r"(.)\((\d+)\)", lambda m: m.group(1) * int(m.group(2)), pic)
+
+    decimal_char = "," if decimal_comma else "."
+
+    parts = expanded.split("V")
+    if len(parts) == 1:
+        parts = expanded.split(decimal_char)
+
+    left = parts[0]
+    right = parts[1] if len(parts) > 1 else ""
+
+    total_digits = sum(expanded.count(c) for c in "9Z*")
+    for ch in "+-$":
+        c = expanded.count(ch)
+        if c > 1:
+            total_digits += c - 1
+
+    scale = sum(right.count(c) for c in "9Z*")
+    for ch in "+-$":
+        c_right = right.count(ch)
+        c_left = left.count(ch)
+        if c_left > 0:
+            scale += c_right
+        elif c_right > 1:
+            scale += c_right - 1
+
+    return total_digits, scale
 
 
 def _pli_java_type(cls: str | None, pic: str, usage: str) -> str:
@@ -208,7 +237,7 @@ def java_type(fld: dict) -> str:
         return "String"
     if _EDITED.search(re.sub(r"\(\d+\)", "", pic)):
         return "String"  # numeric-edited: a display picture, not a number
-    digits, scale = _digits_and_scale(pic)
+    digits, scale = parse_pic_precision(pic, False)
     if scale or digits > 18:
         return "BigDecimal"
     return "Integer" if digits <= 9 else "Long"

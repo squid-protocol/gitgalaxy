@@ -16,7 +16,7 @@ public class Cbtrn02cWsFlags {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "FD_XREF_CARD_NUM")
+    @Column(name = "FD_XREF_CARD_NUM", length = 16)
     private String fdXrefCardNum;
 
     @Column(name = "FD_ACCT_ID")
@@ -25,22 +25,22 @@ public class Cbtrn02cWsFlags {
     @Column(name = "FD_TRANCAT_ACCT_ID")
     private Integer fdTrancatAcctId;
 
-    @Column(name = "FD_TRANCAT_TYPE_CD")
+    @Column(name = "FD_TRANCAT_TYPE_CD", length = 2)
     private String fdTrancatTypeCd;
 
     @Column(name = "FD_TRANCAT_CD")
     private Integer fdTrancatCd;
 
-    @Column(name = "IO_STAT1")
+    @Column(name = "IO_STAT1", length = 1)
     private String ioStat1;
 
-    @Column(name = "IO_STAT2")
+    @Column(name = "IO_STAT2", length = 1)
     private String ioStat2;
 
     @Column(name = "TWO_BYTES_BINARY")
     private Integer twoBytesBinary;
 
-    @Column(name = "TWO_BYTES_RIGHT")
+    @Column(name = "TWO_BYTES_RIGHT", length = 1)
     private String twoBytesRight;
 
     @Column(name = "IO_STATUS_0403")
@@ -49,7 +49,7 @@ public class Cbtrn02cWsFlags {
     @Column(name = "APPL_RESULT")
     private Integer applResult;
 
-    @Column(name = "END_OF_FILE")
+    @Column(name = "END_OF_FILE", length = 1)
     private String endOfFile;
 
     @Column(name = "ABCODE")
@@ -58,82 +58,82 @@ public class Cbtrn02cWsFlags {
     @Column(name = "TIMING")
     private Integer timing;
 
-    @Column(name = "COB_YYYY")
+    @Column(name = "COB_YYYY", length = 4)
     private String cobYyyy;
 
-    @Column(name = "COB_MM")
+    @Column(name = "COB_MM", length = 2)
     private String cobMm;
 
-    @Column(name = "COB_DD")
+    @Column(name = "COB_DD", length = 2)
     private String cobDd;
 
-    @Column(name = "COB_HH")
+    @Column(name = "COB_HH", length = 2)
     private String cobHh;
 
-    @Column(name = "COB_MIN")
+    @Column(name = "COB_MIN", length = 2)
     private String cobMin;
 
-    @Column(name = "COB_SS")
+    @Column(name = "COB_SS", length = 2)
     private String cobSs;
 
-    @Column(name = "COB_MIL")
+    @Column(name = "COB_MIL", length = 2)
     private String cobMil;
 
-    @Column(name = "DB2_FORMAT_TS")
+    @Column(name = "DB2_FORMAT_TS", length = 26)
     private String db2FormatTs;
 
-    @Column(name = "DB2_YYYY")
+    @Column(name = "DB2_YYYY", length = 4)
     private String db2Yyyy;
 
-    @Column(name = "DB2_STREEP_1")
+    @Column(name = "DB2_STREEP_1", length = 1)
     private String db2Streep1;
 
-    @Column(name = "DB2_MM")
+    @Column(name = "DB2_MM", length = 2)
     private String db2Mm;
 
-    @Column(name = "DB2_STREEP_2")
+    @Column(name = "DB2_STREEP_2", length = 1)
     private String db2Streep2;
 
-    @Column(name = "DB2_DD")
+    @Column(name = "DB2_DD", length = 2)
     private String db2Dd;
 
-    @Column(name = "DB2_STREEP_3")
+    @Column(name = "DB2_STREEP_3", length = 1)
     private String db2Streep3;
 
-    @Column(name = "DB2_HH")
+    @Column(name = "DB2_HH", length = 2)
     private String db2Hh;
 
-    @Column(name = "DB2_DOT_1")
+    @Column(name = "DB2_DOT_1", length = 1)
     private String db2Dot1;
 
-    @Column(name = "DB2_MIN")
+    @Column(name = "DB2_MIN", length = 2)
     private String db2Min;
 
-    @Column(name = "DB2_DOT_2")
+    @Column(name = "DB2_DOT_2", length = 1)
     private String db2Dot2;
 
-    @Column(name = "DB2_SS")
+    @Column(name = "DB2_SS", length = 2)
     private String db2Ss;
 
-    @Column(name = "DB2_DOT_3")
+    @Column(name = "DB2_DOT_3", length = 1)
     private String db2Dot3;
 
     @Column(name = "DB2_MIL")
     private Integer db2Mil;
 
-    @Column(name = "DB2_REST")
+    @Column(name = "DB2_REST", length = 4)
     private String db2Rest;
 
-    @Column(name = "REJECT_TRAN_DATA")
+    @Column(name = "REJECT_TRAN_DATA", length = 350)
     private String rejectTranData;
 
-    @Column(name = "VALIDATION_TRAILER")
+    @Column(name = "VALIDATION_TRAILER", length = 80)
     private String validationTrailer;
 
     @Column(name = "WS_VALIDATION_FAIL_REASON")
     private Integer wsValidationFailReason;
 
-    @Column(name = "WS_VALIDATION_FAIL_REASON_DESC")
+    @Column(name = "WS_VALIDATION_FAIL_REASON_DESC", length = 76)
     private String wsValidationFailReasonDesc;
 
     @Column(name = "WS_TRANSACTION_COUNT")
@@ -142,10 +142,10 @@ public class Cbtrn02cWsFlags {
     @Column(name = "WS_REJECT_COUNT")
     private Integer wsRejectCount;
 
-    @Column(name = "WS_TEMP_BAL")
+    @Column(name = "WS_TEMP_BAL", precision = 11, scale = 2)
     private BigDecimal wsTempBal;
 
-    @Column(name = "WS_CREATE_TRANCAT_REC")
+    @Column(name = "WS_CREATE_TRANCAT_REC", length = 1)
     private String wsCreateTrancatRec;
 
 }

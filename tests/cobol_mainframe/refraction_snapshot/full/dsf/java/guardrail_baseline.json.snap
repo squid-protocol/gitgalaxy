@@ -236,7 +236,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "bac3325c8a15243ff512e7217120af855a9130fd36f68f241de7c762827a77a6"
+      "sha256": "4b24a3fc7f4e44a8f99f987c2b204ca96fcca2c51cea404398b6c3516b38231f"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Fo04f1x1Arbeidsomraade.java": {
       "calls": [],
@@ -329,7 +329,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "85ded6b992648656fab2d6253b0f6bb0059de5d1fc084017e3db1e9b38725f28"
+      "sha256": "6fffaa45e027d8cd52d460df9c39789458dc00d110cb212e5a7ee2a8eaa11c29"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/FrmerkParamin.java": {
       "calls": [],
@@ -359,7 +359,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "3d83e094c726376e0b05145c503e120422fce7ff4918d2b0b4f1285c3cabc24a"
+      "sha256": "4632d82161dfc8de2602aa1512375b46e077ba26fce43632b5a6d9c67812dc77"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/FrredigParamin.java": {
       "calls": [],
@@ -397,7 +397,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "86dfe9b2ba59bee8c4408035fe2010e855ba7161b445f5ed4595bf2163e09789"
+      "sha256": "5e31adba99e54ff072dffee3a846f6109c92f159dee181318403330e2892e0ff"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/PlukkfrPrintRec1.java": {
       "calls": [],
@@ -421,7 +421,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "80229c3baa34b1d2c45eed2c9efc6878fd72a5c9d29339f61c9be11e846d56e9"
+      "sha256": "4eb7f368676cdc5b610e03510fcb1671cf919d391d7dfd38dcc3ab93e5e4e0ad"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/PlukkfrnPrintRec1.java": {
       "calls": [],
@@ -445,7 +445,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "13320cf3031ff6d73443a7b369507195cd64d9346475eb38999e87a14649f943"
+      "sha256": "50bd0534cddc1f3431878bd876ffce9480366b8b9d476a830692664e21d490dc"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/R001bydlIpPcb.java": {
       "calls": [],
@@ -506,7 +506,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "caeb664ca83c05b412dd2e05813e4ee67527582eb5153ea49d1337095cdea880"
+      "sha256": "e87aede5fadfee5a90edf200528f9fe2f768f334cd3a568afa8fd97abe6db8dd"
     },
     "src/main/java/com/gitgalaxy/modernized/service/Fo04d1x1Service.java": {
       "calls": [],

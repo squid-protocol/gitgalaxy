@@ -16,7 +16,7 @@ public class Lgtestp3CommArea {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "MSGEND")
+    @Column(name = "MSGEND", length = 24)
     private String msgend;
 
 }

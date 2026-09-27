@@ -100,6 +100,7 @@ from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.pli_calls import blank_sequence_fields, pli_cics_stream, pli_external_calls
 from gitgalaxy.core.pli_data_moves import pli_data_moves
 from gitgalaxy.core.pli_on_units import pli_on_units
+from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
 
@@ -305,11 +306,15 @@ _PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t]+DIVISION", re.
 # FILE SECTION to a logical file. It is not a data-description entry (no level
 # number), so it is tracked separately and joined by position.
 _FD_START = re.compile(_COBOL_AREA_A + r"(?:FD|SD)[ \t]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M)
-# `PIC`/`PICTURE [IS] <chars>`. The character class is the COBOL picture symbol
-# set (X A 9 S V P Z * B / , . $ + - CR/DB and the `(n)` repeat); it contains no
-# whitespace, so it stops at the first space and cannot cross into the next
-# clause. A clause-terminating period is stripped by the caller.
-_PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([-A-Z0-9(),.$/*+]+)", re.I)
+# `PIC`/`PICTURE [IS] <chars>`: the whole character-string, up to the first space
+# (or a `;` separator), so it cannot cross into the next clause. It used to be the
+# picture-symbol class `[-A-Z0-9(),.$/*+]`, which knew only `$` as a currency sign
+# (#3820): a UK `PIC £££9.99` (the default currency byte 0x5B decodes as `£` on
+# CP285) read as no PIC at all, and `PIC 9(5)€` as `9(5)`, one byte short. The
+# PIC is kept as written; what each symbol is worth is the reader's (galaxy_ir,
+# with the program's SPECIAL-NAMES currency strings). A clause-terminating period
+# is stripped by the caller.
+_PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # USAGE, with or without the `USAGE [IS]` keyword (COBOL allows a bare `COMP-3`).
 # The keyword is delimited by COBOL name-character boundaries, not `\b`: `-` is a
 # name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
@@ -2112,6 +2117,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
     #3452: cobol also carries `data_moves` -- one source -> target pair per MOVE /
     COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE / STRING / UNSTRING / INITIALIZE.
+    #3820: cobol also carries `special_names` -- the SPECIAL-NAMES CURRENCY and
+    DECIMAL-POINT clauses, which change what a PIC's symbols are worth.
     #3496: jcl also carries `web_services` -- the web-services assistant steps
     (DFHLS2WS / DFHLS2JS providers, DFHWS2LS / DFHJS2LS requesters).
     #3497: java carries JCICS `calls` (Program.link) and `cics_resources`.
@@ -2141,6 +2148,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "uow_handlers": _uow_handlers(code_stream, values),  # #3453
             "file_control": cobol_file_control(code_stream),  # #3455
             "data_moves": data_moves(code_stream),  # #3452
+            "special_names": special_names(code_stream),  # #3820
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)

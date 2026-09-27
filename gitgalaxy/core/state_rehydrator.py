@@ -1029,6 +1029,23 @@ class StateRehydrator:
                     },
                 )
 
+                # #3820: SPECIAL-NAMES currency strings / decimal point.
+                special_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "special_names_data",
+                    'SELECT fd.file_path AS _fp, sn.clause, sn.value, sn.symbol, sn.line_number AS "line" '
+                    "FROM special_names_data sn JOIN file_data fd ON sn.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sn.id",
+                    lambda r: {
+                        "clause": r["clause"],
+                        "value": r["value"],
+                        "symbol": r["symbol"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 # #3452: field-level data movement.
                 # #3655: the refmod texts; a pre-#3655 DB has neither column.
                 refmod_cols = (
@@ -1110,6 +1127,7 @@ class StateRehydrator:
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
                     node["data_moves"] = moves_by_file.get(rel_path, [])
                     node["web_services"] = web_by_file.get(rel_path, [])
+                    node["special_names"] = special_by_file.get(rel_path, [])  # #3820
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

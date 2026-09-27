@@ -174,3 +174,26 @@ def test_published_examples_carry_their_sources_licences(tmp_path):
     case = eq.CASES / "carddemo-intcalc"
     assert (case / "LICENSE").is_file() and (case / "NOTICE").is_file()  # the port and data are CardDemo-derived
     assert "licensed Apache-2.0" in (case / "port/service/Cbact04cService.java").read_text()[:600]
+
+
+def test_a_corrupted_field_after_a_currency_edited_field_is_reported():
+    """#3820: `05 A PIC X(3). 05 AMT PIC £££,££9.99. 05 B PIC X(4).` -- AMT is 10 bytes, so B
+    sits at 13; a corrupted B is a difference whether the layout places it right or not."""
+    right = [{"name": "A", "offset": 0, "bytes": 3, "pic": "X(3)", "usage": None},
+             {"name": "AMT", "offset": 3, "bytes": 10, "pic": "£££,££9.99", "usage": None},
+             {"name": "B", "offset": 13, "bytes": 4, "pic": "X(4)", "usage": None}]  # fmt: skip
+    cobol = b"ABC" + b" \xa31,234.56" + b"WXYZ"
+    java = b"ABC" + b" \xa31,234.56" + b"WXQZ"
+    d = eq.diff_records(cobol, java, 17, right)
+    assert d["diffs"] == [{"record": 1, "fields": [{"field": "B", "cobol": "WXYZ", "java": "WXQZ"}]}]
+    assert d["layout_bytes"] == 17
+    # The pre-#3820 reader lost AMT's PIC: its layout stopped at A, so B was never compared --
+    # the corruption now surfaces as bytes outside the layout instead of a false pass.
+    short = right[:1]
+    d = eq.diff_records(cobol, java, 17, short)
+    assert d["equal"] == 0 and d["layout_bytes"] == 3
+    assert d["diffs"] == [
+        {"record": 1, "fields": [{"field": "(bytes outside the layout @15..16)", "cobol": "b'Y'", "java": "b'Q'"}]}
+    ]
+    # Identical records still pass with a short layout.
+    assert eq.diff_records(cobol, cobol, 17, short)["equal"] == 1

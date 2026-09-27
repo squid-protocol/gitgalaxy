@@ -851,6 +851,17 @@ class LLMRecorder:
                 if queues:
                     labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
                     lines.append(f"- **MQ queues:** {', '.join(f'`{x}`' for x in labels[:12])}")
+            # #3820: SPECIAL-NAMES that change what the PICs mean.
+            special = f.get("special_names") or []
+            if special:
+                labels = [
+                    f"CURRENCY '{n.get('value')}'"
+                    + (f" as '{n.get('symbol')}'" if n.get("symbol") != n.get("value") else "")
+                    if n.get("clause") == "CURRENCY"
+                    else f"{n.get('clause')} IS {n.get('value')}"
+                    for n in special
+                ]
+                lines.append(f"- **Special names:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
             # #3455: keyed files and the VSAM clusters defined here.
             keyed = [x for x in (f.get("file_control") or []) if x.get("record_key") or x.get("relative_key")]
             if keyed:

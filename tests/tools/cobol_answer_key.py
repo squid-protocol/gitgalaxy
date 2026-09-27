@@ -80,6 +80,7 @@ import json
 import random
 import re
 import sys
+import unicodedata
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -146,7 +147,9 @@ _PROC_DIVISION = re.compile(r"\bPROCEDURE\s+DIVISION\b")
 _DD_SECTION = re.compile(r"\b(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)\s+SECTION\b")
 _DD_FD = re.compile(rf"^\s*(?:FD|SD)\s+({NAME})", re.M)
 _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # #3575: a leading \s* ate blank lines
-_DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([-A-Z0-9(),.$/*+]+)")
+# #3820: the whole character-string to the first space or `;` -- the old symbol class
+# `[-A-Z0-9(),.$/*+]` knew only `$`, so `PIC £££9.99` (CP285's default sign) read as no PIC.
+_DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([^\s;]+)")
 # `SIGN IS LEADING SEPARATE CHARACTER` / `TRAILING SEPARATE`: the sign takes its own byte (census #3649, CBSA ABNDINFO).
 _DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
 _DD_USAGE = re.compile(
@@ -5173,7 +5176,7 @@ def engine_data_move_row(m: Any) -> dict[str, Any]:
 def _mv_pic_width(pic: str, usage: str) -> tuple[Optional[int], str]:
     """(one occurrence's bytes, class X | 9 | other) of a PIC + USAGE."""
     body = ""
-    for ch, rep in re.findall(r"([A-Z9$,.+*/-]|\()(?:\((\d+)\))?", pic.upper().rstrip(".")):
+    for ch, rep in re.findall(r"([A-Z9$,.+*/-]|\()(?:\((\d+)\))?", _currency_as_dollar(pic.upper().rstrip("."))):
         body += ch * int(rep or 1)
     u = usage.upper()
     digits = body.count("9")
@@ -5783,8 +5786,14 @@ def draft_symbolic_maps(repo: Path) -> dict[str, dict[str, Any]]:
 # bytes, a group the sum of its non-REDEFINES children, OCCURS multiplies, a
 # REDEFINES starts where its target does, every 01 at 0), each named item is
 # `NAME @offset+bytes` -- the unit symbolic_map_units computes from the BMS source.
+def _currency_as_dollar(pic: str) -> str:
+    """#3820: every currency sign (`£`, `€`, `¥` -- Unicode category Sc) read as `$`, the
+    one this tool's symbol classes list: each is one DISPLAY position like `$`."""
+    return "".join("$" if unicodedata.category(ch) == "Sc" else ch for ch in pic)
+
+
 def _pic_bytes(pic: str, usage: Optional[str], sign_separate: bool = False) -> int:
-    p = pic.upper()
+    p = _currency_as_dollar(pic.upper())
     # #3602: CR / DB take two positions, N / G (national, DBCS) two bytes each, E one;
     # S, V and P take none -- except a DISPLAY sign coded SEPARATE, which takes one (census
     # #3649 found it in CBSA's ABNDINFO: the reader had assumed these estates had none).

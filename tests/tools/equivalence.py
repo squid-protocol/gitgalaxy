@@ -194,7 +194,17 @@ def diff_records(
     equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
     shown as hex (#3830): the files differ, and a later program may test the sign. A FILLER is counted
     apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
-    INITIALIZE or a new record is the runtime's leftover record area, not the program's logic."""
+    INITIALIZE or a new record is the runtime's leftover record area, not the program's logic.
+
+    #3820: the bytes no field covers are compared too, as `(bytes outside the layout)`. The layout is
+    read from the copybook, so a width it gets wrong (a currency string sized as one byte) leaves the
+    record's tail -- where the real later fields sit -- unread: comparing only the listed fields let
+    two different records pass as equal. `layout_bytes` reports the layout's own width beside `reclen`."""
+    covered = bytearray(reclen)
+    for f in fields:
+        for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
+            covered[i] = 1
+    layout_bytes = max((f["offset"] + f["bytes"] for f in fields), default=0)
     lrecs = [left[i : i + reclen] for i in range(0, len(left), reclen)]
     rrecs = [right[i : i + reclen] for i in range(0, len(right), reclen)]
     diffs, equal, filler = [], 0, 0
@@ -218,12 +228,21 @@ def diff_records(
                 bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
             elif a[sl] != b[sl]:  # #3830: same value, other bytes -- a C vs F sign nibble, -0 vs +0, ...
                 bad.append({"field": f["name"], "cobol": a[sl].hex(), "java": b[sl].hex(), "raw": True})
+        outside = [
+            i for i in range(max(len(a), len(b))) if (i >= reclen or not covered[i]) and a[i : i + 1] != b[i : i + 1]
+        ]
+        if outside:
+            lo, hi = outside[0], outside[-1] + 1
+            bad.append(
+                {"field": f"(bytes outside the layout @{lo}..{hi})", "cobol": repr(a[lo:hi]), "java": repr(b[lo:hi])}
+            )
         filler += filler_bad
         if bad:
             diffs.append({"record": n + 1, "fields": bad})
         else:
             equal += 1
-    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs, "filler_differs": filler}
+    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs, "filler_differs": filler,
+            "layout_bytes": layout_bytes}  # fmt: skip
 
 
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
@@ -310,6 +329,8 @@ def main() -> int:
             continue
         fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
         d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"))
+        if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
+            print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
         report["outputs"][dd] = d
         ok &= d["equal"] == d["records"] and not d["diffs"]
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

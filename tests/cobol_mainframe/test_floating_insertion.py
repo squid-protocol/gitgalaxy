@@ -13,8 +13,9 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import cobol_e
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from cultural_gauntlet import jdk  # noqa: E402
 
-# (PICTURE, value, currency, COBOL's edited result). The single-character rows are GnuCOBOL 3 (-std=ibm)
-# output, MOVE of an S9(9)V99 to the edited item; every row but the first is a case #3933's table lacked.
+# (PICTURE, value, currency, COBOL's edited result). The `$` / `+` / `-` rows are GnuCOBOL 3 (-std=ibm) output,
+# MOVE of an S9(9)V99 to the edited item; the `$(3)` and the one-character sign rows follow them by the same
+# rule (#3933's table: GnuCOBOL's `$` row, and `£` / `₹` by the single-character rule).
 GNUCOBOL = [
     ("$$$,$$9.99", "1234.50", None, " $1,234.50"),
     ("$$$,$$9.99", "34.50", None, "    $34.50"),

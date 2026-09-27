@@ -65,10 +65,15 @@ PREPROCESSOR_LANGS = frozenset({"c", "cpp", "objective-c"})
 # bounded (a name, <= 200 chars of params, <= 400 chars of body), so one
 # pathological line cannot scan the file.
 _DEFINE = re.compile(
-    r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(([^)\n]{0,200})\)[ \t]*((?:[^\n\\]|\\\n){0,400})", re.M
+    r"^[ \t]*#[ \t]*define[ \t]+(["
+    + ID_START
+    + r"]["
+    + ID_CONTINUE
+    + r"]*)\(([^)\n]{0,200})\)[ \t]*((?:[^\n\\]|\\\n){0,400})",
+    re.M,
 )
-# A call-shaped name inside a macro body.
-_CALLED = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
+# A call-shaped name inside a macro body. #3814: a UAX #31 name, never begun after a combining mark.
+_CALLED = re.compile(r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_CONTINUE + r"]*)\s*\(")
 # An UNQUALIFIED call-shaped name: `x.f(`, `x::f(` and `x->f(` are calls on
 # something else and are never counted. #3814: names are UAX #31 (`probeRiskनाम(`), and the
 # lookbehind uses the same class so a match cannot start after a combining mark mid-name.

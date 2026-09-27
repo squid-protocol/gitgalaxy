@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_GO, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -60,7 +62,9 @@ DEFINITION: dict[str, Any] = {
         # Name group added too, purely so existing extraction tests (which
         # check the captured name) keep passing.
         "args": re.compile(
-            r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?(\w*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))",
+            r"func[ \t\n]+(?:\([^)]*\)[ \t\n]+)?(["
+            + ID_CONTINUE
+            + r"]*)(?:\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*(\((?:[^()]|\([^()]*\))*\))",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -87,7 +91,11 @@ DEFINITION: dict[str, Any] = {
             # class_start/args already had this exact step-over; func_start was the outlier.)
             # Added the same bounded, already-proven-safe `(?:[ \t\n]*\[[^\]]*\])?` step-over.
             # =====================================================================
-            r"^[ \t]*func(?:[ \t\n]+\([^)]+\))?[ \t\n]+([A-Za-z_$][\w_$]*)(?:[ \t\n]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*\(",
+            r"^[ \t]*func(?:[ \t\n]+\([^)]+\))?[ \t\n]+(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"_$]*)(?:[ \t\n]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]*\(",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
@@ -101,7 +109,11 @@ DEFINITION: dict[str, Any] = {
         # leap across vertical boundaries.
         # =====================================================================
         "class_start": re.compile(
-            r"^[ \t]*type[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]+(?:struct|interface)",
+            r"^[ \t]*type[ \t\n]+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]*\[(?:[^\[\]]|\[[^\[\]]*\])*\])?[ \t\n]+(?:struct|interface)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -121,7 +133,7 @@ DEFINITION: dict[str, Any] = {
         # single-line form either way: grouped imports (`import (\n...\n)`)
         # have a `(` between `import` and the quoted path, which the
         # pattern never crossed before and still doesn't.
-        "safety_bypasses": re.compile(r'_\s*,\s*err[ \t]*=|_[ \t]*=\s*\w+|\bimport\s+\.[ \t]+"'),
+        "safety_bypasses": re.compile(r"_\s*,\s*err[ \t]*=|_[ \t]*=\s*[" + ID_CONTINUE + r']+|\bimport\s+\.[ \t]+"'),
         # 8. danger (High-Risk Execution / System Calls)
         # Process-killing commands and direct syscalls. EXCLUDES TODO (debt) and fmt.Print (print_hits).
         # #2878 contract C1: `panic(` is go's abort (rust's panic!, zig's @panic), exec.Command
@@ -174,8 +186,18 @@ DEFINITION: dict[str, Any] = {
         # `, Name` run needs a literal comma per step, so it cannot backtrack
         # ambiguously.
         "api": re.compile(
-            r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]\w+|^(?:type|var|const)\s+[A-Z]\w+|"
-            r"^[ \t]+[A-Z]\w*(?:[ \t]*,[ \t]*[A-Z]\w*)*(?:[ \t]*=[^=]|[ \t]+[\w\[\*\.]|[ \t]*$)",
+            r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]["
+            + ID_CONTINUE
+            + r"]+|^(?:type|var|const)\s+[A-Z]["
+            + ID_CONTINUE
+            + r"]+|"
+            r"^[ \t]+[A-Z]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t]*,[ \t]*[A-Z]["
+            + ID_CONTINUE
+            + r"]*)*(?:[ \t]*=[^=]|[ \t]+["
+            + ID_CONTINUE
+            + r"\[\*\.]|[ \t]*$)",
             re.M,
         ),
         # 11. flux (State Mutation)
@@ -191,20 +213,38 @@ DEFINITION: dict[str, Any] = {
             # `x := v` is a declaration; `_ = v` discards (the blank identifier is not
             # state); `s = append(s, x)` is one write, counted at its `=`; a channel SEND
             # writes the channel (`ch <- v`), a receive (`<-ch`) reads it.
-            r"(?:^(?![ \t]*_[ \t]*=)|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^(?![ \t]*_[ \t]*=)|[;{}(),])[ \t]*\**["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>|&\^)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)"
-            r"|[\w)\]][ \t]*<-[ \t]*\S"
-            r"|\batomic\.(?:Add|Store|Swap|CompareAndSwap)\w*\(|\bdelete\(",
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*<-[ \t]*\S"
+            r"|\batomic\.(?:Add|Store|Swap|CompareAndSwap)[" + ID_CONTINUE + r"]*\(|\bdelete\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:func|type|var|const|import|if|for|switch|select|return)\b"),
         # 13. doc (Structured Documentation)
         # GoDoc standard: comments immediately preceding a declaration.
-        "doc": re.compile(r"^[ \t]*//\s+[A-Z][a-zA-Z0-9_]+\s+.*|^[ \t]*//\s*Package\s+", re.M),
+        "doc": re.compile(r"^[ \t]*//\s+[A-Z][" + ID_CONTINUE + r"]+\s+.*|^[ \t]*//\s*Package\s+", re.M),
         # 14. test (Testing & Assertions)
-        "test": re.compile(r"\b(?:Test|Benchmark|Fuzz)[A-Z]\w*\b|t\.Run\b|\b(?:assert|require|mock)\.\w+\("),
+        "test": re.compile(
+            r"\b(?:Test|Benchmark|Fuzz)["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"])|t\.Run\b|\b(?:assert|require|mock)\.["
+            + ID_CONTINUE
+            + r"]+\("
+        ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
         # BUG FIX: `select[ \t]*\{` ends on `{` (non-word), so the
@@ -214,7 +254,9 @@ DEFINITION: dict[str, Any] = {
         # with whitespace) after the opening brace. This core
         # concurrency primitive never matched at all, spaced or not.
         "concurrency": re.compile(
-            r"\b(?:go\s+func|go\s+\w+|chan\s+|context\.(?:WithTimeout|WithCancel)|errgroup\.Group)\b"
+            r"\b(?:go\s+func|go\s+["
+            + ID_CONTINUE
+            + r"]+|chan\s+|context\.(?:WithTimeout|WithCancel)|errgroup\.Group)\b"
             r"|select[ \t]*\{"
         ),
         # 16. ui_framework (UI / View Components)
@@ -253,7 +295,21 @@ DEFINITION: dict[str, Any] = {
             # os.* arms are never touched. `\b(?![\w.(])` pins the identifier to its
             # full extent and rejects a call/selector (`os.Getenv(`, `t.Run(`) so the
             # over-match cannot shadow the mid-line os.* handle on the same line.
-            r"^(?![ \t])(?:var|const)[ \t]+[a-zA-Z_]\w*\b|^[ \t]+[A-Za-z_]\w*\b(?![\w.(])|\bos\.(?:Getenv|Environ|LookupEnv|Setenv|Unsetenv|Args|Getwd)\b",
+            r"^(?![ \t])(?:var|const)[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"])|^[ \t]+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"])(?!["
+            + ID_CONTINUE
+            + r".(])|\bos\.(?:Getenv|Environ|LookupEnv|Setenv|Unsetenv|Args|Getwd)\b",
             re.M,
         ),
         # #2859: see the globals comment above -- a paren/brace walk classifies
@@ -275,7 +331,13 @@ DEFINITION: dict[str, Any] = {
         # constraint is actually written (always preceded by a space
         # or `|` inside the type-parameter brackets). Never matched.
         "generics": re.compile(
-            r"\[(?:[^\[\]]|\[[^\[\]]*\])*(?:\b(?:any|comparable)\b|~[a-zA-Z_]\w*\b)(?:[^\[\]]|\[[^\[\]]*\])*\]|\bany\b"
+            r"\[(?:[^\[\]]|\[[^\[\]]*\])*(?:\b(?:any|comparable)\b|~["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"]))(?:[^\[\]]|\[[^\[\]]*\])*\]|\bany\b"
         ),
         # 21. comprehensions (Iterators / Comprehensions)
         # Functional iteration helpers from the slices/maps packages.
@@ -288,7 +350,9 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         # #2875 contract C1: the aliased single-line form (`import _ "embed"`,
         # `import f "fmt"`) binds a unit like the bare one; the group counts 1 (C2).
-        "import": re.compile(r'^[ \t]*import[ \t]*(?:\(|(?:[A-Za-z_.]\w*[ \t]+)?"[^"\n]+")', re.M),
+        "import": re.compile(
+            r"^[ \t]*import[ \t]*(?:\(|(?:[" + ID_START + r".][" + ID_CONTINUE + r']*[ \t]+)?"[^"\n]+")', re.M
+        ),
         # ---> THE FIX: Strictly bounded to valid Go import path characters <---
         # Prevents raw HTTP string literals in test files from being hallucinated as packages.
         #
@@ -306,10 +370,26 @@ DEFINITION: dict[str, Any] = {
         #     elements carry commas, so they never qualify).
         # The lookahead is bounded ({0,1000} lines, each line class linear).
         "_dependency_capture": re.compile(
-            r'^[ \t]*import[ \t]+(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
-            r'|^[ \t]*import[ \t]*\([ \t]*(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*\)'
-            r'|^[ \t]*(?:import[ \t]*\([ \t]*)?(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
-            r'(?=(?:\n[ \t]*(?:(?:[A-Za-z_.][\w.]{0,63}[ \t]+)?["`][^"`\n]{1,256}["`][ \t]*)?(?://[^\n]{0,500})?){0,1000}\n[ \t]*\))',
+            r"^[ \t]*import[ \t]+(?:["
+            + ID_START
+            + r".]["
+            + ID_CONTINUE
+            + r'.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
+            r"|^[ \t]*import[ \t]*\([ \t]*(?:["
+            + ID_START
+            + r".]["
+            + ID_CONTINUE
+            + r'.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*\)'
+            r"|^[ \t]*(?:import[ \t]*\([ \t]*)?(?:["
+            + ID_START
+            + r".]["
+            + ID_CONTINUE
+            + r'.]{0,63}[ \t]+)?["`]([\w.\-/~+]{1,256})["`][ \t]*(?://[^\n]{0,500})?$'
+            r"(?=(?:\n[ \t]*(?:(?:["
+            + ID_START
+            + r".]["
+            + ID_CONTINUE
+            + r'.]{0,63}[ \t]+)?["`][^"`\n]{1,256}["`][ \t]*)?(?://[^\n]{0,500})?){0,1000}\n[ \t]*\))',
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -345,7 +425,13 @@ DEFINITION: dict[str, Any] = {
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         # Explicit pointer addressing and dereferencing.
         "pointers": re.compile(
-            r"\b(?:uintptr|unsafe\.Pointer)\b|&\w+|\*(?:[A-Z]\w*|int\d*|uint\d*|float\d*|byte|rune|string|bool)\b"
+            r"\b(?:uintptr|unsafe\.Pointer)\b|&["
+            + ID_CONTINUE
+            + r"]+|\*(?:["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|int\d*|uint\d*|float\d*|byte|rune|string|bool)\b"
         ),
         # 36. memory_alloc (Manual Memory Management)
         "memory_alloc": re.compile(r"\b(make|new)\s*\(|sync\.Pool\b"),
@@ -361,7 +447,11 @@ DEFINITION: dict[str, Any] = {
         # # 40. explicit_casts (Explicit Type Casting)
         # Type assertions and conversions.
         "explicit_casts": re.compile(
-            r"\.\([a-zA-Z_]\w*\)|\b(?:int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|float32|float64|byte|rune|uintptr|string)\s*\("
+            r"\.\(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\)|\b(?:int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|float32|float64|byte|rune|uintptr|string)\s*\("
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(panic|os\.Exit|log\.Fatal)\b"),
@@ -419,7 +509,11 @@ DEFINITION: dict[str, Any] = {
         # identifier (4521 crucible hits of `gp :=`-shaped locals). Top-level
         # declaration forms only.
         "encapsulation": re.compile(
-            r"^func\s+(?:\([^)]*\)[ \t]+)?[a-z]\w+|^(?:type|var|const)\s+[a-z]\w+",
+            r"^func\s+(?:\([^)]*\)[ \t]+)?[a-z]["
+            + ID_CONTINUE
+            + r"]+|^(?:type|var|const)\s+[a-z]["
+            + ID_CONTINUE
+            + r"]+",
             re.M,
         ),
         # 48. listeners (Event Listeners / Observers)

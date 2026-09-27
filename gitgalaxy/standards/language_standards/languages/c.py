@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -97,7 +99,31 @@ DEFINITION: dict[str, Any] = {
             # convention (`_PyStackRef`, `_Bool`, ...), extremely common in
             # cpython internals and not covered by cpp's own version of this
             # fallback.
-            r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_[a-zA-Z0-9_]+)\b)\b([a-zA-Z_]\w*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*[A-Z]\w*|[a-z_]\w*_t|[a-z_]\w*\s+[*&]*\s*[a-zA-Z_]\w*)\b(?:[^)(]|\([^)]*\))*\))",
+            r"(?!(?:if|for|while|switch|return|sizeof|typeof|_Alignof|__typeof__|__builtin_["
+            + ID_CONTINUE
+            + r"]+)(?!["
+            + ID_CONTINUE
+            + r"]))\b(?<!["
+            + ID_CONTINUE
+            + r"])(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)[ \t\n*]*(\(\s*(?:const\s+|volatile\s+)?(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|_*["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|[a-z_]["
+            + ID_CONTINUE
+            + r"]*_t|[a-z_]["
+            + ID_CONTINUE
+            + r"]*\s+[*&]*\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?!["
+            + ID_CONTINUE
+            + r"])(?:[^)(]|\([^)]*\))*\))",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -131,24 +157,34 @@ DEFINITION: dict[str, Any] = {
             # (`__control_entrypoint(DllExport) STDAPI Foo()`, `_Ret_maybenull_`) --
             # a `__`- or `_Uppercase`-prefixed identifier, optionally with a bracketed
             # argument. Naming-shape bounded so it can't eat an ordinary function call.
-            r"(?:(?:__attribute__\s*\((?:[^)(]|\((?:[^)(]|\([^)]*\))*\))*\)|(?:__[a-z]\w*|_[A-Z][A-Za-z0-9]*_)(?:\s*\((?:[^)(]|\([^)]*\))*\))?)\s*){0,5}"
+            r"(?:(?:__attribute__\s*\((?:[^)(]|\((?:[^)(]|\([^)]*\))*\))*\)|(?:__[a-z]["
+            + ID_CONTINUE
+            + r"]*|_[A-Z][A-Za-z0-9]*_)(?:\s*\((?:[^)(]|\([^)]*\))*\))?)\s*){0,5}"
             # 2. Modifiers (Strictly bounded)
             r"(?:(?:static|inline|extern|_Noreturn|__inline__|__forceinline|constexpr)\s+){0,3}"
             # 3. Complex types
             r"(?:(?:struct|union|enum)\s+)?"
             # 4. Return type (Strictly linear)
-            r"(?:[a-zA-Z_]\w+\s+){0,3}[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)"
+            r"(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]+\s+){0,3}["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\s*[*&]+\s*|\s+)"
             # [ MACRO SHIELD ]: Support macros between return type and function name (e.g. PyAPI_FUNC(int) or _Py_HOT_FUNCTION)
-            r"(?:[a-zA-Z_]\w+(?:\s*\([^)]*\))?\s+){0,5}"
+            r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"]+(?:\s*\([^)]*\))?\s+){0,5}"
             # 5. The "Not a Function" Shield
             r"(?!(?:if|for|while|switch|return|sizeof)\b)"
             # 6. The Identifier Capture (Satellite Name - Group 1)
-            r"([a-zA-Z_]\w*)"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*)"
             # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers and macros without ReDoS.
             r"\s*\((?:[^)(]|\([^)]*\))*\)"
             # 8. The K&R C Parameter Gap (Legacy support for DOOM/MS-DOS)
             # [IRON WALL FIX]: Forces instant failure if it encounters BEGIN or control flow.
-            r"(?:\s+(?!(?:BEGIN|if|for|while|switch|return)\b)[a-zA-Z_][^;{]{0,150};){0,15}"
+            r"(?:\s+(?!(?:BEGIN|if|for|while|switch|return)\b)[" + ID_START + r"][^;{]{0,150};){0,15}"
             # 9. The Ignition (Includes the MS-DOS 'BEGIN' macro)
             r"\s*(?:\{|BEGIN\b)",
             re.M,
@@ -164,7 +200,10 @@ DEFINITION: dict[str, Any] = {
         # (tests/extraction/languages/test_c_strict.py) documents that co-firing as DELIBERATE: it's how
         # the `_ops`-vtable-style dependency_injection heuristic pairs with class_start for
         # exactly this shape. Any future change here must keep that test passing.
-        "class_start": re.compile(r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)\b(?:\s+([a-zA-Z_]\w*))?", re.M),
+        "class_start": re.compile(
+            r"^[ \t]*(?:typedef[ \t]+)?(?:struct|union|enum)\b(?:\s+([" + ID_START + r"][" + ID_CONTINUE + r"]*))?",
+            re.M,
+        ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         "safety": re.compile(
@@ -172,7 +211,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Dangerous legacy functions and raw void manipulation.
-        "safety_bypasses": re.compile(r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"),
+        "safety_bypasses": re.compile(
+            r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*\*\)\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*"
+        ),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and context switches. EXCLUDES prints (Phase 5).
         # #2878 contract C2: call form (the crucible's only hit was `"Load system defaults"`);
@@ -231,9 +280,17 @@ DEFINITION: dict[str, Any] = {
             # `static`, so `static MP_DEFINE_CONST_FUN_OBJ_0(...)` counted.
             r"\bextern\b|__declspec\(dllexport\)|"
             r'__attribute__\(\(visibility\("default"\)\)\)|'
-            r"^typedef\b|^(?:struct|union|enum)[ \t]+[a-zA-Z_]\w*[ \t]*\{|"
+            r"^typedef\b|^(?:struct|union|enum)[ \t]+[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*\{|"
             r"^(?!static\b)(?!(?:return|goto|else|case|break|continue|do|while|if|for|switch|sizeof|typedef)\b)"
-            r"(?:[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t\n]*|[ \t\n]+)){1,4}[a-zA-Z_]\w*[ \t\n]*\(",
+            r"(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t]*[*&]+[ \t\n]*|[ \t\n]+)){1,4}["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*\(",
             re.M,
         ),
         # 11. flux (State Mutation)
@@ -246,8 +303,16 @@ DEFINITION: dict[str, Any] = {
             # operator set, a trailing-comma line (enum member / named argument) is not
             # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
             # string literal is not an increment).
-            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]",
+            r"(?:^|[;{}(),])[ \t]*\**["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:(?:\.|->)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -294,13 +359,17 @@ DEFINITION: dict[str, Any] = {
             # (corollary 1); a prototype (`static void f(void);`) is linkage, not
             # state (corollary 4).
             r"^(?![ \t])(?:(?:static|extern|const|volatile|_Thread_local|register|_Atomic)[ \t]+)*"
-            r"(?:(?:struct|union|enum)[ \t]+)?[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t]*|[ \t]+)(?:const[ \t]+)?"
-            r"[a-zA-Z_]\w*(?:\[[^\]\n]{0,100}\])*[ \t]*(?:=(?![=])|[;,])"
+            r"(?:(?:struct|union|enum)[ \t]+)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[ \t]*[*&]+[ \t]*|[ \t]+)(?:const[ \t]+)?"
+            r"[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\[[^\]\n]{0,100}\])*[ \t]*(?:=(?![=])|[;,])"
             r"|^[ \t]+(?:static|_Thread_local)[ \t]+(?!assert\b)(?![^;=\n(]{0,200}\()[^;\n]{0,200}[;=]",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"\[\[\s*[a-zA-Z_:][^\]]*\s*\]\]"),
+        "decorators": re.compile(r"\[\[\s*[" + ID_START + r":][^\]]*\s*\]\]"),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(r"\b_Generic\s*\([^)]*\)"),
         # 21. comprehensions
@@ -318,7 +387,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Macros with args and unstructured jumps.
-        "reflection_metaprogramming": re.compile(r"^#\s*define\s+[a-zA-Z_]\w*\([^)]*\)|\bgoto\b", re.M),
+        "reflection_metaprogramming": re.compile(
+            r"^#\s*define\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*\([^)]*\)|\bgoto\b", re.M
+        ),
         # 24. import (Dependency Inclusions)
         "import": re.compile(r'^[ \t]*#[ \t]*(?:include|embed)\s*[<"][^>"]+[>"]', re.M),
         "_dependency_capture": re.compile(r'^[ \t]*#[ \t\n]*(?:include|embed)[ \t\n]*[<"]([^>"]+)[>"]', re.M),
@@ -345,7 +416,9 @@ DEFINITION: dict[str, Any] = {
         # 32. events (Event Emitters / Pub-Sub)
         "events": re.compile(r"\b(epoll_wait|epoll_ctl|kqueue|kevent|select|poll|libev|libuv)\b"),
         # 33. dependency_injection (Dependency Injection / IoC)
-        "dependency_injection": re.compile(r"\b(plugin_register|vtable|struct\s+[a-zA-Z_]\w*_ops)\b"),
+        "dependency_injection": re.compile(
+            r"\b(plugin_register|vtable|struct\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*_ops)\b"
+        ),
         # 34. macros (Preprocessor Directives / Macros)
         "macros": re.compile(
             r"^[ \t]*#[ \t]*(?:define|undef|if|elif|else|endif|pragma|warning|error)\b",
@@ -353,7 +426,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         "pointers": re.compile(
-            r"->|\b(?:uintptr_t|intptr_t|ptrdiff_t|size_t)\b|(?<=[=\s,(])&\w+|(?<=[=\s,(])\*(?:\s*const\s*)?\w+"
+            r"->|\b(?:uintptr_t|intptr_t|ptrdiff_t|size_t)\b|(?<=[=\s,(])&["
+            + ID_CONTINUE
+            + r"]+|(?<=[=\s,(])\*(?:\s*const\s*)?["
+            + ID_CONTINUE
+            + r"]+"
         ),
         # 36. memory_alloc (Manual Memory Management)
         # #2899: anchored to the call form -- bare names matched `"malloc failed"`
@@ -376,7 +453,9 @@ DEFINITION: dict[str, Any] = {
             # is spaced asterisks like `(int * * *)`. Flattened to strictly linear
             # `[ \t\n]*(?:\*[ \t\n]*)*` to prevent any overlapping whitespace matching.
             # =====================================================================
-            r"\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed|void)[ \t\n]*(?:\*[ \t\n]*)*\)\s*[a-zA-Z_]"
+            r"\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed|void)[ \t\n]*(?:\*[ \t\n]*)*\)\s*["
+            + ID_START
+            + r"]"
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(abort|exit|_Exit|quick_exit|return\s+-1)\b"),

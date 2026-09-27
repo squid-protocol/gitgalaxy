@@ -5631,7 +5631,9 @@ class StructuralExtractor:
         # counter downstream), so `safe_code` has nothing left here to match against.
         known_macro_positions: dict[str, int] = {}
         if lang_id in ("c", "cpp"):
-            for m in re.finditer(r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(", code, re.M):
+            for m in re.finditer(
+                r"^[ \t]*#[ \t]*define[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)\(", code, re.M
+            ):
                 macro_name = m.group(1)
                 if macro_name not in known_macro_positions:
                     known_macro_positions[macro_name] = m.start(1)
@@ -8924,7 +8926,16 @@ class StructuralExtractor:
                     between = args_str[open_idx + 1 : inner_open]
                     after_wrapper = args_str[wrapper_end + 1 :].lstrip(" \t\n")
                     if after_wrapper.startswith("(") and re.fullmatch(
-                        r"[ \t\n]*(?:[a-zA-Z_]\w*[ \t\n]*::[ \t\n]*)*\*[ \t\n]*[a-zA-Z_]\w*[ \t\n]*", between
+                        r"[ \t\n]*(?:["
+                        + ID_START
+                        + r"]["
+                        + ID_CONTINUE
+                        + r"]*[ \t\n]*::[ \t\n]*)*\*[ \t\n]*["
+                        + ID_START
+                        + r"]["
+                        + ID_CONTINUE
+                        + r"]*[ \t\n]*",
+                        between,
                     ):
                         open_idx = inner_open
                         wrapper_end = self._matching_paren_end(args_str, open_idx)
@@ -10118,7 +10129,19 @@ class StructuralExtractor:
             # Group 1 now grabs the optional `(Ident::)+` chain immediately
             # before the `operator` keyword and it's prefixed back on below.
             op_match = re.search(
-                r"((?:[a-zA-Z_]\w*::)*)\b(operator\s*(?:\[\s*\]|\(\s*\)|(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:\s*\*+)?|[^a-zA-Z0-9_\s({]+))",
+                r"((?:["
+                + ID_START
+                + r"]["
+                + ID_CONTINUE
+                + r"]*::)*)\b(operator\s*(?:\[\s*\]|\(\s*\)|(?:::)?["
+                + ID_START
+                + r"]["
+                + ID_CONTINUE
+                + r"]*(?:::["
+                + ID_START
+                + r"]["
+                + ID_CONTINUE
+                + r"]*)*(?:\s*\*+)?|[^a-zA-Z0-9_\s({]+))",
                 match_strip,
             )
             if op_match:

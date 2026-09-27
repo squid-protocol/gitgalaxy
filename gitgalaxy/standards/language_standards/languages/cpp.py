@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -122,7 +124,25 @@ DEFINITION: dict[str, Any] = {
         # types or `__attribute__`/`__cdecl`; the `\([^()]{0,64}\)` tail
         # covers the sized forms.
         "args": re.compile(
-            r"\b(?!(?:if|for|while|switch|catch)\b)((?:[a-zA-Z_]\w*::)*(?:[a-zA-Z_]\w*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?))(?:<(?:[^<>]|<[^<>]*>)*>)?\s*(\(\s*(?:(?:const|volatile|_[A-Z][A-Za-z0-9_]*_(?:\([^()]{0,64}\))?)\s+)*(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|[A-Z]\w*|[a-z_]\w*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
+            r"\b(?!(?:if|for|while|switch|catch)\b)((?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|operator[ \t]*[^a-zA-Z_\s(]+|operator[ \t]+(?:new|delete)(?:\[\])?))(?:<(?:[^<>]|<[^<>]*>)*>)?\s*(\(\s*(?:(?:const|volatile|_["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*_(?:\([^()]{0,64}\))?)\s+)*(?:int|char|void|float|double|bool|long|short|unsigned|signed|struct|class|auto|std::|["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|[a-z_]["
+            + ID_CONTINUE
+            + r"]*_t)\b[^)]*\))|\[[^\]]*\]\s*(\([^)]*\))"
         ),
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
@@ -163,7 +183,9 @@ DEFINITION: dict[str, Any] = {
             # argument (`__control_entrypoint(DllExport)`, `_Ret_maybenull_`,
             # `_Check_return_`). Bounded to that naming shape so it can't eat
             # an ordinary lowercase function call as a phantom prefix.
-            r"(?:(?:__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\]|__declspec[ \t]*\([^)]*\)|(?:__[a-z]\w*|_[A-Z][A-Za-z0-9]*_)(?:[ \t]*\((?:[^)(]|\([^)]*\))*\))?)[ \t\n]*){0,5}"
+            r"(?:(?:__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\]|__declspec[ \t]*\([^)]*\)|(?:__[a-z]["
+            + ID_CONTINUE
+            + r"]*|_[A-Z][A-Za-z0-9]*_)(?:[ \t]*\((?:[^)(]|\([^)]*\))*\))?)[ \t\n]*){0,5}"
             # 4. THE RETURN TYPE (Pointers/references explicitly bound)
             # [IRON WALL]: Prevents the engine from reading a `#define` on the next line as a return type.
             # [POINTER AMBIGUITY FIX]: Strictly enforces sequential evaluation of pointers and spaces.
@@ -205,7 +227,19 @@ DEFINITION: dict[str, Any] = {
             # literal `[*&]`, the other forbids consuming past the first
             # non-whitespace char), so this doesn't reopen the Rule 14
             # backtracking gap the surrounding bounds were built to close.
-            r"(?:(?![ \t]*#)(?!(?:[a-zA-Z_]\w*::)*operator\b)[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*"
+            r"(?:(?![ \t]*#)(?!(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator\b)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*"
             r"(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?"
             r"(?:[ \t]{0,20}[*&]{1,5}[ \t\n]{0,200}|[ \t\n]{1,200})){0,5}"
             # 5. THE "NOT A FUNCTION" SHIELD
@@ -219,7 +253,39 @@ DEFINITION: dict[str, Any] = {
             # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
             # .cpp file, declared in the header) are mainstream, common C++ -- completely
             # invisible to func_start before this fix.
-            r"(?![ \t]*#)((?:[a-zA-Z_]\w*::)*operator[ \t]*\(\)|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:::)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*(?:<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t]*[*&]+)?|(?:[a-zA-Z_]\w*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:[a-zA-Z_]\w*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:[a-zA-Z_]\w*::)*[~a-zA-Z_]\w*)"
+            r"(?![ \t]*#)((?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]*\(\)|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]+(?:::)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*(?:<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t]*[*&]+)?|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]*[^a-zA-Z_\s(]+|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*[~"
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)"
             # 7. THE PARAMETER BLOCK (Supports vertical gap)
             # [NESTED PARENTHESIS FIX]: Uses 1-Level Nesting Trick to swallow function pointers without ReDoS.
             # [LAMBDA-ARGUMENT SHIELD] (#2013): a lambda passed as a constructor argument or
@@ -241,13 +307,13 @@ DEFINITION: dict[str, Any] = {
             # 8. POST-PARAMETER MODIFIERS & TRAILING RETURN TYPES
             # [OVERLAP PREVENTION]: Removed ambiguous \s* inside attribute matcher.
             r"(?:[ \t\n]+(?:const|volatile|noexcept|override|final|&{1,2}|__attribute__\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\])){0,10}"
-            r"(?:[ \t\n]*->[ \t]*[a-zA-Z_:\w*<>]+)?"
+            r"(?:[ \t\n]*->[ \t]*[a-zA-Z_:" + ID_CONTINUE + r"*<>]+)?"
             # 9. THE K&R C AND C++ CONSTRUCTOR GAP (ReDoS mitigated via Strict Bounding)
             # Handles C++ initializer lists (e.g., `MyClass() : a(1) {`) and legacy K&R declarations.
             # [IRON WALL - CATASTROPHIC BACKTRACKING FIX]:
             # We enforce strict numeric bounds (`{0,500}` and `{0,100}`) instead of `+` or `*`.
             # This caps the permutation tree instantly.
-            r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[a-zA-Z_][^(){};]{0,100};){1,20})?"
+            r"(?:[ \t\n]*(?![ \t]*#):[^{;]{0,2000}|(?:[ \t\n]+(?![ \t]*#)[" + ID_START + r"][^(){};]{0,100};){1,20})?"
             # 10. THE IGNITION (The opening brace confirming it is a definition, not a declaration)
             r"[ \t\n]*\{",
             re.M,
@@ -275,7 +341,11 @@ DEFINITION: dict[str, Any] = {
         "class_start": re.compile(
             r"^[ \t]*(?:export[ \t\n]+)?"
             r"(?:template[ \t\n]*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>[ \t\n]*)?"
-            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}([a-zA-Z_]\w*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
+            r"(?:class|struct|union|enum[ \t\n]+class|enum[ \t\n]+struct)[ \t\n]+(?:(?:\[\[[^\]]*\]\]|__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\))[ \t\n]*){0,5}(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -338,8 +408,16 @@ DEFINITION: dict[str, Any] = {
             # (zero occurrences corpus-wide when narrowed) and makes every arm
             # provably newline-free, which is what lets this rule opt into
             # `_line_gates` below.
-            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"(?:^|[;{}(),])[ \t]*\**["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:(?:\.|->)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
             r"|\bstd::(?:swap|exchange)[ \t]*\(|\bstd::mem::(?:swap|replace)[ \t]*\("
             r"|\.(?:push_back|emplace_back|emplace|insert|erase|clear|pop_back|pop_front|push_front|resize|assign|swap)[ \t]*\(",
             re.M,
@@ -386,7 +464,9 @@ DEFINITION: dict[str, Any] = {
         "ui_framework": re.compile(r"\b(?:Q_OBJECT|QWidget|wxFrame|ImGui::|Fl_Window)\b|\bslots:|\bsignals:"),
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(
-            r"\[[^\]]*\]\s*(?:<[^>]*>\s*)?(?:\([^)]*\))?\s*(?:(?:mutable|constexpr|consteval|noexcept)\s+)*(?:mutable|constexpr|consteval|noexcept)?\s*(?:->\s*[\w:<>_]+)?[ \t]*\{"
+            r"\[[^\]]*\]\s*(?:<[^>]*>\s*)?(?:\([^)]*\))?\s*(?:(?:mutable|constexpr|consteval|noexcept)\s+)*(?:mutable|constexpr|consteval|noexcept)?\s*(?:->\s*["
+            + ID_CONTINUE
+            + r":<>_]+)?[ \t]*\{"
         ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
@@ -401,7 +481,7 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)
-        "decorators": re.compile(r"\[\[\s*[a-zA-Z_:][^\]]*\]\]"),
+        "decorators": re.compile(r"\[\[\s*[" + ID_START + r":][^\]]*\]\]"),
         # 20. generics (Generics / Type Parameters)
         "generics": re.compile(r"\btemplate\s*<[^>]*>|\b(?:concept|requires)\b"),
         # 21. comprehensions (Iterators / Comprehensions)
@@ -422,15 +502,29 @@ DEFINITION: dict[str, Any] = {
         # alternative could never fire. Pulled out with only a leading
         # `\b`.
         "reflection_metaprogramming": re.compile(
-            r"\b(?:if\s+constexpr|if\s+consteval|std::enable_if|std::is_same|std::any_cast|std::bit_cast|decltype)\b|\bsizeof\.\.\.|#define\s+[a-zA-Z_]"
+            r"\b(?:if\s+constexpr|if\s+consteval|std::enable_if|std::is_same|std::any_cast|std::bit_cast|decltype)\b|\bsizeof\.\.\.|#define\s+["
+            + ID_START
+            + r"]"
         ),
         # 24. import (Dependency Inclusions)
         "import": re.compile(
-            r'^[ \t]*(?:#include\s*[<"][^>"]+[>"]|import\s+[a-zA-Z_][\w.:]*\s*;|export\s+import\s+[a-zA-Z_][\w.:]*\s*;)',
+            r'^[ \t]*(?:#include\s*[<"][^>"]+[>"]|import\s+['
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".:]*\s*;|export\s+import\s+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".:]*\s*;)",
             re.M,
         ),
         "_dependency_capture": re.compile(
-            r'^[ \t]*(?:#\s*include\s*[<"]([^>"]+)[>"]|(?:export\s+)?import\s+([a-zA-Z_][\w.:]*)\s*;)',
+            r'^[ \t]*(?:#\s*include\s*[<"]([^>"]+)[>"]|(?:export\s+)?import\s+(['
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r".:]*)\s*;)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -468,7 +562,11 @@ DEFINITION: dict[str, Any] = {
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         # Raw memory addressing and pointer manipulation. CRITICAL: Uses lookbehinds `(?<=[=\s,(])` to strictly capture pointer dereferences `*ptr` and memory addresses `&var` without flagging standard multiplication `a * b` or logical AND `a & b`.
         "pointers": re.compile(
-            r"->|\b(?:uintptr_t|intptr_t|ptrdiff_t|size_t)\b|(?<=[=\s,(])&\w+|(?<=[=\s,(])\*(?:\s*const\s*)?\w+"
+            r"->|\b(?:uintptr_t|intptr_t|ptrdiff_t|size_t)\b|(?<=[=\s,(])&["
+            + ID_CONTINUE
+            + r"]+|(?<=[=\s,(])\*(?:\s*const\s*)?["
+            + ID_CONTINUE
+            + r"]+"
         ),
         # 36. memory_alloc (Manual Memory Management)
         "memory_alloc": re.compile(r"\b(new|malloc|calloc|realloc|aligned_alloc|mmap|alloca)\b"),
@@ -504,8 +602,20 @@ DEFINITION: dict[str, Any] = {
         # (O(1) alternation per the same fix already applied in C).
         "explicit_casts": re.compile(
             r"\b(?:static_cast|dynamic_cast|reinterpret_cast|const_cast|bit_cast)\b|"
-            r"\b[a-zA-Z_]\w*<\s*[A-Za-z_]\w*\s*>\s*\(|"
-            r"\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed|void)[ \t\n]*(?:\*[ \t\n]*)*\)\s*[a-zA-Z_]"
+            r"\b(?<!["
+            + ID_CONTINUE
+            + r"])["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*<\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*>\s*\(|"
+            r"\(\s*(?:int|float|double|char|bool|long|short|unsigned|signed|void)[ \t\n]*(?:\*[ \t\n]*)*\)\s*["
+            + ID_START
+            + r"]"
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(throw|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\b"),
@@ -552,7 +662,7 @@ DEFINITION: dict[str, Any] = {
             r"|set(?:e|res)?uid|set(?:e|res)?gid"
             r"|LogonUser[AW]?|CheckTokenMembership)[ \t]*\("
             r"|\bjwt::(?:verify|decode)\("
-            r"|\b(?:bcrypt|argon2)::(?:verify|validate)\w*\("
+            r"|\b(?:bcrypt|argon2)::(?:verify|validate)[" + ID_CONTINUE + r"]*\("
         ),
         "serialization_parsing": re.compile(
             r"\b(nlohmann::json|rapidjson|boost::archive|ParseFromString|SerializeToString)\b"

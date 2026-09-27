@@ -93,7 +93,9 @@ def _lossy_errors(call: ast.Call) -> bool:
     )
 
 
-def findings(root: Path = PACKAGE) -> list[tuple[str, str, str, int]]:
+def findings(
+    root: Path = PACKAGE, allowed: dict[tuple[str, str, str], str] = ALLOWED
+) -> list[tuple[str, str, str, int]]:
     """(path, enclosing function, rule, line) for every read the gate forbids, allowlist applied."""
     out = []
     for path in sorted(root.rglob("*.py")):
@@ -112,7 +114,7 @@ def findings(root: Path = PACKAGE) -> list[tuple[str, str, str, int]]:
                 if estate and _is_text_read(node):
                     rules.append("text-read")
                 out.extend(
-                    (rel, func_name, rule, node.lineno) for rule in rules if (rel, func_name, rule) not in ALLOWED
+                    (rel, func_name, rule, node.lineno) for rule in rules if (rel, func_name, rule) not in allowed
                 )
             stack.extend((child, func_name) for child in ast.iter_child_nodes(node))
     return sorted(out)
@@ -129,13 +131,7 @@ def test_no_source_read_loses_a_byte():
 
 def test_every_allowlist_entry_is_still_needed():
     """A stale entry would silently license a future lossy read in that function."""
-    unfiltered = set()
-    saved = dict(ALLOWED)
-    ALLOWED.clear()
-    try:
-        unfiltered = {(path, func, rule) for path, func, rule, _ in findings()}
-    finally:
-        ALLOWED.update(saved)
+    unfiltered = {(path, func, rule) for path, func, rule, _ in findings(allowed={})}
     stale = sorted(set(ALLOWED) - unfiltered)
     assert not stale, f"allowlist entries that no longer match a read: {stale}"
 

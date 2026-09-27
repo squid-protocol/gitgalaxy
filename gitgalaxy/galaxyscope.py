@@ -316,6 +316,14 @@ def _active_languages(lang_defs: dict[str, Any], ext_tally: dict[str, int], ever
     return active
 
 
+# #3929: a scan this large pre-compiles its languages' rules before a forked pool starts. Every
+# worker of a large scan keeps its core busy to the end, so a rule set each compiles for itself is
+# wall time (curl, 4,250 files on 12 workers: -0.47 s; the 3,280-file crucible corpus: back to
+# pre-#3914). A small scan's workers start on idle cores, where compiling lazily, in parallel and
+# only what each meets, beats one serial compile of every claimant (40 C files: -0.35 s).
+_PRECOMPILE_MIN_FILES = 500
+
+
 def _precompile_for_fork(lang_defs: dict[str, Any], ext_tally: dict[str, int]) -> None:
     """#3914: rules compile on first use. A forked pool's workers inherit this process's memory, so
     compiling the scan's languages here once, before the fork, spares every worker compiling them
@@ -2231,7 +2239,7 @@ class Orchestrator:
         # single worker) -- the files are extracted in this process, by the same worker code.
         max_workers = min(max_workers, total_files)
         inline = (max_workers == 1 or total_files <= _INLINE_MAX_FILES) and _can_run_inline()
-        if not inline:
+        if not inline and total_files >= _PRECOMPILE_MIN_FILES:
             _precompile_for_fork(self.config.get("LANGUAGE_DEFINITIONS", {}), self.ext_tally)
         pool: Any = (
             _InlineExecutor(_init_worker, initargs)

@@ -160,8 +160,9 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     script.append(f"cobc -x {flags} -o program src/EQDRIVER.cbl src/PROGRAM.cbl")
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
+    tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
-    script.append(f"set +e; {clock}{env} ./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")
+    script.append(f"set +e; {tz}{clock}{env} ./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
             script.append(f"{dd}=/work/{dd}.idx OUTFILE=/work/{dd}.out ./ul{dd}")

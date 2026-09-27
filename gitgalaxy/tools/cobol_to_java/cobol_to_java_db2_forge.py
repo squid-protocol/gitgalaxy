@@ -51,15 +51,15 @@ _SQL_TYPES = {
     "SMALLINT": "Integer", "INTEGER": "Integer", "INT": "Integer", "BIGINT": "Long",
     "DECIMAL": "BigDecimal", "DEC": "BigDecimal", "NUMERIC": "BigDecimal",
     "REAL": "Double", "FLOAT": "Double", "DOUBLE": "Double", "DOUBLE PRECISION": "Double", "DECFLOAT": "BigDecimal",
-    "DATE": "LocalDate", "TIME": "LocalTime", "TIMESTAMP": "LocalDateTime",
+    "DATE": "LocalDate", "TIME": "LocalTime", "TIMESTAMP": "LocalDateTime", "TIMESTAMP WITH TIME ZONE": "OffsetDateTime",
     "BLOB": "byte[]", "BINARY": "byte[]", "VARBINARY": "byte[]",
 }  # fmt: skip
 _TIME_IMPORTS = {"LocalDate": "java.time.LocalDate", "LocalTime": "java.time.LocalTime",
-                 "LocalDateTime": "java.time.LocalDateTime"}  # fmt: skip
+                 "LocalDateTime": "java.time.LocalDateTime", "OffsetDateTime": "java.time.OffsetDateTime"}  # fmt: skip
 
 
 def sql_java_type(sql_type: str) -> str:
-    """The Java type of a declared DB2 column type (`TIMESTAMP WITH TIME ZONE` -> LocalDateTime)."""
+    """The Java type of a declared DB2 column type (`TIMESTAMP WITH TIME ZONE` -> OffsetDateTime)."""
     t = " ".join(sql_type.upper().split())
     for name in sorted(_SQL_TYPES, key=len, reverse=True):
         if t == name or t.startswith(name + " ") or t.startswith(name + "("):

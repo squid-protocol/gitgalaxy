@@ -106,8 +106,9 @@ PORTING_RULES = [
         "as moved, an edited PICTURE formatted as COBOL formats it."
     ),
     (
-        "Read the time only from the generated batch runtime's MainframeClock (now()), never from the "
-        "system clock directly: it is how a run is pinned to be compared with the original."
+        "Read the time only from the generated batch runtime's MainframeClock (now() for local, currentDate() for "
+        "FUNCTION CURRENT-DATE), never from the system clock directly or ZoneId.systemDefault(): it is how a run is "
+        "pinned to be compared with the original."
     ),
     (
         "A fact whose field testing is not 'field-tested' is verified on reference estates but still being "

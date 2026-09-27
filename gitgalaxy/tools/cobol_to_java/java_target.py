@@ -165,7 +165,7 @@ class Culture:
 
     rounding: str = "cobol"  # TODO(#3825): ROUNDED / ROUNDED MODE in generated arithmetic and porting rules
     overflow: str = "cobol"  # TODO(#3825): high-order truncation vs ON SIZE ERROR
-    zone: str = "UTC"  # TODO(#3824): MainframeClock's zone and CURRENT-DATE's UTC offset
+    zone: str = "UTC"  # #3824: MainframeClock's zone and CURRENT-DATE's UTC offset
     format_locale: str = "ROOT"  # generated formatting / case mapping (#3823 made it Locale.ROOT)
     display_locale: str = "ROOT"  # TODO(#3819): screens only -- never used for stored data
     decimal_point: str = "auto"  # TODO(#3827): DECIMAL-POINT IS COMMA in edited PICTUREs and schemas

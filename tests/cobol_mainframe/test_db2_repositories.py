@@ -85,7 +85,7 @@ def test_to_jdbc_names_parameters_and_drops_the_singleton_into():
 @pytest.mark.parametrize(
     "sql_type, java",
     [("CHAR", "String"), ("VARCHAR", "String"), ("DECIMAL", "BigDecimal"), ("INTEGER", "Integer"),
-     ("BIGINT", "Long"), ("DATE", "LocalDate"), ("TIMESTAMP WITH TIME ZONE", "LocalDateTime"), ("BLOB", "byte[]"),
+     ("BIGINT", "Long"), ("DATE", "LocalDate"), ("TIMESTAMP WITH TIME ZONE", "OffsetDateTime"), ("BLOB", "byte[]"),
      ("SOMETHING ODD", "String")],
 )  # fmt: skip
 def test_sql_types_map_to_java(sql_type, java):

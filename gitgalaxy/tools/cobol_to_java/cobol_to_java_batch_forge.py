@@ -209,7 +209,10 @@ class BatchForge:
         if not self.applications:
             return {}
         pkg = f"{self.package}.{SUBPACKAGE}"
-        out = {name: text.replace("{pkg}", pkg) for name, text in _RUNTIME.items()}
+        out = {
+            name: text.replace("{pkg}", pkg).replace("{zone}", self.target.culture.zone)
+            for name, text in _RUNTIME.items()
+        }
         if self.target.features.rest_controllers:
             out["BatchJobController"] = _CONTROLLER.replace("{pkg}", pkg)
         for j in self.applications:
@@ -380,23 +383,41 @@ _RUNTIME = {
     "MainframeClock": """package {pkg};
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /** The time a ported program reads -- FUNCTION CURRENT-DATE, ACCEPT FROM DATE / TIME, EXEC CICS ASKTIME
  *  (#3753): `gitgalaxy.clock` (an ISO local date-time, e.g. 2022-07-18T10:30:15.00) when set -- the
- *  equivalence harness pins it, so a run can be compared with the original's -- else the system clock. */
+ *  equivalence harness pins it, so a run can be compared with the original's -- else the system clock.
+ *  #3824: the mainframe's zone is `gitgalaxy.zone` (default {zone}, the target's culture.zone), never the JVM's;
+ *  currentDate() carries its UTC offset. A pinned local time that does not exist in the zone (a DST gap, e.g.
+ *  2022-03-27T02:30 in Europe/Berlin) resolves by ZonedDateTime.ofLocal's rule: it moves forward. */
 @Component
 public class MainframeClock {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSZ");
     private final String pinned;
+    private final ZoneId zone;
 
-    public MainframeClock(@Value("${gitgalaxy.clock:}") String pinned) {
+    public MainframeClock(@Value("${gitgalaxy.clock:}") String pinned,
+                          @Value("${gitgalaxy.zone:{zone}}") String zoneId) {
         this.pinned = pinned == null ? "" : pinned.trim();
+        this.zone = ZoneId.of(zoneId == null || zoneId.trim().isEmpty() ? "{zone}" : zoneId.trim());
     }
 
     public LocalDateTime now() {
-        return pinned.isEmpty() ? LocalDateTime.now() : LocalDateTime.parse(pinned);
+        return zonedNow().toLocalDateTime();
+    }
+
+    public ZonedDateTime zonedNow() {
+        return pinned.isEmpty() ? ZonedDateTime.now(zone) : ZonedDateTime.of(LocalDateTime.parse(pinned), zone);
+    }
+
+    public String currentDate() {
+        return zonedNow().format(FORMATTER);
     }
 }
 """,

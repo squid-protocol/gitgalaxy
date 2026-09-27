@@ -1,0 +1,128 @@
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import sql_java_type
+from gitgalaxy.tools.cobol_to_java.java_target import load_target
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tests" / "tools"))
+import equivalence as eq
+from equivalence_java import equivalence_test
+
+
+def get_forge(target):
+    return BatchForge(
+        {"P": {"program": {"file": "f", "program_ids": ["PROG"]}}},
+        {
+            "sections": {
+                "job_steps": {"facts": [{"file": "f", "steps": [{"step": "s", "ordinal": 1, "program": "PROG"}]}]}
+            }
+        },
+        "com.gitgalaxy",
+        target,
+    )
+
+
+def test_mainframe_clock_generation():
+    target = load_target(None)
+    target.culture.zone = "Asia/Kolkata"
+    forge = get_forge(target)
+    src = forge.sources()[("base_pkg", "batch")]["MainframeClock"]
+    assert "gitgalaxy.zone:Asia/Kolkata" in src
+    assert "ZonedDateTime zonedNow()" in src
+    assert "String currentDate()" in src
+
+
+def test_mainframe_clock_default_zone():
+    target = load_target(None)
+    forge = get_forge(target)
+    src = forge.sources()[("base_pkg", "batch")]["MainframeClock"]
+    assert "gitgalaxy.zone:UTC" in src
+
+
+def test_db2_timestamp_types():
+    assert sql_java_type("TIMESTAMP WITH TIME ZONE") == "OffsetDateTime"
+    assert sql_java_type("TIMESTAMP") == "LocalDateTime"
+
+
+def test_equivalence_harness_zone_plumbing(tmp_path, monkeypatch):
+    case_with_zone = {
+        "name": "c",
+        "program": "P",
+        "datasets": {},
+        "clock": "2022/01/01 12:00:00.00",
+        "zone": "Europe/Berlin",
+    }
+    case_no_zone = {"name": "c", "program": "P", "datasets": {}, "clock": "2022/01/01 12:00:00.00"}
+
+    java_src = equivalence_test(case_with_zone)
+    assert '"gitgalaxy.zone=Europe/Berlin"' in java_src
+
+    java_src_no = equivalence_test(case_no_zone)
+    assert '"gitgalaxy.zone=UTC"' in java_src_no
+
+    def fake_run(*args, **kwargs):
+        work_dir = args[0][4].split(":")[0]
+        (Path(work_dir) / "RETURN-CODE").write_text("0")
+
+        class Proc:
+            returncode = 0
+            stdout = ""
+            stderr = ""
+
+        return Proc()
+
+    monkeypatch.setattr(eq.subprocess, "run", fake_run)
+
+    case_with_zone["program_source"] = "P.cbl"
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    (corpus / "P.cbl").write_text(" ")
+
+    work = tmp_path / "work"
+    eq.run_cobol(case_with_zone, corpus, work)
+    script = (work / "run.sh").read_text()
+    assert "TZ='Europe/Berlin'" in script
+
+    work2 = tmp_path / "work2"
+    case_no_zone["program_source"] = "P.cbl"
+    eq.run_cobol(case_no_zone, corpus, work2)
+    script2 = (work2 / "run.sh").read_text()
+    assert "TZ=" not in script2
+
+
+@pytest.mark.skipif(not shutil.which("javac"), reason="No JDK")
+def test_mainframe_clock_compilation_and_run(tmp_path):
+    target = load_target(None)
+    target.culture.zone = "Asia/Kolkata"
+    forge = get_forge(target)
+    src = forge.sources()[("base_pkg", "batch")]["MainframeClock"]
+
+    src = src.replace("@Component", "")
+    src = src.replace('@Value("${gitgalaxy.clock:}")', "")
+    src = src.replace('@Value("${gitgalaxy.zone:Asia/Kolkata}")', "")
+    src = src.replace("import org.springframework.beans.factory.annotation.Value;", "")
+    src = src.replace("import org.springframework.stereotype.Component;", "")
+
+    main = """
+    public static void main(String[] args) {
+        MainframeClock clock = new MainframeClock("2022-07-18T10:30:15.00", "Asia/Kolkata");
+        System.out.println(clock.currentDate());
+    }
+    """
+    src = src.replace("public class MainframeClock {", "public class MainframeClock {" + main)
+
+    pkg_dir = tmp_path / "com" / "gitgalaxy" / "batch"
+    pkg_dir.mkdir(parents=True)
+    java_file = pkg_dir / "MainframeClock.java"
+    java_file.write_text(src)
+
+    subprocess.run(["javac", str(java_file)], check=True)
+    res = subprocess.run(
+        ["java", "-cp", str(tmp_path), "com.gitgalaxy.batch.MainframeClock"], capture_output=True, text=True, check=True
+    )
+    assert res.stdout.strip() == "2022071810301500+0530"

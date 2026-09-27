@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_RUBY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -84,7 +86,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
-        "branch": re.compile(r"\b(if|unless|elsif|else|case|when|in|for|while|until)\b|&&|\|\||(?<!\w)\?"),
+        "branch": re.compile(
+            r"\b(if|unless|elsif|else|case|when|in|for|while|until)\b|&&|\|\||(?<![" + ID_CONTINUE + r"])\?"
+        ),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of methods, lambdas, and blocks. Bounded to prevent ReDoS.
         # #1209: parameter-list span wrapped in its own capture group in
@@ -96,7 +100,13 @@ DEFINITION: dict[str, Any] = {
         # the first branch too, purely so existing extraction tests keep
         # passing.
         "args": re.compile(
-            r"\bdef\s+(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?([^\W\d]\w*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])\s*(\((?:(?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*)\))|"
+            r"\bdef\s+(?:(?:[^\W\d]["
+            + ID_CONTINUE
+            + r"]*(?:::[^\W\d]["
+            + ID_CONTINUE
+            + r"]*)*\.|self\.)[ \t\n]*)?([^\W\d]["
+            + ID_CONTINUE
+            + r"]*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])\s*(\((?:(?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*)\))|"
             r"\A(?!\s*\bdef\b)[\s\S]*?(?:\bdo\s*\|([^|]*)\||\{\s*\|([^|]*)\|)|"
             r"->\s*(\((?:(?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*)\))",
             re.M,
@@ -118,12 +128,30 @@ DEFINITION: dict[str, Any] = {
             # Upgraded the trailing lookahead to safely handle newlines before `(`.
             # Upgraded name parsing to support operator overloads, unicode, and explicit namespace contexts.
             # =====================================================================
-            r'^[ \t]*(?:def[ \t\n]+(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?|define_method[ \t\n]*\(?[ \t\n]*[:\'"]?)([^\W\d]\w*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])(?=[ \t\n]*[)(]|[\'"]?[ \t\n]*(?:\{|do)|[ \t\n]|$)',
+            r"^[ \t]*(?:def[ \t\n]+(?:(?:[^\W\d]["
+            + ID_CONTINUE
+            + r"]*(?:::[^\W\d]["
+            + ID_CONTINUE
+            + r']*)*\.|self\.)[ \t\n]*)?|define_method[ \t\n]*\(?[ \t\n]*[:\'"]?)([^\W\d]['
+            + ID_CONTINUE
+            + r']*[=!?]?|\[\]=?|<<|>>|<=>|===?|!=|=~|!~|<=?|>=?|[+\-*/%&|^~`!])(?=[ \t\n]*[)(]|[\'"]?[ \t\n]*(?:\{|do)|[ \t\n]|$)',
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
         "class_start": re.compile(
-            r"^[ \t]*(?:class|module)\s+(?:::)?([^\W\d]\w*(?:::[^\W\d]\w*)*|<<\s*self|<<\s*@[a-zA-Z_]\w*)(?:\s*<\s*(?:::)?([^\W\d]\w*(?:::[^\W\d]\w*)*))?",
+            r"^[ \t]*(?:class|module)\s+(?:::)?([^\W\d]["
+            + ID_CONTINUE
+            + r"]*(?:::[^\W\d]["
+            + ID_CONTINUE
+            + r"]*)*|<<\s*self|<<\s*@["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:\s*<\s*(?:::)?([^\W\d]["
+            + ID_CONTINUE
+            + r"]*(?:::[^\W\d]["
+            + ID_CONTINUE
+            + r"]*)*))?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -167,7 +195,11 @@ DEFINITION: dict[str, Any] = {
         # counting as a use. Leading `_` keeps it out of `coding_analysis`'s
         # rule loop and the counts schema, the same way `_scope_filters` does.
         "_visibility_export": re.compile(
-            r"^[ \t]*(?:module_function|public(?:_class_method)?|private|protected)[ \t]+:([a-zA-Z_]\w*[?!=]?)",
+            r"^[ \t]*(?:module_function|public(?:_class_method)?|private|protected)[ \t]+:(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[?!=]?)",
             re.M,
         ),
         # 11. flux (State Mutation)
@@ -189,8 +221,14 @@ DEFINITION: dict[str, Any] = {
             # lvalue is lowercase-initial so a `CONST = 1` constant assignment stays
             # excluded (that is freeze_hits, not flux), and `(?![=~>])` drops `==`,
             # `=~` and the `=>` hash rocket. Needs re.M for the `^` anchor.
-            r"(?:^|;)[ \t]*[a-z_]\w*(?:\.[a-zA-Z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
-            r"|@@?[a-zA-Z_]\w*\s*(?:\+|-|\*|/|\|\||&&)?=(?![=~>])"
+            r"(?:^|;)[ \t]*[a-z_]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|@@?[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*(?:\+|-|\*|/|\|\||&&)?=(?![=~>])"
             r"|\.(?:push|pop|shift|unshift|delete|delete_at|delete_if|clear|concat|insert|store|replace|prepend|append)\b(?![?!])"
             r"|(?<!class)(?<!class )[ \t]<<(?![~\-]?[A-Z_\"'])"
             r"|\b(?:merge!|update!|gsub!|sub!|map!|select!|reject!|sort!|sort_by!|uniq!|compact!|flatten!|reverse!|strip!|chomp!|squeeze!|slice!|shuffle!)",
@@ -220,7 +258,7 @@ DEFINITION: dict[str, Any] = {
             r"|\b(?:before|after)\s*(?:\(|do\b|:each|:all)"
             r"|\b(?:let|subject)\s*(?:\(|\{)"
             r"|\bexpect\s*\("
-            r"|\b(?:assert|refute)(?:_\w+|\s*\()"
+            r"|\b(?:assert|refute)(?:_[" + ID_CONTINUE + r"]+|\s*\()"
             r"|\bdef[ \t]+(?:setup|teardown)\b"
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -242,7 +280,9 @@ DEFINITION: dict[str, Any] = {
         # forms -- never did.
         "closures": re.compile(r"\bdo\s*\|[^|]*\||\bdo\b|\{\s*\|[^|]*\||->\s*(?:\([^)]*\))?[ \t]*\{"),
         # 18. globals (Global / Shared State)
-        "globals": re.compile(r"\$[a-zA-Z_]\w*|\b(ENV|ARGV|ARGF|STDIN|STDOUT|STDERR|RUBY_VERSION)\b"),
+        "globals": re.compile(
+            r"\$[" + ID_START + r"][" + ID_CONTINUE + r"]*|\b(ENV|ARGV|ARGF|STDIN|STDOUT|STDERR|RUBY_VERSION)\b"
+        ),
         # 19. decorators (Decorators / Annotations)
         # Rails class macros acting as metadata descriptors.
         "decorators": re.compile(
@@ -290,7 +330,11 @@ DEFINITION: dict[str, Any] = {
             # safely bridges across optional parentheses, whitespace, and `autoload` symbol arguments
             # to securely capture the target string.
             # =====================================================================
-            r"\b(?:require|require_relative|load|autoload)\b[ \t\n(]*(?:['\"]([^'\"]+)['\"]|%[qQwW]\W([^ \t\n\W]+)\W)|\b(?:include|extend)\b[ \t\n(]+([^\W\d]\w*(?:::[^\W\d]\w*)*)",
+            r"\b(?:require|require_relative|load|autoload)\b[ \t\n(]*(?:['\"]([^'\"]+)['\"]|%[qQwW]\W([^ \t\n\W]+)\W)|\b(?:include|extend)\b[ \t\n(]+([^\W\d]["
+            + ID_CONTINUE
+            + r"]*(?:::[^\W\d]["
+            + ID_CONTINUE
+            + r"]*)*)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -335,7 +379,11 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry (Structured Logging / Telemetry)
         "telemetry": re.compile(
-            r"\b(?:Rails\.logger|Logger\.new|SemanticLogger|[a-zA-Z_]\w*logger)\.(?:debug|info|warn|error|fatal|unknown)\b"
+            r"\b(?:Rails\.logger|Logger\.new|SemanticLogger|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*logger)\.(?:debug|info|warn|error|fatal|unknown)\b"
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs) (Standard Output / Debug Prints)
         "debug_prints": re.compile(r"\b(puts|print|p|pp|warn)\b"),
@@ -353,7 +401,16 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\^|(?<![=!])~"),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|Monitor|Atomic[A-Z]\w*)\b", re.I),
+        "sync_locks": re.compile(
+            r"\b(mutex|lock|synchronized|Semaphore|Monitor|Atomic["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?!["
+            + ID_CONTINUE
+            + r"])",
+            re.I,
+        ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(freeze|frozen_string_literal|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
@@ -371,11 +428,11 @@ DEFINITION: dict[str, Any] = {
         # check. The `!`/`?` suffixes and the `[@:]` argument anchor keep plain
         # identifiers and definitions out.
         "auth_middleware": re.compile(
-            r"\bbefore_action[ \t]+:authenticate_\w+!?"
-            r"|\bauthenticate_\w+!"
+            r"\bbefore_action[ \t]+:authenticate_[" + ID_CONTINUE + r"]+!?"
+            r"|\bauthenticate_[" + ID_CONTINUE + r"]+!"
             r"|\buser_signed_in\?"
             r"|\bcan\?[ \t]*\(?[ \t]*:"
-            r"|\bauthorize[ \t]+[@:]\w"
+            r"|\bauthorize[ \t]+[@:][" + ID_CONTINUE + r"]"
             r"|\.valid_password\?\("
         ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|YAML\.load|Marshal\.load|Nokogiri::(?:XML|HTML))\b"),

@@ -1,7 +1,10 @@
 import csv
 import json
 import sys
+from decimal import Decimal
 from unittest.mock import patch
+
+import pytest
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_etl_unpacker as etl_module
@@ -54,23 +57,23 @@ def test_calculate_byte_layout():
 # ==============================================================================
 def test_unpack_comp3():
     """
-    Proves that IBM Packed Decimal bytes are correctly parsed into Python floats,
+    Proves that IBM Packed Decimal bytes are correctly parsed into exact Decimals (#3833: not floats),
     verifying nibble sign flags (C/F=Positive, D=Negative) and decimal shifts.
     """
     # 123C -> Positive 123 (0 decimals)
-    assert etl_module.unpack_comp3(b"\x12\x3c", 0) == 123.0
+    assert etl_module.unpack_comp3(b"\x12\x3c", 0) == Decimal("123")
 
     # 123D -> Negative 123 (0 decimals)
-    assert etl_module.unpack_comp3(b"\x12\x3d", 0) == -123.0
+    assert etl_module.unpack_comp3(b"\x12\x3d", 0) == Decimal("-123")
 
     # 0123456C -> Positive 123456 (2 decimals) -> 1234.56
-    assert etl_module.unpack_comp3(b"\x01\x23\x45\x6c", 2) == 1234.56
+    assert etl_module.unpack_comp3(b"\x01\x23\x45\x6c", 2) == Decimal("1234.56")
 
     # 0001234D -> Negative 1234 (2 decimals) -> -12.34
-    assert etl_module.unpack_comp3(b"\x00\x01\x23\x4d", 2) == -12.34
+    assert etl_module.unpack_comp3(b"\x00\x01\x23\x4d", 2) == Decimal("-12.34")
 
     # 123F -> Unsigned (Positive) 123 (0 decimals)
-    assert etl_module.unpack_comp3(b"\x12\x3f", 0) == 123.0
+    assert etl_module.unpack_comp3(b"\x12\x3f", 0) == Decimal("123")
 
 
 # ==============================================================================
@@ -141,3 +144,108 @@ def test_unpack_ebcdic_file_e2e(tmp_path):
         assert reader[1][0] == "ALICE"  # Wait, let's check index 2 for BOB
         assert reader[2][0] == "BOB"
         assert float(reader[2][1]) == -12.34
+
+
+# ==============================================================================
+# #3833: any EBCDIC code page, Decimal not float, signed zoned, never a silent 0.0
+# ==============================================================================
+def _run(tmp_path, fields, data, *extra):
+    """Unpacks `data` against a schema of {name: description} through the CLI; returns the CSV rows."""
+    schema = tmp_path / "schema.json"
+    schema.write_text(json.dumps({"properties": {n: {"description": d} for n, d in fields.items()}}), encoding="utf-8")
+    binary = tmp_path / "DATA.DAT"
+    binary.write_bytes(data)
+    out = tmp_path / "out.csv"
+    with patch.object(sys, "argv", ["cobol-etl-unpacker", str(binary), str(schema), "--out", str(out), *extra]):
+        etl_module.main()
+    with open(out, encoding="utf-8", newline="") as f:
+        return list(csv.reader(f))
+
+
+def test_cp273_german_text_decodes(tmp_path):
+    rows = _run(tmp_path, {"NAME": "Legacy PIC: X(8)"}, "MÜLLÄÖß ".encode("cp273"), "--code-page", "cp273")
+    assert rows[1] == ["MÜLLÄÖß"]
+
+
+def test_cp037_default_would_misread_the_german_file(tmp_path):
+    """The same bytes under the old hard-coded cp037 are other letters: the page must be a parameter."""
+    rows = _run(tmp_path, {"NAME": "Legacy PIC: X(4)"}, "ÄÖÜß".encode("cp273"))
+    assert rows[1] != ["ÄÖÜß"]
+
+
+def test_cp277_nordic_text_decodes(tmp_path):
+    rows = _run(tmp_path, {"NAME": "Legacy PIC: X(6)"}, "ÆØÅæøå".encode("cp277"), "--code-page", "cp277")
+    assert rows[1] == ["ÆØÅæøå"]
+
+
+@pytest.mark.parametrize("code_page", ["cp037", "cp277", "cp273", "cp297"])
+def test_signed_zoned_keeps_sign_and_scale(tmp_path, code_page):
+    """S9(5)V99 -1234.50: digits 0123450 with the last byte overpunched negative-zero (X'D0')."""
+    negative_zero = bytes([0xD0]).decode(code_page)  # cp037 '}', cp277 'å', cp273 'ü', cp297 'è'
+    data = ("012345" + negative_zero).encode(code_page)
+    assert data == bytes.fromhex("F0F1F2F3F4F5D0")
+    rows = _run(tmp_path, {"AMOUNT": "Legacy PIC: S9(5)V99"}, data, "--code-page", code_page)
+    assert rows[1] == ["-1234.50"]
+
+
+def test_positive_overpunch_and_unsigned_zoned(tmp_path):
+    fields = {"A": "Legacy PIC: S9(3)V99", "B": "Legacy PIC: 9(3)V99"}
+    data = bytes.fromhex("F0F1F2F5C0") + bytes.fromhex("F0F0F0F1F0")  # +12.50 overpunched, unsigned 0.10
+    rows = _run(tmp_path, fields, data)
+    assert rows[1] == ["12.50", "0.10"]
+
+
+def test_comp3_ten_cents_is_exact(tmp_path):
+    """S9(7)V99 COMP-3 0.10 -> X'000000010C': exactly 0.10, not 0.1 or 0.09999999999999999."""
+    rows = _run(tmp_path, {"AMT": "Legacy PIC: S9(7)V99 COMP-3"}, bytes.fromhex("000000010C"))
+    assert rows[1] == ["0.10"]
+    assert etl_module.unpack_comp3(bytes.fromhex("000000010C"), 2) == Decimal("0.10")
+
+
+def test_comp3_negative_zero_and_tiny_values_have_no_exponent():
+    assert etl_module.format_number(etl_module.unpack_comp3(bytes.fromhex("000000000D"), 2)) == "0.00"
+    assert etl_module.format_number(etl_module.unpack_comp3(bytes.fromhex("1C"), 7)) == "0.0000001"
+
+
+@pytest.mark.parametrize("raw", ["F1F2C1F3", "40404040", "F1F2F381"])
+def test_corrupt_zoned_raises_never_zero(raw):
+    """A sign mid-field, spaces, or a lowercase letter is not a zoned number (#3833)."""
+    with pytest.raises(etl_module.UnpackError, match="not a valid zoned decimal"):
+        etl_module.unpack_zoned(bytes.fromhex(raw), 2)
+
+
+def test_corrupt_packed_raises_never_zero():
+    with pytest.raises(etl_module.UnpackError, match="not a valid packed decimal"):
+        etl_module.unpack_comp3(bytes.fromhex("1A3C"), 0)  # digit nibble A
+    with pytest.raises(etl_module.UnpackError, match="not a valid packed decimal"):
+        etl_module.unpack_comp3(bytes.fromhex("1234"), 0)  # sign nibble 4
+
+
+def test_corrupt_record_stops_the_run_naming_record_and_field(tmp_path, capsys):
+    """The old unpacker wrote 0.0 for the bad record; now the run fails loudly and leaves no CSV."""
+    fields = {"NAME": "Legacy PIC: X(3)", "AMOUNT": "Legacy PIC: S9(3)V99"}
+    good = "BOB".encode("cp037") + bytes.fromhex("F0F1F2F5C0")
+    bad = "EVE".encode("cp037") + "12.50".encode("cp037")
+    with pytest.raises(SystemExit) as exit_info:
+        _run(tmp_path, fields, good + bad)
+    assert exit_info.value.code == 1
+    out = capsys.readouterr().out
+    assert "record 2, field AMOUNT" in out
+    assert not (tmp_path / "out.csv").exists()
+
+
+def test_unpack_file_raises_for_bad_data(tmp_path):
+    schema = tmp_path / "schema.json"
+    schema.write_text(json.dumps({"properties": {"N": {"description": "Legacy PIC: 9(3)"}}}), encoding="utf-8")
+    binary = tmp_path / "D.DAT"
+    binary.write_bytes(bytes.fromhex("F1F2F3") + bytes.fromhex("404040"))
+    with pytest.raises(etl_module.UnpackError, match="record 2, field N"):
+        etl_module.unpack_ebcdic_file(binary, schema, tmp_path / "o.csv")
+
+
+@pytest.mark.parametrize("code_page, message", [("utf-8", "not an EBCDIC code page"), ("cp999", "not a known")])
+def test_bad_code_page_is_rejected(tmp_path, capsys, code_page, message):
+    with pytest.raises(SystemExit) as exit_info:
+        _run(tmp_path, {"N": "Legacy PIC: 9(3)"}, bytes.fromhex("F1F2F3"), "--code-page", code_page)
+    assert exit_info.value.code == 2
+    assert message in capsys.readouterr().out

@@ -5,6 +5,10 @@ currency_eur_u|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data
 currency_eur_u|cp037|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp037|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_eur_u|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_eur_u|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+currency_eur_u|cp1140|refractor	refractor read lines: want 37, got 1
+currency_eur_u|cp1140|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_eur_u|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_eur_u|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 currency_eur_u|cp273|refractor	refractor read lines: want 37, got 1
 currency_eur_u|cp273|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
@@ -27,30 +31,112 @@ currency_eur_u|cp297|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIM
 currency_eur_u|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_eur_u|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 currency_eur_u|utf8|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_euro|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+currency_euro|cp1140|refractor	refractor read lines: want 37, got 1
+currency_euro|cp1140|runtime-run	edited (default): want ' €1,234.50', got '€€€,€€4.50'
+currency_euro|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_euro|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_euro|utf8|runtime-run	edited (default): want ' €1,234.50', got '€€€,€€4.50'
+currency_inr|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_inr|cp037|refractor	refractor read lines: want 37, got 1
+currency_inr|cp037|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+currency_inr|cp1140|refractor	refractor read lines: want 37, got 1
+currency_inr|cp1140|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
+currency_inr|cp273|refractor	refractor read lines: want 37, got 1
+currency_inr|cp273|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
+currency_inr|cp277|refractor	refractor read lines: want 37, got 1
+currency_inr|cp277|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
+currency_inr|cp278|refractor	refractor read lines: want 37, got 1
+currency_inr|cp278|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
+currency_inr|cp285|refractor	refractor read lines: want 37, got 1
+currency_inr|cp285|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
+currency_inr|cp297|refractor	refractor read lines: want 37, got 1
+currency_inr|cp297|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
+currency_inr|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_inr|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_inr|utf8|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_pound|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 currency_pound|cp037|refractor	refractor read lines: want 37, got 1
+currency_pound|cp037|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_pound|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+currency_pound|cp1140|refractor	refractor read lines: want 37, got 1
+currency_pound|cp1140|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
+currency_pound|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 currency_pound|cp273|refractor	refractor read lines: want 37, got 1
+currency_pound|cp273|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
 currency_pound|cp277|refractor	refractor read lines: want 37, got 1
+currency_pound|cp277|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
 currency_pound|cp278|refractor	refractor read lines: want 37, got 1
+currency_pound|cp278|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
 currency_pound|cp285|refractor	refractor read lines: want 37, got 1
+currency_pound|cp285|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
 currency_pound|cp297|refractor	refractor read lines: want 37, got 1
+currency_pound|cp297|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
 currency_pound|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 currency_pound|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_pound|utf8|runtime-run	edited (default): want ' £1,234.50', got '£££,££4.50'
+currency_rs_lakh|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_rs_lakh|cp037|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp037|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+currency_rs_lakh|cp1140|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp1140|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
+currency_rs_lakh|cp273|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp273|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
+currency_rs_lakh|cp277|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp277|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
+currency_rs_lakh|cp278|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp278|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
+currency_rs_lakh|cp285|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp285|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
+currency_rs_lakh|cp297|refractor	refractor read lines: want 37, got 1
+currency_rs_lakh|cp297|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rs_lakh|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+currency_rs_lakh|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_rs_lakh|utf8|schema	ACCT_DUE_ED column: want 'DECIMAL(8, 2)', got 'DECIMAL(3, 2)'
+currency_rupee|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+currency_rupee|utf8|runtime-run	edited (default): want ' ₹1,234.50', got '₹₹₹,₹₹4.50'
 decimal_comma|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 decimal_comma|cp037|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp037|refractor	refractor read lines: want 37, got 1
 decimal_comma|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+decimal_comma|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+decimal_comma|cp1140|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
+decimal_comma|cp1140|refractor	refractor read lines: want 37, got 1
+decimal_comma|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 decimal_comma|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 decimal_comma|cp273|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp273|refractor	refractor read lines: want 37, got 1
@@ -75,58 +161,91 @@ decimal_comma|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data i
 decimal_comma|utf8|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 intdate_lilian|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 intdate_lilian|cp037|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp037|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+intdate_lilian|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+intdate_lilian|cp1140|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp1140|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
+intdate_lilian|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 intdate_lilian|cp273|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp273|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
 intdate_lilian|cp277|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp277|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
 intdate_lilian|cp278|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp278|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
 intdate_lilian|cp285|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp285|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
 intdate_lilian|cp297|refractor	refractor read lines: want 35, got 1
+intdate_lilian|cp297|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 intdate_lilian|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+intdate_lilian|utf8|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 plain|cp037|refractor	refractor read lines: want 34, got 1
+plain|cp037|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
+plain|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+plain|cp1140|refractor	refractor read lines: want 34, got 1
+plain|cp1140|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
+plain|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 plain|cp273|refractor	refractor read lines: want 34, got 1
+plain|cp273|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
 plain|cp277|refractor	refractor read lines: want 34, got 1
+plain|cp277|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
 plain|cp278|refractor	refractor read lines: want 34, got 1
+plain|cp278|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
 plain|cp285|refractor	refractor read lines: want 34, got 1
+plain|cp285|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
 plain|cp297|refractor	refractor read lines: want 34, got 1
+plain|cp297|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 plain|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_UP')], got []
 plain|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+plain|utf8|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp037|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
 rounded_nearest_even|cp037|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp037|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp037|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
+rounded_nearest_even|cp1140|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp1140
+rounded_nearest_even|cp1140|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp1140|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
+rounded_nearest_even|cp1140|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|cp273|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp273
 rounded_nearest_even|cp273|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp273|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp273|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|cp277|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp277
 rounded_nearest_even|cp277|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp277|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp277|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|cp278|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp278
 rounded_nearest_even|cp278|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp278|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp278|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|cp285|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp285
 rounded_nearest_even|cp285|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp285|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp285|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|cp297|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp297
 rounded_nearest_even|cp297|refractor	refractor read lines: want 34, got 1
+rounded_nearest_even|cp297|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 rounded_nearest_even|cp297|ticket	ticket rounding: want [('COMPUTE', 'WS-INT', 'HALF_EVEN')], got []
 rounded_nearest_even|utf8|decoder	EbcdicDecoderUtil decodes with ['Cp1047'], the data is cp037
+rounded_nearest_even|utf8|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'

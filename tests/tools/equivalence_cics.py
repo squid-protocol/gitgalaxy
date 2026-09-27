@@ -320,11 +320,13 @@ def stub_files(ir: Any, program_file: str) -> list[dict[str, Any]]:
 
 
 # ---- field values <-> bytes -----------------------------------------------------------
-def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) -> bytes:
-    """A value as the field stores it (the inverse of equivalence.decode_field)."""
+def encode_field(
+    value: Any, pic: str | None, usage: str | None, nbytes: int, enc: str = common.DEFAULT_DATA_ENCODING
+) -> bytes:
+    """A value as the field stores it (the inverse of equivalence.decode_field); #3815: text in `enc`."""
     num = common._pic_numeric(pic) if pic else None
     if num is None:
-        return str(value).encode("latin-1")[:nbytes].ljust(nbytes, b" ")
+        return common.text_bytes(str(value), nbytes, enc)
     signed, digits, scale = num
     n = int((Decimal(str(value)) * (Decimal(10) ** scale)).to_integral_value())
     u = (usage or "DISPLAY").upper()
@@ -336,13 +338,16 @@ def encode_field(value: Any, pic: str | None, usage: str | None, nbytes: int) ->
     text = f"{abs(n):0{digits}d}"[-digits:]
     if signed:
         last = int(text[-1])
-        text = text[:-1] + ("}JKLMNOPQR"[last] if n < 0 else "{ABCDEFGHI"[last])
-    return text.encode("latin-1")
+        pos, neg = common.zoned_sign_characters(common.sign_page(enc))  # cp037: `{ABCDEFGHI` / `}JKLMNOPQR`
+        text = text[:-1] + (neg[last] if n < 0 else pos[last])
+    return text.encode(enc)
 
 
-def encode_record(fields: list[dict[str, Any]], values: dict[str, Any], fill: bytes) -> bytes:
+def encode_record(
+    fields: list[dict[str, Any]], values: dict[str, Any], fill: bytes, enc: str = common.DEFAULT_DATA_ENCODING
+) -> bytes:
     """A record from {field name: value}; every field not named is `fill` (for a COMMAREA,
-    INITIALIZE's spaces / zeros; for map input, the nulls CICS leaves in an untouched field)."""
+    INITIALIZE's spaces / zeros; for map input, the nulls CICS leaves in an untouched field). #3815: in `enc`."""
     size = max((f["offset"] + f["bytes"] for f in fields), default=0)
     rec = bytearray(size)
     names = {f["name"] for f in fields}
@@ -352,38 +357,39 @@ def encode_record(fields: list[dict[str, Any]], values: dict[str, Any], fill: by
     for f in fields:
         sl = slice(f["offset"], f["offset"] + f["bytes"])
         if isinstance(values.get(f["name"]), bytes):  # already the field's bytes
-            rec[sl] = values[f["name"]][: f["bytes"]].ljust(f["bytes"], b" ")
+            rec[sl] = values[f["name"]][: f["bytes"]].ljust(f["bytes"], " ".encode(enc))
         elif f["name"] in values:
-            rec[sl] = encode_field(values[f["name"]], f["pic"], f["usage"], f["bytes"])
+            rec[sl] = encode_field(values[f["name"]], f["pic"], f["usage"], f["bytes"], enc)
         elif fill == b"init":
             num = common._pic_numeric(f["pic"]) if f["pic"] else None
-            rec[sl] = encode_field(0 if num else "", f["pic"], f["usage"], f["bytes"])
+            rec[sl] = encode_field(0 if num else "", f["pic"], f["usage"], f["bytes"], enc)
         else:
             rec[sl] = fill * f["bytes"]
     return bytes(rec)
 
 
-def decode_record(data: bytes, fields: list[dict[str, Any]]) -> dict[str, str]:
+def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.DEFAULT_DATA_ENCODING) -> dict[str, str]:
     """{field name: value as text} -- numeric fields as exact decimals, text with trailing
-    spaces and nulls dropped (a screen shows neither)."""
+    spaces and nulls dropped (a screen shows neither). #3815: text and zoned bytes read in `enc`."""
     out = {}
     for f in fields:
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
             continue
-        v = common.decode_field(raw, f["pic"], f["usage"], sign_separate=f.get("sign_separate", False))
+        v = common.decode_field(raw, f["pic"], f["usage"], common.sign_page(enc), f.get("sign_separate", False),
+                                enc)  # fmt: skip
         out[f["name"]] = str(v) if not isinstance(v, str) else v.rstrip(" \x00")
     return out
 
 
-def map_input(fields: list[dict[str, Any]], values: dict[str, str]) -> bytes:
+def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = common.DEFAULT_DATA_ENCODING) -> bytes:
     """A RECEIVE MAP input area: nulls everywhere, and for each field the user typed in
     ({"ACCTSIDI": "00000000011"}) its data and its length (<name>L)."""
     typed: dict[str, Any] = {}
     for field, text in values.items():
-        typed[field] = text.encode("latin-1")  # what was typed, whatever the field's PICIN
+        typed[field] = text.encode(enc)  # what was typed, whatever the field's PICIN
         typed[field[:-1] + "L"] = len(text.rstrip())
-    return encode_record(fields, typed, b"\x00")
+    return encode_record(fields, typed, b"\x00", enc)
 
 
 # ---- running a case -------------------------------------------------------------------
@@ -415,9 +421,13 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
-    source, option_flags = common.compile_options(case, (corpus / case["program_source"]).read_text(encoding="latin-1"))
+    common.require_ascii_runtime(case)  # #3815: an EBCDIC data page cannot run under GnuCOBOL
+    enc = common.data_encoding(case)
+    # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
+    program, staged = common.read_program(case, corpus / case["program_source"])
+    source, option_flags = common.compile_options(case, program)
     text, has_commarea = translate(source)
-    (src / "PROGRAM.cbl").write_text(text, encoding="latin-1")
+    (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
         f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}\n" for f in files
@@ -428,7 +438,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
         (work / "files" / f["base"]).write_bytes(
-            common._fixed(common._input_path(case, corpus, spec["input"]), f["reclen"])
+            common._fixed(common._input_path(case, corpus, spec["input"]), f["reclen"], enc)
         )
     ca_fields = commarea_fields(corpus, case)
     compile_task = (
@@ -442,9 +452,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         (d / "out").mkdir(parents=True, exist_ok=True)
         shutil.copy(work / "files.cfg", d / "files.cfg")
         if sc.get("commarea") is not None:
-            (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init"))
+            (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
         for m, typed in (sc.get("receive") or {}).items():
-            (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed))
+            (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
         y, mo, dd = date.split("/")
         eib_date = f"{int(y) - 1900:03d}{_day_of_year(int(y), int(mo), int(dd)):03d}"[-7:].rjust(7, "0")
         eib_time = "0" + time.replace(":", "")[:6]
@@ -476,6 +486,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     ([{map, fields}] per SEND MAP, data fields only: <name>O -> <name>), `text` (SEND TEXT),
     `return` ({transid, commarea fields}), `xctl` ({program, commarea fields}), `abend`."""
     res: dict[str, Any] = {"events": [], "screens": [], "text": [], "return": None, "xctl": None, "abend": None}
+    enc = common.data_encoding(case)  # #3815: the areas' page; the stub's own log is ASCII, read losslessly
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -486,13 +497,15 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         data = blob.read_bytes() if blob.is_file() else b""
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
-            vals = decode_record(data, fields)
+            vals = decode_record(data, fields, enc)
             res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")}})
         elif verb == "SEND-TEXT":
-            res["text"].append(data.decode("latin-1").rstrip(" \x00"))
+            text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
+            res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
         elif verb in ("RETURN", "XCTL"):
             key = "transid" if verb == "RETURN" else "program"
-            res[verb.lower()] = {key: kv.get(key, ""), "commarea": decode_record(data, ca_fields) if data else None}
+            ca = decode_record(data, ca_fields, enc) if data else None
+            res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
     return res
@@ -613,7 +626,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 @SpringBootTest(properties = {{"spring.jpa.show-sql=false", "gitgalaxy.clock={ej._clock(case)}"}})
 class EquivalenceRunTest {{
 
-    static final Charset TEXT = StandardCharsets.ISO_8859_1;
+    static final Charset TEXT = {common.java_charset(common.data_encoding(case))};
     final Path in = Path.of(System.getProperty("equivalence.in"));
     final Path out = Path.of(System.getProperty("equivalence.out"));
     final ObjectMapper json = new ObjectMapper().findAndRegisterModules();
@@ -686,7 +699,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     for sc in case["scenarios"]:
         ca = None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
-            ca = to_java(decode_record(encode_record(ca_fields, sc["commarea"], b"init"), ca_fields), shape)
+            enc = common.data_encoding(case)  # #3815
+            ca = to_java(decode_record(encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc), shape)
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
         receive = {

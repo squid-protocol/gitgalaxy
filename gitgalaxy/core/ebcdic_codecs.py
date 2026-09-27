@@ -73,12 +73,11 @@ def _codec_info(name: str) -> codecs.CodecInfo | None:
 # EBCDIC pages, Python's and these: a file decoded with one is a record-oriented mainframe file
 EBCDIC_CODE_PAGES = frozenset({"cp037", "cp273", "cp500", "cp1140", "cp875", "cp1026", *_OVERRIDES})
 
-_registered = False
-
 
 def register() -> None:
-    """Make the pages known to `codecs` (idempotent; importing gitgalaxy.core.source_text calls it)."""
-    global _registered
-    if not _registered:
+    """Make the pages known to `codecs` -- idempotent: once cp277 resolves, they are registered
+    (importing gitgalaxy.core.source_text calls it)."""
+    try:
+        codecs.lookup("cp277")
+    except LookupError:
         codecs.register(_codec_info)
-        _registered = True

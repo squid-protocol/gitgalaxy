@@ -780,3 +780,41 @@ def test_gated_scan_content_matches_ungated(lens):
     ]
     for src in samples:
         assert lens.scan_content(src) == ungated.scan_content(src), f"gating changed output for {src!r}"
+
+
+# ==============================================================================
+# Multilingual credential names (#3832)
+# ==============================================================================
+@pytest.mark.parametrize(
+    "src",
+    [
+        'String senha = "abcdefghijklmnop1234";',  # Portuguese
+        'passwort: "abcdefghijklmnop1234"',  # German
+        'kennwort = "abcdefghijklmnop1234"',
+        'contraseña = "abcdefghijklmnop1234"',  # Spanish
+        'contrasena = "abcdefghijklmnop1234"',
+        'clave = "abcdefghijklmnop1234"',
+        'mot_de_passe = "abcdefghijklmnop1234"',  # French
+        'wachtwoord = "abcdefghijklmnop1234"',  # Dutch
+        'LÖSENORD = "abcdefghijklmnop1234"',  # Swedish
+        'losenord = "abcdefghijklmnop1234"',
+        "       05 WS-PASSWORT      PIC X(16) VALUE 'GEHEIM'.",
+        "       05 SENHA-USUARIO    PIC X(8)  VALUE 'S3NH4'.",
+        "       05 CONTRASENA-USR   PIC X(8)  VALUE 'CLAVE1'.",
+        "       05 MOT-DE-PASSE     PIC X(8)  VALUE 'SECRET'.",
+    ],
+)
+def test_hardcoded_secrets_knows_non_english_credential_names(lens, src):
+    assert lens.scan_content(src)["counts"].get("hardcoded_secrets", 0) > 0, src
+
+
+@pytest.mark.parametrize(
+    "src",
+    [
+        'clavel = "abcdefghijklmnop1234"',  # a carnation, not a key
+        'senha = "short"',  # below the 16-char literal floor
+        "       05 SENHA-USUARIO    PIC X(8).",  # no VALUE literal
+    ],
+)
+def test_hardcoded_secrets_non_english_names_keep_the_shape_guards(lens, src):
+    assert lens.scan_content(src)["counts"].get("hardcoded_secrets", 0) == 0, src

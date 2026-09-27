@@ -21,10 +21,9 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
-
-from gitgalaxy.core.source_text import read_source
 
 
 def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False) -> dict:

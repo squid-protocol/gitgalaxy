@@ -106,7 +106,12 @@ def validate(registry: dict[str, Any], ledger: dict[str, Any], corpora: list[str
         if where in seen:
             errors.append(f"{where}: duplicate defect id")
         seen.add(where)
-        if d.get("estate") not in ids:
+        if d.get("found_by") == REVIEW:
+            if d.get("estate") is not None:
+                errors.append(f"{where}: a defect found by review names no estate (after_round says when)")
+            if not isinstance(d.get("after_round"), int) or not 0 <= d["after_round"] <= max(rounds, default=0):
+                errors.append(f"{where}: a defect found by review needs after_round, the last round checked before it")
+        elif d.get("estate") not in ids:
             errors.append(f"{where}: unknown estate {d.get('estate')}")
         if d.get("side") not in SIDES:
             errors.append(f"{where}: side must be one of {SIDES}")
@@ -122,6 +127,17 @@ def validate(registry: dict[str, Any], ledger: dict[str, Any], corpora: list[str
         if not d.get("summary"):
             errors.append(f"{where}: summary is required")
     return errors
+
+
+# A defect found by reading code, not by checking an estate (#3898, found writing #3833's porting rules):
+# it names no estate, only `after_round`, the last round checked before it was found. It still resets
+# its fields' clean rounds from there -- those rounds did not catch it.
+REVIEW = "review"
+
+
+def defect_round(d: dict[str, Any], order: dict[str, int]) -> int:
+    """The round a defect counts against: its estate's, or for one found by review, `after_round`."""
+    return d["after_round"] if d.get("found_by") == REVIEW else order[d["estate"]]
 
 
 def tested(estate: dict[str, Any], field: str, ledger: dict[str, Any]) -> bool:
@@ -155,7 +171,7 @@ def counters(registry: dict[str, Any], ledger: dict[str, Any]) -> list[dict[str,
             d for d in registry["defects"] if field in d["fields"] and d["side"] == "engine" and d["severity"] == "fact"
         ]
         forge = [d for d in registry["defects"] if field in d["fields"] and d["side"] == "forge"]
-        last = max((order[d["estate"]] for d in engine), default=0)
+        last = max((defect_round(d, order) for d in engine), default=0)
         dev = registry["fields"][field]["development_rounds"]
         fresh = [e for e in hit if e["round"] > dev]
         clean_estates = [e for e in fresh if e["round"] > last]
@@ -201,6 +217,10 @@ def _bound(facts: int) -> str:
     return f"{300 / facts:.1f}%" if facts >= 3 else "-"
 
 
+def _round_cell(d: dict[str, Any], order: dict[str, int]) -> str:
+    return f"review, after {d['after_round']}" if d.get("found_by") == REVIEW else str(order[d["estate"]])
+
+
 def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:
     rows = counters(registry, ledger)
     out = [
@@ -239,7 +259,7 @@ def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:
             "|---|---|---|---|---|---|---|---|"]  # fmt: skip
     for e in registry["estates"]:
         asked, key_errors = estate_census(e["id"]) if e["kind"] == "public" else (0, 0)
-        ds = [d for d in registry["defects"] if d["estate"] == e["id"]]
+        ds = [d for d in registry["defects"] if d.get("estate") == e["id"]]
         count = {s: sum(1 for d in ds if d["side"] == s) for s in SIDES}
         name = e["id"] if e["kind"] == "public" else e.get("label", e["id"])
         out.append(
@@ -252,7 +272,7 @@ def render(registry: dict[str, Any], ledger: dict[str, Any]) -> str:
     for d in registry["defects"]:
         ref = " / ".join(x for x in (f"#{d['issue']}" if d.get("issue") else "", d.get("fixed_by") or "") if x)
         out.append(
-            f"| {d['id']} | {order[d['estate']]} | {d['side']} | {d['severity']} | {', '.join(d['fields'])} | "
+            f"| {d['id']} | {_round_cell(d, order)} | {d['side']} | {d['severity']} | {', '.join(d['fields'])} | "
             f"{ref} | {d['summary'].replace('|', '/')} |"
         )
     out += [

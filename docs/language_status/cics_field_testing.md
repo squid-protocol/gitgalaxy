@@ -34,7 +34,6 @@ counted in it (their fact counts are not recorded here).
 | dead | 4 | 0 | 2 | 143 | 0 | 5 | 2 | 34 | 8.8% | open | 266 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 70 | 0 | 0 | 2 | 30 | 10.0% | open | 270 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 0 | 0 | 1 | 22 | 13.6% | open | 1 more clean fresh round(s), 278 more clean fresh facts |
-| file control | 4 | 0 | 1 | 89 | 0 | 0 | 1 | 22 | 13.6% | open | 1 more clean fresh round(s), 278 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 0 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
@@ -55,6 +54,7 @@ counted in it (their fact counts are not recorded here).
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | JCL runner programs | 4 | 0 | 0 | 86 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| file control | 4 | 0 | 1 | 89 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I data moves | 2 | 0 | 0 | 1,657 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -115,6 +115,7 @@ counted in it (their fact counts are not recorded here).
 | D025 | 4 | engine | attribute | record fields | #3688 / #3702 | A caller's record always outranked the program's own concrete DFHCOMMAREA: GENAPP's five lg*vs01 took a caller record of unknown width over their declared 32,500 bytes, and CBSA's BNK1UAC / UPDACC silently took a caller layout of another size (now the declaration, with each disagreeing caller a conflict). |
 | D026 | 6 | engine | attribute | CALL USING, PL/I record fields | #3720 / #3729 | PL/I storage widths came from the COBOL sizing: a spaced picture repeat `PIC '( 4)9'` read as 5 bytes, so both of DSF's COBOL CALLs into PL/I routines (R001NRCO, R001NACO) mismatched on IN_TKNR, and a CHAR parameter had no width. PL/I items are now mapped by IBM's structure-mapping rules (pli_mapping): both contracts pair with every length matching. |
 | D027 | 6 | engine | fact | PL/I layouts | #3728 / #3737 | An %INCLUDE inside a PL/I declaration was dropped: a structure whose remaining members come from the included member (DSF's TRANHISTSEGM, `4 XSPERRE CHAR(1), %INCLUDE P0019940;`) was laid out from the members before it alone -- a complete-looking 39 bytes. The include is now recorded where it stands (copy_members); a member in the repository is spliced in and nested by level number, and one that is missing leaves the width unknown, named in `unexpanded`. |
+| D028 | review, after 6 | engine | fact | file control | #3898 | A bare `LINE SEQUENTIAL` (ORGANIZATION is optional in a SELECT) was recorded as SEQUENTIAL, so a Micro Focus / GnuCOBOL short-form file got the RECFM=FB porting rule instead of one record per line. Found writing #3833's porting rules; no pinned corpus uses LINE SEQUENTIAL. Micro Focus `RECORD SEQUENTIAL` is now SEQUENTIAL too. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

@@ -249,6 +249,62 @@ def _init_worker(
     _worker_state["guidestar"].scan_project_config()
 
 
+# A scan this small is extracted in-process: starting a worker costs more than its files do. Under
+# the `spawn` start method (Windows, macOS) every worker re-imports GitGalaxy and re-compiles the
+# language registry -- seconds each -- to extract files that take milliseconds (#3913).
+_INLINE_MAX_FILES = 16
+
+
+class _InlineExecutor:
+    """The worker pool's interface, run in this process: `_init_worker` once, then each
+    `_process_file_worker` call at `submit`, its result or exception held in a done Future -- the
+    same code on the same inputs, without a process boundary.
+
+    What the boundary gave the pool, kept here: the worker's arguments are copies (the pool pickled
+    them), and the root log level and SIGALRM handler `_init_worker` / the ReDoS fuse set are put
+    back when the pass ends. The fuse needs the main thread (`signal.signal`); from any other thread
+    the pool is used instead (see `_can_run_inline`)."""
+
+    def __init__(self, initializer, initargs):
+        import copy
+
+        self._initializer = initializer
+        self._initargs = copy.deepcopy(initargs)
+
+    def __enter__(self):
+        import signal
+
+        self._log_level = logging.getLogger().level
+        self._alarm = signal.getsignal(signal.SIGALRM) if hasattr(signal, "SIGALRM") else None
+        self._initializer(*self._initargs)
+        return self
+
+    def submit(self, fn, *args):
+        future: concurrent.futures.Future = concurrent.futures.Future()
+        try:
+            future.set_result(fn(*args))
+        except Exception as e:  # delivered through the Future, as the pool does
+            future.set_exception(e)
+        return future
+
+    def shutdown(self, wait=True, cancel_futures=False):  # noqa: ARG002 -- the executor interface
+        return None
+
+    def __exit__(self, *exc):
+        import signal
+
+        logging.getLogger().setLevel(self._log_level)
+        if self._alarm is not None:
+            signal.signal(signal.SIGALRM, self._alarm)
+        return False
+
+
+def _can_run_inline() -> bool:
+    import threading
+
+    return threading.current_thread() is threading.main_thread()
+
+
 def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def: dict[str, Any]) -> set[str]:
     """The import tokens a language's `_dependency_capture` finds in `content`.
 
@@ -2112,18 +2168,26 @@ class Orchestrator:
         worker_log_level = logging.DEBUG if current_log_level == logging.DEBUG else logging.WARNING
         completed_count = 0
 
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=max_workers,
-            initializer=_init_worker,
-            initargs=(
-                str(self.root),
-                self.config,
-                self.ext_tally,
-                worker_log_level,
-                self.git_tracked_files,
-                self.census,
-            ),
-        ) as executor:
+        initargs = (
+            str(self.root),
+            self.config,
+            self.ext_tally,
+            worker_log_level,
+            self.git_tracked_files,
+            self.census,
+        )
+        # #3913: never more workers than files, and none at all for a small scan (or a pinned
+        # single worker) -- the files are extracted in this process, by the same worker code.
+        max_workers = min(max_workers, total_files)
+        inline = (max_workers == 1 or total_files <= _INLINE_MAX_FILES) and _can_run_inline()
+        pool: Any = (
+            _InlineExecutor(_init_worker, initargs)
+            if inline
+            else concurrent.futures.ProcessPoolExecutor(
+                max_workers=max_workers, initializer=_init_worker, initargs=initargs
+            )
+        )
+        with pool as executor:
             # Map futures to their file paths in a tracking dictionary.
             # #3175: submit LARGEST-FIRST (LPT scheduling). A single mega-file can be
             # 10-40% of a mega-repo's extraction wall; if it is dequeued late the pool

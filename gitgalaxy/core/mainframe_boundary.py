@@ -338,6 +338,7 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # The keyword is delimited by COBOL name-character boundaries, not `\b`: `-` is a
 # name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
+_QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
     r"(?<![A-Z"
@@ -835,6 +836,11 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
         pic = pic_match.group(1).rstrip(".") if pic_match else None
         usage_match = _USAGE_CLAUSE.search(window)
         usage = usage_match.group(1).upper() if usage_match else None
+        if usage == "NATIONAL":
+            # #3816: NATIONAL is also plain prose -- NIST's `VALUE "... NATIONAL INSTITUTE OF STD & TECH"` --
+            # so it counts only outside a quoted literal (the older usages keep their exact behaviour)
+            usage_match = _USAGE_CLAUSE.search(_QUOTED.sub(lambda q: " " * len(q.group(0)), window))
+            usage = usage_match.group(1).upper() if usage_match else None
 
         # #3816: PIC G is always DISPLAY-1 (DBCS); PIC N is NATIONAL unless NSYMBOL(DBCS); a group's
         # USAGE NATIONAL / DISPLAY-1 applies to its members. (Other group usages are not inherited here.)

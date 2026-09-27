@@ -78,6 +78,7 @@ ALLOWLIST = {
     "RESP": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "ABCODE": "EXEC CICS option keyword parsed from source (uow_handlers.py, #3453)",
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
+    "NSYMBOL": "CBL / PROCESS compiler option parsed from source (compiler_options.py; read by mainframe_boundary, #3816)",
     # --- Written by an external producer ---
     # The AI agent a Java service ticket goes to returns {"diagnosis", "java_code"}
     # (cobol_to_java_agent_forge's system prompt); the guardrail (#3652) reads it.

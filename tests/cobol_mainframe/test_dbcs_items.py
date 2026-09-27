@@ -208,3 +208,16 @@ def test_other_group_usages_are_not_pushed_onto_members():
 """
     records = extract_boundary("cobol", src)["records"]
     assert records[1]["usage"] is None
+
+
+def test_national_in_a_value_literal_is_not_a_usage():
+    """#3816: NIST CCVS85's `VALUE "... NATIONAL INSTITUTE OF STD & TECH."` must not make a PIC X NATIONAL."""
+    src = """
+       01 R.
+          02 FILLER PIC X(58) VALUE
+            "ON-SITE VALIDATION, NATIONAL INSTITUTE OF STD & TECH.     ".
+          02 N1 PIC X(4) USAGE NATIONAL.
+"""
+    records = extract_boundary("cobol", src)["records"]
+    assert records[1]["usage"] is None
+    assert records[2]["usage"] == "NATIONAL"

@@ -12138,8 +12138,10 @@
 <li><strong>Packed Decimal (COMP-3) Decoding</strong>: </li>
 <li>Calculates physical footprint using <code>ceil((digits + 1) / 2)</code>.</li>
 <li>Inspects final nibble for sign (<code>D</code>/<code>B</code> negative; <code>C</code>/<code>A</code>/<code>F</code>/<code>E</code> positive).</li>
-<li>Divides integer by <code>10^decimals</code> according to schema scale.</li>
-<li><strong>EBCDIC Encoding Conversion</strong>: Decodes alphanumeric text and Zoned Decimal numbers to UTF-8 using the IBM US EBCDIC code page (<code>cp037</code>), preserving special characters.</li>
+<li>Scales the digits by <code>10^-decimals</code> as an exact <code>Decimal</code> (never <code>float</code>: 0.10 stays <code>0.10</code>), written with the field's scale and no exponent.</li>
+<li><strong>Zoned Decimal Decoding</strong>: Reads the sign from the last byte's overpunch in the data's own code page (cp037 <code>{A-I</code> / <code>}J-R</code>; cp277 <code>æ</code> / <code>å</code>; ...).</li>
+<li><strong>EBCDIC Encoding Conversion</strong>: Decodes alphanumeric text and Zoned Decimal numbers to UTF-8 in the data's EBCDIC code page: <code>--code-page</code> (default <code>cp037</code>; also cp273, cp277, cp278, cp280, cp284, cp285, cp297, cp500, cp1047, ...).</li>
+<li><strong>Invalid Data Is Loud</strong>: A zoned or packed field that is not a valid number (spaces included) stops the run with an error naming the record and field; no partial CSV is left and no value is written as <code>0.0</code>.</li>
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p><strong>Inputs received:</strong> Raw mainframe binary datasets and GitGalaxy JSON schemas.
@@ -12156,7 +12158,6 @@
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>Only supports standard IBM <code>cp037</code> encoding; international EBCDIC code pages require manual configuration.</li>
 <li>Does not automatically resolve nested OCCURS DEPENDING ON (variable length records) without explicit length headers.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>

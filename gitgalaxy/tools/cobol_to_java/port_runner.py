@@ -46,6 +46,7 @@ from pathlib import Path
 from typing import Any
 
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import count_tokens
 
 PORTS = Path("ai_agent_jobs") / "ports"
 
@@ -237,9 +238,43 @@ def cmd_run(opts: argparse.Namespace) -> int:
     work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
     work.mkdir(parents=True, exist_ok=True)
     system, user = build_prompt(project, ticket)
+    _, prompt_tokens, counter = count_tokens(f"{system}\n\n{user}")
+    print(f"{opts.ticket}: sending {prompt_tokens} prompt tokens (measured with {counter})")
     (work / "prompt.md").write_text(f"{system}\n\n{user}", encoding="utf-8")
     started = _now()
-    answer = ask(opts.backend, system, user, opts, work)
+    try:
+        answer = ask(opts.backend, system, user, opts, work)
+    except urllib.error.HTTPError as e:
+        error_msg = f"HTTP Error {e.code}: {e.read().decode(errors='replace')}"
+        log_event(
+            project,
+            {
+                "event": "no-port",
+                "ticket": opts.ticket,
+                "attempt": attempt,
+                "backend": opts.backend,
+                "model": opts.model,
+                "started": started,
+                "error": error_msg,
+            },
+        )
+        print(f"{opts.ticket}: the backend failed with an error: {error_msg}")
+        return 1
+    except Exception as e:
+        log_event(
+            project,
+            {
+                "event": "no-port",
+                "ticket": opts.ticket,
+                "attempt": attempt,
+                "backend": opts.backend,
+                "model": opts.model,
+                "started": started,
+                "error": str(e),
+            },
+        )
+        print(f"{opts.ticket}: the backend failed with an error: {e}")
+        return 1
     (work / "answer.md").write_text(answer, encoding="utf-8")
     java, notes = extract_java(answer)
     model = opts.model or (shlex.split(opts.command)[0] if opts.command else None)

@@ -27,6 +27,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -179,6 +180,92 @@ def option_rules(options: list[dict[str, Any]]) -> list[str]:
         if str(now.get(option) or "").upper() == value:
             out.append(f"This program's CBL / PROCESS card (line {line_of.get(option)}) sets {text}")
     return out
+
+
+# #3863: COACTVWC's 268 KB prompt came back empty. A ticket over this many tokens is trimmed (trim_ticket).
+TICKET_TOKEN_BUDGET = 64000
+_TIKTOKEN_ENCODING = None
+_TIKTOKEN_TRIED = False
+
+
+def count_tokens(text: str) -> tuple[int, int, str]:
+    """#3863: (bytes, tokens, how counted). tiktoken's o200k_base when it loads -- it is an optional
+    dependency, and its first use downloads the encoding, so offline it fails -- else bytes / 4."""
+    global _TIKTOKEN_ENCODING, _TIKTOKEN_TRIED
+    b = len(text.encode("utf-8"))
+
+    if not _TIKTOKEN_TRIED:
+        _TIKTOKEN_TRIED = True
+        try:
+            import tiktoken
+
+            _TIKTOKEN_ENCODING = tiktoken.get_encoding("o200k_base")
+        except Exception:
+            _TIKTOKEN_ENCODING = None
+
+    if _TIKTOKEN_ENCODING is not None:
+        try:
+            return b, len(_TIKTOKEN_ENCODING.encode(text)), "tiktoken(o200k_base)"
+        except Exception:
+            pass
+
+    return b, math.ceil(b / 4), "bytes/4"
+
+
+def trim_ticket(ticket: dict[str, Any], budget: int) -> None:
+    """#3863: bring a ticket over `budget` tokens down, never silently: the BMS field inventories go
+    first (the generated screen classes already carry them), each replaced by a reference, and the
+    ticket records what was trimmed and its sizes after. A ticket within budget is left byte-identical."""
+    serialized = json.dumps(ticket, indent=2, sort_keys=True)
+    _, t_before, _ = count_tokens(serialized)
+
+    if t_before <= budget:
+        return
+
+    trimmed = []
+
+    # 1. facts.screen_bindings
+    facts_sec = ticket.get("facts", {}).get("sections", {})
+    screen_sec = facts_sec.get("screen_bindings")
+    if screen_sec and "facts" in screen_sec:
+        old_bytes, old_tokens, _ = count_tokens(json.dumps(screen_sec, indent=2, sort_keys=True))
+
+        for fact in screen_sec.get("facts", []):
+            if "fields" in fact:
+                num_fields = len(fact["fields"])
+                map_name = fact.get("map", "")
+                # the screen forge's name (cobol_to_java_screen_forge._plan), unless a clash renamed it
+                class_name = java_class_base(map_name) + "Screen" if map_name else "Screen"
+                fact["fields"] = f"Reference: {class_name} ({num_fields} fields)"
+
+        new_bytes, new_tokens, _ = count_tokens(json.dumps(screen_sec, indent=2, sort_keys=True))
+        if new_bytes < old_bytes:
+            trimmed.append(
+                {
+                    "section": "facts.screen_bindings",
+                    "bytes_before": old_bytes,
+                    "tokens_before": old_tokens,
+                    "bytes_after": new_bytes,
+                    "tokens_after": new_tokens,
+                    "reason": "trimmed screen_bindings fields to references",
+                }
+            )
+
+    if trimmed:
+        ticket["trimmed"] = trimmed
+        sizes = {}
+        for sec_name, sec_val in ticket.items():
+            if sec_name == "facts":
+                for f_sec, f_val in sec_val.get("sections", {}).items():
+                    b, t, _ = count_tokens(json.dumps(f_val, indent=2, sort_keys=True))
+                    sizes[f"facts.{f_sec}"] = {"bytes": b, "tokens": t}
+            else:
+                b, t, _ = count_tokens(json.dumps(sec_val, indent=2, sort_keys=True))
+                sizes[sec_name] = {"bytes": b, "tokens": t}
+        ticket["sizes"] = sizes
+    _, t_after, _ = count_tokens(json.dumps(ticket, indent=2, sort_keys=True))
+    if t_after > budget:  # nothing more may go (the rules never do): say so rather than pretend
+        ticket["over_budget"] = {"budget": budget, "tokens": t_after}
 
 
 def _source_text(path: Path) -> list[str]:
@@ -369,7 +456,7 @@ def write_port_order(out_dir: Path, order: list[dict[str, Any]]) -> None:
 def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dict[str, Any] | None,
                        manifest: dict[str, Any] | None, package: str, target: dict[str, Any],
                        ir_dir: Path | None, clean_room_name: str,
-                       clean_room: Path | None = None) -> dict[str, str]:  # fmt: skip
+                       clean_room: Path | None = None, budget: int = TICKET_TOKEN_BUDGET) -> dict[str, str]:  # fmt: skip
     """Write a ticket per program with business-logic worklist items; {program source: ticket path}.
     With the engine's DB in `clean_room` (#3237) each ticket carries its port order, and
     port_order.json / .md list them most-depended-on first."""
@@ -398,6 +485,8 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
                 source_root = Path(src[: len(src) - len(file)])
         ticket = build_ticket(key, skeleton, java_dir, package, source_root, manifest, items, target,
                               f"{clean_room_name}/06_skeleton/{path.name}")  # fmt: skip
+        if budget > 0:
+            trim_ticket(ticket, budget)
         m = metrics.get(str(file))
         if m is not None:
             ticket["priority"] = {"rank": rank, "of": len(candidates), **m}

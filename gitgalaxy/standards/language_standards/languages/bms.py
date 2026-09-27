@@ -25,13 +25,13 @@ from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBA
 # alphanumerics. CICS caps mapset/map names at 7 characters and field names at
 # 30; the classes below take the permissive union (an over-long name is the
 # assembler's diagnostic to make, not the classifier's).
-_NAME = r"[A-Za-z@#$][A-Za-z0-9@#$]{0,30}"
+_NAME = r"[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$][A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{0,30}"
 # The name field is optional on a macro statement line (an unnamed DFHMDF is a
 # screen literal; the closing DFHMSD TYPE=FINAL is frequently unnamed too), so
 # statement-position rules anchor on "column 1 name-or-nothing, then blanks".
 # The name class contains no whitespace, so `{0,31}` + `[ \t]+` partitions at
 # exactly one position (no backtracking ambiguity, how_to Rule 5/14).
-_STMT = r"^[A-Za-z0-9@#$]{0,31}[ \t]+"
+_STMT = r"^[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{0,31}[ \t]+"
 
 
 DEFINITION: dict[str, Any] = {
@@ -66,7 +66,9 @@ DEFINITION: dict[str, Any] = {
     # nearly every meaningful line; a JS source map (JSON) or linker map never
     # does. Strictly consulted for known extension collisions, never as a global
     # scanner (language_lens.py's Tier 2 guard).
-    "internal_discriminator": re.compile(r"^[A-Za-z0-9@#$]{0,31}[ \t]+DFH(?:MSD|MDI|MDF)\b", re.M | re.I),
+    "internal_discriminator": re.compile(
+        r"^[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{0,31}[ \t]+DFH(?:MSD|MDI|MDF)\b", re.M | re.I
+    ),
     # #2806/#2866 family: a BMS file's units cannot be invoked by name FROM BMS.
     # A map is reached by `EXEC CICS SEND MAP('MAP1') MAPSET('SET1')` in the
     # COBOL/PL/I program, never by any syntax inside the map source itself --
@@ -170,7 +172,7 @@ DEFINITION: dict[str, Any] = {
         # reasoning verbatim: banner prose mentions the macro names as English
         # words ("* THE DFHMDF FIELDS BELOW ...") and must not count.
         "dead_code": re.compile(
-            r"^(?:\.\*|\*)[A-Za-z0-9@#$]{0,31}[ \t]+DFH(?:MSD|MDI|MDF)[ \t]+[A-Z]{1,12}=",
+            r"^(?:\.\*|\*)[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{0,31}[ \t]+DFH(?:MSD|MDI|MDF)[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüñ]{1,12}=",
             re.M | re.I,
         ),
         # doc: no generator-read documentation convention exists for BMS.
@@ -201,9 +203,9 @@ DEFINITION: dict[str, Any] = {
         # import (#2875): the assembler's COPY statement binds a shared member
         # (common for shared field groups / attribute equates) into the map
         # source. One statement, one hit.
-        "import": re.compile(_STMT + r"COPY[ \t]+[A-Za-z@#$]", re.M | re.I),
+        "import": re.compile(_STMT + r"COPY[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$]", re.M | re.I),
         # _dependency_capture: the copied member name, for the dependency graph.
-        "_dependency_capture": re.compile(_STMT + r"COPY[ \t]+([A-Za-z0-9@#$]{1,8})\b", re.M | re.I),
+        "_dependency_capture": re.compile(_STMT + r"COPY[ \t]+([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{1,8})\b", re.M | re.I),
         # ownership (#2882 C1): an author/maintainer tag keyed on a `*` comment
         # line, jcl's rule reshaped to HLASM's column-1 comment marker.
         "ownership": re.compile(
@@ -235,7 +237,7 @@ DEFINITION: dict[str, Any] = {
         # symbols). The name field here may be a sequence symbol (`.SKIP ANOP`)
         # or a SET symbol (`&X SETA 1`), so the class widens to `.`/`&`.
         "macros": re.compile(
-            r"^(?:[.&]?[A-Za-z@#$][A-Za-z0-9@#$]{0,30})?[ \t]+"
+            r"^(?:[.&]?[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$][A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{0,30})?[ \t]+"
             r"(?:MACRO|MEND|MEXIT|AIF|AGO|ANOP|SETA|SETB|SETC|GBLA|GBLB|GBLC|LCLA|LCLB|LCLC)\b",
             re.M | re.I,
         ),

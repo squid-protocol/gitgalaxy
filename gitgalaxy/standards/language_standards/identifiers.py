@@ -71,3 +71,12 @@ def _build() -> tuple[str, str, str, str]:
 # not hidden text.
 ID_START, ID_CONTINUE, VIRAMA, CAPITAL = _build()
 NAME = f"[{ID_START}][{ID_CONTINUE}]*"
+
+# #3814 / #3810: MAINFRAME national characters. EBCDIC's national bytes 0x5B / 0x7B / 0x7C -- `$ # @`
+# on US pages -- display as other characters on national pages (IBM CDRA), so names exported from
+# those systems carry them: cp277 Danish / Norwegian `Å Æ Ø`, cp278 Finnish / Swedish `Å Ä Ö`, cp273
+# German / cp280 Italian `§`, cp284 Spanish `Ñ`, cp285 UK / cp297 French / cp280 `£`, cp297 `à`; Ü for
+# German-keyed names. Mainframe names are upper case; the lower-case forms cover lower-cased exports.
+# Every mainframe reader class that accepts letters also accepts these (tests/core_engine/
+# test_national_names.py checks that no such class is missing them).
+NATIONAL = "ÆØÅÄÖÜÑ§£àæøåäöüñ"

@@ -10200,7 +10200,7 @@ class StructuralExtractor:
         # #3814: `\w` has no combining marks, so a Devanagari / Tamil name (vowel signs,
         # viramas: Mn/Mc) or a decomposed `é` split at the mark -- ID_CONTINUE (UAX #31) keeps them.
         is_swift = self.primary_lang_id == "swift"
-        national = "@#" if self.primary_lang_id in _NATIONAL_CHARACTER_LANGUAGES else ""
+        national = "@#§£" if self.primary_lang_id in _NATIONAL_CHARACTER_LANGUAGES else ""  # §£: #3814
         pattern = (
             rf"[{ID_CONTINUE}./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else rf"[{ID_CONTINUE}{national}./%$():~'\-\[\]]+"
         )

@@ -16,13 +16,14 @@ from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_
 # PL/I identifiers are letters, digits, `_`, `@`, `#` and `$` (IBM Enterprise PL/I
 # Language Reference, "Identifiers"), and real mainframe source also carries national
 # letters -- navikt/DSF names procedures `KONTROLLER_AU_SØKER`. `\w` is Unicode-aware
-# on a str pattern, so `[\w@#$]` covers both. `@#$` are regex NON-word characters, so
+# on a str pattern, so `[\w@#$]` covers both; `§` and `£` (cp273 / cp280 / cp285 national bytes,
+# #3814) are not letters, so they are listed. `@#$` are regex NON-word characters, so
 # a plain `\b` cannot guard a keyword against them (`$STOP` would satisfy `\bSTOP`):
 # every bare keyword below uses these explicit guards instead. `%` joins the left
 # guard wherever the same word is also a preprocessor statement (`%IF`, `%DO`, `%END`).
-_ID = r"[\w@#$]"
-_L = r"(?<![\w@#$%])"
-_R = r"(?![\w@#$])"
+_ID = r"[\w@#$§£]"
+_L = r"(?<![\w@#$§£%])"
+_R = r"(?![\w@#$§£])"
 
 # Condition names an ON statement can install a handler for (Language Reference,
 # "Conditions"), with their documented abbreviations. The file conditions and

@@ -10,15 +10,20 @@ with each field's values chosen for its storage:
 * numeric DISPLAY / COMP-3 / COMP: zero, one, the PICTURE's maximum and its negative
   where signed, the smallest fraction at its scale, exact halves (2.5, 0.5, 0.05 ...: the ties
   where ROUNDED modes differ, #3825), and values in between;
-* a date-shaped text field (named *DATE*, ten bytes): a valid YYYY-MM-DD.
+* a date-shaped text field (named *DATE*, ten bytes): a valid YYYY-MM-DD; #3829: a field whose name
+  has a date word in another language as one of its parts (DATUM, FECHA, DATA, DATO, TARIKH ...),
+  or an English DATE part, of eight or six bytes: a valid YYYYMMDD / YYMMDD.
 
 A case steers what the program must meet:
 
     "generate": {"copybook": "app/cpy/CVACT01Y.cpy", "record": "ACCOUNT-RECORD", "records": 40, "seed": 7,
                  "fields": {"ACCT-GROUP-ID": {"values": ["A000000000", "DEFAULT"]},
                             "DIS-TRAN-TYPE-CD": {"values": ["01", "02"], "every": 3},
-                            "XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.1}}}
+                            "XREF-ACCT-ID": {"from": "ACCTFILE.ACCT-ID", "miss": 0.1},
+                            "KTO-DATUM": {"date": "DD.MM.YYYY"}}}
 
+`date` (#3829) gives a field valid dates in a shape -- YYYY, YY, MM and DD, anything else literal --
+text or numeric (`PIC 9(8)` as DDMMYYYY), whatever the field is called; its width must be the field's.
 `from` draws a field from another dataset's values (generated first), so a join finds its
 row -- and, with `miss`, sometimes does not, so the not-found path runs too. The primary key
 (the case's first `keys` entry) is unique, and an indexed dataset is written in key order,
@@ -28,6 +33,7 @@ as a KSDS loads.
 from __future__ import annotations
 
 import random
+import re
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -78,11 +84,35 @@ def _numeric_value(rng: random.Random, signed: bool, digits: int, scale: int, ro
 
 
 _TEXT = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+# #3829: "date" in the languages mainframe estates are written in -- de/nl/sv/no, es, pt/it/pl, da/no, ms/hi,
+# ja (romanised), vi -- matched as a whole part of a hyphenated name (WS-FECHA-ALTA, DATUM-VON), never inside
+# a word (CANDIDATE, UPDATE-FLAG, KDATO)
+_DATE_WORDS = frozenset({"DATE", "DATUM", "FECHA", "DATA", "DATO", "TARIKH", "HIZUKE", "NGAY"})
+_DATE_SHAPES = {10: "YYYY-MM-DD", 8: "YYYYMMDD", 6: "YYMMDD"}
+_DATE_TOKEN = re.compile(r"YYYY|YY|MM|DD")
+
+
+def date_value(rng: random.Random, fmt: str) -> str:
+    """#3829: a valid date in `fmt` (YYYY, YY, MM, DD; any other character is literal), days 1-28."""
+    y, m, d = rng.randint(1990, 2030), rng.randint(1, 12), rng.randint(1, 28)
+    parts = {"YYYY": f"{y:04d}", "YY": f"{y % 100:02d}", "MM": f"{m:02d}", "DD": f"{d:02d}"}
+    return _DATE_TOKEN.sub(lambda t: parts[t.group(0)], fmt)
+
+
+def _date_shape(name: str, nbytes: int) -> str | None:
+    """The date shape a text field's name and width imply, or None."""
+    upper = name.upper()
+    if "DATE" in upper and nbytes == 10:  # the English rule of old, kept byte-identical (#3804)
+        return _DATE_SHAPES[10]
+    if nbytes in _DATE_SHAPES and _DATE_WORDS & set(upper.split("-")):
+        return _DATE_SHAPES[nbytes]
+    return None
 
 
 def _text_value(rng: random.Random, name: str, nbytes: int, row: int) -> str:
-    if "DATE" in name.upper() and nbytes == 10:
-        return f"{rng.randint(1990, 2030):04d}-{rng.randint(1, 12):02d}-{rng.randint(1, 28):02d}"
+    shape = _date_shape(name, nbytes)
+    if shape:
+        return date_value(rng, shape)
     if row % 7 == 3:
         return ""  # blanks: the field INITIALIZEd / never filled
     width = nbytes if row % 3 else max(1, nbytes // 2)
@@ -120,6 +150,15 @@ def generate_dataset(
             rule = rules.get(f["name"], {})
             if "values" in rule:  # `every` k: the value changes each k rows (a cartesian fill)
                 v = rule["values"][(row // rule.get("every", 1)) % len(rule["values"])]
+            elif "date" in rule:
+                v = date_value(rng, rule["date"])
+                if len(v) != f["bytes"]:
+                    raise ValueError(f"{name}.{f['name']}: date format {rule['date']!r} is {len(v)} characters, "
+                                     f"the field {f['bytes']} bytes")  # fmt: skip
+                if f.get("pic") and common._pic_numeric(f["pic"]) is not None:
+                    if not v.isdigit():
+                        raise ValueError(f"{name}.{f['name']}: a numeric field takes digits only, not {rule['date']!r}")
+                    v = Decimal(v)  # a numeric date field (PIC 9(8)): the digits as its number
             elif "from" in rule:
                 pool = pools.get(rule["from"])
                 if not pool:

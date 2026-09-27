@@ -107,7 +107,7 @@ CATEGORIES = (
               "build the response"),
              "Port the cited paragraphs; the skeleton names the COBOL lines and the facts they touch."),
     Category("configuration", "Target configuration", "review",
-             ("Update these credentials",),
+             ("Update these credentials", "declare data.dbcs_code_page"),
              "Point the datasource at the target database; the password comes from SPRING_DATASOURCE_PASSWORD "
              "at run time, never from a file."),
 )  # fmt: skip

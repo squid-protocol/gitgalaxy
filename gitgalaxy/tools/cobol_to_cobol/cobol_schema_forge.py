@@ -26,18 +26,22 @@ from gitgalaxy.core.special_names import special_names
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 
 
-def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False) -> dict:
+def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False, usage: Optional[str] = None) -> dict:
     """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type."""
     if not pic_clause:
         return {"sql": "VARCHAR(255)", "json": "string"}
 
     pic = pic_clause.upper().strip()
+    # #3816: national text -- PIC N / G, or X / A under USAGE NATIONAL / DISPLAY-1 -- is NVARCHAR (in characters);
+    # a numeric PIC 9 USAGE NATIONAL stays a number below.
+    wide = (usage or "").upper() in ("NATIONAL", "DISPLAY-1")
+    is_national = "N" in pic or "G" in pic or (wide and ("X" in pic or "A" in pic))
 
-    # Text / Strings: PIC X(50) or PIC A(10)
-    if "X" in pic or "A" in pic:
-        match = re.search(r"[XA]\((\d+)\)", pic)
-        length = match.group(1) if match else sum(c in "XA" for c in pic)
-        return {"sql": f"VARCHAR({length})", "json": "string"}
+    # Text / Strings: PIC X(50) or PIC A(10), national PIC N(10) / G(10)
+    if "X" in pic or "A" in pic or is_national:
+        match = re.search(r"[XANG]\((\d+)\)", pic)
+        length = match.group(1) if match else sum(c in "XANG" for c in pic)
+        return {"sql": f"NVARCHAR({length})" if is_national else f"VARCHAR({length})", "json": "string"}
 
     # #3827: digit positions and scale, the decimal point being `,` under DECIMAL-POINT IS COMMA
     total_p, scale = parse_pic_precision(pic, decimal_comma)
@@ -197,7 +201,7 @@ def render_schemas(
             continue
 
         safe_name = name.replace("-", "_")
-        types = parse_cobol_picture(pic, decimal_comma)
+        types = parse_cobol_picture(pic, decimal_comma, usage)
 
         # ======================================================================
         # ARCHITECTURAL ANOMALY (DYNAMIC MEMORY ARRAY):

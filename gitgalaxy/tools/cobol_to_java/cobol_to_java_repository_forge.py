@@ -81,6 +81,10 @@ def _codec_kind(f: Field) -> str | None:
         return None
     num = _pic_numeric(f.pic)
     usage = (f.usage or "DISPLAY").upper()
+    if usage == "NATIONAL":
+        return "national"
+    if usage == "DISPLAY-1":
+        return "display1"
     if num is None:
         return "text" if usage in ("DISPLAY", "") else None
     if usage in _PACKED_USAGES:
@@ -90,8 +94,14 @@ def _codec_kind(f: Field) -> str | None:
     return "zoned" if usage in ("DISPLAY", "") else None
 
 
-def _codec_get(f: Field) -> str:
+def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     kind = _codec_kind(f)
+    if kind == "national":
+        return f'CobolRecords.text(rec, {f.offset}, {f.bytes}, java.nio.charset.Charset.forName("UTF-16BE"))'
+    if kind == "display1":
+        if dbcs_page:
+            return f'CobolRecords.text(rec, {f.offset}, {f.bytes}, java.nio.charset.Charset.forName("{dbcs_page}"))'
+        return f"/* TODO: declare data.dbcs_code_page in java_target to decode DISPLAY-1 */ CobolRecords.text(rec, {f.offset}, {f.bytes}, text)"
     if kind == "text":
         return f"CobolRecords.text(rec, {f.offset}, {f.bytes}, text)"
     signed, _digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
@@ -105,8 +115,16 @@ def _codec_get(f: Field) -> str:
             "Double": f"{dec}.doubleValue()", "String": f"{dec}.toPlainString()"}.get(f.jtype, dec)  # fmt: skip
 
 
-def _codec_put(f: Field, value: str) -> str:
+def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
     kind = _codec_kind(f)
+    if kind == "national":
+        return (
+            f'CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, java.nio.charset.Charset.forName("UTF-16BE"))'
+        )
+    if kind == "display1":
+        if dbcs_page:
+            return f'CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, java.nio.charset.Charset.forName("{dbcs_page}"))'
+        return f"/* TODO: declare data.dbcs_code_page in java_target to encode DISPLAY-1 */ CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, text)"
     if kind == "text":
         return f"CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, text)"
     signed, digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
@@ -707,13 +725,14 @@ class RepositoryForge:
             if off is not None and ln:
                 load.append(f"        r.vsamKey = CobolRecords.text(rec, {off}, {ln}, text);")
         for f in st.fields:
-            get = _codec_get(f)
+            dbcs_page = getattr(self.target.data, "dbcs_code_page", None)
+            get = _codec_get(f, dbcs_page)
             if f in st.composite:
                 load.append(f"        r.id.set{f.java[0].upper()}{f.java[1:]}({get});")
-                store.append(f"        {_codec_put(f, key(f))};")
+                store.append(f"        {_codec_put(f, key(f), dbcs_page)};")
             else:
                 load.append(f"        r.{f.java} = {get};")
-                store.append(f"        {_codec_put(f, f.java)};")
+                store.append(f"        {_codec_put(f, f.java, dbcs_page)};")
         return [
             "",
             f"    /** #3624: this record from its fixed-width VSAM form ({reclen} bytes, as REPRO unloads it), each",

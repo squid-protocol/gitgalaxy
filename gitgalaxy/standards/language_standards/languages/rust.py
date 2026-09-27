@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_RUST, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -108,7 +110,11 @@ DEFINITION: dict[str, Any] = {
             # a genuinely empty closure `|| ...`. Name group added to the
             # first alternative too, purely so existing extraction tests
             # keep passing.
-            r"\bfn[ \t\n]+([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
+            r"\bfn[ \t\n]+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\bmove[ \t\n]*\|([^|]*)\||(?:^|[=(,\[{<>;:])[ \t\n]*\|([^|]*)\|",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -138,12 +144,20 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?:#\[[^\]]*\][ \t\n]*){0,5}"
             r"(?:pub(?:\([^)]*\))?[ \t\n]+){0,3}"
             r"(?:(?:const|async|unsafe|extern(?:[ \t\n]+\"[^\"]*\")?)[ \t\n]+){0,3}"
-            r"fn[ \t\n]+(?:r#)?([a-zA-Z_]\w*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(?=\()",
+            r"fn[ \t\n]+(?:r#)?(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]*<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->|<(?:[^<>-]|-(?!>)|->){0,100}>){0,100}>){0,100}>)?[ \t\n]*(?=\()",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
         "class_start": re.compile(
-            r"^[ \t]*(?:pub(?:\([^)]*\))?[ \t]+){0,3}(?:unsafe[ \t]+)?(?:auto[ \t]+)?(?:struct|enum|union|trait)\s+(?:r#)?([a-zA-Z_]\w*)",
+            r"^[ \t]*(?:pub(?:\([^)]*\))?[ \t]+){0,3}(?:unsafe[ \t]+)?(?:auto[ \t]+)?(?:struct|enum|union|trait)\s+(?:r#)?(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -187,7 +201,15 @@ DEFINITION: dict[str, Any] = {
             # `mut` marks a binding or borrow as writable and `Cell::`/`RefCell::`/`Atomic*`
             # name mutable state (corollaries 1 and 2); the write is `x = v`, `*p = v`,
             # `x += 1`, a container mutator, or a mutable borrow being taken.
-            r"(?:^|[;{}])[ \t]*\**[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*\**["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
             r"|\.(?:push|push_str|push_back|push_front|pop|pop_back|pop_front|insert|remove|clear|extend|truncate|retain|drain|append|swap|sort|sort_by|sort_unstable|reverse|resize|fill)\s*\("
             r"|\.borrow_mut\(\)|\bstd::mem::(?:swap|replace|take)\s*\(|\.(?:store|swap|fetch_add|fetch_sub|compare_exchange)\s*\(",
@@ -236,14 +258,20 @@ DEFINITION: dict[str, Any] = {
             # immutability_locks' axis, #2772); `'static` is a lifetime, not an item
             # (both old crucible hits were `&'static mut A`).
             r"(?<!')\bstatic\s+mut\b"
-            r"|^[ \t]*(?:pub(?:\([^)\n]{0,50}\))?[ \t]+)?(?:static|const)[ \t]+(?:mut[ \t]+)?(?!_\b)[A-Za-z_]\w*[ \t]*:"
+            r"|^[ \t]*(?:pub(?:\([^)\n]{0,50}\))?[ \t]+)?(?:static|const)[ \t]+(?:mut[ \t]+)?(?!_\b)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*:"
             r"|lazy_static!|\b(?:OnceCell|OnceLock|LazyLock)\b|\b(?:std::)?env::(?:var|vars|var_os|set_var|remove_var|args|args_os|current_dir)\b",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"^[ \t]*#!?\[[^\]]*\]", re.M),
         # 20. generics (Generics / Type Parameters)
-        "generics": re.compile(r"<\s*[A-Z\'][^>]*>|\bwhere\b|\'[a-z]+\b|\bimpl\s+[A-Z]\w+"),
+        "generics": re.compile(
+            r"<\s*[A-Z\'][^>]*>|\bwhere\b|\'[a-z]+\b|\bimpl\s+[" + CAPITAL + r"][" + ID_CONTINUE + r"]+"
+        ),
         # 21. comprehensions (Iterators / Comprehensions)
         "comprehensions": re.compile(r"\.(?:map|filter|fold|collect|flat_map|any|all|reduce|for_each|find|zip)\s*\("),
         # 22. scientific (Numerical / Compute Libraries)
@@ -293,7 +321,7 @@ DEFINITION: dict[str, Any] = {
             # no file, so the `;` is required. The import COUNT is unchanged: that is
             # the `import` rule's, and it counts `use` (docs/import_rule_contract.md).
             r"\b(?:pub[ \t]+)?use\s+([a-zA-Z0-9_:{},*\s]+);"
-            r"|\b(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+([A-Za-z_]\w{0,127})[ \t]*;",
+            r"|\b(?:pub(?:\([a-z:]{1,40}\))?[ \t]+)?mod[ \t]+([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})[ \t]*;",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -392,9 +420,9 @@ DEFINITION: dict[str, Any] = {
         # argon2), JWT decoding (signature validation), actix's extractor
         # registration, and the nix identity switches. Path-anchored.
         "auth_middleware": re.compile(
-            r"\b(?:bcrypt|argon2)::verify\w*\("
+            r"\b(?:bcrypt|argon2)::verify[" + ID_CONTINUE + r"]*\("
             r"|\bjsonwebtoken::decode(?:::<[^>\n]{1,80}>)?\("
-            r"|\bHttpAuthentication::\w+\("
+            r"|\bHttpAuthentication::[" + ID_CONTINUE + r"]+\("
             r"|\bnix::unistd::sete?[ug]id\("
         ),
         "serialization_parsing": re.compile(

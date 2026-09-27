@@ -4214,10 +4214,12 @@ class StructuralExtractor:
             # name (`foo`). `::`-segments stay part of the capture (not the
             # skippable prefix, which requires a trailing `.`) so namespaced
             # class/module names (`class ActiveStorage::Blob`) are unaffected.
+            # #3814: a name continues through combining marks (UAX #31), so `def probe_नाम`
+            # is not cut at its first vowel sign.
             m = re.search(
                 r"\b(?:def|class|module|defmacro|defmodule|defp)\s+"
-                r"(?:(?:[^\W\d]\w*(?:::[^\W\d]\w*)*\.|self\.)[ \t\n]*)?"
-                r"([^\W\d]\w*(?:::[^\W\d]\w*)*[?!=]?)",
+                r"(?:(?:[^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*\.|self\.)[ \t\n]*)?"
+                r"([^\W\d][" + ID_CONTINUE + r"]*(?:::[^\W\d][" + ID_CONTINUE + r"]*)*[?!=]?)",
                 line,
             )
             if m:
@@ -5121,7 +5123,7 @@ class StructuralExtractor:
             # `wasi_cwd`'s reported body swallowed lines 60-7104 (nearly the whole 7529-line
             # file), stuck at 18 total functions found regardless of #1419's separate
             # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
-            single_quote = r"'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r]){0,10}'"
+            single_quote = r"'(?![" + ID_START + r"][" + ID_CONTINUE + r"]*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r]){0,10}'"
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
         # (e.g. `` `type` ``), never a long delimiter -- unlike JS/TS template literals, which
@@ -5797,7 +5799,7 @@ class StructuralExtractor:
                             if _depth == 0:
                                 _cds = list(
                                     re.finditer(
-                                        r"\b(?:class|mixin|enum)[ \t\n]+([A-Za-z_]\w*)",
+                                        r"\b(?:class|mixin|enum)[ \t\n]+([" + ID_START + r"][" + ID_CONTINUE + r"]*)",
                                         safe_code[max(0, _q - 600) : _q],
                                     )
                                 )
@@ -7531,8 +7533,9 @@ class StructuralExtractor:
 
                 if inline_mods > 0:
                     # Check if one of them is the actual start of the statement
+                    # (#3814: `नाम = if cond` assigns to a UAX #31 name)
                     if re.search(
-                        r"^\s*(?:[a-zA-Z0-9_@.\[\]]+\s*=\s*)?(?:if|unless|while|until)\b",
+                        r"^\s*(?:[" + ID_CONTINUE + r"@.\[\]]+\s*=\s*)?(?:if|unless|while|until)\b",
                         safe_line,
                     ):
                         # Subtract all EXCEPT the one that started the line

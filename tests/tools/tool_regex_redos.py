@@ -54,6 +54,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.standards.language_standards._lazy_re import is_pattern
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -167,7 +169,7 @@ def _pattern_globals(namespace: dict[str, Any]) -> dict[str, re.Pattern]:
     found: dict[str, re.Pattern] = {}
 
     def walk(name: str, obj: Any, depth: int) -> None:
-        if isinstance(obj, re.Pattern) and isinstance(obj.pattern, str):
+        if is_pattern(obj) and isinstance(obj.pattern, str):  # #3914: a registry rule may be lazy
             found.setdefault(name, obj)
         elif depth < 3 and isinstance(obj, dict):
             for k, v in obj.items():
@@ -228,7 +230,7 @@ def collect() -> tuple[list[Site], list[dict[str, Any]]]:
             except Exception as exc:  # any evaluation failure means "not statically known"
                 skipped.append({"module": rel, "line": node.lineno, "call": f"re.{fn}", "why": type(exc).__name__})
                 continue
-            if isinstance(pattern, re.Pattern):
+            if is_pattern(pattern):
                 pattern, flags = pattern.pattern, pattern.flags & ~re.UNICODE
             if not isinstance(pattern, str):
                 skipped.append({"module": rel, "line": node.lineno, "call": f"re.{fn}", "why": "non-str pattern"})

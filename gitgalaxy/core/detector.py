@@ -43,6 +43,7 @@ from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import (
     COMPILED_HANDSHAKE_REGISTRY,
     HTML_NONEXECUTABLE_SCRIPT_TAG,
+    _lazy_re,
 )
 from gitgalaxy.standards.language_standards._shared_patterns import (
     QUALIFIED_CALLS_OUT_PATTERNS,
@@ -917,6 +918,16 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
 _QUALIFIER_MAX_SEGMENTS = 4
 _QUALIFIER_MAX_IDENT = 64
+
+
+# #3913: the family is recognised by the pattern's TEXT, not by object identity. A rule reaches a
+# scan worker pickled whenever the pool spawns (Windows, macOS): the string or compiled pattern it
+# holds is then a new object, `is` never matched, and qualifier capture was silently off there.
+_QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
+
+
+def _is_qualified_calls_out(pattern: Any) -> bool:
+    return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
 
 def _call_qualifier(text: str, pos: int) -> str:
@@ -2025,6 +2036,18 @@ def _is_synthetic_satellite_name(name: str) -> bool:
     return bool(re.fullmatch(r"[A-Z0-9]+_Statement", base))
 
 
+def _compiled_rules(lang_config: dict[str, Any]) -> dict[str, Any]:
+    """#3914: a language's `rules`, its lazily compiled patterns (`_lazy_re`) compiled in place the
+    first time the language is read -- so the per-file hot path, and every `isinstance(p,
+    re.Pattern)` check, sees real patterns, for an embedded language as for the primary one."""
+    rules: dict[str, Any] = lang_config.get("rules", {})
+    for key, value in list(rules.items()):
+        compiled = _lazy_re.materialize(value)
+        if compiled is not value:  # only once per rule: a compiled pattern materialises to itself
+            rules[key] = compiled
+    return rules
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -2096,7 +2119,7 @@ class StructuralExtractor:
         self.languages: dict[str, Any] = language_definitions
 
         lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
-        self.primary_rules: dict[str, Any] = lang_config.get("rules", {})
+        self.primary_rules: dict[str, Any] = _compiled_rules(lang_config)
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
         # #3360: (unit, callees seen only on a nested header) pairs one segment's
         # slicing collects; _function_slice resolves them. None outside a slice.
@@ -2184,7 +2207,7 @@ class StructuralExtractor:
                 # renamed (not reusing lang_config): mypy rejects
                 # re-annotating the same name twice in one scope.
                 healed_lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
-                self.primary_rules = healed_lang_config.get("rules", {})
+                self.primary_rules = _compiled_rules(healed_lang_config)
                 self.primary_family = healed_lang_config.get("lexical_family", "c_style_comment")
 
                 self.logger.warning(f"[AUTO-HEAL] Re-injected LANGUAGE_DEFINITIONS for '{self.primary_lang_id}'")
@@ -2419,7 +2442,7 @@ class StructuralExtractor:
             # deleting the line break) -- no new stream is needed, just a
             # second pattern pass over a stream `splice()` already has.
             doc_positional_end_lines: list[int] = []
-            _doc_pattern = self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("doc")
+            _doc_pattern = _compiled_rules(self.languages.get(self.primary_lang_id, {})).get("doc")
             if _doc_pattern is not None:
                 _doc_end_lines: set[int] = set()
                 for _doc_stream in (positional_comment_stream, code_stream):
@@ -2482,7 +2505,7 @@ class StructuralExtractor:
             # with sharing", C#'s "internal sealed partial"). Everyone else
             # stays on the legacy fallback until their own class_start is
             # hardened for this use (see the frozenset's comment).
-            rules = self.languages.get(self.primary_lang_id, {}).get("rules", {})
+            rules = _compiled_rules(self.languages.get(self.primary_lang_id, {}))
             if (
                 "class_start" in rules and rules["class_start"] is None
             ) or self.primary_lang_id in _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS:
@@ -3560,7 +3583,7 @@ class StructuralExtractor:
         cached = cache.get(seg_lang)
         if cached is not None:
             return cached
-        rules_dict = self.languages.get(seg_lang, {}).get("rules", {})
+        rules_dict = _compiled_rules(self.languages.get(seg_lang, {}))
         line_gate_names = rules_dict.get("_line_gates") or ()
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
         active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]] = []
@@ -3627,7 +3650,7 @@ class StructuralExtractor:
 
         for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
-            rules = self.languages.get(seg_lang, {}).get("rules", {}).copy()
+            rules = _compiled_rules(self.languages.get(seg_lang, {})).copy()
 
             # #2814: blank statically-dead C-family preprocessor branches before
             # any rule runs, so a hit inside `#if 0` is not counted at file or
@@ -3866,7 +3889,7 @@ class StructuralExtractor:
         if not comment_stream:
             return counts
 
-        rules = self.languages.get(lang_id, {}).get("rules", {})
+        rules = _compiled_rules(self.languages.get(lang_id, {}))
 
         # The specific rules designed to extract telemetry from human-readable text
         comment_rules = [
@@ -4299,7 +4322,7 @@ class StructuralExtractor:
 
         for (lang_id, code, offset), spatial_map in zip(segments, segment_spatial_maps):
             lang_config = self.languages.get(lang_id, {})
-            rules = lang_config.get("rules", {})
+            rules = _compiled_rules(lang_config)
             family = lang_config.get("lexical_family", "c_style_comment")
 
             integration_mode = ScopeParsingRegistry.get_mode(lang_id)
@@ -9747,7 +9770,7 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if any(invocation_pattern is p for p in QUALIFIED_CALLS_OUT_PATTERNS):
+            if _is_qualified_calls_out(invocation_pattern):
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them

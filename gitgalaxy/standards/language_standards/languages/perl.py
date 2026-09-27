@@ -8,8 +8,10 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
-import re
 from typing import Any
+
+from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
 
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
@@ -128,10 +130,18 @@ DEFINITION: dict[str, Any] = {
         # fallback every other non-tuple match in this sum already uses,
         # not a real element count.
         "args": re.compile(
-            r"\b(?:sub|method)(\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)?\s*(\([^)]*\))"
+            r"\b(?:sub|method)(\s+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*)?\s*(\([^)]*\))"
             r"|\bmy\s*(\([^)]*\))\s*=\s*@_"
             r"|((?<![$@%&])\bshift\b(?!\s*[(@]))"
-            r"|(\bmy\s+@\w+\s*=\s*@_\b)"
+            r"|(\bmy\s+@[" + ID_CONTINUE + r"]+\s*=\s*@_\b)"
         ),
         "_args_findall_sum_groups": {3, 4, 5},
         # #1607: group 2 (the "sub/method (...)" capture) matches BOTH a real
@@ -170,13 +180,21 @@ DEFINITION: dict[str, Any] = {
             # lookahead to safely handle vertical gaps before the opening `{` or `(`.
             # =====================================================================
             r"^[ \t]*(?:sub|method)[ \t\n]+"
-            r"([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]*(?:::[" + ID_START + r"][" + ID_CONTINUE + r"]*)*)"
             r"(?=[ \t\n]*(?::(?!:)|[\(\{]|$))",
             re.M,
         ),
         # 5. class_start: Object / Entity Declarations. Defines object-oriented and structural boundaries.
         "class_start": re.compile(
-            r"^[ \t]*(?:package|class|role)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)(?=[ \t\n]*[\d\.v_]*[ \t\n]*(?::(?!:)|[;\{]|$))",
+            r"^[ \t]*(?:package|class|role)\s+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*)(?=[ \t\n]*[\d\.v_]*[ \t\n]*(?::(?!:)|[;\{]|$))",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -215,7 +233,9 @@ DEFINITION: dict[str, Any] = {
         # itself, re-admitting the safe `eval q{1}` / `eval { ... }`
         # bareword and block forms this guard exists to exclude.
         "safety_bypasses": re.compile(
-            r'\b(?:no\s+strict|no\s+warnings)\b|\beval\s*["\']|\beval\s*\(|\beval\s+(?!\w|{)|\bgoto\s+&'
+            r'\b(?:no\s+strict|no\s+warnings)\b|\beval\s*["\']|\beval\s*\(|\beval\s+(?!['
+            + ID_CONTINUE
+            + r"]|{)|\bgoto\s+&"
         ),
         # 8. danger: High-Risk Execution. Process killers and raw shell execution.
         # #2878 contract C2: `system` fires with its argument (9 crucible hits were config prose:
@@ -240,7 +260,7 @@ DEFINITION: dict[str, Any] = {
         # exclusion python's rule uses. Needs re.M for the `^` (Rule 13).
         "api": re.compile(
             r'\b(?:get|post|put|del|any|patch)\s+[\'"]/[^\'"]*[\'"]|@(?:EXPORT|EXPORT_OK|EXPORT_TAGS|ISA)\b|use\s+(?:Exporter|parent|base)\b|:\s*(?:reader|writer|param)\b|'
-            r"^[ \t]*sub[ \t]+[A-Za-z]\w*",
+            r"^[ \t]*sub[ \t]+(?:(?![_])[" + ID_START + r"])[" + ID_CONTINUE + r"]*",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (assignments, array mutators, substitutions).
@@ -257,9 +277,13 @@ DEFINITION: dict[str, Any] = {
             # argument unpacking (`my $self = shift`), a read of @_ (corollary 3): the
             # list mutators count only with an explicit array/hash operand.
             r"(?<!my )(?<!my\t)(?<!our )(?<!local )(?<!state )"
-            r"[\$@%]\$?[a-zA-Z_]\w*(?:->|\[[^\]\n]{0,60}\]|\{[^}\n]{0,60}\}){0,5}[ \t]*(?:\+|-|\*|/|\||&|\^|%|x|\.|\*\*|<<|>>|&&|\|\||//)?=(?![=>~])"
+            r"[\$@%]\$?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:->|\[[^\]\n]{0,60}\]|\{[^}\n]{0,60}\}){0,5}[ \t]*(?:\+|-|\*|/|\||&|\^|%|x|\.|\*\*|<<|>>|&&|\|\||//)?=(?![=>~])"
             r"|\b(?:push|unshift|splice)\s*\(?[ \t]*[@$]|\b(?:pop|shift)\s*\(?[ \t]*@|\bdelete\s*\(?[ \t]*\$"
-            r"|[\w)\]}][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[\$@]|\bs/"
+            r"|(?:[" + ID_CONTINUE + r"]|[)\]}])[ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[\$@]|\bs/"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic.
         "dead_code": re.compile(
@@ -310,14 +334,16 @@ DEFINITION: dict[str, Any] = {
             # #2858 contract corollary 3: `$$options{...}` is a scalar deref and
             # `$_[2]` is the argument array -- neither is the pid variable or the
             # topic; `$ENV{PATH}` is the environment's element form.
-            r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b(?!\[)|\$ENV\{|\$\$(?![\w{$])|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
+            r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b(?!\[)|\$ENV\{|\$\$(?!["
+            + ID_CONTINUE
+            + r"{$])|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
             re.M,
         ),
         # 19. decorators: Decorators / Annotations. Subroutine and variable attributes.
         # #2898: `::` package separators no longer count (2760 crucible hits) -- the
         # double-colon guards leave only the single-colon attribute form (:shared,
         # :SpamAssassin), which is what the sentence names.
-        "decorators": re.compile(r"(?<!:):(?!:)\s*[a-zA-Z_]\w*(?:\([^)]*\))?"),
+        "decorators": re.compile(r"(?<!:):(?!:)\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*(?:\([^)]*\))?"),
         # 20. generics: Generics / Type Parameters. Parameterized types (via Type::Tiny/Moose).
         "generics": re.compile(r"\b(?:ArrayRef|HashRef|Map|Tuple|Dict|Maybe|InstanceOf|ConsumerOf|Enum)\[[^\]]*\]"),
         # 21. comprehensions: Iterators / Comprehensions. Map and Grep.
@@ -328,10 +354,25 @@ DEFINITION: dict[str, Any] = {
         ),
         # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and Symbol table hacks.
         "reflection_metaprogramming": re.compile(
-            r"\b(AUTOLOAD|DESTROY|BEGIN|UNITCHECK|CHECK|INIT|END|tie|untie|bless|overload)\b|\*[a-zA-Z_]\w*[ \t]*=\s*(?:\\|&)|goto\s+&"
+            r"\b(AUTOLOAD|DESTROY|BEGIN|UNITCHECK|CHECK|INIT|END|tie|untie|bless|overload)\b|\*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t]*=\s*(?:\\|&)|goto\s+&"
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"\b(?:use|require|no)\s+[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*", re.M),
+        "import": re.compile(
+            r"\b(?:use|require|no)\s+["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*",
+            re.M,
+        ),
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (PERL) ]
@@ -346,7 +387,15 @@ DEFINITION: dict[str, Any] = {
             # THE FIX: Stripped the `^` anchor and rely on the `\b` word boundary
             # to capture module loading anywhere in the execution path.
             # =====================================================================
-            r"\b(?:use|require|no)\s+([a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)",
+            r"\b(?:use|require|no)\s+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*)",
             re.M,
         ),
         # 25. ownership: Authorship metadata.
@@ -450,7 +499,7 @@ DEFINITION: dict[str, Any] = {
         # auth family), the credential check, and PAM. Arrow/call-anchored so the
         # package name in a string and `sub check_password` never count.
         "auth_middleware": re.compile(
-            r"\bAuthen::\w+(?:::\w+)*->\w+\("
+            r"\bAuthen::[" + ID_CONTINUE + r"]+(?:::[" + ID_CONTINUE + r"]+)*->[" + ID_CONTINUE + r"]+\("
             r"|->check_password\("
             r"|\bpam_authenticate\("
         ),
@@ -473,7 +522,9 @@ DEFINITION: dict[str, Any] = {
             r"(=~|!~|\b(?:qr|m|s|tr|y)\b[/{}\[\]()<>!|#~^])"
         ),  # Catches Perl's native binding operators and regex quotes
         # #2899: `time` no longer matches sigil-carrying variables ($time[5], @time).
-        "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep)\b|(?<![\$@%\w])time\b(?!\s*[\[{])"),
+        "time_date_logic": re.compile(
+            r"\b(localtime|gmtime|Time::HiRes|sleep)\b|(?<![\$@%" + ID_CONTINUE + r"])time\b(?!\s*[\[{])"
+        ),
         # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
         # \b requires a word/non-word transition; `system\s*\(` and
         # `exec\s*\(` both END in a literal `(` (non-word), so the

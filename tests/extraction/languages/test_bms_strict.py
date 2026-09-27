@@ -32,6 +32,7 @@ import pytest
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_lens import LanguageDetector
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS, LENS_CONFIG
+from gitgalaxy.standards.language_standards._lazy_re import is_pattern  # #3914: rules compile lazily
 from gitgalaxy.core.prism import Prism
 
 _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
@@ -287,7 +288,7 @@ def test_bms_lowercase_source_still_matches():
 # ==============================================================================
 def test_bms_caret_anchored_rules_all_set_multiline_flag():
     for key, pattern in BMS_RULES.items():
-        if pattern is None or not isinstance(pattern, re.Pattern):
+        if pattern is None or not is_pattern(pattern):
             continue
         if "^" in pattern.pattern.replace("[^", ""):
             assert pattern.flags & re.M, f"bms {key!r} uses '^' without re.M"

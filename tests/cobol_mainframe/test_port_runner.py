@@ -122,6 +122,9 @@ def test_a_redirect_is_refused_so_the_key_is_not_forwarded():
     class Handler(http.server.BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802
             seen.append(self.path)
+            # Read the body before replying: closing a socket with unread data makes Windows send
+            # a reset, which can reach the client before the 302 does (WinError 10053, #3913).
+            self.rfile.read(int(self.headers.get("Content-Length") or 0))
             self.send_response(302)
             self.send_header("Location", "http://127.0.0.1:1/steal")
             self.end_headers()

@@ -196,6 +196,12 @@ def main():
     )
     parser.add_argument("--pkg", default=None, help="Base Java package name (overrides the config's project.package)")
     parser.add_argument("--header", default=None, help="Path to the custom header text file (overrides the config)")
+    parser.add_argument(
+        "--ticket-budget",
+        type=int,
+        default=64000,
+        help="#3863: max tokens of a port ticket; a larger one is trimmed (0: no budget)",
+    )
     parser.add_argument("--config", type=Path, help="A YAML / JSON target config: Java kind, build tool, database, ...")
     parser.add_argument("--init-config", type=Path, metavar="PATH", help="Write an annotated default config and exit")
     args = parser.parse_args()
@@ -468,7 +474,8 @@ def main():
         stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture")}  # #3819: culture too
         stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
         tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
-                                     ir_dir, clean_room_path.name, clean_room_path)  # fmt: skip
+                                     ir_dir, clean_room_path.name, clean_room_path,
+                                     budget=args.ticket_budget)  # fmt: skip
         if tickets:
             worklist = link_tickets(java_out_dir, worklist, tickets)
             stats["agent_jobs"] += len(tickets)

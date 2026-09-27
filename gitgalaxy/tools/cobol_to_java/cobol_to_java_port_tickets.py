@@ -27,7 +27,9 @@
 # ==============================================================================
 from __future__ import annotations
 
+import functools
 import json
+import math
 import re
 from pathlib import Path
 from typing import Any
@@ -35,6 +37,7 @@ from typing import Any
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
@@ -206,6 +209,93 @@ def option_rules(options: list[dict[str, Any]]) -> list[str]:
     return out
 
 
+# #3863: COACTVWC's 268 KB prompt came back empty. A ticket over this many tokens is trimmed (trim_ticket).
+TICKET_TOKEN_BUDGET = 64000
+
+
+@functools.lru_cache(maxsize=1)
+def _tiktoken_encoding() -> Any:
+    """#3863: tiktoken's o200k_base, loaded once -- or None. It is an optional dependency, and its first
+    use downloads the encoding, so offline (CI, an air-gapped site) it fails: count bytes then."""
+    try:
+        import tiktoken
+
+        return tiktoken.get_encoding("o200k_base")
+    except Exception:  # not installed, offline, or broken: the caller falls back to bytes / 4
+        return None
+
+
+def count_tokens(text: str) -> tuple[int, int, str]:
+    """#3863: (bytes, tokens, how counted): tiktoken's o200k_base when it loads, else bytes / 4."""
+    b = len(text.encode("utf-8"))
+    encoding = _tiktoken_encoding()
+    tokens = None
+    if encoding is not None:
+        try:
+            tokens = len(encoding.encode(text))
+        except Exception:  # a broken tokenizer must not stop a ticket: count bytes instead
+            tokens = None
+    if tokens is not None:
+        return b, tokens, "tiktoken(o200k_base)"
+    return b, math.ceil(b / 4), "bytes/4"
+
+
+def trim_ticket(ticket: dict[str, Any], budget: int) -> None:
+    """#3863: bring a ticket over `budget` tokens down, never silently: the BMS field inventories go
+    first (the generated screen classes already carry them), each replaced by a reference, and the
+    ticket records what was trimmed and its sizes after. A ticket within budget is left byte-identical."""
+    serialized = json.dumps(ticket, indent=2, sort_keys=True)
+    _, t_before, _ = count_tokens(serialized)
+
+    if t_before <= budget:
+        return
+
+    trimmed = []
+
+    # 1. facts.screen_bindings
+    facts_sec = ticket.get("facts", {}).get("sections", {})
+    screen_sec = facts_sec.get("screen_bindings")
+    if screen_sec and "facts" in screen_sec:
+        old_bytes, old_tokens, _ = count_tokens(json.dumps(screen_sec, indent=2, sort_keys=True))
+
+        for fact in screen_sec.get("facts", []):
+            if "fields" in fact:
+                num_fields = len(fact["fields"])
+                map_name = fact.get("map", "")
+                # the screen forge's name (cobol_to_java_screen_forge._plan), unless a clash renamed it
+                class_name = java_class_base(map_name) + "Screen" if map_name else "Screen"
+                fact["fields"] = f"Reference: {class_name} ({num_fields} fields)"
+
+        new_bytes, new_tokens, _ = count_tokens(json.dumps(screen_sec, indent=2, sort_keys=True))
+        if new_bytes < old_bytes:
+            trimmed.append(
+                {
+                    "section": "facts.screen_bindings",
+                    "bytes_before": old_bytes,
+                    "tokens_before": old_tokens,
+                    "bytes_after": new_bytes,
+                    "tokens_after": new_tokens,
+                    "reason": "trimmed screen_bindings fields to references",
+                }
+            )
+
+    if trimmed:
+        ticket["trimmed"] = trimmed
+        sizes = {}
+        for sec_name, sec_val in ticket.items():
+            if sec_name == "facts":
+                for f_sec, f_val in sec_val.get("sections", {}).items():
+                    b, t, _ = count_tokens(json.dumps(f_val, indent=2, sort_keys=True))
+                    sizes[f"facts.{f_sec}"] = {"bytes": b, "tokens": t}
+            else:
+                b, t, _ = count_tokens(json.dumps(sec_val, indent=2, sort_keys=True))
+                sizes[sec_name] = {"bytes": b, "tokens": t}
+        ticket["sizes"] = sizes
+    _, t_after, _ = count_tokens(json.dumps(ticket, indent=2, sort_keys=True))
+    if t_after > budget:  # nothing more may go (the rules never do): say so rather than pretend
+        ticket["over_budget"] = {"budget": budget, "tokens": t_after}
+
+
 def _source_text(path: Path) -> list[str]:
     """Numbered source lines, columns 1-72 (the sequence area dropped)."""
     try:
@@ -258,10 +348,11 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     java = (java_dir / service_rel).read_text(encoding="utf-8") if (java_dir / service_rel).is_file() else ""
     # Listings are written once per source (write_port_tickets), not per ticket: an include member is
     # shared by hundreds of programs (DSF). `listing` is relative to ai_agent_jobs/; None when unread.
-    readable = source_root is not None and prog.get("file") and (source_root / prog["file"]).is_file()
+    # #3815: a stored path is NFC; on_disk finds the file where the checkout spelled its name NFD
+    readable = source_root is not None and prog.get("file") and on_disk(source_root, prog["file"]).is_file()
     source: dict[str, Any] = {
         "program": {"file": prog.get("file"), "listing": _listing(prog["file"]) if readable else None},
-        "copybooks": [{"file": c, "listing": _listing(c) if source_root and (source_root / c).is_file() else None}
+        "copybooks": [{"file": c, "listing": _listing(c) if source_root and on_disk(source_root, c).is_file() else None}
                       for c in prog.get("copybooks", [])],
     }  # fmt: skip
     units = (skeleton.get("sections", {}).get("units") or {}).get("facts") or []
@@ -273,7 +364,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
         "traced_to_this_program": [{"file": f, "symbol": s} for f, s in tied],
     }
     methods = _public_methods(java)
-    text = read_source(source_root / prog["file"]).text if readable else ""
+    text = read_source(on_disk(source_root, prog["file"])).text if readable and source_root is not None else ""
     rounding = rounding_facts(text) if readable else []  # #3825
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
@@ -401,7 +492,7 @@ def write_port_order(out_dir: Path, order: list[dict[str, Any]]) -> None:
 def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dict[str, Any] | None,
                        manifest: dict[str, Any] | None, package: str, target: dict[str, Any],
                        ir_dir: Path | None, clean_room_name: str,
-                       clean_room: Path | None = None) -> dict[str, str]:  # fmt: skip
+                       clean_room: Path | None = None, budget: int = TICKET_TOKEN_BUDGET) -> dict[str, str]:  # fmt: skip
     """Write a ticket per program with business-logic worklist items; {program source: ticket path}.
     With the engine's DB in `clean_room` (#3237) each ticket carries its port order, and
     port_order.json / .md list them most-depended-on first."""
@@ -430,6 +521,8 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
                 source_root = Path(src[: len(src) - len(file)])
         ticket = build_ticket(key, skeleton, java_dir, package, source_root, manifest, items, target,
                               f"{clean_room_name}/06_skeleton/{path.name}")  # fmt: skip
+        if budget > 0:
+            trim_ticket(ticket, budget)
         m = metrics.get(str(file))
         if m is not None:
             ticket["priority"] = {"rank": rank, "of": len(candidates), **m}
@@ -442,7 +535,7 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
             listing = out_dir / s_["listing"] if s_["listing"] else None
             if listing is not None and source_root is not None and not listing.exists():
                 listing.parent.mkdir(parents=True, exist_ok=True)
-                listing.write_text("\n".join(_source_text(source_root / s_["file"])) + "\n", encoding="utf-8")
+                listing.write_text("\n".join(_source_text(on_disk(source_root, s_["file"]))) + "\n", encoding="utf-8")
         written[str(file)] = f"ai_agent_jobs/{key}_port_ticket.md"
     if order:
         write_port_order(out_dir, order)

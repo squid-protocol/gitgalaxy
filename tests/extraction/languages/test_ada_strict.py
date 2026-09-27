@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+from gitgalaxy.standards.language_standards._lazy_re import is_pattern  # #3914: rules compile lazily
 
 _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
@@ -289,7 +290,7 @@ def test_ada_caret_anchored_rules_all_set_multiline_flag():
         # `[^()]` in args/func_start's nested-paren capture) -- that's not a
         # line-start anchor, it's the negation operator inside a bracket
         # expression, and Rule 13 only concerns the former.
-        if isinstance(pattern, re.Pattern) and re.search(r"(?<!\\)(?<!\[)\^", pattern.pattern):
+        if is_pattern(pattern) and re.search(r"(?<!\\)(?<!\[)\^", pattern.pattern):
             caret_using_keys.append(key)
 
     assert caret_using_keys, (

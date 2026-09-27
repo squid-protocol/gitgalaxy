@@ -34,6 +34,7 @@ import io
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional, Union
 
 _BOMS = (  # longest first: the UTF-32 LE mark begins with the UTF-16 LE one
     (codecs.BOM_UTF32_LE, "utf-32-le"),
@@ -55,7 +56,7 @@ class SourceText:
 
 # What the estate declares: one codec for every file, or {glob: codec} matched in order against the
 # file's repo-relative POSIX path (first match wins; a glob without "/" also matches the bare name).
-DeclaredEncoding = str | Mapping[str, str] | None
+DeclaredEncoding = Optional[Union[str, Mapping[str, str]]]  # typing forms: the package supports 3.9
 
 
 def validate_declared_encoding(spec: DeclaredEncoding) -> None:

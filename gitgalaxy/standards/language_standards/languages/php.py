@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -105,7 +107,7 @@ DEFINITION: dict[str, Any] = {
         # Name group added too, purely so existing extraction tests keep
         # passing.
         "args": re.compile(
-            r"(?<!\$)(?<!->)(?<!::)\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)?[ \t\n]*(\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\))",
+            r"(?<!\$)(?<!->)(?<!::)\b(?:function|fn)[ \t\n]*(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*)?[ \t\n]*(\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:(?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")|\((?:[^()\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\))*\))*\))",
             re.M | re.I,
         ),
         # 3. linear (Sequential Boundaries)
@@ -116,12 +118,12 @@ DEFINITION: dict[str, Any] = {
         "func_start": re.compile(
             r"(?:^|(?<!->)(?<!::)[^a-zA-Z0-9_$])(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
             r"(?:(?:public|protected|private|static|final|abstract)[ \t\n]+){0,5}"
-            r"(?<!->)(?<!::)\bfunction[ \t\n]+(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)[ \t\n]*(?=\()",
+            r"(?<!->)(?<!::)\bfunction[ \t\n]+(?:&[ \t\n]*)?(?:/\*.*?\*/[ \t\n]*){0,3}([a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*)[ \t\n]*(?=\()",
             re.M | re.I,
         ),
         "class_start": re.compile(
             r"^[ \t]*(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"
-            r"(?:(?:abstract|final|readonly)[ \t\n]+){0,3}(?:class|interface|trait|enum)[ \t\n]+(?:/\*.*?\*/[ \t\n]*){0,3}(?!(?:extends|implements)\b)([a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*)(?![a-zA-Z0-9_\x80-\xff])",
+            r"(?:(?:abstract|final|readonly)[ \t\n]+){0,3}(?:class|interface|trait|enum)[ \t\n]+(?:/\*.*?\*/[ \t\n]*){0,3}(?!(?:extends|implements)\b)([a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*)(?![a-zA-Z0-9_\x80-\U0010ffff])",
             re.M | re.I,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -141,14 +143,16 @@ DEFINITION: dict[str, Any] = {
         # suppression idiom (silencing "undefined index" notices).
         # Widened to also allow `$` immediately after `@`.
         "safety_bypasses": re.compile(
-            r"@(?:[a-zA-Z_\x80-\xff]|\$)|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
+            r"@(?:[a-zA-Z_\x80-\U0010ffff]|\$)|\b(unserialize|extract|parse_str|phpinfo)\b|error_reporting\s*\(\s*0\s*\)|(?<![=!])==(?!=)|!=(?!=)"
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Shell execution and process killers. EXCLUDES prints (Phase 5).
         # #2878 contract C2: call form, and a backtick command sits at expression position (the
         # crucible's backticks were MySQL identifier quotes inside SQL strings); eval/exit/die join.
         "high_risk_execution": re.compile(
-            r"\b(?:exec|shell_exec|system|passthru|proc_open|popen|pcntl_exec|eval|die|exit)\s*\(|(?<![\$\w])(?:exit|die)\s*;|(?:^|[=(,;{]|\breturn|\becho)[ \t]*`[^`\n]+`",
+            r"\b(?:exec|shell_exec|system|passthru|proc_open|popen|pcntl_exec|eval|die|exit)\s*\(|(?<![\$"
+            + ID_CONTINUE
+            + r"])(?:exit|die)\s*;|(?:^|[=(,;{]|\breturn|\becho)[ \t]*`[^`\n]+`",
             re.M,
         ),
         # 9. io (I/O & Network Boundaries)
@@ -174,7 +178,13 @@ DEFINITION: dict[str, Any] = {
         # `->public` property read.
         "api": re.compile(
             r"\bpublic[ \t\n]+(?:(?:static|final|abstract|readonly)[ \t\n]+){0,4}"
-            r"(?:function\b|const\b|\$[a-zA-Z_]|\??[\\A-Za-z_][\w\\|]*[ \t\n]+\$[a-zA-Z_])"
+            r"(?:function\b|const\b|\$["
+            + ID_START
+            + r"]|\??[\\A-Za-z_]["
+            + ID_CONTINUE
+            + r"\\|]*[ \t\n]+\$["
+            + ID_START
+            + r"])"
             r"|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"
         ),
         # 11. flux (State Mutation)
@@ -195,9 +205,13 @@ DEFINITION: dict[str, Any] = {
             # (contract corollary 1's fallback). `global $x` is the `globals` rule's token
             # (corollary 4) and `&$x` a reference declaration -- neither writes. `==`,
             # `===` and `=>` are excluded.
-            r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(?:\[[^\]\n]{0,80}\])*\s*(?:[-+*./%&|^]|\*\*|<<|>>|\?\?)?=(?![=>])"
-            r"|(?:\w{1,100})?(?:->|::)\$?[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(?:\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*./%&|^]|\?\?)?=(?![=>])"
-            r"|\barray_(?:push|pop|shift|unshift|splice)\b|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*\$"
+            r"\$[a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*(?:\[[^\]\n]{0,80}\])*\s*(?:[-+*./%&|^]|\*\*|<<|>>|\?\?)?=(?![=>])"
+            r"|(?:["
+            + ID_CONTINUE
+            + r"]{1,100})?(?:->|::)\$?[a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*(?:\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*./%&|^]|\?\?)?=(?![=>])"
+            r"|\barray_(?:push|pop|shift|unshift|splice)\b|["
+            + ID_CONTINUE
+            + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*\$"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # BUG FIX: the `function|class|namespace|use|if|foreach`
@@ -275,11 +289,13 @@ DEFINITION: dict[str, Any] = {
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Magic methods, reflection, and variable variables.
         "reflection_metaprogramming": re.compile(
-            r"\b(__(?:get|set|call|callStatic|invoke|destruct|clone)|Reflection(?:Class|Method|Property)|call_user_func(?:_array)?)\b|\$\$[a-zA-Z_\x80-\xff]"
+            r"\b(__(?:get|set|call|callStatic|invoke|destruct|clone)|Reflection(?:Class|Method|Property)|call_user_func(?:_array)?)\b|\$\$[a-zA-Z_\x80-\U0010ffff]"
         ),
         # 24. import (Dependency Inclusions)
         "import": re.compile(
-            r"\b(?:use\s+(?:function|const[ \t]+)?[\w\\]+|require|include|require_once|include_once)\b",
+            r"\b(?:use\s+(?:function|const[ \t]+)?["
+            + ID_CONTINUE
+            + r"\\]+|require|include|require_once|include_once)\b",
             re.M,
         ),
         "_dependency_capture": re.compile(
@@ -368,7 +384,7 @@ DEFINITION: dict[str, Any] = {
         # 35. pointers (Pointer Arithmetic / Memory Addressing)
         "pointers": re.compile(r"\b(FFI::cast|FFI::addr|FFI::scope|FFI::new)\b"),
         # 36. memory_alloc
-        "memory_alloc": re.compile(r"\bnew\s+[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*"),
+        "memory_alloc": re.compile(r"\bnew\s+[a-zA-Z_\x80-\U0010ffff][a-zA-Z0-9_\x80-\U0010ffff]*"),
         # 37. inline_asm
         "inline_asm": None,
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
@@ -395,7 +411,7 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         # #2899: `&` no longer matches HTML entities (&amp;, &#123;) inside the string
         # stream -- 12316 of php's 15137 crucible hits were entity ampersands.
-        "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)(?![a-zA-Z#]\w*;)|(?<!\|)\|(?!\|)|\^|~"),
+        "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)(?![a-zA-Z#][" + ID_CONTINUE + r"]*;)|(?<!\|)\|(?!\|)|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|flock|sem_acquire)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)

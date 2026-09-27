@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -98,7 +100,13 @@ DEFINITION: dict[str, Any] = {
         # which counts the real parameter list directly for this one shape
         # without loosening this shared regex's own contract.
         "args": re.compile(
-            r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b([A-Za-z_$][\w$]*)(?:[ \t\n]*<[^>]*>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*(?:\{|=>|:|async|sync))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*=>",
+            r"(?!(?:if|for|while|switch|catch|case|when|return|throw|new)\b)\b(?<!["
+            + ID_CONTINUE
+            + r"])(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)(?:[ \t\n]*<[^>]*>)?[ \t\n]*(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))(?=[ \t\n]*(?:\{|=>|:|async|sync))|(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]*=>",
             re.I | re.M,
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const/final.
@@ -143,13 +151,49 @@ DEFINITION: dict[str, Any] = {
         # This prevents the regex from crossing structural boundaries like `) {`.
         # =====================================================================
         "func_start": re.compile(
-            r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
+            r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
             r"(?:"
             r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-            r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-            r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
-            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
-            r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+            r"(?!(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+            r"(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
+            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+            r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|operator[ \t\n]+[^\s"
+            + ID_CONTINUE
+            + r"]+)"
             # #2462: one level of generic-argument nesting in the method's
             # own type-parameter list (`foo<T extends State<StatefulWidget>>()`)
             # -- a bare `<[^>]*>` stops at the inner `>` and the whole
@@ -157,10 +201,44 @@ DEFINITION: dict[str, Any] = {
             r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
             r"|"
             r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-            r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-            r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
-            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
-            r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+            r"(?!(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+            r"(?:(?!\?[ \t\n]+(?:get|set|factory|["
+            + ID_START
+            + r"]))(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
+            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+            r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|operator[ \t\n]+[^\s"
+            + ID_CONTINUE
+            + r"]+)"
             r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
             r"|"
             # #2308 item 1: `implements`/`with` added to every occurrence of this
@@ -202,14 +280,68 @@ DEFINITION: dict[str, Any] = {
             # rejects a parameter list that opens with `:` (only valid in Dart's
             # object-destructuring patterns, e.g. `StatefulElement(:final T
             # state) => state,` -- never a real parameter list).
-            r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
-            r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
+            r"(?!(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+            r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|operator[ \t\n]+[^\s"
+            + ID_CONTINUE
+            + r"]+)"
             r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
             r"|"
-            r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
-            r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
+            r"(?!(?:(?:(?:["
+            + ID_CONTINUE
+            + r"<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+            r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\.)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+            r"(?:const[ \t\n]+)?(_?["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)?)"
             # #2308 item 2 / #2462: this alternative originally required
             # `this.`/`super.` inside the parens. A bodyless DEFAULT/named
             # constructor with an EMPTY parameter list (`ClassName();`,
@@ -239,9 +371,17 @@ DEFINITION: dict[str, Any] = {
         # group `(?:[ \t\n]+(?:extends|implements|with).*?)?` to handle inheritance paths.
         # =====================================================================
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+\b(?:\([^)]*\))?[ \t\n]*){0,5}"
+            r"^[ \t]*(?:@[" + ID_CONTINUE + r".]+\b(?:\([^)]*\))?[ \t\n]*){0,5}"
             r"(?:(?:abstract|sealed|base|interface|final|macro|mixin)[ \t\n]+){0,5}"
-            r"(?:class|mixin|enum|extension(?:[ \t\n]+type(?:[ \t\n]+const)?)?|extension)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)?([A-Z_]\w*)(?:[ \t\n]+(?:extends|implements|with)[ \t\n]+[A-Za-z_$][\w_<>, \t\n]*)?",
+            r"(?:class|mixin|enum|extension(?:[ \t\n]+type(?:[ \t\n]+const)?)?|extension)[ \t\n]+(?:/\*.*?\*/[ \t\n]*)?(["
+            + CAPITAL
+            + r"_]["
+            + ID_CONTINUE
+            + r"]*)(?:[ \t\n]+(?:extends|implements|with)[ \t\n]+["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"_<>, \t\n]*)?",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -255,12 +395,18 @@ DEFINITION: dict[str, Any] = {
         # the bare `is` alternative catching its own tail as a
         # substring, so it isn't a functional miss -- left as-is.)
         "safety": re.compile(
-            r"\b(?:try|catch|finally|on\s+[A-Z]\w*|assert|required|late|is|!is|SafeArea)\b"
+            r"\b(?:try|catch|finally|on\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|assert|required|late|is|!is|SafeArea)\b"
             r"|@immutable|@mustCallSuper|\?\?|\?.",
             re.I,
         ),
         # 7. safety_neg: Safety Bypasses. Actively bypassing sound null safety or static analysis.
-        "safety_bypasses": re.compile(r"!\s*[;,\n)\.\]]|\bdynamic\b|//\s*ignore(?:_for_file)?:\s*\w+"),
+        "safety_bypasses": re.compile(
+            r"!\s*[;,\n)\.\]]|\bdynamic\b|//\s*ignore(?:_for_file)?:\s*[" + ID_CONTINUE + r"]+"
+        ),
         # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
         # #2878 contract C5: `exitCode` is a property that records a code; it ends nothing.
         "high_risk_execution": re.compile(r"\b(exit|Process\.killPid)\b", re.I),
@@ -286,10 +432,10 @@ DEFINITION: dict[str, Any] = {
         #    `_`-prefixed private convention excluded.
         "api": re.compile(
             r"\b(export|part\s+of)\b|@(Route|Get|Post|Mapping|visibleForTesting)\b|"
-            r"^[ \t]*(?:class|mixin|enum|extension|typedef)\s+(?![_])[A-Za-z]\w*|"
+            r"^[ \t]*(?:class|mixin|enum|extension|typedef)\s+(?![_])(?!_)[" + ID_START + r"][" + ID_CONTINUE + r"]*|"
             r"^(?!(?:import|export|part|library|class|mixin|enum|extension|typedef|abstract|final|const|var|late|external|covariant|static|return|if|for|while|switch|do|try|catch|throw|new|assert|case|default|break|continue|yield|await|async|with|implements|extends|on|in|is|as|super|this|null|true|false)\b)"
-            r"(?:void|[A-Za-z_$][\w$]*(?:<(?:[^<>]|<[^<>]*>){0,100}>)?\??(?:\[\])?)[ \t]+"
-            r"(?:get[ \t]+|set[ \t]+)?[A-Za-z]\w*[ \t]*[(<]",
+            r"(?:void|[" + ID_START + r"$][" + ID_CONTINUE + r"$]*(?:<(?:[^<>]|<[^<>]*>){0,100}>)?\??(?:\[\])?)[ \t]+"
+            r"(?:get[ \t]+|set[ \t]+)?(?!_)[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*[(<]",
             re.I | re.M,
         ),
         # 11. flux: State Mutation. State mutation (setState and reactive collection mutators).
@@ -302,9 +448,17 @@ DEFINITION: dict[str, Any] = {
             # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
             # string literal is not an increment).
             # `setState`/`notifyListeners`/`markNeedsBuild` are the framework's write sites.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*(?:\.["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^~]|<<|>>>?|\?\?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
             r"|\b(?:setState|notifyListeners|markNeedsBuild)\s*\("
             r"|\.(?:add|addAll|addEntries|remove|removeWhere|removeAt|insert|clear|update|sort|fillRange|setAll)\s*\(",
             re.M,
@@ -371,11 +525,15 @@ DEFINITION: dict[str, Any] = {
         # binding -- both are program-scope declarations the #2858 rule did not yet
         # see. Added beside the existing `static final`/`static const` forms.
         "globals": re.compile(
-            r"\b(static\s+(?:final|const|var)|Platform\.environment|window\.|Zone\.current)\b|^(?![ \t])(?:final|const|var|late[ \t]+final)\s+[A-Za-z_$][\w$]*[ \t]*=",
+            r"\b(static\s+(?:final|const|var)|Platform\.environment|window\.|Zone\.current)\b|^(?![ \t])(?:final|const|var|late[ \t]+final)\s+["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t]*=",
             re.I | re.M,
         ),
         # 19. decorators: Decorators / Annotations. Annotations applied to methods/classes.
-        "decorators": re.compile(r"@[A-Za-z_$][\w$]*(?:\([^)]*\))?"),
+        "decorators": re.compile(r"@[" + ID_START + r"$][" + ID_CONTINUE + r"$]*(?:\([^)]*\))?"),
         # 20. generics: Generics / Type Parameters. Parameterized collections and generic classes.
         "generics": re.compile(r"<\s*[A-Z][^>]*>"),
         # 21. comprehensions: Iterators / Comprehensions. Collection for/if and functional pipelines.
@@ -403,7 +561,11 @@ DEFINITION: dict[str, Any] = {
         # (the previous URI's); a collection-`if` in code (`['a', if (c) 'b']`)
         # always has a comma there, so it never matches. Bounded, one condition.
         "_dependency_capture": re.compile(
-            r"(?:^|[ \t;{}])(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*(?:['\"]([^'\"]+)['\"]|([a-zA-Z_$][\w$]*)[ \t\n]*;)"
+            r"(?:^|[ \t;{}])(?:import|export|part(?:[ \t\n]+of)?)\b[ \t\n]*(?:['\"]([^'\"]+)['\"]|(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*)[ \t\n]*;)"
             r"|(?<=['\"])[ \t\n]{1,40}if[ \t\n]*\([^()\n]{1,120}\)[ \t\n]*['\"]([^'\"\n]+)['\"]",
             re.M,
         ),
@@ -453,7 +615,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 34. macros: Preprocessor Hooks. Modern macros and JsonSerializable generators.
         "macros": re.compile(
-            r"\bmacro\s+class\b|@(?!(?:override|deprecated|required|protected|visibleForTesting|pragma|immutable))[A-Z]\w*Macro\(\)|@JsonSerializable|@freezed",
+            r"\bmacro\s+class\b|@(?!(?:override|deprecated|required|protected|visibleForTesting|pragma|immutable))["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*Macro\(\)|@JsonSerializable|@freezed",
             re.I,
         ),
         # 35. pointers: Memory Map. dart:ffi bridging to native memory space.
@@ -477,7 +643,19 @@ DEFINITION: dict[str, Any] = {
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
         "debug_prints": re.compile(r"\b(print|debugPrint)\s*\(", re.I),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit casting.
-        "explicit_casts": re.compile(r"\bas\s+[A-Z]\w*|\(\s*[A-Z]\w*\s*\)\s*[a-zA-Z_$]"),
+        "explicit_casts": re.compile(
+            r"\bas\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\(\s*["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*\)\s*["
+            + ID_START
+            + r"$]"
+        ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
         "panics_and_aborts": re.compile(r"\b(throw|rethrow|exit|exitCode|Process\.killPid)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/delays).
@@ -506,8 +684,12 @@ DEFINITION: dict[str, Any] = {
             # The var/final arm requires `= `/`;` right after the name so `final
             # _Type publicName` (a private-TYPE usage) doesn't count; the method arm
             # excludes statement keywords so `return _call(...)` doesn't.
-            r"@protected\b|\b(?:class|enum|mixin|extension|typedef)[ \t]+_[\w$]+"
-            r"|^[ \t]*(?!return\b|await\b|yield\b|throw\b|case\b)(?:static[ \t]+)?(?:[\w<>,\[\]$?]+[ \t]+){1,3}_[\w$]+[ \t]*[=;(]",
+            r"@protected\b|\b(?:class|enum|mixin|extension|typedef)[ \t]+_[" + ID_CONTINUE + r"$]+"
+            r"|^[ \t]*(?!return\b|await\b|yield\b|throw\b|case\b)(?:static[ \t]+)?(?:["
+            + ID_CONTINUE
+            + r"<>,\[\]$?]+[ \t]+){1,3}_["
+            + ID_CONTINUE
+            + r"$]+[ \t]*[=;(]",
             re.M,
         ),
         # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
@@ -526,7 +708,7 @@ DEFINITION: dict[str, Any] = {
         # auth_middleware (#3004): Firebase/Google sign-in (flutter's dominant
         # auth surface) and JWT verification, instance-anchored.
         "auth_middleware": re.compile(
-            r"\bFirebaseAuth\.instance\.(?:signIn|signOut|createUser)\w*\("
+            r"\bFirebaseAuth\.instance\.(?:signIn|signOut|createUser)[" + ID_CONTINUE + r"]*\("
             r"|\bGoogleSignIn\("
             r"|\bJWT\.verify\("
         ),

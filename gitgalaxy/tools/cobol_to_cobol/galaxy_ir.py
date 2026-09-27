@@ -77,6 +77,13 @@
 # error_handlers and unchecked_responses place them in their owning paragraph.
 # tdq_trigger_starts joins a WRITEQ TD to a CSD TDQUEUE with TRIGGERLEVEL and
 # TRANSID -- the transaction CICS starts when the queue fills.
+# Since #3820, the SPECIAL-NAMES clauses that change what a PIC is worth
+# (special_names_data, per EngineFile.special_names): each CURRENCY [SIGN] string
+# with the PICTURE SYMBOL that stands for it, and DECIMAL-POINT IS COMMA. Every
+# COBOL item whose PIC uses a declared currency symbol carries the string
+# (EngineDataItem.currency) -- from its own program, else from the one string the
+# estate declares for that symbol -- and record_layout sizes a multi-character
+# currency string by its length.
 # Since #3455, file definitions: each FILE-CONTROL SELECT's organisation,
 # access mode and keys (file_control_data, per EngineFile.file_control) and each
 # IDCAMS DEFINE CLUSTER / AIX / PATH in JCL (vsam_define_data, per
@@ -147,6 +154,7 @@ import re
 import sqlite3
 import subprocess
 import sys
+import unicodedata
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -323,6 +331,10 @@ class EngineDataItem:
     copy_members: Optional[str] = None
     # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own.
     sign_separate: bool = False
+    # #3820: {symbol: currency string} for each declared currency symbol the PIC
+    # uses; a string of None means the estate declares that symbol with different
+    # strings, so its width is unknown. Empty when the PIC uses none.
+    currency: dict = field(default_factory=dict)
 
     @property
     def is_group(self) -> bool:
@@ -632,6 +644,18 @@ class EngineUowHandler:
 
 
 @dataclass
+class EngineSpecialName:
+    """One SPECIAL-NAMES clause (#3820), from `special_names_data`: CURRENCY
+    (`value` the currency string, `symbol` the PICTURE SYMBOL for it) or
+    DECIMAL-POINT (`value` COMMA, no symbol)."""
+
+    clause: str
+    value: Optional[str]
+    symbol: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFileControl:
     """One FILE-CONTROL SELECT (#3455), from `file_control_data`. `organization`
     is None when the clause is absent (COBOL's default is SEQUENTIAL);
@@ -813,6 +837,7 @@ class EngineFile:
     ims_gen: list = field(default_factory=list)  # EngineImsGen, source order, #3477
     data_moves: list = field(default_factory=list)  # EngineDataMove, source order, #3452
     web_services: list = field(default_factory=list)  # EngineWebService, source order, #3496
+    special_names: list = field(default_factory=list)  # EngineSpecialName, source order, #3820
     # #3490: symbolic maps generated from BMS source for COPY members no real
     # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
     symbolic_copies: list = field(default_factory=list)
@@ -4771,6 +4796,46 @@ def _pic_positions(pic: str) -> Optional[list]:
     return out
 
 
+# #3820: the picture symbols a position can be (IBM Enterprise COBOL, plus `1`
+# boolean and `U` UTF-8), CR/DB expanded to two positions by _pic_positions. A
+# currency position is any Unicode currency sign (`$`, `£` -- the default sign
+# byte 0x5B on CP285 --, `€`, `¥`) or a symbol the program's SPECIAL-NAMES
+# declares; any other character (a REPLACING tag such as `:TAG:`) makes the width
+# unknown rather than guessed.
+_PIC_SYMBOLS = frozenset("ABEGNPSVXZ90/,.+-*CRD1U")
+
+
+def _is_currency_sign(ch: str) -> bool:
+    return unicodedata.category(ch) == "Sc"
+
+
+def _attach_currency(files: list) -> None:
+    """#3820: give every COBOL item whose PIC uses a declared currency symbol the
+    currency string it stands for. A program's own SPECIAL-NAMES win; an item in a
+    copybook (which has no SPECIAL-NAMES) takes the estate's declaration for that
+    symbol, or None -- width unknown -- when programs declare it differently."""
+    estate: dict = {}
+    for ef in files:
+        for sn in ef.special_names:
+            if sn.clause != "CURRENCY" or not sn.symbol or sn.value is None:
+                continue
+            sym = sn.symbol.upper()
+            estate[sym] = sn.value if estate.get(sym, sn.value) == sn.value else None
+    if not estate:
+        return
+    for ef in files:
+        own = {
+            sn.symbol.upper(): sn.value
+            for sn in ef.special_names
+            if sn.clause == "CURRENCY" and sn.symbol and sn.value is not None
+        }
+        for it in ef.data_items:
+            if it.attributes is not None or not it.pic:
+                continue
+            used = {ch for ch in it.pic.upper() if ch in own or ch in estate}
+            it.currency = {ch: own[ch] if ch in own else estate[ch] for ch in used}
+
+
 # The USAGEs that make an item elementary with no PIC. Any other PIC-less item is
 # a group, even with a USAGE of its own (`01 X USAGE DISPLAY.` applies to its
 # children) -- and even when the engine read a stray USAGE into it.
@@ -4877,6 +4942,18 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
     positions = _pic_positions(item.pic)
     if positions is None:
         return None
+    # #3820: a declared currency symbol stands for its whole currency string. In a
+    # run of them (floating insertion) or alone (fixed insertion) the string takes
+    # its length once and each further symbol one position: `UUU9.99` with 'EUR '
+    # is 3 + (4 - 1) + 4 = 10 bytes.
+    extra = 0
+    for sym, string in item.currency.items():
+        if string is None:
+            return None  # the estate declares this symbol with different strings
+        if sym in positions:
+            extra += len(string) - 1
+    if any(p not in _PIC_SYMBOLS and p not in item.currency and not _is_currency_sign(p) for p in positions):
+        return None
     digits = sum(1 for p in positions if p == "9")
     cls = _item_class(item)
     if cls == "P":
@@ -4889,7 +4966,7 @@ def _elementary_bytes(item: EngineDataItem) -> Optional[int]:
     width = sum(2 if p in ("N", "G") else 1 for p in storage)
     if width and item.sign_separate and "S" in positions:
         width += 1  # #3694: SIGN ... SEPARATE -- the sign is a character of its own
-    return width or None
+    return (width + extra) or None
 
 
 # `LIKE s` / `LIKE a.s`: the structure whose members an item copies (#3720).
@@ -5437,6 +5514,18 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 if row[0] in by_id:
                     fields = dict(zip(_WEB_FIELDS, row[1:-1]))
                     by_id[row[0]].web_services.append(EngineWebService(**fields, line=int(row[-1] or 0)))
+        # #3820: SPECIAL-NAMES currency strings / decimal point. A pre-#3820 database has none.
+        if _has_table(cur, "special_names_data"):
+            for row in cur.execute(
+                "SELECT file_id, clause, value, symbol, line_number FROM special_names_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].special_names.append(
+                        EngineSpecialName(clause=row[1] or "", value=row[2], symbol=row[3], line=int(row[4] or 0))
+                    )
+            _attach_currency(list(by_id.values()))
         # #3452: field-level data movement. A pre-#3452 database has none.
         if _has_table(cur, "data_move_data"):
             texts = (

@@ -48,18 +48,27 @@ running.
 
 ## `pii_leak_hunter.py` — Exposed PII Detection and Masking
 
-Streams a log file or data dump looking for a fixed set of PII patterns: Visa and Mastercard
-card numbers, US Social Security numbers, and AWS API keys (`AKIA`/`ASIA`/`AGPA`/`AIDA`/`AROA`/`AIPA`
-prefixes). Unlike the keyword scanner, there's nothing to configure — it always checks for all
-four categories.
+Streams a log file or data dump looking for a fixed set of PII patterns. Visa and Mastercard
+card numbers and AWS API keys (`AKIA`/`ASIA`/`AGPA`/`AIDA`/`AROA`/`AIPA` prefixes) are always
+checked. National identifiers come in region packs, all on by default (#3832):
+
+| Pack | Identifier | Guard against ordinary numbers |
+|---|---|---|
+| `us` | US Social Security number | `ddd-dd-dddd` shape |
+| `iban` | IBAN (any country) | ISO 13616 mod-97 check |
+| `uk` | UK National Insurance number (NINO) | HMRC prefix/suffix letter rules |
+| `in` | Aadhaar (India) | Verhoeff check digit |
+| `br` | CPF (Brazil) | both mod-11 check digits |
+| `nl` | BSN (Netherlands) | 11-proof, and `BSN`/`burgerservicenummer` on the same line |
 
 ```bash
 python pii_leak_hunter.py /path/to/dump.log
+python pii_leak_hunter.py /path/to/dump.log --regions us,iban   # cards/AWS plus two packs
 ```
 
 Every matching line is masked before it's written anywhere — the raw PII itself is never
-persisted to disk, only a redacted stand-in (last 4 digits of a card or SSN, first+last 4 of an
-AWS key). That's what makes the output safe to keep as evidence: you can prove a leak happened
+persisted to disk, only a redacted stand-in (last 4 digits of a card, SSN or national ID,
+first+last 4 of an AWS key). That's what makes the output safe to keep as evidence: you can prove a leak happened
 and where, without creating a second copy of the sensitive data itself.
 
 **Output**, written next to the input file (or to `--out <dir>`):

@@ -530,6 +530,8 @@ class RecordKeeper:
         macros and IMS region steps (#3477) ride on `ims_gen` -> ims_gen_data.
         Field-level data movement (#3452) rides on `data_moves` -> data_move_data.
         Web-services assistant steps (#3496) ride on `web_services` -> web_service_data.
+        SPECIAL-NAMES currency strings and decimal point (#3820) ride on
+        `special_names` -> special_names_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1523,6 +1525,28 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_web_service_file_id ON web_service_data(file_id);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_web_service_snapshot ON web_service_data(repo_name, commit_hash);"
+        )
+
+        # #3820: the SPECIAL-NAMES clauses that change what a PIC's symbols are
+        # worth (core/special_names.py): one row per CURRENCY [SIGN] clause (value
+        # = the currency string, symbol = the PICTURE SYMBOL standing for it) and
+        # per DECIMAL-POINT IS COMMA (value COMMA). Widths are the reader's.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS special_names_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                clause TEXT,
+                value TEXT,
+                symbol TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_special_names_file_id ON special_names_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_special_names_snapshot ON special_names_data(repo_name, commit_hash);"
         )
 
         # #3452: field-level data movement (core/data_moves.py), one row per source ->
@@ -3416,6 +3440,19 @@ class RecordKeeper:
                 g.get("attributes"),
                 int(g.get("line", 0) or 0),
             ),
+        )
+
+        # #3820: SPECIAL-NAMES currency / decimal point -- per-file.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "special_names_data",
+            ("clause", "value", "symbol", "line_number"),
+            "special_names",
+            lambda n: (n.get("clause"), n.get("value"), n.get("symbol"), int(n.get("line", 0) or 0)),
         )
 
         # #3496: web-services assistant steps -- per-file.

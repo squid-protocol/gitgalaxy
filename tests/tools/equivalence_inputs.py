@@ -8,7 +8,8 @@ with each field's values chosen for its storage:
 
 * text: letters and digits at full width, a short value, and blanks;
 * numeric DISPLAY / COMP-3 / COMP: zero, one, the PICTURE's maximum and its negative
-  where signed, the smallest fraction at its scale, and values in between;
+  where signed, the smallest fraction at its scale, exact halves (2.5, 0.5, 0.05 ...: the ties
+  where ROUNDED modes differ, #3825), and values in between;
 * a date-shaped text field (named *DATE*, ten bytes): a valid YYYY-MM-DD.
 
 A case steers what the program must meet:
@@ -64,6 +65,10 @@ def _numeric_value(rng: random.Random, signed: bool, digits: int, scale: int, ro
     edges = [Decimal(0), Decimal(1) if digits - scale > 0 else tiny, top, tiny]
     if signed:
         edges += [-top, -tiny]
+    # #3825: exact halves, so a ROUNDED result meets a tie -- half away from zero (3 / -3) and banker's
+    # rounding (2 / -2) part company only there: 2.5 and 0.5 at the whole-number digit, 5 at the last one
+    ties = [t for t in (Decimal("2.5"), Decimal("0.5"), Decimal(5).scaleb(-scale)) if scale and t <= top]
+    edges += [v for t in dict.fromkeys(ties) for v in ((t, -t) if signed else (t,))]
     if row < len(edges):
         return edges[row]
     whole = rng.randint(0, 10 ** min(digits - scale, 9) - 1) if digits > scale else 0

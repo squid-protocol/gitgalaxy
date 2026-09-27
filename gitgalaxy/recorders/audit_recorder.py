@@ -512,6 +512,18 @@ class AuditRecorder:
                  "Line": w.get("line", 0)}
                 for w in web
             ]  # fmt: skip
+        special = file_data.get("special_names") or []
+        if special:
+            # #3820: SPECIAL-NAMES currency strings / decimal point, mirroring special_names_data.
+            block["Special Names"] = [
+                {
+                    "Clause": n.get("clause"),
+                    "Value": n.get("value"),
+                    "Symbol": n.get("symbol"),
+                    "Line": n.get("line", 0),
+                }
+                for n in special
+            ]
         moves = file_data.get("data_moves") or []
         if moves:
             # #3452: field-level data movement, one compact line per source -> target pair.

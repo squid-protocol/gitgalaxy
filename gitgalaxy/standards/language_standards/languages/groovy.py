@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -151,21 +153,37 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             # arm 1: bodied declaration -- anchored on the `{` that opens the body.
             r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
-            r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+){0,3}"
+            r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"<>\[\]?,\.]*)[ \t]+){0,3}"
             r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
-            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
+            r"(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
             r"(?=[ \t\n]*(?:throws[ \t\n]+[\w.,<>$ \t\n]{0,200})?\{)"
             # arm 2: bodyless declaration (interface / abstract) -- no `{` to anchor
             # on, so the declaration type is mandatory and must be a primitive,
             # `def`, or an uppercase-initial type.
             r"|^[ \t]*(?:(?:public|private|protected|static|final|abstract|synchronized|native|transient|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
             r"(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|def|[A-Z][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+"
-            r"(?:[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*[ \t]+){0,2}"
+            r"(?:[" + ID_START + r"][" + ID_CONTINUE + r"<>\[\]?,\.]*[ \t]+){0,2}"
             r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
-            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
+            r"(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
             r"(?=[ \t]*(?:throws[ \t\n]+[\w.,<>$ \t\n]{0,200})?[ \t]*(?:;|$))"
             # arm 3: closure parameter list (`{ x, y ->`), unchanged.
-            r"|(?:\{[ \t\n]*)?(\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100}|)[ \t\n]*->",
+            r"|(?:\{[ \t\n]*)?(\((?:[^()]|\([^()]*\))*\)|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]{0,100}|)[ \t\n]*->",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -247,12 +265,24 @@ DEFINITION: dict[str, Any] = {
         # (-83) branch-1 matches, all genuine non-declarations; rosetta stays 13.
         "func_start": re.compile(
             r"^[ \t]*(?:"
-            r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|(?!(?:new|return|throw|assert|yield)[ \t\n])[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){1,18}"
+            r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|(?!(?:new|return|throw|assert|yield)[ \t\n])["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"<>\[\]?,\.]*)[ \t\n]+){1,18}"
             r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext|_)\b)"
-            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()"
+            r"([" + ID_START + r"$][" + ID_CONTINUE + r"$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()"
             r"|"
             r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext|_)\b)"
-            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\((?![^)]*\b[A-Za-z_$][\w$]*:(?!:))[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w.,<> \t\n]+)?[ \t\n]*\{)"
+            r"(["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\((?![^)]*\b["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*:(?!:))[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w.,<> \t\n]+)?[ \t\n]*\{)"
             r")",
             re.M,
         ),
@@ -267,7 +297,7 @@ DEFINITION: dict[str, Any] = {
             # counts were right), but the named class list was 100% synthetic
             # placeholders. Confirmed the only language in
             # _CLASS_START_NAMED_EXTRACTION_LANGS with this defect (checked all 36).
-            r"(?:class|interface|trait|enum|record)\s+([A-Za-z_$][\w_$]*)",
+            r"(?:class|interface|trait|enum|record)\s+([" + ID_START + r"$][" + ID_CONTINUE + r"$]*)",
             re.M,
         ),
         # --- PHASE 2: RISK ENGINE (Structural Integrity) ---
@@ -314,8 +344,16 @@ DEFINITION: dict[str, Any] = {
             r"\bpublic[ \t\n]+"
             r"(?:(?:static|final|abstract|synchronized|native|strictfp|transient|volatile|@[\w.]+(?:\([^)\n]{0,200}\))?)[ \t\n]+){0,5}"
             r"(?:class|interface|trait|enum|@interface|void\b|def\b"
-            r"|[A-Za-z_$][\w$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+[A-Za-z_$][\w$]*[ \t\n]*[({=;,]"
-            r"|[A-Za-z_$][\w$]*[ \t\n]*\()"
+            r"|["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+["
+            + ID_START
+            + r"$]["
+            + ID_CONTINUE
+            + r"$]*[ \t\n]*[({=;,]"
+            r"|[" + ID_START + r"$][" + ID_CONTINUE + r"$]*[ \t\n]*\()"
             r"|@(RestController|Controller|Service|Component|Bean|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\b"
         ),
         # 11. flux (State Mutation)
@@ -332,9 +370,17 @@ DEFINITION: dict[str, Any] = {
             # string literal is not an increment).
             # `@Setter`/`@Data` generate accessors (corollary 2). `=~`/`==~` are regex
             # operators, not writes.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%&|^]|<<|>>|\*\*|\?)?=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
             r"|\.(?:add|addAll|put|putAll|remove|clear|push|pop|set)\s*\(",
             re.M,
         ),
@@ -369,7 +415,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(
-            r"\b(synchronized|Thread|Runnable|Future|ExecutorService|Promise|Atomic\w+|task)\b|@(?:Async|Scheduled)"
+            r"\b(synchronized|Thread|Runnable|Future|ExecutorService|Promise|Atomic["
+            + ID_CONTINUE
+            + r"]+|task)\b|@(?:Async|Scheduled)"
         ),
         # 16. ui_framework (UI / View Components)
         "ui_framework": re.compile(r"\b(SwingBuilder|JFrame|JPanel|ModelAndView|ModelMap|Model|UIComponent)\b"),
@@ -384,7 +432,9 @@ DEFINITION: dict[str, Any] = {
         # it }`, `.collect { it * 2 }`) have no `->` at all and never
         # matched either alternative, missing Groovy's single most
         # common closure shape. Added a dot-method-call-into-brace form.
-        "closures": re.compile(r"\.\w+[ \t]*\{|\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n,]{0,150}?->|->"),
+        "closures": re.compile(
+            r"\.[" + ID_CONTINUE + r"]+[ \t]*\{|\{[ \t\n]*[" + ID_START + r"][" + ID_CONTINUE + r" \t\n,]{0,150}?->|->"
+        ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(r"\b(System\.getProperty|System\.getenv|project\.ext)\b|@Value"),
         # 19. decorators (Decorators / Annotations)
@@ -423,7 +473,12 @@ DEFINITION: dict[str, Any] = {
         # follow the identical syntax, so this was a coverage gap, not
         # an intentional Strict-Feature-Parity `None`.
         "_dependency_capture": re.compile(
-            r"^[ \t]*import[ \t\n\\]+(?:static[ \t\n\\]+)?([\w*]+(?:[ \t\n]*\.[ \t\n]*[\w*]+)*)[ \t]*;?", re.M
+            r"^[ \t]*import[ \t\n\\]+(?:static[ \t\n\\]+)?(["
+            + ID_CONTINUE
+            + r"*]+(?:[ \t\n]*\.[ \t\n]*["
+            + ID_CONTINUE
+            + r"*]+)*)[ \t]*;?",
+            re.M,
         ),
         # 25. ownership (Authorship Metadata)
         # #2882 contract: C1 keyed lines join @author
@@ -491,7 +546,15 @@ DEFINITION: dict[str, Any] = {
         ),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
-            r"\bas\s+[A-Z]\w*|\(\s*(?:int|long|short|byte|char|float|double|boolean|[A-Z][A-Za-z0-9_]*)\s*\)\s*[a-zA-Z_$]"
+            r"\bas\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\(\s*(?:int|long|short|byte|char|float|double|boolean|["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)\s*\)\s*[a-zA-Z_$]"
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(throw|System\.exit|GradleException)\b"),
@@ -510,7 +573,7 @@ DEFINITION: dict[str, Any] = {
         # 47. encapsulation (Access Modifiers / Encapsulation)
         "encapsulation": re.compile(r"\b(private|protected)\b"),
         # 48. listeners (Event Listeners / Observers)
-        "listeners": re.compile(r"\b(addListener|on[A-Z]\w*|subscribe)\b"),
+        "listeners": re.compile(r"\b(addListener|on[" + CAPITAL + r"][" + ID_CONTINUE + r"]*|subscribe)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"@(?:Ignore|Disabled|PendingFeature)\b|mock\s*\(|spy\s*\("),
     },

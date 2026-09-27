@@ -3,7 +3,7 @@
 On national EBCDIC code pages the bytes behind `$ # @` display as `Å Æ Ø` (cp277), `Å Ä Ö` (cp278),
 `§` (cp273), `Ñ` (cp284), `£` (cp285 / cp297) ... so exported JCL, CSD, HLASM, COBOL and BMS names
 carry them. Each channel must read such a name whole -- and every letter class in the mainframe
-readers must accept them, so a new rule cannot quietly drop them again.
+readers must splice in identifiers.NATIONAL, so a new rule cannot quietly drop them again.
 """
 
 import re
@@ -16,7 +16,6 @@ from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-from gitgalaxy.standards.language_standards.identifiers import NATIONAL
 
 ROOT = Path(__file__).resolve().parents[2]
 READERS = [
@@ -25,12 +24,18 @@ READERS = [
 ]
 
 
+def _code(rel: str) -> str:
+    """The file without its comment lines (a comment may quote an old, ASCII-only class)."""
+    lines = (ROOT / rel).read_text(encoding="utf-8").splitlines()
+    return "\n".join(line for line in lines if not line.lstrip().startswith("#"))
+
+
 def test_every_mainframe_letter_class_accepts_the_national_letters():
     missing = [
         f"{rel}: {m.group(0)}"
         for rel in READERS
-        for m in re.finditer(r"\[(?!\^)[^\]\[]*A-Z[^\]\[]*\]", (ROOT / rel).read_text(encoding="utf-8"))
-        if NATIONAL not in m.group(0)
+        for m in re.finditer(r"\[(?!\^)[^\]\[]*A-Z[^\]\[]*\]", _code(rel))
+        if not re.search(r'"\s*\+\s*NATIONAL\s*\+\s*r"', m.group(0))  # the class splices the constant in
     ]
     assert not missing, "\n".join(missing)
 

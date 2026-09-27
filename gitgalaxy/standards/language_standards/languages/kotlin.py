@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # An extension function's receiver type and its dot, shared by `args` and
@@ -111,7 +113,15 @@ DEFINITION: dict[str, Any] = {
             # existing extraction tests keep passing.
             r"\b(?:fun|constructor)\b(?:[ \t\n]*<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]*((?:"
             + _RECEIVER
-            + r")?(?:`[^`\n]{1,200}`|[a-zA-Z_]\w*))?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\{[ \t\n]*([a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?)->",
+            + r")?(?:`[^`\n]{1,200}`|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*))?[ \t\n]*(\((?:[^)(]|\([^)]*\))*\))|\{[ \t\n]*(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r" \t\n:<>,.?]{0,150}?)->",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -141,7 +151,11 @@ DEFINITION: dict[str, Any] = {
             r"(?:context\s*\([^)]*\)\s*)?"
             r"(?:(?:\bfun\b)[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:(?:"
             + _RECEIVER
-            + r")?(?:`([^`\n]{1,200})`|([a-zA-Z_]\w*)))?|(init)|(constructor))(?=[ \t\n]*[\(\{])",
+            + r")?(?:`([^`\n]{1,200})`|(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)))?|(init)|(constructor))(?=[ \t\n]*[\(\{])",
             re.M,
         ),
         # 5. class_start (Object / Entity Declarations)
@@ -166,7 +180,15 @@ DEFINITION: dict[str, Any] = {
         # 1.4) -- previously unrecognized, a real recall gap confirmed
         # against okhttp's `fun interface Factory`.
         "class_start": re.compile(
-            r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner|fun)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*)|companion[ \t\n]+object(?:\s+(`[^`\n]{1,200}`|[a-zA-Z_]\w*))?)",
+            r"^[ \t]*(?:@[\w.]+(?:\([^)\{]{0,300}\))?[ \t]*){0,10}(?:(?:public|private|protected|internal|open|abstract|final|sealed|data|value|annotation|expect|actual|inner|fun)[ \t]+){0,5}(?:(?:class|interface|object|enum\s+class)\s+(`[^`\n]{1,200}`|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)|companion[ \t\n]+object(?:\s+(`[^`\n]{1,200}`|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*))?)",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -225,9 +247,17 @@ DEFINITION: dict[str, Any] = {
             # `var x = v` declares and `Mutable*`/`Atomic*` name mutable state (corollaries
             # 1 and 2); `x = v`, `x++`, `.add(`... are the writes. `=>` never appears in
             # kotlin but `==`/`===` do; a trailing-comma line is a named argument.
-            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"(?:^|[;{}])[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*"
             r"[ \t]*(?:[-+*/%])?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
             r"|\.(?:add|addAll|remove|removeAt|put|putAll|set|update|clear|getAndSet|compareAndSet|incrementAndGet|decrementAndGet)\s*\(",
             re.M,
         ),
@@ -256,7 +286,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 17. closures (Closures / Anonymous Functions)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix ReDoS.
-        "closures": re.compile(r"\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->"),
+        "closures": re.compile(r"\{[ \t\n]*[" + ID_START + r"][" + ID_CONTINUE + r" \t\n:<>,.?]{0,150}?->"),
         # 18. globals (Global / Shared State)
         # BUG FIX (#2673): The single indented `val` alternative couldn't tell a
         # `companion object { const val LIMIT = 5 }` (a real global) from a
@@ -267,14 +297,24 @@ DEFINITION: dict[str, Any] = {
         "globals": re.compile(
             # #2858 contract corollary 3: the NAMED object declaration is the global
             # (a singleton); `object : Runnable {` is an anonymous object expression.
-            r"\bobject[ \t]+[A-Za-z_`]|\bcompanion[ \t]+object\b"
-            r"|^[ \t]*const[ \t]+val\s+[A-Za-z_]\w*[ \t]*="
+            r"\bobject[ \t]+[" + ID_START + r"`]|\bcompanion[ \t]+object\b"
+            r"|^[ \t]*const[ \t]+val\s+[" + ID_START + r"][" + ID_CONTINUE + r"]*[ \t]*="
             r"|^(?![ \t])(?:const[ \t]+)?val\s+[A-Z_0-9]+[ \t]*=",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)
         # OPTIMIZED: Bounded arguments.
-        "decorators": re.compile(r"@[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*(?:\([^)\{]{0,300}\))?"),
+        "decorators": re.compile(
+            r"@["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:\.["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)*(?:\([^)\{]{0,300}\))?"
+        ),
         # 20. generics (Generics / Type Parameters)
         # Prevented catastrophic backtracking across newlines.
         "generics": re.compile(r"<\s*(?:in|out)?\s*[A-Z][^>\n]{0,100}>|\breified\b|\bwhere\b"),
@@ -305,8 +345,8 @@ DEFINITION: dict[str, Any] = {
             r"^(?:@[\w.:]{1,120}(?:\([^)\n]{0,200}\))?[ \t]+"
             r"|(?:public|internal|protected|const|inline|expect|actual|lateinit|external)[ \t]+){0,8}"
             r"va[lr][ \t]+(?:<[^>\n]{1,100}>[ \t]*)?"
-            r"(?:[A-Za-z_][\w.]{0,120}(?:<[^\n=:]{0,120}>)?\??\.)?"
-            r"([A-Za-z_]\w{0,127})(?=[ \t]*(?:[:=]|by\b|get\b|$))",
+            r"(?:[" + ID_START + r"][" + ID_CONTINUE + r".]{0,120}(?:<[^\n=:]{0,120}>)?\??\.)?"
+            r"([" + ID_START + r"][" + ID_CONTINUE + r"]{0,127})(?=[ \t]*(?:[:=]|by\b|get\b|$))",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)
@@ -363,7 +403,11 @@ DEFINITION: dict[str, Any] = {
         "debug_prints": re.compile(r"\b(println|print)\b\s*\("),
         # # 40. explicit_casts (Explicit Type Casting)
         "explicit_casts": re.compile(
-            r"\bas\??\s+[A-Z]\w*|\.to(?:Int|Long|Short|Byte|Double|Float|String|Boolean|UInt|ULong|UShort|UByte)\(\)"
+            r"\bas\??\s+["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\.to(?:Int|Long|Short|Byte|Double|Float|String|Boolean|UInt|ULong|UShort|UByte)\(\)"
         ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(throw|raise|exitProcess|return|panic)\b"),
@@ -372,7 +416,9 @@ DEFINITION: dict[str, Any] = {
         # 43. bitwise_ops (Bitwise Operations)
         "bitwise_ops": re.compile(r"\.(?:shl|shr|ushr|and|or|xor|inv)\(|\b(?:shl|shr|ushr|xor)\b"),
         # 44. sync_locks (Resource Management & Stability)
-        "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|Atomic[A-Z]\w*)\b", re.I),
+        "sync_locks": re.compile(
+            r"\b(mutex|lock|synchronized|Semaphore|Atomic[" + CAPITAL + r"][" + ID_CONTINUE + r"]*)\b", re.I
+        ),
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(
             r"\bconst\b(?=[ \t]+val\b)"
@@ -387,7 +433,17 @@ DEFINITION: dict[str, Any] = {
         # { ... }`, omitting the parens entirely) is the dominant
         # real-world style for Android/Compose listeners. Widened to
         # accept either `(` or `{`.
-        "listeners": re.compile(r"\.(?:collect|observe|subscribe|on[A-Z]\w*|set[A-Z]\w*Listener)\s*[\(\{]"),
+        "listeners": re.compile(
+            r"\.(?:collect|observe|subscribe|on["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|set["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*Listener)\s*[\(\{]"
+        ),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mockk|spyK|fake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Kotlin Specifics) ---

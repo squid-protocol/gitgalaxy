@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+
 from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #3211-followup: CSD/RDO -- the CICS resource-definition language. A CSD deck is
@@ -43,7 +45,7 @@ from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBA
 #
 # A CICS resource name is up to 8 chars (a transaction ID is capped at 4); the
 # permissive union is taken here -- an over-long name is DFHCSDUP's diagnostic.
-_NAME = r"[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]{1,8}"
+_NAME = r"[A-Z" + NATIONAL + r"a-z0-9@#$]{1,8}"
 # A `DEFINE`/`DELETE`/`ALTER`/`ADD` command may start in column 1 (BANK.csd), after
 # one leading blank (CARDDEMO.CSD), or indented (inline JCL SYSIN); anchor on the
 # statement, tolerating leading whitespace, and fire on every line (re.M).

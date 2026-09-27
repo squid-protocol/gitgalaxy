@@ -54,29 +54,47 @@ def _pic_numeric(pic: str) -> Optional[tuple[bool, int, int]]:
     return p.startswith("S"), whole.count("9") + frac.count("9"), frac.count("9")
 
 
-def decode_field(raw: bytes, pic: Optional[str], usage: Optional[str], code_page: str = "cp037") -> Any:
-    """A field's value: an exact Decimal for numeric DISPLAY / COMP-3 / COMP, else its text."""
+def _ascii_digits(text: str) -> bool:
+    """#3830: only 0-9 -- `int()` also takes spaces, `+`, `_` and non-ASCII digits (`"  12"`, `1_2`, `١٢`)."""
+    return bool(text) and text.isascii() and text.isdigit()
+
+
+def decode_field(
+    raw: bytes, pic: Optional[str], usage: Optional[str], code_page: str = "cp037", sign_separate: bool = False
+) -> Any:
+    """A field's value: an exact Decimal for numeric DISPLAY / COMP-3 / COMP, else its text. Storage a
+    COBOL NUMERIC test would reject (a space, a stray `+`, a bad nibble) is `<invalid ...>`, never a number
+    (#3830): the oracle may not be more lenient than the program."""
     num = _pic_numeric(pic) if pic else None
     u = (usage or "DISPLAY").upper()
     if num is None:
         return raw.decode("latin-1")
     signed, _digits, scale = num
-    try:
-        if u in ("COMP-3", "PACKED-DECIMAL", "COMPUTATIONAL-3"):
-            hexs = raw.hex()
-            value, sign = int(hexs[:-1]), hexs[-1]
-            return Decimal(-value if sign in "bd" else value).scaleb(-scale)
-        if u in ("COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"):
-            return Decimal(int.from_bytes(raw, "big", signed=signed)).scaleb(-scale)
-        text = raw.decode("latin-1")
-        last, sign = text[-1], 1
+    invalid = f"<invalid {raw!r}>"
+    if u in ("COMP-3", "PACKED-DECIMAL", "COMPUTATIONAL-3"):
+        hexs = raw.hex()
+        if not hexs or not _ascii_digits(hexs[:-1]) or hexs[-1] not in "abcdef":
+            return invalid
+        value, sign = int(hexs[:-1]), hexs[-1]
+        return Decimal(-value if sign in "bd" else value).scaleb(-scale)
+    if u in ("COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"):
+        return Decimal(int.from_bytes(raw, "big", signed=signed)).scaleb(-scale)
+    text, sign = raw.decode("latin-1"), 1
+    if sign_separate:  # SIGN IS LEADING / TRAILING SEPARATE: its own `+` / `-` byte at one end
+        if text[:1] in ("+", "-"):
+            sign, text = (-1 if text[0] == "-" else 1), text[1:]
+        elif text[-1:] in ("+", "-"):
+            sign, text = (-1 if text[-1] == "-" else 1), text[:-1]
+        else:
+            return invalid
+    elif text:
         op = _overpunch(code_page)
-        if last in op:
-            d, sign = op[last]
+        if text[-1] in op:
+            d, sign = op[text[-1]]
             text = text[:-1] + str(d)
-        return (Decimal(int(text)) * sign).scaleb(-scale)
-    except (ValueError, IndexError):
-        return f"<invalid {raw!r}>"
+    if not _ascii_digits(text):
+        return invalid
+    return (Decimal(int(text)) * sign).scaleb(-scale)
 
 
 def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> list[dict[str, Any]]:
@@ -101,8 +119,9 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
     def place(it: dict[str, Any], at: int) -> None:
         if it.get("pic"):
             out.append(
-                {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage")}
-            )
+                {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),
+                 "sign_separate": bool(it.get("sign_separate"))}
+            )  # fmt: skip
             return
         cur = at
         for c in kids.get(it["ordinal"], []):

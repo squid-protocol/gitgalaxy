@@ -35,9 +35,11 @@
 import re
 from typing import Any, Optional
 
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+
 # `<NAME>`: a template JCL's installation placeholder (#3489 GENAPP), kept as written.
 _STMT = re.compile(
-    r"^//([A-ZÆØÅÄÖÜÑ§£àæøåäöüñ0-9@#$.<>]{0,17})[ \t]+([A-ZÆØÅÄÖÜÑ§£àæøåäöüñ]{2,8})(?:[ \t]+(.*))?$", re.I
+    r"^//([A-Z" + NATIONAL + r"0-9@#$.<>]{0,17})[ \t]+([A-Z" + NATIONAL + r"]{2,8})(?:[ \t]+(.*))?$", re.I
 )
 _OPS = frozenset({"JOB", "EXEC", "DD", "PROC", "PEND", "IF", "ELSE", "ENDIF", "SET", "INCLUDE", "JCLLIB", "OUTPUT"})
 _STATEMENT_LIMIT = 4000
@@ -73,7 +75,7 @@ def _split(field: str) -> list[tuple[Optional[str], str]]:
     parts.append(field[start:])
     out: list[tuple[Optional[str], str]] = []
     for p in parts:
-        m = re.match(r"([A-ZÆØÅÄÖÜÑ§£àæøåäöüñ@#$][A-ZÆØÅÄÖÜÑ§£àæøåäöüñ0-9@#$.]{0,24})=", p, re.I)
+        m = re.match(r"([A-Z" + NATIONAL + r"@#$][A-Z" + NATIONAL + r"0-9@#$.]{0,24})=", p, re.I)
         out.append((m.group(1).upper(), p[m.end() :]) if m else (None, p))
     return out
 

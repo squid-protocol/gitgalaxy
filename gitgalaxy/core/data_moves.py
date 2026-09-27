@@ -403,3 +403,78 @@ def data_moves(code_stream: str) -> list[dict[str, Any]]:
             )
         i = max(s.i, i + 1)
     return rows
+
+
+# ---- rounding (#3825) ------------------------------------------------------------------
+# COBOL ROUNDED MODE -> java.math.RoundingMode, pinned by a GnuCOBOL probe on exact ties
+# (tests/cobol_mainframe/test_rounding.py): 2.5 / -2.5 -> ROUNDED 3 / -3, NEAREST-EVEN 2 / -2,
+# NEAREST-TOWARD-ZERO 2 / -2, TOWARD-GREATER 3 / -2, TOWARD-LESSER 2 / -3; no ROUNDED truncates.
+# Plain ROUNDED is NEAREST-AWAY-FROM-ZERO (ISO 2014 8.4.2.5) -- Java's HALF_UP, not HALF_EVEN (banker's),
+# and not Math.round (half toward +infinity: -2.5 -> -2).
+ROUNDING_MODES = {
+    None: "DOWN",  # no ROUNDED phrase: excess decimals are truncated
+    "NEAREST-AWAY-FROM-ZERO": "HALF_UP",
+    "AWAY-FROM-ZERO": "UP",
+    "NEAREST-EVEN": "HALF_EVEN",
+    "NEAREST-TOWARD-ZERO": "HALF_DOWN",
+    "TOWARD-GREATER": "CEILING",
+    "TOWARD-LESSER": "FLOOR",
+    "TRUNCATION": "DOWN",
+    "PROHIBITED": "UNNECESSARY",  # any rounding needed is an EC-SIZE-TRUNCATION condition
+}
+_ARITHMETIC = frozenset({"COMPUTE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE"})
+_DEFAULT_MODE = re.compile(
+    r"DEFAULT[ \t\n]{1,20}ROUNDED[ \t\n]{1,20}MODE[ \t\n]{1,20}(?:IS[ \t\n]{1,20})?([A-Z-]{5,30})", re.I
+)
+
+
+def rounding_facts(code_stream: str) -> list[dict[str, Any]]:
+    """#3825: every arithmetic statement that rounds or guards its size: {verb, line, targets:
+    [{target, mode, java}], size_error}. `mode` is the ROUNDED MODE as written, `NEAREST-AWAY-FROM-ZERO`
+    for a plain ROUNDED (or the program's DEFAULT ROUNDED MODE), None for a truncating target; `java`
+    is the RoundingMode that reproduces it. A statement with neither phrase truncates and is not listed."""
+    if not code_stream or ("ROUNDED" not in code_stream.upper() and "SIZE" not in code_stream.upper()):
+        return []
+    default = _DEFAULT_MODE.search(code_stream)
+    plain = (
+        default.group(1).upper() if default and default.group(1).upper() in ROUNDING_MODES else "NEAREST-AWAY-FROM-ZERO"
+    )
+    text = _procedure_text(code_stream)
+    newlines = [i for i, ch in enumerate(text) if ch == "\n"]
+    toks = [(m.group(0), m.start()) for m in _TOKEN.finditer(text)]
+    out: list[dict[str, Any]] = []
+    i = 0
+    while i < len(toks):
+        verb = toks[i][0].upper()
+        if verb == "EXEC":
+            while i < len(toks) and toks[i][0].upper() != "END-EXEC":
+                i += 1
+        if verb not in _ARITHMETIC:
+            i += 1
+            continue
+        j, end = i + 1, min(len(toks), i + 1 + _STATEMENT_TOKENS)
+        rounded: dict[str, Optional[str]] = {}
+        size_error, last_name = False, None
+        while j < end:
+            t = toks[j][0].upper()
+            if t == "." or t in _END_WORDS or (t in _VERBS and t != verb):
+                break
+            if t == "ROUNDED" and last_name:
+                mode = plain
+                if j + 1 < end and toks[j + 1][0].upper() == "MODE":
+                    k = j + 2 + (j + 2 < end and toks[j + 2][0].upper() == "IS")
+                    mode = toks[k][0].upper() if k < end else plain
+                    j = k
+                rounded[last_name] = mode
+            elif t == "SIZE" and j + 1 < end and toks[j + 1][0].upper() == "ERROR":
+                size_error = True
+                break  # what follows is the imperative statement run on SIZE ERROR
+            elif re.fullmatch(_WORD, t, re.I) and re.search(r"[A-Z]", t) and t not in _NOISE and t not in _STOPS:
+                last_name = toks[j][0]
+            j += 1
+        if rounded or size_error:
+            line = bisect.bisect_left(newlines, toks[i][1]) + 1
+            targets = [{"target": n, "mode": m, "java": ROUNDING_MODES.get(m, "HALF_UP")} for n, m in rounded.items()]
+            out.append({"verb": verb, "line": line, "targets": targets, "size_error": size_error})
+        i = max(j, i + 1)
+    return out

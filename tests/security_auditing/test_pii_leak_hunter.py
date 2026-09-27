@@ -153,7 +153,7 @@ def test_clean_log_processing(tmp_path, capsys):
     assert evidence_file.read_text(encoding="utf-8") == "", "Clean evidence log should be completely empty."
 
     captured = capsys.readouterr()
-    assert "[SUCCESS] Clean scan. No Social Security, Credit Card, or AWS Keys detected." in captured.out
+    assert "[SUCCESS] Clean scan. No national IDs, bank accounts, credit cards, or AWS keys detected." in captured.out
 
 
 # ==============================================================================
@@ -176,3 +176,83 @@ def test_output_directory_permission_error(tmp_path, capsys):
 
     captured = capsys.readouterr()
     assert "[ERROR] Permission denied to create output directory" in captured.out
+
+
+# ==============================================================================
+# TEST 8: Region packs -- national identifiers beyond the US SSN (#3832)
+# ==============================================================================
+# Every value below is a published specimen or checksum-built test number, not
+# a real person's identifier.
+_AADHAAR = "234123412346"  # Verhoeff-valid
+
+
+@pytest.mark.parametrize(
+    "line, expected",
+    [
+        (b"paid to DE89 3704 0044 0532 0130 00", ["IBAN"]),
+        (b"paid to GB82WEST12345698765432", ["IBAN"]),
+        (b"paid to GB82WEST12345698765433", []),  # mod-97 fails
+        (b"nino AB123456C", ["NINO"]),
+        (b"nino AB 12 34 56 C", ["NINO"]),
+        (b"nino QQ123456C", []),  # Q is never a NINO prefix letter
+        (("uid " + _AADHAAR).encode(), ["AADHAAR"]),
+        (b"uid 2341 2341 2346", ["AADHAAR"]),
+        (b"uid 2341 2341-2346", []),  # mixed separators
+        (b"uid 234123412345", []),  # Verhoeff fails
+        (b"cpf 529.982.247-25", ["CPF"]),
+        (b"cpf 52998224725", ["CPF"]),
+        (b"cpf 529.982.247-26", []),  # check digit fails
+        (b"cpf 111.111.111-11", []),  # repeated digits are never issued
+        (b"BSN: 111222333", ["BSN"]),
+        (b"order 111222333", []),  # 11-proof passes, but nothing names it a BSN
+        (b"BSN: 111222334", []),  # 11-proof fails
+        (b"card 4111111111111111", ["VISA"]),
+    ],
+)
+def test_region_pack_detection(line, expected):
+    assert pii_module.find_pii(line) == expected
+
+
+def test_region_pack_masking_keeps_only_the_tail():
+    masked = pii_module.mask_pii(
+        "IBAN DE89 3704 0044 0532 0130 00 BSN: 111222333 order 123456789 "
+        f"cpf 529.982.247-25 nino AB123456C uid {_AADHAAR}"
+    )
+    assert masked == (
+        "IBAN IBAN-MASKED-3000 BSN: BSN-MASKED-2333 order 123456789 "
+        "cpf CPF-MASKED-4725 nino NINO-MASKED-C uid AADHAAR-MASKED-2346"
+    )
+
+
+def test_region_packs_are_selectable(tmp_path):
+    log = tmp_path / "eu.log"
+    log.write_text(
+        "2026-05-11T10:00 cpf 529.982.247-25\n2026-05-11T11:00 iban GB82WEST12345698765432\n",
+        encoding="utf-8",
+    )
+    with patch.object(sys, "argv", ["pii_leak_hunter.py", str(log), "--regions", "iban"]):
+        pii_module.main()
+    content = (tmp_path / "eu_pii_leak_evidence.log").read_text(encoding="utf-8")
+    assert "[IBAN] " in content and "IBAN-MASKED-5432" in content
+    # The br pack is off: its line is not reported at all.
+    assert "cpf" not in content
+
+
+def test_unknown_region_pack_is_rejected(tmp_path, capsys):
+    log = tmp_path / "x.log"
+    log.write_text("data", encoding="utf-8")
+    with patch.object(sys, "argv", ["pii_leak_hunter.py", str(log), "--regions", "atlantis"]):
+        with pytest.raises(SystemExit) as exc_info:
+            pii_module.main()
+    assert exc_info.value.code == 1
+    assert "unknown PII region pack(s): atlantis" in capsys.readouterr().out
+
+
+def test_region_pack_patterns_are_linear_on_pathological_input():
+    import time
+
+    lines = [b"1" * 50_000, b"AB 12 " * 10_000, b"DE89 " + b"ABCD " * 10_000, b"2341 " * 10_000]
+    start = time.perf_counter()
+    for line in lines:
+        pii_module.find_pii(line)
+    assert time.perf_counter() - start < 2.0

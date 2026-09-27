@@ -1458,6 +1458,22 @@ def test_a_sign_separate_display_item_takes_its_own_byte(tmp_path):
     }  # fmt: skip
 
 
+def test_a_currency_edited_pic_is_read_whole_and_sized_per_position(tmp_path):
+    """#3820: the key's PIC reader knew only `$` -- `PIC £££,££9.99` (CP285's default sign)
+    read as no PIC and `PIC 9(5)€` as `9(5)`, the same blind spot as the engine's."""
+    cpy = _cpy(tmp_path, "CUR.cpy", [
+        "01 REC.",
+        "   05 A    PIC X(3).",
+        "   05 AMT  PIC £££,££9.99.",
+        "   05 EUR  PIC 9(5)€.",
+        "   05 B    PIC X(4).",
+    ])  # fmt: skip
+    pics = {it["name"]: it["pic"] for it in ak._data_items(ak.Source(cpy))}
+    assert (pics["AMT"], pics["EUR"]) == ("£££,££9.99", "9(5)€")
+    assert ak.copybook_record_units(cpy) == {"REC/A @0+3", "REC/AMT @3+10", "REC/EUR @13+6", "REC/B @19+4"}
+    assert ak._mv_pic_width("£££9.99", "DISPLAY") == (7, "9")
+
+
 def test_a_function_result_reference_modification_is_a_refmod(tmp_path):
     """#3649 census (CardDemo CBIMPORT): `FUNCTION CURRENT-DATE(1:4)` reference-modifies the
     result; a colon inside an argument (`NUMVAL(WS-X(1:3))`) is not the function's refmod."""

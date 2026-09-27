@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -71,12 +73,12 @@ DEFINITION: dict[str, Any] = {
         # operand (`PGM=` itself, `COND=`), a referback (`PGM=*.LKED.SYSLMOD`)
         # and a symbolic (`PGM=&PROG`): none names a resolvable callee.
         "calls_out": re.compile(
-            r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+EXEC[ \t]+(?:(?:PGM|PROC)=)?"
-            r"([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z#$@][A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9#$@]*)(?![=A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9#$@.*&])",
+            r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+EXEC[ \t]+(?:(?:PGM|PROC)=)?"
+            r"([A-Z" + NATIONAL + r"a-z#$@][A-Z" + NATIONAL + r"a-z0-9#$@]*)(?![=A-Z" + NATIONAL + r"a-z0-9#$@.*&])",
             re.M | re.I,
         ),
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)
-        "branch": re.compile(r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),
+        "branch": re.compile(r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),
         # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.
         # #2482: PARM= routinely sits on a JCL continuation line, not the EXEC
         # line itself -- a trailing comma on a `//` statement line means "this
@@ -104,7 +106,7 @@ DEFINITION: dict[str, Any] = {
         # issue doesn't attempt to fix (nested-paren balancing isn't expressible
         # in a single bounded regex pass the way this engine requires).
         "args": re.compile(
-            r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+"
+            r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+"
             r"(?:EXEC(?:[ \t].*?)?,[ \t]*(?:\n//[ \t]*(?:[^\n]*,[ \t]*\n//[ \t]*){0,7})?"
             r"PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)"
             r"|PROC[ \t]+(\S.*))",
@@ -122,13 +124,13 @@ DEFINITION: dict[str, Any] = {
         # a real EXEC step). JCL statements don't span a physical line via bare
         # whitespace, so bounded to `[ \t]+` instead.
         "structural_boundaries": re.compile(
-            r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND|ENDIF)\b", re.M | re.I
+            r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND|ENDIF)\b", re.M | re.I
         ),
         # Functions (EXEC steps). Same `\s+` -> `[ \t]+` cross-line fix as above.
         # BUG FIX: stepname is optional (`*` not `+`), unnamed EXEC steps are valid.
-        "func_start": re.compile(r"^[ \t]*//([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*)[ \t]+EXEC\b", re.M | re.I),
+        "func_start": re.compile(r"^[ \t]*//([A-Z" + NATIONAL + r"a-z0-9_#$@]*)[ \t]+EXEC\b", re.M | re.I),
         # Classes/Entities (JOB cards). Same `\s+` -> `[ \t]+` cross-line fix as above.
-        "class_start": re.compile(r"^[ \t]*//([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]+)[ \t]+JOB\b", re.M | re.I),
+        "class_start": re.compile(r"^[ \t]*//([A-Z" + NATIONAL + r"a-z0-9_#$@]+)[ \t]+JOB\b", re.M | re.I),
         # Danger (execution of arbitrary programs). #2751: the rule used to be a
         # bare `PGM=<anything>`, which counted every step -- running a program
         # is what a JCL step IS, so the metric read "how many steps name a
@@ -271,7 +273,7 @@ DEFINITION: dict[str, Any] = {
         # parameter defaults (`//BATCH PROC MEMBER=`) also matches args' `PROC`
         # alternative -- a declaration with its parameter list, the same
         # api+args pair every `def f(x)` produces.
-        "api": re.compile(r"^[ \t]*//([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*)[ \t]+PROC\b", re.M | re.I),
+        "api": re.compile(r"^[ \t]*//([A-Z" + NATIONAL + r"a-z0-9_#$@]*)[ \t]+PROC\b", re.M | re.I),
         # #2610: COND=EVEN ("run even if a prior step abended") and COND=ONLY
         # ("run only after an abend") execute a step in spite of upstream
         # failure -- JCL's native ignore-the-error idiom. Two alternatives:
@@ -293,7 +295,7 @@ DEFINITION: dict[str, Any] = {
         # statement line, mirroring structural_boundaries' own SET handling;
         # both `\s+` gaps bounded to `[ \t]+` for the same cross-line reason.
         "state_mutation": re.compile(
-            r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+SET[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]+=", re.M | re.I
+            r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+SET[ \t]+[A-Z" + NATIONAL + r"a-z0-9_#$@]+=", re.M | re.I
         ),
         "concurrency": None,
         # #2733: dataset disposition IS z/OS's serialization primitive.
@@ -378,7 +380,11 @@ DEFINITION: dict[str, Any] = {
         # exactly so a `//JOBLIBX` or `//SYSPROC` ddname cannot match.
         "globals": re.compile(
             r"^[ \t]*//JOBLIB[ \t]+DD\b"
-            r"|^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+(?:SET[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]+=|EXPORT[ \t]+SYMLIST\b)",
+            r"|^[ \t]*//[A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@]*[ \t]+(?:SET[ \t]+[A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@]+=|EXPORT[ \t]+SYMLIST\b)",
             re.M | re.I,
         ),
         "decorators": None,
@@ -390,14 +396,22 @@ DEFINITION: dict[str, Any] = {
         # are commonly written unnamed (`//         INCLUDE MEMBER=...`). Name
         # now optional (`*`); `\s+` -> `[ \t]+` for the same cross-line reason as
         # structural_boundaries/func_start/class_start above.
-        "import": re.compile(r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+INCLUDE\b", re.M | re.I),
+        "import": re.compile(r"^[ \t]*//[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+INCLUDE\b", re.M | re.I),
         # _dependency_capture was missing entirely for jcl (unlike nearly every
         # other language with a non-None `import`), so the dependency graph never
         # captured which member a JCL job/proc pulls in via INCLUDE. Captures the
         # MEMBER= name for the network/blast-radius graph. Also captures dataset
         # names in DD statements and JCLLIB orders, ignoring temporary/internal ptrs (&&, *).
         "_dependency_capture": re.compile(
-            r"^[ \t]*//[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+(?:INCLUDE[ \t]+MEMBER=([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]+)|JCLLIB[ \t]+ORDER=\(?([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@.]+)\)?|DD[ \t]+(?:.*?[ \t,])?DSN(?:AME)?=(?!(?:&&|\*))([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@.&()]+))",
+            r"^[ \t]*//[A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@]*[ \t]+(?:INCLUDE[ \t]+MEMBER=([A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@]+)|JCLLIB[ \t]+ORDER=\(?([A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@.]+)\)?|DD[ \t]+(?:.*?[ \t,])?DSN(?:AME)?=(?!(?:&&|\*))([A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@.&()]+))",
             re.M | re.I,
         ),
         # BUG FIX: `\s+` before the capture group could cross a newline (re.M),
@@ -438,11 +452,13 @@ DEFINITION: dict[str, Any] = {
         # after `EXEC`) sitting a few lines from `//*        DD DSN=CSQ901.
         # SCSQLOAD,DISP=SHR` (a genuinely commented-out DD, matched). A bare
         # `(?:EXEC|DD|JOB|SET|INCLUDE)\b` would have counted all of them.
-        # ReDoS: the name class excludes space/tab, so `[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+`
+        # ReDoS: the name class excludes space/tab, so `[A-Za-z0-9_#$@]*[ \t]+`
         # partitions at exactly one position -- no ambiguity to backtrack over.
         "dead_code": re.compile(
-            r"^//\*[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]*[ \t]+"
-            r"(?:EXEC[ \t]+\S|DD[ \t]+\S|JOB[ \t]*[,(]|SET[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9_#$@]+=|INCLUDE[ \t]+MEMBER=)",
+            r"^//\*[A-Z" + NATIONAL + r"a-z0-9_#$@]*[ \t]+"
+            r"(?:EXEC[ \t]+\S|DD[ \t]+\S|JOB[ \t]*[,(]|SET[ \t]+[A-Z"
+            + NATIONAL
+            + r"a-z0-9_#$@]+=|INCLUDE[ \t]+MEMBER=)",
             re.M | re.I,
         ),
         # #2732: the generic `[SPEC-n]`/`[spec]`/`[audit]` traceability tag, but

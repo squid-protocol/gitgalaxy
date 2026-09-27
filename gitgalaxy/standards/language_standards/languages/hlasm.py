@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2503: HLASM (IBM High Level Assembler) -- full z/Architecture assembler
@@ -22,8 +24,8 @@ from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 # 63 characters max (HLASM Language Reference, "Symbols"). Conditional-assembly
 # statements may instead carry a sequence symbol (`.SKIP`) or a SET symbol
 # (`&X`) in the name field -- the macro-directive rules widen to those.
-_ID = r"[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$]"
-_NAME = r"[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$]" + _ID + r"{0,62}"
+_ID = r"[A-Z" + NATIONAL + r"a-z0-9@#$]"
+_NAME = r"[A-Z" + NATIONAL + r"a-z@#$]" + _ID + r"{0,62}"
 # Statement position: "column 1 name-or-nothing, then blanks" (bms.py's shape).
 # The name class contains no whitespace, so `{0,63}` + `[ \t]+` partitions at
 # exactly one position (no backtracking ambiguity, how_to Rule 5/14).
@@ -125,7 +127,7 @@ DEFINITION: dict[str, Any] = {
     # `USING dsectname,reg`. The #2866 census applies.
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": re.compile(r"(?i)=V\(([A-ZÆØÅÄÖÜÑ§£àæøåäöüñ@#$][\w@#$]*)\)"),
+        "calls_out": re.compile(r"(?i)=V\(([A-Z" + NATIONAL + r"@#$][\w@#$]*)\)"),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): the CONDITIONAL branch mnemonics -- branch-on-
         # condition and its extended mnemonics (BE/BNE/BH/BNL/... and register
@@ -281,7 +283,7 @@ DEFINITION: dict[str, Any] = {
             r"|\bEXEC\s+DLI\b"
             r"|" + _STMT + r"CALL[ \t]+(?:ASMTDLI|AIBTDLI|CEETDLI)\b"
             r"|" + _STMT + r"OPEN[ \t]+\("
-            r"|" + _STMT + r"(?:GET|PUT|READ|WRITE|CHECK|POINT)[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$(]",
+            r"|" + _STMT + r"(?:GET|PUT|READ|WRITE|CHECK|POINT)[ \t]+[A-Z" + NATIONAL + r"a-z@#$(]",
             re.M | re.I,
         ),
         # api (#2730 fallback family): a control section's name IS an external
@@ -298,7 +300,9 @@ DEFINITION: dict[str, Any] = {
             + _OPEND
             + r"|"
             + _STMT
-            + r"ENTRY[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$]",
+            + r"ENTRY[ \t]+[A-Z"
+            + NATIONAL
+            + r"a-z@#$]",
             re.M | re.I,
         ),
         # An ENTRY statement names entries whose executable units are defined
@@ -309,7 +313,7 @@ DEFINITION: dict[str, Any] = {
         # bearing class the `[ \t]+` before it and the class overlap (the Rule
         # 14 shape) and a blanks-only tail would "capture" an empty region.
         "_visibility_export_list": re.compile(
-            _STMT + r"ENTRY[ \t]+([A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$][A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z0-9@#$, \t]{0,299})",
+            _STMT + r"ENTRY[ \t]+([A-Z" + NATIONAL + r"a-z@#$][A-Z" + NATIONAL + r"a-z0-9@#$, \t]{0,299})",
             re.M | re.I,
         ),
         # state_mutation (#2765 fallback family, assembly.py's ruling): a
@@ -336,7 +340,7 @@ DEFINITION: dict[str, Any] = {
             r"^(?:\.\*|\*)" + _ID + r"{0,63}[ \t]+"
             r"(?:(?:L|LA|LR|LH|ST|STH|MVC|MVI|CLC|CLI|LM|STM|BAL|BALR|BAS|BASR|BCT|IC|ICM)[ \t]+[\w@#$&=.'()+*-]{1,63},"
             r"|USING[ \t]+[\w@#$*.]{1,63},"
-            r"|D[CS][ \t]+[0-9]{0,4}[A-ZÆØÅÄÖÜÑ§£àæøåäöüñ](?:L[0-9]{1,3})?(?:['(]|[ \t]*$)"
+            r"|D[CS][ \t]+[0-9]{0,4}[A-Z" + NATIONAL + r"](?:L[0-9]{1,3})?(?:['(]|[ \t]*$)"
             r"|EQU[ \t]+[\w@#$*'(]{1,63}[ \t]*$"
             r"|EXEC[ \t]+(?:CICS|SQL)\b)",
             re.M | re.I,
@@ -416,7 +420,7 @@ DEFINITION: dict[str, Any] = {
         # import (#2875): the COPY statement binds a library member into the
         # source (bms verbatim). Macro invocation resolves through SYSLIB too,
         # but an invocation is a call, not a dependency statement.
-        "import": re.compile(_STMT + r"COPY[ \t]+[A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$]", re.M | re.I),
+        "import": re.compile(_STMT + r"COPY[ \t]+[A-Z" + NATIONAL + r"a-z@#$]", re.M | re.I),
         # _dependency_capture: the copied member name.
         "_dependency_capture": re.compile(_STMT + r"COPY[ \t]+(" + _ID + r"{1,8})\b", re.M | re.I),
         # ownership (#2882 C1): an author/maintainer tag keyed on a `*`
@@ -441,7 +445,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # ssr_boundaries: the CICS web / document API (cobol/pli verbatim).
         "ssr_boundaries": re.compile(
-            r"\bEXEC\s+CICS\s+(?:WEB\s+[A-ZÆØÅÄÖÜÑ§£àæøåäöüñ]+|DOCUMENT\s+[A-ZÆØÅÄÖÜÑ§£àæøåäöüñ]+|SOAPFAULT|EXTRACT\s+(?:WEB|TCPIP|CERTIFICATE))\b",
+            r"\bEXEC\s+CICS\s+(?:WEB\s+[A-Z"
+            + NATIONAL
+            + r"]+|DOCUMENT\s+[A-Z"
+            + NATIONAL
+            + r"]+|SOAPFAULT|EXTRACT\s+(?:WEB|TCPIP|CERTIFICATE))\b",
             re.M | re.I,
         ),
         # events: CICS event processing's SIGNAL EVENT (pli verbatim). The
@@ -547,7 +555,7 @@ DEFINITION: dict[str, Any] = {
         # pli's FREE), FREEPOOL releases buffer pools, and the SQL cursor
         # CLOSE and CICS browse/spool teardown are cobol/pli verbatim.
         "cleanup": re.compile(
-            _STMT + r"CLOSE[ \t]+[(A-ZÆØÅÄÖÜÑ§£àæøåäöüña-z@#$]"
+            _STMT + r"CLOSE[ \t]+[(A-Z" + NATIONAL + r"a-z@#$]"
             r"|" + _STMT + r"(?:FREEMAIN|FREEPOOL)" + _OPEND + r"|" + _STMT + r"STORAGE[ \t]+RELEASE\b"
             r"|\bEXEC\s+SQL\s+CLOSE\b"
             r"|\bEXEC\s+CICS\s+(?:ENDBR|SPOOLCLOSE|DELETE|FREE\s+CHILD)\b",

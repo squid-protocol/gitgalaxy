@@ -1,0 +1,69 @@
+{
+  "groups": {
+    "cobol/CICS-Cobol": {
+      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 23,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 23,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 20,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 15,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ]
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 13,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 9,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": [
+        {
+          "Clause": "DECIMAL-POINT",
+          "Line": 9,
+          "Symbol": null,
+          "Value": "COMMA"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Special Names"
+  ]
+}

@@ -233,3 +233,15 @@ def test_a_malformed_picture_with_a_g_is_not_dbcs():
 """
     usages = [r["usage"] for r in extract_boundary("cobol", src)["records"][1:]]
     assert usages == [None, "NATIONAL", None]
+
+
+def test_national_after_the_entry_is_not_its_usage():
+    """#3816: che4z's special_schema.cbl -- the last item's text runs on into `RETURNING NATIONAL`."""
+    src = """
+       01 DOC.
+           02 pic x(12) value '</stockItem>'.
+       PROCEDURE DIVISION.
+           XML PARSE DOC WITH ENCODING 1140 RETURNING NATIONAL
+               PROCESSING PROCEDURE P.
+"""
+    assert extract_boundary("cobol", src)["records"][1]["usage"] is None

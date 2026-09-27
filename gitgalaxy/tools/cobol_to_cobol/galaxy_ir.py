@@ -84,6 +84,10 @@
 # (EngineDataItem.currency) -- from its own program, else from the one string the
 # estate declares for that symbol -- and record_layout sizes a multi-character
 # currency string by its length.
+# Since #3828, the CBL / PROCESS compiler options (compiler_options_data, per
+# EngineFile.compiler_options; EngineFile.compiler_option(name) is the effective
+# value, the last card winning): INTDATE, TRUNC, ARITH, NUMPROC ... change what a
+# program computes, so the Java conversion's port tickets carry them.
 # Since #3455, file definitions: each FILE-CONTROL SELECT's organisation,
 # access mode and keys (file_control_data, per EngineFile.file_control) and each
 # IDCAMS DEFINE CLUSTER / AIX / PATH in JCL (vsam_define_data, per
@@ -155,10 +159,12 @@ import sqlite3
 import subprocess
 import sys
 import unicodedata
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.compiler_options import effective as effective_options
 from gitgalaxy.core.jcl_runners import systsin_programs
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol import pli_mapping
@@ -657,6 +663,17 @@ class EngineSpecialName:
 
 
 @dataclass
+class EngineCompilerOption:
+    """One CBL / PROCESS card option (#3828), from `compiler_options_data`: the full option
+    name (abbreviations spelled out), its parenthesised value as written, the option as written."""
+
+    option: str
+    value: Optional[str]
+    written: str
+    line: int
+
+
+@dataclass
 class EngineFileControl:
     """One FILE-CONTROL SELECT (#3455), from `file_control_data`. `organization`
     is None when the clause is absent (COBOL's default is SEQUENTIAL);
@@ -839,6 +856,7 @@ class EngineFile:
     data_moves: list = field(default_factory=list)  # EngineDataMove, source order, #3452
     web_services: list = field(default_factory=list)  # EngineWebService, source order, #3496
     special_names: list = field(default_factory=list)  # EngineSpecialName, source order, #3820
+    compiler_options: list = field(default_factory=list)  # EngineCompilerOption, source order, #3828
     # #3490: symbolic maps generated from BMS source for COPY members no real
     # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
     symbolic_copies: list = field(default_factory=list)
@@ -848,6 +866,12 @@ class EngineFile:
         """A program carries a PROGRAM-ID (class_data). Units alone are not enough: a
         procedure copybook has paragraphs but is compiled into its includer."""
         return bool(self.program_ids)
+
+    def compiler_option(self, name: str, default: Optional[str] = None) -> Optional[str]:
+        """#3828: an option's effective value on this file's CBL / PROCESS cards (the last card
+        wins; `compiler_option("INTDATE", "ANSI")`), else `default`."""
+        options = effective_options([{"option": o.option, "value": o.value} for o in self.compiler_options])
+        return options.get(name.upper()) or default
 
 
 def _symbolic_pattern(dsn: str) -> Optional[re.Pattern]:
@@ -5527,6 +5551,18 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         EngineSpecialName(clause=row[1] or "", value=row[2], symbol=row[3], line=int(row[4] or 0))
                     )
             _attach_currency(list(by_id.values()))
+        # #3828: CBL / PROCESS compiler options. A pre-#3828 database has none.
+        if _has_table(cur, "compiler_options_data"):
+            for row in cur.execute(
+                "SELECT file_id, option, value, written, line_number FROM compiler_options_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].compiler_options.append(
+                        EngineCompilerOption(option=row[1] or "", value=row[2], written=row[3] or "",
+                                             line=int(row[4] or 0))
+                    )  # fmt: skip
         # #3452: field-level data movement. A pre-#3452 database has none.
         if _has_table(cur, "data_move_data"):
             texts = (
@@ -5859,8 +5895,9 @@ def _symbolic_map_files(files: dict[str, EngineFile]) -> dict[str, EngineFile]:
     return made
 
 
-def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600) -> Path:
-    """Runs a `galaxyscope --db-only` scan of `target` and returns the master DB path."""
+def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600, extra_args: Sequence[str] = ()) -> Path:
+    """Runs a `galaxyscope --db-only` scan of `target` and returns the master DB path. `extra_args`
+    go to galaxyscope as given (e.g. `--source-encoding shift_jis`, #3878)."""
     target = Path(target).resolve()
     out_dir = Path(out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -5868,7 +5905,16 @@ def scan_to_db(target: Path, out_dir: Path, timeout: int = 3600) -> Path:
     # Plain directory walk: the refraction target is often not a git checkout.
     env.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")
     subprocess.run(  # noqa: S603 -- this interpreter + fixed module; target/out_dir are argv entries, no shell
-        [sys.executable, "-m", "gitgalaxy.galaxyscope", str(target), "--db-only", "--output", str(out_dir)],
+        [
+            sys.executable,
+            "-m",
+            "gitgalaxy.galaxyscope",
+            str(target),
+            "--db-only",
+            "--output",
+            str(out_dir),
+            *extra_args,
+        ],
         check=True,
         env=env,
         timeout=timeout,

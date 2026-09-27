@@ -141,6 +141,10 @@ def test_the_repository_runs_the_programs_own_sql(scanned, tmp_path):
     assert "public List<Map<String, Object>> cursorAccCurL17Acctdb(Map<String, ?> params) {" in rep
     assert "The cursor's OPEN at line 20, FETCH at line 21, CLOSE at line 22." in rep
     assert "TODO: this SQL is DB2's; the configured database is postgresql" in rep
+    # #3828: ACCT_OPENED DATE reaches a PIC X(10) in the subsystem's format, through the generated Db2Dates
+    assert "ACCT_OPENED: into or from a character host variable, convert with Db2Dates (DB2 ISO format)." in rep
+    dates = (src / "repository/db2/Db2Dates.java").read_text(encoding="utf-8")
+    assert 'public static final String FORMAT = "ISO";' in dates
     service = (src / "service/AcctdbService.java").read_text(encoding="utf-8")
     assert "private final AccountRepository accountRepository;" in service
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")

@@ -17,6 +17,12 @@
 # their text with a TODO (JDBC has no cursor position here). The SQL is DB2's;
 # with another `database.engine` the class says so. Every method cites the
 # program file:line and the field-testing status of `DB2 table access`.
+#
+# #3828: JDBC returns a DATE / TIME / TIMESTAMP as a typed value, but the COBOL
+# program's character host variable (a DCLGEN DATE is PIC X(10)) held it in the
+# DB2 subsystem's format -- DSNHDECP DATE= / TIME=, `culture.db2_date_format`:
+# EUR `26.09.2026`, USA `09/26/2026`, ISO / JIS `2026-09-26`. `Db2Dates`, generated
+# beside the repositories, converts both ways in that format.
 # ==============================================================================
 from __future__ import annotations
 
@@ -89,6 +95,206 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
     return " ".join(sql.split()), sorted(params.items()), notes
 
 
+# #3828: the DB2 character formats of DATE and TIME (DB2 for z/OS SQL Reference, "Datetime values"):
+# (date pattern, time pattern, example date, example time). LOCAL is the installation's exit routine.
+DB2_DATETIME_FORMATS = {
+    "iso": ("uuuu-MM-dd", "HH.mm.ss", "2026-09-26", "14.30.05"),
+    "eur": ("dd.MM.uuuu", "HH.mm.ss", "26.09.2026", "14.30.05"),
+    "usa": ("MM/dd/uuuu", "hh:mm a", "09/26/2026", "02:30 PM"),
+    "jis": ("uuuu-MM-dd", "HH:mm:ss", "2026-09-26", "14:30:05"),
+}
+
+
+def db2_dates_source(package: str, fmt: str) -> str:
+    """#3828: `Db2Dates`, the DB2 character DATE / TIME / TIMESTAMP conversions in the subsystem's
+    format `fmt` (culture.db2_date_format)."""
+    local = fmt not in DB2_DATETIME_FORMATS
+    date_pat, time_pat, ex_date, ex_time = DB2_DATETIME_FORMATS.get(fmt, ("", "", "", ""))
+    about = (
+        " * The DB2 subsystem's DATE / TIME format is LOCAL (an installation exit routine, DSNXVDTX / DSNXVTMX):\n"
+        " * TODO(#3828): set LOCAL_DATE / LOCAL_TIME to the exit's patterns -- date() and time() throw until then.\n"
+        if local
+        else f" * The DB2 subsystem's DATE / TIME format is {fmt.upper()}: a DATE fetched into a character host variable\n"
+        f" * reads {ex_date}, a TIME {ex_time}.\n"
+    )
+    date_expr = "LOCAL_DATE" if local else f'DateTimeFormatter.ofPattern("{date_pat}", Locale.US)'
+    time_expr = "LOCAL_TIME" if local else f'DateTimeFormatter.ofPattern("{time_pat}", Locale.US)'
+    return (_DB2_DATES.replace("{pkg}", f"{package}.{REPOSITORY_SUBPACKAGE}").replace("{about}", about)
+            .replace("{format}", fmt.upper()).replace("{date}", date_expr).replace("{time}", time_expr))  # fmt: skip
+
+
+_DB2_DATES = """package {pkg};
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
+import java.util.Locale;
+
+/**
+ * #3828: DB2 DATE, TIME and TIMESTAMP values as the COBOL program's character host variables hold them.
+ * JDBC returns typed values (java.sql.Date / Time / Timestamp); a program that FETCHed a DATE into a
+ * PIC X(10) saw it in the DB2 subsystem's character format (DSNHDECP DATE= / TIME=, or the precompiler's
+ * DATE / TIME option), not ISO -- so never LocalDate.toString() for such a field.
+{about} * A TIMESTAMP's character form is always yyyy-mm-dd-hh.mm.ss.nnnnnn. On input DB2 reads ISO, USA, EUR
+ * and JIS alike, whatever the subsystem's format: the parse methods do too.
+ */
+public final class Db2Dates {
+
+    /** The DB2 subsystem's DATE / TIME format (culture.db2_date_format). */
+    public static final String FORMAT = "{format}";
+    /** LOCAL only: the installation exit's patterns (java.time), e.g. "dd/MM/uuuu" and "HH:mm:ss". */
+    public static final DateTimeFormatter LOCAL_DATE = null;
+    public static final DateTimeFormatter LOCAL_TIME = null;
+
+    private static final DateTimeFormatter DATE = {date};
+    private static final DateTimeFormatter TIME = {time};
+    private static final DateTimeFormatter TIMESTAMP =
+            DateTimeFormatter.ofPattern("uuuu-MM-dd-HH.mm.ss.SSSSSS", Locale.ROOT);
+    private static final DateTimeFormatter[] DATE_INPUTS = {
+        strict("uuuu-M-d"), strict("M/d/uuuu"), strict("d.M.uuuu"),
+    };
+    private static final DateTimeFormatter[] TIME_INPUTS = {
+        strict("H.mm[.ss]"), strict("H:mm[:ss]"), strict("h[:mm] a"),
+    };
+
+    private Db2Dates() {
+    }
+
+    private static DateTimeFormatter strict(String pattern) {
+        return new DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(pattern)
+                .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0).parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+                .toFormatter(Locale.US).withResolverStyle(ResolverStyle.STRICT);
+    }
+
+    private static DateTimeFormatter need(DateTimeFormatter f, String what) {
+        if (f == null) {
+            throw new IllegalStateException("DB2 " + what + " format LOCAL: set Db2Dates.LOCAL_" + what);
+        }
+        return f;
+    }
+
+    /** A DATE (java.sql.Date, LocalDate, or text in any DB2 format) as a character host variable holds it. */
+    public static String date(Object value) {
+        LocalDate d = toDate(value);
+        return d == null ? null : need(DATE, "DATE").format(d);
+    }
+
+    /** A TIME as a character host variable holds it (USA drops the seconds, as DB2 does). */
+    public static String time(Object value) {
+        LocalTime t = toTime(value);
+        return t == null ? null : need(TIME, "TIME").format(t);
+    }
+
+    /** A TIMESTAMP as a character host variable holds it: yyyy-mm-dd-hh.mm.ss.nnnnnn. */
+    public static String timestamp(Object value) {
+        LocalDateTime ts = toTimestamp(value);
+        return ts == null ? null : TIMESTAMP.format(ts);
+    }
+
+    /** A character DATE in any format DB2 accepts (ISO, USA, EUR, JIS) -- what binding it to a DATE reads. */
+    public static LocalDate parseDate(String text) {
+        String s = text.trim();
+        for (DateTimeFormatter f : DATE_INPUTS) {
+            try {
+                return LocalDate.parse(s, f);
+            } catch (DateTimeParseException e) {
+                // not this format; try the next
+            }
+        }
+        if (LOCAL_DATE != null) {
+            return LocalDate.parse(s, LOCAL_DATE);
+        }
+        throw new DateTimeParseException("not a DB2 date: " + text, text, 0);
+    }
+
+    /** A character TIME in any format DB2 accepts (ISO / EUR hh.mm.ss, JIS hh:mm:ss, USA hh:mm AM). */
+    public static LocalTime parseTime(String text) {
+        String s = text.trim();
+        for (DateTimeFormatter f : TIME_INPUTS) {
+            try {
+                return LocalTime.parse(s, f);
+            } catch (DateTimeParseException e) {
+                // not this format; try the next
+            }
+        }
+        if (LOCAL_TIME != null) {
+            return LocalTime.parse(s, LOCAL_TIME);
+        }
+        throw new DateTimeParseException("not a DB2 time: " + text, text, 0);
+    }
+
+    /** A character TIMESTAMP: yyyy-mm-dd-hh.mm.ss[.n...] (1 to 12 fraction digits; nanoseconds kept). */
+    public static LocalDateTime parseTimestamp(String text) {
+        String s = text.trim();
+        String date = s.substring(0, 10);
+        String[] hms = s.substring(11).split("[.:]", 4);
+        LocalTime t = LocalTime.of(Integer.parseInt(hms[0]), Integer.parseInt(hms[1]), Integer.parseInt(hms[2]));
+        if (hms.length == 4) {
+            String frac = (hms[3] + "000000000").substring(0, 9);
+            t = t.withNano(Integer.parseInt(frac));
+        }
+        return LocalDateTime.of(parseDate(date), t);
+    }
+
+    private static LocalDate toDate(Object v) {
+        if (v == null) {
+            return null;
+        }
+        if (v instanceof LocalDate) {
+            return (LocalDate) v;
+        }
+        if (v instanceof java.sql.Date) {
+            return ((java.sql.Date) v).toLocalDate();
+        }
+        if (v instanceof java.sql.Timestamp) {
+            return ((java.sql.Timestamp) v).toLocalDateTime().toLocalDate();
+        }
+        if (v instanceof LocalDateTime) {
+            return ((LocalDateTime) v).toLocalDate();
+        }
+        return parseDate(v.toString());
+    }
+
+    private static LocalTime toTime(Object v) {
+        if (v == null) {
+            return null;
+        }
+        if (v instanceof LocalTime) {
+            return (LocalTime) v;
+        }
+        if (v instanceof java.sql.Time) {
+            return ((java.sql.Time) v).toLocalTime();
+        }
+        if (v instanceof java.sql.Timestamp) {
+            return ((java.sql.Timestamp) v).toLocalDateTime().toLocalTime();
+        }
+        if (v instanceof LocalDateTime) {
+            return ((LocalDateTime) v).toLocalTime();
+        }
+        return parseTime(v.toString());
+    }
+
+    private static LocalDateTime toTimestamp(Object v) {
+        if (v == null) {
+            return null;
+        }
+        if (v instanceof LocalDateTime) {
+            return (LocalDateTime) v;
+        }
+        if (v instanceof java.sql.Timestamp) {
+            return ((java.sql.Timestamp) v).toLocalDateTime();
+        }
+        return parseTimestamp(v.toString());
+    }
+}
+"""
+
+
 def _text_block(sql: str) -> str:
     """A Java text block holding `sql` (Java 15+; the matrix targets 17 and 21)."""
     body = sql.replace("\\", "\\\\").replace('"""', '\\"""')
@@ -120,6 +326,7 @@ class Db2Forge:
             mine = [s for s in raw.get("statements", []) if s.get("file") in self.key_of and s.get("statement")]
             if mine:
                 self.tables.append(self._plan({**raw, "statements": mine}))
+        self.dates = self._claim("Db2Dates") if self.tables else ""  # #3828
 
     def _claim(self, name: str) -> str:
         base, n = name, 1
@@ -232,6 +439,10 @@ class Db2Forge:
                 " * Each returns what JDBC returns; mapping onto business types is the service's job."]  # fmt: skip
         if t.row:
             java.append(f" * Columns: {self.package}.{ROW_SUBPACKAGE}.{t.row}.")
+        dated = [c["name"] for c in t.raw.get("columns") or [] if sql_java_type(c["sql_type"]) in _TIME_IMPORTS]
+        if dated:  # #3828: a character host variable held these in the subsystem's format, not ISO
+            java.append(f" * {', '.join(dated)}: into or from a character host variable, convert with {self.dates} "
+                        f"(DB2 {self.target.culture.db2_date_format.upper()} format).")  # fmt: skip
         if engine != "db2":
             java.append(f" * TODO: this SQL is DB2's; the configured database is {engine} -- review each statement.")
         java += [" */", "@Repository", f"public class {t.repository} {{\n",
@@ -242,9 +453,12 @@ class Db2Forge:
         return "\n".join(java)
 
     def sources(self) -> dict[tuple[str, ...], dict[str, str]]:
+        repositories = {t.repository: self.repository_source(t) for t in self.tables}
+        if self.tables:  # #3828: the character DATE / TIME conversions every repository's caller may need
+            repositories[self.dates] = db2_dates_source(self.package, self.target.culture.db2_date_format)
         return {
             ("dto", "db2"): {t.row: self.row_source(t) for t in self.tables if t.row},
-            ("repository", "db2"): {t.repository: self.repository_source(t) for t in self.tables},
+            ("repository", "db2"): repositories,
         }
 
     def service_extras(self, key: str) -> dict[str, Any] | None:

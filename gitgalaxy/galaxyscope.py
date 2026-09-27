@@ -806,6 +806,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             data_moves: list = []  # #3452: MOVE / COMPUTE / STRING ... source -> target pairs (cobol)
             web_services: list = []  # #3496: web-services assistant steps (jcl)
             special_names: list = []  # #3820: SPECIAL-NAMES CURRENCY / DECIMAL-POINT (cobol)
+            compiler_options: list = []  # #3828: CBL / PROCESS card options (cobol)
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -917,6 +918,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     data_moves = boundary.get("data_moves", [])
                     # #3820: SPECIAL-NAMES currency strings / decimal point (cobol only).
                     special_names = boundary.get("special_names", [])
+                    # #3828: CBL / PROCESS compiler options (cobol only).
+                    compiler_options = boundary.get("compiler_options", [])
                     # #3496: web-services assistant steps (jcl only).
                     web_services = boundary.get("web_services", [])
                 except Exception:
@@ -1021,6 +1024,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "web_services": web_services,
             # #3820: SPECIAL-NAMES currency / decimal point -> special_names_data.
             "special_names": special_names,
+            # #3828: CBL / PROCESS compiler options -> compiler_options_data.
+            "compiler_options": compiler_options,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

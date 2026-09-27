@@ -13,6 +13,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -34,6 +35,40 @@ def _fixed(src: Path, reclen: int) -> bytes:
 def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
     """A dataset's input: `@case/...` is a file of the case directory, else the corpus's."""
     return CASES / case["name"] / rel[len("@case/") :] if rel.startswith("@case/") else corpus / rel
+
+
+# #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
+# behaviour already). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
+# switch and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully.
+COBC_OPTIONS = {
+    ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
+    ("NUMPROC", "NOPFD"): "",
+}  # fmt: skip
+
+
+class UnsupportedOption(Exception):
+    """A compiler option the GnuCOBOL side cannot honour (#3828)."""
+
+
+def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
+    """#3828: (the program with its CBL / PROCESS cards blanked -- GnuCOBOL rejects CBL --, the cobc
+    flags for its options). The case's `compiler_options` (e.g. ["INTDATE(LILIAN)"]) stand for the
+    compile step's PARM, so the program's own cards override them, as on z/OS. Options that change
+    no result (APOST, CICS, SQL, OPT ...) are dropped; a semantic one GnuCOBOL cannot honour raises."""
+    rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
+    rows += compiler_options(source)
+    flags = []
+    for option, value in effective(rows).items():
+        if option not in SEMANTIC_OPTIONS:
+            continue
+        flag = COBC_OPTIONS.get((option, str(value or "").upper()))
+        if flag is None:
+            raise UnsupportedOption(f"{option}({value}): GnuCOBOL 3.1 has no equivalent, so the case cannot be proven")
+        if flag:
+            flags.append(flag)
+    blank = {n for n, _ in cards(source)}
+    lines = source.split("\n")
+    return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags
 
 
 @functools.lru_cache(maxsize=None)

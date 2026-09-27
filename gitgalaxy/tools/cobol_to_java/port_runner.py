@@ -61,6 +61,7 @@ _RUNTIME_HELPERS = (
     "batch/MainframeClock.java",
     "entity/vsam/CobolRecords.java",
     "entity/vsam/CobolEdit.java",
+    "repository/db2/Db2Dates.java",  # #3828
 )
 
 

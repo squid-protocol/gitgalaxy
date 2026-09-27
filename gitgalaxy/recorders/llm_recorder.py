@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
+from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -893,6 +894,12 @@ class LLMRecorder:
                     for n in special
                 ]
                 lines.append(f"- **Special names:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
+            # #3828: the compiler options that change what the program computes (INTDATE, TRUNC ...).
+            semantic = [
+                o.get("written") for o in f.get("compiler_options") or [] if o.get("option") in SEMANTIC_OPTIONS
+            ]
+            if semantic:
+                lines.append(f"- **Compiler options:** {', '.join(f'`{w}`' for w in semantic[:8])}")
             # #3455: keyed files and the VSAM clusters defined here.
             keyed = [x for x in (f.get("file_control") or []) if x.get("record_key") or x.get("relative_key")]
             if keyed:

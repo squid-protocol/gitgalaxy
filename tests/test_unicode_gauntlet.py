@@ -75,3 +75,24 @@ def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):
     attrs = (Path(__file__).resolve().parents[1] / ".gitattributes").read_text(encoding="utf-8")
     assert "tests/unicode_gauntlet/baseline.txt merge=union" in attrs
     assert ug.ROSETTA_REF.read_text(encoding="utf-8").strip()  # the pinned corpus commit CI checks out
+
+
+def test_a_legacy_cjk_estate_is_scanned_with_its_code_page_declared(tmp_path, monkeypatch):
+    """#3878: Shift-JIS / GB18030 cannot be told from cp1252 by their bytes, so a real estate
+    declares them; the gauntlet scans those estates the same way, and nothing else declared."""
+    import gitgalaxy.tools.cobol_to_cobol.galaxy_ir as gir
+
+    seen = {}
+    monkeypatch.setattr(
+        gir, "scan_to_db", lambda estate, out, extra_args=(): seen.update({estate.name: tuple(extra_args)})
+    )
+    for name in ("han__shift_jis", "kana__gb18030", "han__cp1252", "ascii__utf-16", "twin__han", "seed"):
+        ug.scan(tmp_path / name, tmp_path / "out")
+    assert seen == {
+        "han__shift_jis": ("--source-encoding", "shift_jis"),
+        "kana__gb18030": ("--source-encoding", "gb18030"),
+        "han__cp1252": (),
+        "ascii__utf-16": (),
+        "twin__han": (),
+        "seed": (),
+    }

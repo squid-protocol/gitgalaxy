@@ -134,7 +134,9 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     EquivalenceRunTest. `port` False keeps the generated service as generated (the stub)."""
     work.mkdir(parents=True, exist_ok=True)
     clean = jtm.refactor(corpus, work, scan=True)
-    project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work)
+    # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
+    config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
+    project = jtm.generate(clean, "h2", config, work)
     # #3753: any candidate port, laid out the same way; #3804: a case may prove another case's port
     port_dir = port_dir or CASES / case.get("port_from", case["name"]) / "port"
     for f in port_dir.rglob("*.java") if port else []:

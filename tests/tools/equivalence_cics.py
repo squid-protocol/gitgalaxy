@@ -414,7 +414,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                 shutil.copy(p, src / (p.stem.upper() + ".cpy"))  # COPY COACTVW finds COACTVW.CPY
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
-    text, has_commarea = translate((corpus / case["program_source"]).read_text(encoding="latin-1"))
+    # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
+    source, option_flags = common.compile_options(case, (corpus / case["program_source"]).read_text(encoding="latin-1"))
+    text, has_commarea = translate(source)
     (src / "PROGRAM.cbl").write_text(text, encoding="latin-1")
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
@@ -430,8 +432,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         )
     ca_fields = commarea_fields(corpus, case)
     compile_task = (
-        "cobc -x -std=ibm -fsign=EBCDIC -fstatic-call -I /work/src -o task src/EQCICSDR.cbl "
-        "src/PROGRAM.cbl src/ggcics.c"
+        f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {''.join(f + ' ' for f in option_flags)}-I /work/src "
+        "-o task src/EQCICSDR.cbl src/PROGRAM.cbl src/ggcics.c"
     )
     script = ["set -e", "cd /work", compile_task]
     date, _, time = case["clock"].partition(" ")

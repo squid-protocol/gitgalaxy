@@ -96,6 +96,12 @@ PORTING_RULES = [
         "the default locale prints other digits (Arabic, Devanagari) and maps case differently (Turkish)."
     ),
     (
+        "Order and compare VSAM / DB2 keys by the source code page's bytes, as the mainframe does (lower case "
+        "before upper, letters before digits): browse through the generated sort-key finders, and sort in Java "
+        "with CobolRecords.sortKey(key, codePage), never by String.compareTo or the database's default "
+        "collation (#3822)."
+    ),
+    (
         "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
         "!task.hasCommarea(), DFHCOMMAREA is task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, "
         "PF1-PF24, PA1-PA3), RECEIVE MAP is task.receive(map, <its screen>.class) (empty = MAPFAIL), SEND MAP "

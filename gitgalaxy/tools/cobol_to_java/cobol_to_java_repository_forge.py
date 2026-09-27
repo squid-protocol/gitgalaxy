@@ -324,6 +324,22 @@ public final class CobolRecords {
         return true;
     }
 
+    /** #3822: a key as its code page's bytes in upper-case hex (`A001` in IBM037 -> `C1F0F0F1`), so a
+     *  database orders and compares it exactly as VSAM orders the EBCDIC key: lower case before upper,
+     *  letters before digits. Two hex characters per byte keep the byte order under any collation. */
+    public static String sortKey(String key, String codePage) {
+        if (key == null) {
+            return null;
+        }
+        byte[] bytes = key.getBytes(Charset.forName(codePage));
+        StringBuilder hex = new StringBuilder(bytes.length * 2);
+        for (byte b : bytes) {
+            hex.append(Character.toUpperCase(Character.forDigit((b >> 4) & 0xF, 16)))
+               .append(Character.toUpperCase(Character.forDigit(b & 0xF, 16)));
+        }
+        return hex.toString();
+    }
+
     public static Integer toInteger(BigDecimal v) {
         return v.intValue();
     }
@@ -542,6 +558,30 @@ class RepositoryForge:
                              None if pli else f.get("usage")))  # fmt: skip
         return out
 
+    def _sorted_by_code_page(self, st: Store) -> bool:
+        """#3822: whether browses order by the key's code-page bytes (a sort column) rather than the key."""
+        k = st.key
+        return self.target.culture.key_collation == "ebcdic" and k is not None and k.jtype == "String" and not k.occurs
+
+    def _key_attrs(self, attrs: list[str], width: int | None) -> list[str]:
+        """#3822: a String key column compared byte by byte. The databases' default collations fold case and
+        accents (MySQL utf8mb4_0900_ai_ci makes `ABC` = `abc` = `ÀBC`), so distinct COBOL keys collide on the
+        primary key and browse out of order. H2 compares code points by default; DB2 and Oracle's defaults
+        (the table's code page, NLS_SORT=BINARY) are binary already."""
+        if self.target.culture.key_collation == "database":
+            return attrs
+        n = max(width or 255, 1)
+        engine = self.target.database.engine
+        if engine == "postgresql":
+            return [a for a in attrs if not a.startswith("length")] + [
+                f'columnDefinition = "varchar({n}) COLLATE \\"C\\""'
+            ]
+        if engine == "mysql":
+            return [a for a in attrs if not a.startswith("length")] + [
+                f'columnDefinition = "varchar({n}) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin"'
+            ]
+        return attrs
+
     # ---- Java: entity + repository -------------------------------------------
     def entity_source(self, st: Store) -> str:
         if self.trace:
@@ -593,10 +633,11 @@ class RepositoryForge:
             if org in ("NONINDEXED", "NUMBERED"):
                 body += ["    // " + st.key_note, "    @Id", "    @GeneratedValue", "    private Long id;\n"]
             else:
+                attrs = self._key_attrs(['name = "VSAM_KEY"'], None)
                 body += [
                     "    // " + st.key_note,
                     "    @Id",
-                    '    @Column(name = "VSAM_KEY")',
+                    f"    @Column({', '.join(attrs)})",
                     "    private String vsamKey;\n",
                 ]
         for f in st.fields:
@@ -614,11 +655,25 @@ class RepositoryForge:
             attrs = [f'name = "{column}"']
             if f.jtype == "String" and f.bytes is not None:  # a width not known: the JPA default
                 attrs.append(f"length = {max(f.bytes, 1)}")
+            if f is st.key and f.jtype == "String":
+                attrs = self._key_attrs(attrs, f.bytes)
             body.append(f"    @Column({', '.join(attrs)})")
             body.append(f"    private {f.jtype} {f.java};\n")
+        sort_hook: list[str] = []
+        k = st.key
+        if k is not None and self._sorted_by_code_page(st):
+            cp = self.target.data.code_page
+            column = k.cobol.upper().replace("-", "_") + "_SORT"
+            attrs = self._key_attrs([f'name = "{column}"', f"length = {2 * max(k.bytes or 1, 1)}"],
+                                    2 * max(k.bytes or 1, 1))  # fmt: skip
+            body += [f"    // #3822: {k.cobol} as {cp} bytes in hex -- browses order by it, as VSAM orders the key",
+                     f"    @Column({', '.join(attrs)})", f"    private String {k.java}Sort;\n"]  # fmt: skip
+            sort_hook = ["    @PrePersist", "    @PreUpdate", "    void codePageSortKey() {",
+                         f'        this.{k.java}Sort = CobolRecords.sortKey({k.java}, "{cp}");', "    }\n"]  # fmt: skip
         java += body
         if not t.lombok:
             java += _accessors(st.entity, _declared_fields(body))
+        java += sort_hook
         java += self._codec(st)
         java.append("}")
         return "\n".join(java)
@@ -723,6 +778,8 @@ class RepositoryForge:
             attrs = [f'name = "{column}"'] + (
                 [f"length = {max(f.bytes, 1)}"] if f.jtype == "String" and f.bytes is not None else []
             )
+            if f.jtype == "String":
+                attrs = self._key_attrs(attrs, f.bytes)
             body += [f"    // {f.cobol}: {f.described}, offset {f.offset}, {f.bytes} bytes",
                      f"    @Column({', '.join(attrs)})", f"    private {f.jtype} {f.java};\n"]  # fmt: skip
         java += body
@@ -771,7 +828,17 @@ class RepositoryForge:
                  " */", "@Repository",
                  f"public interface {st.repository} extends JpaRepository<{st.entity}, {st.key_type}> {{\n"]  # fmt: skip
         key = self._id_field(st)
-        if key:
+        if key and self._sorted_by_code_page(st):
+            by = key[0].upper() + key[1:] + "Sort"
+            if st.browse_forward:
+                java += ["    /** EXEC CICS STARTBR + READNEXT: records from a key onward, in the key's code-page order",
+                         "     *  (#3822: pass CobolRecords.sortKey(key, codePage)). */",
+                         f"    List<{st.entity}> findBy{by}GreaterThanEqualOrderBy{by}Asc(String {key}Sort, Pageable page);\n"]  # fmt: skip
+            if st.browse_back:
+                java += ["    /** EXEC CICS READPREV: records from a key backward, in reverse code-page order",
+                         "     *  (#3822: pass CobolRecords.sortKey(key, codePage)). */",
+                         f"    List<{st.entity}> findBy{by}LessThanEqualOrderBy{by}Desc(String {key}Sort, Pageable page);\n"]  # fmt: skip
+        elif key:
             cap = key[0].upper() + key[1:]
             if st.browse_forward:
                 java += ["    /** EXEC CICS STARTBR + READNEXT: records from a key onward, in key order. */",
@@ -875,17 +942,22 @@ class RepositoryForge:
                 if "DELETE" in verbs:
                     ops.append((f"delete{name}", [f"    public void delete{name}({kt} key) {{",
                                                   f"        {repo_var}.deleteById(key);", "    }\n"]))  # fmt: skip
+                sort = ""
+                if k and self._sorted_by_code_page(st) and verbs & (_BROWSE_FORWARD | {"READPREV"}):
+                    ex["imports"].add(f"import {self.package}.{ENTITY_SUBPACKAGE}.CobolRecords;")
+                    sort = "Sort"
+                arg = f'CobolRecords.sortKey(from, "{self.target.data.code_page}")' if sort else "from"
                 if k and verbs & _BROWSE_FORWARD:
-                    cap = k[0].upper() + k[1:]
+                    cap = k[0].upper() + k[1:] + sort
                     ops.append((f"browse{name}", [
                         f"    public List<{st.entity}> browse{name}({kt} from, int count) {{",
-                        f"        return {repo_var}.findBy{cap}GreaterThanEqualOrderBy{cap}Asc(from, "
+                        f"        return {repo_var}.findBy{cap}GreaterThanEqualOrderBy{cap}Asc({arg}, "
                         "org.springframework.data.domain.PageRequest.of(0, count));", "    }\n"]))  # fmt: skip
                 if k and "READPREV" in verbs:
-                    cap = k[0].upper() + k[1:]
+                    cap = k[0].upper() + k[1:] + sort
                     ops.append((f"browseBack{name}", [
                         f"    public List<{st.entity}> browseBack{name}({kt} from, int count) {{",
-                        f"        return {repo_var}.findBy{cap}LessThanEqualOrderBy{cap}Desc(from, "
+                        f"        return {repo_var}.findBy{cap}LessThanEqualOrderBy{cap}Desc({arg}, "
                         "org.springframework.data.domain.PageRequest.of(0, count));", "    }\n"]))  # fmt: skip
         else:
             modes = set(user.get("modes", []))

@@ -170,7 +170,7 @@ class Culture:
     display_locale: str = "ROOT"  # TODO(#3819): screens only -- never used for stored data
     decimal_point: str = "auto"  # TODO(#3827): DECIMAL-POINT IS COMMA in edited PICTUREs and schemas
     currency: str = "auto"  # TODO(#3820): CURRENCY SIGN / PICTURE SYMBOL in edited PICTUREs
-    key_collation: str = "ebcdic"  # TODO(#3822): key order of generated repositories
+    key_collation: str = "ebcdic"  # #3822: key order and comparison of generated repositories
     db2_date_format: str = "iso"  # TODO(#3828): the DB2 subsystem's DATE/TIME format for character dates
 
 

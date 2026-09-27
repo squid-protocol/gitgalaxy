@@ -92,6 +92,7 @@ def test_every_program_with_business_logic_gets_a_ticket(generated):
     assert t["target"]["overlay"] == "port/service/PostitService.java"
     assert "public int runBatch(List<Dd> dds, String parm)" in t["target"]["methods_to_port"]
     assert t["target"]["config"]["java"]["version"] == 17 and t["target"]["config"]["database"] == "postgresql"
+    assert t["target"]["config"]["culture"]["rounding"] == "cobol"  # #3819: the agent sees the culture choices
     assert "header_file" not in json.dumps(t["target"]["config"]) and "username" not in json.dumps(t)
 
 

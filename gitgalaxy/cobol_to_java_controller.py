@@ -464,7 +464,7 @@ def main():
     # #3752: a porting ticket for every program with business logic to write, linked from the worklist
     if skeletons and target.features.agent_tickets:
         chosen = target_as_dict(target)
-        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui")}
+        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture")}  # #3819: culture too
         stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
         tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
                                      ir_dir, clean_room_path.name, clean_room_path)  # fmt: skip
@@ -493,6 +493,11 @@ def main():
             f.write(f"  • Data Classes / DTO Style   : {target.java.data_classes} / {target.java.dto_style}\n")
             f.write(f"  • Database                   : {target.database.engine}\n")
         f.write("\n")
+        deviations = target.deviations()
+        if deviations:  # #3819: the business choices that depart from the COBOL program's own behaviour
+            f.write("[0] DECLARED CULTURAL DEVIATIONS\n")
+            f.write("----------------------------------------------------------\n")
+            f.write("".join(f"  • {d}\n" for d in deviations) + "\n")
 
         f.write("[1] GENERATED CLOUD SCAFFOLDING\n")
         f.write("----------------------------------------------------------\n")

@@ -4,7 +4,17 @@ import types
 import math
 from unittest.mock import patch
 
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import count_tokens, trim_ticket
+import pytest
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets import _tiktoken_encoding, count_tokens, trim_ticket
+
+
+@pytest.fixture(autouse=True)
+def _fresh_tokenizer():
+    """Each test loads (or fails to load) tiktoken afresh, and leaves no cached state behind."""
+    _tiktoken_encoding.cache_clear()
+    yield
+    _tiktoken_encoding.cache_clear()
 
 
 def test_token_counter():
@@ -15,8 +25,6 @@ def test_token_counter():
     assert c in ("tiktoken(o200k_base)", "bytes/4")
 
 
-@patch("gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets._TIKTOKEN_ENCODING", None)
-@patch("gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets._TIKTOKEN_TRIED", False)
 def test_token_counter_fallback(monkeypatch):
     """Offline (tiktoken's first use downloads its encoding) or not installed at all: bytes / 4."""
     offline = types.ModuleType("tiktoken")
@@ -55,8 +63,6 @@ def test_still_over_budget_after_trimming_is_recorded():
     assert ticket["rules"] == ["x" * 4000]  # the rules are never trimmed
 
 
-@patch("gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets._TIKTOKEN_ENCODING", None)
-@patch("gitgalaxy.tools.cobol_to_java.cobol_to_java_port_tickets._TIKTOKEN_TRIED", False)
 def test_token_counter_without_tiktoken_installed(monkeypatch):
     monkeypatch.setitem(sys.modules, "tiktoken", None)  # `import tiktoken` raises ImportError
     assert count_tokens("hello world")[2] == "bytes/4"

@@ -27,6 +27,7 @@
 # ==============================================================================
 from __future__ import annotations
 
+import functools
 import json
 import math
 import re
@@ -210,31 +211,32 @@ def option_rules(options: list[dict[str, Any]]) -> list[str]:
 
 # #3863: COACTVWC's 268 KB prompt came back empty. A ticket over this many tokens is trimmed (trim_ticket).
 TICKET_TOKEN_BUDGET = 64000
-_TIKTOKEN_ENCODING = None
-_TIKTOKEN_TRIED = False
+
+
+@functools.lru_cache(maxsize=1)
+def _tiktoken_encoding() -> Any:
+    """#3863: tiktoken's o200k_base, loaded once -- or None. It is an optional dependency, and its first
+    use downloads the encoding, so offline (CI, an air-gapped site) it fails: count bytes then."""
+    try:
+        import tiktoken
+
+        return tiktoken.get_encoding("o200k_base")
+    except Exception:  # not installed, offline, or broken: the caller falls back to bytes / 4
+        return None
 
 
 def count_tokens(text: str) -> tuple[int, int, str]:
-    """#3863: (bytes, tokens, how counted). tiktoken's o200k_base when it loads -- it is an optional
-    dependency, and its first use downloads the encoding, so offline it fails -- else bytes / 4."""
-    global _TIKTOKEN_ENCODING, _TIKTOKEN_TRIED
+    """#3863: (bytes, tokens, how counted): tiktoken's o200k_base when it loads, else bytes / 4."""
     b = len(text.encode("utf-8"))
-
-    if not _TIKTOKEN_TRIED:
-        _TIKTOKEN_TRIED = True
+    encoding = _tiktoken_encoding()
+    tokens = None
+    if encoding is not None:
         try:
-            import tiktoken
-
-            _TIKTOKEN_ENCODING = tiktoken.get_encoding("o200k_base")
-        except Exception:
-            _TIKTOKEN_ENCODING = None
-
-    if _TIKTOKEN_ENCODING is not None:
-        try:
-            return b, len(_TIKTOKEN_ENCODING.encode(text)), "tiktoken(o200k_base)"
-        except Exception:  # a broken tokenizer must not stop a ticket: count bytes from now on
-            _TIKTOKEN_ENCODING = None
-
+            tokens = len(encoding.encode(text))
+        except Exception:  # a broken tokenizer must not stop a ticket: count bytes instead
+            tokens = None
+    if tokens is not None:
+        return b, tokens, "tiktoken(o200k_base)"
     return b, math.ceil(b / 4), "bytes/4"
 
 

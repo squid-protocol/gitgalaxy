@@ -11,6 +11,8 @@ import sys
 import unicodedata
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / "tools"))
 import unicode_gauntlet as ug  # noqa: E402
 
@@ -58,6 +60,10 @@ def test_the_oracle_is_sound_on_the_mainframe_seed(tmp_path):
     assert set(ascii_cells) == {"mainframe|ascii|utf-8", "mainframe|ascii|utf-8-sig", "mainframe|ascii|crlf"}
     assert all(not d for d in ascii_cells.values()), ascii_cells
     assert any(r["script"] == "nordic" for r in results.values())  # the national-letter cells were built
+    # #3816: the seed as raw fixed-block EBCDIC, its page declared, reads as the UTF-8 seed does
+    ebcdic = {cid: r["diffs"] for cid, r in results.items() if r["script"] == "ascii" and r["encoding"] in ug.EBCDIC}
+    assert set(ebcdic) == {f"mainframe|ascii|{cp}" for cp in ug.EBCDIC}
+    assert all(not d for d in ebcdic.values()), ebcdic
 
 
 def test_the_baseline_is_one_mergeable_line_per_cell(tmp_path, monkeypatch):
@@ -96,3 +102,48 @@ def test_a_legacy_cjk_estate_is_scanned_with_its_code_page_declared(tmp_path, mo
         "twin__han": (),
         "seed": (),
     }
+
+
+# ---- #3816: raw EBCDIC -------------------------------------------------------------------------
+@pytest.mark.parametrize("codec", ug.EBCDIC)
+def test_a_fixed_block_download_reads_back_line_for_line(codec):
+    """Every line padded to an 80-byte record, no line ends; the engine's declared read splits it."""
+    from gitgalaxy.core.source_text import decode_source
+
+    text = "       PROGRAM-ID. PGMA.\n\n       MOVE 'X' TO WS-A.\n"
+    data = ug.fixed_block(text, codec)
+    assert len(data) == 3 * ug.FB_LRECL and b"\n" not in data and b"\x15" not in data
+    got = decode_source(data, declared=codec)
+    assert got.how == "declared"
+    assert [line.rstrip() for line in got.text.splitlines()] == text.splitlines()
+
+
+def test_a_line_or_a_letter_that_does_not_fit_is_refused():
+    assert ug.fixed_block("X" * (ug.FB_LRECL + 1), "cp037") is None  # longer than a card
+    assert ug.fixed_block("MOVE '\u20ac' TO A.\n", "cp037") is None  # the euro sign is not in cp037
+    assert ug.fixed_block("X" * ug.FB_LRECL + "\n", "cp037") is not None  # a full card fits
+
+
+def test_the_mainframe_seed_fits_a_card_image():
+    """Every seed line, renamed with the longest national name, stays within 80 columns."""
+    for path in (ug.HERE / "mainframe").rglob("*"):
+        if path.is_file() and path.name != "names.json":
+            assert all(len(line) <= ug.FB_LRECL for line in path.read_text(encoding="utf-8").splitlines()), path
+
+
+def test_the_ebcdic_cells_are_in_the_sampled_plan_for_the_mainframe_seed_only(tmp_path):
+    """CI runs the sampled plan: each EBCDIC page must be in it, national scripts in their own pages,
+    and no rosetta language is ever written in EBCDIC."""
+    seeds = {"mainframe": ug.HERE / "mainframe", "python": tmp_path / "seed_python"}
+    (tmp_path / "seed_python").mkdir()
+    (tmp_path / "seed_python" / "a.py").write_text("def calculate(x):\n    return x\n", encoding="utf-8")
+    seed_facts = {"python/a.py": {"function_data": [("calculate",)]}}
+    cells = ug.build(seeds, seed_facts, tmp_path / "estates", full=False)
+    ebcdic = {(c["language"], c["script"], c["encoding"]) for c in cells if c["encoding"] in ug.EBCDIC}
+    assert {("mainframe", "ascii", cp) for cp in ug.EBCDIC} <= ebcdic
+    assert {
+        ("mainframe", "nordic", "cp277"),
+        ("mainframe", "nordic", "cp278"),
+        ("mainframe", "german", "cp273"),
+    } <= ebcdic
+    assert not {cell for cell in ebcdic if cell[0] != "mainframe"}

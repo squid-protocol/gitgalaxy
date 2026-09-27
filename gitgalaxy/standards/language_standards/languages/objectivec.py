@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -58,7 +60,9 @@ DEFINITION: dict[str, Any] = {
     "include_names_file_literally": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": re.compile(r"\b([a-zA-Z_]\w*)(?=\s*\(|:)"),
+        "calls_out": re.compile(
+            r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\(|:)"
+        ),
         "_calls_out_ignore": frozenset({"self", "throw"}),  # #3645: `throw` is a keyword here
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split flow. Includes Obj-C specific @try/@catch blocks.
@@ -182,19 +186,59 @@ DEFINITION: dict[str, Any] = {
             # `(return type)`) is what separates a declaration from a message send.
             r"^[ \t]*(?:[A-Z_0-9]+[ \t]+|__attribute__[ \t]*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t]+)*"
             r"[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*)?"
-            r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*"
-            r"|[a-zA-Z_]\w{0,80}[ \t\n]*:\s*[a-zA-Z_]\w*[ \t\n]*)+)|"
+            r"((?:(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*"
+            r"|["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]{0,80}[ \t\n]*:\s*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]*)+)|"
             # arm 2 -- a block literal's own parameter list, `^(int x){ ... }`.
-            r"\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|"
+            r"\^[ \t]*(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|"
             # arm 3 -- a plain C function declaration/definition. The parameter list
             # must open with a type token AND that token must be followed by a
             # parameter name or a `*`/`&`, which is what makes it a declaration
             # rather than a call whose first argument happens to be capitalised.
-            r"(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*"
+            r"(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b(?<!["
+            + ID_CONTINUE
+            + r"])(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)[ \t\n]*"
             r"(\(\s*(?:(?:const|volatile|__strong|__weak|__unsafe_unretained|_Nullable|_Nonnull)\s+)*"
             r"(?:void\s*\)|(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|union"
-            r"|id|BOOL|SEL|IMP|Class|instancetype|_*[A-Z]\w*|[a-z_]\w*_t|[a-z_]\w*)\b"
-            r"[ \t\n]*[*&]*[ \t\n]*[a-zA-Z_]\w*(?:[^)(]|\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))*\)))"
+            r"|id|BOOL|SEL|IMP|Class|instancetype|_*["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|[a-z_]["
+            + ID_CONTINUE
+            + r"]*_t|[a-z_]["
+            + ID_CONTINUE
+            + r"]*)(?!["
+            + ID_CONTINUE
+            + r"])"
+            r"[ \t\n]*[*&]*[ \t\n]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:[^)(]|\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))*\)))"
             r"[ \t\n]*(?:\{|;)",
             re.M,
         ),
@@ -234,15 +278,39 @@ DEFINITION: dict[str, Any] = {
         # (`extern void foo(T x);`, whose leading token is always a type/modifier, never a
         # keyword) are unaffected.
         "func_start": re.compile(
-            r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s+)*[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*|(?:[a-zA-Z_]\w*[ \t\n]+){1,3})?([a-zA-Z_]\w*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|\([^)]*\)|[A-Z_0-9])*[ \t\n]*[:\{;]|$)|"
+            r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s+)*[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[ \t\n]+){1,3})?(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|\([^)]*\)|[A-Z_0-9])*[ \t\n]*[:\{;]|$)|"
             r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|template\s*<[^>]*>)[ \t\n]+)*"
             r"(?!(?:if|for|while|switch|return|else|case|default|do|break|continue|goto|sizeof|catch)\b)"
-            r"(?:(?:\b[a-zA-Z_]\w*\b|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+([a-zA-Z_]\w*)(?=[ \t\n]*\()",
+            r"(?:(?:\b(?<!["
+            + ID_CONTINUE
+            + r"])["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?!["
+            + ID_CONTINUE
+            + r"])|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?=[ \t\n]*\()",
             re.M,
         ),
         # 5. class_start: Object / Entity Declarations. Defines OO boundaries.
         "class_start": re.compile(
-            r"^[ \t]*@\s*(?:interface|implementation|protocol)(?:\\?\s)+([a-zA-Z_]\w*)(?=(?:\\?\s)*(?:[:(<{/\n]|$))",
+            r"^[ \t]*@\s*(?:interface|implementation|protocol)(?:\\?\s)+(["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)(?=(?:\\?\s)*(?:[:(<{/\n]|$))",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -292,7 +360,15 @@ DEFINITION: dict[str, Any] = {
         # same-line `;` the declaration form already requires.
         "api": re.compile(
             r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction|"
-            r"^[ \t]*[-+][ \t]*\([ \t]*[A-Za-z_][\w \t*<>,]{0,120}\)[ \t]*[A-Za-z_]\w*[^;{\n]{0,300}[;{]",
+            r"^[ \t]*[-+][ \t]*\([ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r" \t*<>,]{0,120}\)[ \t]*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*[^;{\n]{0,300}[;{]",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (Property setters and raw assignments).
@@ -304,9 +380,25 @@ DEFINITION: dict[str, Any] = {
             # operator set, a trailing-comma line (enum member / named argument) is not
             # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
             # string literal is not an increment).
-            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
-            r"|\[\s*(?:self|_?[a-zA-Z]\w*)\s+set[A-Z]\w*:",
+            r"(?:^|[;{}(),])[ \t]*\**["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:(?:\.|->)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[" + ID_CONTINUE + r")\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[" + ID_START + r"(*]"
+            r"|\[\s*(?:self|_?(?!_)["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*)\s+set["
+            + CAPITAL
+            + r"]["
+            + ID_CONTINUE
+            + r"]*:",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
@@ -342,7 +434,7 @@ DEFINITION: dict[str, Any] = {
             r"\b(UIView|UIViewController|UIWindow|NSView|NSWindow|NXWindow|NXApp|NXBrowser|NXText|Text|ScrollView|HyperText|WorldWideWeb|SGML)\b"
         ),
         # 17. closures: Closures / Anonymous Functions. Objective-C Blocks.
-        "closures": re.compile(r"\^[ \t]*(?:[a-zA-Z_]\w*\s*)?\s*\([^)]*\)[ \t]*\{"),
+        "closures": re.compile(r"\^[ \t]*(?:[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*)?\s*\([^)]*\)[ \t]*\{"),
         # 18. globals: Global / Shared State. Singleton/Shared instance access.
         # BUG FIX: the two bracket-message alternatives never matched --
         # `\b` requires a word/non-word transition, but `[`/`]` are both
@@ -381,7 +473,9 @@ DEFINITION: dict[str, Any] = {
         # 24. import: Dependency Inclusions. Module and header inclusion.
         "import": re.compile(r"^[ \t]*(?:#import|#include|@import)\b", re.M),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:#\s*import|#\s*include)\s*(?:\\?\n\s*)?(?:<([^>]+)>|[\"']([^\"']+)[\"'])|^[ \t]*@\s*import\s+([\w.]+)",
+            r"^[ \t]*(?:#\s*import|#\s*include)\s*(?:\\?\n\s*)?(?:<([^>]+)>|[\"']([^\"']+)[\"'])|^[ \t]*@\s*import\s+(["
+            + ID_CONTINUE
+            + r".]+)",
             re.M,
         ),
         # 25. ownership: Authorship metadata.
@@ -420,7 +514,15 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*#(?:define|undef|ifdef|ifndef|if|elif|else|endif|pragma)\b",
             re.M,
         ),
-        "pointers": re.compile(r"->|&\w+|\b(?:id|Class|SEL|IMP)\b|(?<=[=(,])[ \t]*\*[a-zA-Z_]\w*"),
+        "pointers": re.compile(
+            r"->|&["
+            + ID_CONTINUE
+            + r"]+|\b(?:id|Class|SEL|IMP)\b|(?<=[=(,])[ \t]*\*["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*"
+        ),
         "memory_alloc": re.compile(
             r"\b(alloc|init|new|copy|mutableCopy|retain|malloc|calloc|NX_MALLOC|NX_ZONEMALLOC|NSZoneMalloc)\b"
         ),
@@ -431,7 +533,9 @@ DEFINITION: dict[str, Any] = {
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
         "debug_prints": re.compile(r"\b(printf|fprintf|NXPrintf|NSLog)\b"),
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax. Explicit type coercion.
-        "explicit_casts": re.compile(r"\(\s*[A-Za-z_]\w*\s*\*?\s*\)\s*[a-zA-Z_$]|typeof\b"),
+        "explicit_casts": re.compile(
+            r"\(\s*[" + ID_START + r"][" + ID_CONTINUE + r"]*\s*\*?\s*\)\s*[" + ID_START + r"$]|typeof\b"
+        ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution context.
         # BUG FIX: @throw never matched -- same \b-before-@ shape as
         # branch's fix above.

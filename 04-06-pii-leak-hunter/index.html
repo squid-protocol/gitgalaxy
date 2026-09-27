@@ -12166,7 +12166,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py">gitgalaxy/tools/terabyte_log_scanning/pii_leak_hunter.py</a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>Server logs and database dumps often inadvertently capture Personally Identifiable Information (PII) such as credit cards, SSNs, and API keys. Scanning terabyte-scale log files for these leaks using standard text parsers causes immense memory overhead and CPU starvation due to string decoding. To solve this, a high-throughput stream processor evaluates raw binary data against byte-level regular expressions, decoding strings only upon a positive match. It sanitizes sensitive data and provides chronological histograms of exposure events. This subsystem is the GitGalaxy PII Leak Hunter.</p>
+<p>Server logs and database dumps often inadvertently capture Personally Identifiable Information (PII) such as credit cards, national identifiers (US SSN, IBAN, UK NINO, Indian Aadhaar, Brazilian CPF, Dutch BSN), and API keys. Scanning terabyte-scale log files for these leaks using standard text parsers causes immense memory overhead and CPU starvation due to string decoding. To solve this, a high-throughput stream processor evaluates raw binary data against byte-level regular expressions, decoding strings only upon a positive match. It sanitizes sensitive data and provides chronological histograms of exposure events. This subsystem is the GitGalaxy PII Leak Hunter.</p>
 <h2 id="purpose">Purpose</h2>
 <p>To provide high-throughput, single-pass log analysis that detects exposed PII, masks sensitive values, and outputs sanitized evidence logs for compliance auditing.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -12175,6 +12175,7 @@
 <h3 id="byte-level-pattern-matching">Byte-Level Pattern Matching</h3>
 <p>The hunter compiles detection patterns directly as binary byte regular expressions (<code>PII_PATTERNS</code>), bypassing the need to decode every line of a log file.
 * <strong>Lazy Decoding:</strong> Reads files line-by-line in binary mode (<code>open(..., "rb")</code>). Lines are decoded into UTF-8 text <em>only</em> after a binary regex match is confirmed.
+* <strong>Region Packs:</strong> National identifiers are grouped by region (<code>PII_REGION_PACKS</code>) and selected with <code>--regions</code> (all by default). Identifiers that could be an ordinary number carry a checksum validator (IBAN mod-97, Aadhaar Verhoeff, CPF mod-11, BSN 11-proof), so a pattern hit counts only when the checksum holds.
 * <strong>Multi-Pattern Deduction:</strong> Ensures that a single line containing multiple PII instances is logged once with full masking applied across all categories.</p>
 <h3 id="sensitive-value-masking">Sensitive Value Masking</h3>
 <p>The <code>mask_pii()</code> function applies surgical string replacements to format matches securely (e.g., <code>4111222233334444</code> becomes <code>VISA-MASKED-4444</code>). Sanitized entries are written to a secondary evidence log.</p>

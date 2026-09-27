@@ -114,9 +114,18 @@ def _one_select(toks: list[str], line: int) -> dict[str, Any]:
             value, i = after(i + 1)
             if value == "LINE" and i < len(toks) and toks[i] == "SEQUENTIAL":
                 value, i = "LINE SEQUENTIAL", i + 1
+            elif value == "RECORD" and i < len(toks) and toks[i] == "SEQUENTIAL":
+                value, i = "SEQUENTIAL", i + 1
             row["organization"] = value
         elif t in _ORGS and row["organization"] is None and toks[i - 1] not in ("MODE", "IS", "ACCESS"):
-            row["organization"] = t
+            # #3898: ORGANIZATION is optional -- `ASSIGN TO 'b.txt' LINE SEQUENTIAL` -- and Micro Focus
+            # spells SEQUENTIAL `RECORD SEQUENTIAL`.
+            if t == "SEQUENTIAL" and toks[i - 1] == "LINE":
+                row["organization"] = "LINE SEQUENTIAL"
+            elif t == "SEQUENTIAL" and toks[i - 1] == "RECORD":
+                row["organization"] = "SEQUENTIAL"
+            else:
+                row["organization"] = t
             i += 1
         elif t == "ACCESS":
             row["access_mode"], i = after(i + 1)

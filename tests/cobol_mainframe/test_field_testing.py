@@ -75,3 +75,30 @@ def test_a_private_estate_may_not_carry_identifying_fields():
         {"id": "p9", "kind": "private", "round": 99, "label": "private-09", "fields": ["units"], "url": "x"}
     )
     assert any("anonymised" in e for e in ft.validate(registry, ledger, corpora))
+
+
+def test_a_defect_found_by_review_names_no_estate_and_resets_from_after_round():
+    """#3898: a defect found by reading code counts against the rounds checked before it (after_round)."""
+    registry = _registry([], dev=3)
+    registry["defects"].append(
+        {"id": "D9", "estate": None, "after_round": 4, "found_by": "review", "side": "engine", "severity": "fact",
+         "issue": 1, "summary": "s",
+         "fields": ["units"]}
+    )  # fmt: skip
+    row = _units(registry, _ledger({f"e{i}": 200 for i in range(1, 6)}))
+    assert (row["engine_defects"], row["clean_rounds"], row["status"]) == (1, 1, "open")  # only round 5 is clean
+    assert "| D9 | review, after 4 |" in ft.render(registry, _ledger({f"e{i}": 200 for i in range(1, 6)}))
+
+
+def test_a_review_defect_must_not_name_an_estate_and_needs_after_round():
+    bad = [
+        {"id": "D1", "estate": "e1", "after_round": 1, "found_by": "review"},
+        {"id": "D2", "estate": None, "found_by": "review"},
+        {"id": "D3", "estate": None, "after_round": 99, "found_by": "review"},
+    ]
+    registry = _registry([], dev=3)
+    registry["defects"] = [
+        {**d, "side": "engine", "severity": "fact", "fields": ["units"], "issue": 1, "summary": "s"} for d in bad
+    ]
+    errors = [e for e in ft.validate(registry, _ledger({f"e{i}": 1 for i in range(1, 6)}), {}) if "review" in e]
+    assert [e.split(":")[0] for e in errors] == ["D1", "D2", "D3"]

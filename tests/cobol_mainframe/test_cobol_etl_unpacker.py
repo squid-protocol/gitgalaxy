@@ -238,7 +238,7 @@ def test_unpack_file_raises_for_bad_data(tmp_path):
     schema = tmp_path / "schema.json"
     schema.write_text(json.dumps({"properties": {"N": {"description": "Legacy PIC: 9(3)"}}}), encoding="utf-8")
     binary = tmp_path / "D.DAT"
-    binary.write_bytes(bytes.fromhex("F1F2F3") + bytes.fromhex("404040"))
+    binary.write_bytes(bytes.fromhex("F1F2F3") + bytes.fromhex("F1C1F3"))  # a sign mid-field: garbage
     with pytest.raises(etl_module.UnpackError, match="record 2, field N"):
         etl_module.unpack_ebcdic_file(binary, schema, tmp_path / "o.csv")
 
@@ -249,3 +249,12 @@ def test_bad_code_page_is_rejected(tmp_path, capsys, code_page, message):
         _run(tmp_path, {"N": "Legacy PIC: 9(3)"}, bytes.fromhex("F1F2F3"), "--code-page", code_page)
     assert exit_info.value.code == 2
     assert message in capsys.readouterr().out
+
+
+def test_a_never_filled_numeric_is_an_empty_cell_not_zero_nor_a_failure(tmp_path, capsys):
+    """#3833: all EBCDIC spaces / low-values (an unfilled field) -> an empty cell, counted; garbage still fails."""
+    fields = {"A": "Legacy PIC: S9(3)V99", "B": "Legacy PIC: S9(7)V99 COMP-3", "C": "Legacy PIC: 9(3)"}
+    data = b"\x40" * 5 + b"\x00" * 5 + bytes.fromhex("F0F4F2")
+    rows = _run(tmp_path, fields, data)
+    assert rows[1] == ["", "", "42"]
+    assert "2 numeric field(s) never filled" in capsys.readouterr().out

@@ -193,6 +193,7 @@ def unpack_ebcdic_file(
     print(f" 🔤 Code page      : {code_page}")
 
     total_records = 0
+    unfilled = 0  # numeric fields never filled (all spaces / low-values): empty cells
 
     with (
         open(binary_filepath, "rb") as f_in,
@@ -220,6 +221,12 @@ def unpack_ebcdic_file(
                 chunk = record_bytes[cursor : cursor + field["bytes"]]
                 cursor += field["bytes"]
 
+                if (field["is_comp3"] or field["is_numeric"]) and chunk.strip(b"\x40\x00") == b"":
+                    # #3833: a numeric field of all EBCDIC spaces / low-values was never filled -- an empty
+                    # cell (a NULL downstream), counted and reported; neither 0.0 nor a failed run
+                    row_data.append("")
+                    unfilled += 1
+                    continue
                 try:
                     if field["is_comp3"]:
                         row_data.append(format_number(unpack_comp3(chunk, field["decimals"])))
@@ -236,6 +243,8 @@ def unpack_ebcdic_file(
             writer.writerow(row_data)
             total_records += 1
 
+    if unfilled:
+        print(f" ⚠️  {unfilled} numeric field(s) never filled (all spaces / low-values): written as empty cells")
     return total_records
 
 

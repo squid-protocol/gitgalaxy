@@ -58,13 +58,6 @@ php|cyrillic|gb18030	php/a.php: raw_state_unreferenced 3 -> 0
 php|greek|shift_jis	php/a.php: raw_state_unreferenced 3 -> 0
 php|han|shift_jis	php/a.php: raw_state_unreferenced 3 -> 0
 php|kana|gb18030	php/a.php: raw_state_unreferenced 3 -> 0
-php|kana|utf-8	php/a.php: function_count 3 -> 0
-php|nfd|utf-8	php/a.php: function_count 3 -> 0
-php|nfd|utf-8-sig	php/a.php: function_count 3 -> 0
-php|tamil|utf-16	php/a.php: function_count 3 -> 0
-php|tamil|utf-8	php/a.php: function_count 3 -> 0
-powershell|arabic|utf-16-be	powershell/a.ps1: arch_api 3 -> 6
-powershell|arabic|utf-8	powershell/a.ps1: arch_api 3 -> 6
 powershell|cyrillic|gb18030	powershell/a.ps1: function_data missing [('probe_globals_жзи', 0, 5, 5, 1, 0, 'callbacks & closures', '', '[]', None, None, None, None, None, None, None, None, None, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0,
 powershell|greek|shift_jis	powershell/a.ps1: function_data missing [('probe_globals_αβγ', 0, 5, 5, 1, 0, 'callbacks & closures', '', '[]', None, None, None, None, None, None, None, None, None, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0,
 powershell|han|shift_jis	powershell/a.ps1: function_data missing [('probe_globals_名前', 0, 5, 5, 1, 0, 'callbacks & closures', '', '[]', None, None, None, None, None, None, None, None, None, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 
@@ -95,12 +88,6 @@ swift|cyrillic|gb18030	swift/a.swift: function_count 3 -> 0
 swift|greek|shift_jis	swift/a.swift: function_count 3 -> 0
 swift|han|shift_jis	swift/a.swift: function_count 3 -> 0
 swift|kana|gb18030	swift/a.swift: function_count 3 -> 0
-swift|nfd|utf-8	swift/a.swift: function_count 3 -> 0
-swift|nfd|utf-8-sig	swift/a.swift: function_count 3 -> 0
-swift|tamil|utf-16	swift/a.swift: function_count 3 -> 0
-swift|tamil|utf-8	swift/a.swift: function_count 3 -> 0
-tcl|arabic|utf-16-be	tcl/a.tcl: function_count 3 -> 0
-tcl|arabic|utf-8	tcl/a.tcl: function_count 3 -> 0
 tcl|cyrillic|gb18030	tcl/a.tcl: function_count 3 -> 0
 tcl|greek|shift_jis	tcl/a.tcl: function_count 3 -> 0
 tcl|han|shift_jis	tcl/a.tcl: function_count 3 -> 0

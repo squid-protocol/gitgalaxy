@@ -1,5 +1,29 @@
 {
-  "about": "#3812: the names the mainframe seed's rename transform rewrites, each with its language's length limit. Every channel is named from one: units (PGMA, PROCA, ASMA, STEPA), calls and their targets (PGMA/PGMB/PGMC, PROCA), the include (INCA), CICS and CSD files (FILEA), the CSD group and transaction (GRPA, TRNA: a TRANSID is 4 bytes), dataset qualifiers (CUSTA, YEARA: 8 each) and PL/I items (AMOUNTA, YEARA, CODEA).",
-  "names": {"PGMA": 8, "PGMB": 8, "PGMC": 8, "PROCA": 31, "ASMA": 8, "STEPA": 8, "JOBA": 8, "INCA": 8,
-            "FILEA": 8, "GRPA": 8, "TRNA": 4, "CUSTA": 8, "YEARA": 8, "AMOUNTA": 31, "CODEA": 31, "OUTA": 8}
+  "about": "#3812: the names the mainframe seed's rename transform rewrites, each with its language's length limit. Every channel is named from one: units (PGMA, PROCA, ASMA, STEPA), calls and their targets (PGMA/PGMB/PGMC, PROCA), the include (INCA), CICS and CSD files (FILEA), the CSD group and transaction (GRPA, TRNA: a TRANSID is 4 bytes), dataset qualifiers (CUSTA, YEARA: 8 each) PL/I items (AMOUNTA, YEARA, CODEA), and (#3810) COBOL's paragraph (CALCA), file (KUNDA), record and its fields (KUNDRECA, KUNDNRA, KUNDNAVNA) and working-storage items (WS-GREETA, WS-AMOUNTA). The second job step STEPB runs the COBOL program.",
+  "names": {
+    "PGMA": 8,
+    "PGMB": 8,
+    "PGMC": 8,
+    "PROCA": 31,
+    "ASMA": 8,
+    "STEPA": 8,
+    "JOBA": 8,
+    "INCA": 8,
+    "FILEA": 8,
+    "GRPA": 8,
+    "TRNA": 4,
+    "CUSTA": 8,
+    "YEARA": 8,
+    "AMOUNTA": 31,
+    "CODEA": 31,
+    "OUTA": 8,
+    "CALCA": 30,
+    "KUNDA": 30,
+    "KUNDRECA": 30,
+    "KUNDNRA": 30,
+    "KUNDNAVNA": 30,
+    "WS-GREETA": 30,
+    "WS-AMOUNTA": 30,
+    "STEPB": 8
+  }
 }

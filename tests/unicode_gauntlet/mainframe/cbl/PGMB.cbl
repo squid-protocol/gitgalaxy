@@ -1,13 +1,28 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. PGMB.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT KUNDA ASSIGN TO FILEA
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS RANDOM
+               RECORD KEY IS KUNDNRA.
        DATA DIVISION.
+       FILE SECTION.
+       FD  KUNDA.
+       01  KUNDRECA.
+           05 KUNDNRA         PIC X(8).
+           05 KUNDNAVNA       PIC X(30).
        WORKING-STORAGE SECTION.
-       01  WS-GREET        PIC X(30) VALUE "PGMC".
-       01  WS-AMOUNT       PIC S9(7)V99 VALUE 0.
+       01  WS-GREETA       PIC X(30) VALUE "PGMC".
+       01  WS-AMOUNTA      PIC S9(7)V99 VALUE 0.
        PROCEDURE DIVISION.
        000-MAIN.
+           OPEN INPUT KUNDA
+           READ KUNDA
            CALL "PGMC"
-           PERFORM 100-CALC
+           PERFORM CALCA
+           CLOSE KUNDA
            GOBACK.
-       100-CALC.
-           ADD 1 TO WS-AMOUNT.
+       CALCA.
+           ADD 1 TO WS-AMOUNTA.

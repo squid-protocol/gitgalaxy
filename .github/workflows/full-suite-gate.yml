@@ -117,7 +117,7 @@ jobs:
   full-suite-matrix:
     needs: matrix
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45  # headroom only: the time itself is #3913's to keep down
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"

@@ -920,6 +920,16 @@ _QUALIFIER_MAX_SEGMENTS = 4
 _QUALIFIER_MAX_IDENT = 64
 
 
+# #3913: the family is recognised by the pattern's TEXT, not by object identity. A rule reaches a
+# scan worker pickled whenever the pool spawns (Windows, macOS): the string or compiled pattern it
+# holds is then a new object, `is` never matched, and qualifier capture was silently off there.
+_QUALIFIED_CALLS_OUT_SOURCES = frozenset(getattr(p, "pattern", p) for p in QUALIFIED_CALLS_OUT_PATTERNS)
+
+
+def _is_qualified_calls_out(pattern: Any) -> bool:
+    return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
+
+
 def _call_qualifier(text: str, pos: int) -> str:
     """The receiver chain written before the callee name that starts at `pos`.
 
@@ -9760,7 +9770,7 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if any(invocation_pattern is p for p in QUALIFIED_CALLS_OUT_PATTERNS):
+            if _is_qualified_calls_out(invocation_pattern):
                 receiver_text = safe_block
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them

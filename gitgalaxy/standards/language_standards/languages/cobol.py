@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
@@ -147,7 +149,7 @@ DEFINITION: dict[str, Any] = {
         "args": re.compile(
             r"\b(?:USING|RETURNING)\s+"
             r"((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)\s+)?(?!RETURNING\b)"
-            r"[A-Z0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
+            r"[A-Z" + NATIONAL + r"0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
             re.I,
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -212,7 +214,7 @@ DEFINITION: dict[str, Any] = {
             # was measurably catastrophic on a whitespace-heavy pathological input.
             # Confirmed against language-crucible v1.2.0
             # (che-che4z_nist_ccvs85/DB1024.2.cbl:640, DB1034.2.cbl:665).
-            r"^(?:[0-9a-zA-Z \t]{6}(?:[ \-]|(?<=[0-9])[Dd](?=[A-Za-z]))?)?[ \t]*"
+            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}(?:[ \-]|(?<=[0-9])[Dd](?=[A-Z" + NATIONAL + r"a-z]))?)?[ \t]*"
             # 2. THE DATA DIVISION SHIELD
             # Explicitly bans data level indicators (01 through 88).
             # Prevents massive "01 POLICY." data structures from being hallucinated as paragraphs.
@@ -267,11 +269,11 @@ DEFINITION: dict[str, Any] = {
             # spaces, so a real structural fix needs file-level fixed/free-
             # format detection -- out of scope for this narrow token exclusion.
             r"CEE3DMP|CEEMOUT|CEEDUMP|"
-            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
+            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Z" + NATIONAL + r"a-z0-9_-]+)(?=[ \t\n.]))"
             # 4. THE DIVISION/SECTION HEADER SHIELD
             # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
             # Upgraded to `[ \t\n]+` to prevent vertical ghosting.
-            r"(?![A-Za-z0-9_-]+[ \t\n]+DIVISION\b)"
+            r"(?![A-Z" + NATIONAL + r"a-z0-9_-]+[ \t\n]+DIVISION\b)"
             # 5. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
             # [ THE GREEDY MARGIN SHIELD ]: The `\b` forces the engine to evaluate the whole word,
             # preventing the 6-character margin-eater from splitting flush-left identifiers.
@@ -291,7 +293,11 @@ DEFINITION: dict[str, Any] = {
             # or 8-digit (cols 73-80) sequence field before a lone period (CardDemo
             # `045100 .`) is never one. A continued numeric VALUE line (`1000.`) does
             # not begin a sentence, so the cobol_sentence_start filter drops it.
-            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Za-z][A-Za-z0-9_-]*|[0-9]{1,5}(?![0-9]))"
+            r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Z"
+            + NATIONAL
+            + r"a-z][A-Z"
+            + NATIONAL
+            + r"a-z0-9_-]*|[0-9]{1,5}(?![0-9]))"
             # 6. THE IGNITION & TRAILING ANCHOR (Lookahead)
             # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
             # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.
@@ -309,7 +315,7 @@ DEFINITION: dict[str, Any] = {
             # sequence area, then the period -- no open-ended vertical gap,
             # which is what the #2480 note above rejected.
             r"(?=(?:[ \t\n]+SECTION(?:[ \t\n]+[0-9]{1,2})?)?"
-            r"(?:[ \t]*\.|[ \t]*\n(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*\.)(?:[ \t\n]|$))",
+            r"(?:[ \t]*\.|[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*\.)(?:[ \t\n]|$))",
             re.I | re.M,
         ),
         # 5. class_start: Object / Entity Declarations. Defines structural program and modern OO boundaries.
@@ -352,9 +358,15 @@ DEFINITION: dict[str, Any] = {
         #    greedy-margin guard: without it that 6-char prefix ate `    My` of an
         #    indented `MyProgram` and captured `Program`.
         "class_start": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
-            r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*)"
-            r"\b([0-9_-]*[A-Za-z][A-Za-z0-9_-]*)(?:[ \t\n]+(?!DIVISION\b)[A-Za-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
+            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
+            r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*)"
+            r"\b([0-9_-]*[A-Z"
+            + NATIONAL
+            + r"a-z][A-Z"
+            + NATIONAL
+            + r"a-z0-9_-]*)(?:[ \t\n]+(?!DIVISION\b)[A-Z"
+            + NATIONAL
+            + r"a-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -410,7 +422,7 @@ DEFINITION: dict[str, Any] = {
         # TRUNCATE and DROP DATABASE are whole-store destruction (family 4).
         "high_risk_execution": re.compile(
             r"(?<![-\w])(?:STOP\s+RUN|ALTER"
-            r"|CANCEL(?![ \t]+(?:REQID|TRANSID|SYSID|END-EXEC)\b)(?=[ \t]+['\"A-Z0-9]))(?![-\w])"
+            r"|CANCEL(?![ \t]+(?:REQID|TRANSID|SYSID|END-EXEC)\b)(?=[ \t]+['\"A-Z" + NATIONAL + r"0-9]))(?![-\w])"
             r"|\bEXEC\s+SQL\s+(?:PREPARE|EXECUTE(?:\s+IMMEDIATE)?|TRUNCATE|DROP\s+DATABASE)\b",
             re.I,
         ),
@@ -485,7 +497,9 @@ DEFINITION: dict[str, Any] = {
         # comments, which are distinct from the AUTHOR paragraph) as-is.
         # #2882 contract C4: doc counts the block, not the author tag -- `*> @author` is ownership's alone.
         "doc": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return)",
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*(?:DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return)",
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (ZUnit).
@@ -538,11 +552,13 @@ DEFINITION: dict[str, Any] = {
         "globals": re.compile(r"(?<![-\w])(COMMON|GLOBAL|EXTERNAL)(?![-\w])", re.I),
         # 19. decorators: Decorators / Annotations. (COBOL uses compiler directives).
         "decorators": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*>>\s*(?:IF|ELSE|END-IF|DEFINE|CALL-CONVENTION)",
+            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*>>\s*(?:IF|ELSE|END-IF|DEFINE|CALL-CONVENTION)",
             re.I | re.M,
         ),
         # 20. generics: Generics / Type Parameters. Parameterized classes (Modern COBOL).
-        "generics": re.compile(r"\bCLASS-ID\.\s+[A-Za-z0-9_-]+\s+USING\s+[A-Za-z0-9_-]+", re.I),
+        "generics": re.compile(
+            r"\bCLASS-ID\.\s+[A-Z" + NATIONAL + r"a-z0-9_-]+\s+USING\s+[A-Z" + NATIONAL + r"a-z0-9_-]+", re.I
+        ),
         # 21. comprehensions: Iterators / Comprehensions. (Not native to COBOL).
         "comprehensions": None,
         # 22. scientific: Numerical / Compute Libraries. Intrinsic math functions.
@@ -580,16 +596,25 @@ DEFINITION: dict[str, Any] = {
         # app-transaction-type-db2 programs use the one-line form, so 6 copybook
         # edges (CSDB2RWY, CSDB2RPY and the DCLGEN .dcl members) were lost.
         "import": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b", re.I | re.M
+            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b",
+            re.I | re.M,
         ),
         "_dependency_capture": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Za-z0-9_-]+)['\"]?",
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Z"
+            + NATIONAL
+            + r"a-z0-9_-]+)['\"]?",
             re.I | re.M,
         ),
         # 25. ownership: Authorship indicators.
         # #2882 contract: C1 `* Author :` comment lines join the AUTHOR. paragraph; `*> @author` is ownership's (doc released it, C4)
         "ownership": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*AUTHOR\.\s+([^\n]+)|\*>[ \t]*@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^(?:[0-9a-zA-Z \t]{6}[*/\-]|[ \t]*\*>)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            r"^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[ \-]?)?[ \t]*AUTHOR\.\s+([^\n]+)|\*>[ \t]*@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^(?:[0-9a-zA-Z"
+            + NATIONAL
+            + r" \t]{6}[*/\-]|[ \t]*\*>)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
             re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
@@ -604,7 +629,11 @@ DEFINITION: dict[str, Any] = {
         # DOCUMENT CREATE/INSERT/SET/RETRIEVE), SOAPFAULT and the EXTRACT WEB/TCPIP/CERTIFICATE
         # inquiries are CICS's HTTP surface, not only WEB SEND / WEB READ.
         "ssr_boundaries": re.compile(
-            r"\bEXEC\s+CICS\s+(?:WEB\s+[A-Z]+|DOCUMENT\s+[A-Z]+|SOAPFAULT|EXTRACT\s+(?:WEB|TCPIP|CERTIFICATE))\b",
+            r"\bEXEC\s+CICS\s+(?:WEB\s+[A-Z"
+            + NATIONAL
+            + r"]+|DOCUMENT\s+[A-Z"
+            + NATIONAL
+            + r"]+|SOAPFAULT|EXTRACT\s+(?:WEB|TCPIP|CERTIFICATE))\b",
             re.I,
         ),
         # 32. events: Pub/Sub Network. Signal handlers and MQ bindings.
@@ -625,7 +654,7 @@ DEFINITION: dict[str, Any] = {
         "dependency_injection": None,
         # 34. macros: Preprocessor Hooks. DEFINE directives.
         "macros": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*DEFINE\s+[A-Z0-9_-]+\.|>>DEFINE",
+            r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*DEFINE\s+[A-Z" + NATIONAL + r"0-9_-]+\.|>>DEFINE",
             re.I | re.M,
         ),
         # 35. pointers: Memory Map. Explicit pointer tracking.
@@ -748,7 +777,9 @@ DEFINITION: dict[str, Any] = {
         # (119 crucible blocks in 51 files, no owner before this); the date intrinsics
         # convert between calendar forms; CEEGMT/CEEDATM/... are the LE date services.
         "time_date_logic": re.compile(
-            r"(?i)\bACCEPT\s+[A-Za-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY-OF-WEEK|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
+            r"(?i)\bACCEPT\s+[A-Z"
+            + NATIONAL
+            + r"a-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY-OF-WEEK|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
             r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b"
             r"|\bFUNCTION\s+(?:INTEGER-OF-DATE|DATE-OF-INTEGER|INTEGER-OF-DAY|DAY-OF-INTEGER|DATE-TO-YYYYMMDD"
             r"|DAY-TO-YYYYDDD|YEAR-TO-YYYY|SECONDS-PAST-MIDNIGHT|SECONDS-FROM-FORMATTED-TIME"
@@ -790,7 +821,7 @@ DEFINITION: dict[str, Any] = {
         # #3359: `(?<![\w-])`, not `\b` -- the scope terminators `END-PERFORM` /
         # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
         # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
-        "calls_out": re.compile(r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        "calls_out": re.compile(r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Z" + NATIONAL + r"a-z0-9_-]+)['\"]?"),
         # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=
         # is), but the literal shield blanked it before calls_out ran, so only
         # `CALL WS-PGM` and PERFORM reached calls_out_to. A literal right after
@@ -809,7 +840,9 @@ DEFINITION: dict[str, Any] = {
         # First target only for `GO TO A B C DEPENDING ON X` (one occurrence on
         # the whole crucible). WHENEVER ... GO TO (embedded SQL) is excluded: that
         # installs a handler, it does not transfer here.
-        "_transfers_out": re.compile(r"(?i)(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)\bGO\s+TO\s+([A-Za-z0-9_-]+)"),
+        "_transfers_out": re.compile(
+            r"(?i)(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)\bGO\s+TO\s+([A-Z" + NATIONAL + r"a-z0-9_-]+)"
+        ),
         # #3197: a paragraph/section header begins a SENTENCE. `func_start`
         # alone cannot see that -- the deciding context is the PREVIOUS line,
         # and a lookbehind cannot span one -- so the last line of a multi-line

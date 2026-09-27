@@ -103,6 +103,7 @@ from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -124,7 +125,7 @@ TRANSACTION_ROUTING_VERBS = ("RETURN TRANSID", "START TRANSID", "RUN TRANSID")
 # COBOL's optional sequence-number area (cols 1-6) plus the indicator column,
 # the same prefix cobol.py's own anchored rules carry. Accepted source may or
 # may not number its lines; both forms appear in the pinned corpora.
-_COBOL_AREA_A = r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*"
+_COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*"
 
 # A data description entry opens with a level number. 01-49 plus the special
 # levels 66/77/88; `77` carries a VALUE as often as `01` does in real source.
@@ -135,13 +136,23 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*"
 # holds a letter (`02 50702-KEY PIC X(08)`, walmartlabs/zECS ZECS001.cbl), so the
 # name is any word with a letter in it -- a bare number (a continued VALUE list) is not.
 _LEVEL_START = re.compile(
-    _COBOL_AREA_A + r"(\d{1,2})[ \t]+((?=[0-9-]*[A-Z])[A-Z0-9][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M
+    _COBOL_AREA_A
+    + r"(\d{1,2})[ \t]+((?=[0-9-]*[A-Z"
+    + NATIONAL
+    + r"])[A-Z"
+    + NATIONAL
+    + r"0-9][A-Z"
+    + NATIONAL
+    + r"0-9-]*)(?![A-Z"
+    + NATIONAL
+    + r"0-9-])",
+    re.I | re.M,
 )
 
 # The period that ends a data description entry (not a decimal point), and an
 # entry left open mid VALUE list (#3452).
 _ENTRY_END = re.compile(r"\.(?=[ \t\n]|$)")
-_OPEN_VALUE_LIST = re.compile(r"(?:(?<![A-Z0-9-])VALUES?(?:[ \t]+(?:IS|ARE))?|,)[ \t\n]*$", re.I)
+_OPEN_VALUE_LIST = re.compile(r"(?:(?<![A-Z" + NATIONAL + r"0-9-])VALUES?(?:[ \t]+(?:IS|ARE))?|,)[ \t\n]*$", re.I)
 
 # A data description entry runs to the next level number. Capped so the last
 # entry before PROCEDURE DIVISION cannot swallow the procedure body and read a
@@ -157,8 +168,8 @@ _VALUE_LITERAL = re.compile(r"\bVALUE[ \t]+(?:IS[ \t]+)?(?:'([^']*)'|\"([^\"]*)\
 # sentence. TO is optional (IBM accepts `ASSIGN <name>`), and the assign operand
 # may be a literal in some dialects, so both forms are read.
 _SELECT_ASSIGN = re.compile(
-    r"\bSELECT[ \t]+(?:OPTIONAL[ \t]+)?([A-Z][A-Z0-9-]*)[ \t\n]+"
-    r"ASSIGN[ \t\n]+(?:TO[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9@#$-]*))",
+    r"\bSELECT[ \t]+(?:OPTIONAL[ \t]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)[ \t\n]+"
+    r"ASSIGN[ \t\n]+(?:TO[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9@#$-]*))",
     re.I,
 )
 
@@ -168,7 +179,7 @@ _OPEN_MODES = ("INPUT", "OUTPUT", "I-O", "EXTEND")
 
 # The OPEN verb itself. `-` is a COBOL name character, so plain `\b` would fire
 # inside `WS-OPEN-FLAG`; both guards exclude it explicitly.
-_OPEN_ANCHOR = re.compile(r"(?<![A-Z0-9-])OPEN(?![A-Z0-9-])")
+_OPEN_ANCHOR = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])OPEN(?![A-Z" + NATIONAL + r"0-9-])")
 
 # Environment-division device prefixes that are not part of the ddname
 # (`ASSIGN TO UT-S-CUSTFILE` binds DD CUSTFILE). Stripped for `dd_name`; the
@@ -182,7 +193,9 @@ _CALL_LITERAL = re.compile(r"\bCALL[ \t\n]+(?:'([^']*)'|\"([^\"]*)\")", re.I)
 # own VALUE clause when it has one. The negative lookahead keeps the literal
 # form above from matching twice, and `END-CALL` cannot match because the verb
 # is anchored on a word boundary that `-` does not close.
-_CALL_IDENTIFIER = re.compile(r"(?<![A-Z0-9-])CALL[ \t\n]+(?!['\"])([A-Z][A-Z0-9-]*)", re.I)
+_CALL_IDENTIFIER = re.compile(
+    r"(?<![A-Z" + NATIONAL + r"0-9-])CALL[ \t\n]+(?!['\"])([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+)
 
 # An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
@@ -194,7 +207,7 @@ _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(LINK|XCTL)\b", re.I)
 # The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
 # HLASM symbols included (#3495), and a PL/I qualified reference kept whole (#3491:
 # DSF's `TRANSID(TRANS_OPPL_OMR.TRANSKODE)`); COBOL names contain neither `_` nor `.`.
-_OPERAND_NAME = r"[A-Z@#$_][A-Z0-9@#$_-]*"
+_OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + r"0-9@#$_-]*"
 _OPERAND_VALUE = r"[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
 _CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM" + _OPERAND_VALUE, re.I)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
@@ -222,11 +235,11 @@ _CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID" + _OPERAND_VALUE, re.I)
 # paren-balanced scan (`LENGTH(LENGTH OF X)`, `COMMAREA(WS-AREA(1:10))`) capped at
 # `_CICS_OPERAND_LIMIT`, inside the already END-EXEC-bounded block.
 _CICS_CONTRACT_OPERANDS = (
-    ("commarea", re.compile(r"(?<![A-Z0-9-])COMMAREA[ \t\n]*\(", re.I)),
-    ("commarea_length", re.compile(r"(?<![A-Z0-9-])LENGTH[ \t\n]*\(", re.I)),
-    ("commarea_datalength", re.compile(r"(?<![A-Z0-9-])DATALENGTH[ \t\n]*\(", re.I)),
+    ("commarea", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])COMMAREA[ \t\n]*\(", re.I)),
+    ("commarea_length", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])LENGTH[ \t\n]*\(", re.I)),
+    ("commarea_datalength", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])DATALENGTH[ \t\n]*\(", re.I)),
     # #3494: the region a LINK / START ships to (Distributed Program Link).
-    ("sysid", re.compile(r"(?<![A-Z0-9-])SYSID[ \t\n]*\(", re.I)),
+    ("sysid", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])SYSID[ \t\n]*\(", re.I)),
 )
 _CICS_OPERAND_LIMIT = 160
 
@@ -235,27 +248,29 @@ _CICS_OPERAND_LIMIT = 160
 # `<NAME>` is an installation placeholder of template JCL (IBM samples such as
 # CICS GENAPP ship `//<CMASAPPL> JOB` / `DSN=<USRHLQ>.GENAPP.KSDSCUST`): kept as
 # written, like an unresolved symbol, so the job and its datasets are not lost.
-_JCL_STATEMENT = re.compile(r"^//([A-Z0-9_#$@<>]*)[ \t]+([A-Z]+)(?:[ \t]+(.*))?$", re.I)
+_JCL_STATEMENT = re.compile(
+    r"^//([A-Z" + NATIONAL + r"0-9_#$@<>]*)[ \t]+([A-Z" + NATIONAL + r"]+)(?:[ \t]+(.*))?$", re.I
+)
 # `EXEC PGM=X`. `EXEC name` / `EXEC PROC=name` invoke a PROCEDURE, not a
 # program: jcl.py's `api` rule already owns that relation and #3200 asks for
 # PGM= specifically.
-_JCL_EXEC_PGM = re.compile(r"\bPGM=([A-Z0-9_#$@]+)", re.I)
+_JCL_EXEC_PGM = re.compile(r"\bPGM=([A-Z" + NATIONAL + r"0-9_#$@]+)", re.I)
 # `DSN=`/`DSNAME=` on a DD. `&&NAME` is a job-local temporary dataset and `*`
 # opens an in-stream payload -- neither is an external binding, and jcl.py's
 # `_dependency_capture` already excludes both for the same reason. `+` is in the
 # class for a relative GDG generation (`DSN=X.BKUP(+1)`), which it used to cut to
 # `X.BKUP(` (#3345).
-_JCL_DSN = re.compile(r"\bDSN(?:AME)?=(?!(?:&&|\*))([A-Z0-9_#$@.&()+<>-]+)", re.I)
+_JCL_DSN = re.compile(r"\bDSN(?:AME)?=(?!(?:&&|\*))([A-Z" + NATIONAL + r"0-9_#$@.&()+<>-]+)", re.I)
 
 # ---- #3345: JCL symbolic-parameter resolution -------------------------------
 # A symbol reference: `&NAME` (1-8 chars) with an optional delimiting period that
 # substitution consumes (`&HLQ..DATA` -> `PROD.DATA`). `&&` is matched first so a
 # temporary-dataset prefix is never read as a symbol. Bounded: {0,7}.
-_JCL_SYMBOL_REF = re.compile(r"&&|&([A-Z@#$][A-Z0-9@#$]{0,7})(\.?)", re.I)
+_JCL_SYMBOL_REF = re.compile(r"&&|&([A-Z" + NATIONAL + r"@#$][A-Z" + NATIONAL + r"0-9@#$]{0,7})(\.?)", re.I)
 # `KEY=` at the head of one operand. A dotted key (`PARM.STEP1=`) is an EXEC
 # keyword aimed at a procedure step, never a symbol; the class admits the dot so
 # the caller can see and skip it.
-_JCL_OPERAND_KEY = re.compile(r"([A-Z@#$][A-Z0-9@#$.]{0,24})=", re.I)
+_JCL_OPERAND_KEY = re.compile(r"([A-Z" + NATIONAL + r"@#$][A-Z" + NATIONAL + r"0-9@#$.]{0,24})=", re.I)
 # EXEC keywords: an `EXEC proc,KEY=value` operand with one of these names is a
 # step parameter, not a symbolic-parameter override.
 _JCL_EXEC_KEYWORDS = frozenset(
@@ -305,7 +320,10 @@ _PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t]+DIVISION", re.
 # `FD <file>` / `SD <sort-file>` binds the `01` record(s) that follow it in the
 # FILE SECTION to a logical file. It is not a data-description entry (no level
 # number), so it is tracked separately and joined by position.
-_FD_START = re.compile(_COBOL_AREA_A + r"(?:FD|SD)[ \t]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M)
+_FD_START = re.compile(
+    _COBOL_AREA_A + r"(?:FD|SD)[ \t]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)(?![A-Z" + NATIONAL + r"0-9-])",
+    re.I | re.M,
+)
 # `PIC`/`PICTURE [IS] <chars>`: the whole character-string, up to the first space
 # (or a `;` separator), so it cannot cross into the next clause. It used to be the
 # picture-symbol class `[-A-Z0-9(),.$/*+]`, which knew only `$` as a currency sign
@@ -321,19 +339,27 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
-    r"(?<![A-Z0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
-    r"(?![A-Z0-9-])",
+    r"(?<![A-Z"
+    + NATIONAL
+    + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
+    r"(?![A-Z" + NATIONAL + r"0-9-])",
     re.I,
 )
 # `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
 _OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n]+(\d+)(?:[ \t\n]+TO[ \t\n]+(\d+))?", re.I)
-_DEPENDING_CLAUSE = re.compile(r"\bDEPENDING[ \t\n]+(?:ON[ \t\n]+)?([A-Z][A-Z0-9-]*)", re.I)
+_DEPENDING_CLAUSE = re.compile(
+    r"\bDEPENDING[ \t\n]+(?:ON[ \t\n]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+)
 # `REDEFINES <name>` -- the storage-overlay pointer.
-_REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z][A-Z0-9-]*)", re.I)
+_REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I)
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
 # (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
 _VALUE_CLAUSE = re.compile(
-    r"\bVALUE[ \t\n]+(?:IS[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))",
+    r"\bVALUE[ \t\n]+(?:IS[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + NATIONAL
+    + r"0-9][A-Z"
+    + NATIONAL
+    + r"0-9+.-]*))",
     re.I,
 )
 # #3355: `COPY <member>` inside one data-description entry's window -- the
@@ -341,7 +367,10 @@ _VALUE_CLAUSE = re.compile(
 # member is recorded on the entry it follows (`copy_members`); expanding it is the
 # reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
 # and a trailing `OF/IN library` are allowed; the member name is what is kept.
-_COPY_IN_ENTRY = re.compile(r"(?<![A-Z0-9-])COPY[ \t\n]+['\"]?([A-Z0-9@#$][A-Z0-9@#$-]*)", re.I)
+_COPY_IN_ENTRY = re.compile(
+    r"(?<![A-Z" + NATIONAL + r"0-9-])COPY[ \t\n]+['\"]?([A-Z" + NATIONAL + r"0-9@#$][A-Z" + NATIONAL + r"0-9@#$-]*)",
+    re.I,
+)
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
@@ -359,11 +388,13 @@ _CSD_COMMAND = re.compile(r"^[ \t]*(DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UPGRADE|
 # The head of a DEFINE record: the resource type and its name. The name run is
 # permissive (a CICS transaction id is 4 chars, a program 8; an over-long name is
 # DFHCSDUP's diagnostic, not ours).
-_CSD_DEFINE_HEAD = re.compile(r"^[ \t]*DEFINE[ \t]+([A-Z0-9]+)[ \t]*\([ \t]*([A-Z0-9@#$]+)[ \t]*\)", re.I)
+_CSD_DEFINE_HEAD = re.compile(
+    r"^[ \t]*DEFINE[ \t]+([A-Z" + NATIONAL + r"0-9]+)[ \t]*\([ \t]*([A-Z" + NATIONAL + r"0-9@#$]+)[ \t]*\)", re.I
+)
 # A `KEYWORD(` attribute opener. The value is read by a paren-balanced scan
 # (values carry spaces, commas `WAITTIME(0,0,0)`, slashes and quoted strings), so
 # this only finds the keyword and the opening paren.
-_CSD_ATTR_KEY = re.compile(r"\b([A-Z][A-Z0-9]*)[ \t]*\(", re.I)
+_CSD_ATTR_KEY = re.compile(r"\b([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9]*)[ \t]*\(", re.I)
 # Attribute-name abbreviations DFHCSDUP accepts (seen in carddemo inline JCL).
 # Only the ones that touch a field we keep need mapping; the rest pass through.
 # #3356: the longest value `_csd_attributes` will scan before calling it unterminated.
@@ -895,12 +926,12 @@ _PLI_FRAGMENT = re.compile(r"\d{1,3}[ \t\r\n]+(?:[^\W\d]|[@#$(*])")
 # Fixed-format source carries a sequence number in columns 73-80 (navikt/DSF:
 # `00000110`). Blanked in place so offsets and line numbers are unchanged. A line
 # over 80 columns is free-format and left alone.
-_PLI_SEQ_FIELD = re.compile(r"[ \t]*[A-Z]{0,4}[0-9]{2,8}[ \t]*", re.I)
+_PLI_SEQ_FIELD = re.compile(r"[ \t]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t]*", re.I)
 # PRISM removes a comment but not the sequence number after it, so a line such as
 # `2 X CHAR(1), /* note */ 00000160` leaves the number at a column other than 73.
 # It then sits alone before a newline at the start of the next item or statement --
 # several in a row when consecutive lines each lost a comment.
-_PLI_LEADING_SEQ = re.compile(r"[ \t\r\n]*[A-Z]{0,4}[0-9]{2,8}[ \t]*(?=\r?\n)", re.I)
+_PLI_LEADING_SEQ = re.compile(r"[ \t\r\n]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t]*(?=\r?\n)", re.I)
 # Canonical spellings of the attribute keywords this reader interprets.
 _PLI_SYNONYMS = {
     "CHARACTER": "CHAR",
@@ -1088,7 +1119,7 @@ def _pli_item_attributes(tokens: list[str]) -> Optional[dict[str, Any]]:
     the declaration is not data (a FILE, BUILTIN, CONDITION, ENTRY constant ...)."""
     parsed: list[tuple[str, str]] = []
     for tok in tokens:
-        m = re.match(r"[A-Z_]+", tok)
+        m = re.match(r"[A-Z" + NATIONAL + r"_]+", tok)
         keyword = m.group(0) if m else ""
         parsed.append((_PLI_SYNONYMS.get(keyword, keyword), tok[len(keyword) :]))
     keywords = {k for k, _ in parsed}

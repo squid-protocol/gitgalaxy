@@ -36,6 +36,7 @@ from __future__ import annotations
 import codecs
 import fnmatch
 import io
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -62,6 +63,7 @@ class SourceText:
     text: str
     encoding: str  # the codec that decoded it
     how: str  # "bom" | "utf-16-heuristic" | "utf-8" | "declared" | "cp1252-fallback" | "latin-1-fallback"
+    cjk_candidates: tuple[str, ...] = ()  # #3878: a legacy guess that decodes strictly as these
 
 
 # What the estate declares: one codec for every file, or {glob: codec} matched in order against the
@@ -203,6 +205,37 @@ def _dbcs_records(data: bytes, cp: str, truncated: bool) -> str:
     return ends.join(lines)
 
 
+# #3878: the double-byte code pages a legacy-guessed file may really be in. GB18030 is left out: it
+# decodes almost any bytes, so "it decodes" is no evidence (GBK, its strict subset, stands for it).
+_CJK_CANDIDATES = ("shift_jis", "euc_jp", "gbk", "big5", "euc_kr")
+_CJK_SAMPLE = 65536
+_NON_ASCII_RUN = re.compile(rb"[\x80-\xff]{1,64}")
+
+
+def cjk_candidates(data: bytes) -> tuple[str, ...]:
+    """#3878: the CJK code pages a file that fell back to cp1252 / Latin-1 decodes strictly as -- a
+    hint that the estate should declare one (`--source-encoding`), never a decode. Evidence: CJK text
+    is double-byte characters in runs, so at least 3 non-ASCII runs of 4+ bytes (two characters) that
+    hold 60%+ of the non-ASCII bytes; Western text is accents alone between ASCII letters (`élève`,
+    `für`), which Shift-JIS and GBK would otherwise read as kanji. Every codec that decodes is named:
+    GB and Big5 and EUC-KR share byte ranges, so which one is the estate's is for its owner to say."""
+    sample = data[:_CJK_SAMPLE]
+    runs = [len(m.group(0)) for m in _NON_ASCII_RUN.finditer(sample)]
+    long_runs = [n for n in runs if n >= 4]
+    if len(long_runs) < 3 or sum(long_runs) < 0.6 * sum(runs):
+        return ()
+    if len(data) > _CJK_SAMPLE:  # don't let a character cut at the sample's end fail every codec
+        sample = sample[: sample.rfind(b"\n") + 1] or sample
+    found = []
+    for codec in _CJK_CANDIDATES:
+        try:
+            sample.decode(codec)
+        except UnicodeDecodeError:
+            continue
+        found.append(codec)
+    return tuple(found)
+
+
 def decode_source(data: bytes, *, truncated: bool = False, declared: str | None = None) -> SourceText:
     """Decode source bytes without losing any. `truncated`: the bytes are a prefix of the file, so a
     multi-byte character cut at the end must not make valid UTF-8 look invalid. `declared`: the
@@ -237,9 +270,10 @@ def decode_source(data: bytes, *, truncated: bool = False, declared: str | None 
         except UnicodeDecodeError:
             pass  # the declaration does not fit this file: guess rather than drop a byte
     try:
-        return SourceText(data.decode("cp1252"), "cp1252", "cp1252-fallback")
+        text, name, how = data.decode("cp1252"), "cp1252", "cp1252-fallback"
     except UnicodeDecodeError:  # cp1252 leaves 0x81 0x8D 0x8F 0x90 0x9D unmapped
-        return SourceText(data.decode("latin-1"), "latin-1", "latin-1-fallback")
+        text, name, how = data.decode("latin-1"), "latin-1", "latin-1-fallback"
+    return SourceText(text, name, how, cjk_candidates(data))
 
 
 def decode_bytes(data: bytes, declared: str | None = None) -> str:

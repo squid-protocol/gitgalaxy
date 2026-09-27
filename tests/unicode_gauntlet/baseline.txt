@@ -101,12 +101,6 @@ objective-c|cyrillic|gb18030	objective-c/a.mm: function_count 3 -> 0
 objective-c|greek|shift_jis	objective-c/a.mm: function_count 3 -> 0
 objective-c|han|shift_jis	objective-c/a.mm: function_count 3 -> 0
 objective-c|kana|gb18030	objective-c/a.mm: function_count 3 -> 0
-objective-c|nfd|utf-8	objective-c/a.mm: function_count 3 -> 0
-objective-c|nfd|utf-8-sig	objective-c/a.mm: function_count 3 -> 0
-objective-c|tamil|utf-16	objective-c/a.mm: function_count 3 -> 0
-objective-c|tamil|utf-8	objective-c/a.mm: function_count 3 -> 0
-php|arabic|utf-16-be	php/a.php: function_count 3 -> 0
-php|arabic|utf-8	php/a.php: function_count 3 -> 0
 php|cyrillic|gb18030	php/a.php: raw_state_unreferenced 3 -> 0
 php|greek|shift_jis	php/a.php: raw_state_unreferenced 3 -> 0
 php|han|shift_jis	php/a.php: raw_state_unreferenced 3 -> 0

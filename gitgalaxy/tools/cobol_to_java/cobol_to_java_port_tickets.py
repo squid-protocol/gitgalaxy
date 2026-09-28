@@ -40,6 +40,7 @@ from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE
 
 TICKET_VERSION = 1
 PORTING_RULES = [
@@ -238,6 +239,111 @@ def count_tokens(text: str) -> tuple[int, int, str]:
     if tokens is not None:
         return b, tokens, "tiktoken(o200k_base)"
     return b, math.ceil(b / 4), "bytes/4"
+
+
+# #3930: what a generated contract class (cobol_to_java_transaction_forge) says of a record: its Javadoc names it
+# (`COBOL record DFHCOMMAREA (cbl/ACCTVIEW.cbl), 30 bytes, ...`) and each named field has a comment
+# (`// CC-ACCT-ID: PIC 9(11), offset 0, 11 bytes (cpy/CARDCOMM.cpy)`, _field_lines).
+_CONTRACT_FIELD = re.compile(r"^    // (\S+): (.*?), offset (\d+)(?: bit \d+)?, (\d+) (?:bytes|bits) \((.*)\)$", re.M)
+
+
+def _contract_classes(java_dir: Path, package: str) -> dict[str, str]:
+    """{project-relative path: Java source} of the generated COMMAREA / container contract classes."""
+    rel_dir = _class_path(f"{package}.{DTO_SUBPACKAGE}.X").rsplit("/", 1)[0]
+    folder = java_dir / rel_dir
+    if not folder.is_dir():
+        return {}
+    return {f"{rel_dir}/{p.name}": p.read_text(encoding="utf-8") for p in sorted(folder.glob("*.java"))}
+
+
+def _carrying_class(record: Any, file: Any, fields: list[Any], classes: dict[str, str]) -> str | None:
+    """#3930: the contract class that carries every named field of `record` (declared in `file`) -- name, PIC,
+    usage, offset, width and copybook, in order -- or None. FILLERs have no field (their bytes stay in the
+    offsets); anything else missing or different means the class is not the whole story, and the layout stays
+    in the ticket."""
+    if not record or not file:
+        return None
+    head = re.compile(
+        rf"^ \* (?:COBOL record|PL/I structure) {re.escape(str(record))} \({re.escape(str(file))}\), ", re.M
+    )
+    want = [
+        (f.get("name"), f.get("pic"), f.get("usage"), f.get("offset"), f.get("bits", f.get("bytes")), f.get("file"))
+        for f in fields
+        if isinstance(f, dict) and f.get("name") and str(f["name"]).upper() != "FILLER"
+    ]
+    for path, java in classes.items():
+        if not head.search(java):
+            continue
+        got = _CONTRACT_FIELD.findall(java)
+        if len(got) != len(want):
+            continue
+        if all(
+            name == g_name
+            and int(offset) == int(g_off)
+            and int(width) == int(g_width)
+            and file_ == g_file
+            and (pic is None or f"PIC {pic}" in g_pic or f"PIC '{pic}'" in g_pic)
+            and (usage is None or pic is None or str(usage) in g_pic)
+            for (name, pic, usage, offset, width, file_), (g_name, g_pic, g_off, g_width, g_file) in zip(want, got)
+            if offset is not None and width is not None
+        ) and all(w[3] is not None and w[4] is not None for w in want):
+            return path
+    return None
+
+
+def reference_generated(ticket: dict[str, Any], java_dir: Path, package: str) -> None:
+    """#3930: a record layout the generated code already carries is referenced, not inlined -- always, not
+    only over budget (#3863's item 2). The COMMAREA and each container layout of `facts.interface` become
+    "Reference: <class> (<n> fields) ...", the fact's other keys kept, once the contract class is checked to
+    carry every field (`_carrying_class`); the ticket records each in `referenced`, with its bytes before and
+    after (bytes only: a token count depends on whether tiktoken loads, and would make tickets differ by
+    environment).
+
+    Left inline, by design: an unpacked COMMAREA (`basis: unpack`, one DTO per record the program unpacks,
+    not one layout); `facts.cics_file_lineage`, whose CSD facts (key length, group, the lines of each access)
+    no generated class carries; and record layouts, which `records` -- a bulk section -- never put in a
+    ticket (the generated *Record entities carry them)."""
+    iface = ((ticket.get("facts") or {}).get("sections") or {}).get("interface") or {}
+    facts = iface.get("facts") or {}
+    if not isinstance(facts, dict):
+        return
+    program_file = (ticket.get("program") or {}).get("file")
+    layouts: list[tuple[str, dict[str, Any], Any, Any]] = []
+    commarea = facts.get("commarea")
+    if isinstance(commarea, dict) and commarea.get("basis") != "unpack" and isinstance(commarea.get("fields"), list):
+        layouts.append(("commarea", commarea, commarea.get("record"), commarea.get("file")))
+    for i, c in enumerate(facts.get("containers") or []):
+        layout = c.get("layout") if isinstance(c, dict) else None
+        if isinstance(layout, dict) and isinstance(layout.get("fields"), list):
+            layouts.append((f"containers[{i}].layout", layout, c.get("record"), program_file))
+    if not layouts:
+        return
+    classes = _contract_classes(java_dir, package)
+    referenced = []
+    for item, layout, record, file in layouts:
+        path = _carrying_class(record, file, layout["fields"], classes)
+        if path is None:
+            continue
+        before = len(json.dumps(layout["fields"], indent=2, sort_keys=True).encode("utf-8"))
+        n = sum(1 for f in layout["fields"] if f.get("name") and str(f["name"]).upper() != "FILLER")
+        name = path.rsplit("/", 1)[1][: -len(".java")]
+        layout["fields"] = (
+            f"Reference: {name} ({n} fields: name, PIC, usage, offset, bytes, copybook) in {path}; "
+            "level numbers are in the copybook listings"
+        )
+        after = len(json.dumps(layout["fields"], indent=2, sort_keys=True).encode("utf-8"))
+        referenced.append(
+            {
+                "section": "facts.interface",
+                "item": item,
+                "class": path,
+                "fields": n,
+                "bytes_before": before,
+                "bytes_after": after,
+            }
+        )
+    if referenced:
+        ticket["referenced"] = referenced
 
 
 def trim_ticket(ticket: dict[str, Any], budget: int) -> None:
@@ -527,6 +633,7 @@ def write_port_tickets(java_dir: Path, skeletons: dict[str, Path], worklist: dic
             declared = meta.get("source_encoding")
         ticket = build_ticket(key, skeleton, java_dir, package, source_root, manifest, items, target,
                               f"{clean_room_name}/06_skeleton/{path.name}", declared)  # fmt: skip
+        reference_generated(ticket, java_dir, package)  # #3930: always, before any budget trim
         if budget > 0:
             trim_ticket(ticket, budget)
         m = metrics.get(str(file))

@@ -192,7 +192,7 @@ def test_cp1140_is_cp037_with_the_euro_sign():
 
 
 # ---- the runtime-static group ---------------------------------------------------------------------
-_CLOCK = """@Value("${gitgalaxy.zone:Asia/Kolkata}") String zoneId) {
+_CLOCK = """@Value("${gitgalaxy.zone:${gitgalaxy.culture.zone:Asia/Kolkata}}") String zoneId) {
         this.zone = ZoneId.of(zoneId == null || zoneId.trim().isEmpty() ? "Asia/Kolkata" : zoneId.trim());
         return pinned.isEmpty() ? ZonedDateTime.now(zone) : ZonedDateTime.of(LocalDateTime.parse(pinned), zone);"""
 _ROOTED = {"batch/MainframeClock.java": _CLOCK,
@@ -231,7 +231,7 @@ def test_the_runtime_static_group_passes_the_explicit_forms():
     assert cg.runtime_static_diffs({**_ROOTED, "x/Ok.java": ok}, "Asia/Kolkata") == []
     # #3824 / #3823: the declared zone and Locale.ROOT must be there -- a clock in UTC is an India finding
     assert cg.runtime_static_diffs(_ROOTED, "UTC")[0] == \
-        'batch/MainframeClock.java: missing `@Value("${gitgalaxy.zone:UTC}")`'  # fmt: skip
+        'batch/MainframeClock.java: missing `@Value("${gitgalaxy.zone:${gitgalaxy.culture.zone:UTC}}")`'  # fmt: skip
     assert "batch/JclConditions.java: not generated" in cg.runtime_static_diffs({}, "UTC")[-1]
 
 

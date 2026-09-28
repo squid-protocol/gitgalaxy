@@ -649,9 +649,10 @@ _JAVA_COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 
 def required_java(zone: str) -> list[tuple[str, str]]:
     """(file, text) the generated runtime must carry: #3824's clock in the declared zone (the default Spring
-    injects, and the constructor's own fallback), and #3823's Locale.ROOT where it upper-cases and formats."""
+    injects -- after gitgalaxy.zone and the yml's gitgalaxy.culture.zone, #3934 -- and the constructor's own fallback), and #3823's Locale.ROOT where it upper-cases and formats."""
     return [
-        ("batch/MainframeClock.java", f'@Value("${{gitgalaxy.zone:{zone}}}")'),
+        # #3934: gitgalaxy.zone when set, else the application.yml's gitgalaxy.culture.zone, else the declared zone
+        ("batch/MainframeClock.java", '@Value("${gitgalaxy.zone:${gitgalaxy.culture.zone:' + zone + '}}")'),
         ("batch/MainframeClock.java", f'? "{zone}" : zoneId.trim()'),
         ("batch/MainframeClock.java", "ZonedDateTime.now(zone)"),
         ("entity/vsam/CobolRecords.java", "s.toUpperCase(Locale.ROOT)"),

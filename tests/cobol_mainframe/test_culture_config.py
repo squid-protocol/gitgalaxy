@@ -92,7 +92,7 @@ def test_a_config_reaches_application_yml_and_the_audit(tmp_path):
     _run([str(clean), "--config", str(cfg), "--header", str(tmp_path / "none.txt")])
     out: Path = next(tmp_path.glob("demo_gitgalaxy_java_spring_*"))
     yml = (out / "src/main/resources/application.yml").read_text(encoding="utf-8")
-    assert '\ngitgalaxy:\n  culture:\n    rounding: "half_even"\n' in yml and 'zone: "Asia/Kolkata"' in yml
+    assert "\ngitgalaxy:\n" in yml and '\n  culture:\n    rounding: "half_even"\n' in yml and 'zone: "Asia/Kolkata"' in yml
     audit = (out / "java_migration_audit.txt").read_text(encoding="utf-8")
     section = audit.split("DECLARED CULTURAL DEVIATIONS", 1)[1].split("[1]", 1)[0]
     assert "culture.rounding: half_even" in section and "zone" not in section  # a zone is not a deviation

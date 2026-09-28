@@ -392,8 +392,10 @@ import org.springframework.stereotype.Component;
 /** The time a ported program reads -- FUNCTION CURRENT-DATE, ACCEPT FROM DATE / TIME, EXEC CICS ASKTIME
  *  (#3753): `gitgalaxy.clock` (an ISO local date-time, e.g. 2022-07-18T10:30:15.00) when set -- the
  *  equivalence harness pins it, so a run can be compared with the original's -- else the system clock.
- *  #3824: the mainframe's zone is `gitgalaxy.zone` (default {zone}, the target's culture.zone), never the JVM's;
- *  currentDate() carries its UTC offset. A pinned local time that does not exist in the zone (a DST gap, e.g.
+ *  #3824: the mainframe's zone, never the JVM's; currentDate() carries its UTC offset. #3934: `gitgalaxy.zone`
+ *  when set (the equivalence harness pins it per case), else `gitgalaxy.culture.zone` -- the key the
+ *  generated application.yml writes, so editing it there moves the clock -- else {zone}, the target's
+ *  culture.zone. A pinned local time that does not exist in the zone (a DST gap, e.g.
  *  2022-03-27T02:30 in Europe/Berlin) resolves by ZonedDateTime.ofLocal's rule: it moves forward. */
 @Component
 public class MainframeClock {
@@ -403,7 +405,7 @@ public class MainframeClock {
     private final ZoneId zone;
 
     public MainframeClock(@Value("${gitgalaxy.clock:}") String pinned,
-                          @Value("${gitgalaxy.zone:{zone}}") String zoneId) {
+                          @Value("${gitgalaxy.zone:${gitgalaxy.culture.zone:{zone}}}") String zoneId) {
         this.pinned = pinned == null ? "" : pinned.trim();
         this.zone = ZoneId.of(zoneId == null || zoneId.trim().isEmpty() ? "{zone}" : zoneId.trim());
     }

@@ -1,3 +1,4 @@
+import re
 import shutil
 import subprocess
 import sys
@@ -6,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_batch_forge import BatchForge
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import generate_application_yml
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import sql_java_type
 from gitgalaxy.tools.cobol_to_java.java_target import load_target
 
@@ -32,7 +34,7 @@ def test_mainframe_clock_generation():
     target.culture.zone = "Asia/Kolkata"
     forge = get_forge(target)
     src = forge.sources()[("base_pkg", "batch")]["MainframeClock"]
-    assert "gitgalaxy.zone:Asia/Kolkata" in src
+    assert "${gitgalaxy.zone:${gitgalaxy.culture.zone:Asia/Kolkata}}" in src  # #3934
     assert "ZonedDateTime zonedNow()" in src
     assert "String currentDate()" in src
 
@@ -41,7 +43,7 @@ def test_mainframe_clock_default_zone():
     target = load_target(None)
     forge = get_forge(target)
     src = forge.sources()[("base_pkg", "batch")]["MainframeClock"]
-    assert "gitgalaxy.zone:UTC" in src
+    assert "${gitgalaxy.zone:${gitgalaxy.culture.zone:UTC}}" in src
 
 
 def test_db2_timestamp_types():
@@ -105,7 +107,7 @@ def test_mainframe_clock_compilation_and_run(tmp_path):
 
     src = src.replace("@Component", "")
     src = src.replace('@Value("${gitgalaxy.clock:}")', "")
-    src = src.replace('@Value("${gitgalaxy.zone:Asia/Kolkata}")', "")
+    src = src.replace('@Value("${gitgalaxy.zone:${gitgalaxy.culture.zone:Asia/Kolkata}}")', "")
     src = src.replace("import org.springframework.beans.factory.annotation.Value;", "")
     src = src.replace("import org.springframework.stereotype.Component;", "")
 
@@ -127,3 +129,53 @@ def test_mainframe_clock_compilation_and_run(tmp_path):
         ["java", "-cp", str(tmp_path), "com.gitgalaxy.batch.MainframeClock"], capture_output=True, text=True, check=True
     )
     assert res.stdout.strip() == "2022071810301500+0530"
+
+
+# ---- #3934: the zone the generated application.yml writes is the zone the clock reads ----------------
+_VALUE = re.compile(r'@Value\("(\$\{gitgalaxy\.zone:.*?\})"\) String zoneId')
+
+
+def _flatten(tree, prefix=""):
+    out = {}
+    for key, value in (tree or {}).items():
+        name = f"{prefix}{key}"
+        out.update(_flatten(value, name + ".") if isinstance(value, dict) else {name: str(value)})
+    return out
+
+
+def _resolve(expr, props):
+    """Spring's `${key:default}` placeholder, the default itself resolved (nested), innermost first."""
+    while "${" in expr:
+        start = expr.rindex("${")
+        end = expr.index("}", start)
+        key, _, default = expr[start + 2 : end].partition(":")
+        expr = expr[:start] + props.get(key, default) + expr[end + 1 :]
+    return expr
+
+
+def _clock_zone(target, props):
+    src = get_forge(target).sources()[("base_pkg", "batch")]["MainframeClock"]
+    return _resolve(_VALUE.search(src).group(1), props)
+
+
+def test_the_yml_zone_is_the_zone_the_clock_reads():
+    """The application.yml of a culture.zone: Asia/Kolkata migration names the clock's zone, and editing that
+    key there -- as the file invites -- moves the clock. gitgalaxy.zone (the equivalence harness pins it per
+    case) still wins; with neither set, the zone baked in at generation stands."""
+    yaml = pytest.importorskip("yaml")
+    target = load_target(None)
+    target.culture.zone = "Asia/Kolkata"
+    props = _flatten(yaml.safe_load(generate_application_yml("demo", target)))
+    assert props["gitgalaxy.culture.zone"] == "Asia/Kolkata"
+    assert _clock_zone(target, props) == "Asia/Kolkata"
+    assert _clock_zone(target, {**props, "gitgalaxy.culture.zone": "Europe/Berlin"}) == "Europe/Berlin"
+    assert _clock_zone(target, {**props, "gitgalaxy.zone": "UTC"}) == "UTC"
+    assert _clock_zone(target, {}) == "Asia/Kolkata"
+
+
+def test_the_yml_says_which_culture_keys_are_read_at_run_time():
+    target = load_target(None)
+    target.culture.zone = "Asia/Kolkata"
+    yml = generate_application_yml("demo", target)
+    assert "zone is read at run time" in yml and "regenerate" in yml
+    assert "gitgalaxy" not in generate_application_yml("demo", load_target(None))  # the default file is unchanged

@@ -248,16 +248,25 @@ spring:
 
 
 def _culture_yml(t: JavaTarget) -> str:
-    """#3819: `gitgalaxy.culture.*`, where generated code reads the culture choices
-    (`@Value("${gitgalaxy.culture.zone:UTC}")`). Written only when a choice departs from the
-    defaults, whose values the readers carry -- the default run's file is unchanged."""
+    """#3819: `gitgalaxy.culture.*`, the migration's culture choices. Written only when a choice departs
+    from the defaults -- the default run's file is unchanged.
+
+    #3934: only `zone` is read at run time (MainframeClock: `gitgalaxy.zone` when set, else
+    `gitgalaxy.culture.zone`, else the zone baked in at generation). Every other choice is applied when the
+    code is generated -- rounding modes, collation, formatting locale -- so the file records it, and says
+    that editing it there changes nothing."""
     if t.culture == Culture():
         return ""
     lines = [
         f"    {key.replace('_', '-')}: {json.dumps(value, ensure_ascii=False)}"
         for key, value in vars(t.culture).items()
     ]
-    return "\ngitgalaxy:\n  culture:\n" + "\n".join(lines) + "\n"
+    note = (
+        "  # The culture this project was generated with. zone is read at run time (gitgalaxy.zone overrides\n"
+        "  # it); the others were applied when the code was generated -- change them in the migration's\n"
+        "  # target and regenerate.\n"
+    )
+    return "\ngitgalaxy:\n" + note + "  culture:\n" + "\n".join(lines) + "\n"
 
 
 def generate_main_class(package_name: str, class_name: str) -> str:

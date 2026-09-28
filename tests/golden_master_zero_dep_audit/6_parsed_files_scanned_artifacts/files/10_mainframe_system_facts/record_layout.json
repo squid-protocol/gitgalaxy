@@ -346,7 +346,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "CABANA"
         },
         {
           "FD": null,
@@ -444,7 +444,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "CABANA"
         },
         {
           "FD": null,
@@ -2465,7 +2465,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "041"
         },
         {
           "FD": null,
@@ -2481,7 +2481,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": "DISPLAY",
-          "Value": null
+          "Value": "000"
         }
       ],
       "cobol/CICS-Cobol/CBL0506v01CondicionNot.cbl": [
@@ -25810,7 +25810,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "Y"
         },
         {
           "FD": null,
@@ -26338,7 +26338,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "0"
         },
         {
           "FD": null,
@@ -27123,7 +27123,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "Y"
         },
         {
           "FD": null,
@@ -29603,7 +29603,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "Y"
         },
         {
           "FD": null,
@@ -30851,7 +30851,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "SPACES"
         },
         {
           "FD": null,
@@ -32053,7 +32053,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "LOW-VALUES"
         },
         {
           "FD": null,
@@ -32085,7 +32085,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "E"
         },
         {
           "FD": null,
@@ -32149,7 +32149,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "L"
         },
         {
           "FD": null,
@@ -34581,7 +34581,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "300"
         },
         {
           "FD": null,
@@ -42521,7 +42521,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "SPACES"
         },
         {
           "FD": null,
@@ -59630,7 +59630,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "0"
         },
         {
           "FD": null,
@@ -59854,7 +59854,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "S"
         },
         {
           "FD": null,
@@ -59902,7 +59902,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": " "
         },
         {
           "FD": null,
@@ -60046,7 +60046,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -60222,7 +60222,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "SPACES"
         },
         {
           "FD": null,
@@ -65444,7 +65444,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "SPACES"
         },
         {
           "FD": null,
@@ -70058,7 +70058,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "Y"
         },
         {
           "FD": null,
@@ -70106,7 +70106,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -70154,7 +70154,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "1950"
         },
         {
           "FD": null,
@@ -70698,7 +70698,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "SPACES"
         },
         {
           "FD": null,
@@ -71579,7 +71579,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "LOW-VALUES"
         },
         {
           "FD": null,
@@ -71611,7 +71611,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "E"
         },
         {
           "FD": null,
@@ -71675,7 +71675,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "L"
         },
         {
           "FD": null,
@@ -126076,7 +126076,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "201"
         },
         {
           "FD": null,
@@ -126092,7 +126092,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "201"
         },
         {
           "FD": null,
@@ -126108,7 +126108,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "200"
         },
         {
           "FD": null,
@@ -126140,7 +126140,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "AL"
         },
         {
           "FD": null,
@@ -126188,7 +126188,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "AA34"
         },
         {
           "FD": null,
@@ -127414,7 +127414,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -127430,7 +127430,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -127494,7 +127494,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -127558,7 +127558,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -132260,7 +132260,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "X"
         },
         {
           "FD": null,
@@ -132276,7 +132276,7 @@
           "Redefines": null,
           "Section": null,
           "Usage": null,
-          "Value": null
+          "Value": "X"
         },
         {
           "FD": null,
@@ -419636,7 +419636,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": [
@@ -421033,7 +421033,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": [
@@ -422541,7 +422541,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
@@ -424273,7 +424273,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": [
@@ -426230,7 +426230,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
@@ -428078,7 +428078,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1DDM.cpy": [
@@ -430468,7 +430468,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": [
@@ -432392,7 +432392,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": "POINTER",
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": [
@@ -433148,7 +433148,7 @@
           "Redefines": null,
           "Section": "LINKAGE",
           "Usage": null,
-          "Value": "TO"
+          "Value": null
         }
       ],
       "cobol/cics-banking-sample-application-cbsa/CONTROLI.cpy": [
@@ -495671,7 +495671,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": "SECTION"
+          "Value": null
         }
       ],
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": [
@@ -509513,7 +509513,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "1"
         },
         {
           "FD": null,
@@ -509529,7 +509529,7 @@
           "Redefines": null,
           "Section": "WORKING-STORAGE",
           "Usage": null,
-          "Value": null
+          "Value": "2"
         },
         {
           "FD": null,

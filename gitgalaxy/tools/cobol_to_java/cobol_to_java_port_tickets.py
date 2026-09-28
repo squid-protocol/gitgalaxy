@@ -102,8 +102,9 @@ PORTING_RULES = [
     (
         "Format a numeric-edited field (a display string mapped from a number, often for a "
         "screen or print line) only through CobolEdit.format(pic, value, decimalComma, currency), "
-        "which honours the COBOL picture (Z, 9, ., ,, -, +, CR/DB, $/currency, B, 0, /) as the "
-        "mainframe does."
+        "which honours the COBOL picture (Z, 9, ., ,, -, +, CR/DB, $/currency, B, 0, /, and floating "
+        "$ / + / - strings) as the mainframe does; pass the CURRENCY SIGN string (e.g. 'INR ') as "
+        "currency, and it replaces the PICTURE SYMBOL (#3933)."
     ),
     (
         "Format and case-map with Locale.ROOT (String.format(Locale.ROOT, ...), toUpperCase(Locale.ROOT)): "

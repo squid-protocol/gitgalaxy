@@ -367,6 +367,11 @@ _VALUE_CLAUSE = re.compile(
     + r"0-9+.-]*))",
     re.I,
 )
+# #3911: under DECIMAL-POINT IS COMMA a numeric literal's decimal point is a comma between digits
+# (`VALUE 12345,67`), which the bareword above stops at. A comma followed by a space separates
+# (`VALUES 1, 2, 3`), so only a comma touching a digit on both sides continues the literal.
+_COMMA_FRACTION = re.compile(r",[0-9]{1,31}")
+_NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # #3355: `COPY <member>` inside one data-description entry's window -- the
 # copybook that expands at that point (`01 DFHCOMMAREA.` + `COPY INQCUST.`). The
 # member is recorded on the entry it follows (`copy_members`); expanding it is the
@@ -745,8 +750,11 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
 _SIGN_SEPARATE_CLAUSE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b", re.IGNORECASE)
 
 
-def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
+def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> list[dict[str, Any]]:
     """The DATA DIVISION item tree and FD record layouts of one COBOL file (#3246).
+
+    #3911: `decimal_comma` is the file's DECIMAL-POINT IS COMMA (read from its SPECIAL-NAMES when None):
+    a numeric VALUE keeps its comma as written (`12345,67`); the reader of the literal applies it.
 
     Each entry is a flat dict; the tree is rebuilt by the reader from `ordinal`
     and `parent_ordinal`, so the row order here IS the source order:
@@ -763,6 +771,8 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
     describe the item above them and never become a parent.
     """
     newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+    if decimal_comma is None:
+        decimal_comma = any(sn["clause"] == "DECIMAL-POINT" for sn in special_names(code_stream))
 
     def _line_of(offset: int) -> int:
         return bisect.bisect_left(newlines, offset) + 1
@@ -881,6 +891,9 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
                 # A bareword numeric / figurative constant: strip the clause-terminating
                 # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
                 value = value_match.group(3).rstrip(".")
+                fraction = _COMMA_FRACTION.match(window, value_match.end(3)) if decimal_comma else None
+                if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(3)):
+                    value += fraction.group(0)  # #3911: `12345,67` -- the comma is the decimal point
 
         # #3355: the copybook(s) that expand right after this entry. Searched only
         # up to the next section header / FD and the PROCEDURE DIVISION, so a
@@ -2194,7 +2207,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
     if dialect == "cobol":
         values = _cobol_value_map(code_stream)
-        records = _cobol_records(code_stream)
+        specials = special_names(code_stream)
+        records = _cobol_records(code_stream, any(sn["clause"] == "DECIMAL-POINT" for sn in specials))
         return {
             "calls": _cobol_calls(code_stream, values),
             "datasets": _cobol_datasets(code_stream),
@@ -2211,7 +2225,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "uow_handlers": _uow_handlers(code_stream, values),  # #3453
             "file_control": cobol_file_control(code_stream),  # #3455
             "data_moves": data_moves(code_stream),  # #3452
-            "special_names": special_names(code_stream),  # #3820
+            "special_names": specials,  # #3820
             "compiler_options": compiler_options(code_stream),  # #3828
         }
     if dialect == "jcl":

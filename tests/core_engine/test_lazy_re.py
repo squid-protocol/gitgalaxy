@@ -105,18 +105,19 @@ def test_a_forked_pool_inherits_every_claimant_compiled(monkeypatch):
     claimants = galaxyscope._active_languages(defs, {".h": 3}, every_claimant=True)
     assert {"c", "objective-c"} <= claimants
 
-    # Fresh lazy rules: deepcopy returns a LazyPattern as itself (as it does a compiled pattern), so a copy of
-    # the registry shares its patterns -- and an earlier test in this process may have compiled them already.
-    defs = {
-        lang: {"extensions": list(defs[lang].get("extensions", [])), "rules": {"r": _lazy_re.compile(r"\bx\w*")}}
-        for lang in ("c", "objective-c", "python", "plaintext", "markdown")
-    }
+    # The registry is a process-wide global compiled in place: an earlier test in this worker may already have
+    # compiled a language's rules (and deepcopy copies that state). So the assertions are about what
+    # _precompile_for_fork itself touches -- rule identity -- not about whether a rule happens to be lazy.
+    def snapshot(lang):
+        return {k: id(v) for k, v in defs[lang]["rules"].items()}
+
+    before = {lang: snapshot(lang) for lang in ("objective-c", "python")}
     monkeypatch.setattr(galaxyscope.multiprocessing, "get_start_method", lambda allow_none=False: "spawn")
     galaxyscope._precompile_for_fork(defs, {".h": 3})
-    assert any(isinstance(v, LazyPattern) for v in defs["objective-c"]["rules"].values())
+    assert snapshot("objective-c") == before["objective-c"]  # spawn: nothing compiled
 
     monkeypatch.setattr(galaxyscope.multiprocessing, "get_start_method", lambda allow_none=False: "fork")
     galaxyscope._precompile_for_fork(defs, {".h": 3})
     for lang in ("c", "objective-c"):
         assert not any(isinstance(v, LazyPattern) for v in defs[lang]["rules"].values()), lang
-    assert any(isinstance(v, LazyPattern) for v in defs["python"]["rules"].values())  # not a claimant
+    assert snapshot("python") == before["python"]  # not a claimant: untouched

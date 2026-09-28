@@ -18,6 +18,8 @@ import argparse
 import json
 import re
 import sys
+import unicodedata
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any, Optional
 
@@ -26,8 +28,11 @@ from gitgalaxy.core.special_names import special_names
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
 
 
-def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False, usage: Optional[str] = None) -> dict:
-    """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type."""
+def parse_cobol_picture(
+    pic_clause: str, decimal_comma: bool = False, usage: Optional[str] = None, currency_symbols: Iterable[str] = ()
+) -> dict:
+    """Translates a legacy COBOL PIC clause into a modern SQL/JSON data type. #3910: `currency_symbols` are the
+    program's declared PICTURE SYMBOLs (`U` for 'EUR '), each a currency position like `$`."""
     if not pic_clause:
         return {"sql": "VARCHAR(255)", "json": "string"}
 
@@ -44,7 +49,7 @@ def parse_cobol_picture(pic_clause: str, decimal_comma: bool = False, usage: Opt
         return {"sql": f"NVARCHAR({length})" if is_national else f"VARCHAR({length})", "json": "string"}
 
     # #3827: digit positions and scale, the decimal point being `,` under DECIMAL-POINT IS COMMA
-    total_p, scale = parse_pic_precision(pic, decimal_comma)
+    total_p, scale = parse_pic_precision(pic, decimal_comma, currency_symbols)
 
     if total_p > 0 and ("V" in pic or "." in pic or "," in pic or "Z" in pic or "9" in pic):
         # Decimals/Money
@@ -145,7 +150,10 @@ def forge_schemas(
         return None
 
     # #3827: SPECIAL-NAMES sits in the ENVIRONMENT DIVISION, so read it before the cut below
-    decimal_comma = any(sn["clause"] == "DECIMAL-POINT" for sn in special_names(content))
+    names = special_names(content)
+    decimal_comma = any(sn["clause"] == "DECIMAL-POINT" for sn in names)
+    # #3910: the CURRENCY clauses' PICTURE SYMBOLs
+    symbols = [sn["symbol"] for sn in names if sn["clause"] == "CURRENCY" and sn["symbol"]]
 
     # Focus only on the Data Division or raw Copybooks
     # #3533: `PROCEDURE        DIVISION.` (navikt/DSF PLUKKFR) is the same header.
@@ -155,7 +163,9 @@ def forge_schemas(
         if "DATA DIVISION" in content:
             content = content.split("DATA DIVISION")[1]
 
-    return render_schemas(data_entries(content), filepath.stem.upper(), ignore_vars, corporate_header, decimal_comma)
+    return render_schemas(
+        data_entries(content), filepath.stem.upper(), ignore_vars, corporate_header, decimal_comma, symbols
+    )
 
 
 def render_schemas(
@@ -164,6 +174,7 @@ def render_schemas(
     ignore_vars: Optional[set] = None,
     corporate_header: str = "",
     decimal_comma: bool = False,
+    currency_symbols: Iterable[str] = (),
 ) -> Optional[dict]:
     """The SQL DDL and JSON Schema of a program's data description entries, in source order.
 
@@ -172,6 +183,8 @@ def render_schemas(
     (two digits), `name`, `pic`, `usage` and `depending`.
     """
     ignore_vars = ignore_vars or set()
+    # #3910: a declared PICTURE SYMBOL is one character (a sign without one is its own symbol)
+    symbols = sorted({sym.upper() for sym in currency_symbols if sym and len(sym) == 1})
     table_name = table_name.upper().replace("-", "_")
     columns = []
     json_properties = {}
@@ -201,7 +214,7 @@ def render_schemas(
             continue
 
         safe_name = name.replace("-", "_")
-        types = parse_cobol_picture(pic, decimal_comma, usage)
+        types = parse_cobol_picture(pic, decimal_comma, usage, symbols)
 
         # ======================================================================
         # ARCHITECTURAL ANOMALY (DYNAMIC MEMORY ARRAY):
@@ -241,6 +254,10 @@ def render_schemas(
     }
     if decimal_comma:  # #3827: the Java forges read the edited PICTUREs by it
         json_schema["decimal_comma"] = True
+    # #3910: ... and by the PICTURE SYMBOL letters (a Unicode currency sign is known without it)
+    letters = [sym for sym in symbols if unicodedata.category(sym) != "Sc"]
+    if letters:
+        json_schema["currency_symbols"] = letters
 
     return {"table": table_name, "sql": sql_ddl, "json": json_schema}
 

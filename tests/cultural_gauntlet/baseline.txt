@@ -1,6 +1,62 @@
 # #3834: the Cultural Gauntlet's known failing cells -- a ratchet. CI fails on a failing cell not listed
 # here; a fix removes cells (--full --update-baseline). One `cell<TAB>first difference` per line, sorted;
 # git merges this file as a union, so a stale line is possible and harmless.
+collation_h2|cp037|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp037|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_h2|cp1140|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp1140|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp1140 bytes, CUST_KEY_SORT)
+collation_h2|cp273|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÄRGER|é1|ÅS|ÑANDU|#1|ØRE|abc|aBC|ÆBLE|@1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp273|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp273 bytes, CUST_KEY_SORT)
+collation_h2|cp277|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '#1|é1|ÅS|ÄRGER|ÑANDU|ÆBLE|ØRE|@1|abc|aBC|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp277|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp277 bytes, CUST_KEY_SORT)
+collation_h2|cp278|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÅS|#1|ÑANDU|é1|ÄRGER|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|@1|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp278|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp278 bytes, CUST_KEY_SORT)
+collation_h2|cp285|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp285|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp285 bytes, CUST_KEY_SORT)
+collation_h2|cp297|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '@1|ÄRGER|ÅS|ÑANDU|ØRE|abc|aBC|ÆBLE|#1|é1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|cp297|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp297 bytes, CUST_KEY_SORT)
+collation_h2|utf8|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got '#1|123|1A|@1|A 1|A-1|A.1|A1|ABC|Abc|E1|NANDU|ZZ|aBC|abc|ÄRGER|ÅS
+collation_h2|utf8|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp037|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp1140|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp1140 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp273|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp273 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp277|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp277 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp278|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp278 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp285|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp285 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|cp297|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp297 bytes, CUST_KEY_SORT)
+collation_mysql_ai_ci|utf8|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp037|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp037|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp1140|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp1140|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp1140 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp273|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÄRGER|é1|ÅS|ÑANDU|#1|ØRE|abc|aBC|ÆBLE|@1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp273|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp273 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp277|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '#1|é1|ÅS|ÄRGER|ÑANDU|ÆBLE|ØRE|@1|abc|aBC|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp277|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp277 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp278|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÅS|#1|ÑANDU|é1|ÄRGER|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|@1|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp278|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp278 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp285|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp285|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp285 bytes, CUST_KEY_SORT)
+collation_postgresql_c|cp297|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '@1|ÄRGER|ÅS|ÑANDU|ØRE|abc|aBC|ÆBLE|#1|é1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|cp297|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp297 bytes, CUST_KEY_SORT)
+collation_postgresql_c|utf8|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_c|utf8|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp037|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp037|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp1140|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp1140|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp1140 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp273|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÄRGER|é1|ÅS|ÑANDU|#1|ØRE|abc|aBC|ÆBLE|@1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp273|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp273 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp277|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '#1|é1|ÅS|ÄRGER|ÑANDU|ÆBLE|ØRE|@1|abc|aBC|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp277|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp277 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp278|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'ÅS|#1|ÑANDU|é1|ÄRGER|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|@1|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp278|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp278 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp285|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp285|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp285 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|cp297|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want '@1|ÄRGER|ÅS|ÑANDU|ØRE|abc|aBC|ÆBLE|#1|é1|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|cp297|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp297 bytes, CUST_KEY_SORT)
+collation_postgresql_en_us|utf8|collation-db	read-all [the batch step's sequential READ (the generated readAll: findAll())]: want 'é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123', got 'ZZ|abc|1A|ÆBLE|ABC|A-1|Abc|ØRE|123|ÅS|A 1|ÄRGER|aBC|ÑANDU|NANDU|
+collation_postgresql_en_us|utf8|collation-static	CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ of the KSDS returns its records in key order (cp037 bytes, CUST_KEY_SORT)
 currency_eur_u|cp037|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_eur_u|cp1140|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
 currency_eur_u|cp273|schema	ACCT_DUE_ED column: want 'DECIMAL(7, 2)', got 'DECIMAL(3, 2)'
@@ -44,6 +100,30 @@ decimal_comma|cp278|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp285|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|cp297|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
 decimal_comma|utf8|facts	WS-LIMIT VALUE: want '12345,67', got '12345'
+input_eur|cp037|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp1140|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp273|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp277|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp278|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp285|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|cp297|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_eur|utf8|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp037|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp1140|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp273|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp277|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp278|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp285|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|cp297|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_iso|utf8|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp037|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp1140|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp273|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp277|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp278|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp285|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|cp297|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
+input_usa|utf8|runtime-run	parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'
 intdate_lilian|cp037|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp1140|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'
 intdate_lilian|cp273|runtime-run	edited (default): want ' $1,234.50', got '$$$,$$4.50'

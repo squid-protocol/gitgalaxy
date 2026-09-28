@@ -1,6 +1,7 @@
 """#3834: the Cultural Gauntlet (part 1: source dialect x data code page, checked statically;
 part 2: the India slice -- cp1140, the rupee dialects, Asia/Kolkata, the runtime-static group and the
-opt-in executed JVM layer).
+opt-in executed JVM layer; part 3: the target database's collation (D), the input data (E) and the
+remaining runtime locales).
 
 The gauntlet's sampled plan runs clean against its ratchet; a broken oracle is caught as a NEW failing
 cell; the seed survives the trip through fixed-block EBCDIC in every page and every dialect; and the
@@ -36,7 +37,8 @@ def test_the_sampled_plan_passes_its_ratchet(sampled):
     # every page ran, and '£' met every page: the dialect that moves between pages
     ran = {(r["dialect"], r["page"]) for r in results.values() if "skipped" not in r}
     assert {("currency_pound", p) for p in cg.PAGES} <= ran
-    assert {d for d, _ in ran} == set(cg.DIALECTS) and all((d, cg.CONTROL) in ran for d in cg.DIALECTS)
+    assert {d for d, _ in ran} == {*cg.DIALECTS, *cg.COLLATION_TARGETS, *cg.INPUT_FORMATS}
+    assert all((d, cg.CONTROL) in ran for d in cg.DIALECTS)
     # the euro sign is in none of the pre-euro pages: skipped and counted, never failed
     euro = [r for r in results.values() if r["dialect"] == "currency_euro" and r["page"] != cg.CONTROL]
     assert euro and all("skipped" in r and not r["diffs"] for r in euro)
@@ -92,7 +94,7 @@ def test_the_baseline_is_one_mergeable_line_per_cell(monkeypatch, tmp_path):
 
 
 def test_every_committed_baseline_cell_is_a_cell_of_the_full_plan():
-    cells = {f"{d}|{c}|{g}" for d, c in cg.plan(full=True) for g in [*cg.GROUPS, cg.RUN_GROUP]}
+    cells = {f"{d}|{c}|{g}" for d, c in cg.plan(full=True) for g in cg.groups(d, execute=True, db=True)}
     assert set(cg.read_baseline()) <= cells
 
 
@@ -214,6 +216,24 @@ _ROOTED = {"batch/MainframeClock.java": _CLOCK,
         ("LocalDate today = LocalDate.now();", "now() without a zone"),
         ("Calendar c = Calendar.getInstance();", "a calendar without a zone"),
         ("byte[] b = value.getBytes();", "the default charset"),
+        # part 3: the tr-TR / ar-EG / th-TH-u-nu-thai / de-DE traps
+        (
+            'DateTimeFormatter f = DateTimeFormatter.ofPattern("dd MMM uuuu");',
+            "DateTimeFormatter.ofPattern without a Locale (month, day and AM/PM names, week fields)",
+        ),
+        (
+            "DateTimeFormatter f = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);",
+            "a localized DateTimeFormatter (the default locale's pattern)",
+        ),
+        (
+            'DateFormat f = new SimpleDateFormat("yyyyMMdd");',
+            "SimpleDateFormat without a Locale (Thai digits, the Buddhist calendar)",
+        ),
+        ("Collator c = Collator.getInstance();", "Collator without a Locale"),
+        (
+            "boolean d = Character.isDigit(c);",
+            "Character.isDigit / digit / getNumericValue (any script's digits, #3831)",
+        ),
     ],
 )
 def test_the_runtime_static_group_names_each_jvm_default(line, what):
@@ -227,7 +247,9 @@ def test_the_runtime_static_group_names_each_jvm_default(line, what):
 def test_the_runtime_static_group_passes_the_explicit_forms():
     ok = """String.format(Locale.ROOT, "%02X", b); s.toUpperCase(Locale.ROOT); Character.toUpperCase(c);
         NumberFormat.getInstance(Locale.ROOT); new DecimalFormat("0.00", DecimalFormatSymbols.getInstance(Locale.ROOT));
-        ZonedDateTime.now(zone); LocalDate.now(clock); value.getBytes(text); /* Locale.getDefault() */"""
+        ZonedDateTime.now(zone); LocalDate.now(clock); value.getBytes(text); /* Locale.getDefault() */
+        DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSZ"); DateTimeFormatter.ofPattern("hh:mm a", Locale.US);
+        new SimpleDateFormat("yyyyMMdd", Locale.ROOT); Collator.getInstance(Locale.ROOT);"""
     assert cg.runtime_static_diffs({**_ROOTED, "x/Ok.java": ok}, "Asia/Kolkata") == []
     # #3824 / #3823: the declared zone and Locale.ROOT must be there -- a clock in UTC is an India finding
     assert cg.runtime_static_diffs(_ROOTED, "UTC")[0] == \
@@ -287,3 +309,191 @@ def test_the_executed_layer_runs_the_india_cell(tmp_path, capsys):
     assert results["currency_inr|cp1140|runtime-run"]["diffs"] == []
     run = tmp_path / "work" / "currency_inr__cp1140" / "jvm"
     assert (run / "classes" / "CulturalGauntletDriver.class").is_file()
+
+
+# ---- part 3, C: the remaining runtime locales ---------------------------------------------------------------
+def test_the_run_layer_covers_every_locale_in_every_zone():
+    """tr-TR, ar-EG, th-TH-u-nu-thai and de-DE each as the JVM's zone UTC, Asia/Kolkata and Europe/Berlin."""
+    for locale in ("tr-TR", "ar-EG", "th-TH-u-nu-thai", "de-DE"):
+        for zone in ("UTC", "Asia/Kolkata", "Europe/Berlin"):
+            assert f"{locale}/{zone}" in cg.JVM_ENVIRONMENTS
+    assert cg.JVM_ENVIRONMENTS[-1] == cg.REFERENCE_ENVIRONMENT and len(cg.JVM_ENVIRONMENTS) == 15
+    # PINNED_CLOCK is Europe/Berlin's spring-forward day: 02:30 does not exist there
+    assert cg.PINNED_CLOCK.startswith("2026-03-29T02:30")
+
+
+def test_the_thai_environment_keeps_its_unicode_extension():
+    """-Duser.extensions carries `-u-nu-thai`: without it the JVM is plain th-TH and prints ASCII digits."""
+    assert cg.jvm_flags("th-TH-u-nu-thai/Europe/Berlin") == [
+        "-Duser.language=th", "-Duser.timezone=Europe/Berlin", "-Duser.country=TH", "-Duser.extensions=u-nu-thai"]  # fmt: skip
+    assert cg.jvm_flags("tr-TR/Asia/Kolkata") == ["-Duser.language=tr", "-Duser.timezone=Asia/Kolkata",
+                                                 "-Duser.country=TR"]  # fmt: skip
+    ref = {"canary": "en-US UTC $1.00", "x": "1"}
+    lost = {"envs": {"default": ref, "th-TH-u-nu-thai/UTC": {**ref, "canary": "th-TH UTC ฿1.00"}}}
+    assert cg._across_environments(lost["envs"]) == [
+        "th-TH-u-nu-thai/UTC: the JVM prints no Thai digits (canary 'th-TH UTC ฿1.00')"]  # fmt: skip
+    kept = {"default": ref, "th-TH-u-nu-thai/UTC": {**ref, "canary": "th-TH-u-nu-thai UTC ฿ \u0e51.\u0e50\u0e50"}}
+    assert cg._across_environments(kept) == []
+
+
+# ---- part 3, D: the target database's collation ---------------------------------------------------------
+def test_the_collation_oracle_is_the_pages_byte_order():
+    """Independent of the converter: each key space-padded to PIC X(8) in the page's bytes. EBCDIC puts
+    lower case before upper and letters before digits; `ABC ` is `ABC`'s 8 bytes, a duplicate WRITE; the
+    national letters sit where the page puts them (Å is 0x67 in cp037, 0x5B in cp277)."""
+    us = cg.collation_oracle(cg.COLLATION_KEYS, "cp037", "A1")
+    assert us["browse"] == "é1|ÄRGER|ÅS|ÑANDU|#1|@1|ØRE|abc|aBC|ÆBLE|A 1|A.1|A-1|Abc|ABC|A1|E1|NANDU|ZZ|1A|123"
+    assert us["rejected"] == "ABC" and us["read-all"] == us["browse"]
+    assert us["browse-from"] == "A1|E1|NANDU|ZZ|1A|123"
+    assert us["browse-back"].startswith("A1|ABC|Abc|A-1|A.1|A 1|")
+    dk = cg.collation_oracle(cg.COLLATION_KEYS, "cp277", "A1")
+    assert dk["browse"].startswith("#1|é1|ÅS|ÄRGER|ÑANDU|ÆBLE|ØRE|@1|abc") and dk["browse"] != us["browse"]
+    ascii_order = "|".join(sorted({k.rstrip() for k in cg.COLLATION_KEYS}))
+    assert us["browse"] != ascii_order  # the keys tell EBCDIC from ASCII / code points
+
+
+def _collation_sources(engine: str, page: str) -> dict:
+    sources: dict = {}
+    for rel, text in cg.collation_static_want(engine, page):
+        sources[rel] = sources.get(rel, "") + text + "\n"
+    sources["service/CustbatService.java"] = (
+        '    public List<CustRec> readAllCustFile() {\n        return repo.findAll(Sort.by("custKeySort"));\n'
+    )
+    return sources
+
+
+_KEY_RULE = ["Order and compare VSAM / DB2 keys by the source code page's bytes, as the mainframe does"]
+
+
+@pytest.mark.parametrize("engine", ["h2", "postgresql", "mysql"])
+def test_the_collation_static_group_holds_3822s_contract(engine):
+    sources = _collation_sources(engine, "cp277")
+    assert cg.collation_static_diffs(sources, _KEY_RULE, engine, "cp277") == []
+    assert ("utf8mb4_bin" in sources["entity/vsam/CustRec.java"]) == (engine == "mysql")
+    # the database's default collation on the key, a sort key in the wrong page, a readAll with no ORDER BY
+    bare = {**sources, "entity/vsam/CustRec.java": sources["entity/vsam/CustRec.java"].replace("cp277", "cp037")}
+    assert cg.collation_static_diffs(bare, _KEY_RULE, engine, "cp277") == [
+        'entity/vsam/CustRec.java: missing `this.custKeySort = CobolRecords.sortKey(custKey, "cp277");`'
+    ]
+    heap = {**sources, "service/CustbatService.java": "public List<CustRec> readAllCustFile() {\n"
+                                                        "        return custRecRepository.findAll();"}  # fmt: skip
+    assert cg.collation_static_diffs(heap, [], engine, "cp277") == [
+        "CustbatService.readAllCustFile: `return custRecRepository.findAll();` has no ORDER BY -- a sequential READ "
+        "of the KSDS returns its records in key order (cp277 bytes, CUST_KEY_SORT)",
+        "CUSTCICS port ticket: no key-order rule (#3822)"]  # fmt: skip
+
+
+def test_the_generated_table_is_rendered_as_hibernate_creates_it():
+    entity = """@Table(name = "vsam_cust")
+    @Id
+    @Column(name = "CUST_KEY", columnDefinition = "varchar(8) COLLATE \\"C\\"")
+    private String custKey;
+
+    @Column(name = "CUST_NAME", length = 20)
+    private String custName;
+    @Column(name = "CUST_BAL", precision = 9, scale = 2)
+    private BigDecimal custBal;
+"""
+    assert cg.entity_ddl(entity) == ("vsam_cust", 'CREATE TABLE vsam_cust (CUST_KEY varchar(8) COLLATE "C" not null, '
+                                     "CUST_NAME varchar(20), CUST_BAL numeric(9, 2), PRIMARY KEY (CUST_KEY))")  # fmt: skip
+    with pytest.raises(ValueError, match="no @Id"):
+        cg.entity_ddl(entity.replace("@Id", ""))
+
+
+def test_the_database_answers_are_checked_against_the_mainframes():
+    want = cg.collation_oracle(cg.COLLATION_KEYS, "cp037", cg.FROM_KEY)
+    ok = {**want, "db-order": "#1|123|1A|A1"}
+    assert cg.collation_db_diffs({"db": ok}, "cp037") == []
+    heap = {**ok, "read-all": "ZZ|abc"}
+    assert cg.collation_db_diffs({"db": heap}, "cp037") == [
+        f"read-all [the batch step's sequential READ (the generated readAll: findAll())]: want {want['read-all']!r}, "
+        "got 'ZZ|abc'"]  # fmt: skip
+    # the canary: keys whose database order IS the mainframe's could not have caught a wrong collation
+    assert cg.collation_db_diffs({"db": {**want, "db-order": want["browse"]}}, "cp037")[0].startswith("canary: ")
+    assert cg.collation_db_diffs({"error": "javac: x"}, "cp037") == ["executed layer failed: javac: x"]
+
+
+def test_the_sampled_plan_runs_part_3(sampled):
+    """Each database target and each DB2 format runs in the sampled plan (static layers); the only failure is
+    the ledgered sequential READ (#3945)."""
+    _, results, report = sampled
+    ran = {(r["dialect"], r["page"]) for r in results.values() if "skipped" not in r}
+    assert set(cg.SAMPLED_COLLATION.items()) | set(cg.SAMPLED_INPUT.items()) <= ran
+    for target, page in cg.SAMPLED_COLLATION.items():
+        (diff,) = results[f"{target}|{page}|collation-static"]["diffs"]
+        assert diff.startswith("CustbatService.readAllCustFile: `return custRecRepository.findAll();`")
+        assert results[f"{target}|{page}|runtime-static"]["diffs"] == []
+    for name, page in cg.SAMPLED_INPUT.items():
+        for group in cg.INPUT_GROUPS:
+            assert results[f"{name}|{page}|{group}"]["diffs"] == [], (name, group)
+    assert "## Part 3: target database collation (D) and input data (E)" in report
+    assert "| collation_postgresql_en_us |" in report and "| input_eur |" in report
+
+
+def test_the_db_layer_skips_what_this_machine_does_not_have(monkeypatch, tmp_path):
+    """MySQL is never faked; without the H2 jar or the PostgreSQL binaries those targets are skipped, and say why."""
+    monkeypatch.setattr(cg, "_maven_jar", lambda *_: None)
+    with cg.databases(tmp_path) as specs:
+        assert "no MySQL server" in specs["collation_mysql_ai_ci"]["skipped"]
+        assert specs["collation_h2"] == {"skipped": "no H2 jar in ~/.m2"} or cg.jdk() is None
+        assert "skipped" in specs["collation_postgresql_c"] and "skipped" in specs["collation_postgresql_en_us"]
+    assert cg.execute_db(tmp_path, "collation_h2", "cp037", {}, {"skipped": "why"}) == {"skipped": "why"}
+
+
+def _db_available(target: str) -> bool:
+    if cg.jdk() is None:
+        return False
+    if target == "collation_h2":
+        return cg._maven_jar("com.h2database", "h2") is not None
+    return cg._maven_jar("org.postgresql", "postgresql") is not None and cg._pg_bin() is not None
+
+
+@pytest.mark.parametrize("target, page", [("collation_h2", "cp273"), ("collation_postgresql_en_us", "cp277")])
+def test_the_db_layer_runs_the_generated_table(target, page, tmp_path, capsys):
+    """--db for real: the generated DDL, the keys through the generated CobolRecords, the generated finders'
+    SQL. Every browse matches the mainframe; the sequential READ is the ledgered #3945."""
+    if not _db_available(target):
+        pytest.skip(f"{target}: its database is not on this machine")
+    code = cg.main(["--ci", "--db", "--full", "--only", target, "--pages", page,
+                    "--work", str(tmp_path / "work"), "--out", str(tmp_path / "out")])  # fmt: skip
+    assert code == 0, capsys.readouterr().out
+    results = json.loads((tmp_path / "out" / "results.json").read_text(encoding="utf-8"))
+    cell = results[f"{target}|{page}|collation-db"]
+    (diff,) = cell["diffs"]
+    assert diff.startswith("read-all [the batch step's sequential READ"), diff
+    assert cell["database"] == ("en_US.UTF-8" if "en_us" in target else cell["database"])
+    assert cell["database"].startswith(("H2 ", "en_US"))
+
+
+# ---- part 3, E: the input data ------------------------------------------------------------------------------
+def test_the_input_answers_are_literals():
+    """DB2's character forms (SQL Reference, "Datetime values"), GnuCOBOL's ROUNDED ties and NUMVAL verdicts."""
+    assert cg.DB2_CHARACTER_FORMS == {"eur": ("26.09.2026", "14.30.05"), "usa": ("09/26/2026", "02:30 PM"),
+                                      "iso": ("2026-09-26", "14.30.05")}  # fmt: skip
+    assert cg.TIES_WANT == {"WS-UP": "0.03 -0.03 0.04 3 -3 4", "WS-EVEN": "0.02 -0.02 0.04 2 -2 4"}
+    assert len(cg.NUMVAL_WANT.split("|")) == len(cg.NUMVAL_INPUTS)
+    assert all(not ch.isascii() for text in cg.NUMVAL_INPUTS[1:5] for ch in text)
+    assert cg.input_run_want("usa")["date"] == "09/26/2026 02:30 PM"
+
+
+def test_the_input_static_group_types_by_picture_and_sql_type_not_by_name():
+    obs = {"java_sources": {}, "schema_sql": "", "ticket_rounding": [], "ticket_rules": []}
+    diffs = cg.input_static_diffs(obs, "eur")
+    assert "entity/vsam/KundRec.java: not generated (want `r.datum = CobolRecords.toInteger(CobolRecords." \
+           "zoned(rec, 8, 8, 0, text));`)" in diffs  # fmt: skip
+    assert "clean-room schema DATUM: want 'INTEGER', got None" in diffs
+    assert "ticket rules: no NUMVAL rule (#3831)" in diffs
+
+
+def test_the_input_layer_runs_under_every_environment(tmp_path, capsys):
+    """--run on EUR x cp273: Db2Dates and CobolRecords in 15 JVM environments print the declared answers;
+    the one difference is the ledgered #3946 (parseTimestamp takes Arabic-Indic digits)."""
+    if cg.jdk() is None:
+        pytest.skip("no JDK (javac + java) on this machine")
+    code = cg.main(["--ci", "--run", "--full", "--only", "input_eur", "--pages", "cp273",
+                    "--work", str(tmp_path / "work"), "--out", str(tmp_path / "out")])  # fmt: skip
+    assert code == 0, capsys.readouterr().out
+    results = json.loads((tmp_path / "out" / "results.json").read_text(encoding="utf-8"))
+    assert results["input_eur|cp273|input-static"]["diffs"] == []
+    assert results["input_eur|cp273|runtime-run"]["diffs"] == [
+        "parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'"]  # fmt: skip

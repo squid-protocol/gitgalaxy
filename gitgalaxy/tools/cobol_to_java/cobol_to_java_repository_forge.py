@@ -113,7 +113,7 @@ def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     else:
         dec = f"CobolRecords.binary(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()})"
     return {"Integer": f"CobolRecords.toInteger({dec})", "Long": f"CobolRecords.toLong({dec})",
-            "Double": f"{dec}.doubleValue()", "String": f"{dec}.toPlainString()"}.get(f.jtype, dec)  # fmt: skip
+            "Double": f"CobolRecords.toDouble({dec})", "String": f"CobolRecords.toString({dec})"}.get(f.jtype, dec)  # fmt: skip
 
 
 def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
@@ -223,7 +223,7 @@ public final class CobolRecords {
     public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
         String s = new String(rec, offset, length, text);
         if (s.length() != length) {  // #3831: a multi-byte character is no zoned digit
-            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+            return null;
         }
         char last = s.charAt(length - 1);
         boolean negative = false;
@@ -236,11 +236,11 @@ public final class CobolRecords {
             digit = NEGATIVE.indexOf(last);
             negative = true;
         } else {
-            throw new NumberFormatException("invalid zoned sign '" + last + "' at offset " + (offset + length - 1));
+            return null;
         }
         String digits = s.substring(0, length - 1) + digit;
         if (!isAsciiDigits(digits)) {
-            throw new NumberFormatException("invalid zoned digits '" + s + "' at offset " + offset);
+            return null;
         }
         BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
         return negative ? v.negate() : v;
@@ -269,9 +269,7 @@ public final class CobolRecords {
             int lo = b & 0x0F;
             boolean badDigit = b >> 4 > 9 || (i < length - 1 && lo > 9);
             if (badDigit || (i == length - 1 && lo < 0x0A)) {
-                throw new NumberFormatException("invalid packed decimal (S0C7): byte X'"
-                        + Integer.toHexString(b | 0x100).substring(1).toUpperCase(Locale.ROOT) + "' at offset "
-                        + (offset + i) + (badDigit ? ", a digit nibble above 9" : ", a sign nibble below A"));
+                return null;
             }
             digits.append(b >> 4);
             if (i < length - 1) {
@@ -404,11 +402,19 @@ public final class CobolRecords {
     }
 
     public static Integer toInteger(BigDecimal v) {
-        return v.intValue();
+        return v == null ? null : v.intValue();
     }
 
     public static Long toLong(BigDecimal v) {
-        return v.longValue();
+        return v == null ? null : v.longValue();
+    }
+
+    public static Double toDouble(BigDecimal v) {
+        return v == null ? null : v.doubleValue();
+    }
+
+    public static String toString(BigDecimal v) {
+        return v == null ? null : v.toPlainString();
     }
 }
 """

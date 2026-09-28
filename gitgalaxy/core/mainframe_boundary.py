@@ -359,8 +359,12 @@ _DEPENDING_CLAUSE = re.compile(
 _REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I)
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
 # (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
+# #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
+# boundary, not `\b`, so `HIGH-VALUES` is never read as the keyword.
 _VALUE_CLAUSE = re.compile(
-    r"\bVALUE[ \t\n]+(?:IS[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    r"(?<![A-Z"
+    + NATIONAL
+    + r"0-9-])VALUES?[ \t\n]+(?:(?:IS|ARE)[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
     + NATIONAL
     + r"0-9][A-Z"
     + NATIONAL
@@ -784,6 +788,10 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
     data_start = dd_match.end() if dd_match else 0
     proc_match = _PROCEDURE_DIVISION.search(code_stream, data_start)
     data_end = proc_match.start() if proc_match else len(code_stream)
+    # #3942: a copybook has no SPECIAL-NAMES -- DECIMAL-POINT IS COMMA belongs to the program that COPYs it.
+    # A separator comma is a comma followed by a space, so `12345,67` can only be one literal: kept as
+    # written, which is right in every program that includes it (the reader applies that program's point).
+    keep_comma = decimal_comma or (dd_match is None and proc_match is None)
 
     # Section and FD markers, joined to the entries below them by position.
     sections = [(m.start(), m.group(1).upper()) for m in _SECTION_HEADER.finditer(code_stream)]
@@ -891,7 +899,7 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 # A bareword numeric / figurative constant: strip the clause-terminating
                 # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
                 value = value_match.group(3).rstrip(".")
-                fraction = _COMMA_FRACTION.match(window, value_match.end(3)) if decimal_comma else None
+                fraction = _COMMA_FRACTION.match(window, value_match.end(3)) if keep_comma else None
                 if fraction and _NUMERIC_BAREWORD.fullmatch(value_match.group(3)):
                     value += fraction.group(0)  # #3911: `12345,67` -- the comma is the decimal point
 

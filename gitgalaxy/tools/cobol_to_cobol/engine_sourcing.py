@@ -78,4 +78,8 @@ def engine_schemas(ef: Any, table_name: str, ignore_vars: set | None = None, cor
         for it in sorted(ef.data_items, key=lambda it: it.ordinal)
     ]
     decimal_comma = any(sn.clause == "DECIMAL-POINT" and sn.value == "COMMA" for sn in ef.special_names)
-    return render_schemas(entries, table_name, ignore_vars, corporate_header, decimal_comma)
+    # #3910: the program's own PICTURE SYMBOLs, and those its items take from the estate (a copybook's), as
+    # the record layout sizes them (galaxy_ir._attach_currency)
+    symbols = {sn.symbol for sn in ef.special_names if sn.clause == "CURRENCY" and sn.symbol}
+    symbols |= {sym for it in ef.data_items for sym in it.currency}
+    return render_schemas(entries, table_name, ignore_vars, corporate_header, decimal_comma, symbols)

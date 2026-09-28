@@ -221,8 +221,10 @@ def _dialect(expect: dict[str, Any], **source: str) -> dict[str, Any]:
         "rounding": HALF_UP,  # (verb, target, java.math.RoundingMode) in the port ticket
         "rules": [],  # porting rules the ticket must carry
         "no_rules": [_CARD_RULE],  # ... and must not
-        # --run: CobolEdit.format(edited, 1234.50) as COBOL edits it (GnuCOBOL 3 prints ` $1,234.50`); None
-        # where no oracle is at hand -- GnuCOBOL does not implement a multi-character currency string
+        # --run: CobolEdit.format(edited, 1234.50) as COBOL edits it (GnuCOBOL 3 prints ` $1,234.50`). #3933: a
+        # multi-character currency string, which GnuCOBOL does not implement, is IBM Enterprise COBOL's rule
+        # (Language Reference, PICTURE clause, floating insertion editing): the string floats as a unit into
+        # the one symbol position left of the first significant digit, the other positions one character each
         "edited": " $1,234.50",
     }
     return {**plain, **source, "expect": {**want, **expect}}
@@ -259,7 +261,7 @@ DIALECTS: dict[str, dict[str, Any]] = {
             "layout": _layout(13),
             "record_bytes": 43,
             "codec": _codec(13),
-            "edited": None,
+            "edited": " EUR 1,234.50",  # #3933: 13 characters, the record's 13 bytes
         },
         special=_special("CURRENCY SIGN IS 'EUR ' WITH PICTURE SYMBOL 'U'"),
         edited="UUU,UU9.99",
@@ -294,7 +296,7 @@ DIALECTS: dict[str, dict[str, Any]] = {
             "layout": _layout(13),
             "record_bytes": 43,
             "codec": _codec(13),
-            "edited": None,
+            "edited": " INR 1,234.50",  # #3933: the string's own space parts it from the amount
         },
         special=_special("CURRENCY SIGN IS 'INR ' WITH PICTURE SYMBOL 'I'"),
         edited="III,II9.99",
@@ -309,7 +311,7 @@ DIALECTS: dict[str, dict[str, Any]] = {
             "codec": _codec(13),
             "due_sql": "DECIMAL(8, 2)",
             "due_entity": 'name = "ACCT_DUE_ED", precision = 8, scale = 2',
-            "edited": None,
+            "edited": "   Rs1,234.50",  # #3933: 'Rs' has no space of its own; the blanked lakh comma floats
         },
         special=_special("CURRENCY SIGN IS 'Rs' WITH PICTURE SYMBOL 'K'"),
         edited="KK,KK,KK9.99",

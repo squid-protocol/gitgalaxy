@@ -23,6 +23,7 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -41,10 +42,11 @@ def map_type_to_java(json_type: str, description: str) -> str:
     return "String"
 
 
-def parse_pic_clause(description: str, decimal_comma: bool) -> dict:
+def parse_pic_clause(description: str, decimal_comma: bool, currency_symbols: Iterable[str] = ()) -> dict:
     """
     Analyzes COBOL PIC, OCCURS, and REDEFINES clauses in the description
     to extract exact memory boundaries and structural directives.
+    #3910: `currency_symbols` are the program's PICTURE SYMBOL letters (the schema's `currency_symbols`).
     """
     constraints = {}
 
@@ -75,7 +77,7 @@ def parse_pic_clause(description: str, decimal_comma: bool) -> dict:
             constraints["length"] = max(pic_string.count("X"), pic_string.count("A"), 1)
         return constraints
 
-    total_p, scale = parse_pic_precision(pic_string, decimal_comma)
+    total_p, scale = parse_pic_precision(pic_string, decimal_comma, currency_symbols)
 
     if total_p > 0:
         constraints["precision"] = total_p
@@ -85,7 +87,15 @@ def parse_pic_clause(description: str, decimal_comma: bool) -> dict:
     return constraints
 
 
-def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool, decimal_comma: bool) -> list[str]:
+def _render_field(
+    col_name: str,
+    col_data: dict,
+    table_name: str,
+    *,
+    jpa: bool,
+    decimal_comma: bool,
+    currency_symbols: Iterable[str] = (),
+) -> list[str]:
     """Render one COBOL column as Java field lines.
 
     Shared by the JPA entity and the plain DTO paths. With ``jpa=True`` the field
@@ -96,7 +106,7 @@ def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool, 
     """
     description = col_data.get("description", "")
     base_java_type = map_type_to_java(col_data.get("type", ""), description)
-    constraints = parse_pic_clause(description, decimal_comma)
+    constraints = parse_pic_clause(description, decimal_comma, currency_symbols)
     camel_name = _java_field_name(col_name)
 
     lines: list[str] = []
@@ -218,6 +228,7 @@ def generate_java_entity(
     `target` (#3613): Lombok `@Data` (the default), or plain explicit accessors."""
     t = target or JavaTarget()
     decimal_comma = _decimal_comma(schema_json, t)
+    symbols = schema_json.get("currency_symbols", [])  # #3910: the PICTURE SYMBOL letters
     lombok = t.lombok
     # The table keeps the legacy record name: the class is disambiguated, the
     # COBOL 01-level it maps is not renamed.
@@ -255,7 +266,11 @@ def generate_java_entity(
 
     body: list[str] = []
     for col_name, col_data in properties.items():
-        body.extend(_render_field(col_name, col_data, table_name, jpa=True, decimal_comma=decimal_comma))
+        body.extend(
+            _render_field(
+                col_name, col_data, table_name, jpa=True, decimal_comma=decimal_comma, currency_symbols=symbols
+            )
+        )
     java.extend(body)
     if not lombok:
         java.extend(_accessors(class_name, [("Long", "sysId"), *_declared_fields(body)]))
@@ -280,6 +295,7 @@ def generate_java_dto(
     """
     t = target or JavaTarget()
     decimal_comma = _decimal_comma(schema_json, t)
+    symbols = schema_json.get("currency_symbols", [])  # #3910: the PICTURE SYMBOL letters
     class_name = dto_class_name(schema_json, unit_key)
     properties = schema_json.get("properties", {})
 
@@ -287,7 +303,11 @@ def generate_java_dto(
 
     body: list[str] = []
     for col_name, col_data in properties.items():
-        body.extend(_render_field(col_name, col_data, class_name, jpa=False, decimal_comma=decimal_comma))
+        body.extend(
+            _render_field(
+                col_name, col_data, class_name, jpa=False, decimal_comma=decimal_comma, currency_symbols=symbols
+            )
+        )
 
     return render_dto_class(f"{package_name}.dto", class_name, body, requires_list, t)
 

@@ -24,7 +24,7 @@
 
 [4] AI AGENT GUARDRAIL
 ----------------------------------------------------------
-  • Baseline : 11 files, 11 classes, 0 SQL tables -> guardrail_baseline.json
+  • Baseline : 11 files, 12 classes, 0 SQL tables -> guardrail_baseline.json
   • Not run  : after agent edits, python -m gitgalaxy.tools.cobol_to_java.cobol_to_java_guardrail <this project>
 
 ==========================================================

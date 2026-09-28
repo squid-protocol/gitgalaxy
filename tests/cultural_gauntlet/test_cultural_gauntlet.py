@@ -400,13 +400,35 @@ def test_the_generated_table_is_rendered_as_hibernate_creates_it():
         cg.entity_ddl(entity.replace("@Id", ""))
 
 
+def test_the_db_layer_reads_all_as_the_generated_readall_orders():
+    """#3945: the executed read-all runs the generated readAll's Sort.by, as the entity's columns; a bare
+    findAll() sends no ORDER BY (the database's own order)."""
+    entity = """    @Id
+    @Column(name = "CUST_KEY", length = 8)
+    private String custKey;
+
+    @Column(name = "CUST_KEY_SORT", length = 16)
+    private String custKeySort;
+"""
+    svc = "    public List<CustRec> readAllCustFile() {{\n        return repo.findAll({});\n"
+    sources = {"entity/vsam/CustRec.java": entity,
+               "service/CustbatService.java": svc.format('org.springframework.data.domain.Sort.by("custKeySort")')}
+    assert cg.read_all_sql(sources, "vsam_t", "CUST_KEY") == "SELECT CUST_KEY FROM vsam_t ORDER BY CUST_KEY_SORT"
+    both = {**sources, "service/CustbatService.java": svc.format('Sort.by("custKey", "custKeySort")')}
+    assert cg.read_all_sql(both, "vsam_t", "CUST_KEY").endswith("ORDER BY CUST_KEY, CUST_KEY_SORT")
+    bare = {**sources, "service/CustbatService.java": svc.format("")}
+    assert cg.read_all_sql(bare, "vsam_t", "CUST_KEY") == "SELECT CUST_KEY FROM vsam_t"
+    with pytest.raises(ValueError, match="no column"):
+        cg.read_all_sql({**sources, "service/CustbatService.java": svc.format('Sort.by("nope")')}, "t", "K")
+
+
 def test_the_database_answers_are_checked_against_the_mainframes():
     want = cg.collation_oracle(cg.COLLATION_KEYS, "cp037", cg.FROM_KEY)
     ok = {**want, "db-order": "#1|123|1A|A1"}
     assert cg.collation_db_diffs({"db": ok}, "cp037") == []
     heap = {**ok, "read-all": "ZZ|abc"}
     assert cg.collation_db_diffs({"db": heap}, "cp037") == [
-        f"read-all [the batch step's sequential READ (the generated readAll: findAll())]: want {want['read-all']!r}, "
+        f"read-all [the batch step's sequential READ (the generated readAll's ORDER BY)]: want {want['read-all']!r}, "
         "got 'ZZ|abc'"]  # fmt: skip
     # the canary: keys whose database order IS the mainframe's could not have caught a wrong collation
     assert cg.collation_db_diffs({"db": {**want, "db-order": want["browse"]}}, "cp037")[0].startswith("canary: ")
@@ -414,14 +436,13 @@ def test_the_database_answers_are_checked_against_the_mainframes():
 
 
 def test_the_sampled_plan_runs_part_3(sampled):
-    """Each database target and each DB2 format runs in the sampled plan (static layers); the only failure is
-    the ledgered sequential READ (#3945)."""
+    """Each database target and each DB2 format runs in the sampled plan (static layers), and passes: #3945's
+    sequential READ orders by the sort column."""
     _, results, report = sampled
     ran = {(r["dialect"], r["page"]) for r in results.values() if "skipped" not in r}
     assert set(cg.SAMPLED_COLLATION.items()) | set(cg.SAMPLED_INPUT.items()) <= ran
     for target, page in cg.SAMPLED_COLLATION.items():
-        (diff,) = results[f"{target}|{page}|collation-static"]["diffs"]
-        assert diff.startswith("CustbatService.readAllCustFile: `return custRecRepository.findAll();`")
+        assert results[f"{target}|{page}|collation-static"]["diffs"] == [], target
         assert results[f"{target}|{page}|runtime-static"]["diffs"] == []
     for name, page in cg.SAMPLED_INPUT.items():
         for group in cg.INPUT_GROUPS:
@@ -451,7 +472,8 @@ def _db_available(target: str) -> bool:
 @pytest.mark.parametrize("target, page", [("collation_h2", "cp273"), ("collation_postgresql_en_us", "cp277")])
 def test_the_db_layer_runs_the_generated_table(target, page, tmp_path, capsys):
     """--db for real: the generated DDL, the keys through the generated CobolRecords, the generated finders'
-    SQL. Every browse matches the mainframe; the sequential READ is the ledgered #3945."""
+    SQL. Every browse matches the mainframe, and so does the sequential READ (#3945: the generated readAll's
+    ORDER BY)."""
     if not _db_available(target):
         pytest.skip(f"{target}: its database is not on this machine")
     code = cg.main(["--ci", "--db", "--full", "--only", target, "--pages", page,
@@ -459,8 +481,7 @@ def test_the_db_layer_runs_the_generated_table(target, page, tmp_path, capsys):
     assert code == 0, capsys.readouterr().out
     results = json.loads((tmp_path / "out" / "results.json").read_text(encoding="utf-8"))
     cell = results[f"{target}|{page}|collation-db"]
-    (diff,) = cell["diffs"]
-    assert diff.startswith("read-all [the batch step's sequential READ"), diff
+    assert cell["diffs"] == []
     assert cell["database"] == ("en_US.UTF-8" if "en_us" in target else cell["database"])
     assert cell["database"].startswith(("H2 ", "en_US"))
 
@@ -487,7 +508,7 @@ def test_the_input_static_group_types_by_picture_and_sql_type_not_by_name():
 
 def test_the_input_layer_runs_under_every_environment(tmp_path, capsys):
     """--run on EUR x cp273: Db2Dates and CobolRecords in 15 JVM environments print the declared answers;
-    the one difference is the ledgered #3946 (parseTimestamp takes Arabic-Indic digits)."""
+    #3946: parseTimestamp rejects Arabic-Indic digits, as DB2 does."""
     if cg.jdk() is None:
         pytest.skip("no JDK (javac + java) on this machine")
     code = cg.main(["--ci", "--run", "--full", "--only", "input_eur", "--pages", "cp273",
@@ -495,5 +516,4 @@ def test_the_input_layer_runs_under_every_environment(tmp_path, capsys):
     assert code == 0, capsys.readouterr().out
     results = json.loads((tmp_path / "out" / "results.json").read_text(encoding="utf-8"))
     assert results["input_eur|cp273|input-static"]["diffs"] == []
-    assert results["input_eur|cp273|runtime-run"]["diffs"] == [
-        "parse-foreign (default): want 'invalid invalid invalid', got 'invalid invalid 2026-09-26T14:30:05'"]  # fmt: skip
+    assert results["input_eur|cp273|runtime-run"]["diffs"] == []

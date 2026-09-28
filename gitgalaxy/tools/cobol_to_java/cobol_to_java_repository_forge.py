@@ -33,6 +33,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     java_identifier,
     java_path,
     java_type,
+    parse_pic_precision,
     status_text,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
@@ -136,6 +137,41 @@ def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
     return f"CobolRecords.putBinary(rec, {f.offset}, {f.bytes}, {scale}, {str(signed).lower()}, {dec})"
 
 
+def _decimal_attrs(f: Field) -> list[str]:
+    """#3950: `precision` / `scale` of a BigDecimal column, from the PICTURE as the schema forge reads it
+    (parse_pic_precision) -- with none, Hibernate's DDL makes it numeric(38, 2) and a V9(4) field loses two
+    decimals. Only a plain numeric PICTURE (9 / S / V / P) is a BigDecimal here, where neither DECIMAL-POINT IS
+    COMMA nor a currency symbol (#3910) moves a digit (P scaling positions widen it); an edited PICTURE is
+    its display text (a String column of its width). A PL/I item: its picture, or FIXED DEC(p,q); FIXED BIN
+    and a negative scale get none."""
+    if f.jtype != "BigDecimal":
+        return []
+    if f.pli_type is not None or (f.pic or "").startswith("'"):
+        usage = (f.pli_type or "").upper()
+        m = re.search(r"\b(?:FIXED|DEC(?:IMAL)?)\s{0,4}\(\s{0,4}(\d{1,3})(?:\s{0,4},\s{0,4}([+-]?\d{1,3}))?", usage)
+        if f.pic:  # a PL/I picture repeats by prefix: `(5)9V99`
+            p = re.sub(r"\((\d{1,4})\)(.)", lambda r: r.group(2) * int(r.group(1)), f.pic.strip("'").upper())
+            if re.search(r"[^9SV]", p):
+                return []
+            whole, _, frac = p.partition("V")
+            digits, scale = whole.count("9") + frac.count("9"), frac.count("9")
+        elif m and not re.search(r"\bBIN", usage):
+            digits, scale = int(m.group(1)), int(m.group(2) or 0)
+        else:
+            return []
+    elif f.pic:
+        digits, scale = parse_pic_precision(f.pic, False)
+        p = re.sub(r"(.)\((\d{1,4})\)", lambda r: r.group(1) * int(r.group(2)), f.pic.upper())
+        if "P" in p:  # scaling positions: before the digits more decimals (SVPP999), after them a larger integer
+            digits += p.count("P")
+            scale = digits if p.find("P") < p.find("9") else scale
+    else:
+        return []
+    if digits <= 0 or not 0 <= scale <= digits:
+        return []
+    return [f"precision = {digits}", f"scale = {scale}"]
+
+
 COBOL_RECORDS_JAVA = """package __PACKAGE__;
 
 import java.math.BigDecimal;
@@ -224,13 +260,22 @@ public final class CobolRecords {
         System.arraycopy(b, 0, rec, offset, digits);
     }
 
+    /** #3949: a digit nibble above 9, or a sign nibble below A, is invalid packed data -- on the mainframe a
+     *  data exception (S0C7), never a number: a NumberFormatException naming the byte, as zoned does. */
     public static BigDecimal packed(byte[] rec, int offset, int length, int scale) {
         StringBuilder digits = new StringBuilder();
         for (int i = 0; i < length; i++) {
             int b = rec[offset + i] & 0xFF;
+            int lo = b & 0x0F;
+            boolean badDigit = b >> 4 > 9 || (i < length - 1 && lo > 9);
+            if (badDigit || (i == length - 1 && lo < 0x0A)) {
+                throw new NumberFormatException("invalid packed decimal (S0C7): byte X'"
+                        + Integer.toHexString(b | 0x100).substring(1).toUpperCase(Locale.ROOT) + "' at offset "
+                        + (offset + i) + (badDigit ? ", a digit nibble above 9" : ", a sign nibble below A"));
+            }
             digits.append(b >> 4);
             if (i < length - 1) {
-                digits.append(b & 0x0F);
+                digits.append(lo);
             }
         }
         int sign = rec[offset + length - 1] & 0x0F;
@@ -670,7 +715,7 @@ class RepositoryForge:
                 body.append(f'    @CollectionTable(name = "{st.table}_{column.lower()}")')
                 body.append(f"    private List<{f.jtype}> {f.java};\n")
                 continue
-            attrs = [f'name = "{column}"']
+            attrs = [f'name = "{column}"', *_decimal_attrs(f)]
             if f.jtype == "String" and f.bytes is not None:  # a width not known: the JPA default
                 attrs.append(f"length = {max(f.bytes, 1)}")
             if f is st.key and f.jtype == "String":
@@ -801,7 +846,7 @@ class RepositoryForge:
         body: list[str] = []
         for f in st.composite:
             column = f.cobol.upper().replace("-", "_")
-            attrs = [f'name = "{column}"'] + (
+            attrs = [f'name = "{column}"', *_decimal_attrs(f)] + (
                 [f"length = {max(f.bytes, 1)}"] if f.jtype == "String" and f.bytes is not None else []
             )
             if f.jtype == "String":
@@ -990,8 +1035,13 @@ class RepositoryForge:
             sequential = (user.get("access_mode") or "SEQUENTIAL").upper() == "SEQUENTIAL"
             if modes & {"INPUT", "I-O"}:
                 if sequential:
-                    ops.append((f"readAll{name}", [f"    public List<{st.entity}> readAll{name}() {{",
-                                                   f"        return {repo_var}.findAll();", "    }\n"]))  # fmt: skip
+                    order, why = self._file_order(st)
+                    by = ", ".join(f'"{p}"' for p in order)
+                    ops.append((f"readAll{name}", [
+                        f"    // {why}",
+                        f"    public List<{st.entity}> readAll{name}() {{",
+                        f"        return {repo_var}.findAll(org.springframework.data.domain.Sort.by({by}));",
+                        "    }\n"]))  # fmt: skip
                 else:
                     ops.append((f"read{name}", [f"    public Optional<{st.entity}> read{name}({kt} key) {{",
                                                 f"        return {repo_var}.findById(key);", "    }\n"]))  # fmt: skip
@@ -1040,6 +1090,33 @@ class RepositoryForge:
                     notes,
                 )
         ex["names"] = taken
+
+    def _file_order(self, st: Store) -> tuple[list[str], str]:
+        """#3945: the entity properties a sequential READ of the file orders by, and why -- a bare findAll()
+        sends no ORDER BY, so records came back in the database's order (heap order on PostgreSQL), not the
+        file's. A KSDS reads in ascending key order: a String key under key_collation ebcdic by its sort column
+        (the key's code-page bytes, #3822), any other key by itself. An RRDS reads in relative record number
+        order (its Long id); an ESDS in entry (RBA) order, which its generated id follows as rows are added."""
+        k = st.key
+        if k is not None and self._sorted_by_code_page(st):
+            return [k.java + "Sort"], (f"Sequential READ: in key order, {k.cobol} as {self.target.data.code_page} "
+                                       "bytes (#3945, #3822).")  # fmt: skip
+        if k is not None:
+            return [k.java], f"Sequential READ: in key order ({k.cobol}, #3945)."
+        if st.composite:
+            text = any(f.jtype == "String" for f in st.composite) and self.target.culture.key_collation == "ebcdic"
+            todo = " TODO: its text parts order by the database's collation, not the code page's bytes." if text else ""
+            return (["id." + f.java for f in st.composite],
+                    f"Sequential READ: in key order ({', '.join(f.cobol for f in st.composite)}, #3945).{todo}")  # fmt: skip
+        org = (st.raw.get("organization") or "").upper()
+        if org == "NUMBERED":
+            return ["id"], "Sequential READ of an RRDS: in relative record number order (#3945)."
+        if org == "NONINDEXED":
+            return ["id"], ("Sequential READ of an ESDS: in entry (RBA) order, which the generated id follows as "
+                            "records are added (#3945).")  # fmt: skip
+        todo = (" TODO: the key is not one field, so it orders by its text, not the code page's bytes."
+                if self.target.culture.key_collation == "ebcdic" else "")  # fmt: skip
+        return ["vsamKey"], f"Sequential READ: in key order (the vsamKey, #3945).{todo}"
 
     @staticmethod
     def _save(method: str, st: Store, repo_var: str) -> list[str]:

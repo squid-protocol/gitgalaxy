@@ -951,7 +951,7 @@ _COLLATION_WHAT = {
     "browse": "STARTBR at LOW-VALUES + READNEXT (the generated finder)",
     "browse-from": f"STARTBR at {FROM_KEY!r} + READNEXT",
     "browse-back": f"STARTBR at {FROM_KEY!r} + READPREV",
-    "read-all": "the batch step's sequential READ (the generated readAll: findAll())",
+    "read-all": "the batch step's sequential READ (the generated readAll's ORDER BY)",
 }
 
 
@@ -1074,8 +1074,8 @@ import java.util.List;
 
 /** #3834 (D): the generated key mapping in a real database, one `name<TAB>value` line each. Each key goes in as
  *  the generated codec reads it (the record's space-padded bytes) with its sort column filled by the generated
- *  CobolRecords.sortKey, as @PrePersist fills it; then the generated finders' SQL, findAll()'s, and the
- *  database's own order of the key column. */
+ *  CobolRecords.sortKey, as @PrePersist fills it; then the generated finders' SQL, the generated readAll's
+ *  (READALL, #3945), and the database's own order of the key column. */
 public class CollationDriver {
     public static void main(String[] argv) throws Exception {
         List<String> a = Files.readAllLines(Path.of(argv[0]), StandardCharsets.UTF_8);
@@ -1118,7 +1118,8 @@ public class CollationDriver {
             out("browse", keys(c, next, CobolRecords.sortKey(new String(new char[width]), page)));  // LOW-VALUES
             out("browse-from", keys(c, next, start));
             out("browse-back", keys(c, prev, start));
-            out("read-all", keys(c, "SELECT " + key + " FROM " + table, null));
+            out("read-all", keys(c, a.stream().filter(line -> line.startsWith("READALL ")).findFirst()
+                    .orElseThrow().substring(8), null));
             out("db-order", keys(c, "SELECT " + key + " FROM " + table + " ORDER BY " + key, null));
             for (String line : a) {
                 if (line.startsWith("INFO ")) {
@@ -1253,6 +1254,26 @@ def _start_postgres(pg_bin: Path, data: Path, port: int) -> str | None:
     return f"pg_ctl start failed: {(start.stderr or start.stdout).strip()[-120:]}" if start.returncode else None
 
 
+_SORT_BY = re.compile(r'Sort\.by\(((?:"\w{1,64}"(?:, )?){1,8})\)')
+
+
+def read_all_sql(sources: dict[str, str], table: str, key: str) -> str:
+    """#3945: the SQL the generated batch readAll runs -- its Sort.by properties as the entity's columns, or no
+    ORDER BY for a bare findAll() (the database's own order)."""
+    read_all = _READ_ALL.search(sources.get("service/CustbatService.java", ""))
+    by = _SORT_BY.search(read_all.group(1)) if read_all else None
+    if by is None:
+        return f"SELECT {key} FROM {table}"
+    entity = sources.get("entity/vsam/CustRec.java", "")
+    columns = []
+    for prop in re.findall(r'"(\w{1,64})"', by.group(1)):
+        col = re.search(r'@Column\(name = "(\w{1,64})"[^\n]{0,300}\)\s{1,12}private \w{1,40} ' + prop + ";", entity)
+        if col is None:
+            raise ValueError(f"readAll orders by {prop}, which is no column of the entity")
+        columns.append(col.group(1))
+    return f"SELECT {key} FROM {table} ORDER BY {', '.join(columns)}"
+
+
 def execute_db(cell_dir: Path, target: str, column: str, sources: dict[str, str], spec: dict[str, Any]) -> dict:
     """#3834 (D): the generated table (entity_ddl) in the target database, the keys written through the
     generated CobolRecords, and what the generated finders read back: {"db": {name: value}, "ddl": ...}."""
@@ -1266,7 +1287,7 @@ def execute_db(cell_dir: Path, target: str, column: str, sources: dict[str, str]
     setup = [f"CREATE SCHEMA {schema}", f"SET search_path TO {schema}"] if spec["schema"] else []
     args = [spec["url"], spec["user"], data_page(column), str(KEY_WIDTH), FROM_KEY, table, "CUST_KEY",
             "CUST_KEY_SORT", *(f"SQL {s}" for s in [*setup, ddl]), *(f"KEY {k}" for k in COLLATION_KEYS),
-            f"INFO {spec['info']}"]  # fmt: skip
+            f"INFO {spec['info']}", f"READALL {read_all_sql(sources, table, 'CUST_KEY')}"]  # fmt: skip
     root = cell_dir / "db"
     classpath = spec["classpath"]
     failed = _compile(root, {"entity/vsam/CobolRecords.java": sources["entity/vsam/CobolRecords.java"]},

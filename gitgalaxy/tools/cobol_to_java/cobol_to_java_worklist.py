@@ -67,7 +67,7 @@ CATEGORIES = (
              "real fields."),
     Category("vsam-key", "Keys that are not one field", "fact-gap",
              ("the key (offset", "no key is known", "STARTBR / READNEXT", "alternate index", "start from a key",
-              "reads through path"),
+              "reads through path", "not the code page's bytes"),
              "Name the key: split the record so the key is one field, or keep the String vsamKey in step with "
              "the record; for a browse, add a range query over the key."),
     Category("queue-name", "Data-driven queue names", "fact-gap",

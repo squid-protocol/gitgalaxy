@@ -1583,17 +1583,19 @@
     "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
       "calls": [],
       "classes": [
-        "EbcdicDecoderUtil"
+        "EbcdicDecoderUtil",
+        "PackedDecimalDataException"
       ],
       "endpoints": [],
       "fields": [],
       "kind": "other",
       "methods": [
         "decodeEbcdicString",
+        "invalid",
         "unpackComp3"
       ],
       "program": null,
-      "sha256": "96854624ef4adac8458e93f19d708af837b0be23211c670357099c1a75d5522e"
+      "sha256": "798cfe5cf5c8bd5e0a6fe146ccd7bc39f951e6e486e4791a3c9f1a46b294f926"
     }
   },
   "generated_from": {

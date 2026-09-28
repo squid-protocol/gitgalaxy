@@ -228,17 +228,41 @@ public final class Db2Dates {
         throw new DateTimeParseException("not a DB2 time: " + text, text, 0);
     }
 
-    /** A character TIMESTAMP: yyyy-mm-dd-hh.mm.ss[.n...] (1 to 12 fraction digits; nanoseconds kept). */
+    /** A character TIMESTAMP: yyyy-mm-dd-hh.mm.ss[.n...] (1 to 12 fraction digits; nanoseconds kept).
+     *  #3946: the digits 0-9 only, as DB2 reads it -- Integer.parseInt alone takes any Unicode digit
+     *  (Arabic-Indic, full-width), which DB2 rejects (SQLCODE -180 / -181). An invalid value throws the
+     *  DateTimeParseException parseDate throws. */
     public static LocalDateTime parseTimestamp(String text) {
         String s = text.trim();
-        String date = s.substring(0, 10);
-        String[] hms = s.substring(11).split("[.:]", 4);
-        LocalTime t = LocalTime.of(Integer.parseInt(hms[0]), Integer.parseInt(hms[1]), Integer.parseInt(hms[2]));
+        String[] hms = s.length() > 11 ? s.substring(11).split("[.:]", 4) : new String[0];
+        if (hms.length < 3 || !digits(hms[0], 1, 2) || !digits(hms[1], 2, 2) || !digits(hms[2], 2, 2)
+                || (hms.length == 4 && !digits(hms[3], 0, 12))) {
+            throw new DateTimeParseException("not a DB2 timestamp: " + text, text, 0);
+        }
+        LocalTime t;
+        try {
+            t = LocalTime.of(Integer.parseInt(hms[0]), Integer.parseInt(hms[1]), Integer.parseInt(hms[2]));
+        } catch (java.time.DateTimeException e) {
+            throw new DateTimeParseException("not a DB2 timestamp: " + text, text, 11, e);
+        }
         if (hms.length == 4) {
             String frac = (hms[3] + "000000000").substring(0, 9);
             t = t.withNano(Integer.parseInt(frac));
         }
-        return LocalDateTime.of(parseDate(date), t);
+        return LocalDateTime.of(parseDate(s.substring(0, 10)), t);
+    }
+
+    /** #3946: `min` to `max` ASCII digits, nothing else. */
+    private static boolean digits(String s, int min, int max) {
+        if (s.length() < min || s.length() > max) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) < '0' || s.charAt(i) > '9') {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static LocalDate toDate(Object v) {

@@ -131,4 +131,4 @@ NAME = f"[{ID_START}][{ID_CONTINUE}]*"
 # German-keyed names. Mainframe names are upper case; the lower-case forms cover lower-cased exports.
 # Every mainframe reader class that accepts letters also accepts these (tests/core_engine/
 # test_national_names.py checks that no such class is missing them).
-NATIONAL = "ÆØÅÄÖÜÑ§£àæøåäöüñ"
+NATIONAL = "ÆØÅÄÖÜÑ§£àæøåäöüñ" + ID_START

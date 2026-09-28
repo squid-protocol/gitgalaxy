@@ -6,7 +6,7 @@ globs: "*"
 
 **CRITICAL INSTRUCTION: Avoid Permission Spam.**
 
-The Antigravity terminal sandbox includes an "Always Allow" feature that auto-approves commands based on a prefix match of the binary (e.g., `git`, `gh`, `python3`).
+The Antigravity terminal sandbox includes an "Always Allow" feature that auto-approves commands based on a prefix match of the binary (e.g., `git`, `gh`, `python3`, `find`, `ruff`, `printf`).
 
 However, complex shell syntax breaks this cache and forces the user to manually approve the command EVERY single time.
 

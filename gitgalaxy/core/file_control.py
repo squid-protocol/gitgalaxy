@@ -257,7 +257,9 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
     while i < len(lines):
         raw = lines[i]
         if raw.startswith("//"):
-            m = re.match(r"^//([A-Z" + NATIONAL + r"0-9@#$]{1,8})[ \t\u3000]+EXEC(?![A-Z" + NATIONAL + r"0-9])", raw, re.I)
+            m = re.match(
+                r"^//([A-Z" + NATIONAL + r"0-9@#$]{1,8})[ \t\u3000]+EXEC(?![A-Z" + NATIONAL + r"0-9])", raw, re.I
+            )
             if m:
                 step = m.group(1).upper()
             i += 1
@@ -290,7 +292,13 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
 
 
 _FD = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])[FS]D[ \t\n\u3000]{1,200}([A-Z" + NATIONAL + r"0-9][A-Z" + NATIONAL + r"0-9-]{0,62})",
+    r"(?<![A-Z"
+    + NATIONAL
+    + r"0-9-])[FS]D[ \t\n\u3000]{1,200}([A-Z"
+    + NATIONAL
+    + r"0-9][A-Z"
+    + NATIONAL
+    + r"0-9-]{0,62})",
     re.I,
 )
 _FD_END = re.compile(

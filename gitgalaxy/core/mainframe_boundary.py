@@ -153,7 +153,9 @@ _LEVEL_START = re.compile(
 # The period that ends a data description entry (not a decimal point), and an
 # entry left open mid VALUE list (#3452).
 _ENTRY_END = re.compile(r"\.(?=[ \t\n\u3000]|$)")
-_OPEN_VALUE_LIST = re.compile(r"(?:(?<![A-Z" + NATIONAL + r"0-9-])VALUES?(?:[ \t\u3000]+(?:IS|ARE))?|,)[ \t\n\u3000]*$", re.I)
+_OPEN_VALUE_LIST = re.compile(
+    r"(?:(?<![A-Z" + NATIONAL + r"0-9-])VALUES?(?:[ \t\u3000]+(?:IS|ARE))?|,)[ \t\n\u3000]*$", re.I
+)
 
 # A data description entry runs to the next level number. Capped so the last
 # entry before PROCEDURE DIVISION cannot swallow the procedure body and read a
@@ -170,7 +172,11 @@ _VALUE_LITERAL = re.compile(r"\bVALUE[ \t\u3000]+(?:IS[ \t\u3000]+)?(?:'([^']*)'
 # may be a literal in some dialects, so both forms are read.
 _SELECT_ASSIGN = re.compile(
     r"\bSELECT[ \t\u3000]+(?:OPTIONAL[ \t\u3000]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)[ \t\n\u3000]+"
-    r"ASSIGN[ \t\n\u3000]+(?:TO[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9@#$-]*))",
+    r"ASSIGN[ \t\n\u3000]+(?:TO[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + r"0-9@#$-]*))",
     re.I,
 )
 
@@ -195,7 +201,8 @@ _CALL_LITERAL = re.compile(r"\bCALL[ \t\n\u3000]+(?:'([^']*)'|\"([^\"]*)\")", re
 # form above from matching twice, and `END-CALL` cannot match because the verb
 # is anchored on a word boundary that `-` does not close.
 _CALL_IDENTIFIER = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])CALL[ \t\n\u3000]+(?!['\"])([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+    r"(?<![A-Z" + NATIONAL + r"0-9-])CALL[ \t\n\u3000]+(?!['\"])([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)",
+    re.I,
 )
 
 # An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
@@ -209,7 +216,9 @@ _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL)\
 # HLASM symbols included (#3495), and a PL/I qualified reference kept whole (#3491:
 # DSF's `TRANSID(TRANS_OPPL_OMR.TRANSKODE)`); COBOL names contain neither `_` nor `.`.
 _OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + r"0-9@#$_-]*"
-_OPERAND_VALUE = r"[ \t\n\u3000]*\([ \t\n\u3000]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
+_OPERAND_VALUE = (
+    r"[ \t\n\u3000]*\([ \t\n\u3000]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
+)
 _CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM" + _OPERAND_VALUE, re.I)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
@@ -311,7 +320,8 @@ _JCL_RESOLVE_DEPTH = 8
 # The division/section that owns the entries that follow it. Only the data
 # sections matter; `FILE SECTION` additionally carries FD record layouts.
 _SECTION_HEADER = re.compile(
-    _COBOL_AREA_A + r"(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)[ \t\u3000]+SECTION[ \t\u3000]*\.",
+    _COBOL_AREA_A
+    + r"(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)[ \t\u3000]+SECTION[ \t\u3000]*\.",
     re.I | re.M,
 )
 # The DATA DIVISION / PROCEDURE DIVISION boundaries: record layouts live only
@@ -322,7 +332,14 @@ _PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t\u3000]+DIVISION
 # FILE SECTION to a logical file. It is not a data-description entry (no level
 # number), so it is tracked separately and joined by position.
 _FD_START = re.compile(
-    _COBOL_AREA_A + r"(?:FD|SD)[ \t\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)(?![A-Z" + NATIONAL + r"0-9-])",
+    _COBOL_AREA_A
+    + r"(?:FD|SD)[ \t\u3000]+([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + r"0-9-]*)(?![A-Z"
+    + NATIONAL
+    + r"0-9-])",
     re.I | re.M,
 )
 # `PIC`/`PICTURE [IS] <chars>`: the whole character-string, up to the first space
@@ -382,7 +399,13 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
 # and a trailing `OF/IN library` are allowed; the member name is what is kept.
 _COPY_IN_ENTRY = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z" + NATIONAL + r"0-9@#$][A-Z" + NATIONAL + r"0-9@#$-]*)",
+    r"(?<![A-Z"
+    + NATIONAL
+    + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z"
+    + NATIONAL
+    + r"0-9@#$][A-Z"
+    + NATIONAL
+    + r"0-9@#$-]*)",
     re.I,
 )
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
@@ -403,7 +426,12 @@ _CSD_COMMAND = re.compile(r"^[ \t\u3000]*(DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UP
 # permissive (a CICS transaction id is 4 chars, a program 8; an over-long name is
 # DFHCSDUP's diagnostic, not ours).
 _CSD_DEFINE_HEAD = re.compile(
-    r"^[ \t\u3000]*DEFINE[ \t\u3000]+([A-Z" + NATIONAL + r"0-9]+)[ \t\u3000]*\([ \t\u3000]*([A-Z" + NATIONAL + r"0-9@#$]+)[ \t\u3000]*\)", re.I
+    r"^[ \t\u3000]*DEFINE[ \t\u3000]+([A-Z"
+    + NATIONAL
+    + r"0-9]+)[ \t\u3000]*\([ \t\u3000]*([A-Z"
+    + NATIONAL
+    + r"0-9@#$]+)[ \t\u3000]*\)",
+    re.I,
 )
 # A `KEYWORD(` attribute opener. The value is read by a paren-balanced scan
 # (values carry spaces, commas `WAITTIME(0,0,0)`, slashes and quoted strings), so

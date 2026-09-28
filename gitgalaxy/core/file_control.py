@@ -43,8 +43,8 @@ from typing import Any, Callable, Optional
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
 from gitgalaxy.standards.language_standards.identifiers import NATIONAL
 
-_FILE_CONTROL = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])FILE-CONTROL[ \t]{0,20}\.", re.I)
-_WS = r"[ \t\n]{1,200}"
+_FILE_CONTROL = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])FILE-CONTROL[ \t\u3000]{0,20}\.", re.I)
+_WS = r"[ \t\n\u3000]{1,200}"
 _FC_END = re.compile(
     r"(?<![A-Z" + NATIONAL + r"0-9-])(?:I-O-CONTROL|DATA" + _WS + "DIVISION|PROCEDURE" + _WS + "DIVISION)", re.I
 )
@@ -155,7 +155,7 @@ def _one_select(toks: list[str], line: int) -> dict[str, Any]:
 
 # ---- IDCAMS (JCL in-stream SYSIN) ---------------------------------------------
 _IDCAMS_VERBS = re.compile(
-    r"^[ \t]*(DEFINE|DEF|DELETE|DEL|LISTCAT|LISTC|REPRO|PRINT|ALTER|VERIFY|IF|SET|EXPORT|IMPORT|BLDINDEX|BIX)(?![A-Z"
+    r"^[ \t\u3000]*(DEFINE|DEF|DELETE|DEL|LISTCAT|LISTC|REPRO|PRINT|ALTER|VERIFY|IF|SET|EXPORT|IMPORT|BLDINDEX|BIX)(?![A-Z"
     + NATIONAL
     + r"0-9-])",
     re.I,
@@ -257,7 +257,7 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
     while i < len(lines):
         raw = lines[i]
         if raw.startswith("//"):
-            m = re.match(r"^//([A-Z" + NATIONAL + r"0-9@#$]{1,8})[ \t]+EXEC(?![A-Z" + NATIONAL + r"0-9])", raw, re.I)
+            m = re.match(r"^//([A-Z" + NATIONAL + r"0-9@#$]{1,8})[ \t\u3000]+EXEC(?![A-Z" + NATIONAL + r"0-9])", raw, re.I)
             if m:
                 step = m.group(1).upper()
             i += 1
@@ -282,7 +282,7 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
             if not cont:
                 break
         text = " ".join(parts)
-        m = re.match(r"^[ \t]*DEF(?:INE)?[ \t]+([A-Z" + NATIONAL + r"]+)", text, re.I)
+        m = re.match(r"^[ \t\u3000]*DEF(?:INE)?[ \t\u3000]+([A-Z" + NATIONAL + r"]+)", text, re.I)
         kind = _DEFINE_KINDS.get(m.group(1).upper()) if m else None
         if kind and m:
             rows.append(_define_row(kind, text[m.end() - len(m.group(1)) :], step, start + 1))
@@ -290,19 +290,19 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
 
 
 _FD = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])[FS]D[ \t\n]{1,200}([A-Z" + NATIONAL + r"0-9][A-Z" + NATIONAL + r"0-9-]{0,62})",
+    r"(?<![A-Z" + NATIONAL + r"0-9-])[FS]D[ \t\n\u3000]{1,200}([A-Z" + NATIONAL + r"0-9][A-Z" + NATIONAL + r"0-9-]{0,62})",
     re.I,
 )
 _FD_END = re.compile(
     r"(?<![A-Z"
     + NATIONAL
-    + r"0-9-])(?:[FS]D[ \t\n]|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE[ \t\n]{1,200}SECTION|PROCEDURE[ \t\n]{1,200}DIVISION)",
+    + r"0-9-])(?:[FS]D[ \t\n\u3000]|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE[ \t\n\u3000]{1,200}SECTION|PROCEDURE[ \t\n\u3000]{1,200}DIVISION)",
     re.I,
 )
 _COPY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
-    + r"0-9-])COPY[ \t\n]{1,200}['\"]?([A-Z"
+    + r"0-9-])COPY[ \t\n\u3000]{1,200}['\"]?([A-Z"
     + NATIONAL
     + r"0-9@#$][A-Z"
     + NATIONAL

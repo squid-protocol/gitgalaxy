@@ -23,5 +23,20 @@ Whenever you file issues or create pull requests, you **MUST** adhere to the fol
 
 2. **Cross-Repo PRs**: This repo is the hub of a multi-repo constellation (`docs/ecosystem.md` is the canonical map — repos, skills, workflows, merge ordering). Any PR participating in a cross-repo workflow MUST include a "Cross-repo" section in its body naming the companion PR/issue in the other repo(s), which side merges first and why, and what must be re-run after the other side lands. Example: squid-protocol/gitgalaxy#2611 ↔ squid-protocol/keyword-rosetta#4.
 
+# GitGalaxy Agent Workflow Guardrails
+
+**1. Primary Source of Truth**
+`CLAUDE.md` is the primary, continuously updated source of truth for the repository's architecture, CI procedures, and testing philosophy. Read `CLAUDE.md` first for deep project context before relying on other summary files.
+
+**2. Git Worktrees**
+This repository heavily utilizes `git worktree` for active feature development (e.g., `/nvme-data/projects/gitgalaxy-worktrees/`). If a branch fails to checkout with a `fatal: already used by worktree` error, or if files seem "missing" from `main`, always check `git worktree list` first.
+
+**3. CI/CD Triage (Pipeline Manager)**
+For CI/CD triage and Dependabot management, do not attempt to guess pipeline failures manually. Invoke the `pipeline-manager` subagent located at `.claude/agents/pipeline-manager.md`. Use this exact subagent when investigating failing GitHub Actions runs.
+
+**4. Zero-Tolerance Lossy Read Policy**
+GitGalaxy enforces a zero-tolerance policy against lossy reads (enforced by `tests/test_source_reads.py`). Never use `errors="ignore"` or `errors="replace"` in `.decode()` calls or file reads. Always use strict decoding wrapped in a `try...except UnicodeDecodeError` block to safely probe bytes.
+
 # Formatting Pipeline
+
 Before pushing code, you MUST always add `ruff format <files>` to your pre-commit pipeline to avoid failing the Ruff Audit CI checks. The strict zero-tolerance baseline will reject any code that `ruff` would reformat.

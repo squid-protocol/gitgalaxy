@@ -40,14 +40,3 @@ GitGalaxy enforces a zero-tolerance policy against lossy reads (enforced by `tes
 # Formatting Pipeline
 
 Before pushing code, you MUST always add `ruff format <files>` to your pre-commit pipeline to avoid failing the Ruff Audit CI checks. The strict zero-tolerance baseline will reject any code that `ruff` would reformat.
-
-# Mainframe Internationalization & Precision Logging
-
-**1. The "ID_START" Universal Unicode Rule**
-When evaluating identifiers and boundaries in mainframe systems (COBOL, HLASM, PL/I), DO NOT hardcode restrictive EBCDIC definitions (e.g., just `ÆØÅÄÖÜÑ§£...`). We made a sweeping architectural upgrade by migrating our core `NATIONAL` character-class injection in `identifiers.py` to use `ID_START` (which natively includes all Unicode `Lo` categories like Kanji, Katakana, Hiragana, etc.). 
-* **The Lesson:** This single injection unlocked native full-estate parsing for Japanese mainframe deployments (Fujitsu/opensourcecobol4j), eliminating truncation on Japanese `PROGRAM-ID`s and data names. Always leverage native `ID_START` rather than piecemeal ASCII/EBCDIC hacks when resolving legacy dialects.
-
-**2. The IBM Underscore (`_`) Paradigm Shift**
-By adopting `ID_START`, GitGalaxy gained implicit, native support for the underscore (`_`) character across all COBOL identifiers. While standard COBOL grammar does not officially support underscores, IBM Enterprise COBOL and HLASM allow it heavily. 
-* **The Lesson:** Prior to this fix, variables like `COMPANY_PREFIX` were silently truncated to `COMPANY`, corrupting dataset bindings. Golden Crucible diffs proved that embracing `ID_START` correctly extracts thousands of previously-corrupted variables. If a dialect rule fails on a legacy repository, always verify if it's missing trailing underscores or lowercase letters that IBM compilers tolerate.
-

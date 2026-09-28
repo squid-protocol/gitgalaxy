@@ -463,9 +463,18 @@ def _scan_facts(args: tuple[str, str]) -> dict[str, Any]:
     return facts(scan(Path(estate), Path(out)))
 
 
-def run(corpus: Path, only: set[str] | None, full: bool, work: Path, jobs: int = 4) -> dict[str, Any]:
+def run(
+    corpus: Path,
+    only: set[str] | None,
+    full: bool,
+    work: Path,
+    jobs: int = 4,
+    cells_out: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """Every estate is scanned on its own and holds every seed language (sibling variants in one
-    scan would make `import a` ambiguous between forty `a.py`)."""
+    scan would make `import a` ambiguous between forty `a.py`). `cells_out`, when given, receives
+    the planned cells (estate, reference, mapping): the tree-sitter comparison
+    (unicode_gauntlet_vs_treesitter.py) reads the same estates and scans under `work`."""
     from concurrent.futures import ProcessPoolExecutor
 
     seeds = rosetta_seeds(corpus)
@@ -476,6 +485,8 @@ def run(corpus: Path, only: set[str] | None, full: bool, work: Path, jobs: int =
         _write(folder, root / "seed" / lang, lambda t: t, "utf-8")
     seed_facts = facts(scan(root / "seed", work / "scans" / "seed"))
     cells = build(seeds, seed_facts, root, full)
+    if cells_out is not None:
+        cells_out.extend(cells)
     estates = sorted({c["estate"] for c in cells} | {c["reference"] for c in cells} - {"seed"})
     with ProcessPoolExecutor(max_workers=jobs) as pool:
         scanned = dict(zip(estates, pool.map(_scan_facts, [(str(root / e), str(work / "scans" / e)) for e in estates])))

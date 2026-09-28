@@ -2119,7 +2119,7 @@
         "churn": 0.0,
         "cognitive_load": 7.29,
         "concurrency": 8.24,
-        "dead_code": 2.93,
+        "dead_code": 6.08,
         "documentation": 100.0,
         "safety_score": 76.83,
         "secrets_risk": 0.0,

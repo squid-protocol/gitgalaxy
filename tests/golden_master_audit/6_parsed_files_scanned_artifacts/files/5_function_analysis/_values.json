@@ -312035,7 +312035,7 @@
       "hlasm/zecs/ZECS002.asm": [
         {
           "Control Flow Branches": 19,
-          "Control Flow Ratio": "13.0%",
+          "Control Flow Ratio": "10.9%",
           "End Line": 401,
           "Function Name": "ZECS002",
           "Input Parameters": 0,
@@ -312050,7 +312050,7 @@
       "hlasm/zecs/ZECSNC.asm": [
         {
           "Control Flow Branches": 11,
-          "Control Flow Ratio": "15.9%",
+          "Control Flow Ratio": "12.2%",
           "End Line": 300,
           "Function Name": "ZECSNC",
           "Input Parameters": 0,

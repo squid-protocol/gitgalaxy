@@ -1,6 +1,17 @@
 {
   "groups": {
     "cobol/CICS-Cobol": {
+      "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "TCANAL",
+          "DD Name": "TCANAL",
+          "DSN": null,
+          "Internal Name": "APXT01_CANAL",
+          "Line": 19,
+          "Step": null
+        }
+      ],
       "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": [
         {
           "Access Modes": [],

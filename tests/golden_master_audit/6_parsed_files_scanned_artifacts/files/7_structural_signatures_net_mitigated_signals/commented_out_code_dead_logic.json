@@ -1743,7 +1743,7 @@
     },
     "hlasm/zecs": {
       "hlasm/zecs/ZECS002.asm": 1,
-      "hlasm/zecs/ZECSNC.asm": 0
+      "hlasm/zecs/ZECSNC.asm": 1
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 0,

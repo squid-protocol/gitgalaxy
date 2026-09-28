@@ -1742,8 +1742,8 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": 1
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": 16,
-      "hlasm/zecs/ZECSNC.asm": 16
+      "hlasm/zecs/ZECS002.asm": 18,
+      "hlasm/zecs/ZECSNC.asm": 20
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 0,

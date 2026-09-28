@@ -60,16 +60,22 @@ DATABASE_DRIVERS = {
 
 
 def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
-    """#3826: the zoned-decimal sign overpunch characters of an EBCDIC code page -- bytes 0xC0-0xC9
-    (positive 0-9) and 0xD0-0xD9 (negative 0-9). cp037 gives the US `{ABCDEFGHI` / `}JKLMNOPQR`;
-    a national code page gives its own zero signs (cp273: `ä...` / `ü...`, cp278: `ä...` / `å...`)."""
+    """#3826: the zoned-decimal sign overpunch characters of an EBCDIC or ASCII code page.
+    Under EBCDIC, these are bytes 0xC0-0xC9 (positive 0-9) and 0xD0-0xD9 (negative 0-9).
+    cp037 gives the US `{ABCDEFGHI` / `}JKLMNOPQR`; a national code page gives its own
+    zero signs (cp273: `ä...` / `ü...`). Under ASCII (e.g. shift_jis, cp1252), these
+    are the standard PC-COBOL overpunches `{ABCDEFGHI` and `}JKLMNOPQR`."""
     cp = code_page.lower()
     register()  # #3816: cp277 / cp278 / cp280 / cp284 / cp285 / cp297 / cp1047, beside Python's own
     try:
         codecs.lookup(cp)
     except LookupError as e:
-        raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC code page") from e
-    return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
+        raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page") from e
+    if bytes([0xF0]).decode(cp, errors="ignore") == "0":
+        return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
+    if bytes([0x30]).decode(cp, errors="ignore") == "0":
+        return "{ABCDEFGHI", "}JKLMNOPQR"
+    raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page")
 
 
 _PACKAGE = re.compile(r"[a-z_][a-z0-9_]*(?:\.[a-z_][a-z0-9_]*)*")

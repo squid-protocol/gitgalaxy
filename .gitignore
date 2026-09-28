@@ -136,6 +136,8 @@ museum_2/
 !tests/cobol_mainframe/refraction_differential_baseline.json
 # ...and the mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py).
 !tests/cobol_mainframe/ground_truth_ledger.json
+# ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
+!tests/cobol_mainframe/trials.json
 *_llm.md
 venvs/
 

@@ -71,10 +71,16 @@ def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
         codecs.lookup(cp)
     except LookupError as e:
         raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page") from e
-    if bytes([0xF0]).decode(cp, errors="ignore") == "0":
-        return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
-    if bytes([0x30]).decode(cp, errors="ignore") == "0":
-        return "{ABCDEFGHI", "}JKLMNOPQR"
+    try:
+        if bytes([0xF0]).decode(cp) == "0":
+            return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
+    except UnicodeDecodeError:
+        pass
+    try:
+        if bytes([0x30]).decode(cp) == "0":
+            return "{ABCDEFGHI", "}JKLMNOPQR"
+    except UnicodeDecodeError:
+        pass
     raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page")
 
 

@@ -23,9 +23,9 @@ from typing import Optional
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     _WORD_BREAKS,
     capitalize_name,
-    lower_name,
     java_class_base,
     java_url_segment,
+    lower_name,
     output_key,
     program_key_from_ir,
 )

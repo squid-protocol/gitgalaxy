@@ -156,12 +156,13 @@ def test_four_decimals_survive_a_round_trip_through_the_generated_column(tmp_pat
                    config={"database": {"engine": "h2"}})
     table, ddl = entity_ddl(forge.entity_source(forge.stores[0]))
     assert "CUST_RATE numeric(9, 4)" in ddl
+    ddl_java = ddl.replace('"', '\\"')  # escaped for a Java string literal (no backslash in an f-string on 3.9)
     got = _run(tmp_path, {}, "Trip", f"""
 import java.sql.*;
 public class Trip {{
     public static void main(String[] a) throws Exception {{
         try (Connection c = DriverManager.getConnection("jdbc:h2:mem:t", "sa", "")) {{
-            c.createStatement().execute("{ddl.replace('"', '\\"')}");
+            c.createStatement().execute("{ddl_java}");
             c.createStatement().execute("INSERT INTO {table} (CUST_KEY, CUST_KEY_SORT, CUST_RATE) "
                     + "VALUES ('K', 'D2', 12345.6789)");
             ResultSet r = c.createStatement().executeQuery("SELECT CUST_RATE FROM {table}");

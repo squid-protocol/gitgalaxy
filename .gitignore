@@ -138,6 +138,10 @@ museum_2/
 !tests/cobol_mainframe/ground_truth_ledger.json
 # ...and the fresh-estate trial ledger (#3805, tests/tools/trial.py).
 !tests/cobol_mainframe/trials.json
+# ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the
+# crucible's format, so its case.json and expected logs are source like the answer keys above.
+!tests/cics_crucible/baseline.json
+!tests/cics_crucible/fixture/**/*.json
 *_llm.md
 venvs/
 

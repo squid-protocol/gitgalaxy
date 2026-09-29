@@ -1,0 +1,17 @@
+{
+  "format": "cics-crucible/case/1",
+  "id": "fx-ts-queue",
+  "trap": "condition-handling",
+  "title": "Runner fixture: terminal RECEIVE, then READQ / WRITEQ TS with LENGERR and QIDERR under RESP",
+  "clock": "2026-03-02T10:00:00",
+  "terminal": "T001",
+  "sources": {"cobol": ["src/FXTSQ.cbl"], "bms": [], "csd": ["csd/fx-ts-queue.csd"], "copy": [], "data": []},
+  "layouts": {},
+  "maps": {},
+  "scenarios": [
+    {"id": "seeded", "path": "happy",
+     "summary": "FXQ holds HELLO: read it, append a copy (item 2), read item 2 into 3 bytes (LENGERR), read FXNONE (QIDERR)",
+     "initial": {"ts_queues": {"FXQ": ["HELLO"]}},
+     "steps": [{"at": 0, "aid": "ENTER", "text": "FX02 T"}]}
+  ]
+}

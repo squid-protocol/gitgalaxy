@@ -13,8 +13,8 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
 | cobol-stub | 2 | 1 | 34 | 37 |
-| java | 0 | 28 | 9 | 37 |
-| **all** | **22** | **29** | **43** | **94** |
+| java | 0 | 37 | 0 | 37 |
+| **all** | **22** | **38** | **34** | **94** |
 
 ## By trap and case
 
@@ -41,26 +41,24 @@ Each missing feature belongs to a piece of harness work (below: the features the
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 6 | 6 |
-| 2 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 4 | 10 |
-| 3 | TS queues: READQ / WRITEQ TS, seeding, final state | 20 | 0 | 18 |
-| 4 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 1 | 22 |
-| 5 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 9 | 0 | 31 |
-| 6 | HANDLE AID | 3 | 0 | 34 |
-| 7 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 34 |
+| 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 9 | 9 |
+| 2 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 9 | 18 |
+| 3 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 4 | 22 |
+| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 9 | 4 | 31 |
+| 5 | HANDLE AID | 3 | 0 | 34 |
+| 6 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 34 |
 
-### java (9 unsupported)
+### java (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | TS queues: READQ / WRITEQ TS, seeding, final state | 17 | 0 | 0 |
-| 2 | SEND TEXT length and options | 28 | 0 | 5 |
-| 3 | LINK: levels, by-reference COMMAREA, PGMIDERR | 7 | 0 | 6 |
-| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 9 |
-| 5 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 9 |
-| 6 | RECEIVE MAP recorded as an event | 9 | 0 | 9 |
-| 7 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 9 |
-| 8 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 9 |
+| 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 0 |
+| 2 | LINK: levels, by-reference COMMAREA, PGMIDERR | 7 | 0 | 0 |
+| 3 | RECEIVE MAP recorded as an event | 9 | 0 | 0 |
+| 4 | SEND TEXT length and options | 28 | 0 | 0 |
+| 5 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
+| 6 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 0 |
+| 7 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -70,20 +68,14 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| translator: WRITEQ TS | 15 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | stub: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | stub: SEND-MAP fields | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| stub: TS queue final state | 11 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| stub: WRITEQ-TS event | 11 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| stub: READQ-TS event | 9 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | stub: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | translator: HANDLE CONDITION | 9 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | translator: LINK | 9 | LINK: levels, by-reference COMMAREA, PGMIDERR |
-| translator: READQ TS | 9 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | translator: START | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | scheduler: START-triggered tasks (stub) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | stub: RETRIEVE event | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| stub: TS queue seeding | 8 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | translator: RETRIEVE | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | stub: LINK event | 7 | LINK: levels, by-reference COMMAREA, PGMIDERR |
 | stub: RETURN caller_commarea | 5 | LINK: levels, by-reference COMMAREA, PGMIDERR |
@@ -108,13 +100,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: SEND-MAP data origin (program / map / none) | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP mapset | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP options | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: TS queue final state | 11 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| CicsTask: WRITEQ-TS event | 11 | TS queues: READQ / WRITEQ TS, seeding, final state |
-| CicsTask: READQ-TS event | 9 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | CicsTask: RECEIVE-MAP event | 9 | RECEIVE MAP recorded as an event |
 | CicsTask: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: RETRIEVE event | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| CicsTask: TS queue seeding | 8 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | scheduler: START-triggered tasks (CicsTask) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: LINK event | 7 | LINK: levels, by-reference COMMAREA, PGMIDERR |
 | CicsTask: RETURN caller_commarea | 5 | LINK: levels, by-reference COMMAREA, PGMIDERR |
@@ -134,17 +122,17 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | side | reason | cells |
 |---|---|---|
 | cobol-stub | resp differs | 1 |
-| java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 28 |
+| java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 37 |
 
 ## Every cell that does not pass
 
 | cell | status | first divergence / reason |
 |---|---|---|
-| `ca-link-lengths/long-500/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/long-500/cobol-stub` | unsupported | translator: LINK |
 | `ca-link-lengths/long-500/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-link-lengths/no-commarea/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/no-commarea/cobol-stub` | unsupported | translator: LINK |
 | `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-link-lengths/short-100/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/short-100/cobol-stub` | unsupported | translator: LINK |
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/undefined-program/cobol-stub` | unsupported | translator: LINK |
 | `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
@@ -152,15 +140,15 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-xctl-versions/length-range/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/long-overread/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/short-upgrade/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/interval-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/interval-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/interval-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/no-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/no-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/no-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/protect-abend/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/protect-abend/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/protect-abend/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/retrieve-lengerr/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/retrieve-lengerr/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/retrieve-lengerr/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/time-six-hours/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/time-six-hours/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/time-six-hours/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-terminal-coalesce/cancel-in-time/cobol-stub` | unsupported | translator: START; translator: CANCEL |
 | `gt-terminal-coalesce/cancel-in-time/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
@@ -170,24 +158,24 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-terminal-coalesce/staggered/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-terminal-coalesce/three-in-one/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
 | `gt-terminal-coalesce/three-in-one/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-abend-link/push-pop/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
-| `hc-abend-link/push-pop/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-abend-link/pushed-abend/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
-| `hc-abend-link/pushed-abend/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-abend-link/sub-own-exit/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
-| `hc-abend-link/sub-own-exit/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-abend-link/sub-resp/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
-| `hc-abend-link/sub-resp/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-abend-link/sub-unhandled/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
-| `hc-abend-link/sub-unhandled/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-perform-range/five-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: WRITEQ TS; translator: READQ TS; translator: IGNORE CONDITION; stub: TS queue seeding |
-| `hc-perform-range/five-items/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-perform-range/length-trap/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: WRITEQ TS; translator: READQ TS; translator: IGNORE CONDITION; stub: TS queue seeding |
-| `hc-perform-range/length-trap/java` | unsupported | CicsTask: TS queue seeding |
-| `hc-perform-range/no-queue/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: WRITEQ TS; translator: READQ TS; translator: IGNORE CONDITION |
-| `hc-perform-range/no-queue/java` | unsupported | CicsTask: READQ-TS event |
-| `hc-perform-range/three-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: WRITEQ TS; translator: READQ TS; translator: IGNORE CONDITION; stub: TS queue seeding |
-| `hc-perform-range/three-items/java` | unsupported | CicsTask: TS queue seeding |
+| `hc-abend-link/push-pop/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
+| `hc-abend-link/push-pop/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-abend-link/pushed-abend/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
+| `hc-abend-link/pushed-abend/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-abend-link/sub-own-exit/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
+| `hc-abend-link/sub-own-exit/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-abend-link/sub-resp/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
+| `hc-abend-link/sub-resp/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-abend-link/sub-unhandled/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
+| `hc-abend-link/sub-unhandled/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/five-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
+| `hc-perform-range/five-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/length-trap/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
+| `hc-perform-range/length-trap/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/no-queue/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
+| `hc-perform-range/no-queue/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/three-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
+| `hc-perform-range/three-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hx-attr-bytes/clear-maponly/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-attr-bytes/clear-maponly/java` | fail | task 1 (HX01) event 1: SEND-MAP expected, the side recorded no further event |
 | `hx-attr-bytes/echo-dataonly/cobol-stub` | unsupported | stub: SEND-MAP cursor |
@@ -206,9 +194,9 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option2-next-transid/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/back-and-fix/cobol-stub` | unsupported | translator: WRITEQ TS |
+| `pc-wizard/back-and-fix/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/back-and-fix/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/happy-post/cobol-stub` | unsupported | translator: WRITEQ TS |
+| `pc-wizard/happy-post/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/happy-post/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/mapfail-clear-cancel/cobol-stub` | unsupported | translator: WRITEQ TS |
+| `pc-wizard/mapfail-clear-cancel/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/mapfail-clear-cancel/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |

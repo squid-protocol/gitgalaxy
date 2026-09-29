@@ -85,7 +85,8 @@ def test_a_case_is_read_with_its_expected_logs_and_csd():
     assert (case.id, case.trap, case.programs) == ("fx-text-chain", "pseudo-conversational", ["FXCHAIN", "FXLAST"])
     assert case.csd["transactions"] == {"FX01": "FXCHAIN"}
     assert list(case.expected) == ["three-visits"] and len(case.expected["three-visits"]["tasks"]) == 3
-    assert cc.discover(FIXTURE_ROOT) == [FIXTURE] and cc.discover(FIXTURE_ROOT, {"nope"}) == []
+    assert cc.discover(FIXTURE_ROOT) == [FIXTURE, FIXTURE_ROOT / "cases" / "condition-handling" / "fx-ts-queue"]
+    assert cc.discover(FIXTURE_ROOT, {"fx-text-chain"}) == [FIXTURE] and cc.discover(FIXTURE_ROOT, {"nope"}) == []
 
 
 def test_a_format_this_runner_does_not_read_is_refused(tmp_path):
@@ -301,9 +302,16 @@ def test_blockers_name_every_missing_feature_once():
         {"seq": 2, "trigger": {"kind": "start", "task": 1, "event": 1}, "events": [
             {"event": "READQ-TS", "program": "P", "queue": "Q", "item": 1, "resp": "NORMAL", "data": None}]}],
         "final": {"ts_queues": {"Q": ["A"]}}}  # fmt: skip
-    got = cc.blockers(exp, runner.JAVA_CAPS, {"initial": {"ts_queues": {"Q": ["A"]}}})
-    assert got == ["CicsTask: TS queue seeding", "CicsTask: READQ-TS event", "CicsTask: START event",
-                   "scheduler: START-triggered tasks (CicsTask)", "CicsTask: TS queue final state"]  # fmt: skip
+    caps = cc.Capabilities("CicsTask", runner.JAVA_CAPS.task_keys, {"START": frozenset()})
+    got = cc.blockers(exp, caps, {"initial": {"ts_queues": {"Q": ["A"]}}})
+    assert got == ["CicsTask: TS queue seeding", "CicsTask: READQ-TS event", "CicsTask: START transid",
+                   "CicsTask: START termid", "CicsTask: START from", "CicsTask: START protect", "CicsTask: START resp",
+                   "CicsTask: START expires", "scheduler: START-triggered tasks (CicsTask)",
+                   "CicsTask: TS queue final state"]  # fmt: skip
+    assert cc.blockers(exp, runner.JAVA_CAPS) == [
+        "CicsTask: START event",
+        "scheduler: START-triggered tasks (CicsTask)",
+    ]
 
 
 def test_final_ts_queues_are_compared_exactly():
@@ -353,6 +361,31 @@ def test_a_terminal_receive_is_logged_with_its_length_and_the_data_it_moved(tmp_
         w.event("e", dict(exp, data={"length": 4, "text": "CA03"}), evs[0])
 
 
+def test_ts_events_carry_length_and_data_only_where_the_command_sets_them(tmp_path):
+    """#4002: READQ TS sets LENGTH (and moves data) on NORMAL and LENGERR only; the queue name travels as hex."""
+    (tmp_path / "events.txt").write_text(
+        "001 READQ-TS queue=4851 item=2 resp=22 len=5 copied=3\n002 READQ-TS queue=4851 item=NEXT resp=26 len=-1 "
+        "copied=0\n003 WRITEQ-TS queue=4851 item=3 resp=0 len=2\n004 WRITEQ-TS queue=4851 item=0 resp=22 len=0\n",
+        encoding="latin-1")  # fmt: skip
+    (tmp_path / "001.bin").write_bytes(b"BBB")
+    (tmp_path / "003.bin").write_bytes(b"ZZ")
+    evs = runner._cobol_events(tmp_path, "P")
+    assert (evs[0]["queue"], evs[0]["item"], evs[0]["resp"], evs[0]["length"], evs[0]["data"].data) == (
+        "HQ", 2, "LENGERR", 5, b"BBB")  # fmt: skip
+    assert (evs[1]["item"], evs[1]["resp"], evs[1]["length"], evs[1]["data"]) == ("NEXT", "ITEMERR", None, None)
+    assert (evs[2]["item"], evs[2]["data"].data, evs[3]["resp"], evs[3]["item"]) == (3, b"ZZ", "LENGERR", None)
+    exp = {"event": "READQ-TS", "program": "P", "queue": "HQ", "item": "NEXT", "resp": "ITEMERR", "data": None}
+    cc._Walk(runner.COBOL_CAPS, _ctx()).event("e", exp, evs[1])
+
+
+def test_ts_queues_are_seeded_in_the_stubs_page_and_read_back_as_ebcdic(tmp_path):
+    runner.seed_ts(tmp_path / "ts", {"HCQ1": ["AB", {"hex": "C1C2"}], "Q 2": []})
+    assert (tmp_path / "ts" / "48435131" / "000001.bin").read_bytes() == b"AB"
+    assert (tmp_path / "ts" / "48435131" / "000002.bin").read_bytes() == b"AB"  # X'C1C2' is EBCDIC AB
+    assert runner.read_ts(tmp_path / "ts") == {"HCQ1": [b"\xc1\xc2", b"\xc1\xc2"], "Q 2": []}
+    assert runner.read_ts(tmp_path / "nothing") == {}
+
+
 def test_the_java_output_becomes_an_actual_log(tmp_path):
     src = tmp_path / "src"
     dto = src / "com/gitgalaxy/modernized/dto/contract"
@@ -360,21 +393,25 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
     (dto / "St.java").write_text("public class St {\n    // WS-COUNT: PIC 9(3), offset 0\n    private Integer wsCount;\n"
                                  "    // WS-NAME: PIC X(8), offset 3\n    private String wsName;\n}\n")  # fmt: skip
     ca = {"class": "com.gitgalaxy.modernized.dto.contract.St", "value": {"wsCount": 2, "wsName": "FIRST"}}
-    raw = {"_scenario": "three-visits", "stopped": None, "tasks": [
+    raw = {"_scenario": "three-visits", "stopped": None, "ts_queues": {"Q": ["c1c2"]}, "tasks": [
         {"step": 1, "transid": "FX01", "program": "FXCHAIN", "commarea": ca, "end": "normal", "events": [
             {"event": "SEND-MAP", "program": "FXCHAIN", "map": "M1", "screen": {"NAME": "ADA", "MSG": None}},
             {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002"},
             {"event": "RECEIVE", "program": "FXCHAIN", "resp": "NORMAL", "length": 4, "data": "FX01"},
+            {"event": "READQ-TS", "program": "FXCHAIN", "queue": "Q", "item": 1, "resp": "NORMAL", "length": 1,
+             "data": "wQ=="},
             {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "commarea": ca},
             {"event": "DRIVER-ERROR", "program": "FXLAST", "message": "no generated service for program FXLAST"}]}]}  # fmt: skip
     act = runner.java_actual(_case(), raw, src)
+    assert act["final"] == {"ts_queues": {"Q": [b"\xc1\xc2"]}}  # #4002: the queues the scenario left, EBCDIC
     t = act["tasks"][0]
     assert (t["at"], t["eibaid"], t["trigger"], t["termid"]) == ("2026-03-02T10:00:10", "ENTER",
                                                                  {"kind": "terminal", "step": 1}, "T001")  # fmt: skip
     assert isinstance(t["eibcalen"], cc.Unmodelled) and t["commarea"].fields == {"WS-COUNT": 2, "WS-NAME": "FIRST"}
     assert t["events"][0]["fields"] == {"NAME": {"data": "ADA"}, "MSG": {"data": None}}
     assert (t["events"][2]["resp"], t["events"][2]["length"], t["events"][2]["data"].data) == ("NORMAL", 4, b"FX01")
-    assert t["events"][3]["target"] == "FXLAST" and t["events"][4]["message"].startswith("no generated service")
+    assert (t["events"][3]["queue"], t["events"][3]["length"], t["events"][3]["data"].data) == ("Q", 1, b"\xc1")
+    assert t["events"][4]["target"] == "FXLAST" and t["events"][5]["message"].startswith("no generated service")
 
 
 # ---- the translator names what it refuses -----------------------------------------------------
@@ -386,7 +423,7 @@ def test_the_translator_names_each_refused_command_as_a_feature():
         "           IF EIBRESP = DFHRESP(NOSUCH) CONTINUE END-IF\n           STRING 'VISIT '")  # fmt: skip
     with pytest.raises(ec.Unsupported) as e:
         ec.translate(src)
-    assert e.value.features == ["LINK", "READQ TS", "DFHRESP(NOSUCH)"]  # #4005: a terminal RECEIVE translates
+    assert e.value.features == ["LINK", "DFHRESP(NOSUCH)"]  # #4005 / #4002: RECEIVE and READQ TS translate
     assert ec.translate((FIXTURE / "src/FXCHAIN.cbl").read_text())[1] is True
 
 
@@ -484,7 +521,10 @@ def test_the_fixture_runs_through_every_side(tmp_path):
     res = runner.measure(FIXTURE_ROOT, None, set(cc.SIDES), tmp_path, offline=os.environ.get("MAVEN_OFFLINE") == "1")
     got = {cid: c["status"] for cid, c in res["cells"].items()}
     assert got == {"fx-text-chain/*/engine-facts": "pass", "fx-text-chain/*/forge-compile": "pass",
-                   "fx-text-chain/three-visits/cobol-stub": "pass", "fx-text-chain/three-visits/java": "fail"}  # fmt: skip
+                   "fx-text-chain/three-visits/cobol-stub": "pass", "fx-text-chain/three-visits/java": "fail",
+                   # #4005 / #4002: terminal RECEIVE, TS seeding, READQ LENGERR / QIDERR, the final queue
+                   "fx-ts-queue/*/engine-facts": "pass", "fx-ts-queue/*/forge-compile": "pass",
+                   "fx-ts-queue/seeded/cobol-stub": "pass", "fx-ts-queue/seeded/java": "fail"}  # fmt: skip
     java = res["cells"]["fx-text-chain/three-visits/java"]
     assert java["reason"] == "task 1 (FX01) event 1: SEND-TEXT expected, the side recorded no further event"
     assert java["kind"].startswith("runTask records no events")

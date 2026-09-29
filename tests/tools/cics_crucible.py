@@ -42,6 +42,7 @@ gnucobol.Dockerfile); for forge-compile / java, a JDK 17 and Maven (`--offline` 
 from __future__ import annotations
 
 import argparse
+import base64
 import contextlib
 import datetime
 import json
@@ -89,7 +90,10 @@ COBOL_CAPS = cc.Capabilities(
         "XCTL": frozenset({"target", "length", "commarea", "resp"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome"}),
         "READ": frozenset({"file", "ridfld", "resp"}),
+        "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
+        "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
     },
+    ts_queues=True,
 )
 JAVA_CAPS = cc.Capabilities(
     layer="CicsTask",
@@ -101,7 +105,10 @@ JAVA_CAPS = cc.Capabilities(
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "commarea"}),
         "ABEND": frozenset({"abcode"}),
+        "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
+        "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
     },
+    ts_queues=True,
 )
 
 
@@ -392,6 +399,7 @@ import @PKG@.cics.CicsTask;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -425,6 +433,12 @@ class EquivalenceRunTest {
             String pending = null;
             Object pendingCa = null;
             JsonNode steps = sc.get("steps");
+            CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task of the scenario
+            sc.path("ts_queues").fields().forEachRemaining(q -> {
+                List<byte[]> items = new ArrayList<>();
+                q.getValue().forEach(item -> items.add(HexFormat.of().parseHex(item.asText())));
+                ts.seed(q.getKey(), items);
+            });
             for (int n = 0; n < steps.size(); n++) {
                 JsonNode step = steps.get(n);
                 String transid = pending;
@@ -467,7 +481,7 @@ class EquivalenceRunTest {
                         end = "abend";
                         break;
                     }
-                    CicsTask t = new CicsTask(transid, aid, ca, received);
+                    CicsTask t = new CicsTask(transid, aid, ca, received).withTempStorage(ts);
                     if (read) {
                         t.terminalInputRead();  // an earlier program of the task read it: a RECEIVE would wait
                     } else if (step.has("text")) {
@@ -527,6 +541,9 @@ class EquivalenceRunTest {
             Map<String, Object> log = new LinkedHashMap<>();
             log.put("tasks", tasks);
             log.put("stopped", stopped);
+            Map<String, List<String>> queues = new LinkedHashMap<>();
+            ts.queues().forEach((q, items) -> queues.put(q, items.stream().map(b -> HexFormat.of().formatHex(b)).toList()));
+            log.put("ts_queues", queues);
             json.writeValue(out.resolve(sc.get("id").asText() + ".json").toFile(), log);
         }
     }
@@ -618,7 +635,10 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         with contextlib.suppress(RuntimeError):
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
-    scenarios = [{"id": sc["id"], "steps": sc["steps"]} for sc in case.scenarios]
+    scenarios = [{"id": sc["id"], "steps": sc["steps"],  # #4002: seeds as EBCDIC hex (SPEC 2: the region's page)
+                  "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
+                                for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
+                 for sc in case.scenarios]  # fmt: skip
     return {"transactions": case.csd["transactions"], "services": services, "screens": screens, "scenarios": scenarios}
 
 
@@ -673,6 +693,12 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
             elif kind == "RECEIVE":  # #4005: the data as text, the area's bytes in the stub's page
                 ev.update(resp=e.get("resp"), length=e.get("length"),
                           data=cc.RawArea(str(e.get("data") or "").encode("latin-1"), "latin-1"))  # fmt: skip
+            elif kind in ("READQ-TS", "WRITEQ-TS"):  # #4002: byte[] data arrive as base64, EBCDIC bytes
+                b64 = e.get("data")
+                data = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+                ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
+                if kind == "READQ-TS":
+                    ev["length"] = e.get("length")
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"), commarea=_java_area(e.get("commarea"), src, shapes))
             elif kind == "XCTL":
@@ -683,7 +709,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
                 ev["message"] = e.get("message")
             task["events"].append(ev)
         tasks.append(task)
-    return {"tasks": tasks, "stopped": raw.get("stopped")}
+    final = {q: [bytes.fromhex(i) for i in items] for q, items in (raw.get("ts_queues") or {}).items()}
+    return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final}}
 
 
 def case_step(case: cc.Case, scenario: str, n: int) -> dict[str, Any]:
@@ -769,6 +796,16 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
         elif verb == "RECEIVE":  # #4005: `len` is LENGTH after the command, the blob what went INTO
             ev.update(resp=names.get(int(arg("resp") or 0), arg("resp")), length=int(arg("len") or 0),
                       data=cc.RawArea(data, "latin-1"))  # fmt: skip
+        elif verb == "READQ-TS":  # #4002: length and data only where the command sets them (NORMAL, LENGERR)
+            n = int(arg("len") or -1)
+            item = arg("item")
+            ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), item=item if item == "NEXT" else int(item),
+                      resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 else None,
+                      data=cc.RawArea(data, "latin-1") if n >= 0 else None)  # fmt: skip
+        elif verb == "WRITEQ-TS":
+            resp = names.get(int(arg("resp") or 0), arg("resp"))
+            ev.update(queue=bytes.fromhex(arg("queue")).decode("latin-1"), data=cc.RawArea(data, "latin-1"), resp=resp,
+                      item=int(arg("item")) if resp == "NORMAL" else None)  # fmt: skip
         elif verb == "RECEIVE-WAIT":
             ev = {"event": "DRIVER-ERROR", "program": program,
                   "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip
@@ -797,6 +834,30 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
             continue  # SPEC 6.2: HANDLE is not an event
         events.append(ev)
     return events
+
+
+def seed_ts(root: Path, queues: dict[str, list[Any]]) -> None:
+    """#4002: a scenario's `initial` TS queues in the stub's store (ggcics.c): a directory per queue named
+    by the name's hex, its items as 000001.bin, ... in the stub's page (latin-1; SPEC 6.1 text or hex is
+    EBCDIC)."""
+    root.mkdir(parents=True, exist_ok=True)
+    for name, items in queues.items():
+        d = root / name.encode("latin-1").hex().upper()
+        d.mkdir(exist_ok=True)
+        for n, item in enumerate(items, 1):
+            (d / f"{n:06d}.bin").write_bytes(cc.expected_bytes(item).decode(cc.EBCDIC).encode("latin-1"))
+
+
+def read_ts(root: Path) -> dict[str, list[bytes]]:
+    """#4002: every TS queue in the stub's store, its items as EBCDIC bytes (the `final` state)."""
+    out: dict[str, list[bytes]] = {}
+    for d in sorted(root.iterdir()) if root.is_dir() else []:
+        items, n = [], 1
+        while (d / f"{n:06d}.bin").is_file():
+            items.append(cc.to_ebcdic(cc.RawArea((d / f"{n:06d}.bin").read_bytes(), "latin-1")))
+            n += 1
+        out[bytes.fromhex(d.name).decode("latin-1")] = items
+    return out
 
 
 class Container:
@@ -855,6 +916,8 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
             stopped = None
             pending: Optional[str] = None
             pending_ca: Optional[bytes] = None
+            ts = f"runs/{sid}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
+            seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
             for n, step in enumerate(sc["steps"]):
                 transid, commarea = pending, pending_ca
                 pending, pending_ca = None, None
@@ -905,6 +968,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                     (d / "eib.in").write_text(f"{transid:<4} {'DFH' + step['aid']:<8} {eib_date} {eib_time}\n",
                                               encoding="ascii")  # fmt: skip
                     box.sh(f"cd /work && GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
+                           f"GGCICS_TS=/work/{ts} "
                            f"COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/{current} "
                            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
                     events = _cobol_events(d / "out", current)
@@ -921,7 +985,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                     elif last and last["event"] == "ABEND":
                         task["end"] = "abend"
                 tasks.append(task)
-            result[sid] = {"tasks": tasks, "stopped": stopped}
+            result[sid] = {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}
         return result
     finally:
         box.close()
@@ -949,10 +1013,7 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool) -> d
             project = None
     if "java" in sides:
         needs = {sc["id"]: cc.blockers(case.expected[sc["id"]], JAVA_CAPS, sc) for sc in case.scenarios}
-        runnable = [sc["id"] for sc in case.scenarios if not (sc.get("initial") or {}).get("ts_queues")]
-        for sc in case.scenarios:
-            if sc["id"] not in runnable:
-                put(sc["id"], "java", cc.not_run([f"{JAVA_CAPS.layer}: TS queue seeding"], needs[sc["id"]]))
+        runnable = [sc["id"] for sc in case.scenarios]
         if runnable and project is None:
             for sid in runnable:
                 put(sid, "java", cc.Verdict("fail", "the generated project does not compile", needs[sid],
@@ -980,8 +1041,6 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool) -> d
             refused = [f"translator: {f}" for p in scenario_programs(exp) if isinstance(translated.get(p), Exception)
                        for f in translated[p].features]  # fmt: skip
             refused = list(dict.fromkeys(refused))
-            if (sc.get("initial") or {}).get("ts_queues"):
-                refused.append(f"{COBOL_CAPS.layer}: TS queue seeding")
             if refused:
                 put(sc["id"], "cobol-stub", cc.not_run(refused, needs))
             else:

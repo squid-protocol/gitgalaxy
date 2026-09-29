@@ -10,6 +10,9 @@
  *                         step's text, typed on a cleared screen); absent means the
  *                         step transmitted no data
  *   terminal.read         present when an earlier program of the task already read it
+ * Temporary storage (#4002) lives in $GGCICS_TS (else $GGCICS_DIR/ts), shared by every
+ * task of a scenario: one directory per queue, named by the queue name's hex, holding
+ * its items as 000001.bin, 000002.bin, ... and `next`, the READQ NEXT position.
  *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN --
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
@@ -23,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 typedef struct {
     int resp;
@@ -30,10 +34,13 @@ typedef struct {
     char name1[8];
     char name2[8];
     char flags[40];
-    int len; /* in-out: RECEIVE's LENGTH (#4005) */
+    int len; /* in-out: RECEIVE's / READQ's LENGTH (#4005) */
+    char qname[16]; /* a TS queue's name (#4002) */
+    int item;       /* in-out: ITEM (0 = NEXT) */
+    int num;        /* out: NUMITEMS */
 } gg_cics;
 
-enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36 };
+enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44 };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -167,6 +174,124 @@ int GGCRECT(gg_cics *c, char *into) {
     c->len = n;
     snprintf(ev, sizeof ev, "RECEIVE resp=%d len=%d copied=%d", c->resp, n, copied);
     event(ev, into, copied);
+    return 0;
+}
+
+/* ---- temporary storage (#4002) ------------------------------------------------------ */
+/* The queue's directory; `hex` gets the name (trailing blanks and nulls dropped) in hex. */
+static void ts_dir(const gg_cics *c, char *dir, size_t size, char *hex) {
+    const char *root = getenv("GGCICS_TS");
+    char name[17];
+    trim(c->qname, 16, name);
+    hex[0] = '\0';
+    for (int i = 0; name[i]; i++) sprintf(hex + 2 * i, "%02X", (unsigned char)name[i]);
+    if (root) snprintf(dir, size, "%s/%s", root, hex);
+    else snprintf(dir, size, "%s/ts/%s", dir_in(), hex);
+}
+
+/* How many items the queue holds; -1 when it does not exist (QIDERR). */
+static int ts_count(const char *dir) {
+    struct stat st;
+    char path[4200];
+    if (stat(dir, &st) != 0) return -1;
+    int n = 0;
+    for (;;) {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, n + 1);
+        if (stat(path, &st) != 0) return n;
+        n++;
+    }
+}
+
+static int ts_next(const char *dir) {
+    char path[4200];
+    int n = 0;
+    snprintf(path, sizeof path, "%s/next", dir);
+    FILE *f = fopen(path, "r");
+    if (f) { if (fscanf(f, "%d", &n) != 1) n = 0; fclose(f); }
+    return n;
+}
+
+static void ts_set_next(const char *dir, int n) {
+    char path[4200];
+    snprintf(path, sizeof path, "%s/next", dir);
+    FILE *f = fopen(path, "w");
+    if (f) { fprintf(f, "%d\n", n); fclose(f); }
+}
+
+/* READQ TS QUEUE ITEM(c->item) | NEXT (c->item 0) INTO LENGTH(c->len) (IBM, EXEC CICS READQ TS):
+ * QIDERR when the queue does not exist; ITEMERR for an item outside the queue, or NEXT past its
+ * end; else the item goes INTO, truncated to LENGTH with LENGERR when longer, and LENGTH is set
+ * to the item's length. NUMITEMS (c->num) is the queue's item count. NEXT reads the item after
+ * the last one read by any task; this stub counts a read by ITEM as a read too. */
+int GGCREADQ(gg_cics *c, char *into) {
+    char dir[4096], hex[40], path[4200], ev[160], buf[32768], item[16];
+    int max = c->len, n = 0, copied = 0, next = c->item == 0;
+    ts_dir(c, dir, sizeof dir, hex);
+    int count = ts_count(dir);
+    int want = next ? (count < 0 ? 0 : ts_next(dir)) + 1 : c->item;
+    c->resp2 = 0;
+    c->num = 0;
+    if (count < 0) {
+        c->resp = QIDERR;
+    } else if (want < 1 || want > count) {
+        c->resp = ITEMERR;
+    } else {
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, want);
+        FILE *f = fopen(path, "rb");
+        if (f) { n = (int)fread(buf, 1, sizeof buf, f); fclose(f); }
+        copied = n < max ? n : (max > 0 ? max : 0);
+        memcpy(into, buf, (size_t)copied);
+        c->resp = n > max ? LENGERR : NORMAL;
+        c->len = n;
+        c->num = count;
+        ts_set_next(dir, want);
+    }
+    if (next) snprintf(item, sizeof item, "NEXT");
+    else snprintf(item, sizeof item, "%d", c->item);
+    snprintf(ev, sizeof ev, "READQ-TS queue=%s item=%s resp=%d len=%d copied=%d", hex, item, c->resp,
+             (c->resp == NORMAL || c->resp == LENGERR) ? n : -1, copied);
+    event(ev, into, copied);
+    return 0;
+}
+
+/* WRITEQ TS QUEUE FROM LENGTH(c->len) [ITEM REWRITE] (IBM, EXEC CICS WRITEQ TS): a new queue is
+ * created by its first write; the item is appended and its number returned in ITEM (c->item).
+ * REWRITE replaces item c->item: QIDERR without the queue, ITEMERR outside it. LENGERR when
+ * LENGTH is outside 1-32763. NUMITEMS (c->num) is the count after the write. */
+int GGCWRTQ(gg_cics *c, char *from) {
+    char dir[4096], hex[40], path[4200], ev[160], flags[41];
+    int len = c->len;
+    trim(c->flags, 40, flags);
+    int rewrite = strstr(flags, "REWRITE") != NULL;
+    ts_dir(c, dir, sizeof dir, hex);
+    int count = ts_count(dir), item = 0;
+    c->resp2 = 0;
+    if (len < 1 || len > 32763) {
+        c->resp = LENGERR;
+    } else if (rewrite && count < 0) {
+        c->resp = QIDERR;
+    } else if (rewrite && (c->item < 1 || c->item > count)) {
+        c->resp = ITEMERR;
+    } else {
+        if (count < 0) {
+            char root[4096];
+            const char *env = getenv("GGCICS_TS");
+            if (env) snprintf(root, sizeof root, "%s", env);
+            else snprintf(root, sizeof root, "%s/ts", dir_in());
+            mkdir(root, 0777);
+            mkdir(dir, 0777);
+            count = 0;
+        }
+        item = rewrite ? c->item : count + 1;
+        snprintf(path, sizeof path, "%s/%06d.bin", dir, item);
+        FILE *f = fopen(path, "wb");
+        if (f) { fwrite(from, 1, (size_t)len, f); fclose(f); }
+        c->resp = NORMAL;
+        c->item = item;
+        c->num = rewrite ? count : count + 1;
+    }
+    snprintf(ev, sizeof ev, "WRITEQ-TS queue=%s item=%d resp=%d len=%d", hex, item, c->resp, len);
+    event(ev, from, len > 0 && len <= 32763 ? len : 0);
     return 0;
 }
 

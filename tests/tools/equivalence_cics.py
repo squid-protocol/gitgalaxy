@@ -144,6 +144,41 @@ def _literal(value: str) -> str | None:
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
+def _ts_command(verb: str, opts: dict[str, str | None]) -> list[str]:
+    """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
+    takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
+    ITEMERR nor QIDERR). ITEM is a value on READQ (NEXT: 0) and on WRITEQ REWRITE, a data area WRITEQ
+    sets otherwise; NUMITEMS is set on NORMAL."""
+    feature = f"{verb} TS"
+    for bad in ("SET", "SYSID"):
+        if bad in opts:
+            raise Unsupported(f"{feature} {bad}", [f"{feature} {bad}"])
+    queue = opts.get("QUEUE") or opts.get("QNAME")
+    area = opts.get("INTO") if verb == "READQ" else opts.get("FROM")
+    if not queue or not area:
+        raise Unsupported(f"{feature} without QUEUE / {'INTO' if verb == 'READQ' else 'FROM'}", [feature])
+    length, item, num = opts.get("LENGTH") or opts.get("FLENGTH"), opts.get("ITEM"), opts.get("NUMITEMS")
+    lines = [f"MOVE {queue} TO GG-QNAME", f"MOVE {length or f'LENGTH OF {area}'} TO GG-LEN"]
+    after = []
+    if verb == "READQ":
+        lines.append(f"MOVE {item} TO GG-ITEM" if item and "NEXT" not in opts else "MOVE 0 TO GG-ITEM")
+        lines += _call("GGCREADQ", [f"BY REFERENCE {area}"])
+        if length:
+            after += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
+    else:
+        rewrite = "REWRITE" in opts
+        if rewrite and not item:
+            raise Unsupported(f"{feature} REWRITE without ITEM", [feature])
+        lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
+                  "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
+        lines += _call("GGCWRTQ", [f"BY REFERENCE {area}"])
+        if item and not rewrite:
+            after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
+    if num:
+        after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
+    return lines + after + _resp(opts, can_fail=True)
+
+
 def translate_command(body: str) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it."""
     pairs = _options(body)
@@ -190,6 +225,8 @@ def translate_command(body: str) -> list[str]:
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
         return lines + _resp(opts, can_fail=True)
+    if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
+        return _ts_command(verb, opts)
     if verb == "SEND" and "MAP" in opts:
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
         mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",

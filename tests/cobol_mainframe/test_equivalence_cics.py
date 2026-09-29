@@ -57,7 +57,26 @@ def test_a_terminal_receive_passes_its_length_in_and_takes_the_datas_length_back
     assert not any(ln.startswith("MOVE GG-LEN") for ln in omitted)
 
 
-@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC",
+def test_ts_commands_pass_length_item_and_numitems_in_and_out():
+    """#4002: READQ's LENGTH is set back on NORMAL / LENGERR only; NEXT is item 0; WRITEQ's ITEM is set on
+    NORMAL, unless REWRITE makes it an input."""
+    got = ec.translate_command("READQ TS QUEUE('HCQ1') INTO(WS-ITEM) LENGTH(WS-ILEN) ITEM(WS-N) NUMITEMS(WS-K)")
+    assert got[:4] == ["MOVE 'HCQ1' TO GG-QNAME", "MOVE WS-ILEN TO GG-LEN", "MOVE WS-N TO GG-ITEM",
+                       "CALL 'GGCREADQ' USING GG-CICS"]  # fmt: skip
+    assert got[5:11] == ["IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-ILEN", "END-IF",
+                         "IF GG-RESP = 0", "    MOVE GG-NUM TO WS-K", "END-IF"]  # fmt: skip
+    assert "MOVE 0 TO GG-ITEM" in ec.translate_command("READQ QUEUE(Q) INTO(X) LENGTH(L) NEXT")  # TS is the default
+    assert ec.translate_command("READQ TS QNAME(Q) INTO(X) RESP(R)")[1] == "MOVE LENGTH OF X TO GG-LEN"
+    w = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(WS-ONE) LENGTH(1) ITEM(WS-I)")
+    assert w[:4] == ["MOVE 'Q' TO GG-QNAME", "MOVE 1 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
+    assert ["IF GG-RESP = 0", "    MOVE GG-ITEM TO WS-I", "END-IF"] == w[6:9]
+    r = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(A) ITEM(WS-I) REWRITE")
+    assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
+
+
+@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
+                                  "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
+                                  "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",
                                   "SYNCPOINT", "LINK PROGRAM('X')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):

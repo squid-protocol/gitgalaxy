@@ -127,7 +127,11 @@ def test_return_xctl_and_abend_end_the_task():
     ret = ec.translate_command("RETURN TRANSID (LIT-TRAN) COMMAREA (WS-CA) LENGTH(LENGTH OF WS-CA)")
     assert ret[0] == "MOVE LIT-TRAN TO GG-NAME1" and ret[-1] == "GOBACK" and "    BY VALUE LENGTH OF WS-CA" in ret
     assert ec.translate_command("RETURN")[-3:] == ["    BY REFERENCE GG-FLAGS", "    BY VALUE 0", "GOBACK"]
-    assert ec.translate_command("XCTL PROGRAM (WS-PGM) COMMAREA(CA)")[-1] == "GOBACK"
+    xctl = ec.translate_command("XCTL PROGRAM (WS-PGM) COMMAREA(CA)")
+    assert xctl[:3] == ["MOVE WS-PGM TO GG-NAME1", "MOVE 1 TO GG-ITEM", "CALL 'GGCXCTL' USING GG-CICS"]
+    # #4008: a failed XCTL (LENGERR, PGMIDERR) stays in the program, through the condition handling
+    assert xctl[5:8] == ["IF GG-RESP = 0", "    GOBACK", "END-IF"] and "    CALL 'GGCCOND' USING GG-CICS" in xctl
+    assert ec.translate_command("XCTL PROGRAM('P')")[1] == "MOVE 0 TO GG-ITEM"
     assert ec.translate_command("ABEND ABCODE('9999')")[0] == "MOVE '9999' TO GG-NAME1"
 
 

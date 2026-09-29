@@ -93,7 +93,7 @@ COBOL_CAPS = cc.Capabilities(
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
-        "XCTL": frozenset({"target", "length", "commarea", "resp"}),
+        "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READ": frozenset({"file", "ridfld", "resp"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
@@ -117,7 +117,7 @@ JAVA_CAPS = cc.Capabilities(
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
         "RETURN": frozenset({"level", "transid", "commarea", "caller_commarea"}),
         "LINK": frozenset({"target", "length", "commarea", "resp", "resp2"}),
-        "XCTL": frozenset({"target", "commarea"}),
+        "XCTL": frozenset({"target", "length", "commarea", "resp", "resp2"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
@@ -893,8 +893,12 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "LINK":
                 ev.update(target=e.get("target"), length=e.get("length"), resp=e.get("resp"), resp2=e.get("resp2"),
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
-            elif kind == "XCTL":
-                ev.update(target=e.get("target"), commarea=_java_area(e.get("commarea"), src, shapes))
+            elif kind == "XCTL":  # #4008: LENGTH, RESP, RESP2 (a whole-record DTO's LENGTH is not the log's)
+                length = e.get("length")
+                ca = _java_area(e.get("commarea"), src, shapes, length)
+                if length is None:
+                    length = cc.Unmodelled("XCTL LENGTH of a whole-record COMMAREA") if ca is not None else 0
+                ev.update(target=e.get("target"), commarea=ca, length=length, resp=e.get("resp"), resp2=e.get("resp2"))
             elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
                 b64 = e.get("from")
                 ev.update({k: e[k] for k in ("transid", "termid", "interval", "time", "reqid", "protect", "resp",
@@ -1140,9 +1144,11 @@ def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] 
                 ev.update(transid=arg("transid") or None, commarea=cc.RawArea(data, "latin-1") if data else None)
             else:  # #4004: the LINK COMMAREA as the linking program now sees it (len -1: the LINK had none)
                 ev["caller_commarea"] = cc.RawArea(data, "latin-1") if int(arg("len") or -1) >= 0 else None
-        elif verb == "XCTL":
-            area = cc.RawArea(data, "latin-1") if data else None
-            ev.update(target=arg("program"), length=int(arg("len") or 0), commarea=area, resp="NORMAL")
+        elif verb == "XCTL":  # #4008: RESP2 only where the command is not NORMAL (SPEC 6.2)
+            has = arg("area") == "1" if arg("area") else bool(data)
+            resp = names.get(int(arg("resp") or 0), arg("resp"))
+            ev.update(target=arg("program"), length=int(arg("len") or 0), commarea=cc.RawArea(data, "latin-1") if has else None,
+                      resp=resp, resp2=int(arg("resp2") or 0) if resp != "NORMAL" else None)  # fmt: skip
         elif verb == "ABEND":  # #4003: its cause, and which exit took it (program.label), if one did
             ev.update(abcode=arg("abcode"), cause=arg("cause"), outcome=arg("outcome"))
             if arg("condition"):

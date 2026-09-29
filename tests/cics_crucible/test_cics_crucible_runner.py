@@ -687,6 +687,23 @@ def test_the_terminal_follows_its_last_tasks_return_transid():
     ] and stopped == "step 2: no pending RETURN TRANSID and no transaction id typed"
 
 
+def test_a_failed_xctl_is_logged_with_its_resp2(tmp_path):
+    (tmp_path / "events.txt").write_text(
+        "001 XCTL pgm=CAXA program=CAXB len=32767 area=1 resp=22 resp2=11\n"
+        "002 XCTL pgm=CAXA program=CAXB len=10 area=1 resp=0 resp2=0\n003 XCTL pgm=CAXA program=M len=0 area=0 resp=0 resp2=0\n",
+        encoding="latin-1")  # fmt: skip
+    (tmp_path / "001.bin").write_bytes(b" " * 32767)
+    (tmp_path / "002.bin").write_bytes(b"1C0042")
+    evs = runner._cobol_events(tmp_path, "P")
+    assert (evs[0]["resp"], evs[0]["resp2"], evs[0]["length"], len(evs[0]["commarea"].data)) == (
+        "LENGERR",
+        11,
+        32767,
+        32767,
+    )
+    assert (evs[1]["resp"], evs[1]["resp2"], evs[2]["commarea"]) == ("NORMAL", None, None)
+
+
 def test_interval_events_are_logged_as_spec_spells_them(tmp_path):
     (tmp_path / "events.txt").write_text(
         "001 START pgm=GTSTART transid=GT02 termid= time=103000 reqid= protect=0 resp=0 expires=2026-03-02T10:30:00 len=20 area=1\n"

@@ -57,7 +57,8 @@ typedef struct {
     int go_to;      /* out: the label index a condition / abend exit transfers to (#4003) */
 } gg_cics;
 
-enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44 };
+enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
+       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29 };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -349,17 +350,28 @@ int GGCRETN(gg_cics *c, char *commarea, int len) {
     return 0;
 }
 
-/* XCTL PROGRAM(name1) COMMAREA LENGTH: the program ends and the target runs at the same level,
- * with a copy of LENGTH bytes from the named area. */
+/* XCTL PROGRAM(name1) [COMMAREA LENGTH: GG-ITEM 1] (IBM, EXEC CICS XCTL): the program ends and
+ * the target runs at the same level, with a copy of LENGTH bytes from the named area -- all of
+ * them, even past the end of the item (#4008). It fails, and control stays in the issuing
+ * program, with LENGERR RESP2 11 for a LENGTH outside 0-32763 and PGMIDERR RESP2 1 for a
+ * program the CSD does not define. */
 static void xctl_next(const char *program, char *commarea, int len);
+static int program_defined(const char *program);
 
 int GGCXCTL(gg_cics *c, char *commarea, int len) {
-    char program[9], ev[96];
+    char program[9], ev[128];
+    int has = c->item != 0;
     trim(c->name1, 8, program);
-    snprintf(ev, sizeof ev, "XCTL program=%s len=%d", program, len);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
+    else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
+    snprintf(ev, sizeof ev, "XCTL program=%s len=%d area=%d resp=%d resp2=%d", program, has ? len : 0, has,
+             c->resp, c->resp2);
+    event(ev, has ? commarea : NULL, has && len > 0 && len <= 65535 ? len : 0);
+    if (c->resp != NORMAL) return 0;
     ended = 1;
-    event(ev, commarea, len);
-    xctl_next(program, commarea, len);
+    xctl_next(program, has ? commarea : NULL, has ? len : 0);
     return 0;
 }
 
@@ -374,7 +386,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
 #define MAX_LEVELS 32
 #define MAX_PUSH 16
 #define NCOND 130
-enum { ERRCOND = 1, INVREQ = 16, PGMIDERR = 27, ENDDATA = 29 };
+enum { ERRCOND = 1 };
 
 typedef struct {
     short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */

@@ -221,7 +221,7 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "PGMIDERR LENGERR",
         "NOCA level=2 calen=0",
         "{commarea=PING, event=LINK, issuer=MAIN, length=100, resp=NORMAL, resp2=null, target=SUB}",
-        "{commarea=PING-SUB, event=XCTL, issuer=SUB, program=SUB2}",
+        "{commarea=PING-SUB, event=XCTL, issuer=SUB, length=50, program=SUB2, resp=NORMAL, resp2=null}",
         "{data=T1 X, event=RECEIVE, issuer=SUB2, length=4, resp=NORMAL}",
         "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, level=2}",
         "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
@@ -266,6 +266,45 @@ def test_cics_task_interval_control_follows_start_retrieve_and_cancel(tmp_path):
         "[event, expires, from, protect, resp, termid, time, transid] null093000",
         "[event, expires, from, protect, resp, termid, time, transid] null030000",
         "[event, expires, from, interval, protect, resp, termid, transid] 000170null",
+    ]
+
+
+@needs_javac
+def test_cics_task_xctl_fails_in_place_with_lengerr_or_pgmiderr(tmp_path):
+    """#4008, IBM EXEC CICS XCTL: LENGERR RESP2 11 for a LENGTH outside 0-32763, PGMIDERR RESP2 1 for an
+    undefined program; either way nothing is transferred and the program goes on."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return !p.equals("GONE");
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("CAXA")) {
+                    System.out.println(task.xctl("CAXB", "BIG", 32767) + " " + task.ended());
+                    System.out.println(task.xctl("GONE", "V1", 10) + " " + task.ended());
+                    System.out.println(task.xctl("CAXB", "V1", 80) + " " + task.ended());
+                } else {
+                    System.out.println(p + " calen=" + task.linkLength() + " ca=" + task.commarea(String.class));
+                }
+            }
+        };
+        CicsTask t = new CicsTask("CA02", "ENTER", null, null).withPrograms(programs);
+        t.run("CAXA");
+        for (java.util.Map<String, Object> e : t.events()) {
+            System.out.println(new java.util.TreeMap<>(e));
+        }""",
+    )
+    assert out.splitlines() == [
+        "LENGERR false",
+        "PGMIDERR false",
+        "NORMAL true",
+        "CAXB calen=80 ca=V1",
+        "{commarea=BIG, event=XCTL, issuer=CAXA, length=32767, program=CAXB, resp=LENGERR, resp2=11}",
+        "{commarea=V1, event=XCTL, issuer=CAXA, length=10, program=GONE, resp=PGMIDERR, resp2=1}",
+        "{commarea=V1, event=XCTL, issuer=CAXA, length=80, program=CAXB, resp=NORMAL, resp2=null}",
     ]
 
 
@@ -503,3 +542,44 @@ def test_the_stub_interval_control_follows_start_retrieve_and_cancel(tmp_path):
     assert "time=093000" in events[3]
     assert events[-3] == "013 RETRIEVE pgm= resp=22 len=5 copied=4"
     assert events[-1] == "015 RETRIEVE pgm= resp=29 len=-1 copied=0"
+
+
+# ---- #4008: XCTL RESP / LENGTH ---------------------------------------------------------------------------
+_XCTL_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCXCTL(gg_cics *c, char *commarea, int len);
+int main(void) {
+    static char block[100] = "1C00420007GOLD";
+    gg_cics c;
+    const char *to[] = {"CAXB", "GONE", "CAXB"};
+    int lens[] = {32767, 10, 80};
+    for (int i = 0; i < 3; i++) {
+        memset(&c, 0, sizeof c);
+        memset(c.name1, ' ', 8);
+        memcpy(c.name1, to[i], 4);
+        c.item = 1;
+        GGCXCTL(&c, block, lens[i]);
+        printf("%d/%d ", c.resp, c.resp2);
+    }
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_xctl_fails_in_place_and_copies_length_bytes(tmp_path):
+    """#4008, IBM EXEC CICS XCTL: LENGERR RESP2 11 outside 0-32763, PGMIDERR RESP2 1 for an undefined program;
+    a successful one carries LENGTH bytes from the named area, past the end of the item if need be."""
+    exe = _stub(tmp_path, _XCTL_MAIN)
+    (tmp_path / "programs.cfg").write_text("CAXA\nCAXB\n")
+    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["22/11 27/1 0/0"]
+    events = (tmp_path / "out" / "events.txt").read_text().splitlines()
+    assert events == ["001 XCTL pgm= program=CAXB len=32767 area=1 resp=22 resp2=11",
+                      "002 XCTL pgm= program=GONE len=10 area=1 resp=27 resp2=1",
+                      "003 XCTL pgm= program=CAXB len=80 area=1 resp=0 resp2=0"]  # fmt: skip
+    assert (tmp_path / "out" / "003.bin").read_bytes()[:14] == b"1C00420007GOLD"
+    assert len((tmp_path / "out" / "003.bin").read_bytes()) == 80

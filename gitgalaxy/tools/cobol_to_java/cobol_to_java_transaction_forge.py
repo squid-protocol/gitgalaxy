@@ -671,18 +671,33 @@ public class CicsTask {
     }
 
     /** XCTL PROGRAM(program) COMMAREA(commarea), the COMMAREA being its whole record. */
-    public void xctl(String program, Object commarea) {
-        xctl(program, commarea, null);
+    public String xctl(String program, Object commarea) {
+        return xctl(program, commarea, null);
     }
 
-    /** XCTL PROGRAM(program) COMMAREA(commarea) LENGTH(length): the program ends, and the target runs at the
-     *  same level (#4004) with EIBCALEN = `length` (null: the whole record). */
-    public void xctl(String program, Object commarea, Integer length) {
-        event("XCTL", "program", program, "commarea", snapshot.apply(commarea));
-        xctlTarget = program;
-        xctlCommarea = commarea;
-        xctlLength = commarea == null ? Integer.valueOf(0) : length;
-        ended = true;
+    /** XCTL PROGRAM(program) COMMAREA(commarea) LENGTH(length) (IBM, EXEC CICS XCTL): the program ends, and the
+     *  target runs at the same level (#4004) on a copy of LENGTH bytes -- all of them, even past the end of the
+     *  item (#4008). It fails, and the program goes on, with LENGERR (RESP2 11) for a LENGTH outside 0-32763 or
+     *  PGMIDERR (RESP2 1) for a program the CSD does not define; the result is the condition. */
+    public String xctl(String program, Object commarea, Integer length) {
+        String resp = "NORMAL";
+        Integer resp2 = null;
+        if (commarea != null && length != null && (length < 0 || length > 32763)) {
+            resp = "LENGERR";
+            resp2 = 11;
+        } else if (programs != null && !programs.defined(program)) {
+            resp = "PGMIDERR";
+            resp2 = 1;
+        }
+        event("XCTL", "program", program, "length", commarea == null ? Integer.valueOf(0) : length, "commarea",
+                snapshot.apply(commarea), "resp", resp, "resp2", resp2);
+        if ("NORMAL".equals(resp)) {
+            xctlTarget = program;
+            xctlCommarea = commarea;
+            xctlLength = commarea == null ? Integer.valueOf(0) : length;
+            ended = true;
+        }
+        return resp;
     }
 
     /** EXEC CICS ABEND ABCODE(abcode) that no abend exit takes: the task is terminated. */

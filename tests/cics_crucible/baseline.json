@@ -7,7 +7,6 @@
   "ca-link-lengths/no-commarea/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-link-lengths/short-100/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-link-lengths/undefined-program/java": {"status": "fail", "reason": "task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event"},
-  "ca-xctl-versions/length-range/cobol-stub": {"status": "fail", "reason": "task 1 (CA02) event 2: resp 'LENGERR' expected, got 'NORMAL'"},
   "ca-xctl-versions/length-range/java": {"status": "fail", "reason": "task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-xctl-versions/long-overread/java": {"status": "fail", "reason": "task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event"},
   "ca-xctl-versions/short-upgrade/java": {"status": "fail", "reason": "task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event"},

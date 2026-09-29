@@ -367,8 +367,11 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
         area = opts.get("COMMAREA")
         args = ([f"BY REFERENCE {area}", f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {area}'}"] if area
                 else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
-        entry = "GGCRETN" if verb == "RETURN" else "GGCXCTL"
-        return [name(target, "GG-NAME1")] + _call(entry, args) + ["GOBACK"]
+        if verb == "RETURN":
+            return [name(target, "GG-NAME1")] + _call("GGCRETN", args) + ["GOBACK"]
+        # #4008: a failed XCTL (LENGERR, PGMIDERR) leaves control here, through the condition handling
+        return ([name(target, "GG-NAME1"), f"MOVE {1 if area else 0} TO GG-ITEM"] + _call("GGCXCTL", args)
+                + ["IF GG-RESP = 0", "    GOBACK", "END-IF"] + _resp(opts, True, labels))  # fmt: skip
     if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
         return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage

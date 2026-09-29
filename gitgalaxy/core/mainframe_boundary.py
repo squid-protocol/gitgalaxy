@@ -104,7 +104,7 @@ from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
-from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -138,14 +138,22 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t\u3000]*"
 # name is any word with a letter in it -- a bare number (a continued VALUE list) is not.
 _LEVEL_START = re.compile(
     _COBOL_AREA_A
-    + r"(\d{1,2})[ \t\u3000]+((?=[0-9-]*[A-Z"
+    + r"(\d{1,2})[ \t\u3000]+((?=[0-9"
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"-]*[A-Z"
     + NATIONAL
     + r"])[A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-]*)(?![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])",
     re.I | re.M,
 )
@@ -154,7 +162,12 @@ _LEVEL_START = re.compile(
 # entry left open mid VALUE list (#3452).
 _ENTRY_END = re.compile(r"\.(?=[ \t\n\u3000]|$)")
 _OPEN_VALUE_LIST = re.compile(
-    r"(?:(?<![A-Z" + NATIONAL + r"0-9-])VALUES?(?:[ \t\u3000]+(?:IS|ARE))?|,)[ \t\n\u3000]*$", re.I
+    r"(?:(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])VALUES?(?:[ \t\u3000]+(?:IS|ARE))?|,)[ \t\n\u3000]*$",
+    re.I,
 )
 
 # A data description entry runs to the next level number. Capped so the last
@@ -171,11 +184,19 @@ _VALUE_LITERAL = re.compile(r"\bVALUE[ \t\u3000]+(?:IS[ \t\u3000]+)?(?:'([^']*)'
 # sentence. TO is optional (IBM accepts `ASSIGN <name>`), and the assign operand
 # may be a literal in some dialects, so both forms are read.
 _SELECT_ASSIGN = re.compile(
-    r"\bSELECT[ \t\u3000]+(?:OPTIONAL[ \t\u3000]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)[ \t\n\u3000]+"
+    r"\bSELECT[ \t\u3000]+(?:OPTIONAL[ \t\u3000]+)?([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)[ \t\n\u3000]+"
     r"ASSIGN[ \t\n\u3000]+(?:TO[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
     + NATIONAL
     + r"][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9@#$-]*))",
     re.I,
 )
@@ -186,7 +207,17 @@ _OPEN_MODES = ("INPUT", "OUTPUT", "I-O", "EXTEND")
 
 # The OPEN verb itself. `-` is a COBOL name character, so plain `\b` would fire
 # inside `WS-OPEN-FLAG`; both guards exclude it explicitly.
-_OPEN_ANCHOR = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])OPEN(?![A-Z" + NATIONAL + r"0-9-])")
+_OPEN_ANCHOR = re.compile(
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])OPEN(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])"
+)
 
 # Environment-division device prefixes that are not part of the ddname
 # (`ASSIGN TO UT-S-CUSTFILE` binds DD CUSTFILE). Stripped for `dd_name`; the
@@ -201,7 +232,17 @@ _CALL_LITERAL = re.compile(r"\bCALL[ \t\n\u3000]+(?:'([^']*)'|\"([^\"]*)\")", re
 # form above from matching twice, and `END-CALL` cannot match because the verb
 # is anchored on a word boundary that `-` does not close.
 _CALL_IDENTIFIER = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])CALL[ \t\n\u3000]+(?!['\"])([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)",
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])CALL[ \t\n\u3000]+(?!['\"])([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)",
     re.I,
 )
 
@@ -215,7 +256,7 @@ _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL)\
 # The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
 # HLASM symbols included (#3495), and a PL/I qualified reference kept whole (#3491:
 # DSF's `TRANSID(TRANS_OPPL_OMR.TRANSKODE)`); COBOL names contain neither `_` nor `.`.
-_OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + r"0-9@#$_-]*"
+_OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9@#$_-]*"
 _OPERAND_VALUE = (
     r"[ \t\n\u3000]*\([ \t\n\u3000]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
 )
@@ -245,11 +286,20 @@ _CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID" + _OPERAND_VALUE, re.I)
 # paren-balanced scan (`LENGTH(LENGTH OF X)`, `COMMAREA(WS-AREA(1:10))`) capped at
 # `_CICS_OPERAND_LIMIT`, inside the already END-EXEC-bounded block.
 _CICS_CONTRACT_OPERANDS = (
-    ("commarea", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])COMMAREA[ \t\n\u3000]*\(", re.I)),
-    ("commarea_length", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])LENGTH[ \t\n\u3000]*\(", re.I)),
-    ("commarea_datalength", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])DATALENGTH[ \t\n\u3000]*\(", re.I)),
+    (
+        "commarea",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])COMMAREA[ \t\n\u3000]*\(", re.I),
+    ),
+    (
+        "commarea_length",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])LENGTH[ \t\n\u3000]*\(", re.I),
+    ),
+    (
+        "commarea_datalength",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])DATALENGTH[ \t\n\u3000]*\(", re.I),
+    ),
     # #3494: the region a LINK / START ships to (Distributed Program Link).
-    ("sysid", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])SYSID[ \t\n\u3000]*\(", re.I)),
+    ("sysid", re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])SYSID[ \t\n\u3000]*\(", re.I)),
 )
 _CICS_OPERAND_LIMIT = 160
 
@@ -337,8 +387,12 @@ _FD_START = re.compile(
     + NATIONAL
     + r"][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-]*)(?![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])",
     re.I | re.M,
 )
@@ -357,23 +411,45 @@ _PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t\u3000]+(?:IS[ \t\u3000]+)?([^\s;]+
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
 _NATIONAL_PICTURE = re.compile(r"[NGB0/()0-9]*[NG][NGB0/()0-9]*")  # #3816: N / G with national editing only
 # #3816: USAGE NATIONAL, looked for only inside the entry's own text (see _cobol_records)
-_NATIONAL_USAGE = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])NATIONAL(?![A-Z" + NATIONAL + r"0-9-])", re.I)
+_NATIONAL_USAGE = re.compile(
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])NATIONAL(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])",
+    re.I,
+)
 _QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
 _USAGE_CLAUSE = re.compile(
     r"(?:\bUSAGE[ \t\n\u3000]+(?:IS[ \t\n\u3000]+)?)?"
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
-    r"(?![A-Z" + NATIONAL + r"0-9-])",
+    r"(?![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])",
     re.I,
 )
 # `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
 _OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n\u3000]+(\d+)(?:[ \t\n\u3000]+TO[ \t\n\u3000]+(\d+))?", re.I)
 _DEPENDING_CLAUSE = re.compile(
-    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)",
+    re.I,
 )
 # `REDEFINES <name>` -- the storage-overlay pointer.
-_REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I)
+_REDEFINES_CLAUSE = re.compile(
+    r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*)", re.I
+)
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
 # (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
 # #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
@@ -381,10 +457,15 @@ _REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"
 _VALUE_CLAUSE = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9+.-]*))",
     re.I,
 )
@@ -401,10 +482,15 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 _COPY_IN_ENTRY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9@#$][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9@#$-]*)",
     re.I,
 )

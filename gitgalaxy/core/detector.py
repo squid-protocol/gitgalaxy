@@ -48,7 +48,7 @@ from gitgalaxy.standards.language_standards import (
 from gitgalaxy.standards.language_standards._shared_patterns import (
     QUALIFIED_CALLS_OUT_PATTERNS,
 )
-from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START
+from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_START, WIDE_HYPHENS
 
 HAS_TIKTOKEN = False
 try:
@@ -10277,6 +10277,11 @@ class StructuralExtractor:
         # viramas: Mn/Mc) or a decomposed `é` split at the mark -- ID_CONTINUE (UAX #31) keeps them.
         is_swift = self.primary_lang_id == "swift"
         national = "@#§£" if self.primary_lang_id in _NATIONAL_CHARACTER_LANGUAGES else ""  # §£: #3814
+        # #3991: a Japanese COBOL word's full-width hyphen (U+FF0D / U+2212, identifiers.WIDE_HYPHENS) is
+        # its `-`; without it a section name split there and `words[-1]` kept only the tail after the
+        # hyphen. (Full-width digits are Nd, already ID_CONTINUE.)
+        if self.primary_lang_id == "cobol":
+            national += WIDE_HYPHENS
         pattern = (
             rf"[{ID_CONTINUE}./%$():~'\-\[\]=<>+!*&|^?]+" if is_swift else rf"[{ID_CONTINUE}{national}./%$():~'\-\[\]]+"
         )

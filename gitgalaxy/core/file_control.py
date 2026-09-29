@@ -41,16 +41,46 @@ import re
 from typing import Any, Callable, Optional
 
 from gitgalaxy.core.db2_declare_table import _blank_sequence_fields
-from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
-_FILE_CONTROL = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])FILE-CONTROL[ \t\u3000]{0,20}\.", re.I)
+_FILE_CONTROL = re.compile(
+    r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])FILE-CONTROL[ \t\u3000]{0,20}\.", re.I
+)
 _WS = r"[ \t\n\u3000]{1,200}"
 _FC_END = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])(?:I-O-CONTROL|DATA" + _WS + "DIVISION|PROCEDURE" + _WS + "DIVISION)", re.I
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])(?:I-O-CONTROL|DATA"
+    + _WS
+    + "DIVISION|PROCEDURE"
+    + _WS
+    + "DIVISION)",
+    re.I,
 )
-_SELECT = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])SELECT(?![A-Z" + NATIONAL + r"0-9-])", re.I)
+_SELECT = re.compile(
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])SELECT(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])",
+    re.I,
+)
 _TOKEN = re.compile(
-    r"'[^'\n]{0,120}'|\"[^\"\n]{0,120}\"|[A-Z" + NATIONAL + r"0-9][A-Z" + NATIONAL + r"0-9-]{0,62}|\.", re.I
+    r"'[^'\n]{0,120}'|\"[^\"\n]{0,120}\"|[A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + r"0-9][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]{0,62}|\.",
+    re.I,
 )
 _FC_LIMIT = 200000
 _SELECT_LIMIT = 4000
@@ -294,26 +324,38 @@ def jcl_vsam_defines(code_stream: str) -> list[dict[str, Any]]:
 _FD = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])[FS]D[ \t\n\u3000]{1,200}([A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-]{0,62})",
     re.I,
 )
 _FD_END = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])(?:[FS]D[ \t\n\u3000]|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE[ \t\n\u3000]{1,200}SECTION|PROCEDURE[ \t\n\u3000]{1,200}DIVISION)",
     re.I,
 )
 _COPY = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])COPY[ \t\n\u3000]{1,200}['\"]?([A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9@#$][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9@#$-]{0,30})",
     re.I,
 )

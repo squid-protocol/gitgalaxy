@@ -132,3 +132,13 @@ NAME = f"[{ID_START}][{ID_CONTINUE}]*"
 # Every mainframe reader class that accepts letters also accepts these (tests/core_engine/
 # test_national_names.py checks that no such class is missing them).
 NATIONAL = "ÆØÅÄÖÜÑ§£àæøåäöüñ" + ID_START
+
+# #3991: the DBCS forms of a COBOL word's two non-letter characters. A Japanese word is keyed in full
+# width, digits and hyphen included (the issue's examples: KOUMOKU + FULLWIDTH DIGIT TWO, TEST + hyphen +
+# DATA1). WIDE_DIGITS (U+FF10-FF19) goes wherever a COBOL name class takes `0-9`; WIDE_HYPHENS wherever it
+# takes the in-word `-`, with the same placement rules. Shift-JIS 0x817C is one character with two
+# decodings: cp932 gives FULLWIDTH HYPHEN-MINUS U+FF0D, Python's shift_jis gives MINUS SIGN U+2212 -- both
+# are the hyphen here. Only name classes carry these: a minus sign between two spaced operands is still
+# arithmetic, and literals are untouched. Built with chr() so the source stays free of look-alike glyphs.
+WIDE_DIGITS = chr(0xFF10) + "-" + chr(0xFF19)
+WIDE_HYPHENS = chr(0xFF0D) + chr(0x2212)

@@ -201,7 +201,8 @@ def to_ebcdic(area: RawArea, layout: Optional[list[dict[str, Any]]] = None) -> b
     are. Without a layout every byte is taken as DISPLAY (an area the log gives as text or hex)."""
     if area.encoding.replace("-", "").lower() in ("cp037", "ibm037"):
         return area.data
-    out = bytearray(area.data.decode(area.encoding, errors="replace").encode(EBCDIC, errors="replace"))
+    # strict: the stub runtime's page is latin-1, which decodes every byte, and cp037 encodes every latin-1 character
+    out = bytearray(area.data.decode(area.encoding).encode(EBCDIC))
     for f in layout or []:
         if _is_binary(f):
             end = min(f["offset"] + f["bytes"], len(area.data))

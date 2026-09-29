@@ -753,7 +753,7 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
         elif verb == "RECEIVE-MAP":
             ev.update(map=arg("map"), mapset=arg("mapset"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "READ":
-            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC, errors="replace"),
+            ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
                       resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
         elif verb in ("RETURN", "END"):
             area = cc.RawArea(data, "latin-1") if data else None

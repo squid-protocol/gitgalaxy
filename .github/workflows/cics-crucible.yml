@@ -9,6 +9,9 @@ name: CICS Crucible
 # baseline (tests/cics_crucible/baseline.json) ledgers them, and this job holds it as a ratchet --
 # a cell failing that the ledger does not list fails the run, and so does a ledgered cell that now
 # passes (lower the ledger with --update-baseline), so it only ever shrinks.
+# #4023: the cobol-stub side also runs the COBOL traced (-ftraceall), and tests/cics_crucible/coverage.json
+# holds, per scenario, the paragraphs and branch outcomes it executes: a change that loses (or gains) one
+# fails the run until it is re-baselined, so a crucible change cannot silently shrink what a proof proves.
 #
 # The crucible is cloned at PINNED_REF, read straight out of tests/_cics_crucible_pin.py (there is no
 # repository variable for this pin), so a fork's pull_request run clones the same public ref with no
@@ -23,6 +26,8 @@ on:
       - "pyproject.toml"
       - "tests/tools/cics_crucible*.py"
       - "tests/tools/equivalence_cics.py"
+      - "tests/tools/cobol_coverage.py"
+      - "gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py"
       - "tests/tools/equivalence_common.py"
       - "tests/tools/equivalence_java.py"
       - "tests/tools/java_target_matrix.py"
@@ -38,6 +43,7 @@ on:
       - "gitgalaxy/**"
       - "tests/tools/cics_crucible*.py"
       - "tests/tools/equivalence_cics.py"
+      - "tests/tools/cobol_coverage.py"
       - "tests/equivalence/cics/**"
       - "tests/cics_crucible/**"
       - "tests/_cics_crucible_pin.py"

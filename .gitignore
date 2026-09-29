@@ -141,6 +141,8 @@ museum_2/
 # ...and the CICS crucible runner's ratchet ledger and its fixture case (#3989): the fixture is in the
 # crucible's format, so its case.json and expected logs are source like the answer keys above.
 !tests/cics_crucible/baseline.json
+# #4023: the crucible's COBOL coverage ledger (a ratchet, like baseline.json)
+!tests/cics_crucible/coverage.json
 !tests/cics_crucible/fixture/**/*.json
 *_llm.md
 venvs/

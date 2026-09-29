@@ -44,6 +44,15 @@ that now passes (lower the ledger: `--update-baseline`), so the ledger only shri
 #3989 closes the cells; docs/language_status/cics_crucible.md (written with the baseline) groups
 them by trap, side, failure reason and missing feature.
 
+#4023: a passing proof only proves the paths its scenarios run. The cobol-stub side compiles the COBOL
+-ftraceall and traces every task (tests/tools/cobol_coverage.py), so per program the report says how much
+the passing scenarios execute -- live paragraphs and sections entered, IF / EVALUATE outcomes taken, HANDLE
+labels entered; dead code (the engine's reachability) apart -- lists the live code no scenario reaches (the
+scenarios to propose to the crucible), and gives each ported program its claim: "proven on N scenarios,
+covering X/Y paragraphs and A/B branches". tests/cics_crucible/coverage.json keeps, per scenario, what it
+executed; `--ci` fails when that moves (lost or gained) until `--update-baseline` records it. A port proof
+(--report-dir) carries its program's claim from that ledger.
+
     python tests/tools/cics_crucible.py --ci                    # measure, check the ratchet
     python tests/tools/cics_crucible.py --update-baseline       # record today's cells + the report
     python tests/tools/cics_crucible.py --cases pc-wizard --sides engine-facts java --keep /tmp/w
@@ -60,6 +69,7 @@ import base64
 import contextlib
 import dataclasses
 import datetime
+import functools
 import json
 import os
 import re
@@ -79,10 +89,13 @@ sys.path.insert(0, str(REPO_ROOT / "tests"))
 sys.path.insert(0, str(REPO_ROOT))
 
 import cics_crucible_compare as cc  # noqa: E402
+import cobol_coverage as cov  # noqa: E402
 from _cics_crucible_pin import PATH_ENV, PINNED_REF, pin_mismatch  # noqa: E402
 
 LEDGER_DIR = REPO_ROOT / "tests" / "cics_crucible"
 BASELINE = LEDGER_DIR / "baseline.json"
+COVERAGE = LEDGER_DIR / "coverage.json"  # #4023: the COBOL each passing cobol-stub scenario executes, a ratchet
+COVERAGE_FORMAT = "cics-crucible-coverage/1"
 REPORT = REPO_ROOT / "docs" / "language_status" / "cics_crucible.md"
 BASELINE_FORMAT = "cics-crucible-baseline/1"
 STUB_DIR = REPO_ROOT / "tests" / "equivalence" / "cics"
@@ -1333,10 +1346,11 @@ class Container:
 
 
 def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: list[str], ctx: cc.Context,
-              work: Path) -> dict[str, dict[str, Any]]:  # fmt: skip
+              work: Path, coverage: Optional[dict[str, dict[str, "cov.Hits"]]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Compile the case's translated programs, its dispatcher and task driver with the stub into one
     executable, then drive each scenario's terminal steps as tasks (#4004: one process per task, in which
-    a LINK runs a new level and an XCTL its target at the same level); {scenario: actual}."""
+    a LINK runs a new level and an XCTL its target at the same level); {scenario: actual}. #4023: compiled
+    -ftraceall, each task traced; `coverage` gets {scenario: {program: what it executed}}."""
     import equivalence_cics as ec
 
     work.mkdir(parents=True, exist_ok=True)
@@ -1354,17 +1368,20 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
     (src / "GGCRUN.cbl").write_text(ec.task_dispatcher({p: ca for p, (_t, ca) in programs.items()}), encoding="ascii")
     units = " ".join(f"src/{p}.cbl" for p in ["GGTASK", "GGCRUN", *programs])
     compile_lines = ["set -e", "cd /work", "mkdir -p bin",
-                     f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call -I /work/src -o bin/task {units} src/ggcics.c"]  # fmt: skip
+                     f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {cov.TRACE_FLAG} -I /work/src -o bin/task {units} src/ggcics.c"]  # fmt: skip
     box = Container(work)
     try:
         proc = box.sh("\n".join(compile_lines))
         (work / "compile.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
         if proc.returncode != 0:
             raise RuntimeError(f"cobc: {_tail(proc.stdout + proc.stderr, 3)}")
-        return {sid: run_scenario(case, next(s for s in case.scenarios if s["id"] == sid), box, work)
-                for sid in scenarios}  # fmt: skip
+        actual = {sid: run_scenario(case, next(s for s in case.scenarios if s["id"] == sid), box, work)
+                  for sid in scenarios}  # fmt: skip
     finally:
         box.close()
+    if coverage is not None:
+        coverage.update(scenario_hits(case, programs, scenarios, work))
+    return actual
 
 
 def _epoch(when: datetime.datetime) -> int:
@@ -1515,7 +1532,8 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     aid = "DFH" + frame["eibaid"] if frame.get("eibaid") else ""
     (d / "eib.in").write_text(f"{transid:<4} {aid:<8} {eib_date} {eib_time} {program:<8} {frame.get('termid') or '':<4}\n",
                               encoding="ascii")  # fmt: skip
-    box.sh(f"cd /work && GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
+    box.sh(f"cd /work && {cov.trace_env(f'/work/{rel}/{cov.TRACE_NAME}')}"
+           f"GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program, screens)
@@ -1523,6 +1541,68 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
            for e in task["events"]):  # fmt: skip
         task["end"] = "abend"
     return task
+
+
+# ---- #4023: COBOL coverage -------------------------------------------------------------------------------
+def case_inventories(case: cc.Case) -> dict[str, "cov.Inventory"]:
+    """{program: its paragraphs, dead paragraphs, branch points} for each COBOL source, read as the crucible has it."""
+    return {Path(rel).stem.upper(): _inventory(case.dir / rel, case.dir, f"cases/{case.trap}/{case.id}/{rel}")
+            for rel in case.data["sources"]["cobol"]}  # fmt: skip
+
+
+@functools.lru_cache(maxsize=None)
+def _inventory(path: Path, root: Path, label: str) -> "cov.Inventory":
+    return cov.inventory(path, root, "utf-8", label=label)
+
+
+def _line_map(case: cc.Case, prog: str, compiled: str) -> "cov.LineMap":
+    rel = next(r for r in case.data["sources"]["cobol"] if Path(r).stem.upper() == prog)
+    return cov.LineMap((case.dir / rel).read_text(encoding="utf-8"), compiled)
+
+
+def scenario_hits(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: list[str],
+                  work: Path) -> dict[str, dict[str, "cov.Hits"]]:  # fmt: skip
+    """{scenario: {program: the paragraphs it entered and the branch outcomes it took}}, from the traces of the
+    scenario's tasks (runs/<scenario>/NN/trace.txt), each line mapped back to the crucible's source."""
+    invs = case_inventories(case)
+    maps = {p: _line_map(case, p, text) for p, (text, _ca) in programs.items() if p in invs}
+    out: dict[str, dict[str, cov.Hits]] = {}
+    for sid in scenarios:
+        traces = sorted((work / "runs" / sid).glob(f"*/{cov.TRACE_NAME}"))
+        events = [e for t in traces for e in cov.read_trace(t.read_bytes(), "latin-1")]
+        out[sid] = {p: cov.hits(invs[p], events, m, f"{p}.cbl") for p, m in maps.items()}
+    return out
+
+
+def case_coverage(case: cc.Case, programs: dict[str, tuple[str, bool]], got: dict[str, dict[str, "cov.Hits"]],
+                  cells: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:  # fmt: skip
+    """Per program: what each scenario that runs it executed (only a scenario whose cobol-stub cell passes: the
+    path the expected log confirms), the summary over them all, and -- when the case has ported scenarios -- its
+    port's claim: the scenarios its java-ported cell passes on, and how much of the program those run."""
+    invs = case_inventories(case)
+
+    def status(sid: str, side: str) -> Optional[str]:
+        return cells.get(cc.cell_id(case.id, sid, side), {}).get("status")
+
+    out: dict[str, dict[str, Any]] = {}
+    for prog in sorted(p for p in programs if p in invs):
+        inv, blind = invs[prog], cov.untraceable(invs[prog], _line_map(case, prog, programs[prog][0]))
+        runs = [sc["id"] for sc in case.scenarios if sc["id"] in got and status(sc["id"], "cobol-stub") == "pass"
+                and (prog in scenario_programs(case.expected[sc["id"]]) or got[sc["id"]][prog].units)]  # fmt: skip
+        merged = cov.Hits()
+        for sid in runs:
+            merged = merged.merge(got[sid][prog])
+        # the ledger keeps what the summary counts: live units, outcomes of live traceable branch points
+        rec: dict[str, Any] = {"scenarios": {sid: cov.counted(inv, got[sid][prog], blind).as_dict() for sid in runs},
+                               "summary": cov.summary(inv, merged, blind)}  # fmt: skip
+        if any(status(sid, "java-ported") for sid in runs):
+            proven = [sid for sid in runs if status(sid, "java-ported") == "pass"]
+            port = cov.Hits()
+            for sid in proven:
+                port = port.merge(got[sid][prog])
+            rec["port"] = {"scenarios": proven, "claim": cov.claim(cov.summary(inv, port, blind), len(proven))}
+        out[prog] = rec
+    return out
 
 
 # ---- one case -> its cells -------------------------------------------------------------------------
@@ -1574,8 +1654,10 @@ def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
 
 
 def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
-                 ports: Optional[PortOptions] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
-    """Every cell of one case: {cell id: {case, trap, scenario, side, status, reason, features, kind}}."""
+                 ports: Optional[PortOptions] = None,
+                 coverage: Optional[dict[str, Any]] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
+    """Every cell of one case: {cell id: {case, trap, scenario, side, status, reason, features, kind}}. #4023:
+    `coverage` gets the case's COBOL coverage (case_coverage) when the cobol-stub side runs."""
     cells: dict[str, dict[str, Any]] = {}
 
     def put(scenario: str, side: str, v: cc.Verdict) -> None:
@@ -1629,9 +1711,10 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
                 put(sc["id"], "cobol-stub", cc.not_run(refused, needs))
             else:
                 runnable.append(sc["id"])
+        got: dict[str, dict[str, cov.Hits]] = {}
         if runnable:
             try:
-                actual = run_cobol(case, programs, runnable, ctx, work / "cobol")
+                actual = run_cobol(case, programs, runnable, ctx, work / "cobol", got)
             except RuntimeError as e:
                 actual = None
                 for sid in runnable:
@@ -1640,6 +1723,8 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
             for sid in runnable if actual else []:
                 sc = next(s for s in case.scenarios if s["id"] == sid)
                 put(sid, "cobol-stub", cc.compare(case.expected[sid], actual[sid], COBOL_CAPS, ctx, sc))
+        if coverage is not None and got:
+            coverage[case.id] = case_coverage(case, programs, got, cells)
     return cells
 
 
@@ -1653,17 +1738,19 @@ def _kind_java(v: cc.Verdict, actual: dict[str, Any]) -> cc.Verdict:
 def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Path, offline: bool,
             ports: Optional[PortOptions] = None) -> dict[str, Any]:  # fmt: skip
     cells: dict[str, dict[str, Any]] = {}
+    coverage: dict[str, Any] = {}
     dirs = cc.discover(crucible, only)
     if not dirs:
         raise SystemExit(f"no cases under {crucible}/cases" + (f" matching {sorted(only)}" if only else ""))
     for d in dirs:
         case = cc.load_case(d)
         print(f"{case.id} ...", flush=True)
-        got = measure_case(case, sides, work / case.id, offline, ports)
+        got = measure_case(case, sides, work / case.id, offline, ports, coverage)
         cells.update(got)
         by = Counter(f"{c['side']}:{c['status']}" for c in got.values())
         print("   " + ", ".join(f"{k} {n}" for k, n in sorted(by.items())), flush=True)
-    return {"crucible_ref": crucible_ref(crucible), "cells": dict(sorted(cells.items()))}
+    return {"crucible_ref": crucible_ref(crucible), "cells": dict(sorted(cells.items())),
+            "coverage": dict(sorted(coverage.items()))}  # fmt: skip
 
 
 # ---- the ratchet ------------------------------------------------------------------------------------
@@ -1720,6 +1807,80 @@ def ratchet(results: dict[str, Any], baseline: dict[str, Any], complete: bool) -
         for cid in sorted(set(known) - set(results["cells"])):
             errors.append(f"STALE: {cid} is ledgered but was not measured -- re-baseline (--update-baseline)")
     return errors, notes
+
+
+def coverage_of(results: dict[str, Any]) -> dict[str, Any]:
+    """#4023: the coverage ledger for these results -- per case/program its live paragraphs and branch outcomes,
+    and per passing scenario the ones it executed. Sets, not counts: a change that loses one path and gains
+    another is caught."""
+    progs = {f"{case}/{prog}": {"live": r["summary"]["paragraphs"]["live"],
+                                "outcomes": r["summary"]["branches"]["total"], "scenarios": r["scenarios"]}
+             for case, per in results.get("coverage", {}).items() for prog, r in per.items()}  # fmt: skip
+    return {"format": COVERAGE_FORMAT, "crucible_ref": results.get("crucible_ref"),
+            "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; "
+                    "branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py "
+                    "--ci). Regenerate with --update-baseline.",
+            "programs": dict(sorted(progs.items()))}  # fmt: skip
+
+
+def read_coverage(path: Path = COVERAGE) -> dict[str, Any]:
+    if not path.is_file():
+        return {"format": COVERAGE_FORMAT, "programs": {}}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("format") != COVERAGE_FORMAT:
+        raise SystemExit(f"{path}: format {data.get('format')!r}, expected {COVERAGE_FORMAT!r}")
+    return data
+
+
+def write_coverage(results: dict[str, Any], path: Path = COVERAGE) -> None:
+    path.write_text(json.dumps(coverage_of(results), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def coverage_ratchet(results: dict[str, Any], ledger: dict[str, Any], complete: bool) -> list[str]:
+    """#4023: errors -- a scenario that no longer executes a paragraph or branch outcome it did (a crucible or
+    harness change shrank what a proof proves), one that executes more (ratchet it in), a program whose live
+    code moved, a program not in the ledger; on a complete run, a ledgered program not measured."""
+    errors: list[str] = []
+    known = ledger.get("programs", {})
+    now = coverage_of(results)["programs"]
+    for key, rec in now.items():
+        old = known.get(key)
+        if old is None:
+            errors.append(f"COVERAGE NEW: {key} is not in the coverage ledger -- record it (--update-baseline)")
+            continue
+        if (old["live"], old["outcomes"]) != (rec["live"], rec["outcomes"]):
+            errors.append(f"COVERAGE INVENTORY MOVED: {key}: {old['live']} live paragraphs / {old['outcomes']} branch "
+                          f"outcomes, now {rec['live']} / {rec['outcomes']} -- re-baseline (--update-baseline)")  # fmt: skip
+        for sid in sorted(set(old["scenarios"]) | set(rec["scenarios"])):
+            a, b = old["scenarios"].get(sid, {}), rec["scenarios"].get(sid, {})
+            for kind in ("units", "outcomes"):
+                lost = sorted(set(a.get(kind, [])) - set(b.get(kind, [])))
+                gained = sorted(set(b.get(kind, [])) - set(a.get(kind, [])))
+                if lost:
+                    errors.append(f"COVERAGE LOST: {key} scenario {sid}: {kind} {', '.join(lost)}")
+                if gained:
+                    errors.append(f"COVERAGE GAINED: {key} scenario {sid}: {kind} {', '.join(gained)} -- ratchet it "
+                                  "in (--update-baseline)")  # fmt: skip
+    if complete:
+        for key in sorted(set(known) - set(now)):
+            errors.append(f"COVERAGE STALE: {key} is in the coverage ledger but was not measured -- re-baseline")
+    return errors
+
+
+def ledger_claim(
+    case: str, program: str, scenarios: list[str], ledger: Optional[dict[str, Any]] = None
+) -> Optional[str]:
+    """#4023: a port's claim from the committed coverage ledger -- the scenarios it proved on, and how much of the
+    program those execute (None: the program is not in the ledger)."""
+    rec = (ledger if ledger is not None else read_coverage()).get("programs", {}).get(f"{case}/{program}")
+    if rec is None:
+        return None
+    got = cov.Hits()
+    for sid in scenarios:
+        if sid in rec["scenarios"]:
+            got = got.merge(cov.Hits.from_dict(rec["scenarios"][sid]))
+    return (f"proven on {len(scenarios)} scenario{'' if len(scenarios) == 1 else 's'}, covering "
+            f"{len(got.units)}/{rec['live']} paragraphs and {len(got.outcomes)}/{rec['outcomes']} branches")  # fmt: skip
 
 
 # ---- the report ---------------------------------------------------------------------------------------
@@ -1815,6 +1976,7 @@ def report_md(results: dict[str, Any]) -> str:
             else:
                 row.append(f"{sum(c['status'] == 'pass' for c in s)} / {len(s)}")
         lines.append(f"| {trap} | `{case}` | " + " | ".join(row) + " |")
+    lines += coverage_md(results)
     lines += ["", "## Harness work, in the order that unlocks the most cells", "",
               "Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is "
               "*unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather "
@@ -1853,6 +2015,57 @@ def report_md(results: dict[str, Any]) -> str:
             reason = " ".join(c["reason"].split()).replace("|", "\\|")
             lines.append(f"| `{cid}` | {c['status']} | {reason[:400]} |")
     return "\n".join(lines) + "\n"
+
+
+def coverage_md(results: dict[str, Any]) -> list[str]:
+    """#4023: the report's coverage section -- per program, how much of it the passing scenarios execute, its
+    port's claim, and the live code no scenario reaches (each a scenario to propose to the crucible)."""
+    per = results.get("coverage") or {}
+    if not per:
+        return []
+    lines = ["", "## COBOL coverage", "",
+             "Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/cobol_coverage.py, "
+             "#4023). Per program: the live paragraphs and sections the passing scenarios enter, out of all the live "
+             "ones, and the branch outcomes they take (IF true / false; each EVALUATE arm, and no arm when there is "
+             "no WHEN OTHER) in live code. Code that nothing can reach (the engine's reachability: PERFORM, GO TO, "
+             "fall-through, HANDLE labels) is dead, and is listed apart. A port's claim counts only the scenarios "
+             "its java-ported cell passes on. `tests/cics_crucible/coverage.json` holds what each scenario executes, "
+             "and CI holds it as a ratchet.", "",
+             "| case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |",
+             "|---|---|---|---|---|---|---|---|"]  # fmt: skip
+    for case, progs in per.items():
+        for prog, r in progs.items():
+            s = r["summary"]
+            p, b, h = s["paragraphs"], s["branches"], s["handler_labels"]
+            port = r["port"]["claim"] if r.get("port") else "--"
+            lines.append(f"| `{case}` | {prog} | {len(r['scenarios'])} | {p['covered']}/{p['live']} | "
+                         f"{b['covered']}/{b['total']} | {h['covered']}/{h['total']} | {len(p['dead'])} | {port} |")  # fmt: skip
+    gaps = [(case, prog, r["summary"]) for case, progs in per.items() for prog, r in progs.items()
+            if cov.gaps_md(r["summary"]) or r["summary"]["paragraphs"]["dead"]
+            or r["summary"]["paragraphs"].get("unread")]  # fmt: skip
+    if gaps:
+        lines += ["", "### Live code no scenario reaches", "",
+                  "Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected "
+                  "log, like every other. Dead code is not a gap: nothing can reach it.", ""]  # fmt: skip
+        for case, prog, s in gaps:
+            lines += [f"#### `{case}` {prog}", "", *cov.gaps_md(s)]
+            if s["paragraphs"]["dead"]:
+                lines.append(f"- dead: {', '.join(f'`{n}`' for n in s['paragraphs']['dead'])}")
+            if s["paragraphs"].get("unread"):
+                lines.append(
+                    "- **entered, but the engine does not read it as a unit** (an engine defect): "
+                    + ", ".join(f"`{n}`" for n in s["paragraphs"]["unread"])
+                )
+            if s["paragraphs"].get("dead_but_executed"):
+                lines.append(
+                    "- **dead to the engine, yet a scenario entered it** (a reachability defect): "
+                    + ", ".join(f"`{n}`" for n in s["paragraphs"]["dead_but_executed"])
+                )
+            lines += [
+                f"- not counted: {u['kind']} at line {u['line']} ({u['why']})" for u in s["branches"]["unresolvable"]
+            ]
+            lines.append("")
+    return lines
 
 
 # ---- a proof for the porting loop (port_runner prove --command) -----------------------------------------
@@ -1931,6 +2144,8 @@ def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: 
               "outputs": {c["scenario"]: {"equal": int(c["status"] == "pass"), "records": 1} for c in cells.values()},
               "cells": {cid: {k: c.get(k) for k in ("status", "reason", "kind")} for cid, c in cells.items()},
               "feedback": proof_feedback(case, cells, opts.actual)}  # fmt: skip
+    if opts.program and proven:  # #4023: how much of the program the proof's scenarios execute
+        report["claim"] = ledger_claim(case.id, opts.program, sorted(c["scenario"] for c in cells.values()))
     report_dir.mkdir(parents=True, exist_ok=True)
     (report_dir / "report.json").write_text(json.dumps(report, indent=1, default=str) + "\n", encoding="utf-8")
     return proven
@@ -1997,18 +2212,23 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 0 if proven else 1
     if args.update_baseline:
         write_baseline(results)
+        write_coverage(results)
         REPORT.write_text(report_md(results), encoding="utf-8")
-        print(f"baseline: {len(baseline_of(results)['cells'])} cells ledgered; report: {REPORT.relative_to(REPO_ROOT)}")
+        print(f"baseline: {len(baseline_of(results)['cells'])} cells ledgered; coverage: "
+              f"{len(coverage_of(results)['programs'])} programs; report: {REPORT.relative_to(REPO_ROOT)}")  # fmt: skip
         return 0
     if args.ci:
         errors, notes = ratchet(results, read_baseline(), complete)
+        if "cobol-stub" in args.sides and not custom:
+            errors += coverage_ratchet(results, read_coverage(), complete)
         for line in notes:
             print(f"note: {line}")
         for line in errors:
             print(line)
         if errors:
             print(f"\n{len(errors)} ratchet error(s). If intended, run with --update-baseline and commit "
-                  "tests/cics_crucible/baseline.json and docs/language_status/cics_crucible.md.")  # fmt: skip
+                  "tests/cics_crucible/baseline.json, tests/cics_crucible/coverage.json and "
+                  "docs/language_status/cics_crucible.md.")  # fmt: skip
         return 1 if errors else 0
     return 0
 

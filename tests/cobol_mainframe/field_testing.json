@@ -648,6 +648,21 @@
       "found_by": "review",
       "issue": 3998,
       "summary": "The refractor without `--scan` read SELECT with its own regex (cobol_dag_architect): `ASSIGN TO \"x\"` gave DD `TO`, `SELECT OPTIONAL f` and Japanese / full-width file names were missed, so lineage differed from `--scan`. It now uses the engine's SELECT reader. Found while fixing #3992, not by the estate scan."
+    },
+    {
+      "id": "D036",
+      "estate": null,
+      "after_round": 6,
+      "side": "forge",
+      "fields": [
+        "units",
+        "dead"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "coverage trace (#4023) on the fresh-estate scan (#3806)",
+      "issue": 4026,
+      "summary": "cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them."
     }
   ],
   "fields": {

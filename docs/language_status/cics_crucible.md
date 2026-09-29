@@ -34,6 +34,68 @@ Pass counts per side (scenario sides: passing / scenarios).
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 |
 | pseudo-conversational | `pc-wizard` | pass | pass | 3 / 3 | 0 / 3 | 3 / 3 |
 
+## COBOL coverage
+
+Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/cobol_coverage.py, #4023). Per program: the live paragraphs and sections the passing scenarios enter, out of all the live ones, and the branch outcomes they take (IF true / false; each EVALUATE arm, and no arm when there is no WHEN OTHER) in live code. Code that nothing can reach (the engine's reachability: PERFORM, GO TO, fall-through, HANDLE labels) is dead, and is listed apart. A port's claim counts only the scenarios its java-ported cell passes on. `tests/cics_crucible/coverage.json` holds what each scenario executes, and CI holds it as a ratchet.
+
+| case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |
+|---|---|---|---|---|---|---|---|
+| `ca-link-lengths` | CALINK | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
+| `ca-link-lengths` | CASUB | 3 | 1/1 | 4/4 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 4/4 branches |
+| `ca-xctl-versions` | CAXA | 3 | 1/1 | 3/3 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 3/3 branches |
+| `ca-xctl-versions` | CAXB | 2 | 1/1 | 5/6 | 0/0 | 0 | proven on 2 scenarios, covering 1/1 paragraphs and 5/6 branches |
+| `gt-start-retrieve` | GTSTART | 5 | 1/1 | 5/6 | 0/0 | 0 | proven on 5 scenarios, covering 1/1 paragraphs and 5/6 branches |
+| `gt-start-retrieve` | GTWORK | 5 | 1/1 | 2/2 | 0/0 | 0 | proven on 5 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `gt-terminal-coalesce` | GTSHOW | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `gt-terminal-coalesce` | GTTERM | 4 | 1/1 | 4/4 | 0/0 | 0 | proven on 4 scenarios, covering 1/1 paragraphs and 4/4 branches |
+| `hc-abend-link` | HCMAIN | 5 | 4/4 | 4/4 | 2/2 | 0 | proven on 5 scenarios, covering 4/4 paragraphs and 4/4 branches |
+| `hc-abend-link` | HCSUB | 3 | 2/2 | 3/3 | 1/1 | 0 | proven on 3 scenarios, covering 2/2 paragraphs and 3/3 branches |
+| `hc-perform-range` | HCQREAD | 4 | 8/8 | 0/0 | 4/4 | 0 | proven on 4 scenarios, covering 8/8 paragraphs and 0/0 branches |
+| `hx-attr-bytes` | HXATTR | 3 | 4/4 | 5/6 | 0/0 | 0 | proven on 3 scenarios, covering 4/4 paragraphs and 5/6 branches |
+| `hx-extended-cursor` | HXEXT | 3 | 3/3 | 6/6 | 0/0 | 0 | proven on 3 scenarios, covering 3/3 paragraphs and 6/6 branches |
+| `pc-aid-menu` | PCDETL | 3 | 1/1 | 2/2 | 0/0 | 0 | proven on 3 scenarios, covering 1/1 paragraphs and 2/2 branches |
+| `pc-aid-menu` | PCMENU | 3 | 4/4 | 8/9 | 2/2 | 0 | proven on 3 scenarios, covering 4/4 paragraphs and 8/9 branches |
+| `pc-wizard` | PCCONF | 3 | 4/5 | 6/14 | 0/0 | 0 | proven on 3 scenarios, covering 4/5 paragraphs and 6/14 branches |
+| `pc-wizard` | PCWIZ | 3 | 4/5 | 9/10 | 0/0 | 0 | proven on 3 scenarios, covering 4/5 paragraphs and 9/10 branches |
+
+### Live code no scenario reaches
+
+Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected log, like every other. Dead code is not a gap: nothing can reach it.
+
+#### `ca-xctl-versions` CAXB
+
+- IF at line 33 in `MAIN-PARA`: never false
+
+#### `gt-start-retrieve` GTSTART
+
+- EVALUATE at line 32 in `MAIN-PARA`: no WHEN arm matched: never
+
+#### `hx-attr-bytes` HXATTR
+
+- IF at line 78 in `ECHO-SCREEN`: never false
+
+#### `pc-aid-menu` PCMENU
+
+- EVALUATE at line 46 in `MAIN-PARA`: `OTHER` never taken
+
+#### `pc-wizard` PCCONF
+
+- paragraph `SEND-STEP2` (line 74)
+- EVALUATE at line 34 in `MAIN-PARA`: `WHEN at line 39` never taken
+- EVALUATE at line 34 in `MAIN-PARA`: `OTHER` never taken
+- IF at line 41 in `MAIN-PARA`: never true
+- IF at line 41 in `MAIN-PARA`: never false
+- IF at line 64 in `TAKE-AMOUNT`: never true
+- IF at line 77 in `SEND-STEP2`: never true
+- IF at line 77 in `SEND-STEP2`: never false
+- IF at line 92 in `SEND-STEP3`: never true
+
+#### `pc-wizard` PCWIZ
+
+- paragraph `CANCEL-WIZARD` (line 81)
+- EVALUATE at line 32 in `MAIN-PARA`: `WHEN at line 33` never taken
+
+
 ## Harness work, in the order that unlocks the most cells
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).

@@ -68,6 +68,8 @@ from pathlib import Path
 from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cobol_coverage as cov  # noqa: E402 -- #4023
+
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
 from equivalence_common import (
     CASES,
@@ -191,12 +193,13 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
     (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
-    script.append(f"cobc -x {flags} -o program src/EQDRIVER.cbl src/PROGRAM.cbl")
+    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl")  # #4023: traced
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
-    script.append(f"set +e; {tz}{clock}{env} ./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")
+    script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}{tz}{clock}{env} ./program > /work/stdout.txt 2>&1; "
+                  "echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
             script.append(f"{dd}=/work/{dd}.idx OUTFILE=/work/{dd}.out ./ul{dd}")
@@ -209,6 +212,10 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     )  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    # #4023: how much of the program this run executes (work/coverage.json)
+    cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=source,
+                           compiled=program, traces=[work / cov.TRACE_NAME], compiled_name="PROGRAM.cbl",
+                           copybooks=corpus, encoding=staged)  # fmt: skip
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items() if spec.get("compare")}
     outs["RETURN-CODE"] = (work / "RETURN-CODE").read_text(encoding="ascii").strip().encode()
     return outs
@@ -329,6 +336,7 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         lines += ["", "| JVM environment | locale | time zone | equal to COBOL |", "|---|---|---|---|"]
         for e in report["environments"]:
             lines.append(f"| {e['name']} | {e['locale']} | {e['tz']} | {'yes' if e['ok'] else '**no**'} |")
+    lines += cov.report_lines(report.get("coverage"), 1, report.get("proven", False))  # #4023
     for dd, d in report["outputs"].items():
         if d["diffs"]:
             lines += ["", f"## {dd}: differences", "", "| record | field | COBOL | Java |", "|---|---|---|---|"]
@@ -441,6 +449,11 @@ def main() -> int:
         report.setdefault("environments", []).append({**env, "ok": env_ok, "return_code": rc, "outputs": outputs})
         ok &= env_ok
     rc = report["return_code"]
+    report["proven"] = ok
+    covered = work / "cobol" / "coverage.json"  # #4023
+    report["coverage"] = json.loads(covered.read_text(encoding="utf-8")) if covered.is_file() else None
+    if report["coverage"] and "error" in report["coverage"]:
+        report["coverage"] = None
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
     print(
@@ -455,6 +468,8 @@ def main() -> int:
         for e in report["environments"]:
             print(f"{case['program']} under {e['name']} ({e['locale']}, {e['tz']}): "
                   f"{'equal to COBOL' if e['ok'] else 'DIFFERS'}")  # fmt: skip
+    if report["coverage"]:
+        print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], 1, ok)}")
     print(f"report: {work / 'report.json'}")
     return 0 if ok else 1
 

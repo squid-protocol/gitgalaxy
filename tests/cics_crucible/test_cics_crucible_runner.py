@@ -536,6 +536,45 @@ def test_the_ratchet_fails_on_new_failures_and_on_ledgered_cells_that_pass():
     )
 
 
+def _coverage(**scenarios):
+    """Results carrying one program's coverage: scenario -> (units, outcomes)."""
+    summary = {"paragraphs": {"covered": 0, "live": 3, "dead": [], "uncovered": []},
+               "branches": {"covered": 0, "total": 4, "uncovered": [], "unresolvable": []},
+               "handler_labels": {"covered": 0, "total": 0, "uncovered": []}}  # fmt: skip
+    return {
+        "crucible_ref": "abc",
+        "cells": {},
+        "coverage": {
+            "c": {
+                "P": {
+                    "scenarios": {sid: {"units": u, "outcomes": o} for sid, (u, o) in scenarios.items()},
+                    "summary": summary,
+                }
+            }
+        },
+    }
+
+
+def test_the_coverage_ratchet_catches_lost_and_gained_paths(tmp_path):
+    """#4023: per scenario, the paragraphs and branch outcomes it executes -- sets, so a swap is caught."""
+    runner.write_coverage(_coverage(s=(["A", "B"], ["9:true"]), t=(["A"], [])), tmp_path / "cov.json")
+    ledger = runner.read_coverage(tmp_path / "cov.json")
+    assert ledger["programs"]["c/P"]["live"] == 3 and ledger["programs"]["c/P"]["outcomes"] == 4
+    assert runner.coverage_ratchet(_coverage(s=(["A", "B"], ["9:true"]), t=(["A"], [])), ledger, True) == []
+    errors = runner.coverage_ratchet(_coverage(s=(["A", "C"], ["9:true"]), t=(["A"], [])), ledger, True)
+    assert errors == ["COVERAGE LOST: c/P scenario s: units B",
+                      "COVERAGE GAINED: c/P scenario s: units C -- ratchet it in (--update-baseline)"]  # fmt: skip
+    gone = {"crucible_ref": "abc", "cells": {}, "coverage": {}}
+    assert runner.coverage_ratchet(gone, ledger, False) == []  # a partial run: not measured is not stale
+    assert runner.coverage_ratchet(gone, ledger, True) == [
+        "COVERAGE STALE: c/P is in the coverage ledger but was not measured -- re-baseline"]  # fmt: skip
+    # a proven port's claim: the scenarios it proved on, and how much of the program those execute
+    assert (
+        runner.ledger_claim("c", "P", ["s"], ledger) == "proven on 1 scenario, covering 2/3 paragraphs and 1/4 branches"
+    )
+    assert runner.ledger_claim("c", "Q", ["s"], ledger) is None
+
+
 def test_the_report_counts_sides_features_and_reasons():
     res = _results(a__s__java="fail", a__t__java="unsupported", a__s__cobol_stub="unsupported", **{
         "a__*__engine-facts": "pass", "a__*__forge-compile": "fail"})  # fmt: skip
@@ -605,6 +644,13 @@ def test_the_fixture_runs_through_every_side(tmp_path):
     java = res["cells"]["fx-text-chain/three-visits/java"]
     assert java["reason"] == "task 1 (FX01) event 1: SEND-TEXT expected, the side recorded no further event"
     assert java["kind"].startswith("runTask records no events")
+    # #4023: the passing cobol-stub scenario's COBOL was traced; the ported programs carry their claim
+    chain = res["coverage"]["fx-text-chain"]
+    assert chain and all(r["scenarios"] == {"three-visits": r["scenarios"]["three-visits"]} for r in chain.values())
+    for r in chain.values():
+        s = r["summary"]
+        assert s["paragraphs"]["covered"] >= 1 and s["paragraphs"]["unread"] == []
+        assert r["port"]["claim"].startswith("proven on 1 scenario, covering ")
 
 
 # ---- #4006: the scheduler (SPEC section 4) --------------------------------------------------------------

@@ -197,6 +197,9 @@ ALLOWLIST = {
     "obscured": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "secrets": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
     "spec": "written via the bridge/signal_key indirection in _get_locational_multipliers (signal_processor.py)",
+    # java_target.target_as_dict writes each config section as dict(vars(<its dataclass>)), so the
+    # Culture field decimal_point is a real key of the port ticket's target["culture"].
+    "decimal_point": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3984)",
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
     # --- Regex named-capture-group access, not dict keys ---

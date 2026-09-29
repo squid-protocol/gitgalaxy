@@ -37,6 +37,7 @@ from typing import Any
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
 from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
@@ -198,6 +199,32 @@ def line_sequential_rules(file_control: list[dict[str, Any]]) -> list[str]:
         "pad a short line with spaces to the record length; on write, strip the record's trailing spaces and end "
         "the line with the platform's terminator -- \\n, or \\r\\n when the estate runs on Windows (#3833)."
     ]
+
+
+def decimal_point_rules(text: str, culture: dict[str, Any] | None) -> list[str]:
+    """#3984: the decimal point this program's numbers use, named in its ticket -- the generic NUMVAL and
+    CobolEdit rules leave it to the porter to find DECIMAL-POINT IS COMMA in SPECIAL-NAMES, and a
+    `ZZZ.ZZ9,99` formatted with decimalComma = false reads 1.234,50 as 1,234.50. culture.decimal_point
+    overrides the program as it does for the entities (_decimal_comma); a program with neither keeps
+    today's rules."""
+    line = next((sn["line"] for sn in special_names(text) if sn["clause"] == "DECIMAL-POINT"), None)
+    declared = str((culture or {}).get("decimal_point") or "auto")
+    if declared == "period" and line is not None:
+        return [
+            f"This program codes DECIMAL-POINT IS COMMA (SPECIAL-NAMES, line {line}), but this migration declares "
+            "culture.decimal_point: period: pass '.' to CobolRecords.numval and decimalComma = false to "
+            "CobolEdit.format, as the generated entities do (#3984)."
+        ]
+    if declared == "comma" or (declared == "auto" and line is not None):
+        where = (f"codes DECIMAL-POINT IS COMMA (SPECIAL-NAMES, line {line})" if line is not None
+                 else "is ported with culture.decimal_point: comma")  # fmt: skip
+        return [
+            f"This program {where}: in its PICTUREs and numeric literals `,` is the decimal point and `.` an "
+            "insertion character (PIC 9(6),99 has 2 decimals; VALUE 12,50 is 12.5). Pass ',' to "
+            "CobolRecords.numval and decimalComma = true to CobolEdit.format for every one of its fields; a "
+            'Java literal is still written with `.` (new BigDecimal("12.50")) (#3984).'
+        ]
+    return []
 
 
 def option_rules(options: list[dict[str, Any]]) -> list[str]:
@@ -478,6 +505,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     options = compiler_options(text)  # #3828
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
     rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
+    rules += decimal_point_rules(text, target.get("culture"))  # #3984
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "

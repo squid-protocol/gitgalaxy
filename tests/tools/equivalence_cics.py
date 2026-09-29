@@ -339,6 +339,7 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
         mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",
                                                        "FREEKB", "ALARM", "FRSET", "PRINT")]  # fmt: skip
         lines.append(f"MOVE '{' '.join(mapflags)[:40]}' TO GG-FLAGS" if mapflags else "MOVE SPACES TO GG-FLAGS")
+        lines.append(f"MOVE {opts.get('CURSOR') or '-1'} TO GG-LEN")  # #4001: CURSOR(n); -1: none given
         if "MAPONLY" in opts:
             args = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"]
         else:

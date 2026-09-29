@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 24 | 1 | 12 | 37 |
+| cobol-stub | 33 | 1 | 3 | 37 |
 | java | 0 | 37 | 0 | 37 |
-| **all** | **44** | **38** | **12** | **94** |
+| **all** | **53** | **38** | **3** | **94** |
 
 ## By trap and case
 
@@ -28,29 +28,27 @@ Pass counts per side (scenario sides: passing / scenarios).
 | condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 |
 | ghost-tasks | `gt-start-retrieve` | pass | pass | 5 / 5 | 0 / 5 |
 | ghost-tasks | `gt-terminal-coalesce` | pass | pass | 4 / 4 | 0 / 4 |
-| hex-attributes | `hx-attr-bytes` | pass | pass | 0 / 3 | 0 / 3 |
-| hex-attributes | `hx-extended-cursor` | pass | pass | 0 / 3 | 0 / 3 |
+| hex-attributes | `hx-attr-bytes` | pass | pass | 3 / 3 | 0 / 3 |
+| hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 |
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 0 / 3 | 0 / 3 |
-| pseudo-conversational | `pc-wizard` | pass | pass | 0 / 3 | 0 / 3 |
+| pseudo-conversational | `pc-wizard` | pass | pass | 3 / 3 | 0 / 3 |
 
 ## Harness work, in the order that unlocks the most cells
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (12 unsupported)
+### cobol-stub (3 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 9 | 9 |
-| 2 | HANDLE AID | 3 | 0 | 12 |
-| 3 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 12 |
+| 1 | HANDLE AID | 3 | 3 | 3 |
+| 2 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 3 |
 
 ### java (0 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 0 |
-| 2 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
+| 1 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -60,8 +58,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| stub: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| stub: SEND-MAP fields | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | translator: HANDLE AID | 3 | HANDLE AID |
 | stub: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
@@ -69,15 +65,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| CicsTask: SEND-MAP attribute bytes | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: SEND-MAP data origin (program / map / none) | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: SEND-MAP mapset | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: SEND-MAP options | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: XCTL length | 5 | XCTL LENGTH / RESP / RESP2 |
 | CicsTask: XCTL resp | 5 | XCTL LENGTH / RESP / RESP2 |
-| CicsTask: SEND-MAP DATAONLY field omission | 4 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: SEND-MAP extended attributes | 3 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
 ## Failure reasons, grouped
@@ -117,17 +106,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hc-perform-range/length-trap/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/no-queue/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-perform-range/three-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
-| `hx-attr-bytes/clear-maponly/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-attr-bytes/clear-maponly/java` | fail | task 1 (HX01) event 1: SEND-MAP expected, the side recorded no further event |
-| `hx-attr-bytes/echo-dataonly/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-attr-bytes/echo-dataonly/java` | fail | task 1 (HX01) event 1: SEND-MAP expected, the side recorded no further event |
-| `hx-attr-bytes/first-display/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-attr-bytes/first-display/java` | fail | task 1 (HX01) event 1: SEND-MAP expected, the side recorded no further event |
-| `hx-extended-cursor/bad-account/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-extended-cursor/bad-account/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
-| `hx-extended-cursor/good-entry/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-extended-cursor/good-entry/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
-| `hx-extended-cursor/pf5-blink/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-extended-cursor/pf5-blink/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/aid-keys/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/aid-keys/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
@@ -135,9 +118,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-aid-menu/option2-next-transid/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/back-and-fix/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/back-and-fix/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/happy-post/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/happy-post/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-wizard/mapfail-clear-cancel/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `pc-wizard/mapfail-clear-cancel/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |

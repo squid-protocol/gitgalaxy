@@ -582,6 +582,62 @@ public class CicsTask {
         event("SEND-MAP", "map", map, "screen", screen);
     }
 
+    /** SEND MAP(map) MAPSET(mapset) FROM(screen) with its options (ERASE, DATAONLY, MAPONLY, CURSOR, ...;
+     *  #4001). `screen` holds each field's data (`<f>O`; null under MAPONLY, a value starting with a
+     *  null character leaves the map's INITIAL); `subfields` what the symbolic map's other subfields
+     *  hold. BMS decides from them and the map what is sent. */
+    public void sendMap(String map, String mapset, Object screen, MapSubfields subfields, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        MapSubfields sub = subfields == null ? new MapSubfields() : subfields;
+        event("SEND-MAP", "map", map, "mapset", mapset, "screen", screen, "options", opts, "subfields", sub.fields,
+                "cursor", sub.cursorOffset);
+    }
+
+    public void sendMap(String map, String mapset, Object screen, String... options) {
+        sendMap(map, mapset, screen, null, options);
+    }
+
+    /** The symbolic map's subfields besides the data (#4001), as the program sets them: the attribute byte
+     *  (`<f>A`), extended colour and highlight (`<f>C`, `<f>H`) -- the EBCDIC byte values (DFHBMPRO = 0x60,
+     *  DFHRED = 0xF2), never characters -- and the length (`<f>L`: -1 asks for the cursor, with the CURSOR
+     *  option). `cursorAt` is CURSOR(offset). */
+    public static final class MapSubfields {
+        private final Map<String, Map<String, Integer>> fields = new LinkedHashMap<>();
+        private Integer cursorOffset;
+
+        public MapSubfields attr(String field, int value) {
+            return set(field, "attr", value & 0xFF);
+        }
+
+        public MapSubfields color(String field, int value) {
+            return set(field, "color", value & 0xFF);
+        }
+
+        public MapSubfields hilight(String field, int value) {
+            return set(field, "hilight", value & 0xFF);
+        }
+
+        public MapSubfields length(String field, int value) {
+            return set(field, "length", value);
+        }
+
+        /** MOVE -1 TO the field's length: symbolic cursor positioning. */
+        public MapSubfields cursor(String field) {
+            return length(field, -1);
+        }
+
+        public MapSubfields cursorAt(int offset) {
+            this.cursorOffset = offset;
+            return this;
+        }
+
+        private MapSubfields set(String field, String key, int value) {
+            fields.computeIfAbsent(field, f -> new LinkedHashMap<>()).put(key, value);
+            return this;
+        }
+    }
+
     /** SEND TEXT FROM(text): LENGTH is the text's own, no options. */
     public void sendText(String text) {
         sendText(text, text == null ? 0 : text.length());

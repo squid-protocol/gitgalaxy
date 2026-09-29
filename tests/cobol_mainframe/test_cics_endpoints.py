@@ -211,6 +211,12 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
     assert 'event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp",' in task
     assert "public void returnTransid(String transid, Object commarea, Integer length)" in task
     assert "Integer eibcalen, Map<String, Object> received)" in task and "public Integer eibcalen()" in task
+    # #4001: SEND MAP carries the mapset, options, and the symbolic map's other subfields (A, C, H, L)
+    assert (
+        "public void sendMap(String map, String mapset, Object screen, MapSubfields subfields, String... options)"
+        in task
+    )
+    assert "public static final class MapSubfields" in task and "public MapSubfields cursor(String field)" in task
 
     assert not (src / "controller/BatchController.java").exists()  # batch: the generic path, unchanged
     audit = (src.parents[5] / "java_migration_audit.txt").read_text(encoding="utf-8")

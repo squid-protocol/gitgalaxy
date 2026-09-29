@@ -315,12 +315,14 @@ int GGCWRTQ(gg_cics *c, char *from) {
 }
 
 /* ---- the task's outputs ----------------------------------------------------------- */
+/* SEND MAP: the symbolic map's bytes as the program left them (#4001: the harness resolves what
+ * BMS sends from them and the BMS source); c->len is CURSOR's value, -1 when none was given. */
 int GGCSMAP(gg_cics *c, char *from, int len) {
-    char map[9], mapset[9], flags[41], ev[160];
+    char map[9], mapset[9], flags[41], ev[192];
     trim(c->name1, 8, map);
     trim(c->name2, 8, mapset);
     trim(c->flags, 40, flags);
-    snprintf(ev, sizeof ev, "SEND-MAP map=%s mapset=%s len=%d opts=%s", map, mapset, len, flags);
+    snprintf(ev, sizeof ev, "SEND-MAP map=%s mapset=%s len=%d cursor=%d opts=%s", map, mapset, len, c->len, flags);
     event(ev, from, len);
     c->resp = NORMAL;
     return 0;

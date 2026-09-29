@@ -44,6 +44,7 @@ from __future__ import annotations
 import argparse
 import base64
 import contextlib
+import dataclasses
 import datetime
 import json
 import os
@@ -78,11 +79,15 @@ CONDITION_ABCODE = {"NOTFND": "AEIM", "LENGERR": "AEIV", "ITEMERR": "AEIZ", "QID
 SEND_OPTIONS = ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "FREEKB", "ALARM", "FRSET", "CURSOR", "WAIT", "LAST")
 
 # What each scenario side records (see cics_crucible_compare.Capabilities).
+# #4001: SEND MAP as BMS sends it -- per field its attribute, data and extended attributes and where
+# each comes from, the fields DATAONLY leaves out, and the cursor (cics_bms.send_map)
+BMS_KEYS = frozenset({"map", "mapset", "options", "cursor", "fields", "fields.omission"} |
+                     {f"fields.{k}" for k in cc.FIELD_KEYS})  # fmt: skip
 COBOL_CAPS = cc.Capabilities(
     layer="stub",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
     events={
-        "SEND-MAP": frozenset({"map", "mapset", "options"}),  # fields: BMS output resolution is not modelled
+        "SEND-MAP": BMS_KEYS,
         "SEND-TEXT": frozenset({"text", "length", "options"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
@@ -106,7 +111,7 @@ JAVA_CAPS = cc.Capabilities(
     layer="CicsTask",
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
     events={
-        "SEND-MAP": frozenset({"map", "fields", "fields.data"}),
+        "SEND-MAP": BMS_KEYS,  # #4001: resolved like the stub's, from what CicsTask.sendMap recorded
         "SEND-TEXT": frozenset({"text", "length", "options"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
@@ -825,7 +830,28 @@ def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any]
     return cc.FieldArea(ec.from_java(desc["value"], shapes[cls]), cc.FULL if length is None else length)
 
 
-def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]:
+def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], Any]:
+    """#4001: what BMS sends for a CicsTask SEND-MAP event -- the screen's values as each field's
+    data (EBCDIC), its subfields' attribute / colour / highlight bytes and lengths -- resolved from
+    the map exactly as the stub's symbolic map is."""
+    import cics_bms
+
+    values = e.get("screen")
+    subs = e.get("subfields") or {}
+    program = None
+    if values is not None:
+        program = {}
+        for f in screen.bms.named():
+            v, sub = (values or {}).get(f.name), subs.get(f.name) or {}
+            data = cics_bms.ebcdic(str(v)) if v not in (None, "") else None
+            program[f.name] = cics_bms.ProgramField(length=sub.get("length"), attr=sub.get("attr"),
+                                                     color=sub.get("color"), hilight=sub.get("hilight"),
+                                                     data=data)  # fmt: skip
+    return cics_bms.send_map(screen.bms, program, e.get("options") or [], e.get("cursor"))
+
+
+def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
+                screens: Optional[dict[str, Screen]] = None) -> dict[str, Any]:  # fmt: skip
     """The generated test's output for one scenario -> an actual log for the comparison."""
     shapes: dict[str, Any] = {}
     tasks = []
@@ -840,8 +866,12 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
             kind = e["event"]
             ev: dict[str, Any] = {"event": kind, "program": e.get("program")}
             if kind == "SEND-MAP":
-                ev["map"] = e.get("map")
-                ev["fields"] = {k: {"data": v} for k, v in (e.get("screen") or {}).items()}
+                ev.update(map=e.get("map"), mapset=e.get("mapset"), options=e.get("options") or [])
+                screen = screens.get(ev["map"]) if screens is not None else None
+                if screen is None:
+                    ev["fields"] = {k: {"data": v} for k, v in (e.get("screen") or {}).items()}
+                else:
+                    ev["fields"], ev["cursor"] = java_send_map(screen, e)
             elif kind == "SEND-TEXT":  # #4009: the FROM data, its LENGTH and options
                 ev.update(text=e.get("text"), length=e.get("length"), options=e.get("options") or [])
             elif kind == "RECEIVE":  # #4005: the data as text, the area's bytes in the stub's page
@@ -905,11 +935,12 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[st
     if not ok:
         raise RuntimeError(f"the Java run failed: {errors.splitlines()[0] if errors else 'mvn test'}")
     result = {}
+    screens = case_screens(case)
     for sc in case.scenarios:
         f = out / f"{sc['id']}.json"
         raw = json.loads(f.read_text(encoding="utf-8")) if f.is_file() else {"tasks": [], "stopped": "no output"}
         raw["_scenario"] = sc["id"]
-        result[sc["id"]] = java_actual(case, raw, src)
+        result[sc["id"]] = java_actual(case, raw, src, screens)
     return result
 
 
@@ -934,7 +965,101 @@ def _eib_datetime(when: datetime.datetime) -> tuple[str, str]:
     return f"{when.year - 1900:03d}{day:03d}".rjust(7, "0")[-7:], "0" + when.strftime("%H%M%S")
 
 
-def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
+@dataclasses.dataclass
+class Screen:
+    """One map (#4001): its BMS definition and its symbolic map's input (L, F, I) and output (C, H,
+    O) fields by name."""
+
+    bms: Any  # cics_bms.BmsMap
+    inp: dict[str, dict[str, Any]]
+    out: dict[str, dict[str, Any]]
+
+    @property
+    def size(self) -> int:
+        return max((f["offset"] + f["bytes"] for f in [*self.inp.values(), *self.out.values()]), default=0)
+
+    def program_fields(self, data: bytes) -> dict[str, Any]:
+        """The symbolic map's bytes (the stub's page, latin-1) -> what the program left per field:
+        attribute, colour and highlight bytes as they are (EBCDIC: see DFHBMSCA.cpy), data transcoded."""
+        import cics_bms
+
+        def raw(f: Optional[dict[str, Any]]) -> Optional[bytes]:
+            return None if f is None or f["offset"] >= len(data) else data[f["offset"] : f["offset"] + f["bytes"]]
+
+        def byte(f: Optional[dict[str, Any]]) -> Optional[int]:
+            b = raw(f)
+            return b[0] if b else None
+
+        out = {}
+        for bf in self.bms.named():
+            n = bf.name
+            length = raw(self.inp.get(f"{n}L"))
+            text = raw(self.out.get(f"{n}O"))
+            out[n] = cics_bms.ProgramField(
+                length=int.from_bytes(length, "big", signed=True) if length else None,
+                attr=byte(self.inp.get(f"{n}F")), color=byte(self.out.get(f"{n}C")),
+                hilight=byte(self.out.get(f"{n}H")),
+                data=cc.to_ebcdic(cc.RawArea(text, "latin-1")) if text is not None else None)  # fmt: skip
+        return out
+
+    def send(self, data: Optional[bytes], options: list[str], cursor: Optional[int]) -> tuple[dict[str, Any], Any]:
+        import cics_bms
+
+        program = self.program_fields(data) if data else None
+        return cics_bms.send_map(self.bms, program, options, cursor)
+
+    def receive_input(self, typed: dict[str, str]) -> bytes:
+        """RECEIVE MAP INTO's bytes for the fields the terminal transmitted: nulls elsewhere; each
+        transmitted field's length and data, justified as its DFHMDF JUSTIFY says; a field sent
+        empty (erased with ERASE EOF) has length 0 and the DFHBMEOF flag X'80'."""
+        import cics_bms
+
+        buf = bytearray(self.size)
+        by_name = {f.name: f for f in self.bms.named()}
+        for name, text in typed.items():
+            bf, lf, ff, df = (
+                by_name.get(name),
+                self.inp.get(f"{name}L"),
+                self.inp.get(f"{name}F"),
+                self.inp.get(f"{name}I"),
+            )
+            if bf is None or lf is None or df is None:
+                raise cc.CaseError(f"map {self.bms.name} has no input field {name}")
+            buf[lf["offset"] : lf["offset"] + 2] = len(text).to_bytes(2, "big", signed=True)
+            if not text:
+                if ff is not None:
+                    buf[ff["offset"]] = 0x80
+                continue
+            value = cics_bms.received_value(bf, text).encode("latin-1")
+            buf[df["offset"] : df["offset"] + df["bytes"]] = value[: df["bytes"]]
+        return bytes(buf)
+
+
+_SCREENS: dict[Path, dict[str, Screen]] = {}
+
+
+def case_screens(case: cc.Case) -> dict[str, Screen]:
+    """Each map of the case with its BMS definition and symbolic map layout (#4001), read once per case."""
+    if case.dir not in _SCREENS:
+        _SCREENS[case.dir] = _read_screens(case)
+    return _SCREENS[case.dir]
+
+
+def _read_screens(case: cc.Case) -> dict[str, Screen]:
+    import cics_bms
+    import equivalence_common as common
+
+    bms = cics_bms.load_maps([case.dir / p for p in case.data["sources"].get("bms", [])])
+    out = {}
+    for name, spec in case.data["maps"].items():
+        if name not in bms:
+            raise cc.CaseError(f"{case.id}: map {name} is in no BMS source")
+        lay = {r: {f["name"]: f for f in common.layout_fields(case.dir, spec["copybook"], f"{name}{r}")} for r in "IO"}
+        out[name] = Screen(bms[name], lay["I"], lay["O"])
+    return out
+
+
+def _cobol_events(out: Path, program: str, screens: Optional[dict[str, Screen]] = None) -> list[dict[str, Any]]:
     """The stub's events.txt -> events as SPEC 6.2 spells them (runtime bytes kept as RawArea). Each line
     names its issuing program (`pgm=`, #4004); `program` stands in where one does not."""
     import equivalence_cics as ec
@@ -958,6 +1083,11 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
         ev: dict[str, Any] = {"event": verb, "program": issuer}
         if verb == "SEND-MAP":
             ev.update(map=arg("map"), mapset=arg("mapset"), options=[o for o in opts if o in SEND_OPTIONS])
+            screen = (screens or {}).get(ev["map"])
+            if screen is not None:  # #4001: what BMS sends, resolved from the symbolic map and the BMS source
+                cur = int(arg("cursor") or -1)
+                ev["fields"], ev["cursor"] = screen.send(data if int(arg("len") or 0) else None, ev["options"],
+                                                         cur if cur >= 0 else None)  # fmt: skip
         elif verb == "SEND-TEXT":
             text = cc.to_ebcdic(cc.RawArea(data, "latin-1"))
             ev.update(text=text, length=int(arg("len") or 0), options=[o for o in opts if o in SEND_OPTIONS])
@@ -1223,9 +1353,6 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
     map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
     unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
-    import equivalence_cics as ec
-    import equivalence_common as common
-
     program = case.csd["transactions"].get(transid)
     task: dict[str, Any] = {"transid": transid, "program": program, **frame, "eibcalen": len(commarea or b""),
                             "commarea": cc.RawArea(commarea, "latin-1") if commarea else None,
@@ -1249,13 +1376,10 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     step = step or {}
     if step.get("text") is not None:  # SPEC 5: typed on a cleared screen, read from position 0
         (d / "terminal.in").write_bytes(step["text"].encode("latin-1"))
+    screens = case_screens(case)
     if step.get("map") and step.get("fields"):
         m = step["map"]
-        spec = case.data["maps"][m]
-        fields = common.layout_fields(case.dir, spec["copybook"], f"{m}I")
-        (d / f"receive_{m}.bin").write_bytes(
-            ec.map_input(fields, {f"{k}I": v for k, v in step["fields"].items()}, "latin-1")
-        )
+        (d / f"receive_{m}.bin").write_bytes(screens[m].receive_input(step["fields"]))  # #4001: as BMS delivers it
     when = datetime.datetime.fromisoformat(frame["at"])
     eib_date, eib_time = _eib_datetime(when)
     aid = "DFH" + frame["eibaid"] if frame.get("eibaid") else ""
@@ -1264,7 +1388,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     box.sh(f"cd /work && GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
            f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
-    task["events"] = _cobol_events(d / "out", program)
+    task["events"] = _cobol_events(d / "out", program, screens)
     if any((e["event"] == "ABEND" and e.get("outcome") == "terminated") or e["event"] == "DRIVER-ERROR"
            for e in task["events"]):  # fmt: skip
         task["end"] = "abend"

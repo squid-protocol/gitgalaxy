@@ -710,3 +710,61 @@ def test_interval_events_are_logged_as_spec_spells_them(tmp_path):
     assert (evs[3]["resp"], evs[3]["length"], evs[3]["data"].data) == ("LENGERR", 30, b"THIRTY BYTE PAYLOAD ")
     assert (evs[4]["resp"], evs[4]["length"], evs[4]["data"]) == ("ENDDATA", None, None)
     assert (evs[5]["reqid"], evs[5]["resp"]) == ("GTREQ001", "NOTFND")
+
+
+# ---- #4001: BMS output fidelity, both sides --------------------------------------------------------
+_BMS = (
+    "TSET     DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,TIOAPFX=YES\n"
+    "TMAP     DFHMDI SIZE=(24,80)\n"
+    "NAME     DFHMDF POS=(1,1),LENGTH=4,ATTRB=(UNPROT,NORM,IC)\n"
+    "AMT      DFHMDF POS=(2,1),LENGTH=3,ATTRB=(UNPROT,NUM),INITIAL='000'\n"
+    "         DFHMSD TYPE=FINAL\n"
+)
+
+
+def _screen() -> "runner.Screen":
+    import cics_bms
+
+    def f(name: str, offset: int, size: int) -> dict:
+        return {"name": name, "offset": offset, "bytes": size}
+
+    # the symbolic map as BMS lays it out without DSATTS: L (2), F/A (1), I/O (data), per field
+    inp = {n: f(n, o, b) for n, o, b in [("NAMEL", 0, 2), ("NAMEF", 2, 1), ("NAMEI", 3, 4), ("AMTL", 7, 2),
+                                         ("AMTF", 9, 1), ("AMTI", 10, 3)]}  # fmt: skip
+    out = {"NAMEO": f("NAMEO", 3, 4), "AMTO": f("AMTO", 10, 3)}
+    return runner.Screen(cics_bms.parse_bms(_BMS)["TMAP"], inp, out)
+
+
+def test_a_stub_send_map_is_resolved_from_the_symbolic_map_and_the_bms_source(tmp_path):
+    # NAME: X'4D' (an EBCDIC byte, kept) and data typed in the stub's page; AMT: length -1, X'80', nulls
+    area = b"\x00\x00\x4dADA " + b"\xff\xff\x80" + b"\x00\x00\x00"
+    (tmp_path / "events.txt").write_text("001 SEND-MAP map=TMAP mapset=TSET len=13 cursor=-1 opts=DATAONLY CURSOR\n"
+                                         "002 SEND-MAP map=TMAP mapset=TSET len=0 cursor=-1 opts=MAPONLY ERASE\n"
+                                         "003 SEND-MAP map=TMAP mapset=TSET len=13 cursor=40 opts=ERASE CURSOR\n",
+                                         encoding="latin-1")  # fmt: skip
+    for n in ("001", "003"):
+        (tmp_path / f"{n}.bin").write_bytes(area)
+    one, two, three = runner._cobol_events(tmp_path, "P", {"TMAP": _screen()})
+    assert one["options"] == ["DATAONLY", "CURSOR"] and one["cursor"] == "AMT"  # symbolic: AMTL = -1
+    assert one["fields"] == {"NAME": {"attr": "4D", "attr_from": "program", "data": "ADA ".encode(E),
+                                      "data_from": "program"}}  # AMT: nothing to send under DATAONLY  # fmt: skip
+    assert two["fields"]["AMT"] == {"attr": "50", "attr_from": "map", "data": "000".encode(E), "data_from": "map"}
+    assert two["cursor"] == "NAME"  # MAPONLY: the IC field
+    assert three["cursor"] == {"offset": 40} and three["fields"]["AMT"]["data_from"] == "map"
+
+
+def test_receive_map_input_is_justified_and_an_erased_field_is_flagged():
+    s = _screen()
+    assert s.receive_input({"NAME": "AB", "AMT": "7"}) == b"\x00\x02\x00AB  " + b"\x00\x01\x00007"
+    assert s.receive_input({"AMT": ""}) == b"\x00" * 7 + b"\x00\x00\x80" + b"\x00" * 3  # ERASE EOF: DFHBMEOF
+
+
+def test_a_cicstask_send_map_is_resolved_like_the_stubs():
+    e = {"event": "SEND-MAP", "map": "TMAP", "mapset": "TSET", "options": ["CURSOR", "DATAONLY"],
+         "screen": {"NAME": "ADA ", "AMT": None}, "subfields": {"NAME": {"attr": 0x4D}, "AMT": {"length": -1}},
+         "cursor": None}  # fmt: skip
+    fields, cursor = runner.java_send_map(_screen(), e)
+    assert fields == {"NAME": {"attr": "4D", "attr_from": "program", "data": "ADA ".encode(E), "data_from": "program"}}
+    assert cursor == "AMT"
+    fields, cursor = runner.java_send_map(_screen(), {**e, "screen": None, "options": ["MAPONLY"]})
+    assert fields["AMT"]["data_from"] == "map" and cursor == "NAME"

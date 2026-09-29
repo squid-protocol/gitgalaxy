@@ -804,11 +804,11 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
     return calls
 
 
-def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
-    """`SELECT ... ASSIGN TO <dd>` with the OPEN modes each file is actually opened in."""
-    records: dict[str, dict[str, Any]] = {}
-    sentences = _cobol_sentences(code_stream)
-
+def _select_assigns(sentences: list[tuple[int, str]]) -> dict[str, dict[str, Any]]:
+    """Internal file name -> {internal_name, assign_name, dd_name, line}, one per
+    `SELECT [OPTIONAL] <file> ASSIGN [TO] <name | literal>`; the first SELECT of a
+    name wins."""
+    selects: dict[str, dict[str, Any]] = {}
     for line_no, sentence in sentences:
         match = _SELECT_ASSIGN.search(sentence)
         if not match:
@@ -818,19 +818,42 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
         assign = assign.strip()
         if not assign:
             continue
-        records.setdefault(
+        selects.setdefault(
             internal,
             {
                 "internal_name": internal,
                 "assign_name": assign.upper(),
                 "dd_name": _ASSIGN_DEVICE_PREFIX.sub("", assign).upper(),
-                "modes": set(),
                 "line": line_no,
-                # #3348: every OPEN of the file, (mode, line), so a consumer can drop the
-                # ones in unreachable code (the refractor masks dead paragraphs by line).
-                "open_sites": set(),
             },
         )
+    return selects
+
+
+def cobol_select_assigns(code_stream: str) -> dict[str, str]:
+    """Internal file name -> the DD (or path) it is ASSIGNed to, device prefix
+    stripped: the SELECT half of dataset_data (#3998). `code_stream` must still
+    carry its literals (`ASSIGN TO "./IN-FILE"`); comments should be gone. The
+    refractor's no-scan lineage (cobol_dag_architect) reads it so it maps files
+    exactly as the scan does."""
+    return {k: v["dd_name"] for k, v in _select_assigns(_cobol_sentences(code_stream)).items()}
+
+
+def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
+    """`SELECT ... ASSIGN TO <dd>` with the OPEN modes each file is actually opened in."""
+    sentences = _cobol_sentences(code_stream)
+    records: dict[str, dict[str, Any]] = {}
+    for internal, sel in _select_assigns(sentences).items():
+        # #3348: every OPEN of the file, (mode, line), so a consumer can drop the
+        # ones in unreachable code (the refractor masks dead paragraphs by line).
+        records[internal] = {
+            "internal_name": internal,
+            "assign_name": sel["assign_name"],
+            "dd_name": sel["dd_name"],
+            "modes": set(),
+            "line": sel["line"],
+            "open_sites": set(),
+        }
 
     # OPEN walks its operand run, switching mode at each mode keyword. Only
     # operands that a SELECT declared are credited, which is what keeps a

@@ -21,24 +21,21 @@ counted in it (their fact counts are not recorded here).
 | field | tested on: public | private | fresh | facts (public) | engine defects | forge defects | clean fresh | clean fresh facts | bound | status | needs |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | units of work and handlers | 6 | 0 | 3 | 2,492 | 0 | 0 | 3 | 2,111 | 0.1% | field-tested | - |
-| record fields | 6 | 0 | 3 | 5,475 | 0 | 1 | 3 | 1,622 | 0.2% | field-tested | - |
 | data moves | 6 | 0 | 3 | 12,583 | 2 | 0 | 2 | 517 | 0.6% | field-tested | - |
 | BMS screen fields | 3 | 0 | 1 | 1,865 | 0 | 0 | 1 | 286 | 1.0% | open | 1 more clean fresh round(s), 14 more clean fresh facts |
 | JCL job flow | 5 | 0 | 2 | 1,620 | 1 | 0 | 1 | 261 | 1.1% | open | 1 more clean fresh round(s), 39 more clean fresh facts |
 | CSD resources | 4 | 0 | 2 | 457 | 0 | 0 | 2 | 223 | 1.3% | open | 77 more clean fresh facts |
 | JCL resolved DSNs | 5 | 0 | 2 | 752 | 1 | 0 | 1 | 102 | 2.9% | open | 1 more clean fresh round(s), 198 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 0 | 0 | 3 | 73 | 4.1% | open | 227 more clean fresh facts |
-| program_id | 6 | 0 | 3 | 123 | 1 | 0 | 3 | 43 | 7.0% | open | 257 more clean fresh facts |
-| copybook paths | 5 | 0 | 2 | 422 | 2 | 1 | 2 | 41 | 7.3% | open | 259 more clean fresh facts |
 | file I/O moves | 3 | 0 | 1 | 247 | 0 | 0 | 1 | 38 | 7.9% | open | 1 more clean fresh round(s), 262 more clean fresh facts |
 | dead | 4 | 0 | 2 | 143 | 0 | 5 | 2 | 34 | 8.8% | open | 266 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 70 | 0 | 0 | 2 | 30 | 10.0% | open | 270 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 0 | 0 | 1 | 22 | 13.6% | open | 1 more clean fresh round(s), 278 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
-| inputs | 3 | 0 | 1 | 55 | 0 | 0 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
+| inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
 | dead (non-trivial) | 4 | 0 | 2 | 27 | 0 | 0 | 2 | 9 | 33.3% | open | 291 more clean fresh facts |
-| outputs | 4 | 0 | 1 | 37 | 0 | 0 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
+| outputs | 4 | 0 | 1 | 37 | 0 | 1 | 1 | 9 | 33.3% | open | 1 more clean fresh round(s), 291 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 0 | 0 | 2 | 5 | 60.0% | open | 295 more clean fresh facts |
 | VSAM defines | 3 | 0 | 1 | 30 | 0 | 0 | 1 | 4 | 75.0% | open | 1 more clean fresh round(s), 296 more clean fresh facts |
 | DL/I calls | 2 | 0 | 1 | 36 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
@@ -47,14 +44,17 @@ counted in it (their fact counts are not recorded here).
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | dynamic CALLs | 2 | 0 | 1 | 4 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | call targets | 6 | 0 | 3 | 142 | 1 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| units | 6 | 0 | 3 | 2,032 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| program_id | 6 | 0 | 3 | 123 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| record fields | 6 | 0 | 3 | 5,475 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| units | 6 | 0 | 3 | 2,032 | 5 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | copybook layouts | 5 | 0 | 0 | 2,759 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| copybook paths | 5 | 0 | 2 | 422 | 3 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | refmod spans | 5 | 0 | 0 | 373 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | JCL runner programs | 4 | 0 | 0 | 86 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| file control | 4 | 0 | 1 | 89 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| file control | 4 | 0 | 1 | 89 | 1 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | DB2 table columns | 2 | 0 | 0 | 55 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I call sites | 2 | 0 | 0 | 8,014 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | PL/I data moves | 2 | 0 | 0 | 1,657 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -116,6 +116,13 @@ counted in it (their fact counts are not recorded here).
 | D026 | 6 | engine | attribute | CALL USING, PL/I record fields | #3720 / #3729 | PL/I storage widths came from the COBOL sizing: a spaced picture repeat `PIC '( 4)9'` read as 5 bytes, so both of DSF's COBOL CALLs into PL/I routines (R001NRCO, R001NACO) mismatched on IN_TKNR, and a CHAR parameter had no width. PL/I items are now mapped by IBM's structure-mapping rules (pli_mapping): both contracts pair with every length matching. |
 | D027 | 6 | engine | fact | PL/I layouts | #3728 / #3737 | An %INCLUDE inside a PL/I declaration was dropped: a structure whose remaining members come from the included member (DSF's TRANHISTSEGM, `4 XSPERRE CHAR(1), %INCLUDE P0019940;`) was laid out from the members before it alone -- a complete-looking 39 bytes. The include is now recorded where it stands (copy_members); a member in the repository is spliced in and nested by level number, and one that is missing leaves the width unknown, named in `unexpanded`. |
 | D028 | review, after 6 | engine | fact | file control | #3898 | A bare `LINE SEQUENTIAL` (ORGANIZATION is optional in a SELECT) was recorded as SEQUENTIAL, so a Micro Focus / GnuCOBOL short-form file got the RECFM=FB porting rule instead of one record per line. Found writing #3833's porting rules; no pinned corpus uses LINE SEQUENTIAL. Micro Focus `RECORD SEQUENTIAL` is now SEQUENTIAL too. |
+| D029 | unkeyed estate, after 6 | engine | fact | program_id, record fields, units | #3955 / #3967 | Japanese user-defined words were invisible (the name classes were ASCII plus the European national characters): a Japanese PROGRAM-ID gave no program, so it was dropped from refraction; a data name starting with a Japanese character was missing and one with a Japanese tail was truncated (`X項目` -> `X`); Japanese sections and paragraphs were missing; and `_` was missing from the level-start class (`FIXED_FLD` -> `FIXED`). |
+| D030 | unkeyed estate, after 6 | engine | fact | record fields, copybook paths | #3956 / #3966 | The full-width space U+3000, a separator in opensourcecobol4j, was not one to the engine: `01<U+3000>F02 PIC X.` was missing from record_data, `PIC<U+3000>X` lost its picture, and `COPY<U+3000>inc.` / `DATA<U+3000>DIVISION` were not read. |
+| D031 | unkeyed estate, after 6 | engine | fact | record fields, units | #3991 / #3995 | #3955 follow-up: full-width hyphens (U+FF0D, U+2212) and full-width digits still ended a COBOL word, so Japanese data names were truncated and could collide (`ＴＥＳＴ−ＤＡＴＡ１` and `ＴＥＳＴ−ＲＥＣＯＲＤ１` both `ＴＥＳＴ`) and sections such as `Ｓ−初期化 SECTION` were dropped. |
+| D032 | unkeyed estate, after 6 | forge | fact | file control, inputs | #3992 / #3994 | A batch program with no JCL whose files are ASSIGNed to literals got empty `files_requested`: analyze_cobol_intent read `ASSIGN TO "x"` as DD `TO`, so the REST controller took the transactional branch and referenced an undefined `<File>DTO` (jp-compat did not compile). |
+| D033 | unkeyed estate, after 6 | forge | attribute | file control | #3957 / #3965 | A file ASSIGNed to a literal path put the path into Java identifiers (`@RequestBody ./testFileDTO ./testFileData`), so the generated controller did not compile. No fact was wrong -- a name built from it was; `file control` is the closest field (the ASSIGN clause). |
+| D034 | unkeyed estate, after 6 | forge | attribute | record fields | #3958 / #3961 | Target config `data.code_page` accepted any Python codec, not just EBCDIC pages: `shift_jis` made half-width katakana the zoned-decimal "sign characters" baked into CobolRecords and the decoder, with no warning. No extracted fact was wrong; `record fields` is the closest field (the zoned-decimal fields it decodes). |
+| D035 | review, after 6 | forge | fact | inputs, outputs, file control | #3998 | The refractor without `--scan` read SELECT with its own regex (cobol_dag_architect): `ASSIGN TO "x"` gave DD `TO`, `SELECT OPTIONAL f` and Japanese / full-width file names were missed, so lineage differed from `--scan`. It now uses the engine's SELECT reader. Found while fixing #3992, not by the estate scan. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

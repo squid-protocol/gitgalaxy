@@ -187,6 +187,41 @@ def test_a_dtos_shape_is_read_from_its_comments(tmp_path):
     assert ec.from_java({"caPart": {"caId": 12}}, shape) == {"CA-ID": 12}
 
 
+def test_a_dto_is_found_by_its_package_not_its_simple_name(tmp_path):
+    """#4011: entity/PcwizWsState and dto/contract/PcwizWsState share a simple name. The contract
+    DTO is found by its qualified name, or from the service that imports it; a bare simple name
+    with nothing to choose between the two is refused instead of picking the entity."""
+    pkg = tmp_path / "com/x"
+    for d in ("entity", "dto/contract", "service"):
+        (pkg / d).mkdir(parents=True)
+    (pkg / "entity/PcwizWsState.java").write_text(
+        "package com.x.entity;\npublic class PcwizWsState {\n    private Long id;\n}\n"
+    )
+    (pkg / "dto/contract/PcwizWsState.java").write_text(
+        "package com.x.dto.contract;\npublic class PcwizWsState {\n"
+        "    // WS-STEP: PIC 9, offset 0, 1 bytes (x.cpy)\n    private Integer wsStep;\n"
+        "    // WS-STATE(2:4) at line 9: offset 1, 4 bytes -> WS-PART (x.cpy)\n    private PcwizPart wsPart;\n}\n"
+    )
+    (pkg / "dto/contract/PcwizPart.java").write_text(
+        "package com.x.dto.contract;\npublic class PcwizPart {\n"
+        "    // WS-NAME: PIC X(4), offset 1, 4 bytes (x.cpy)\n    private String wsName;\n}\n"
+    )
+    (pkg / "service/PcwizService.java").write_text(
+        "package com.x.service;\nimport com.x.dto.contract.PcwizWsState;\npublic class PcwizService {}\n"
+    )
+    want = {"wsStep": "WS-STEP", "wsPart": ("PcwizPart", {"wsName": "WS-NAME"})}
+    assert ec.dto_shape(tmp_path, "com.x.dto.contract.PcwizWsState") == want
+    assert ec.dto_shape(tmp_path, "PcwizWsState", pkg / "service/PcwizService.java") == want
+    (pkg / "service/PcwizService.java").write_text(
+        "package com.x.service;\nimport com.x.dto.contract.*;\npublic class PcwizService {}\n"
+    )
+    assert ec.dto_shape(tmp_path, "PcwizWsState", pkg / "service/PcwizService.java") == want
+    with pytest.raises(LookupError, match="PcwizWsState is ambiguous"):
+        ec.dto_shape(tmp_path, "PcwizWsState")
+    with pytest.raises(LookupError, match="no generated class"):
+        ec.dto_shape(tmp_path, "com.x.dto.contract.Nope")
+
+
 def test_events_are_compared_field_by_field():
     cobol = [{"event": "SEND-MAP", "map": "M", "screen": {"NAME": "Ann", "BAL": "+   1.00"}},
              {"event": "RETURN", "transid": "T1", "commarea": {"CA-CTX": "1"}}]  # fmt: skip

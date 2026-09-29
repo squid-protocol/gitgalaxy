@@ -618,25 +618,6 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     return {"transactions": case.csd["transactions"], "services": services, "screens": screens, "scenarios": scenarios}
 
 
-def dto_shape(src: Path, fqn: str) -> dict[str, Any]:
-    """A generated DTO's {java property: COBOL field} (a part: (class, its shape)), read from the comment
-    each property carries -- by the class's own path: equivalence_cics.dto_shape finds a class by simple
-    name, and a contract DTO shares its name with the entity of the same record."""
-    import equivalence_cics as ec
-
-    path = src / (fqn.replace(".", "/") + ".java")
-    if not path.is_file():
-        return {}
-    shape: dict[str, Any] = {}
-    for comment, jtype, var in ec._DTO_FIELD.findall(path.read_text(encoding="utf-8")):
-        part = path.parent / f"{jtype}.java"
-        if " -> " in comment and part.is_file():
-            shape[var] = (jtype, dto_shape(src, fqn.rsplit(".", 1)[0] + "." + jtype))
-        elif ":" in comment:
-            shape[var] = comment.split(":", 1)[0].strip()
-    return shape
-
-
 def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any]) -> Optional[cc.FieldArea]:
     import equivalence_cics as ec
 
@@ -644,7 +625,7 @@ def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any]
         return None
     cls = desc["class"]
     if cls not in shapes:
-        shapes[cls] = dto_shape(src, cls)
+        shapes[cls] = ec.dto_shape(src, cls)  # qualified: the contract DTO, not the entity of that name (#4011)
     return cc.FieldArea(ec.from_java(desc["value"], shapes[cls]))
 
 

@@ -29,7 +29,7 @@ import shutil
 import subprocess
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import equivalence_common as common
 
@@ -595,15 +595,52 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
 _DTO_FIELD = re.compile(r"^\s*//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);", re.M)
 
 
-def dto_shape(src: Path, cls: str) -> dict[str, Any]:
+def java_class_file(src: Path, name: str, context: Optional[Path] = None) -> Optional[Path]:
+    """The source file of a generated class (#4011): by its path when `name` is qualified
+    (`pkg.dto.contract.PcwizWsState`); a simple name as Java resolves it from `context` (the file
+    that names it: its single-type imports, its own package, then its on-demand imports); else
+    the only class of that name under `src`. None when there is no such class. Two or more
+    candidates with nothing to choose between them raise LookupError: a simple-name lookup that
+    picks one (entity/PcwizWsState over dto/contract/PcwizWsState) maps the COMMAREA wrong."""
+    if "." in name:
+        path = src / (name.replace(".", "/") + ".java")
+        return path if path.is_file() else None
+    if context is not None:
+        text = context.read_text(encoding="utf-8")
+        single = re.search(rf"^\s*import\s+([\w.]+)\.{re.escape(name)}\s*;", text, re.M)
+        if single:
+            return java_class_file(src, f"{single.group(1)}.{name}")
+        if (context.parent / f"{name}.java").is_file():
+            return context.parent / f"{name}.java"
+        for pkg in re.findall(r"^\s*import\s+([\w.]+)\.\*\s*;", text, re.M):
+            found = java_class_file(src, f"{pkg}.{name}")
+            if found:
+                return found
+    cands = sorted(src.rglob(f"{name}.java"))
+    if len(cands) > 1:
+        where = ", ".join(p.relative_to(src).as_posix() for p in cands)
+        raise LookupError(f"class {name} is ambiguous ({where}): name it by its package")
+    return cands[0] if cands else None
+
+
+def dto_shape(src: Path, cls: str, context: Optional[Path] = None) -> dict[str, Any]:
     """A generated DTO's properties: {java name: COBOL field name} for a field, {java name:
     (DTO class, its shape)} for a part (a composite COMMAREA's segments), from the comment each
-    property carries (`// CDEMO-FROM-TRANID: PIC X(04), offset 0 ...`)."""
-    path = next(src.rglob(f"{cls}.java"))
+    property carries (`// CDEMO-FROM-TRANID: PIC X(04), offset 0 ...`). `cls` is a qualified name
+    or a simple one resolved from `context` (java_class_file); a part's class is resolved from
+    the DTO that declares it."""
+    path = java_class_file(src, cls, context)
+    if path is None:
+        raise LookupError(f"no generated class {cls} under {src}")
+    return _dto_file_shape(src, path)
+
+
+def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
     shape: dict[str, Any] = {}
     for comment, jtype, var in _DTO_FIELD.findall(path.read_text(encoding="utf-8")):
-        if " -> " in comment and list(src.rglob(f"{jtype}.java")):
-            shape[var] = (jtype, dto_shape(src, jtype))
+        part = java_class_file(src, jtype, path) if " -> " in comment else None
+        if part is not None:
+            shape[var] = (part.stem, _dto_file_shape(src, part))
         elif ":" in comment:
             shape[var] = comment.split(":", 1)[0].strip()
     return shape
@@ -765,9 +802,10 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     project = ej.prepare_project(case, corpus, work, "", port, port_dir)
     src = project / "src/main/java"
     svc = ej._service_class(case["program"])
+    svc_file = next(src.rglob(f"{svc}.java"))
     ca_cls = re.search(r"handleTransaction\(String transid, (\w+) request\)",
-                       next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
-    shape = dto_shape(src, ca_cls)
+                       svc_file.read_text(encoding="utf-8")).group(1)  # fmt: skip
+    shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(cics_equivalence_test(case, src, files), encoding="utf-8")
     inputs = work / "in"

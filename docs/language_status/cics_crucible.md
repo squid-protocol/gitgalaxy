@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 33 | 1 | 3 | 37 |
+| cobol-stub | 34 | 0 | 3 | 37 |
 | java | 0 | 37 | 0 | 37 |
-| **all** | **53** | **38** | **3** | **94** |
+| **all** | **54** | **37** | **3** | **94** |
 
 ## By trap and case
 
@@ -23,7 +23,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | trap | case | engine-facts | forge-compile | cobol-stub | java |
 |---|---|---|---|---|---|
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 4 / 4 | 0 / 4 |
-| commarea-mismatch | `ca-xctl-versions` | pass | pass | 2 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-xctl-versions` | pass | pass | 3 / 3 | 0 / 3 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 |
 | condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 |
 | ghost-tasks | `gt-start-retrieve` | pass | pass | 5 / 5 | 0 / 5 |
@@ -42,13 +42,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | HANDLE AID | 3 | 3 | 3 |
-| 2 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 3 |
-
-### java (0 unsupported)
-
-| # | harness work | needs | alone | cumulative |
-|---|---|---|---|---|
-| 1 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -59,21 +52,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | feature | cells | harness work |
 |---|---|---|
 | translator: HANDLE AID | 3 | HANDLE AID |
-| stub: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
-
-### java
-
-| feature | cells | harness work |
-|---|---|---|
-| CicsTask: XCTL length | 5 | XCTL LENGTH / RESP / RESP2 |
-| CicsTask: XCTL resp | 5 | XCTL LENGTH / RESP / RESP2 |
-| CicsTask: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
 ## Failure reasons, grouped
 
 | side | reason | cells |
 |---|---|---|
-| cobol-stub | resp differs | 1 |
 | java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 37 |
 
 ## Every cell that does not pass
@@ -84,7 +67,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
-| `ca-xctl-versions/length-range/cobol-stub` | fail | task 1 (CA02) event 2: resp 'LENGERR' expected, got 'NORMAL' |
 | `ca-xctl-versions/length-range/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/long-overread/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/short-upgrade/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |

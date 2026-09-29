@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 34 | 0 | 3 | 37 |
+| cobol-stub | 37 | 0 | 0 | 37 |
 | java | 0 | 37 | 0 | 37 |
-| **all** | **54** | **37** | **3** | **94** |
+| **all** | **57** | **37** | **0** | **94** |
 
 ## By trap and case
 
@@ -30,28 +30,16 @@ Pass counts per side (scenario sides: passing / scenarios).
 | ghost-tasks | `gt-terminal-coalesce` | pass | pass | 4 / 4 | 0 / 4 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 3 / 3 | 0 / 3 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 3 / 3 | 0 / 3 |
-| pseudo-conversational | `pc-aid-menu` | pass | pass | 0 / 3 | 0 / 3 |
+| pseudo-conversational | `pc-aid-menu` | pass | pass | 3 / 3 | 0 / 3 |
 | pseudo-conversational | `pc-wizard` | pass | pass | 3 / 3 | 0 / 3 |
 
 ## Harness work, in the order that unlocks the most cells
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (3 unsupported)
-
-| # | harness work | needs | alone | cumulative |
-|---|---|---|---|---|
-| 1 | HANDLE AID | 3 | 3 | 3 |
-
 ## Unsupported features, by how many cells need them
 
 Each feature a cell needs that its side does not model (`translator:` the COBOL translator refuses the command; `stub:` the stub runtime does not record it; `CicsTask:` the generated Java runtime does not; `scheduler:` the task driver).
-
-### cobol-stub
-
-| feature | cells | harness work |
-|---|---|---|
-| translator: HANDLE AID | 3 | HANDLE AID |
 
 ## Failure reasons, grouped
 
@@ -94,11 +82,8 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `hx-extended-cursor/bad-account/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
 | `hx-extended-cursor/good-entry/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
 | `hx-extended-cursor/pf5-blink/java` | fail | task 1 (HX02) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-aid-menu/aid-keys/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/aid-keys/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-aid-menu/option1-xctl/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/option1-xctl/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
-| `pc-aid-menu/option2-next-transid/cobol-stub` | unsupported | translator: HANDLE AID |
 | `pc-aid-menu/option2-next-transid/java` | fail | task 1 (PC11) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-wizard/back-and-fix/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |
 | `pc-wizard/happy-post/java` | fail | task 1 (PC01) event 1: SEND-MAP expected, the side recorded no further event |

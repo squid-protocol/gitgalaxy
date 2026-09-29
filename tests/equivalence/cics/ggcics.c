@@ -6,6 +6,10 @@
  * Inputs come from $GGCICS_DIR:
  *   commarea.in           the COMMAREA the task starts with (its length is EIBCALEN)
  *   receive_<MAP>.bin     what RECEIVE MAP(<MAP>) returns; absent means MAPFAIL
+ *   terminal.in           what an unformatted terminal RECEIVE returns (#4005: the
+ *                         step's text, typed on a cleared screen); absent means the
+ *                         step transmitted no data
+ *   terminal.read         present when an earlier program of the task already read it
  *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN --
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
@@ -26,6 +30,7 @@ typedef struct {
     char name1[8];
     char name2[8];
     char flags[40];
+    int len; /* in-out: RECEIVE's LENGTH (#4005) */
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36 };
@@ -125,6 +130,43 @@ int GGCRECV(gg_cics *c, char *into, int intolen) {
     }
     snprintf(ev, sizeof ev, "RECEIVE-MAP map=%s mapset=%s resp=%d", map, mapset, c->resp);
     event(ev, NULL, 0);
+    return 0;
+}
+
+/* RECEIVE INTO LENGTH (#4005): the terminal's input, unformatted. c->len is the most INTO
+ * takes; on return it is the data's length. Longer data is truncated to c->len and raises
+ * LENGERR, with c->len set to the full length (IBM, RECEIVE (3270 logical): "the data is
+ * truncated ... the length data area is set to the original length of the data"). The
+ * input is read once per task: a second RECEIVE would wait for the operator, which a
+ * scenario step cannot express, so it is recorded as RECEIVE-WAIT for the driver to refuse. */
+static int terminal_read = 0;
+
+int GGCRECT(gg_cics *c, char *into) {
+    char path[4096], ev[96], buf[32768];
+    int n = 0, max = c->len;
+    snprintf(path, sizeof path, "%s/terminal.read", dir_in());
+    FILE *f = fopen(path, "rb");
+    if (f) { fclose(f); terminal_read = 1; }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (terminal_read) {
+        c->len = 0;
+        event("RECEIVE-WAIT", NULL, 0);
+        return 0;
+    }
+    terminal_read = 1;
+    snprintf(path, sizeof path, "%s/terminal.in", dir_in());
+    f = fopen(path, "rb");
+    if (f) {
+        n = (int)fread(buf, 1, sizeof buf, f);
+        fclose(f);
+    }
+    int copied = n < max ? n : (max > 0 ? max : 0);
+    memcpy(into, buf, (size_t)copied);
+    if (n > max) c->resp = LENGERR;
+    c->len = n;
+    snprintf(ev, sizeof ev, "RECEIVE resp=%d len=%d copied=%d", c->resp, n, copied);
+    event(ev, into, copied);
     return 0;
 }
 

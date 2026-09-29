@@ -84,6 +84,7 @@ COBOL_CAPS = cc.Capabilities(
         "SEND-MAP": frozenset({"map", "mapset", "options"}),  # fields: BMS output resolution is not modelled
         "SEND-TEXT": frozenset({"text", "length", "options"}),
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),
+        "RECEIVE": frozenset({"resp", "length", "data"}),
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp"}),
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome"}),
@@ -96,6 +97,7 @@ JAVA_CAPS = cc.Capabilities(
     events={
         "SEND-MAP": frozenset({"map", "fields", "fields.data"}),
         "SEND-TEXT": frozenset({"text"}),
+        "RECEIVE": frozenset({"resp", "length", "data"}),
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "commarea"}),
         "ABEND": frozenset({"abcode"}),
@@ -457,6 +459,7 @@ class EquivalenceRunTest {
                     events.add(error(null, "transaction " + transid + " has no program in the CSD"));
                 }
                 Object ca = commarea;
+                boolean read = false;
                 for (int hop = 0; current != null && hop < 32; hop++) {
                     Object service = service(plan, current);
                     if (service == null) {
@@ -465,6 +468,11 @@ class EquivalenceRunTest {
                         break;
                     }
                     CicsTask t = new CicsTask(transid, aid, ca, received);
+                    if (read) {
+                        t.terminalInputRead();  // an earlier program of the task read it: a RECEIVE would wait
+                    } else if (step.has("text")) {
+                        t.withTerminalInput(step.get("text").asText());
+                    }
                     String thrown = null;
                     try {
                         service.getClass().getMethod("runTask", CicsTask.class).invoke(service, t);
@@ -499,6 +507,9 @@ class EquivalenceRunTest {
                         }
                         if ("ABEND".equals(e.get("event"))) {
                             end = "abend";
+                        }
+                        if ("RECEIVE".equals(e.get("event"))) {
+                            read = true;
                         }
                         events.add(copy);
                     }
@@ -659,6 +670,9 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
                 ev["fields"] = {k: {"data": v} for k, v in (e.get("screen") or {}).items()}
             elif kind == "SEND-TEXT":
                 ev["text"] = e.get("text")
+            elif kind == "RECEIVE":  # #4005: the data as text, the area's bytes in the stub's page
+                ev.update(resp=e.get("resp"), length=e.get("length"),
+                          data=cc.RawArea(str(e.get("data") or "").encode("latin-1"), "latin-1"))  # fmt: skip
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"), commarea=_java_area(e.get("commarea"), src, shapes))
             elif kind == "XCTL":
@@ -752,6 +766,12 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
             ev.update(text=text, length=int(arg("len") or 0), options=[o for o in opts if o in SEND_OPTIONS])
         elif verb == "RECEIVE-MAP":
             ev.update(map=arg("map"), mapset=arg("mapset"), resp=names.get(int(arg("resp") or 0), arg("resp")))
+        elif verb == "RECEIVE":  # #4005: `len` is LENGTH after the command, the blob what went INTO
+            ev.update(resp=names.get(int(arg("resp") or 0), arg("resp")), length=int(arg("len") or 0),
+                      data=cc.RawArea(data, "latin-1"))  # fmt: skip
+        elif verb == "RECEIVE-WAIT":
+            ev = {"event": "DRIVER-ERROR", "program": program,
+                  "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip
         elif verb == "READ":
             ev.update(file=arg("file"), ridfld=arg("key").encode(cc.EBCDIC),
                       resp=names.get(int(arg("resp") or 0), arg("resp")))  # fmt: skip
@@ -853,6 +873,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                 when = datetime.datetime.fromisoformat(frame["at"])
                 eib_date, eib_time = _eib_datetime(when)
                 current, ca = program, commarea
+                received = False  # #4005: the task's terminal input is read once, by whichever program asks
                 if current is None:
                     task["events"].append({"event": "DRIVER-ERROR", "program": None,
                                            "message": f"transaction {transid} has no program in the CSD"})  # fmt: skip
@@ -870,6 +891,10 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                     (d / "files.cfg").write_text("", encoding="ascii")
                     if ca:
                         (d / "commarea.in").write_bytes(ca)
+                    if received:
+                        (d / "terminal.read").write_bytes(b"")
+                    elif step.get("text") is not None:  # SPEC 5: typed on a cleared screen, read from position 0
+                        (d / "terminal.in").write_bytes(step["text"].encode("latin-1"))
                     if step.get("map") and step.get("fields"):
                         m = step["map"]
                         spec = case.data["maps"][m]
@@ -883,6 +908,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                            f"COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/{current} "
                            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
                     events = _cobol_events(d / "out", current)
+                    received = received or any(e["event"] == "RECEIVE" for e in events)
                     task["events"] += events
                     last = events[-1] if events else None
                     current = None

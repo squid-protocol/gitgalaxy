@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 0 | 0 | 37 | 37 |
-| java | 0 | 12 | 25 | 37 |
-| **all** | **20** | **12** | **62** | **94** |
+| cobol-stub | 2 | 1 | 34 | 37 |
+| java | 0 | 28 | 9 | 37 |
+| **all** | **22** | **29** | **43** | **94** |
 
 ## By trap and case
 
@@ -23,7 +23,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | trap | case | engine-facts | forge-compile | cobol-stub | java |
 |---|---|---|---|---|---|
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 0 / 4 | 0 / 4 |
-| commarea-mismatch | `ca-xctl-versions` | pass | pass | 0 / 3 | 0 / 3 |
+| commarea-mismatch | `ca-xctl-versions` | pass | pass | 2 / 3 | 0 / 3 |
 | condition-handling | `hc-abend-link` | pass | pass | 0 / 5 | 0 / 5 |
 | condition-handling | `hc-perform-range` | pass | pass | 0 / 4 | 0 / 4 |
 | ghost-tasks | `gt-start-retrieve` | pass | pass | 0 / 5 | 0 / 5 |
@@ -37,32 +37,30 @@ Pass counts per side (scenario sides: passing / scenarios).
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (37 unsupported)
+### cobol-stub (34 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 6 | 6 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 20 | 0 | 9 |
-| 3 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 9 | 0 | 13 |
-| 4 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 0 | 18 |
-| 5 | terminal RECEIVE (unformatted input) | 16 | 2 | 24 |
-| 6 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 33 |
-| 7 | HANDLE AID | 3 | 0 | 36 |
-| 8 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 37 |
+| 2 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 4 | 10 |
+| 3 | TS queues: READQ / WRITEQ TS, seeding, final state | 20 | 0 | 18 |
+| 4 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 1 | 22 |
+| 5 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 9 | 0 | 31 |
+| 6 | HANDLE AID | 3 | 0 | 34 |
+| 7 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 34 |
 
-### java (25 unsupported)
+### java (9 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
-| 1 | SEND TEXT length and options | 28 | 0 | 0 |
-| 2 | TS queues: READQ / WRITEQ TS, seeding, final state | 17 | 0 | 5 |
+| 1 | TS queues: READQ / WRITEQ TS, seeding, final state | 17 | 0 | 0 |
+| 2 | SEND TEXT length and options | 28 | 0 | 5 |
 | 3 | LINK: levels, by-reference COMMAREA, PGMIDERR | 7 | 0 | 6 |
-| 4 | terminal RECEIVE (unformatted input) | 16 | 0 | 10 |
-| 5 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 18 |
-| 6 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 22 |
-| 7 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 25 |
-| 8 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 25 |
-| 9 | RECEIVE MAP recorded as an event | 9 | 0 | 25 |
+| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 9 |
+| 5 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 9 |
+| 6 | RECEIVE MAP recorded as an event | 9 | 0 | 9 |
+| 7 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 9 |
+| 8 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 9 |
 
 ## Unsupported features, by how many cells need them
 
@@ -72,8 +70,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| stub: RECEIVE event | 16 | terminal RECEIVE (unformatted input) |
-| translator: RECEIVE | 16 | terminal RECEIVE (unformatted input) |
 | translator: WRITEQ TS | 15 | TS queues: READQ / WRITEQ TS, seeding, final state |
 | stub: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | stub: SEND-MAP fields | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
@@ -107,7 +103,6 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | CicsTask: SEND-TEXT length | 28 | SEND TEXT length and options |
 | CicsTask: SEND-TEXT options | 28 | SEND TEXT length and options |
-| CicsTask: RECEIVE event | 16 | terminal RECEIVE (unformatted input) |
 | CicsTask: SEND-MAP attribute bytes | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP data origin (program / map / none) | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
@@ -138,44 +133,43 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | side | reason | cells |
 |---|---|---|
-| java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 12 |
+| cobol-stub | resp differs | 1 |
+| java | runTask records no events (the generated stub: PROCEDURE DIVISION not ported) | 28 |
 
 ## Every cell that does not pass
 
 | cell | status | first divergence / reason |
 |---|---|---|
-| `ca-link-lengths/long-500/cobol-stub` | unsupported | translator: RECEIVE; translator: LINK; translator: WRITEQ TS |
-| `ca-link-lengths/long-500/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-link-lengths/no-commarea/cobol-stub` | unsupported | translator: RECEIVE; translator: LINK; translator: WRITEQ TS |
-| `ca-link-lengths/no-commarea/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-link-lengths/short-100/cobol-stub` | unsupported | translator: RECEIVE; translator: LINK; translator: WRITEQ TS |
-| `ca-link-lengths/short-100/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-link-lengths/undefined-program/cobol-stub` | unsupported | translator: RECEIVE; translator: LINK |
-| `ca-link-lengths/undefined-program/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-xctl-versions/length-range/cobol-stub` | unsupported | translator: RECEIVE |
-| `ca-xctl-versions/length-range/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-xctl-versions/long-overread/cobol-stub` | unsupported | translator: RECEIVE |
-| `ca-xctl-versions/long-overread/java` | unsupported | CicsTask: RECEIVE event |
-| `ca-xctl-versions/short-upgrade/cobol-stub` | unsupported | translator: RECEIVE |
-| `ca-xctl-versions/short-upgrade/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-start-retrieve/interval-data/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: RETRIEVE; translator: WRITEQ TS |
-| `gt-start-retrieve/interval-data/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-start-retrieve/no-data/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: RETRIEVE; translator: WRITEQ TS |
-| `gt-start-retrieve/no-data/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-start-retrieve/protect-abend/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: RETRIEVE; translator: WRITEQ TS |
-| `gt-start-retrieve/protect-abend/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-start-retrieve/retrieve-lengerr/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: RETRIEVE; translator: WRITEQ TS |
-| `gt-start-retrieve/retrieve-lengerr/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-start-retrieve/time-six-hours/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: RETRIEVE; translator: WRITEQ TS |
-| `gt-start-retrieve/time-six-hours/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-terminal-coalesce/cancel-in-time/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: CANCEL |
-| `gt-terminal-coalesce/cancel-in-time/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-terminal-coalesce/cancel-too-late/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: CANCEL; translator: RETRIEVE |
-| `gt-terminal-coalesce/cancel-too-late/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-terminal-coalesce/staggered/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: CANCEL; translator: RETRIEVE |
-| `gt-terminal-coalesce/staggered/java` | unsupported | CicsTask: RECEIVE event |
-| `gt-terminal-coalesce/three-in-one/cobol-stub` | unsupported | translator: RECEIVE; translator: START; translator: CANCEL; translator: RETRIEVE |
-| `gt-terminal-coalesce/three-in-one/java` | unsupported | CicsTask: RECEIVE event |
+| `ca-link-lengths/long-500/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/long-500/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-link-lengths/no-commarea/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/no-commarea/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-link-lengths/short-100/cobol-stub` | unsupported | translator: LINK; translator: WRITEQ TS |
+| `ca-link-lengths/short-100/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-link-lengths/undefined-program/cobol-stub` | unsupported | translator: LINK |
+| `ca-link-lengths/undefined-program/java` | fail | task 1 (CA01) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-xctl-versions/length-range/cobol-stub` | fail | task 1 (CA02) event 2: resp 'LENGERR' expected, got 'NORMAL' |
+| `ca-xctl-versions/length-range/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-xctl-versions/long-overread/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
+| `ca-xctl-versions/short-upgrade/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-start-retrieve/interval-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/interval-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-start-retrieve/no-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/no-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-start-retrieve/protect-abend/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/protect-abend/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-start-retrieve/retrieve-lengerr/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/retrieve-lengerr/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-start-retrieve/time-six-hours/cobol-stub` | unsupported | translator: START; translator: RETRIEVE; translator: WRITEQ TS |
+| `gt-start-retrieve/time-six-hours/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-terminal-coalesce/cancel-in-time/cobol-stub` | unsupported | translator: START; translator: CANCEL |
+| `gt-terminal-coalesce/cancel-in-time/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-terminal-coalesce/cancel-too-late/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
+| `gt-terminal-coalesce/cancel-too-late/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-terminal-coalesce/staggered/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
+| `gt-terminal-coalesce/staggered/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
+| `gt-terminal-coalesce/three-in-one/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
+| `gt-terminal-coalesce/three-in-one/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-abend-link/push-pop/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |
 | `hc-abend-link/push-pop/java` | unsupported | CicsTask: TS queue seeding |
 | `hc-abend-link/pushed-abend/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: READQ TS; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE; stub: TS queue seeding |

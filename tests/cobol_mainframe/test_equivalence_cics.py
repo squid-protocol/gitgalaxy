@@ -46,7 +46,19 @@ def test_send_map_records_its_options_and_area():
     assert "MOVE 'CURSOR ERASE FREEKB' TO GG-FLAGS" in got and "    BY REFERENCE MO" in got
 
 
-@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "STARTBR FILE(F) RIDFLD(K)",
+def test_a_terminal_receive_passes_its_length_in_and_takes_the_datas_length_back():
+    """#4005: LENGTH is in-out -- in, the most INTO takes; out, the data's length (IBM, EXEC CICS RECEIVE)."""
+    got = ec.translate_command("RECEIVE INTO(WS-INPUT) LENGTH(WS-INLEN)")
+    assert got[:3] == ["MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS", "    BY REFERENCE WS-INPUT"]
+    assert got[3] == "MOVE GG-LEN TO WS-INLEN" and got[-3] == "    CALL 'GGCUNHD' USING GG-CICS"
+    assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[0] == "MOVE 30 TO GG-LEN"
+    omitted = ec.translate_command("RECEIVE INTO(WS-I) RESP(WS-R)")
+    assert omitted[0] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
+    assert not any(ln.startswith("MOVE GG-LEN") for ln in omitted)
+
+
+@pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC",
+                                  "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",
                                   "SYNCPOINT", "LINK PROGRAM('X')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):

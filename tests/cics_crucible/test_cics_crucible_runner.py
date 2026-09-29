@@ -338,6 +338,21 @@ def test_the_stub_log_becomes_spec_events(tmp_path):
     assert (evs[8]["transid"], evs[8]["commarea"]) == (None, None)  # a GOBACK is a RETURN
 
 
+def test_a_terminal_receive_is_logged_with_its_length_and_the_data_it_moved(tmp_path):
+    """#4005: `len` is LENGTH after the command (the full length on LENGERR), the blob what went INTO; a
+    second RECEIVE in one task would wait for the operator, which no scenario step can express."""
+    (tmp_path / "events.txt").write_text("001 RECEIVE resp=22 len=9 copied=4\n002 RECEIVE-WAIT\n", encoding="latin-1")
+    (tmp_path / "001.bin").write_bytes(b"CA02")
+    evs = runner._cobol_events(tmp_path, "P")
+    assert (evs[0]["resp"], evs[0]["length"], evs[0]["data"].data) == ("LENGERR", 9, b"CA02")
+    assert evs[1]["event"] == "DRIVER-ERROR" and "second terminal RECEIVE" in evs[1]["message"]
+    exp = {"event": "RECEIVE", "program": "P", "resp": "LENGERR", "length": 9, "data": {"length": 4, "text": "CA02"}}
+    w = cc._Walk(runner.COBOL_CAPS, _ctx())
+    w.event("e", exp, evs[0])
+    with pytest.raises(cc._Decided):
+        w.event("e", dict(exp, data={"length": 4, "text": "CA03"}), evs[0])
+
+
 def test_the_java_output_becomes_an_actual_log(tmp_path):
     src = tmp_path / "src"
     dto = src / "com/gitgalaxy/modernized/dto/contract"
@@ -349,6 +364,7 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
         {"step": 1, "transid": "FX01", "program": "FXCHAIN", "commarea": ca, "end": "normal", "events": [
             {"event": "SEND-MAP", "program": "FXCHAIN", "map": "M1", "screen": {"NAME": "ADA", "MSG": None}},
             {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002"},
+            {"event": "RECEIVE", "program": "FXCHAIN", "resp": "NORMAL", "length": 4, "data": "FX01"},
             {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "commarea": ca},
             {"event": "DRIVER-ERROR", "program": "FXLAST", "message": "no generated service for program FXLAST"}]}]}  # fmt: skip
     act = runner.java_actual(_case(), raw, src)
@@ -357,7 +373,8 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
                                                                  {"kind": "terminal", "step": 1}, "T001")  # fmt: skip
     assert isinstance(t["eibcalen"], cc.Unmodelled) and t["commarea"].fields == {"WS-COUNT": 2, "WS-NAME": "FIRST"}
     assert t["events"][0]["fields"] == {"NAME": {"data": "ADA"}, "MSG": {"data": None}}
-    assert t["events"][2]["target"] == "FXLAST" and t["events"][3]["message"].startswith("no generated service")
+    assert (t["events"][2]["resp"], t["events"][2]["length"], t["events"][2]["data"].data) == ("NORMAL", 4, b"FX01")
+    assert t["events"][3]["target"] == "FXLAST" and t["events"][4]["message"].startswith("no generated service")
 
 
 # ---- the translator names what it refuses -----------------------------------------------------
@@ -369,7 +386,7 @@ def test_the_translator_names_each_refused_command_as_a_feature():
         "           IF EIBRESP = DFHRESP(NOSUCH) CONTINUE END-IF\n           STRING 'VISIT '")  # fmt: skip
     with pytest.raises(ec.Unsupported) as e:
         ec.translate(src)
-    assert e.value.features == ["LINK", "READQ TS", "RECEIVE", "DFHRESP(NOSUCH)"]
+    assert e.value.features == ["LINK", "READQ TS", "DFHRESP(NOSUCH)"]  # #4005: a terminal RECEIVE translates
     assert ec.translate((FIXTURE / "src/FXCHAIN.cbl").read_text())[1] is True
 
 

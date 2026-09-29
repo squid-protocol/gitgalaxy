@@ -36,10 +36,12 @@
       * The stub runtime's side of each translated command:
       * tests/equivalence/cics/ggcics.c reads and writes it as a C
       * struct -- two native ints, then the names and option flags the
-      * translator moves in.
+      * translator moves in, then an in-out length (#4005: RECEIVE's
+      * LENGTH -- the most INTO takes, then the data's length).
        01  GG-CICS EXTERNAL.
            05 GG-RESP   PIC S9(9) COMP-5.
            05 GG-RESP2  PIC S9(9) COMP-5.
            05 GG-NAME1  PIC X(8).
            05 GG-NAME2  PIC X(8).
            05 GG-FLAGS  PIC X(40).
+           05 GG-LEN    PIC S9(9) COMP-5.

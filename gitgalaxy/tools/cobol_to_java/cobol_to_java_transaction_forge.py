@@ -122,7 +122,8 @@ import java.util.Optional;
 /**
  * One CICS task (#3754): what a transaction receives -- its TRANSID, the key the user pressed (EIBAID), the
  * COMMAREA it was started with (none on a first entry, EIBCALEN = 0) and the screens it RECEIVEs -- and, in
- * order, what the program does with it: SEND MAP / SEND TEXT, RETURN TRANSID with a COMMAREA, XCTL, ABEND.
+ * order, what the program does with it: RECEIVE, SEND MAP / SEND TEXT, RETURN TRANSID with a COMMAREA, XCTL,
+ * ABEND.
  * A program's service ports its PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the
  * same task through the original COBOL and compares every event, field by field.
  */
@@ -134,6 +135,8 @@ public class CicsTask {
     private final Map<String, Object> received;
     private final List<Map<String, Object>> events = new ArrayList<>();
     private boolean ended;
+    private String terminalInput;
+    private boolean terminalRead;
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. */
     public CicsTask(String transid, String aid, Object commarea, Map<String, Object> received) {
@@ -163,6 +166,38 @@ public class CicsTask {
     /** RECEIVE MAP: the screen the user sent, or empty (MAPFAIL) when nothing was received. */
     public <T> Optional<T> receive(String map, Class<T> type) {
         return Optional.ofNullable(received.get(map)).map(type::cast);
+    }
+
+    /** What the operator typed on a cleared screen with the key that started the task (#4005), which an
+     *  unformatted RECEIVE returns; null when nothing was transmitted. */
+    public CicsTask withTerminalInput(String text) {
+        this.terminalInput = text;
+        return this;
+    }
+
+    /** The task's terminal input was already read by an earlier program of the task (#4005). */
+    public void terminalInputRead() {
+        this.terminalRead = true;
+    }
+
+    /** RECEIVE INTO LENGTH(maxLength) (#4005): the terminal input, unformatted, read once per task. Input
+     *  longer than maxLength is truncated to it and raises LENGERR, and the length is then the input's full
+     *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
+     *  length of data"). */
+    public Received receiveText(int maxLength) {
+        if (terminalRead) {
+            throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
+        }
+        terminalRead = true;
+        String text = terminalInput == null ? "" : terminalInput;
+        String data = text.length() > maxLength ? text.substring(0, Math.max(maxLength, 0)) : text;
+        String resp = text.length() > maxLength ? "LENGERR" : "NORMAL";
+        event("RECEIVE", "resp", resp, "length", text.length(), "data", data);
+        return new Received(resp, text.length(), data);
+    }
+
+    /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */
+    public record Received(String resp, int length, String data) {
     }
 
     public void sendMap(String map, Object screen) {

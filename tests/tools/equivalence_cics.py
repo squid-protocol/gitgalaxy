@@ -175,6 +175,21 @@ def translate_command(body: str) -> list[str]:
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, can_fail=True))  # fmt: skip
+    if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
+        for bad in ("SET", "NOTRUNCATE", "BUFFER", "PARTN", "SESSION", "CONVID", "LDC"):
+            if bad in opts:
+                raise Unsupported(f"RECEIVE {bad}", [f"RECEIVE {bad}"])
+        into = opts.get("INTO")
+        if not into:
+            raise Unsupported("RECEIVE without INTO", ["RECEIVE"])
+        # LENGTH / FLENGTH is in-out: in, the most INTO takes (unless MAXLENGTH / MAXFLENGTH says so);
+        # out, the length of the data. COBOL may omit it: the translator supplies LENGTH OF INTO.
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        limit = opts.get("MAXLENGTH") or opts.get("MAXFLENGTH") or length or f"LENGTH OF {into}"
+        lines = [f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
+        if length:
+            lines.append(f"MOVE GG-LEN TO {length}")
+        return lines + _resp(opts, can_fail=True)
     if verb == "SEND" and "MAP" in opts:
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
         mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",

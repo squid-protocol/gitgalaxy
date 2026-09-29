@@ -30,6 +30,7 @@ import subprocess
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
+from collections.abc import Iterator
 
 import equivalence_common as common
 
@@ -126,16 +127,82 @@ def _call(entry: str, args: list[str]) -> list[str]:
     return [f"CALL '{entry}' USING GG-CICS"] + [f"    {a}" for a in args]
 
 
-def _resp(opts: dict[str, str | None], can_fail: bool) -> list[str]:
-    """After a command: the EIB's RESP fields, the program's RESP / RESP2, or -- when it
-    tests neither and does not say NOHANDLE -- CICS's default: an unhandled condition abends."""
+def _transfer(labels: list[str] | None) -> list[str]:
+    """#4003: GO TO the label the stub chose (GG-GOTO, 1-based into the program's HANDLE labels),
+    the way IBM's translator follows a HANDLE with GO TO ... DEPENDING ON DFHEIGDI; any other value
+    falls through."""
+    if not labels:
+        return []
+    return ["GO TO"] + [f"    {label}" for label in labels] + ["    DEPENDING ON GG-GOTO"]
+
+
+def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None = None) -> list[str]:
+    """After a command: the EIB's RESP fields, the program's RESP / RESP2, or -- when it tests
+    neither and does not say NOHANDLE (which suspend every HANDLE, IBM: "The HANDLE CONDITION
+    command is temporarily deactivated by the NOHANDLE or RESP option") -- the condition's
+    handling (#4003, GGCCOND): IGNOREd, a HANDLE CONDITION label or the ERROR label (a GO TO), or
+    the default action, an abend (whose exit may be a label here; GG-GOTO -1 leaves the program)."""
     lines = ["MOVE GG-RESP TO EIBRESP", "MOVE GG-RESP2 TO EIBRESP2"]
     if opts.get("RESP"):
         lines.append(f"MOVE GG-RESP TO {opts['RESP']}")
     if opts.get("RESP2"):
         lines.append(f"MOVE GG-RESP2 TO {opts['RESP2']}")
     if can_fail and not opts.get("RESP") and "NOHANDLE" not in opts:
-        lines += ["IF GG-RESP NOT = 0", "    CALL 'GGCUNHD' USING GG-CICS", "    GOBACK", "END-IF"]
+        lines += (["IF GG-RESP NOT = 0", "    CALL 'GGCCOND' USING GG-CICS"]
+                  + [f"    {ln}" for ln in _transfer(labels)]
+                  + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"])  # fmt: skip
+    return lines
+
+
+# #4003: the commands whose options name the labels a program's handlers transfer to.
+_HANDLE_KINDS = ("CONDITION", "ABEND", "AID")
+
+
+def handler_labels(bodies: list[str]) -> list[str]:
+    """Every label a program's HANDLE CONDITION / HANDLE ABEND LABEL / HANDLE AID names, in first-use
+    order: GG-GOTO numbers them from 1."""
+    out: list[str] = []
+    for body in bodies:
+        try:
+            pairs = _options(body)
+        except Unsupported:
+            continue
+        if len(pairs) < 2 or pairs[0][0] != "HANDLE" or pairs[1][0] not in _HANDLE_KINDS:
+            continue
+        for opt, value in pairs[2:]:
+            if value and not (pairs[1][0] == "ABEND" and opt != "LABEL"):
+                label = value.upper()
+                if label not in out:
+                    out.append(label)
+    return out
+
+
+def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]:
+    """#4003: HANDLE CONDITION / IGNORE CONDITION / HANDLE ABEND / PUSH / POP HANDLE / ASSIGN ABCODE."""
+    verb, kind = pairs[0][0], pairs[1][0] if len(pairs) > 1 else None
+    opts = dict(pairs)
+    if verb in ("PUSH", "POP") and kind == "HANDLE":
+        return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
+    if verb == "ASSIGN":
+        asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
+        other = [n for n, _v in asked if n != "ABCODE"]
+        if other or not asked or not opts.get("ABCODE"):
+            raise Unsupported(f"ASSIGN {' '.join(other) or 'without ABCODE'}", [f"ASSIGN {n}" for n in other or ["?"]])
+        return _call("GGCASGN", []) + [f"MOVE GG-NAME1(1:4) TO {opts['ABCODE']}"] + _resp(opts, False)
+    if kind == "ABEND":
+        if "PROGRAM" in opts:
+            raise Unsupported("HANDLE ABEND PROGRAM", ["HANDLE ABEND PROGRAM"])
+        label = opts.get("LABEL")
+        if label:
+            return ["MOVE 'LABEL' TO GG-NAME2", f"MOVE {labels.index(label.upper()) + 1} TO GG-ITEM",
+                    f"MOVE '{label.upper()[:30]}' TO GG-FLAGS"] + _call("GGCHABN", [])  # fmt: skip
+        return [f"MOVE '{'CANCEL' if 'CANCEL' in opts else 'RESET'}' TO GG-NAME2"] + _call("GGCHABN", [])
+    lines: list[str] = []
+    for cond, label in pairs[2:]:
+        if cond not in DFHRESP or cond == "NORMAL":
+            raise Unsupported(f"{verb} CONDITION {cond}: not a documented condition", [f"{verb} CONDITION"])
+        index = -1 if verb == "IGNORE" else (labels.index(label.upper()) + 1 if label else 0)
+        lines += [f"MOVE {DFHRESP[cond]} TO GG-NUM", f"MOVE {index} TO GG-ITEM"] + _call("GGCHCND", [])
     return lines
 
 
@@ -144,7 +211,7 @@ def _literal(value: str) -> str | None:
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
-def _ts_command(verb: str, opts: dict[str, str | None]) -> list[str]:
+def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
     """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
     takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
     ITEMERR nor QIDERR). ITEM is a value on READQ (NEXT: 0) and on WRITEQ REWRITE, a data area WRITEQ
@@ -176,14 +243,17 @@ def _ts_command(verb: str, opts: dict[str, str | None]) -> list[str]:
             after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
     if num:
         after += ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {num}", "END-IF"]
-    return lines + after + _resp(opts, can_fail=True)
+    return lines + after + _resp(opts, True, labels)
 
 
-def translate_command(body: str) -> list[str]:
-    """One EXEC CICS body -> the COBOL statements that replace it."""
+def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
+    """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
+    labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
+    command's own."""
     pairs = _options(body)
     if not pairs:
         raise Unsupported("empty EXEC CICS")
+    labels = handler_labels([body]) if labels is None else labels
     opts = dict(pairs)
     verb = pairs[0][0]
     flags = [n for n, v in pairs[1:] if v is None and n not in ("NOHANDLE",)]
@@ -202,14 +272,14 @@ def translate_command(body: str) -> list[str]:
         return ([name(file, "GG-NAME1")]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, can_fail=True))  # fmt: skip
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "RECEIVE" and "MAP" in opts:
         into = opts.get("INTO") or (f"{_literal(opts['MAP'])}I" if _literal(opts["MAP"]) else None)
         if not into:
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, can_fail=True))  # fmt: skip
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         for bad in ("SET", "NOTRUNCATE", "BUFFER", "PARTN", "SESSION", "CONVID", "LDC"):
             if bad in opts:
@@ -224,9 +294,9 @@ def translate_command(body: str) -> list[str]:
         lines = [f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + _resp(opts, can_fail=True)
+        return lines + _resp(opts, True, labels)
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
-        return _ts_command(verb, opts)
+        return _ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
         lines = [name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
         mapflags = [n for n, _v in pairs[1:] if n in ("ERASE", "ERASEAUP", "MAPONLY", "DATAONLY", "CURSOR",
@@ -261,30 +331,29 @@ def translate_command(body: str) -> list[str]:
                 else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
         entry = "GGCRETN" if verb == "RETURN" else "GGCXCTL"
         return [name(target, "GG-NAME1")] + _call(entry, args) + ["GOBACK"]
-    if verb == "ABEND":
-        return [name(opts.get("ABCODE"), "GG-NAME1")] + _call("GGCABND", []) + ["GOBACK"]
-    if verb == "HANDLE" and len(pairs) > 1 and pairs[1][0] == "ABEND":
-        what = " ".join(f"{n} {v}" if v else n for n, v in pairs[2:]) or "RESET"
-        return [f"MOVE '{what[:40]}' TO GG-FLAGS"] + _call("GGCHABN", [])
+    if verb == "ABEND":  # #4003: an exit at this level takes it by GO TO; else the program is left
+        return ([name(opts.get("ABCODE"), "GG-NAME1"), "MOVE 'CANCEL' TO GG-FLAGS" if "CANCEL" in opts else "MOVE SPACES TO GG-FLAGS"]
+                + _call("GGCABND", []) + _transfer(labels) + ["GOBACK"])  # fmt: skip
+    if (
+        (verb in ("HANDLE", "IGNORE") and len(pairs) > 1 and pairs[1][0] in ("CONDITION", "ABEND"))
+        or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
+        or verb == "ASSIGN"
+    ):
+        return _handle(pairs, labels)  # fmt: skip
     raise Unsupported(" ".join(n for n, _ in pairs[:2]), [_feature(pairs)])
 
 
-def translate(source: str) -> tuple[str, bool]:
-    """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
-    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
-    lines = source.splitlines()
-    out: list[str] = []
-    problems: list[str] = []
-    features: list[str] = []
+def _exec_blocks(lines: list[str]) -> Iterator[tuple[int, int, str, str, str]]:
+    """Each EXEC CICS block of a fixed-format program: (first line, last line, the code before
+    it, its body, the code after END-EXEC)."""
     i = 0
     while i < len(lines):
         line = lines[i]
         code = line[7:72] if len(line) > 7 else ""
-        if (len(line) > 6 and line[6] in "*/") or not _EXEC.search(code):
-            out.append(line)
+        start = _EXEC.search(code)
+        if (len(line) > 6 and line[6] in "*/") or not start:
             i += 1
             continue
-        start = _EXEC.search(code)
         prefix, body, j = code[: start.start()], code[start.end() :], i
         while not _END_EXEC.search(body):
             j += 1
@@ -297,11 +366,29 @@ def translate(source: str) -> tuple[str, bool]:
                 raise Unsupported(f"continuation line inside EXEC CICS at line {j + 1}")
             body += " " + (nxt[7:72] if len(nxt) > 7 else "")
         end = _END_EXEC.search(body)
-        body, suffix = body[: end.start()], body[end.end() :]
+        assert end is not None
+        yield i, j, prefix, body[: end.start()], body[end.end() :]
+        i = j + 1
+
+
+def translate(source: str) -> tuple[str, bool]:
+    """A fixed-format CICS program -> (the program the stub runtime runs, whether it takes a
+    COMMAREA through LINKAGE). Raises Unsupported naming each command it cannot model."""
+    lines = source.splitlines()
+    blocks = list(_exec_blocks(lines))
+    labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
+    out: list[str] = []
+    problems: list[str] = []
+    features: list[str] = []
+    at = 0
+    for i, j, prefix, body, suffix in blocks:
+        out += lines[at:i]
+        at = j + 1
+        line = lines[i]
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body)
+            stmts = translate_command(body, labels)
         except Unsupported as e:
             problems.append(f"line {i + 1}: EXEC CICS {e}")
             features += [f for f in e.features if f not in features]
@@ -312,7 +399,7 @@ def translate(source: str) -> tuple[str, bool]:
             out.append(_AREA_B + s)
         if suffix.strip():
             out.append(_AREA_B + suffix.strip())
-        i = j + 1
+    out += lines[at:]
     unknown = sorted({m.group(1).upper() for ln in out for m in _DFHRESP.finditer(ln)} - set(DFHRESP))
     for name in unknown:  # #3989: refused by name, never a KeyError
         problems.append(f"DFHRESP({name}) is not a documented condition")
@@ -330,6 +417,17 @@ def translate(source: str) -> tuple[str, bool]:
                           flags=re.M | re.I)  # fmt: skip
         if n != 1:
             raise Unsupported("PROCEDURE DIVISION header not found (or already has USING)")
+    # #4003: the program names itself to the stub as it starts (the level's program, for an abend exit)
+    pid = re.search(r"^.{6} +PROGRAM-ID\.?\s+['\"]?([A-Z0-9#@$-]+)", text, re.M | re.I)
+    if pid is None:
+        raise Unsupported("no PROGRAM-ID")
+    if re.search(r"^.{6} +DECLARATIVES\s*\.", text, re.M | re.I):
+        raise Unsupported("DECLARATIVES", ["DECLARATIVES"])
+    entry = f"{_AREA_B}MOVE '{pid.group(1).upper()[:8]}' TO GG-NAME1\n{_AREA_B}CALL 'GGCPENT' USING GG-CICS.\n"
+    text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION\b[^.\n]*\.[^\n]*\n)", lambda m: m.group(1) + entry, text,
+                      count=1, flags=re.M | re.I)  # fmt: skip
+    if n != 1:
+        raise Unsupported("PROCEDURE DIVISION header not on one line")
     return text, has_commarea
 
 
@@ -859,7 +957,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "XCTL":
             out.append({"event": "XCTL", "program": res["xctl"]["program"], "commarea": res["xctl"]["commarea"]})
         elif verb == "ABEND":
-            out.append({"event": "ABEND", "abcode": args.partition("=")[2]})
+            m = re.search(r"\babcode=(\S*)", args)
+            out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
     return out
 
 

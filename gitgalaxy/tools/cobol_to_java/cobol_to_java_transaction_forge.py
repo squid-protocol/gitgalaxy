@@ -141,6 +141,7 @@ public class CicsTask {
     private String terminalInput;
     private boolean terminalRead;
     private TempStorage tempStorage = new TempStorage();
+    private String abcode = "    ";
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
      *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
@@ -360,9 +361,60 @@ public class CicsTask {
         ended = true;
     }
 
+    /** EXEC CICS ABEND ABCODE(abcode) that no abend exit takes: the task is terminated. */
     public void abend(String abcode) {
-        event("ABEND", "abcode", abcode);
-        ended = true;
+        abend(abcode, "command", null, null, null);
+    }
+
+    /** A condition the program neither handled nor ignored (#4003): CICS's default action abends the task
+     *  with the condition's code (abcodeFor) and, with no abend exit to take it, terminates it. */
+    public void abendOnCondition(String condition) {
+        abend(abcodeFor(condition), "condition", condition, null, null);
+    }
+
+    /** An abend that a HANDLE ABEND LABEL exit took (#4003): `label` in `program`, the first active exit
+     *  from the abending level upward; the task goes on there. `cause` is "command" (EXEC CICS ABEND) or
+     *  "condition" (an unhandled `condition`). */
+    public void abendToExit(String abcode, String cause, String condition, String program, String label) {
+        abend(abcode, cause, condition, program, label);
+    }
+
+    /** ASSIGN ABCODE: the task's current abend code, blanks while there has been none. */
+    public String abcode() {
+        return abcode;
+    }
+
+    /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic). */
+    public static String abcodeFor(String condition) {
+        return switch (condition) {
+            case "NOTFND" -> "AEIM";
+            case "LENGERR" -> "AEIV";
+            case "ITEMERR" -> "AEIZ";
+            case "QIDERR" -> "AEYH";
+            case "MAPFAIL" -> "AEI9";
+            case "ENDDATA" -> "AEI2";
+            case "PGMIDERR" -> "AEI0";
+            case "INVREQ" -> "AEIP";
+            default -> throw new IllegalArgumentException("no abend code known for condition " + condition);
+        };
+    }
+
+    private void abend(String code, String cause, String condition, String program, String label) {
+        abcode = code;
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "ABEND");
+        e.put("abcode", code);
+        e.put("cause", cause);
+        if (condition != null) {
+            e.put("condition", condition);
+        }
+        e.put("outcome", program == null ? "terminated" : "exit");
+        if (program != null) {
+            e.put("exit", Map.of("program", program, "label", label));
+        } else {
+            ended = true;
+        }
+        events.add(e);
     }
 
     public boolean ended() {

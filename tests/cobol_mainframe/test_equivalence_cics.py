@@ -28,9 +28,51 @@ def test_a_read_becomes_a_stub_call_and_its_resp_is_the_programs():
     assert got[-2:] == ["MOVE GG-RESP TO WS-RESP-CD", "MOVE GG-RESP2 TO WS-REAS-CD"]
 
 
-def test_an_untested_condition_abends_as_cics_does():
+def test_an_untested_condition_goes_to_the_stubs_condition_handling():
+    """#4003: no RESP / NOHANDLE -> GGCCOND decides (IGNORE, a HANDLE label, ERROR, or an abend); a label
+    is a GO TO ... DEPENDING ON over the program's HANDLE labels, and GG-GOTO -1 leaves the program."""
     got = ec.translate_command("RECEIVE MAP('MAP1') MAPSET('SET1') INTO(MAP1I)")
-    assert got[-4:] == ["IF GG-RESP NOT = 0", "    CALL 'GGCUNHD' USING GG-CICS", "    GOBACK", "END-IF"]
+    assert got[-6:] == ["IF GG-RESP NOT = 0", "    CALL 'GGCCOND' USING GG-CICS", "    IF GG-GOTO < 0",
+                        "        GOBACK", "    END-IF", "END-IF"]  # fmt: skip
+    got = ec.translate_command("READQ TS QUEUE('Q') INTO(X) LENGTH(L)", ["NO-QUEUE", "PAST-END"])
+    assert got[-9:-3] == ["    CALL 'GGCCOND' USING GG-CICS", "    GO TO", "        NO-QUEUE", "        PAST-END",
+                           "        DEPENDING ON GG-GOTO", "    IF GG-GOTO < 0"]  # fmt: skip
+    for body in ("READQ TS QUEUE('Q') INTO(X) RESP(R)", "READQ TS QUEUE('Q') INTO(X) NOHANDLE"):
+        assert "    CALL 'GGCCOND' USING GG-CICS" not in ec.translate_command(body, ["A"])
+
+
+def test_handle_ignore_push_pop_and_assign_become_stub_calls():
+    labels = ec.handler_labels(["HANDLE CONDITION QIDERR(NO-QUEUE) ITEMERR(past-end) ERROR(ANY-ERROR)", "RETURN",
+                                "HANDLE ABEND LABEL(MAIN-ABEND)", "HANDLE ABEND CANCEL", "HANDLE AID PF3(BYE)",
+                                "HANDLE CONDITION ITEMERR(PAST-END) LENGERR"])  # fmt: skip
+    assert labels == ["NO-QUEUE", "PAST-END", "ANY-ERROR", "MAIN-ABEND", "BYE"]
+    got = ec.translate_command("HANDLE CONDITION QIDERR(NO-QUEUE) LENGERR", labels)
+    assert got == ["MOVE 44 TO GG-NUM", "MOVE 1 TO GG-ITEM", "CALL 'GGCHCND' USING GG-CICS",
+                   "MOVE 22 TO GG-NUM", "MOVE 0 TO GG-ITEM", "CALL 'GGCHCND' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("IGNORE CONDITION ITEMERR", labels)[:2] == ["MOVE 26 TO GG-NUM", "MOVE -1 TO GG-ITEM"]
+    assert ec.translate_command("HANDLE ABEND LABEL(MAIN-ABEND)", labels) == [
+        "MOVE 'LABEL' TO GG-NAME2", "MOVE 4 TO GG-ITEM", "MOVE 'MAIN-ABEND' TO GG-FLAGS",
+        "CALL 'GGCHABN' USING GG-CICS"]  # fmt: skip
+    assert ec.translate_command("HANDLE ABEND CANCEL")[0] == "MOVE 'CANCEL' TO GG-NAME2"
+    assert ec.translate_command("HANDLE ABEND RESET")[0] == "MOVE 'RESET' TO GG-NAME2"
+    assert ec.translate_command("PUSH HANDLE")[0] == "CALL 'GGCPUSH' USING GG-CICS"
+    assert "    CALL 'GGCCOND' USING GG-CICS" in ec.translate_command("POP HANDLE")  # INVREQ with nothing pushed
+    assert ec.translate_command("ASSIGN ABCODE(WS-AB)")[:2] == ["CALL 'GGCASGN' USING GG-CICS",
+                                                                "MOVE GG-NAME1(1:4) TO WS-AB"]  # fmt: skip
+    abend = ec.translate_command("ABEND ABCODE('HCX1')", ["SUB-ABEND"])
+    assert abend[:3] == ["MOVE 'HCX1' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCABND' USING GG-CICS"]
+    assert abend[3:] == ["GO TO", "    SUB-ABEND", "    DEPENDING ON GG-GOTO", "GOBACK"]
+    assert ec.translate_command("ABEND ABCODE('X') CANCEL")[1] == "MOVE 'CANCEL' TO GG-FLAGS"
+
+
+def test_a_program_names_itself_to_the_stub_as_it_starts():
+    text, _ = ec.translate(PROGRAM)
+    lines = text.splitlines()
+    at = next(i for i, ln in enumerate(lines) if "PROCEDURE DIVISION" in ln)
+    assert lines[at + 1 : at + 3] == [
+        "           MOVE 'ACCTINQ' TO GG-NAME1",
+        "           CALL 'GGCPENT' USING GG-CICS.",
+    ]
 
 
 def test_return_xctl_and_abend_end_the_task():
@@ -50,7 +92,7 @@ def test_a_terminal_receive_passes_its_length_in_and_takes_the_datas_length_back
     """#4005: LENGTH is in-out -- in, the most INTO takes; out, the data's length (IBM, EXEC CICS RECEIVE)."""
     got = ec.translate_command("RECEIVE INTO(WS-INPUT) LENGTH(WS-INLEN)")
     assert got[:3] == ["MOVE WS-INLEN TO GG-LEN", "CALL 'GGCRECT' USING GG-CICS", "    BY REFERENCE WS-INPUT"]
-    assert got[3] == "MOVE GG-LEN TO WS-INLEN" and got[-3] == "    CALL 'GGCUNHD' USING GG-CICS"
+    assert got[3] == "MOVE GG-LEN TO WS-INLEN" and got[-5] == "    CALL 'GGCCOND' USING GG-CICS"
     assert ec.translate_command("RECEIVE INTO(WS-I) LENGTH(WS-L) MAXLENGTH(30)")[0] == "MOVE 30 TO GG-LEN"
     omitted = ec.translate_command("RECEIVE INTO(WS-I) RESP(WS-R)")
     assert omitted[0] == "MOVE LENGTH OF WS-I TO GG-LEN" and "MOVE GG-RESP TO WS-R" in omitted
@@ -75,6 +117,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
 
 
 @pytest.mark.parametrize("body", ["READ FILE(F) RIDFLD(K) INTO(R) GENERIC", "READQ TS QUEUE(Q) SET(P) LENGTH(L)",
+                                  "HANDLE ABEND PROGRAM('X')", "ASSIGN USERID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",

@@ -88,7 +88,7 @@ COBOL_CAPS = cc.Capabilities(
         "RECEIVE": frozenset({"resp", "length", "data"}),
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "length", "commarea", "resp"}),
-        "ABEND": frozenset({"abcode", "cause", "condition", "outcome"}),
+        "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READ": frozenset({"file", "ridfld", "resp"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
@@ -105,7 +105,7 @@ JAVA_CAPS = cc.Capabilities(
         "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "commarea"}),
-        "ABEND": frozenset({"abcode"}),
+        "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
     },
@@ -504,7 +504,7 @@ class EquivalenceRunTest {
                             pendingCa = e.get("commarea");
                             pendingLen = e.get("length") instanceof Integer l ? l : null;
                         }
-                        if ("ABEND".equals(e.get("event"))) {
+                        if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
                             end = "abend";
                         }
                         if ("RECEIVE".equals(e.get("event"))) {
@@ -676,8 +676,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
             elif kind == "XCTL":
                 ev.update(target=e.get("target"), commarea=_java_area(e.get("commarea"), src, shapes))
-            elif kind == "ABEND":
-                ev["abcode"] = e.get("abcode")
+            elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
+                ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
                 ev["message"] = e.get("message")
             task["events"].append(ev)
@@ -797,14 +797,16 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
         elif verb == "XCTL":
             area = cc.RawArea(data, "latin-1") if data else None
             ev.update(target=arg("program"), length=int(arg("len") or 0), commarea=area, resp="NORMAL")
-        elif verb == "ABEND" and "unhandled-resp=" in args:
-            cond = names.get(int(arg("unhandled-resp") or 0), arg("unhandled-resp"))
-            code: Any = CONDITION_ABCODE.get(cond) or cc.Unmodelled(f"ABEND code of an unhandled {cond}")
-            ev.update(abcode=code, cause="condition", condition=cond, outcome="terminated")
-        elif verb == "ABEND":
-            ev.update(abcode=arg("abcode"), cause="command", outcome="terminated")
-        elif verb == "HANDLE-ABEND":
-            continue  # SPEC 6.2: HANDLE is not an event
+        elif verb == "ABEND":  # #4003: its cause, and which exit took it (program.label), if one did
+            ev.update(abcode=arg("abcode"), cause=arg("cause"), outcome=arg("outcome"))
+            if arg("condition"):
+                cond = names.get(int(arg("condition")), arg("condition"))
+                ev["condition"] = cond
+                if ev["abcode"] != CONDITION_ABCODE.get(cond):
+                    ev["abcode"] = cc.Unmodelled(f"ABEND code of an unhandled {cond}")
+            if arg("exit"):
+                program, _, label = arg("exit").partition(".")
+                ev["exit"] = {"program": program, "label": label}
         events.append(ev)
     return events
 
@@ -955,7 +957,7 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
                     elif last and last["event"] == "RETURN":
                         pending = last["transid"]
                         pending_ca = last["commarea"].data if last["commarea"] else None
-                    elif last and last["event"] == "ABEND":
+                    elif last and last["event"] == "ABEND" and last.get("outcome") == "terminated":
                         task["end"] = "abend"
                 tasks.append(task)
             result[sid] = {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}

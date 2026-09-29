@@ -139,6 +139,41 @@ def test_cics_task_ts_queues_follow_readq_and_writeq(tmp_path):
 
 
 @needs_javac
+def test_cics_task_abend_carries_its_cause_outcome_and_exit(tmp_path):
+    """#4003: an exit that takes the abend leaves the task running; the default action terminates it."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("HC02", "ENTER", null, null);
+        System.out.println("[" + t.abcode() + "]");
+        t.abendToExit("AEYH", "condition", "QIDERR", "HCMAIN", "MAIN-ABEND");
+        System.out.println(t.abcode() + " " + t.ended());
+        t.abendOnCondition("QIDERR");
+        System.out.println(t.ended() + " " + CicsTask.abcodeFor("PGMIDERR"));
+        CicsTask u = new CicsTask("HC02", "ENTER", null, null);
+        u.abend("HCX1");
+        for (CicsTask x : java.util.List.of(t, u)) {
+            for (java.util.Map<String, Object> e : x.events()) {
+                java.util.Map<String, Object> sorted = new java.util.TreeMap<>(e);
+                if (e.get("exit") instanceof java.util.Map<?, ?> m) {
+                    sorted.put("exit", new java.util.TreeMap<>(m));
+                }
+                System.out.println(sorted);
+            }
+        }""",
+    )
+    assert out.splitlines() == [
+        "[    ]",
+        "AEYH false",
+        "true AEI0",
+        "{abcode=AEYH, cause=condition, condition=QIDERR, event=ABEND, exit={label=MAIN-ABEND, program=HCMAIN}, "
+        "outcome=exit}",
+        "{abcode=AEYH, cause=condition, condition=QIDERR, event=ABEND, outcome=terminated}",
+        "{abcode=HCX1, cause=command, event=ABEND, outcome=terminated}",
+    ]
+
+
+@needs_javac
 def test_cics_task_receive_text_records_the_event_and_truncates_with_lengerr(tmp_path):
     out = _cics_task(
         tmp_path,
@@ -238,3 +273,69 @@ def test_the_stub_ts_queues_follow_readq_and_writeq(tmp_path):
     assert events[6] == "007 READQ-TS queue=5131 item=NEXT resp=0 len=2 copied=2"
     assert events[1] == "002 WRITEQ-TS queue=5131 item=1 resp=0 len=5"
     assert (tmp_path / "ts" / "5131" / "000002.bin").read_bytes() == b"XY"
+
+
+# ---- #4003: conditions and abends ------------------------------------------------------------------------
+_COND_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCPENT(gg_cics *c); int GGCHCND(gg_cics *c); int GGCHABN(gg_cics *c); int GGCPUSH(gg_cics *c);
+int GGCPOP(gg_cics *c); int GGCABND(gg_cics *c); int GGCCOND(gg_cics *c); int GGCASGN(gg_cics *c);
+static gg_cics c;
+static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
+static void handle(int cond, int label) { c.num = cond; c.item = label; GGCHCND(&c); }
+static void raise(int resp) { c.resp = resp; GGCCOND(&c); printf("%d ", c.go_to); }
+int main(void) {
+    memset(&c, 0, sizeof c);
+    blank(c.name1, 8, "HCQREAD"); GGCPENT(&c);
+    raise(44);                            /* default: abend AEYH, no exit: terminated (-1) */
+    handle(44, 1); handle(26, 2); handle(1, 3);
+    raise(44); raise(26); raise(22);      /* labels 1, 2, then ERROR's 3 */
+    handle(26, -1); raise(26);            /* IGNORE: 0 */
+    handle(26, 4); raise(26);             /* a later HANDLE overrides the IGNORE: 4 */
+    handle(26, 0); raise(26);             /* HANDLE without a label: back to the default, here ERROR's 3 */
+    blank(c.name2, 8, "LABEL"); blank(c.flags, 40, "MAIN-ABEND"); c.item = 5; GGCHABN(&c);
+    GGCPUSH(&c); raise(44);               /* pushed: no handler, no exit: -1 */
+    GGCPOP(&c); printf("pop=%d ", c.resp);
+    GGCPOP(&c); printf("pop=%d ", c.resp); /* nothing pushed: INVREQ */
+    raise(44);                            /* the handler is back: 1 */
+    handle(1, 0); raise(13);              /* NOTFND, no ERROR: abend AEIM to the exit, label 5 */
+    GGCASGN(&c); printf("%.4s ", c.name1);
+    raise(13);                            /* the exit was deactivated when it got control: -1 */
+    blank(c.name2, 8, "RESET"); GGCHABN(&c);
+    blank(c.name1, 8, "HCX1"); blank(c.flags, 40, ""); GGCABND(&c); printf("%d ", c.go_to);
+    blank(c.name2, 8, "RESET"); GGCHABN(&c);
+    blank(c.name1, 8, "HCX2"); blank(c.flags, 40, "CANCEL"); GGCABND(&c); printf("%d\n", c.go_to);
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_handles_conditions_and_abends_as_cics_does(tmp_path):
+    """IBM, HANDLE CONDITION / IGNORE CONDITION / HANDLE ABEND / PUSH and POP HANDLE and the abend-exit
+    search: the last HANDLE or IGNORE for a condition wins, ERROR catches what has no handler of its own,
+    PUSH suspends every handler and the abend exit, an exit is deactivated as it takes an abend, RESET
+    reactivates it and ABEND CANCEL skips it."""
+    exe = _stub(tmp_path, _COND_MAIN)
+    assert _run_stub(exe, tmp_path) == ["-1 1 2 3 0 4 3 -1 pop=0 pop=16 1 5 AEIM -1 5 -1"]
+    assert (tmp_path / "out" / "events.txt").read_text().splitlines() == [
+        "001 ABEND abcode=AEYH cause=condition condition=44 outcome=terminated",
+        "002 ABEND abcode=AEYH cause=condition condition=44 outcome=terminated",
+        "003 ABEND abcode=AEIM cause=condition condition=13 outcome=exit exit=HCQREAD.MAIN-ABEND",
+        "004 ABEND abcode=AEIM cause=condition condition=13 outcome=terminated",
+        "005 ABEND abcode=HCX1 cause=command outcome=exit exit=HCQREAD.MAIN-ABEND",
+        "006 ABEND abcode=HCX2 cause=command outcome=terminated",
+    ]
+
+
+def test_the_stub_and_the_runner_agree_on_condition_abend_codes():
+    src = STUB.read_text(encoding="utf-8")
+    import cics_crucible as runner
+    import equivalence_cics as ec
+
+    table = dict(re.findall(r'case (\w+): return "(\w{4})";', src))
+    assert {c: table[c] for c in runner.CONDITION_ABCODE} == runner.CONDITION_ABCODE
+    assert all(c in ec.DFHRESP for c in table)

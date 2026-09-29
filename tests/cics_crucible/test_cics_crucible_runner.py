@@ -336,22 +336,26 @@ def test_final_ts_queues_are_compared_exactly():
 # ---- the sides' logs --------------------------------------------------------------------------
 def test_the_stub_log_becomes_spec_events(tmp_path):
     (tmp_path / "events.txt").write_text(
-        "001 HANDLE-ABEND LABEL X\n002 SEND-TEXT len=5 opts=TEXT ERASE FREEKB\n003 SEND-MAP map=M mapset=S len=9 opts=\n"
-        "004 RECEIVE-MAP map=M mapset=S resp=36\n005 XCTL program=NEXT len=3\n006 ABEND unhandled-resp=44\n"
-        "007 ABEND unhandled-resp=4\n008 ABEND abcode=XX01\n009 RETURN transid=T1 len=2\n010 END\n",
+        "001 RECEIVE-MAP map=M mapset=M resp=0\n002 SEND-TEXT len=5 opts=TEXT ERASE FREEKB\n"
+        "003 SEND-MAP map=M mapset=S len=9 opts=\n004 RECEIVE-MAP map=M mapset=S resp=36\n005 XCTL program=NEXT len=3\n"
+        "006 ABEND abcode=AEYH cause=condition condition=44 outcome=exit exit=HCMAIN.MAIN-ABEND\n"
+        "007 ABEND abcode=???? cause=condition condition=4 outcome=terminated\n"
+        "008 ABEND abcode=XX01 cause=command outcome=terminated\n009 RETURN transid=T1 len=2\n010 END\n",
         encoding="latin-1")  # fmt: skip
     (tmp_path / "002.bin").write_bytes(b"HI  !")
     (tmp_path / "005.bin").write_bytes(b"ABC")
     (tmp_path / "009.bin").write_bytes(b"\x00Z")
-    evs = runner._cobol_events(tmp_path, "PROG")
+    evs = runner._cobol_events(tmp_path, "PROG")[1:]
     assert [e["event"] for e in evs] == ["SEND-TEXT", "SEND-MAP", "RECEIVE-MAP", "XCTL", "ABEND", "ABEND", "ABEND",
                                          "RETURN", "RETURN"]  # fmt: skip
     assert evs[0] == {"event": "SEND-TEXT", "program": "PROG", "text": "HI  !".encode(E), "length": 5,
                       "options": ["ERASE", "FREEKB"]}  # fmt: skip
     assert evs[2]["resp"] == "MAPFAIL" and evs[3]["target"] == "NEXT" and evs[3]["commarea"].data == b"ABC"
     assert (evs[4]["abcode"], evs[4]["condition"], evs[4]["cause"]) == ("AEYH", "QIDERR", "condition")
+    assert (evs[4]["outcome"], evs[4]["exit"]) == ("exit", {"program": "HCMAIN", "label": "MAIN-ABEND"})
     assert isinstance(evs[5]["abcode"], cc.Unmodelled)  # EOF: no documented AEIx code in SPEC 6.2's table
-    assert (evs[6]["abcode"], evs[6]["cause"]) == ("XX01", "command")
+    assert (evs[6]["abcode"], evs[6]["cause"], evs[6]["outcome"]) == ("XX01", "command", "terminated")
+    assert "exit" not in evs[6] and "condition" not in evs[6]
     assert (evs[7]["transid"], evs[7]["commarea"].data) == ("T1", b"\x00Z")
     assert (evs[8]["transid"], evs[8]["commarea"]) == (None, None)  # a GOBACK is a RETURN
 

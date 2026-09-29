@@ -38,6 +38,7 @@ typedef struct {
     char qname[16]; /* a TS queue's name (#4002) */
     int item;       /* in-out: ITEM (0 = NEXT) */
     int num;        /* out: NUMITEMS */
+    int go_to;      /* out: the label index a condition / abend exit transfers to (#4003) */
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44 };
@@ -334,31 +335,178 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
     return 0;
 }
 
-int GGCABND(gg_cics *c) {
-    char code[9], ev[64];
-    trim(c->name1, 8, code);
-    snprintf(ev, sizeof ev, "ABEND abcode=%s", code);
-    ended = 1;
-    event(ev, NULL, 0);
+/* ---- conditions and abends (#4003) --------------------------------------------------- *
+ * Each program level (a LINK level, #4004) has its own handler state: per condition
+ * (DFHRESP code) the index of its HANDLE CONDITION label, IGNORE (-1) or the default (0);
+ * its HANDLE ABEND LABEL exit; and a PUSH HANDLE stack of saved states. The translator
+ * numbers the labels a program's HANDLE commands name, and after a command that raised a
+ * condition issues GO TO <labels> DEPENDING ON GG-GOTO (IBM's translator does the same
+ * after the HANDLE command, with DFHEIGDI): the transfer is a plain COBOL GO TO.
+ */
+#define MAX_LEVELS 32
+#define MAX_PUSH 16
+#define NCOND 130
+enum { ERRCOND = 1, INVREQ = 16, PGMIDERR = 27, ENDDATA = 29 };
+
+typedef struct {
+    short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
+    int exit_label;    /* HANDLE ABEND LABEL index, 0 none */
+    int exit_active;   /* deactivated when it gets control (IBM, abend recovery) */
+    char exit_name[31];
+} handlers;
+
+typedef struct {
+    char prog[9];
+    handlers h;
+    handlers pushed[MAX_PUSH];
+    int npushed;
+} level;
+
+static level levels[MAX_LEVELS];
+static int lvl = 0; /* the current level, 0 = level 1 */
+static char task_abcode[5] = "    ";
+
+/* The abend code of an unhandled condition (the AEIA topic of IBM's abend codes, SPEC 6.2). */
+static const char *condition_abcode(int resp) {
+    switch (resp) {
+    case NOTFND: return "AEIM";
+    case LENGERR: return "AEIV";
+    case ITEMERR: return "AEIZ";
+    case QIDERR: return "AEYH";
+    case MAPFAIL: return "AEI9";
+    case ENDDATA: return "AEI2";
+    case PGMIDERR: return "AEI0";
+    case INVREQ: return "AEIP";
+    default: return "????";
+    }
+}
+
+/* The program's entry: the translator names it (GG-NAME1) for the level it runs at. */
+int GGCPENT(gg_cics *c) {
+    trim(c->name1, 8, levels[lvl].prog);
     return 0;
 }
 
-/* HANDLE ABEND LABEL / CANCEL / PROGRAM: recorded; an abend path is not driven. */
+/* HANDLE CONDITION / IGNORE CONDITION: condition GG-NUM gets label GG-ITEM (0: the default
+ * action again, -1: IGNORE). The last HANDLE or IGNORE for a condition wins (IBM, IGNORE
+ * CONDITION: "until a HANDLE CONDITION command for the same condition is encountered"). */
+int GGCHCND(gg_cics *c) {
+    if (c->num > 0 && c->num < NCOND) levels[lvl].h.cond[c->num] = (short)c->item;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    return 0;
+}
+
+/* HANDLE ABEND LABEL (GG-NAME2 'LABEL', GG-ITEM its index, GG-FLAGS its name), CANCEL or
+ * RESET (IBM, EXEC CICS HANDLE ABEND). */
 int GGCHABN(gg_cics *c) {
-    char flags[41], ev[96];
-    trim(c->flags, 40, flags);
-    snprintf(ev, sizeof ev, "HANDLE-ABEND %s", flags);
-    event(ev, NULL, 0);
+    char how[9];
+    handlers *h = &levels[lvl].h;
+    trim(c->name2, 8, how);
+    if (strcmp(how, "LABEL") == 0) {
+        h->exit_label = c->item;
+        h->exit_active = 1;
+        trim(c->flags, 30, h->exit_name);
+    } else if (strcmp(how, "CANCEL") == 0) {
+        h->exit_active = 0;
+    } else if (h->exit_label) { /* RESET: reactivate the exit cancelled, or taken */
+        h->exit_active = 1;
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
     return 0;
 }
 
-/* A command raised a condition the program neither tests (RESP) nor ignores (NOHANDLE):
- * CICS abends the task (AEIx). The translator ends the program after this. */
-int GGCUNHD(gg_cics *c) {
-    char ev[64];
-    snprintf(ev, sizeof ev, "ABEND unhandled-resp=%d", c->resp);
-    ended = 1;
+/* PUSH HANDLE saves the level's HANDLE CONDITION, IGNORE CONDITION and HANDLE ABEND state and
+ * suspends it; POP HANDLE restores the last one saved, INVREQ when none is (IBM, PUSH / POP). */
+int GGCPUSH(gg_cics *c) {
+    level *L = &levels[lvl];
+    c->resp2 = 0;
+    if (L->npushed >= MAX_PUSH) { c->resp = INVREQ; return 0; }
+    L->pushed[L->npushed++] = L->h;
+    memset(&L->h, 0, sizeof L->h);
+    c->resp = NORMAL;
+    return 0;
+}
+
+int GGCPOP(gg_cics *c) {
+    level *L = &levels[lvl];
+    c->resp2 = 0;
+    if (L->npushed == 0) { c->resp = INVREQ; return 0; }
+    L->h = L->pushed[--L->npushed];
+    c->resp = NORMAL;
+    return 0;
+}
+
+/* The task abends with `code`: the first active HANDLE ABEND exit from this level upward gets
+ * control ("CICS searches for an active abend exit, starting at the logical level of the
+ * application program in which the abend occurred, and proceeding to successively higher
+ * levels"), deactivated as it does; the levels below it are gone. At this level the program
+ * GOes TO its label; above, it GOBACKs (GG-GOTO -1) until the LINK of that level (#4004).
+ * With no exit (or CANCEL) the task terminates. */
+static int unwind_to = -1, unwind_goto = 0;
+
+static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel) {
+    char ev[200], what[40] = "";
+    int at = -1;
+    memcpy(task_abcode, code, 4);
+    if (cond) snprintf(what, sizeof what, " condition=%d", cond);
+    for (int i = lvl; i >= 0 && !cancel; i--) {
+        if (levels[i].h.exit_active) { at = i; break; }
+    }
+    if (at < 0) {
+        snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=terminated", code, cause, what);
+        ended = 1;
+        unwind_to = -1;
+        c->go_to = -1;
+    } else {
+        handlers *h = &levels[at].h;
+        h->exit_active = 0;
+        snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=exit exit=%s.%s", code, cause, what,
+                 levels[at].prog, h->exit_name);
+        if (at == lvl) {
+            c->go_to = h->exit_label;
+        } else {
+            unwind_to = at;
+            unwind_goto = h->exit_label;
+            c->go_to = -1;
+        }
+    }
     event(ev, NULL, 0);
+}
+
+/* EXEC CICS ABEND ABCODE(GG-NAME1) [CANCEL: GG-FLAGS]. */
+int GGCABND(gg_cics *c) {
+    char code[9], flags[41];
+    trim(c->name1, 8, code);
+    trim(c->flags, 40, flags);
+    while (strlen(code) < 4) strcat(code, " ");
+    abend(c, code, "command", 0, strstr(flags, "CANCEL") != NULL);
+    return 0;
+}
+
+/* A command raised condition GG-RESP and the program gave neither RESP nor NOHANDLE: IGNOREd
+ * (GG-GOTO 0, control continues), its HANDLE CONDITION label, else the ERROR label ("If no
+ * HANDLE CONDITION command is active for a condition, but one is active for ERROR, control
+ * passes to the label for ERROR"), else the default action: abend with its AEIx code. */
+int GGCCOND(gg_cics *c) {
+    handlers *h = &levels[lvl].h;
+    int cond = c->resp;
+    short st = cond > 0 && cond < NCOND ? h->cond[cond] : 0;
+    c->go_to = 0;
+    if (st == -1) return 0;
+    if (st > 0) { c->go_to = st; return 0; }
+    if (h->cond[ERRCOND] > 0) { c->go_to = h->cond[ERRCOND]; return 0; }
+    abend(c, condition_abcode(cond), "condition", cond, 0);
+    return 0;
+}
+
+/* ASSIGN ABCODE: the task's current abend code, blanks when there has been none. */
+int GGCASGN(gg_cics *c) {
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, task_abcode, 4);
+    c->resp = NORMAL;
+    c->resp2 = 0;
     return 0;
 }
 

@@ -64,6 +64,12 @@ or unproven. It also covers BMS and CSD, which have no signal doc of their own. 
 `pli.md`, `hlasm.md` and `jcl.md` each have a §11 summarising their part (`db2_sql.md` §9,
 `java.md` §10).
 
+**CICS translation: [`cics_crucible.md`](cics_crucible.md)** (added 2026-09-29, #3989) is generated
+by `tests/tools/cics_crucible.py`. It measures the CICS pipeline against
+[cics-crucible](https://github.com/squid-protocol/cics-crucible)'s hand-written expected logs, per
+case and scenario: engine facts, whether the generated project compiles, the COBOL on the stub
+runtime, and the generated Java. It also lists the harness work each unsupported cell waits on.
+
 ## Signature-bearing languages (47)
 
 `LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`

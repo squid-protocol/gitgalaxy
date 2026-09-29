@@ -62,7 +62,29 @@ _AREA_B = " " * 11  # columns 1-11: sequence area, indicator, Area A
 
 
 class Unsupported(Exception):
-    """A CICS command, or option, the harness does not model yet."""
+    """A CICS command, or option, the harness does not model yet. `features` names each one
+    (`LINK`, `READQ TS`, `HANDLE CONDITION`, `READ GENERIC`, ...) so a caller can count them
+    (#3989: the CICS crucible runner reports cells as `unsupported: <feature>`)."""
+
+    def __init__(self, message: str, features: list[str] | None = None) -> None:
+        super().__init__(message)
+        self.features = list(features) if features else [message]
+
+
+# #3989: the second word that makes a command a different feature (READQ TS vs READQ TD).
+_SUBVERBS = {"TS", "TD", "CONDITION", "AID", "ABEND", "HANDLE", "MAP", "TEXT", "CONTROL", "CHILD", "ANY"}
+
+
+def _feature(pairs: list[tuple[str, str | None]]) -> str:
+    """The command a body is, as a feature name: `LINK`, `READQ TS`, `HANDLE CONDITION`,
+    `RECEIVE` (terminal input) vs `RECEIVE MAP`, `ASSIGN ABCODE`."""
+    verb = pairs[0][0]
+    second = pairs[1][0] if len(pairs) > 1 else None
+    if verb == "ASSIGN" and second:
+        return f"ASSIGN {second}"
+    if verb == "RECEIVE":
+        return "RECEIVE MAP" if any(n == "MAP" for n, _ in pairs) else "RECEIVE"
+    return f"{verb} {second}" if second in _SUBVERBS else verb
 
 
 def _options(text: str) -> list[tuple[str, str | None]]:
@@ -192,7 +214,7 @@ def translate_command(body: str) -> list[str]:
     if verb == "HANDLE" and len(pairs) > 1 and pairs[1][0] == "ABEND":
         what = " ".join(f"{n} {v}" if v else n for n, v in pairs[2:]) or "RESET"
         return [f"MOVE '{what[:40]}' TO GG-FLAGS"] + _call("GGCHABN", [])
-    raise Unsupported(" ".join(n for n, _ in pairs[:2]))
+    raise Unsupported(" ".join(n for n, _ in pairs[:2]), [_feature(pairs)])
 
 
 def translate(source: str) -> tuple[str, bool]:
@@ -201,6 +223,7 @@ def translate(source: str) -> tuple[str, bool]:
     lines = source.splitlines()
     out: list[str] = []
     problems: list[str] = []
+    features: list[str] = []
     i = 0
     while i < len(lines):
         line = lines[i]
@@ -229,6 +252,7 @@ def translate(source: str) -> tuple[str, bool]:
             stmts = translate_command(body)
         except Unsupported as e:
             problems.append(f"line {i + 1}: EXEC CICS {e}")
+            features += [f for f in e.features if f not in features]
             stmts = []
         for s in stmts:
             if len(_AREA_B) + len(s) > 72:
@@ -237,8 +261,12 @@ def translate(source: str) -> tuple[str, bool]:
         if suffix.strip():
             out.append(_AREA_B + suffix.strip())
         i = j + 1
+    unknown = sorted({m.group(1).upper() for ln in out for m in _DFHRESP.finditer(ln)} - set(DFHRESP))
+    for name in unknown:  # #3989: refused by name, never a KeyError
+        problems.append(f"DFHRESP({name}) is not a documented condition")
+        features.append(f"DFHRESP({name})")
     if problems:
-        raise Unsupported("; ".join(problems))
+        raise Unsupported("; ".join(problems), features)
     text = "\n".join(_DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln) for ln in out) + "\n"
     has_commarea = bool(re.search(r"^.{6} +01\s+DFHCOMMAREA\b", text, re.M | re.I))
     text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n", text,

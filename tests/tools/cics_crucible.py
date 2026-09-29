@@ -805,8 +805,8 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
                 if ev["abcode"] != CONDITION_ABCODE.get(cond):
                     ev["abcode"] = cc.Unmodelled(f"ABEND code of an unhandled {cond}")
             if arg("exit"):
-                program, _, label = arg("exit").partition(".")
-                ev["exit"] = {"program": program, "label": label}
+                exit_program, _, label = arg("exit").partition(".")
+                ev["exit"] = {"program": exit_program, "label": label}
         events.append(ev)
     return events
 

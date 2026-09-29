@@ -356,6 +356,7 @@ def test_the_stub_log_becomes_spec_events(tmp_path):
     assert isinstance(evs[5]["abcode"], cc.Unmodelled)  # EOF: no documented AEIx code in SPEC 6.2's table
     assert (evs[6]["abcode"], evs[6]["cause"], evs[6]["outcome"]) == ("XX01", "command", "terminated")
     assert "exit" not in evs[6] and "condition" not in evs[6]
+    assert {e["program"] for e in evs} == {"PROG"}  # an exit's program names the exit, not the issuer
     assert (evs[7]["transid"], evs[7]["commarea"].data) == ("T1", b"\x00Z")
     assert (evs[8]["transid"], evs[8]["commarea"]) == (None, None)  # a GOBACK is a RETURN
 

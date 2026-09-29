@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 6 | 1 | 30 | 37 |
+| cobol-stub | 2 | 1 | 34 | 37 |
 | java | 0 | 37 | 0 | 37 |
-| **all** | **26** | **38** | **30** | **94** |
+| **all** | **22** | **38** | **34** | **94** |
 
 ## By trap and case
 
@@ -25,7 +25,7 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-link-lengths` | pass | pass | 0 / 4 | 0 / 4 |
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 2 / 3 | 0 / 3 |
 | condition-handling | `hc-abend-link` | pass | pass | 0 / 5 | 0 / 5 |
-| condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 |
+| condition-handling | `hc-perform-range` | pass | pass | 0 / 4 | 0 / 4 |
 | ghost-tasks | `gt-start-retrieve` | pass | pass | 0 / 5 | 0 / 5 |
 | ghost-tasks | `gt-terminal-coalesce` | pass | pass | 0 / 4 | 0 / 4 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 0 / 3 | 0 / 3 |
@@ -37,15 +37,16 @@ Pass counts per side (scenario sides: passing / scenarios).
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (30 unsupported)
+### cobol-stub (34 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 9 | 9 |
-| 2 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 9 | 18 |
-| 3 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 9 | 27 |
-| 4 | HANDLE AID | 3 | 0 | 30 |
-| 5 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 30 |
+| 2 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 9 | 18 |
+| 3 | LINK: levels, by-reference COMMAREA, PGMIDERR | 9 | 4 | 22 |
+| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 9 | 4 | 31 |
+| 5 | HANDLE AID | 3 | 0 | 34 |
+| 6 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 34 |
 
 ### java (0 unsupported)
 
@@ -54,7 +55,8 @@ Each missing feature belongs to a piece of harness work (below: the features the
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 0 |
 | 2 | LINK: levels, by-reference COMMAREA, PGMIDERR | 7 | 0 | 0 |
 | 3 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
-| 4 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
+| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 0 |
+| 5 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -67,6 +69,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | stub: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | stub: SEND-MAP fields | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | stub: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
+| translator: HANDLE CONDITION | 9 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | translator: LINK | 9 | LINK: levels, by-reference COMMAREA, PGMIDERR |
 | translator: START | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | scheduler: START-triggered tasks (stub) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
@@ -74,8 +77,13 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | translator: RETRIEVE | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | stub: LINK event | 7 | LINK: levels, by-reference COMMAREA, PGMIDERR |
 | stub: RETURN caller_commarea | 5 | LINK: levels, by-reference COMMAREA, PGMIDERR |
+| translator: ASSIGN ABCODE | 5 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
+| translator: POP HANDLE | 5 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
+| translator: PUSH HANDLE | 5 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | translator: CANCEL | 4 | interval control: START / RETRIEVE / CANCEL and started tasks |
+| translator: IGNORE CONDITION | 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | translator: HANDLE AID | 3 | HANDLE AID |
+| stub: ABEND exit | 2 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | stub: CANCEL event | 2 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | stub: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
@@ -95,8 +103,12 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: RETURN caller_commarea | 5 | LINK: levels, by-reference COMMAREA, PGMIDERR |
 | CicsTask: XCTL length | 5 | XCTL LENGTH / RESP / RESP2 |
 | CicsTask: XCTL resp | 5 | XCTL LENGTH / RESP / RESP2 |
+| CicsTask: ABEND cause | 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
+| CicsTask: ABEND outcome | 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | CicsTask: SEND-MAP DATAONLY field omission | 4 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP extended attributes | 3 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
+| CicsTask: ABEND condition | 2 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
+| CicsTask: ABEND exit | 2 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE |
 | CicsTask: CANCEL event | 2 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
@@ -141,19 +153,23 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `gt-terminal-coalesce/staggered/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
 | `gt-terminal-coalesce/three-in-one/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
 | `gt-terminal-coalesce/three-in-one/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
-| `hc-abend-link/push-pop/cobol-stub` | unsupported | translator: LINK |
+| `hc-abend-link/push-pop/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
 | `hc-abend-link/push-pop/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-abend-link/pushed-abend/cobol-stub` | unsupported | translator: LINK |
+| `hc-abend-link/pushed-abend/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
 | `hc-abend-link/pushed-abend/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-abend-link/sub-own-exit/cobol-stub` | unsupported | translator: LINK |
+| `hc-abend-link/sub-own-exit/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
 | `hc-abend-link/sub-own-exit/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-abend-link/sub-resp/cobol-stub` | unsupported | translator: LINK |
+| `hc-abend-link/sub-resp/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
 | `hc-abend-link/sub-resp/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
-| `hc-abend-link/sub-unhandled/cobol-stub` | unsupported | translator: LINK |
+| `hc-abend-link/sub-unhandled/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: PUSH HANDLE; translator: POP HANDLE; translator: LINK; translator: ASSIGN ABCODE |
 | `hc-abend-link/sub-unhandled/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/five-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
 | `hc-perform-range/five-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/length-trap/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
 | `hc-perform-range/length-trap/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/no-queue/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
 | `hc-perform-range/no-queue/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
+| `hc-perform-range/three-items/cobol-stub` | unsupported | translator: HANDLE CONDITION; translator: IGNORE CONDITION |
 | `hc-perform-range/three-items/java` | fail | task 1 (HC01) event 1: READQ-TS expected, the side recorded no further event |
 | `hx-attr-bytes/clear-maponly/cobol-stub` | unsupported | stub: SEND-MAP cursor |
 | `hx-attr-bytes/clear-maponly/java` | fail | task 1 (HX01) event 1: SEND-MAP expected, the side recorded no further event |

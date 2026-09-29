@@ -65,6 +65,32 @@ def test_handle_ignore_push_pop_and_assign_become_stub_calls():
     assert ec.translate_command("ABEND ABCODE('X') CANCEL")[1] == "MOVE 'CANCEL' TO GG-FLAGS"
 
 
+def test_a_link_runs_a_new_level_on_the_callers_own_commarea():
+    """#4004: GGCLINK checks and records the LINK; on NORMAL, GGCRUN runs the target on the caller's area (by
+    reference) and GGCLRET pops the level, where an abend exit up here can take over; a failed LINK goes
+    through the condition handling."""
+    got = ec.translate_command("LINK PROGRAM('CASUB') COMMAREA(WS-CA100) LENGTH(100)", ["MAIN-ABEND"])
+    assert got[:4] == ["MOVE 'CASUB' TO GG-NAME1", "MOVE 100 TO GG-LEN", "MOVE 1 TO GG-ITEM",
+                       "CALL 'GGCLINK' USING GG-CICS"]  # fmt: skip
+    assert got[5:12] == ["IF GG-RESP = 0", "    CALL 'GGCRUN' USING WS-CA100", "    CALL 'GGCLRET' USING GG-CICS",
+                         "    GO TO", "        MAIN-ABEND", "        DEPENDING ON GG-GOTO", "    IF GG-GOTO < 0"]  # fmt: skip
+    assert "    CALL 'GGCCOND' USING GG-CICS" in got  # PGMIDERR without RESP: the default action
+    bare = ec.translate_command("LINK PROGRAM(WS-PGM) RESP(WS-R)")
+    assert bare[1:3] == ["MOVE 0 TO GG-LEN", "MOVE 0 TO GG-ITEM"] and "    CALL 'GGCRUN' USING GG-FLAGS" in bare
+    assert ec.translate_command("LINK PROGRAM('X') COMMAREA(CA)")[1] == "MOVE LENGTH OF CA TO GG-LEN"
+
+
+def test_the_task_driver_and_dispatcher_are_generated_for_the_cases_programs():
+    run = ec.task_dispatcher({"CALINK": False, "CASUB": True})
+    assert "PROGRAM-ID. GGCRUN RECURSIVE." in run and "LOCAL-STORAGE SECTION." in run
+    assert "            CALL 'CASUB' USING LK-X\n" in run and "            CALL 'CALINK'\n" in run
+    assert "            CANCEL 'CASUB'\n" in run and "CALL 'GGCNOPG' USING GG-CICS" in run
+    drv = ec.task_driver()
+    assert "CALL 'GGCTASK' USING GG-CICS" in drv and "CALL 'GGCRUN' USING WS-CA" in drv
+    assert "MOVE IN-TRMID TO EIBTRMID" in drv
+    assert all(len(ln) <= 72 for ln in (run + drv).splitlines())
+
+
 def test_a_program_names_itself_to_the_stub_as_it_starts():
     text, _ = ec.translate(PROGRAM)
     lines = text.splitlines()
@@ -121,7 +147,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",
-                                  "SYNCPOINT", "LINK PROGRAM('X')"])  # fmt: skip
+                                  "SYNCPOINT", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):
         ec.translate_command(body)

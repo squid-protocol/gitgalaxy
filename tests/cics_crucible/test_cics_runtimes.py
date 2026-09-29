@@ -64,12 +64,13 @@ def _run_stub(exe: Path, work: Path, *args: str) -> list[str]:
 def test_the_stub_receive_returns_the_typed_text_once_and_truncates_with_lengerr(tmp_path):
     """IBM, EXEC CICS RECEIVE: data longer than LENGTH "is truncated to that value and the LENGERR
     condition occurs. The data area specified in the LENGTH option is set to the original length of
-    data." The terminal's input is read once; a second RECEIVE would wait for the operator."""
+    data." The terminal's input is read once per task (one process, #4004); a second RECEIVE would wait for the
+    operator."""
     exe = _stub(tmp_path, _STUB_MAIN)
     (tmp_path / "terminal.in").write_bytes(b"CA02 S")
     assert _run_stub(exe, tmp_path, "20", "20") == ["resp=0 len=6 into=CA02 S..", "resp=0 len=0 into=........"]
-    assert (tmp_path / "out" / "events.txt").read_text().splitlines() == ["001 RECEIVE resp=0 len=6 copied=6",
-                                                                          "002 RECEIVE-WAIT"]  # fmt: skip
+    assert (tmp_path / "out" / "events.txt").read_text().splitlines() == ["001 RECEIVE pgm= resp=0 len=6 copied=6",
+                                                                          "002 RECEIVE-WAIT pgm="]  # fmt: skip
     assert (tmp_path / "out" / "001.bin").read_bytes() == b"CA02 S"
 
     short = tmp_path / "short"
@@ -81,12 +82,6 @@ def test_the_stub_receive_returns_the_typed_text_once_and_truncates_with_lengerr
     nothing = tmp_path / "nothing"  # a step that transmitted no data (ENTER on a SEND TEXT screen)
     nothing.mkdir()
     assert _run_stub(exe, nothing, "20") == ["resp=0 len=0 into=........"]
-    read = tmp_path / "read"  # an earlier program of the task (before an XCTL) already read it
-    read.mkdir()
-    (read / "terminal.in").write_bytes(b"CA02 S")
-    (read / "terminal.read").write_bytes(b"")
-    assert _run_stub(exe, read, "20") == ["resp=0 len=0 into=........"]
-    assert (read / "out" / "events.txt").read_text() == "001 RECEIVE-WAIT\n"
 
 
 # ---- the generated CicsTask ------------------------------------------------------------------------------
@@ -170,6 +165,70 @@ def test_cics_task_abend_carries_its_cause_outcome_and_exit(tmp_path):
         "outcome=exit}",
         "{abcode=AEYH, cause=condition, condition=QIDERR, event=ABEND, outcome=terminated}",
         "{abcode=HCX1, cause=command, event=ABEND, outcome=terminated}",
+    ]
+
+
+@needs_javac
+def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
+    """#4004, IBM EXEC CICS LINK: the COMMAREA is passed by reference (the callee's writes are the caller's),
+    EIBCALEN is the LENGTH given, PGMIDERR RESP2 1 for an undefined program, LENGERR RESP2 11 outside
+    0-32763; a GOBACK is a RETURN; an XCTL below level 1 runs its target at the same level."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return !p.equals("GONE");
+            }
+
+            public void run(String p, CicsTask task) {
+                StringBuilder ca = task.hasCommarea() ? task.commarea(StringBuilder.class) : null;
+                System.out.println(p + " level=" + task.level() + " calen=" + task.eibcalen());
+                if (p.equals("MAIN")) {
+                    StringBuilder mine = new StringBuilder("PING");
+                    System.out.println(task.link("SUB", mine, 100) + " " + mine);
+                    System.out.println(task.link("GONE", mine, 100) + " " + task.link("SUB", mine, 40000));
+                    task.link("NOCA");
+                    task.returnTransid(null, null);
+                } else if (p.equals("SUB")) {
+                    ca.append("-SUB");
+                    task.xctl("SUB2", ca, 50);
+                } else if (p.equals("SUB2")) {
+                    ca.append("-SUB2");
+                    task.receiveText(10);
+                    task.returnTransid(null, null);
+                }
+            }
+        };
+        CicsTask t = new CicsTask("T1", "ENTER", null, null).withPrograms(programs).withTerminalInput("T1 X")
+                .withSnapshot(o -> o == null ? null : o.toString());
+        t.run("MAIN");
+        for (java.util.Map<String, Object> e : t.events()) {
+            System.out.println(new java.util.TreeMap<>(e));
+        }
+        try {
+            t.receiveText(10);
+        } catch (IllegalStateException e) {
+            System.out.println("read once per task");
+        }""",
+    )
+    assert out.splitlines() == [
+        "MAIN level=1 calen=0",
+        "SUB level=2 calen=100",
+        "SUB2 level=2 calen=50",
+        "NORMAL PING-SUB-SUB2",
+        "PGMIDERR LENGERR",
+        "NOCA level=2 calen=0",
+        "{commarea=PING, event=LINK, issuer=MAIN, length=100, resp=NORMAL, resp2=null, target=SUB}",
+        "{commarea=PING-SUB, event=XCTL, issuer=SUB, program=SUB2}",
+        "{data=T1 X, event=RECEIVE, issuer=SUB2, length=4, resp=NORMAL}",
+        "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, level=2}",
+        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
+        "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
+        "{commarea=null, event=LINK, issuer=MAIN, length=0, resp=NORMAL, resp2=null, target=NOCA}",
+        "{caller_commarea=null, event=RETURN, issuer=NOCA, level=2}",
+        "{commarea=null, event=RETURN, issuer=MAIN, transid=null}",
+        "read once per task",
     ]
 
 
@@ -268,10 +327,10 @@ def test_the_stub_ts_queues_follow_readq_and_writeq(tmp_path):
         "resp=0 len=2 num=2 into=XY....",
     ]
     events = (tmp_path / "out" / "events.txt").read_text().splitlines()
-    assert events[0] == "001 READQ-TS queue=5131 item=1 resp=44 len=-1 copied=0"
-    assert events[4] == "005 READQ-TS queue=5131 item=1 resp=22 len=5 copied=3"
-    assert events[6] == "007 READQ-TS queue=5131 item=NEXT resp=0 len=2 copied=2"
-    assert events[1] == "002 WRITEQ-TS queue=5131 item=1 resp=0 len=5"
+    assert events[0] == "001 READQ-TS pgm= queue=5131 item=1 resp=44 len=-1 copied=0"
+    assert events[4] == "005 READQ-TS pgm= queue=5131 item=1 resp=22 len=5 copied=3"
+    assert events[6] == "007 READQ-TS pgm= queue=5131 item=NEXT resp=0 len=2 copied=2"
+    assert events[1] == "002 WRITEQ-TS pgm= queue=5131 item=1 resp=0 len=5"
     assert (tmp_path / "ts" / "5131" / "000002.bin").read_bytes() == b"XY"
 
 
@@ -322,12 +381,12 @@ def test_the_stub_handles_conditions_and_abends_as_cics_does(tmp_path):
     exe = _stub(tmp_path, _COND_MAIN)
     assert _run_stub(exe, tmp_path) == ["-1 1 2 3 0 4 3 -1 pop=0 pop=16 1 5 AEIM -1 5 -1"]
     assert (tmp_path / "out" / "events.txt").read_text().splitlines() == [
-        "001 ABEND abcode=AEYH cause=condition condition=44 outcome=terminated",
-        "002 ABEND abcode=AEYH cause=condition condition=44 outcome=terminated",
-        "003 ABEND abcode=AEIM cause=condition condition=13 outcome=exit exit=HCQREAD.MAIN-ABEND",
-        "004 ABEND abcode=AEIM cause=condition condition=13 outcome=terminated",
-        "005 ABEND abcode=HCX1 cause=command outcome=exit exit=HCQREAD.MAIN-ABEND",
-        "006 ABEND abcode=HCX2 cause=command outcome=terminated",
+        "001 ABEND pgm=HCQREAD abcode=AEYH cause=condition condition=44 outcome=terminated",
+        "002 ABEND pgm=HCQREAD abcode=AEYH cause=condition condition=44 outcome=terminated",
+        "003 ABEND pgm=HCQREAD abcode=AEIM cause=condition condition=13 outcome=exit exit=HCQREAD.MAIN-ABEND",
+        "004 ABEND pgm=HCQREAD abcode=AEIM cause=condition condition=13 outcome=terminated",
+        "005 ABEND pgm=HCQREAD abcode=HCX1 cause=command outcome=exit exit=HCQREAD.MAIN-ABEND",
+        "006 ABEND pgm=HCQREAD abcode=HCX2 cause=command outcome=terminated",
     ]
 
 

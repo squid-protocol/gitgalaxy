@@ -9,15 +9,22 @@
  *   terminal.in           what an unformatted terminal RECEIVE returns (#4005: the
  *                         step's text, typed on a cleared screen); absent means the
  *                         step transmitted no data
- *   terminal.read         present when an earlier program of the task already read it
+ *   programs.cfg          the programs the CSD defines, one per line (#4004: a LINK to
+ *                         any other is PGMIDERR); absent means every program is
+ *                         defined
  * Temporary storage (#4002) lives in $GGCICS_TS (else $GGCICS_DIR/ts), shared by every
  * task of a scenario: one directory per queue, named by the queue name's hex, holding
  * its items as 000001.bin, 000002.bin, ... and `next`, the READQ NEXT position.
  *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN --
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
- * Outputs go to $GGCICS_OUT: events.txt, one line per command in order, and
- * NNN.bin, the bytes a SEND / RETURN / XCTL carried.
+ * Outputs go to $GGCICS_OUT: events.txt, one line per command in order (`NNN VERB
+ * pgm=<issuing program> key=value ...`), and NNN.bin, the bytes the command carried.
+ *
+ * #4004: a task is one process. The driver names its first program (GGCTASK) and CALLs
+ * GGCRUN, the case's dispatcher (equivalence_cics.task_dispatcher): it runs the level's
+ * program, then any program it XCTLs to. A LINK pushes a level and CALLs GGCRUN again with
+ * the caller's own COMMAREA storage (by reference); GGCLRET pops it.
  *
  * Every entry point takes the GG-CICS block first (DFHEIBLK.cpy): the stub sets
  * GG-RESP / GG-RESP2 (the DFHRESP codes), the translator copied the names and
@@ -55,14 +62,18 @@ static void trim(const char *src, int len, char *dst) {
 static const char *dir_in(void) { const char *d = getenv("GGCICS_DIR"); return d ? d : "."; }
 static const char *dir_out(void) { const char *d = getenv("GGCICS_OUT"); return d ? d : "."; }
 
-/* One line of events.txt; with `data`, its bytes as NNN.bin. */
+static const char *current_program(void);
+
+/* One line of events.txt (the verb, then the issuing program); with `data`, its bytes as NNN.bin. */
 static void event(const char *line, const char *data, int len) {
     char path[4096];
+    const char *rest = strchr(line, ' ');
+    int verb = rest ? (int)(rest - line) : (int)strlen(line);
     seq++;
     snprintf(path, sizeof path, "%s/events.txt", dir_out());
     FILE *f = fopen(path, "a");
     if (f) {
-        fprintf(f, "%03d %s\n", seq, line);
+        fprintf(f, "%03d %.*s pgm=%s%s\n", seq, verb, line, current_program(), rest ? rest : "");
         fclose(f);
     }
     if (data && len > 0) {
@@ -152,9 +163,7 @@ static int terminal_read = 0;
 int GGCRECT(gg_cics *c, char *into) {
     char path[4096], ev[96], buf[32768];
     int n = 0, max = c->len;
-    snprintf(path, sizeof path, "%s/terminal.read", dir_in());
-    FILE *f = fopen(path, "rb");
-    if (f) { fclose(f); terminal_read = 1; }
+    FILE *f;
     c->resp = NORMAL;
     c->resp2 = 0;
     if (terminal_read) {
@@ -317,14 +326,21 @@ int GGCSTXT(gg_cics *c, char *from, int len) {
     return 0;
 }
 
+/* RETURN: at level 1 it ends the task, with TRANSID / COMMAREA for the next one; at a lower
+ * level (#4004) it returns to the linking program, and the event shows the LINK COMMAREA as
+ * that program now sees it (`len` -1: the LINK had none). */
+static void return_event(const char *transid, char *commarea, int len);
+
 int GGCRETN(gg_cics *c, char *commarea, int len) {
-    char transid[9], ev[96];
+    char transid[9];
     trim(c->name1, 8, transid);
-    snprintf(ev, sizeof ev, "RETURN transid=%s len=%d", transid, len);
-    ended = 1;
-    event(ev, commarea, len);
+    return_event(transid, commarea, len);
     return 0;
 }
+
+/* XCTL PROGRAM(name1) COMMAREA LENGTH: the program ends and the target runs at the same level,
+ * with a copy of LENGTH bytes from the named area. */
+static void xctl_next(const char *program, char *commarea, int len);
 
 int GGCXCTL(gg_cics *c, char *commarea, int len) {
     char program[9], ev[96];
@@ -332,6 +348,7 @@ int GGCXCTL(gg_cics *c, char *commarea, int len) {
     snprintf(ev, sizeof ev, "XCTL program=%s len=%d", program, len);
     ended = 1;
     event(ev, commarea, len);
+    xctl_next(program, commarea, len);
     return 0;
 }
 
@@ -355,11 +372,20 @@ typedef struct {
     char exit_name[31];
 } handlers;
 
+enum { RUNNING = 0, DONE = 1, XCTLED = 2 };
+
 typedef struct {
     char prog[9];
     handlers h;
     handlers pushed[MAX_PUSH];
     int npushed;
+    int state;               /* RUNNING, DONE (RETURN, GOBACK) or XCTLED (#4004) */
+    int pending;             /* a program is to run at this level: next / next_len / next_area */
+    char next[9];
+    int next_len, next_area_set;
+    char *next_area;
+    char *link_area;         /* the LINK COMMAREA: the linking program's own storage (NULL: none) */
+    int link_len;
 } level;
 
 static level levels[MAX_LEVELS];
@@ -381,9 +407,17 @@ static const char *condition_abcode(int resp) {
     }
 }
 
-/* The program's entry: the translator names it (GG-NAME1) for the level it runs at. */
+static const char *current_program(void) { return levels[lvl].prog; }
+
+/* The program's entry: the translator names it (GG-NAME1) for the level it runs at. It starts
+ * with no handlers of its own: "The HANDLE CONDITION options are not inherited by the linked-to
+ * program" (IBM, LINK), nor by the program XCTLed to. */
 int GGCPENT(gg_cics *c) {
-    trim(c->name1, 8, levels[lvl].prog);
+    level *L = &levels[lvl];
+    trim(c->name1, 8, L->prog);
+    memset(&L->h, 0, sizeof L->h);
+    L->npushed = 0;
+    L->state = RUNNING;
     return 0;
 }
 
@@ -444,7 +478,7 @@ int GGCPOP(gg_cics *c) {
  * levels"), deactivated as it does; the levels below it are gone. At this level the program
  * GOes TO its label; above, it GOBACKs (GG-GOTO -1) until the LINK of that level (#4004).
  * With no exit (or CANCEL) the task terminates. */
-static int unwind_to = -1, unwind_goto = 0;
+static int unwind_to = -1, unwind_goto = 0, terminated = 0;
 
 static void abend(gg_cics *c, const char *code, const char *cause, int cond, int cancel) {
     char ev[200], what[40] = "";
@@ -457,6 +491,7 @@ static void abend(gg_cics *c, const char *code, const char *cause, int cond, int
     if (at < 0) {
         snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=terminated", code, cause, what);
         ended = 1;
+        terminated = 1;
         unwind_to = -1;
         c->go_to = -1;
     } else {
@@ -507,6 +542,147 @@ int GGCASGN(gg_cics *c) {
     memcpy(c->name1, task_abcode, 4);
     c->resp = NORMAL;
     c->resp2 = 0;
+    return 0;
+}
+
+/* ---- program levels: LINK, XCTL and the dispatcher (#4004) ---------------------------- */
+static void return_event(const char *transid, char *commarea, int len) {
+    char ev[96];
+    level *L = &levels[lvl];
+    L->state = DONE;
+    if (lvl == 0) {
+        snprintf(ev, sizeof ev, "RETURN level=1 transid=%s len=%d", transid, len);
+        ended = 1;
+        event(ev, commarea, len);
+    } else {
+        snprintf(ev, sizeof ev, "RETURN level=%d transid= len=%d", lvl + 1, L->link_area ? L->link_len : -1);
+        event(ev, L->link_area, L->link_area ? L->link_len : 0);
+    }
+}
+
+static void xctl_next(const char *program, char *commarea, int len) {
+    level *L = &levels[lvl];
+    L->state = XCTLED;
+    snprintf(L->next, sizeof L->next, "%s", program);
+    L->next_len = commarea && len > 0 ? len : 0;
+    L->next_area = NULL;
+    if (L->next_len > 0) {
+        L->next_area = malloc((size_t)L->next_len);
+        if (L->next_area) memcpy(L->next_area, commarea, (size_t)L->next_len);
+    }
+    L->next_area_set = 1;
+}
+
+/* Whether the CSD defines `program` (programs.cfg; SPEC 2: program autoinstall is off). */
+static int program_defined(const char *program) {
+    char path[4096], line[64], name[64];
+    int found = 0;
+    snprintf(path, sizeof path, "%s/programs.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    if (!f) return 1;
+    while (!found && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s", name) == 1 && strcmp(name, program) == 0) found = 1;
+    }
+    fclose(f);
+    return found;
+}
+
+/* The driver: the task's first program (GG-NAME1) and its COMMAREA length (GG-LEN). */
+int GGCTASK(gg_cics *c) {
+    lvl = 0;
+    memset(&levels[0], 0, sizeof levels[0]);
+    trim(c->name1, 8, levels[0].next);
+    levels[0].next_len = c->len;
+    levels[0].pending = 1;
+    return 0;
+}
+
+/* GGCRUN asks what to run at this level: GG-ITEM 1 with the program (GG-NAME1), its EIBCALEN
+ * (GG-LEN) and the COMMAREA's address (*area; NULL for none), or 0 when the level is done. */
+int GGCNEXT(gg_cics *c, char **area) {
+    level *L = &levels[lvl];
+    c->item = 0;
+    if (!L->pending || terminated || unwind_to >= 0) return 0;
+    L->pending = 0;
+    memset(c->name1, ' ', 8);
+    memcpy(c->name1, L->next, strlen(L->next));
+    c->len = L->next_len;
+    if (L->next_area_set) *area = L->next_area;
+    else if (L->next_len <= 0) *area = NULL; /* level 1 with EIBCALEN 0: no COMMAREA */
+    memcpy(L->prog, L->next, sizeof L->prog);
+    L->state = RUNNING;
+    c->item = 1;
+    return 0;
+}
+
+/* The level's program has returned to GGCRUN: after an XCTL its target runs next; after a
+ * GOBACK with no RETURN, that GOBACK was the RETURN; after an abend, nothing. */
+int GGCPEND(gg_cics *c) {
+    level *L = &levels[lvl];
+    (void)c;
+    if (terminated || unwind_to >= 0) return 0;
+    if (L->state == XCTLED) { L->pending = 1; return 0; }
+    if (L->state == RUNNING) return_event("", NULL, 0);
+    return 0;
+}
+
+/* GGCRUN has no program by that name: the case's translated programs do not include it. */
+int GGCNOPG(gg_cics *c) {
+    char program[9], ev[64];
+    trim(c->name1, 8, program);
+    snprintf(ev, sizeof ev, "NOPROGRAM target=%s", program);
+    event(ev, NULL, 0);
+    terminated = ended = 1;
+    return 0;
+}
+
+/* LINK PROGRAM(name1) [COMMAREA(area) LENGTH(len): GG-ITEM 1] (IBM, EXEC CICS LINK):
+ * LENGERR RESP2 11 for a length outside 0-32763, PGMIDERR RESP2 1 for a program the CSD does
+ * not define; else a new level, whose program gets the caller's area itself (the COMMAREA is
+ * passed by reference) and EIBCALEN = LENGTH (0 without COMMAREA). The event carries the
+ * area's bytes as the command is issued. */
+int GGCLINK(gg_cics *c, char *area) {
+    char program[9], ev[128];
+    int has = c->item != 0, len = has ? c->len : 0;
+    trim(c->name1, 8, program);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
+    else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
+    else if (lvl + 1 >= MAX_LEVELS) { c->resp = INVREQ; }
+    snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
+    event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
+    if (c->resp != NORMAL) return 0;
+    lvl++;
+    memset(&levels[lvl], 0, sizeof levels[lvl]);
+    level *L = &levels[lvl];
+    snprintf(L->next, sizeof L->next, "%s", program);
+    L->next_len = len;
+    L->next_area = has ? area : NULL;
+    L->next_area_set = 1;
+    L->link_area = has ? area : NULL;
+    L->link_len = len;
+    L->pending = 1;
+    return 0;
+}
+
+/* Back in the linking program: the level is gone. After an abend whose exit is at this level,
+ * GG-GOTO is the exit's label; at a level above, or with no exit, -1 (leave this program too). */
+int GGCLRET(gg_cics *c) {
+    if (lvl > 0) lvl--;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    c->go_to = 0;
+    if (terminated) {
+        c->go_to = -1;
+    } else if (unwind_to >= 0) {
+        if (lvl <= unwind_to) {
+            c->go_to = unwind_goto;
+            unwind_to = -1;
+        } else {
+            c->go_to = -1;
+        }
+    }
     return 0;
 }
 

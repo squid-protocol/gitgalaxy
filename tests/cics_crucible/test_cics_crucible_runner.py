@@ -361,6 +361,33 @@ def test_the_stub_log_becomes_spec_events(tmp_path):
     assert (evs[8]["transid"], evs[8]["commarea"]) == (None, None)  # a GOBACK is a RETURN
 
 
+def test_link_levels_are_logged_with_their_issuer_and_the_callers_commarea(tmp_path):
+    """#4004: each stub line names its issuing program; a LINK carries RESP2 only when it failed; a RETURN
+    below level 1 carries the LINK COMMAREA as the caller now sees it (len -1: the LINK had none)."""
+    (tmp_path / "events.txt").write_text(
+        "001 LINK pgm=CALINK target=CASUB len=3 area=1 resp=0 resp2=0\n002 RETURN pgm=CASUB level=2 transid= len=3\n"
+        "003 LINK pgm=CALINK target=CAGONE len=3 area=1 resp=27 resp2=1\n"
+        "004 LINK pgm=CALINK target=CASUB len=0 area=0 resp=0 resp2=0\n005 RETURN pgm=CASUB level=2 transid= len=-1\n"
+        "006 NOPROGRAM pgm=CALINK target=CAXX\n007 RETURN pgm=CALINK level=1 transid=CA01 len=0\n",
+        encoding="latin-1")  # fmt: skip
+    (tmp_path / "001.bin").write_bytes(b"ABC")
+    (tmp_path / "002.bin").write_bytes(b"XYZ")
+    evs = runner._cobol_events(tmp_path, "FIRST")
+    assert [e["program"] for e in evs] == ["CALINK", "CASUB", "CALINK", "CALINK", "CASUB", "CAXX", "CALINK"]
+    assert (evs[0]["target"], evs[0]["length"], evs[0]["commarea"].data, evs[0]["resp"], evs[0]["resp2"]) == (
+        "CASUB", 3, b"ABC", "NORMAL", None)  # fmt: skip
+    assert evs[1] == {"event": "RETURN", "program": "CASUB", "level": 2, "caller_commarea": evs[1]["caller_commarea"]}
+    assert evs[1]["caller_commarea"].data == b"XYZ"
+    assert (evs[2]["resp"], evs[2]["resp2"], evs[3]["commarea"], evs[4]["caller_commarea"]) == (
+        "PGMIDERR",
+        1,
+        None,
+        None,
+    )
+    assert evs[5]["event"] == "DRIVER-ERROR" and "CAXX" in evs[5]["message"]
+    assert (evs[6]["level"], evs[6]["transid"], evs[6]["commarea"]) == (1, "CA01", None)
+
+
 def test_a_terminal_receive_is_logged_with_its_length_and_the_data_it_moved(tmp_path):
     """#4005: `len` is LENGTH after the command (the full length on LENGERR), the blob what went INTO; a
     second RECEIVE in one task would wait for the operator, which no scenario step can express."""
@@ -417,6 +444,9 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
             {"event": "READQ-TS", "program": "FXCHAIN", "queue": "Q", "item": 1, "resp": "NORMAL", "length": 1,
              "data": "wQ=="},
             {"event": "RETURN", "program": "FXCHAIN", "transid": "FX01", "commarea": ca, "length": 3},
+            {"event": "LINK", "program": "FXCHAIN", "target": "SUB", "length": 11, "commarea": ca, "resp": "NORMAL",
+             "resp2": None},
+            {"event": "RETURN", "program": "SUB", "level": 2, "caller_commarea": ca},
             {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "commarea": ca},
             {"event": "DRIVER-ERROR", "program": "FXLAST", "message": "no generated service for program FXLAST"}]}]}  # fmt: skip
     act = runner.java_actual(_case(), raw, src)
@@ -434,7 +464,10 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
     assert (t["events"][3]["resp"], t["events"][3]["length"], t["events"][3]["data"].data) == ("NORMAL", 4, b"FX01")
     assert (t["events"][4]["queue"], t["events"][4]["length"], t["events"][4]["data"].data) == ("Q", 1, b"\xc1")
     assert t["events"][5]["commarea"].length == 3  # RETURN ... LENGTH(3)
-    assert t["events"][6]["target"] == "FXLAST" and t["events"][7]["message"].startswith("no generated service")
+    link, back = t["events"][6], t["events"][7]  # #4004
+    assert (link["target"], link["commarea"].fields["WS-COUNT"], link["commarea"].length) == ("SUB", 2, 11)
+    assert back["level"] == 2 and back["caller_commarea"].fields["WS-NAME"] == "FIRST"
+    assert t["events"][8]["target"] == "FXLAST" and t["events"][9]["message"].startswith("no generated service")
     raw["tasks"][0]["eibcalen"] = 3
     t = runner.java_actual(_case(), raw, src)["tasks"][0]
     assert t["eibcalen"] == 3 and t["commarea"].length == 3
@@ -444,12 +477,12 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
 def test_the_translator_names_each_refused_command_as_a_feature():
     src = (FIXTURE / "src/FXCHAIN.cbl").read_text().replace(
         "           STRING 'VISIT '",
-        "           EXEC CICS LINK PROGRAM('X') END-EXEC\n           EXEC CICS READQ TS QUEUE('Q') INTO(WS-LINE)\n"
+        "           EXEC CICS SYNCPOINT END-EXEC\n           EXEC CICS READQ TS QUEUE('Q') INTO(WS-LINE)\n"
         "           END-EXEC\n           EXEC CICS RECEIVE INTO(WS-LINE) END-EXEC\n"
         "           IF EIBRESP = DFHRESP(NOSUCH) CONTINUE END-IF\n           STRING 'VISIT '")  # fmt: skip
     with pytest.raises(ec.Unsupported) as e:
         ec.translate(src)
-    assert e.value.features == ["LINK", "DFHRESP(NOSUCH)"]  # #4005 / #4002: RECEIVE and READQ TS translate
+    assert e.value.features == ["SYNCPOINT", "DFHRESP(NOSUCH)"]  # #4005 / #4002: RECEIVE and READQ TS translate
     assert ec.translate((FIXTURE / "src/FXCHAIN.cbl").read_text())[1] is True
 
 

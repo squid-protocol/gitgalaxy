@@ -120,14 +120,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 /**
  * One CICS task (#3754): what a transaction receives -- its TRANSID, the key the user pressed (EIBAID), the
  * COMMAREA it was started with and its length (none on a first entry, EIBCALEN = 0) and the screens it
  * RECEIVEs -- and, in order, what the program does with it: RECEIVE, RECEIVE MAP, SEND MAP / SEND TEXT,
- * READQ / WRITEQ TS, RETURN TRANSID with a COMMAREA, XCTL, ABEND. A program's service ports its PROCEDURE
- * DIVISION into runTask(CicsTask); the equivalence harness runs the same task through the original COBOL and
- * compares every event, field by field.
+ * READQ / WRITEQ TS, RETURN TRANSID with a COMMAREA, LINK, XCTL, ABEND. A program's service ports its
+ * PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the same task through the original
+ * COBOL and compares every event, field by field.
+ * A LINK (#4004) runs the target program at the next level, as a CicsTask of its own that shares this
+ * task's events, terminal and temporary storage and gets the caller's COMMAREA object itself (by reference).
  */
 public class CicsTask {
 
@@ -136,8 +139,17 @@ public class CicsTask {
     private final Object commarea;
     private final Integer eibcalen;
     private final Map<String, Object> received;
-    private final List<Map<String, Object>> events = new ArrayList<>();
+    private final List<Map<String, Object>> events;
     private boolean ended;
+    private final CicsTask parent;   // the linking program's level (#4004); null at level 1
+    private final int level;
+    private final Object linkCommarea;
+    private String program;
+    private Programs programs;
+    private UnaryOperator<Object> snapshot = o -> o;
+    private String xctlTarget;
+    private Object xctlCommarea;
+    private Integer xctlLength;
     private String terminalInput;
     private boolean terminalRead;
     private TempStorage tempStorage = new TempStorage();
@@ -158,6 +170,112 @@ public class CicsTask {
         this.commarea = commarea;
         this.eibcalen = commarea == null ? Integer.valueOf(0) : eibcalen;
         this.received = received == null ? Map.of() : received;
+        this.events = new ArrayList<>();
+        this.parent = null;
+        this.level = 1;
+        this.linkCommarea = null;
+    }
+
+    /** A program level below `caller` (#4004), running `program` on `commarea` (EIBCALEN `length`). */
+    private CicsTask(CicsTask caller, int level, String program, Object commarea, Integer length, Object linkCommarea) {
+        this.transid = caller.transid;
+        this.aid = caller.aid;
+        this.commarea = commarea;
+        this.eibcalen = commarea == null ? Integer.valueOf(0) : length;
+        this.received = caller.received;
+        this.events = caller.events;
+        this.parent = caller;
+        this.level = level;
+        this.linkCommarea = linkCommarea;
+        this.program = program;
+        this.programs = caller.programs;
+        this.snapshot = caller.snapshot;
+        this.tempStorage = caller.tempStorage;
+    }
+
+    /** The programs a LINK or XCTL can reach (#4004): whether the CSD defines one (program autoinstall is
+     *  off, so any other is PGMIDERR), and how to run one at a level -- its service's runTask. */
+    public interface Programs {
+        boolean defined(String program);
+
+        void run(String program, CicsTask task);
+    }
+
+    /** How LINK / XCTL reach other programs (#4004). */
+    public CicsTask withPrograms(Programs programs) {
+        this.programs = programs;
+        return this;
+    }
+
+    /** The program this level runs (#4004): its events name it as their issuer. */
+    public CicsTask withProgram(String program) {
+        this.program = program;
+        return this;
+    }
+
+    /** How an event keeps a COMMAREA (#4004): a copy of it as it is when the command is issued -- a LINK
+     *  COMMAREA is shared with the callee, which may change it afterwards. The default keeps the object. */
+    public CicsTask withSnapshot(UnaryOperator<Object> snapshot) {
+        this.snapshot = snapshot;
+        return this;
+    }
+
+    /** The logical level this program runs at: 1 for the task's first program, +1 per LINK (#4004). */
+    public int level() {
+        return level;
+    }
+
+    /** LINK PROGRAM(program) COMMAREA(commarea) LENGTH(length) (#4004, IBM EXEC CICS LINK): LENGERR (RESP2
+     *  11) for a length outside 0-32763, PGMIDERR (RESP2 1) for a program the CSD does not define; else the
+     *  program runs at the next level on `commarea` itself -- what it changes, the caller sees -- then any
+     *  program it XCTLs to, and control returns here. The handlers of this program are not the callee's. */
+    public String link(String program, Object commarea, int length) {
+        String resp = "NORMAL";
+        Integer resp2 = null;
+        int len = commarea == null ? 0 : length;
+        if (commarea != null && (length < 0 || length > 32763)) {
+            resp = "LENGERR";
+            resp2 = 11;
+        } else if (programs == null || !programs.defined(program)) {
+            resp = "PGMIDERR";
+            resp2 = 1;
+        }
+        event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
+                "resp2", resp2);
+        if (!"NORMAL".equals(resp)) {
+            return resp;
+        }
+        CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
+        for (int hop = 0; callee != null && hop < 32; hop++) {
+            programs.run(callee.program, callee);
+            if (callee.xctlTarget != null) {
+                callee = new CicsTask(this, level + 1, callee.xctlTarget, callee.xctlCommarea, callee.xctlLength,
+                        commarea);
+            } else {
+                if (!callee.ended) {
+                    callee.returnTransid(null, null);  // a GOBACK is a RETURN
+                }
+                callee = null;
+            }
+        }
+        return resp;
+    }
+
+    /** Runs the task (#4004): `program` at level 1 through the Programs given, then any program it XCTLs
+     *  to, each on the COMMAREA the XCTL passed; they share this task's events, terminal and storage. */
+    public void run(String program) {
+        this.program = program;
+        CicsTask current = this;
+        for (int hop = 0; current != null && hop < 32; hop++) {
+            programs.run(current.program, current);
+            current = current.xctlTarget == null ? null
+                    : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
+        }
+    }
+
+    /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
+    public String link(String program) {
+        return link(program, null, 0);
     }
 
     public String transid() {
@@ -211,11 +329,12 @@ public class CicsTask {
      *  length (IBM, EXEC CICS RECEIVE: "the data area specified in the LENGTH option is set to the original
      *  length of data"). */
     public Received receiveText(int maxLength) {
-        if (terminalRead) {
+        CicsTask task = root();  // the terminal is the task's, whichever level reads it
+        if (task.terminalRead) {
             throw new IllegalStateException("a second terminal RECEIVE waits for more input from the operator");
         }
-        terminalRead = true;
-        String text = terminalInput == null ? "" : terminalInput;
+        task.terminalRead = true;
+        String text = task.terminalInput == null ? "" : task.terminalInput;
         String data = text.length() > maxLength ? text.substring(0, Math.max(maxLength, 0)) : text;
         String resp = text.length() > maxLength ? "LENGERR" : "NORMAL";
         event("RECEIVE", "resp", resp, "length", text.length(), "data", data);
@@ -350,14 +469,30 @@ public class CicsTask {
     }
 
     /** RETURN TRANSID(transid) COMMAREA(commarea) LENGTH(length): the next task's EIBCALEN is `length`
-     *  (null: the whole record). */
+     *  (null: the whole record). Below level 1 (#4004) it returns to the linking program instead: the event
+     *  shows the LINK COMMAREA as that program now sees it. */
     public void returnTransid(String transid, Object commarea, Integer length) {
-        event("RETURN", "transid", transid, "commarea", commarea, "length", commarea == null ? null : length);
+        if (level > 1) {
+            event("RETURN", "level", level, "caller_commarea", snapshot.apply(linkCommarea));
+        } else {
+            event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length",
+                    commarea == null ? null : length);
+        }
         ended = true;
     }
 
+    /** XCTL PROGRAM(program) COMMAREA(commarea), the COMMAREA being its whole record. */
     public void xctl(String program, Object commarea) {
-        event("XCTL", "program", program, "commarea", commarea);
+        xctl(program, commarea, null);
+    }
+
+    /** XCTL PROGRAM(program) COMMAREA(commarea) LENGTH(length): the program ends, and the target runs at the
+     *  same level (#4004) with EIBCALEN = `length` (null: the whole record). */
+    public void xctl(String program, Object commarea, Integer length) {
+        event("XCTL", "program", program, "commarea", snapshot.apply(commarea));
+        xctlTarget = program;
+        xctlCommarea = commarea;
+        xctlLength = commarea == null ? Integer.valueOf(0) : length;
         ended = true;
     }
 
@@ -381,7 +516,11 @@ public class CicsTask {
 
     /** ASSIGN ABCODE: the task's current abend code, blanks while there has been none. */
     public String abcode() {
-        return abcode;
+        return root().abcode;
+    }
+
+    private CicsTask root() {
+        return parent == null ? this : parent.root();
     }
 
     /** The abend code of an unhandled condition (IBM's AEIx / AEYx codes, the AEIA topic). */
@@ -400,7 +539,7 @@ public class CicsTask {
     }
 
     private void abend(String code, String cause, String condition, String program, String label) {
-        abcode = code;
+        root().abcode = code;
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "ABEND");
         e.put("abcode", code);
@@ -414,7 +553,7 @@ public class CicsTask {
         } else {
             ended = true;
         }
-        events.add(e);
+        add(e);
     }
 
     public boolean ended() {
@@ -430,6 +569,13 @@ public class CicsTask {
         e.put("event", kind);
         for (int i = 0; i < kv.length; i += 2) {
             e.put((String) kv[i], kv[i + 1]);
+        }
+        add(e);
+    }
+
+    private void add(Map<String, Object> e) {
+        if (program != null) {
+            e.put("issuer", program);  // #4004: the program issuing the command, at whichever level
         }
         events.add(e);
     }
@@ -883,8 +1029,9 @@ class CicsForge:
                 "        return ResponseEntity.noContent().build();", "    }\n"]  # fmt: skip
 
     def runtime_sources(self) -> dict[str, str]:
-        """#3754: CicsTask (package <pkg>.cics), when any program has a transaction to run as a task."""
-        if not any(p.transactions for p in self.programs.values()):
+        """#3754: CicsTask (package <pkg>.cics), when there is a CICS program to run as a task (#4004: or at a
+        LINK / XCTL level)."""
+        if not self.programs:
             return {}
         return {"CicsTask": CICS_TASK_JAVA.replace("__PACKAGE__", self.package)}
 
@@ -908,18 +1055,21 @@ class CicsForge:
 
         if prog.transactions:
             handler("handleTransaction", "String transid", req, resp, "A CICS transaction entered the program.")
-            # #3754: the whole task -- the port's target, and what the equivalence harness drives
-            imports.append(f"import {self.package}.cics.CicsTask;")
-            methods += [
-                "    /** One pseudo-conversational task of this program (#3754). TODO: [AI AGENT] port the PROCEDURE",
-                "     *  DIVISION: read task.hasCommarea() / task.commarea(..) / task.aid() / task.receive(map, ..),",
-                "     *  and record what the program does through the task -- sendMap, sendText, returnTransid,",
-                "     *  xctl, abend -- in the order it does it. */",
-                "    public void runTask(CicsTask task) {",
-                f'        log.info("{prog.cls}: runTask");',
-                "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
-                "    }\n",
-            ]
+        # #3754: the whole task -- the port's target, and what the equivalence harness drives; #4004: a program
+        # reached only by LINK / XCTL runs the same way, at its level
+        imports.append(f"import {self.package}.cics.CicsTask;")
+        what = ("One pseudo-conversational task of this program (#3754)" if prog.transactions
+                else "This program's run at a LINK / XCTL level (#4004): task.level(), task.eibcalen()")  # fmt: skip
+        methods += [
+            f"    /** {what}. TODO: [AI AGENT] port the PROCEDURE",
+            "     *  DIVISION: read task.hasCommarea() / task.commarea(..) / task.aid() / task.receive(map, ..),",
+            "     *  and record what the program does through the task -- sendMap, sendText, returnTransid,",
+            "     *  link, xctl, abend -- in the order it does it. */",
+            "    public void runTask(CicsTask task) {",
+            f'        log.info("{prog.cls}: runTask");',
+            "        // TODO: [AI AGENT] port the PROCEDURE DIVISION into this task",
+            "    }\n",
+        ]
         if self.has_link_handler(prog):
             handler("handleLink", None, req, resp, "Another program LINKed / XCTLed to this one.")
         if (prog.channel_in or prog.channel_out) and (req, resp) != (prog.channel_in, prog.channel_out):

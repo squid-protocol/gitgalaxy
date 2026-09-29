@@ -331,6 +331,21 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
                 else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
         entry = "GGCRETN" if verb == "RETURN" else "GGCXCTL"
         return [name(target, "GG-NAME1")] + _call(entry, args) + ["GOBACK"]
+    if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
+        for bad in ("SYSID", "TRANSID", "SYNCONRETURN", "CHANNEL", "INPUTMSG", "INPUTMSGLEN", "DATALENGTH"):
+            if bad in opts:
+                raise Unsupported(f"LINK {bad}", [f"LINK {bad}"])
+        if not opts.get("PROGRAM"):
+            raise Unsupported("LINK without PROGRAM", ["LINK"])
+        area = opts.get("COMMAREA")
+        length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
+        ref = area or "GG-FLAGS"
+        return ([name(opts["PROGRAM"], "GG-NAME1"), f"MOVE {length} TO GG-LEN", f"MOVE {1 if area else 0} TO GG-ITEM"]
+                + _call("GGCLINK", [f"BY REFERENCE {ref}"])
+                + ["IF GG-RESP = 0", f"    CALL 'GGCRUN' USING {ref}", "    CALL 'GGCLRET' USING GG-CICS"]
+                + [f"    {ln}" for ln in _transfer(labels)]
+                + ["    IF GG-GOTO < 0", "        GOBACK", "    END-IF", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "ABEND":  # #4003: an exit at this level takes it by GO TO; else the program is left
         return ([name(opts.get("ABCODE"), "GG-NAME1"), "MOVE 'CANCEL' TO GG-FLAGS" if "CANCEL" in opts else "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCABND", []) + _transfer(labels) + ["GOBACK"])  # fmt: skip
@@ -455,6 +470,67 @@ def cics_driver(program: str, has_commarea: bool) -> str:
               "    MOVE WS-LEN TO EIBCALEN",
               f"    CALL '{program}'" + (" USING WS-CA" if has_commarea else ""),
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
+    assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
+    return "".join("       " + ln + "\n" for ln in lines)
+
+
+def task_driver() -> str:
+    """#4004: the driver of a task on the stub, one process per task: the EIB from $EIBIN (TRANSID, AID
+    name, date, time, the first program, the terminal), the COMMAREA from the stub (its length is
+    EIBCALEN), then GGCRUN (task_dispatcher) runs the program and whatever it XCTLs to."""
+    aid_names = [ln.split()[1] for ln in (STUB / "DFHAID.cpy").read_text().splitlines() if " PIC " in ln]
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. GGTASK.", "ENVIRONMENT DIVISION.",
+             "INPUT-OUTPUT SECTION.", "FILE-CONTROL.",
+             "    SELECT EIB-IN ASSIGN TO EIBIN ORGANIZATION LINE SEQUENTIAL.",
+             "DATA DIVISION.", "FILE SECTION.", "FD  EIB-IN.", "01  EIB-LINE.",
+             "    05 IN-TRNID PIC X(4).", "    05 FILLER   PIC X.", "    05 IN-AID   PIC X(8).",
+             "    05 FILLER   PIC X.", "    05 IN-DATE  PIC 9(7).", "    05 FILLER   PIC X.",
+             "    05 IN-TIME  PIC 9(7).", "    05 FILLER   PIC X.", "    05 IN-PROG  PIC X(8).",
+             "    05 FILLER   PIC X.", "    05 IN-TRMID PIC X(4).",
+             "WORKING-STORAGE SECTION.", "COPY DFHEIBLK.", "COPY DFHAID.",
+             "01  WS-CA  PIC X(32767).", "01  WS-LEN PIC S9(9) COMP-5.",
+             "PROCEDURE DIVISION.",
+             "    OPEN INPUT EIB-IN", "    READ EIB-IN", "    CLOSE EIB-IN",
+             "    INITIALIZE DFHEIBLK GG-CICS",
+             "    MOVE IN-TRNID TO EIBTRNID", "    MOVE IN-DATE TO EIBDATE", "    MOVE IN-TIME TO EIBTIME",
+             "    MOVE IN-TRMID TO EIBTRMID",
+             "    EVALUATE IN-AID"]  # fmt: skip
+    lines += [f"        WHEN '{n}' MOVE {n} TO EIBAID" for n in aid_names]
+    lines += ["    END-EVALUATE", "    MOVE LOW-VALUES TO WS-CA",
+              "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
+              "    MOVE WS-LEN TO EIBCALEN", "    MOVE IN-PROG TO GG-NAME1", "    MOVE WS-LEN TO GG-LEN",
+              "    CALL 'GGCTASK' USING GG-CICS", "    CALL 'GGCRUN' USING WS-CA",
+              "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
+    assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
+    return "".join("       " + ln + "\n" for ln in lines)
+
+
+def task_dispatcher(programs: dict[str, bool]) -> str:
+    """#4004: GGCRUN, the case's dispatcher: at one program level (the task's, or a LINK's), run the
+    program the stub names (GGCNEXT) on the level's COMMAREA -- the caller's own storage for a LINK,
+    a copy for an XCTL -- with EIBCALEN set, then any program it XCTLs to. RECURSIVE, since a LINK
+    CALLs it again; each program is CANCELed after its run, so that the next run starts with fresh
+    WORKING-STORAGE, as a new CICS program instance does. `programs`: {name: takes a COMMAREA}."""
+    lines = ["IDENTIFICATION DIVISION.", "PROGRAM-ID. GGCRUN RECURSIVE.", "DATA DIVISION.",
+             "WORKING-STORAGE SECTION.", "COPY DFHEIBLK.", "LOCAL-STORAGE SECTION.",
+             "01  LS-CALEN   PIC S9(4) COMP.", "01  LS-PTR     USAGE POINTER.", "01  LS-PROG    PIC X(8).",
+             "LINKAGE SECTION.", "01  LK-AREA    PIC X(32767).", "01  LK-X       PIC X(32767).",
+             "PROCEDURE DIVISION USING LK-AREA.",
+             "    MOVE EIBCALEN TO LS-CALEN",
+             "    PERFORM WITH TEST AFTER UNTIL GG-ITEM = 0",
+             "      SET LS-PTR TO ADDRESS OF LK-AREA",
+             "      CALL 'GGCNEXT' USING GG-CICS LS-PTR",
+             "      IF GG-ITEM NOT = 0",
+             "        MOVE GG-LEN TO EIBCALEN",
+             "        MOVE GG-NAME1 TO LS-PROG",
+             "        SET ADDRESS OF LK-X TO LS-PTR",
+             "        EVALUATE LS-PROG"]  # fmt: skip
+    for prog, takes in sorted(programs.items()):
+        lines += [f"          WHEN '{prog}'", f"            CALL '{prog}'" + (" USING LK-X" if takes else ""),
+                  f"            CANCEL '{prog}'"]  # fmt: skip
+    lines += ["          WHEN OTHER", "            CALL 'GGCNOPG' USING GG-CICS", "        END-EVALUATE",
+              "        CALL 'GGCPEND' USING GG-CICS", "        MOVE 1 TO GG-ITEM", "      END-IF",
+              "    END-PERFORM", "    MOVE LS-CALEN TO EIBCALEN", "    GOBACK."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
 

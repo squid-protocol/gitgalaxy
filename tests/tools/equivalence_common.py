@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import codecs
 import functools
+import re
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -254,12 +255,91 @@ def decode_field(
     return (Decimal(int(text)) * sign).scaleb(-scale)
 
 
-def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> list[dict[str, Any]]:
+class LayoutError(ValueError):
+    """A record's layout cannot be computed faithfully (#4010): a COPY inside it that resolves
+    nowhere, or a COPY ... REPLACING. Raised instead of returning a layout whose later fields shift."""
+
+
+# #4010: a COPY statement's start, in Area A..B text (upper-cased, comments dropped). The member
+# name may be quoted; the rest of the statement (OF/IN library, REPLACING, the period) is read by
+# _copy_statement with plain string operations, so no regex spans it.
+_COPY_START = re.compile(r"^\s*COPY\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?(?![A-Z0-9#@$-])")
+_HEADER = re.compile(r"^\s*(?:[A-Z0-9-]+\s+SECTION|[A-Z]+\s+DIVISION)\b")
+_COPY_EXTS = (".cpy", ".CPY", ".copy", ".COPY", "")
+_COPY_DEPTH = 8
+
+
+def _area_lines(path: Path) -> list[str]:
+    """Area A..B of each code line of a fixed-format source, as the answer key's Source reads it:
+    comment and debug lines dropped, `*>` comments cut, upper-cased."""
+    from key_text import read_key_text
+
+    out = []
+    for raw in read_key_text(path).splitlines():
+        if len(raw) > 6 and raw[6] in "*/Dd":
+            continue
+        out.append((raw[7:72] if len(raw) > 7 else "").split("*>", 1)[0].upper())
+    return out
+
+
+def _copy_statement(lines: list[str], i: int) -> tuple[str, int]:
+    """The text of the COPY statement starting on lines[i], up to its period (a few lines at
+    most), and the index of the line after it."""
+    text, j = lines[i], i + 1
+    while "." not in text and j < len(lines) and j < i + 12:
+        text += " " + lines[j]
+        j += 1
+    return text, j
+
+
+def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, str]], depth: int = 0) -> list[str]:
+    """The code lines of `path` with each `COPY member.` replaced by the member's own (expanded)
+    lines, found in `dirs` in order. A COPY found nowhere contributes no lines: its position (the
+    index in the returned list its lines would have started at) and name go to `unresolved`."""
+    lines = _area_lines(path)
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        m = _COPY_START.match(lines[i])
+        if not m:
+            out.append(lines[i])
+            i += 1
+            continue
+        stmt, i = _copy_statement(lines, i)
+        member = m.group(1)
+        if "REPLACING" in stmt.split():
+            raise LayoutError(f"{path.name}: COPY {member} REPLACING is not modelled by layout_fields")
+        if depth >= _COPY_DEPTH:
+            raise LayoutError(f"{path.name}: COPY {member} nests deeper than {_COPY_DEPTH} levels")
+        found = next(
+            (d / f"{name}{ext}" for d in dirs for name in dict.fromkeys((member, member.lower()))
+             for ext in _COPY_EXTS if (d / f"{name}{ext}").is_file()),
+            None,
+        )  # fmt: skip
+        if found is None:
+            unresolved.append((len(out), member))
+        else:
+            out.extend(_expanded_lines(found, dirs, unresolved, depth + 1))
+    return out
+
+
+def layout_fields(
+    corpus: Path, copybook: str, record: Optional[str] = None, copy_dirs: Optional[list[Path]] = None
+) -> list[dict[str, Any]]:
     """The elementary fields of a copybook record: name, offset, bytes, pic, usage (the answer
-    key's own reader and storage arithmetic, cobol_answer_key)."""
+    key's own reader and storage arithmetic, cobol_answer_key).
+
+    #4010: each COPY in the file is expanded first, its member looked up in `copy_dirs` (default:
+    the file's own directory, then `corpus`), so the fields after a nested COPY keep their offsets.
+    A COPY that resolves nowhere is harmless outside the chosen record but raises LayoutError
+    inside it, as does a COPY ... REPLACING anywhere: a shifted layout is never returned."""
     import cobol_answer_key as ak
 
-    items = [it for it in ak._data_items(ak.Source(corpus / copybook)) if it["level"] not in (66, 88)]
+    path = corpus / copybook
+    dirs = copy_dirs if copy_dirs is not None else [path.parent, corpus]
+    unresolved: list[tuple[int, str]] = []
+    text = _expanded_lines(path, dirs, unresolved)
+    items = [it for it in ak._data_items(ak.Source(path, list(enumerate(text, 1)))) if it["level"] not in (66, 88)]
     kids: dict[Optional[int], list[dict[str, Any]]] = {}
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
@@ -290,5 +370,20 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
     # A named record may itself REDEFINE another (#3754: a symbolic map's output area, CACTVWAO
     # REDEFINES CACTVWAI); with no name, the first record that does not is the layout.
     roots = [r for r in kids.get(None, []) if (r["name"] == record if record else not r.get("redefines"))]
-    place(roots[0], 0)
+    if not roots:
+        raise LayoutError(f"{copybook}: no record {record or '(first)'}")
+    root = roots[0]
+    # The record runs from its own line to the next 01/77, section or division header (or the
+    # end): a COPY that resolved nowhere there could hold any of its fields. (Line n is
+    # text[n - 1]; an unresolved COPY at index `at` sits just before line at + 1.)
+    later = [r["line"] for r in kids.get(None, []) if r["line"] > root["line"]]
+    later += [n for n, line in enumerate(text, 1) if n > root["line"] and _HEADER.match(line)]
+    end = min(later) if later else len(text) + 1
+    inside = [name for at, name in unresolved if root["line"] < at + 1 <= end]
+    if inside:
+        raise LayoutError(
+            f"{copybook}: COPY {', '.join(inside)} inside {root['name']} resolves nowhere in "
+            f"{', '.join(str(d) for d in dirs)}, so every field after it would shift"
+        )
+    place(root, 0)
     return out

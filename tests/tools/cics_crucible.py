@@ -166,44 +166,20 @@ def crucible_ref(path: Path) -> Optional[str]:
 
 
 # ---- the case's layouts and maps ---------------------------------------------------------------
-_COPY = re.compile(r"^(.{6}[ D]\s*)COPY\s+([A-Z0-9#@$-]+)\s*\.?\s*$", re.I)
-
-
-def expand_copies(text: str, dirs: list[Path], depth: int = 0) -> str:
-    """Inline each `COPY member.` from `dirs` (the case's copy directory, then the harness's DFH
-    stand-ins). A member found nowhere is left as a comment: layouts never need IBM's own."""
-    out = []
-    for line in text.splitlines():
-        m = _COPY.match(line[:72])
-        if not m or depth > 8:
-            out.append(line)
-            continue
-        member = m.group(2).upper()
-        found = next((d / f"{member}{ext}" for d in dirs for ext in (".cpy", ".CPY", "") if (d / f"{member}{ext}").is_file()),
-                     None)  # fmt: skip
-        if found is None:
-            out.append(line[:6] + "*" + line[7:])
-        else:
-            out.append(expand_copies(found.read_text(encoding="utf-8"), dirs, depth + 1))
-    return "\n".join(out)
-
-
-def case_context(case: cc.Case, work: Path) -> cc.Context:
-    """The comparison's view of the case: each layout's fields (COPY members inlined first -- the
-    answer-key reader lays out a record as written, so an un-expanded COPY would silently shift every
-    later field), and each map's named output fields with their lengths."""
+def case_context(case: cc.Case) -> cc.Context:
+    """The comparison's view of the case: each layout's fields (its COPY members found in the case's
+    copy directories, then the harness's DFH stand-ins), and each map's named output fields with
+    their lengths."""
     import equivalence_common as common
 
     dirs = [case.dir / d for d in case.data["sources"]["copy"]] + [STUB_DIR]
     layouts: dict[str, list[dict[str, Any]]] = {}
     for name, spec in case.data["layouts"].items():
-        dest = work / "layouts" / spec["source"]
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(expand_copies((case.dir / spec["source"]).read_text(encoding="utf-8"), dirs) + "\n",
-                        encoding="utf-8")  # fmt: skip
-        fields = [
-            f for f in common.layout_fields(work / "layouts", spec["source"], spec["record"]) if f["name"] != "FILLER"
-        ]
+        try:
+            fields = common.layout_fields(case.dir, spec["source"], spec["record"], copy_dirs=dirs)
+        except common.LayoutError as e:
+            raise cc.CaseError(f"{case.id}: layout {name}: {e}") from e
+        fields = [f for f in fields if f["name"] != "FILLER"]
         if not fields:
             raise cc.CaseError(f"{case.id}: layout {name} ({spec['record']} in {spec['source']}) has no fields")
         layouts[name] = fields
@@ -1001,7 +977,7 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool) -> d
                                                       "side": side, **v.as_dict()}  # fmt: skip
 
     work.mkdir(parents=True, exist_ok=True)
-    ctx = case_context(case, work)
+    ctx = case_context(case)
     if "engine-facts" in sides:
         put("*", "engine-facts", engine_facts(case, work / "facts"))
     project = None

@@ -118,13 +118,13 @@ def test_layouts_inline_copy_members_so_later_fields_keep_their_offsets(tmp_path
     data = json.loads((tmp_path / "c/case.json").read_text())
     data["sources"]["copy"] = ["copy"]
     (tmp_path / "c/case.json").write_text(json.dumps(data))
-    ctx = runner.case_context(cc.load_case(tmp_path / "c"), tmp_path / "w")
+    ctx = runner.case_context(cc.load_case(tmp_path / "c"))
     assert [(f["name"], f["offset"], f["bytes"]) for f in ctx.layouts["STATE"]] == [
         ("H-EYE", 0, 4), ("H-LEN", 4, 2), ("WS-COUNT", 6, 3), ("WS-NAME", 9, 8)]  # fmt: skip
 
 
 def test_the_fixture_context_has_its_layout(tmp_path):
-    ctx = runner.case_context(_case(), tmp_path)
+    ctx = runner.case_context(_case())
     assert [(f["name"], f["offset"], f["bytes"]) for f in ctx.layouts["STATE"]] == [
         ("WS-COUNT", 0, 3),
         ("WS-NAME", 3, 8),

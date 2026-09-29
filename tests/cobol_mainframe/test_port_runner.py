@@ -140,3 +140,31 @@ def test_a_redirect_is_refused_so_the_key_is_not_forwarded():
     finally:
         srv.server_close()
     assert seen == ["/v1"]
+
+
+def test_feedback_gives_the_next_attempt_the_failed_proof_and_its_port(project, tmp_path):
+    """#3989: `run --feedback` hands the backend what the last failed proof found (its report.json's `feedback`,
+    else its log) and that attempt's port; each proposal logs the ticket's hash and what it was fed from."""
+    proj = tmp_path / "proj"
+    shutil.copytree(project, proj)
+    run = ["run", str(proj), "--ticket", "POSTIT", "--backend", "command", "--model", "stand-in",
+           "--command", _fake_backend(tmp_path)]  # fmt: skip
+    assert pr.feedback(proj, "POSTIT") == (None, "")
+    assert pr.main(run) == 0
+    proof = tmp_path / "proof.py"
+    proof.write_text("import json, pathlib, sys\nd = pathlib.Path(sys.argv[1]); d.mkdir(parents=True)\n"
+                     "(d / 'report.json').write_text(json.dumps({'outputs': {'S1': {'equal': 0, 'records': 1}},"
+                     " 'feedback': 'task 1 event 2: SEND-MAP expected, got RETURN'}))\nsys.exit(1)\n")  # fmt: skip
+    cmd = f"{shlex.quote(sys.executable)} {shlex.quote(str(proof))} {{report_dir}}"
+    assert pr.main(["prove", str(proj), "--ticket", "POSTIT", "--command", cmd]) == 1
+    attempt, section = pr.feedback(proj, "POSTIT")
+    assert attempt == 1
+    assert "## Your previous attempt (1) was not proven" in section
+    assert "task 1 event 2: SEND-MAP expected, got RETURN" in section
+    assert "### Attempt 1's port" in section and "// ported" in section
+    assert pr.main([*run, "--feedback"]) == 0
+    prompt = (proj / "ai_agent_jobs/ports/POSTIT/attempts/002_work/prompt.md").read_text(encoding="utf-8")
+    assert prompt.endswith(section)
+    proposed = [e for e in pr.events(proj) if e["event"] == "proposed"]
+    assert [e["feedback_from"] for e in proposed] == [None, 1]
+    assert proposed[1]["ticket_sha256"] == pr.ticket_hash(proj, "POSTIT") and len(proposed[1]["ticket_sha256"]) == 64

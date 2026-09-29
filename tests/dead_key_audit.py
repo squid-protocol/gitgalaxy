@@ -239,6 +239,7 @@ ALLOWLIST = {
     # chat response and the equivalence harness's report.json (tests/tools/equivalence.py).
     "choices": "OpenAI-compatible chat completion response field, written by the model server (port_runner.py, #3753)",
     "equal": "equivalence report.json per-output count, written by tests/tools/equivalence.py (port_runner.py, #3753)",
+    "feedback": "proof report.json first divergences, written by tests/tools/cics_crucible.py (port_runner.py run --feedback, #3989)",
     # #3356: the same tokenizer's attributes that _csd_resources lifts into
     # csd_resource_data's join columns.
     **{

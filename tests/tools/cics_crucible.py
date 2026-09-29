@@ -15,7 +15,21 @@ pipeline and compares, cell by cell:
   cobol-stub     (scenario)  the COBOL, translated by tests/tools/equivalence_cics.py and run
                          task by task on the stub runtime (tests/equivalence/cics/ggcics.c)
   java           (scenario)  the generated project's services, each task a CicsTask through
-                         runTask(), driven by a generated EquivalenceRunTest
+                         runTask(), driven by a generated EquivalenceRunTest -- the services as
+                         generated (their runTask bodies are skeletons until ported)
+  java-ported    (scenario)  the same, with the case's committed ports laid over the services
+                         (tests/cics_crucible/ports/<case>/<PROGRAM>/overlay, each proven by this
+                         runner through the porting loop and kept with its provenance.json)
+
+Proving one program's port for the porting loop (gitgalaxy/tools/cobol_to_java/port_runner.py):
+
+    port_runner prove <project> --ticket PCWIZ --command "python tests/tools/cics_crucible.py \\
+        --cases pc-wizard --sides java-ported --ports <project>/ai_agent_jobs/ports --overlay {port_dir} \\
+        --program PCWIZ --report-dir {report_dir} --keep {report_dir}/work"
+
+runs every scenario that runs PCWIZ with the latest port of each of the case's programs, writes a
+report.json (per scenario 1/1 or 0/1, and the first divergences as `feedback` for `run --feedback`),
+and exits 0 only when every one of them passes.
 
 Both scenario sides are driven the same way (SPEC section 4, terminal tasks): a step starts the
 TRANSID and COMMAREA of the previous task's RETURN, or else the transaction id typed as text;
@@ -349,11 +363,13 @@ def maven(project: Path, args: list[str], offline: bool, log: Path) -> tuple[boo
     proc = subprocess.run(cmd, cwd=project, env=env, capture_output=True, text=True, check=False)  # noqa: S603
     log.write_text(proc.stdout + proc.stderr, encoding="utf-8")
     errors = [ln for ln in (proc.stdout + proc.stderr).splitlines() if "ERROR" in ln or "error:" in ln]
-    return proc.returncode == 0, "\n".join(errors[:6]) or _tail(proc.stdout + proc.stderr, 6)
+    return proc.returncode == 0, "\n".join(errors[:20]) or _tail(proc.stdout + proc.stderr, 20)
 
 
-def forge(case: cc.Case, work: Path, offline: bool) -> tuple[cc.Verdict, Optional[Path]]:
-    """Refactor + cobol-to-java (config h2, the equivalence harness's) + `mvn compile`."""
+def forge(case: cc.Case, work: Path, offline: bool,
+          overlays: Optional[list[Path]] = None) -> tuple[cc.Verdict, Optional[Path]]:  # fmt: skip
+    """Refactor + cobol-to-java (config h2, the equivalence harness's) + `mvn compile`. `overlays` (the
+    java-ported side) are port overlay trees laid over the generated sources before the compile, in order."""
     import java_target_matrix as jtm
 
     work.mkdir(parents=True, exist_ok=True)
@@ -365,11 +381,40 @@ def forge(case: cc.Case, work: Path, offline: bool) -> tuple[cc.Verdict, Optiona
         return cc.Verdict(
             "fail", f"generation failed: {e!r} (see {work / 'forge.log'})", kind="generation failed"
         ), None
+    for overlay in overlays or []:
+        lay_overlay(overlay, project)
     ok, errors = maven(project, ["compile"], offline, work / "compile.log")
     if not ok:
         first = errors.splitlines()[0] if errors else "mvn compile failed"
-        return cc.Verdict("fail", f"mvn compile: {first}", kind="does not compile"), project
+        return cc.Verdict("fail", f"mvn compile: {first}", kind="does not compile", detail=errors), project
     return cc.Verdict("pass", "compiles"), project
+
+
+# ---- ports: the porting loop's overlays (#3989) ------------------------------------------------------
+# A port is an overlay (gitgalaxy/tools/cobol_to_java/port_runner.py): <KEY>/overlay/service/<Service>.java,
+# a tree relative to the generated package root. The committed ones -- proven by this runner, kept as
+# regression evidence with their provenance.json -- live under PORTS_DIR/<case>/<KEY>/.
+PORTS_DIR = LEDGER_DIR / "ports"
+
+
+def lay_overlay(overlay: Path, project: Path) -> list[str]:
+    """Copy an overlay tree's .java files over the generated project; the files laid, relative to it."""
+    import equivalence_java as ej
+
+    laid = []
+    for f in sorted(overlay.rglob("*.java")):
+        dest = project / "src/main/java" / ej.PKG_DIR / f.relative_to(overlay)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(f, dest)
+        laid.append(str(dest.relative_to(project)))
+    return laid
+
+
+def case_overlays(ports: Path) -> dict[str, Path]:
+    """{program key: its overlay tree} under a ports directory (<KEY>/overlay, port_runner's layout)."""
+    if not ports.is_dir():
+        return {}
+    return {d.name: d / "overlay" for d in sorted(ports.iterdir()) if (d / "overlay").is_dir()}
 
 
 # ---- the scenario driver, shared by both sides -----------------------------------------------------
@@ -605,6 +650,7 @@ class EquivalenceRunTest {
                 CicsTask t = new CicsTask(transid, (String) frame.get("eibaid"), commarea, calen, received)
                         .withTempStorage(ts)
                         .withPrograms(programs).withSnapshot(EquivalenceRunTest.this::snapshot).withClock(now)
+                        .withTermid((String) frame.get("termid"))
                         .withRetrieveData(data).withRequests(unexpired);
                 if (step != null && step.has("text")) {
                     t.withTerminalInput(step.get("text").asText());
@@ -816,18 +862,86 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     }
 
 
+# A generated contract DTO's field comment (cobol_to_java_transaction_forge): `// WS-CA: PIC X, offset 0, 1 bytes (...)`.
+_DTO_LAYOUT = re.compile(
+    r"^\s*// ([A-Z0-9][A-Z0-9-]*): PIC (\S+)(?: ([A-Z0-9-]+))?, offset (\d+), (\d+) bytes \(", re.M
+)
+
+
+def dto_layout(src: Path, cls: str) -> Optional[list[dict[str, Any]]]:
+    """#3989: a generated DTO's record layout ([{name, pic, usage, offset, bytes}]) from its field comments, or
+    None for a composite one (a part's fields are in another class) or one with no commented fields."""
+    import equivalence_cics as ec
+
+    path = ec.java_class_file(src, cls)
+    if path is None:
+        return None
+    text = path.read_text(encoding="utf-8")
+    if " -> " in text:
+        return None
+    fields = [{"name": n, "pic": pic, "usage": usage or None, "offset": int(off), "bytes": int(size)}
+              for n, pic, usage, off, size in _DTO_LAYOUT.findall(text)]  # fmt: skip
+    return fields or None
+
+
+def dto_bytes(values: dict[str, Any], layout: Optional[list[dict[str, Any]]]) -> tuple[Optional[bytes], int]:
+    """#3989: a DTO's record as EBCDIC bytes, each field encoded by its PICTURE and USAGE (text blank-padded,
+    zoned / COMP / COMP-3 numbers), and how many of its leading bytes are known: a null field's bytes are
+    not, so the record is known up to the first null field -- enough for a LENGTH that stops short of it (a
+    caller's 10-byte version-1 block passed through a callee's 80-byte DTO). (None, 0) when a field will not
+    encode."""
+    import equivalence_cics as ec
+
+    if not layout:
+        return None, 0
+    rec = bytearray(b"\x40" * max(f["offset"] + f["bytes"] for f in layout))
+    known = len(rec)
+    for f in layout:
+        v = values.get(f["name"])
+        if v is None:
+            known = min(known, f["offset"])
+            continue
+        try:
+            rec[f["offset"] : f["offset"] + f["bytes"]] = ec.encode_field(
+                v, f["pic"], f["usage"], f["bytes"], cc.EBCDIC
+            )
+        except (ArithmeticError, ValueError, TypeError, UnicodeError):
+            return None, 0
+    return bytes(rec), known
+
+
+def _raw_area(desc: dict[str, Any], length: Any) -> Optional[cc.RawArea]:
+    """#3989: a COMMAREA no generated DTO describes (a plain PIC X(n) item), passed as a String of its characters
+    or a byte[] of its EBCDIC bytes (Jackson writes those as base64): its bytes, cut to LENGTH when given."""
+    value = desc.get("value")
+    if desc["class"] == "java.lang.String" and isinstance(value, str):
+        data = value.encode(cc.EBCDIC, "replace")
+    elif desc["class"] == "[B" and isinstance(value, str):
+        data = base64.b64decode(value)
+    else:
+        return None
+    return cc.RawArea(data[:length] if isinstance(length, int) else data, cc.EBCDIC)
+
+
 def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any],
-               length: Any = None) -> Optional[cc.FieldArea]:  # fmt: skip
+               length: Any = None) -> Any:  # fmt: skip
     """A DTO the Java side recorded, as field values with the length CicsTask gave it (#4009: a
-    LENGTH, or its whole record when none was given)."""
+    LENGTH, or its whole record when none was given), and its record's bytes (#3989); a String or byte[]
+    COMMAREA as its bytes (a RawArea)."""
     import equivalence_cics as ec
 
     if desc is None:
         return None
     cls = desc["class"]
+    if cls in ("java.lang.String", "[B"):
+        return _raw_area(desc, length)
     if cls not in shapes:
-        shapes[cls] = ec.dto_shape(src, cls)  # qualified: the contract DTO, not the entity of that name (#4011)
-    return cc.FieldArea(ec.from_java(desc["value"], shapes[cls]), cc.FULL if length is None else length)
+        # qualified: the contract DTO, not the entity of that name (#4011)
+        shapes[cls] = (ec.dto_shape(src, cls), dto_layout(src, cls))
+    shape, layout = shapes[cls]
+    values = ec.from_java(desc["value"], shape)
+    data, known = dto_bytes(values, layout)
+    return cc.FieldArea(values, cc.FULL if length is None else length, data, known)
 
 
 def java_send_map(screen: Screen, e: dict[str, Any]) -> tuple[dict[str, Any], Any]:
@@ -886,7 +1000,9 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
             elif kind == "RECEIVE-MAP":
                 ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
             elif kind == "RETURN" and (e.get("level") or 1) > 1:  # #4004: back to the linking program
-                ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes))
+                # #3989: the caller sees the LINK's LENGTH bytes of it (CicsTask records that LENGTH here)
+                ev.update(level=e["level"], caller_commarea=_java_area(e.get("caller_commarea"), src, shapes,
+                                                                       e.get("length")))  # fmt: skip
             elif kind == "RETURN":
                 ev.update(level=1, transid=e.get("transid"),
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
@@ -920,6 +1036,14 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path,
     return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final}}
 
 
+class JavaRunError(RuntimeError):
+    """The generated test could not run; `detail` is Maven's error lines."""
+
+    def __init__(self, message: str, detail: str = "") -> None:
+        super().__init__(message)
+        self.detail = detail
+
+
 def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[str, dict[str, Any]]:
     """Every scenario through the generated services; {scenario: actual log}. Raises RuntimeError when
     the test itself cannot run (the project does not start)."""
@@ -937,7 +1061,7 @@ def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[st
     ok, errors = maven(project, ["test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
                                  f"-DargLine={props}"], offline, work / "maven.log")  # fmt: skip
     if not ok:
-        raise RuntimeError(f"the Java run failed: {errors.splitlines()[0] if errors else 'mvn test'}")
+        raise JavaRunError(f"the Java run failed: {errors.splitlines()[0] if errors else 'mvn test'}", errors)
     result = {}
     screens = case_screens(case)
     for sc in case.scenarios:
@@ -1402,7 +1526,55 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
 
 
 # ---- one case -> its cells -------------------------------------------------------------------------
-def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool) -> dict[str, dict[str, Any]]:
+@dataclasses.dataclass
+class PortOptions:
+    """The java-ported side's ports: `ports` a directory of <KEY>/overlay trees (default: the case's committed
+    ones, `root`/<case>), `overlays` more trees laid last, `program` only the scenarios running it (a proof
+    of one program's port), and `actual` collects each measured cell's actual log (the proof's feedback)."""
+
+    ports: Optional[Path] = None
+    root: Path = PORTS_DIR  # <case>/<KEY>/overlay: where each case's committed ports are, unless `ports` is given
+    overlays: list[Path] = dataclasses.field(default_factory=list)
+    program: Optional[str] = None
+    actual: dict[str, dict[str, Any]] = dataclasses.field(default_factory=dict)
+
+
+def measure_ported(case: cc.Case, work: Path, offline: bool, opts: PortOptions,
+                   put: Any) -> None:  # fmt: skip
+    """The java-ported side: the generated project with the case's ports laid over it, scenario by scenario."""
+    ported = case_overlays(opts.ports if opts.ports is not None else opts.root / case.id)
+    trees = [*ported.values(), *opts.overlays]
+    scenarios = [sc for sc in case.scenarios
+                 if opts.program is None or opts.program in scenario_programs(case.expected[sc["id"]])]  # fmt: skip
+    needs = {sc["id"]: cc.blockers(case.expected[sc["id"]], JAVA_CAPS, sc) for sc in scenarios}
+    if not scenarios:
+        return
+    if not trees:
+        for sc in scenarios:
+            put(sc["id"], "java-ported", cc.Verdict("fail", "no port of any of its programs", needs[sc["id"]],
+                                                    "not ported"))  # fmt: skip
+        return
+    verdict, project = forge(case, work / "forge-ported", offline, trees)
+    if verdict.status != "pass" or project is None:
+        for sc in scenarios:
+            put(sc["id"], "java-ported", cc.Verdict("fail", f"the ported project: {verdict.reason}", needs[sc["id"]],
+                                                    "ported project does not compile", verdict.detail))  # fmt: skip
+        return
+    try:
+        actual = run_java(case, project, work / "java-ported", offline)
+    except RuntimeError as e:
+        detail = getattr(e, "detail", "")
+        for sc in scenarios:
+            put(sc["id"], "java-ported", cc.Verdict("fail", str(e), needs[sc["id"]], "the Java run failed", detail))
+        return
+    for sc in scenarios:
+        v = cc.compare(case.expected[sc["id"]], actual[sc["id"]], JAVA_CAPS, case_context(case), sc)
+        opts.actual[cc.cell_id(case.id, sc["id"], "java-ported")] = actual[sc["id"]]
+        put(sc["id"], "java-ported", v)
+
+
+def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool,
+                 ports: Optional[PortOptions] = None) -> dict[str, dict[str, Any]]:  # fmt: skip
     """Every cell of one case: {cell id: {case, trap, scenario, side, status, reason, features, kind}}."""
     cells: dict[str, dict[str, Any]] = {}
 
@@ -1442,6 +1614,8 @@ def measure_case(case: cc.Case, sides: set[str], work: Path, offline: bool) -> d
                     "java",
                     _kind_java(cc.compare(case.expected[sid], actual[sid], JAVA_CAPS, ctx, sc), actual[sid]),
                 )
+    if "java-ported" in sides:
+        measure_ported(case, work, offline, ports or PortOptions(), put)
     if "cobol-stub" in sides:
         translated = translate_programs(case)
         runnable, programs = [], {p: t for p, t in translated.items() if not isinstance(t, Exception)}
@@ -1476,7 +1650,8 @@ def _kind_java(v: cc.Verdict, actual: dict[str, Any]) -> cc.Verdict:
     return v
 
 
-def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Path, offline: bool) -> dict[str, Any]:
+def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Path, offline: bool,
+            ports: Optional[PortOptions] = None) -> dict[str, Any]:  # fmt: skip
     cells: dict[str, dict[str, Any]] = {}
     dirs = cc.discover(crucible, only)
     if not dirs:
@@ -1484,7 +1659,7 @@ def measure(crucible: Path, only: Optional[set[str]], sides: set[str], work: Pat
     for d in dirs:
         case = cc.load_case(d)
         print(f"{case.id} ...", flush=True)
-        got = measure_case(case, sides, work / case.id, offline)
+        got = measure_case(case, sides, work / case.id, offline, ports)
         cells.update(got)
         by = Counter(f"{c['side']}:{c['status']}" for c in got.values())
         print("   " + ", ".join(f"{k} {n}" for k, n in sorted(by.items())), flush=True)
@@ -1609,7 +1784,9 @@ def report_md(results: dict[str, Any]) -> str:
              "with those logs, cell by cell. A cell is one side of one scenario: **engine-facts** (per case: the scan "
              "recorded its programs, transactions, maps and CICS commands), **forge-compile** (per case: the "
              "generated Spring Boot project compiles), **cobol-stub** (the COBOL on the harness's stub CICS "
-             "runtime) and **java** (the generated services, task by task through `CicsTask`). A cell passes, "
+             "runtime), **java** (the generated services, task by task through `CicsTask`) and **java-ported** (the "
+             "same, with each case's committed ports laid over the services: tests/cics_crucible/ports, the porting "
+             "loop's proven overlays, #3989). A cell passes, "
              "fails at its first divergence from the log, or is *unsupported*: the harness cannot model "
              "something the scenario needs yet. The comparison is exact (SPEC 6).", "",
              "Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`, and CI "
@@ -1623,7 +1800,7 @@ def report_md(results: dict[str, Any]) -> str:
     n = Counter(c["status"] for c in cells)
     lines += [f"| **all** | **{n['pass']}** | **{n['fail']}** | **{n['unsupported']}** | **{len(cells)}** |", "",
               "## By trap and case", "", "Pass counts per side (scenario sides: passing / scenarios).", "",
-              "| trap | case | engine-facts | forge-compile | cobol-stub | java |", "|---|---|---|---|---|---|"]  # fmt: skip
+              "| trap | case | " + " | ".join(cc.SIDES) + " |", "|---|---|" + "---|" * len(cc.SIDES)]  # fmt: skip
     by_case: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for c in cells:
         by_case[(c["trap"], c["case"])].append(c)
@@ -1644,7 +1821,7 @@ def report_md(results: dict[str, Any]) -> str:
               "than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the "
               "unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and "
               "every row above it (rows are chosen greedily).", ""]  # fmt: skip
-    for side in ("cobol-stub", "java"):
+    for side in ("cobol-stub", "java", "java-ported"):
         mine = [c for c in cells if c["side"] == side]
         rows = unlock_order(mine)
         if not rows:
@@ -1658,7 +1835,7 @@ def report_md(results: dict[str, Any]) -> str:
               "Each feature a cell needs that its side does not model (`translator:` the COBOL translator refuses "
               "the command; `stub:` the stub runtime does not record it; `CicsTask:` the generated Java runtime "
               "does not; `scheduler:` the task driver).", ""]  # fmt: skip
-    for side in ("cobol-stub", "java"):
+    for side in ("cobol-stub", "java", "java-ported"):
         blocks = Counter(f for c in cells if c["side"] == side and c["status"] != "pass" for f in c["features"])
         if not blocks:
             continue
@@ -1678,6 +1855,87 @@ def report_md(results: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+# ---- a proof for the porting loop (port_runner prove --command) -----------------------------------------
+_WHERE = re.compile(r"^task (\d+)(?: \([^)]*\))?(?: event (\d+))?")
+
+
+def _plain(value: Any) -> Any:
+    """An actual log's value as JSON: an area as its fields or bytes, anything else as it is."""
+    if isinstance(value, cc.FieldArea):
+        return {"length": value.length if isinstance(value.length, int) else str(value.length), "fields": value.fields}
+    if isinstance(value, cc.RawArea):
+        return {"length": len(value.data), "text": value.data.decode(value.encoding, "replace")}
+    if isinstance(value, cc.Unmodelled):
+        return f"<{value.feature}>"
+    if isinstance(value, dict):
+        return {k: _plain(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_plain(v) for v in value]
+    return value
+
+
+def _note_free(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {k: _note_free(v) for k, v in value.items() if k != "note"}
+    if isinstance(value, list):
+        return [_note_free(v) for v in value]
+    return value
+
+
+def proof_feedback(case: cc.Case, cells: dict[str, dict[str, Any]], actual: dict[str, dict[str, Any]]) -> str:
+    """What a porter needs to see of a failed proof, per scenario that does not pass: its inputs, the first
+    divergence from the expected log (the expected event there), what the port recorded in that task, and any
+    compile or run errors. The expected logs themselves stay the oracle: only the diverging event is shown."""
+    out: list[str] = []
+    for cid, cell in cells.items():
+        if cell["status"] == "pass":
+            continue
+        sc = next(x for x in case.scenarios if x["id"] == cell["scenario"])
+        exp = case.expected[sc["id"]]
+        out += [f"### Scenario `{sc['id']}` ({cell['status']})", "", sc.get("summary", ""), "",
+                "Operator steps (SPEC section 5):", "```json", json.dumps(_note_free(sc["steps"]), indent=1), "```",
+                f"First divergence: {cell['reason']}"]  # fmt: skip
+        if cell.get("detail"):
+            out += ["", "```", cell["detail"][-6000:], "```"]
+        m = _WHERE.match(cell["reason"])
+        log = actual.get(cid)
+        if m and log is not None:
+            t = int(m.group(1))
+            exp_task = exp["tasks"][t - 1] if t <= len(exp["tasks"]) else None
+            got_task = log["tasks"][t - 1] if t <= len(log["tasks"]) else None
+            if exp_task is not None:
+                head = {k: exp_task.get(k) for k in ("seq", "transid", "program", "eibaid", "eibcalen", "commarea")}
+                out += ["", f"Task {t} as expected (without its events):", "```json",
+                        json.dumps(_note_free(head), indent=1), "```"]  # fmt: skip
+                if m.group(2):
+                    n = int(m.group(2))
+                    if n <= len(exp_task["events"]):
+                        out += [f"Expected event {n}:", "```json",
+                                json.dumps(_note_free(exp_task["events"][n - 1]), indent=1), "```"]  # fmt: skip
+            if got_task is not None:
+                out += [f"What the port recorded in task {t}:", "```json",
+                        json.dumps(_plain(got_task.get("events", [])), indent=1, default=str), "```"]  # fmt: skip
+        out.append("")
+    return "\n".join(out)
+
+
+def write_proof(report_dir: Path, case: cc.Case, results: dict[str, Any], opts: PortOptions) -> bool:
+    """report.json for `port_runner prove`: per scenario 1/1 or 0/1, the verdicts, and the feedback a next
+    attempt is given. Proven when every java-ported cell of the program's scenarios passes."""
+    cells = {cid: c for cid, c in results["cells"].items() if c["side"] == "java-ported"}
+    proven = bool(cells) and all(c["status"] == "pass" for c in cells.values())
+    ported = sorted(case_overlays(opts.ports if opts.ports is not None else opts.root / case.id))
+    report = {"format": "cics-crucible-proof/1", "case": case.id, "program": opts.program,
+              "crucible_ref": results.get("crucible_ref"), "ports": ported,
+              "overlays": [str(o) for o in opts.overlays], "proven": proven,
+              "outputs": {c["scenario"]: {"equal": int(c["status"] == "pass"), "records": 1} for c in cells.values()},
+              "cells": {cid: {k: c.get(k) for k in ("status", "reason", "kind")} for cid, c in cells.items()},
+              "feedback": proof_feedback(case, cells, opts.actual)}  # fmt: skip
+    report_dir.mkdir(parents=True, exist_ok=True)
+    (report_dir / "report.json").write_text(json.dumps(report, indent=1, default=str) + "\n", encoding="utf-8")
+    return proven
+
+
 # ---- CLI ------------------------------------------------------------------------------------------------
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -1693,6 +1951,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         "--ci", action="store_true", help="fail on a cell the baseline does not list, or a listed one that passes"
     )
     ap.add_argument("--update-baseline", action="store_true", help="write the baseline and the report from this run")
+    ap.add_argument("--ports", type=Path, help="java-ported: a directory of <KEY>/overlay port trees (port_runner's "
+                    "ai_agent_jobs/ports) instead of the committed tests/cics_crucible/ports/<case>")  # fmt: skip
+    ap.add_argument("--overlay", type=Path, action="append", default=[],
+                    help="java-ported: one more overlay tree, laid last (port_runner prove's {port_dir})")  # fmt: skip
+    ap.add_argument("--program", help="java-ported: only the scenarios that run this program (a proof of its port)")
+    ap.add_argument("--report-dir", type=Path, help="write a proof report.json here (port_runner prove's "
+                    "{report_dir}); the exit status is then whether every java-ported cell passes")  # fmt: skip
     args = ap.parse_args(argv)
     crucible = crucible_path(args.crucible).resolve()
     if not (crucible / "SPEC.md").is_file():
@@ -1702,12 +1967,22 @@ def main(argv: Optional[list[str]] = None) -> int:
     if problem:
         print(problem, file=sys.stderr)
         return 2
-    complete = not args.cases and set(args.sides) == set(cc.SIDES)
+    ported = PortOptions(ports=args.ports.resolve() if args.ports else None,
+                         overlays=[o.resolve() for o in args.overlay], program=args.program)  # fmt: skip
+    custom = bool(args.ports or args.overlay or args.program)
+    complete = not args.cases and set(args.sides) == set(cc.SIDES) and not custom
     if args.update_baseline and not complete:
-        print("--update-baseline records every cell: run it without --cases / --sides", file=sys.stderr)
+        print("--update-baseline records every cell with the committed ports: run it without --cases / --sides / "
+              "--ports / --overlay / --program", file=sys.stderr)  # fmt: skip
+        return 2
+    if (custom or args.report_dir) and (not args.cases or len(args.cases) != 1):
+        print(
+            "--ports / --overlay / --program / --report-dir prove one case's ports: give one --cases", file=sys.stderr
+        )
         return 2
     work = args.keep or Path(tempfile.mkdtemp(prefix="cics_crucible_"))
-    results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline)
+    results = measure(crucible, set(args.cases) if args.cases else None, set(args.sides), work.resolve(), args.offline,
+                      ported)  # fmt: skip
     n = Counter(c["status"] for c in results["cells"].values())
     print(f"CICS crucible: {n['pass']} pass, {n['fail']} fail, {n['unsupported']} unsupported "
           f"({len(results['cells'])} cells)")  # fmt: skip
@@ -1715,6 +1990,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         args.out.mkdir(parents=True, exist_ok=True)
         (args.out / "results.json").write_text(json.dumps(results, indent=1) + "\n", encoding="utf-8")
         (args.out / "report.md").write_text(report_md(results), encoding="utf-8")
+    if args.report_dir:
+        case = cc.load_case(cc.discover(crucible, set(args.cases))[0])
+        proven = write_proof(args.report_dir, case, results, ported)
+        print(f"proof: {'PROVEN' if proven else 'not proven'} ({args.report_dir / 'report.json'})")
+        return 0 if proven else 1
     if args.update_baseline:
         write_baseline(results)
         REPORT.write_text(report_md(results), encoding="utf-8")

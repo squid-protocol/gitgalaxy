@@ -146,6 +146,7 @@ public class CicsTask {
     private final CicsTask parent;   // the linking program's level (#4004); null at level 1
     private final int level;
     private final Object linkCommarea;
+    private Integer linkLength;                             // #3989: the LENGTH of the LINK that started this level
     private String program;
     private Programs programs;
     private UnaryOperator<Object> snapshot = o -> o;
@@ -161,6 +162,11 @@ public class CicsTask {
     private boolean terminalRead;
     private TempStorage tempStorage = new TempStorage();
     private String abcode = "    ";
+    private String termid;                                  // #3989: EIBTRMID (the task's root); null without one
+    private String exitLabel;                               // #3989: this level's HANDLE ABEND LABEL
+    private boolean exitActive;
+    private final java.util.ArrayDeque<Object[]> pushedExits = new java.util.ArrayDeque<>();
+    private String unwoundTo;                               // an abend below went to this level's exit
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
      *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
@@ -263,11 +269,13 @@ public class CicsTask {
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
+        callee.linkLength = len;
         for (int hop = 0; callee != null && hop < 32; hop++) {
             programs.run(callee.program, callee);
             if (callee.xctlTarget != null) {
                 callee = new CicsTask(this, level + 1, callee.xctlTarget, callee.xctlCommarea, callee.xctlLength,
                         commarea);
+                callee.linkLength = len;
             } else {
                 if (!callee.ended) {
                     callee.returnTransid(null, null);  // a GOBACK is a RETURN
@@ -298,6 +306,17 @@ public class CicsTask {
 
     public LocalDateTime now() {
         return root().now;
+    }
+
+    /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
+    public CicsTask withTermid(String termid) {
+        this.termid = termid;
+        return this;
+    }
+
+    /** EIBTRMID (#3989): the task's terminal, the same at every LINK / XCTL level; null for a non-terminal task. */
+    public String termid() {
+        return root().termid;
     }
 
     /** The FROM data of the START requests this task was started for, in expiry order (#4006). */
@@ -662,7 +681,7 @@ public class CicsTask {
      *  shows the LINK COMMAREA as that program now sees it. */
     public void returnTransid(String transid, Object commarea, Integer length) {
         if (level > 1) {
-            event("RETURN", "level", level, "caller_commarea", snapshot.apply(linkCommarea));
+            event("RETURN", "level", level, "caller_commarea", snapshot.apply(linkCommarea), "length", linkLength);
         } else {
             event("RETURN", "transid", transid, "commarea", snapshot.apply(commarea), "length",
                     commarea == null ? null : length);
@@ -700,22 +719,106 @@ public class CicsTask {
         return resp;
     }
 
-    /** EXEC CICS ABEND ABCODE(abcode) that no abend exit takes: the task is terminated. */
-    public void abend(String abcode) {
-        abend(abcode, "command", null, null, null);
+    /** HANDLE ABEND LABEL(label) (#3989, IBM EXEC CICS HANDLE ABEND): this program level's abend exit, active
+     *  from now on. An abend at this level or below it (a program it LINKs to) goes to the first active exit
+     *  from the abending level upward; see abend. */
+    public void handleAbend(String label) {
+        exitLabel = label;
+        exitActive = true;
+    }
+
+    /** HANDLE ABEND CANCEL: this level's exit is deactivated. */
+    public void handleAbendCancel() {
+        exitActive = false;
+    }
+
+    /** HANDLE ABEND RESET: the exit cancelled, or taken, is active again. */
+    public void handleAbendReset() {
+        if (exitLabel != null) {
+            exitActive = true;
+        }
+    }
+
+    /** PUSH HANDLE (#3989): saves this level's HANDLE ABEND state and suspends it (the program saves its own
+     *  HANDLE CONDITION / IGNORE CONDITION state, which it ports itself). NORMAL. */
+    public String pushHandle() {
+        pushedExits.push(new Object[] {exitLabel, exitActive});
+        exitLabel = null;
+        exitActive = false;
+        return "NORMAL";
+    }
+
+    /** POP HANDLE: restores the HANDLE ABEND state last pushed; INVREQ when none was. */
+    public String popHandle() {
+        if (pushedExits.isEmpty()) {
+            return "INVREQ";
+        }
+        Object[] saved = pushedExits.pop();
+        exitLabel = (String) saved[0];
+        exitActive = (Boolean) saved[1];
+        return "NORMAL";
+    }
+
+    /** EXEC CICS ABEND ABCODE(abcode) (#3989: with the exit search): CICS looks for an active HANDLE ABEND exit
+     *  from this level upward. Returns the label to go on at when this program's own exit takes the abend (it
+     *  is deactivated as it gets control); null when the program must stop now -- `return` from runTask --
+     *  because an exit of a linking program takes it (that program's link then reports it: abendExit()) or
+     *  none does and the task is terminated. */
+    public String abend(String abcode) {
+        return abend(abcode, "command", null, false);
+    }
+
+    /** EXEC CICS ABEND ABCODE(abcode) CANCEL: no exit is taken, the task is terminated. Returns null. */
+    public String abendCancel(String abcode) {
+        return abend(abcode, "command", null, true);
     }
 
     /** A condition the program neither handled nor ignored (#4003): CICS's default action abends the task
-     *  with the condition's code (abcodeFor) and, with no abend exit to take it, terminates it. */
-    public void abendOnCondition(String condition) {
-        abend(abcodeFor(condition), "condition", condition, null, null);
+     *  with the condition's code (abcodeFor), with the same exit search and result as abend. */
+    public String abendOnCondition(String condition) {
+        return abend(abcodeFor(condition), "condition", condition, false);
     }
 
-    /** An abend that a HANDLE ABEND LABEL exit took (#4003): `label` in `program`, the first active exit
-     *  from the abending level upward; the task goes on there. `cause` is "command" (EXEC CICS ABEND) or
-     *  "condition" (an unhandled `condition`). */
+    /** An abend that a HANDLE ABEND LABEL exit took (#4003), named by the port itself: `label` in `program`;
+     *  the task goes on there. Prefer handleAbend + abend / abendOnCondition, which search the exits. */
     public void abendToExit(String abcode, String cause, String condition, String program, String label) {
-        abend(abcode, cause, condition, program, label);
+        record(abcode, cause, condition, program, label);
+    }
+
+    /** After a LINK returned (#3989): the label of this program's HANDLE ABEND exit when an abend below took
+     *  it -- go on at that label -- else null. Read once: it is cleared. When the LINK returns with neither
+     *  this nor NORMAL completion (ended() is true), the task was terminated or unwound past this level. */
+    public String abendExit() {
+        String label = unwoundTo;
+        unwoundTo = null;
+        return label;
+    }
+
+    private String abend(String code, String cause, String condition, boolean cancel) {
+        CicsTask at = null;
+        for (CicsTask t = this; t != null && !cancel; t = t.parent) {
+            if (t.exitActive) {
+                at = t;
+                break;
+            }
+        }
+        if (at == null) {
+            record(code, cause, condition, null, null);
+            for (CicsTask t = this; t != null; t = t.parent) {
+                t.ended = true;
+            }
+            return null;
+        }
+        at.exitActive = false;  // "the exit is deactivated when it gets control"
+        record(code, cause, condition, at.program, at.exitLabel);
+        if (at == this) {
+            return exitLabel;
+        }
+        for (CicsTask t = this; t != at; t = t.parent) {
+            t.ended = true;  // the levels below the exit are gone
+        }
+        at.unwoundTo = at.exitLabel;
+        return null;
     }
 
     /** ASSIGN ABCODE: the task's current abend code, blanks while there has been none. */
@@ -742,7 +845,7 @@ public class CicsTask {
         };
     }
 
-    private void abend(String code, String cause, String condition, String program, String label) {
+    private void record(String code, String cause, String condition, String program, String label) {
         root().abcode = code;
         Map<String, Object> e = new LinkedHashMap<>();
         e.put("event", "ABEND");

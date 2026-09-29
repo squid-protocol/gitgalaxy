@@ -108,6 +108,45 @@ def build_prompt(project: Path, ticket: dict[str, Any]) -> tuple[str, str]:
     return system, "\n".join(parts) + "\n"
 
 
+def feedback(project: Path, key: str) -> tuple[int | None, str]:
+    """(attempt, prompt section) for `run --feedback`: the latest attempt whose proof failed, with what the proof
+    found -- its report.json's `feedback` (the harness's first divergences), else the tail of its proof log -- and
+    the port itself, so the next attempt fixes that port rather than starting over. (None, "") when no attempt of
+    this ticket has a failed proof."""
+    failed = [e["attempt"] for e in events(project) if e.get("ticket") == key and e.get("event") == "proof-failed"]
+    if not failed:
+        return None, ""
+    attempt = max(failed)
+    attempts = project / PORTS / key / "attempts"
+    report = attempts / f"{attempt:03d}_proof" / "report.json"
+    found = ""
+    if report.is_file():
+        found = str(json.loads(report.read_text(encoding="utf-8")).get("feedback") or "")
+    if not found.strip():
+        found = "```\n" + _read(attempts / f"{attempt:03d}_proof.log")[-6000:] + "\n```"
+    port = next(iter(sorted(attempts.glob(f"{attempt:03d}_*.java"))), None)
+    parts = [
+        "",
+        f"## Your previous attempt ({attempt}) was not proven",
+        "",
+        "The equivalence harness ran it against the expected behaviour. What it found, per scenario that did not"
+        " pass (the first divergence only: later ones may hide behind it):",
+        "",
+        found.strip(),
+    ]
+    if port is not None:
+        parts += ["", f"### Attempt {attempt}'s port", "```java", _read(port), "```"]
+    parts += ["", "Fix the port and answer again with the complete file, as the instructions above say."]
+    return attempt, "\n".join(parts) + "\n"
+
+
+def ticket_hash(project: Path, key: str) -> str:
+    """sha256 of the ticket JSON a port was made from (provenance: which ticket, byte for byte)."""
+    import hashlib
+
+    return hashlib.sha256((project / "ai_agent_jobs" / f"{key}_port_ticket.json").read_bytes()).hexdigest()
+
+
 # ---- the backends --------------------------------------------------------------------
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
     """urllib follows a POST's 301/302/303 and carries every header along -- the API key
@@ -238,6 +277,10 @@ def cmd_run(opts: argparse.Namespace) -> int:
     work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
     work.mkdir(parents=True, exist_ok=True)
     system, user = build_prompt(project, ticket)
+    fed_from = None
+    if opts.feedback:
+        fed_from, section = feedback(project, opts.ticket)
+        user += section
     _, prompt_tokens, counter = count_tokens(f"{system}\n\n{user}")
     print(f"{opts.ticket}: sending {prompt_tokens} prompt tokens (measured with {counter})")
     (work / "prompt.md").write_text(f"{system}\n\n{user}", encoding="utf-8")
@@ -285,7 +328,9 @@ def cmd_run(opts: argparse.Namespace) -> int:
         return 1
     dest = _store(project, ticket, java, attempt)
     log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": opts.backend,
-                        "model": model, "started": started, "port": str(dest.relative_to(project)), "notes": notes})  # fmt: skip
+                        "model": model, "started": started, "port": str(dest.relative_to(project)), "notes": notes,
+                        "ticket_sha256": ticket_hash(project, opts.ticket), "prompt_tokens": prompt_tokens,
+                        "feedback_from": fed_from})  # fmt: skip
     print(f"{opts.ticket}: proposed port {dest.relative_to(project)} (attempt {attempt}); prove it, then review it")
     return 0
 
@@ -414,6 +459,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--command", help="command backend: argv with {prompt_file} / {prompt_dir}")
     r.add_argument("--timeout", type=int, default=3600)
     r.add_argument("--max-tokens", type=int, default=32000)
+    r.add_argument("--feedback", action="store_true",
+                   help="give the backend the latest failed proof of this ticket: what it found and that attempt's port")  # fmt: skip
     s.add_argument("--file", type=Path, required=True)
     s.add_argument("--by", required=True)
     s.add_argument("--note")

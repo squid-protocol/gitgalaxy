@@ -170,6 +170,70 @@ def test_cics_task_abend_carries_its_cause_outcome_and_exit(tmp_path):
 
 
 @needs_javac
+def test_cics_task_searches_the_abend_exits_upward_and_unwinds_the_levels_below(tmp_path):
+    """#3989, IBM HANDLE ABEND: "CICS searches for an active abend exit, starting at the logical level of the
+    application program in which the abend occurred, and proceeding to successively higher levels"; the exit
+    is deactivated when it gets control, the levels below it are gone, PUSH HANDLE suspends it and CANCEL on
+    ABEND takes none. EIBTRMID is the task's terminal at every level."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask.Programs programs = new CicsTask.Programs() {
+            public boolean defined(String p) {
+                return true;
+            }
+
+            public void run(String p, CicsTask task) {
+                if (p.equals("MAIN")) {
+                    task.handleAbend("MAIN-ABEND");
+                    task.link("SUB", new StringBuilder("CA"), 2);
+                    System.out.println("MAIN back: exit=" + task.abendExit() + " ended=" + task.ended()
+                            + " abcode=" + task.abcode());
+                    System.out.println("again: " + task.abendOnCondition("NOTFND") + " " + task.ended());
+                } else if (p.equals("SUB")) {
+                    System.out.println("SUB " + task.termid() + " level=" + task.level());
+                    task.pushHandle();
+                    task.handleAbend("SUB-ABEND");
+                    System.out.println("SUB own: " + task.abend("HCX1") + " " + task.ended());
+                    System.out.println("pop " + task.popHandle() + " " + task.popHandle());
+                    task.link("SUB2");
+                    System.out.println("SUB not here: " + task.ended());
+                } else if (p.equals("SUB2")) {
+                    System.out.println("SUB2 unwinds: " + task.abendOnCondition("QIDERR") + " " + task.ended());
+                }
+            }
+        };
+        CicsTask t = new CicsTask("HC02", "ENTER", null, null).withPrograms(programs).withTermid("T001");
+        t.run("MAIN");
+        CicsTask c = new CicsTask("HC03", "ENTER", null, null);
+        c.handleAbend("X");
+        System.out.println("cancel: " + c.abendCancel("HCX2") + " " + c.ended());
+        for (CicsTask x : java.util.List.of(t, c)) {
+            for (java.util.Map<String, Object> e : x.events()) {
+                if ("ABEND".equals(e.get("event"))) {
+                    Object exit = e.get("exit") instanceof java.util.Map<?, ?> m ? new java.util.TreeMap<>(m) : null;
+                    System.out.println(e.get("issuer") + " " + e.get("abcode") + " " + e.get("outcome") + " " + exit);
+                }
+            }
+        }""",
+    )
+    assert out.splitlines() == [
+        "SUB T001 level=2",
+        "SUB own: SUB-ABEND false",  # its own exit takes it: go on at the label
+        "pop NORMAL INVREQ",
+        "SUB2 unwinds: null true",  # the exit is MAIN's, two levels up: stop now
+        "SUB not here: true",  # SUB's LINK came back with SUB unwound too: it stops
+        "MAIN back: exit=MAIN-ABEND ended=false abcode=AEYH",  # SUB was unwound, not returned to
+        "again: null true",  # MAIN's exit was deactivated when it got control: terminated
+        "cancel: null true",
+        "SUB HCX1 exit {label=SUB-ABEND, program=SUB}",
+        "SUB2 AEYH exit {label=MAIN-ABEND, program=MAIN}",
+        "MAIN AEIM terminated null",
+        "null HCX2 terminated null",
+    ]
+
+
+@needs_javac
 def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
     """#4004, IBM EXEC CICS LINK: the COMMAREA is passed by reference (the callee's writes are the caller's),
     EIBCALEN is the LENGTH given, PGMIDERR RESP2 1 for an undefined program, LENGERR RESP2 11 outside
@@ -223,11 +287,11 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "{commarea=PING, event=LINK, issuer=MAIN, length=100, resp=NORMAL, resp2=null, target=SUB}",
         "{commarea=PING-SUB, event=XCTL, issuer=SUB, length=50, program=SUB2, resp=NORMAL, resp2=null}",
         "{data=T1 X, event=RECEIVE, issuer=SUB2, length=4, resp=NORMAL}",
-        "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, level=2}",
+        "{caller_commarea=PING-SUB-SUB2, event=RETURN, issuer=SUB2, length=100, level=2}",  # #3989: the LINK's LENGTH
         "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=100, resp=PGMIDERR, resp2=1, target=GONE}",
         "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
         "{commarea=null, event=LINK, issuer=MAIN, length=0, resp=NORMAL, resp2=null, target=NOCA}",
-        "{caller_commarea=null, event=RETURN, issuer=NOCA, level=2}",
+        "{caller_commarea=null, event=RETURN, issuer=NOCA, length=0, level=2}",
         "{commarea=null, event=RETURN, issuer=MAIN, length=null, transid=null}",
         "read once per task",
     ]

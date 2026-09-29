@@ -120,16 +120,35 @@ PORTING_RULES = [
     (
         "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
         "!task.hasCommarea(), EIBCALEN is task.eibcalen() (#4009: null = the whole record), DFHCOMMAREA is "
-        "task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, PF1-PF24, PA1-PA3), RECEIVE MAP is "
+        "task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, PF1-PF24, PA1-PA3), EIBTRMID is "
+        "task.termid(), EIBTIME / EIBDATE / ASKTIME are task.now() (the task's dispatch time on the region's "
+        "virtual clock, #3989), RECEIVE MAP is "
         "task.receive(map, mapset, <its screen>.class) (empty = MAPFAIL), SEND MAP is task.sendMap(map, mapset, "
         "screen, subfields, options...) (#4001: the screen holds each <f>O; CicsTask.MapSubfields each <f>A / <f>C "
         "/ <f>H as its EBCDIC byte and <f>L = -1 for the cursor), "
         "SEND TEXT / SEND is task.sendText(from, length, options...), RETURN TRANSID COMMAREA LENGTH is "
-        "task.returnTransid(transid, commarea, length), XCTL is task.xctl, ABEND is task.abend -- in the order "
+        "task.returnTransid(transid, commarea, length), XCTL is task.xctl, LINK is task.link, ABEND is task.abend "
+        "-- in the order "
         "the program does them, and "
         "the task ends at RETURN / XCTL / ABEND. A file READ is the service's generated read method (an empty "
         "result is NOTFND, DFHRESP 13). A screen field shows what the symbolic map's O field would hold: text "
-        "as moved, an edited PICTURE formatted as COBOL formats it."
+        "as moved, an edited PICTURE formatted as COBOL formats it. A COMMAREA is the generated DTO of its "
+        "record; an area no generated DTO describes (a plain PIC X(n) item) is passed as a String of its n "
+        "characters, or a byte[] of its EBCDIC bytes (#3989)."
+    ),
+    (
+        "CICS condition and abend handling (#3989): HANDLE CONDITION, IGNORE CONDITION, HANDLE AID and RESP are "
+        "the program's own control flow -- port each transfer to its label as Java control flow. HANDLE ABEND "
+        "LABEL is task.handleAbend(label) (CANCEL, RESET: handleAbendCancel / handleAbendReset), and PUSH / POP "
+        "HANDLE are task.pushHandle() / popHandle() besides saving and restoring the program's own handler "
+        "state. EXEC CICS ABEND is task.abend(abcode) and a condition that takes CICS's default action is "
+        "task.abendOnCondition(condition): CicsTask searches the active abend exits from this program's level "
+        "upward, as CICS does, records the ABEND, and returns the label to continue at when this program's own "
+        "exit took it -- or null, and the program must then return from runTask at once. After task.link(...) "
+        "returns, task.abendExit() is the label of this program's exit when an abend in a program below reached "
+        "it (continue there), and task.ended() is true when the task was terminated (stop). Never throw an "
+        "exception to model a CICS transfer: the services are @Transactional, so an exception out of one marks "
+        "the whole task rollback-only."
     ),
     (
         "Dates and times only through java.time -- LocalDate, LocalDateTime, LocalTime and DateTimeFormatter "
@@ -141,8 +160,8 @@ PORTING_RULES = [
     ),
     (
         "Read the time only from the generated batch runtime's MainframeClock (now() for local, currentDate() for "
-        "FUNCTION CURRENT-DATE), never from the system clock directly or ZoneId.systemDefault(): it is how a run is "
-        "pinned to be compared with the original."
+        "FUNCTION CURRENT-DATE) -- in a CICS task, from task.now() -- never from the system clock directly or "
+        "ZoneId.systemDefault(): it is how a run is pinned to be compared with the original."
     ),
     (
         "A DB2 DATE / TIME / TIMESTAMP fetched into, or bound from, a character host variable (a DCLGEN DATE is "

@@ -43,7 +43,9 @@ from typing import Any, Optional
 CASE_FORMAT = "cics-crucible/case/1"
 EXPECTED_FORMAT = "cics-crucible/expected/1"
 EBCDIC = "cp037"  # SPEC section 2: every byte in every area is CCSID 037
-SIDES = ("engine-facts", "forge-compile", "cobol-stub", "java")
+# `java` runs the services as generated (the unported skeletons); `java-ported` lays each case's committed
+# ports (tests/cics_crucible/ports/<case>/<PROGRAM>/, the porting loop's proven overlays) over them first.
+SIDES = ("engine-facts", "forge-compile", "cobol-stub", "java", "java-ported")
 CASE_SIDES = ("engine-facts", "forge-compile")  # one cell per case, scenario "*"
 TASK_KEYS = ("transid", "program", "termid", "at", "trigger", "eibaid", "eibcalen", "commarea")
 
@@ -187,6 +189,10 @@ class FieldArea:
 
     fields: dict[str, Any]
     length: Any = FULL
+    # #3989: the record's EBCDIC bytes, encoded from the fields by the DTO's layout -- how a log's text / hex
+    # area is compared with a DTO (a one-byte `WS-CA PIC X` COMMAREA). None when a field cannot be encoded.
+    data: Optional[bytes] = None
+    known: int = 0  # how many leading bytes of `data` are known (a null field's are not)
 
 
 _BINARY = ("COMP", "COMP-3", "COMP-4", "COMP-5", "BINARY", "PACKED-DECIMAL", "COMPUTATIONAL", "COMPUTATIONAL-3",
@@ -337,9 +343,11 @@ class Verdict:
     reason: str = ""
     features: list[str] = field(default_factory=list)  # every blocker (unsupported), for the report
     kind: str = ""  # a short, groupable category of the reason (the report's "top failure reasons")
+    detail: str = ""  # more than the reason's one line, when there is more (a port's compile errors)
 
     def as_dict(self) -> dict[str, Any]:
-        return {"status": self.status, "reason": self.reason, "features": self.features, "kind": self.kind}
+        d = {"status": self.status, "reason": self.reason, "features": self.features, "kind": self.kind}
+        return {**d, "detail": self.detail} if self.detail else d
 
 
 class _Decided(Exception):
@@ -439,6 +447,17 @@ class _Walk:
 
     def field_area(self, where: str, key: str, exp: dict[str, Any], act: FieldArea,
                    layout: Optional[list[dict[str, Any]]]) -> None:  # fmt: skip
+        if act.data is not None and not isinstance(act.length, Unmodelled):
+            # #3989: an area is bytes. A DTO whose record bytes are known is compared as them, through the log's
+            # layout or text / hex -- a callee's DTO may name the bytes of a caller's area differently
+            # (CA-EXT-FLAG where the caller has WS-AFTER-FLAG), and only the offsets say which is which.
+            n = len(act.data) if act.length == FULL else act.length
+            if n <= act.known:
+                self.area(where, key, exp, RawArea(act.data[:n], EBCDIC))
+                return
+            if layout is None:  # #4009: a LENGTH past the record's end, or over a null field: unknown bytes
+                self.later(f"{self.caps.layer}: {key} bytes past what its DTO holds")
+                return
         if layout is None:
             self.later(f"{self.caps.layer}: {key} as bytes (the log gives it as text / hex)")
             return

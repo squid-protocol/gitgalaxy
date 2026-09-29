@@ -589,13 +589,19 @@ def test_the_fixture_runs_through_every_side(tmp_path):
     """The COBOL passes on the stub (terminal steps chained by RETURN TRANSID COMMAREA, an XCTL run in
     the same task, areas compared field by field); the generated Java compiles and runs, and fails at
     its first event because the generated runTask is the stub that records nothing."""
-    res = runner.measure(FIXTURE_ROOT, None, set(cc.SIDES), tmp_path, offline=os.environ.get("MAVEN_OFFLINE") == "1")
+    ports = runner.PortOptions(root=FIXTURE_ROOT / "ports")  # the fixture's own scaffolding ports, not the crucible's
+    res = runner.measure(FIXTURE_ROOT, None, set(cc.SIDES), tmp_path, offline=os.environ.get("MAVEN_OFFLINE") == "1",
+                         ports=ports)  # fmt: skip
     got = {cid: c["status"] for cid, c in res["cells"].items()}
     assert got == {"fx-text-chain/*/engine-facts": "pass", "fx-text-chain/*/forge-compile": "pass",
                    "fx-text-chain/three-visits/cobol-stub": "pass", "fx-text-chain/three-visits/java": "fail",
+                   # #3989: the ports laid over the generated services (RETURN LENGTH, an XCTL to a second port)
+                   "fx-text-chain/three-visits/java-ported": "pass",
                    # #4005 / #4002: terminal RECEIVE, TS seeding, READQ LENGERR / QIDERR, the final queue
                    "fx-ts-queue/*/engine-facts": "pass", "fx-ts-queue/*/forge-compile": "pass",
-                   "fx-ts-queue/seeded/cobol-stub": "pass", "fx-ts-queue/seeded/java": "fail"}  # fmt: skip
+                   "fx-ts-queue/seeded/cobol-stub": "pass", "fx-ts-queue/seeded/java": "fail",
+                   "fx-ts-queue/seeded/java-ported": "fail"}  # fmt: skip
+    assert res["cells"]["fx-ts-queue/seeded/java-ported"]["kind"] == "not ported"
     java = res["cells"]["fx-text-chain/three-visits/java"]
     assert java["reason"] == "task 1 (FX01) event 1: SEND-TEXT expected, the side recorded no further event"
     assert java["kind"].startswith("runTask records no events")
@@ -785,3 +791,122 @@ def test_a_cicstask_send_map_is_resolved_like_the_stubs():
     assert cursor == "AMT"
     fields, cursor = runner.java_send_map(_screen(), {**e, "screen": None, "options": ["MAPONLY"]})
     assert fields["AMT"]["data_from"] == "map" and cursor == "NAME"
+
+
+# ---- #3989: ports (the porting loop's overlays) and proofs ----------------------------------------------
+_DTO = """package com.gitgalaxy.modernized.dto.contract;
+
+public class Ca {
+
+    // CA-FLAG: PIC X, offset 0, 1 bytes (src/P.cbl)
+    private String caFlag;
+
+    // CA-COUNT: PIC S9(4) COMP, offset 1, 2 bytes (copy/C.cpy)
+    private Integer caCount;
+
+    // CA-AMT: PIC S9(3)V99 COMP-3, offset 3, 3 bytes (copy/C.cpy)
+    private java.math.BigDecimal caAmt;
+
+    // CA-VISITS: PIC 9(2), offset 6, 2 bytes (copy/C.cpy)
+    private Integer caVisits;
+}
+"""
+
+
+def test_a_dto_is_encoded_as_its_records_ebcdic_bytes(tmp_path):
+    """A log may give a COMMAREA as text or hex; the Java side's DTO is then compared as the bytes its layout
+    (the generated field comments) says the record holds: text blank-padded, COMP, COMP-3, zoned."""
+    src = tmp_path / "src"
+    (src / "com/gitgalaxy/modernized/dto/contract").mkdir(parents=True)
+    (src / "com/gitgalaxy/modernized/dto/contract/Ca.java").write_text(_DTO)
+    layout = runner.dto_layout(src, "com.gitgalaxy.modernized.dto.contract.Ca")
+    assert [(f["name"], f["pic"], f["usage"], f["offset"], f["bytes"]) for f in layout] == [
+        ("CA-FLAG", "X", None, 0, 1), ("CA-COUNT", "S9(4)", "COMP", 1, 2), ("CA-AMT", "S9(3)V99", "COMP-3", 3, 3),
+        ("CA-VISITS", "9(2)", None, 6, 2)]  # fmt: skip
+    values = {"CA-FLAG": "S", "CA-COUNT": -2, "CA-AMT": "12.5", "CA-VISITS": 7}
+    assert runner.dto_bytes(values, layout) == (b"\xe2\xff\xfe\x01\x25\x0c\xf0\xf7", 8)
+    # a null field: its bytes are unknown, so only the ones before it are known
+    assert runner.dto_bytes({**values, "CA-AMT": None}, layout)[1] == 3
+    assert runner.dto_bytes(values, None) == (None, 0)
+    assert runner.dto_bytes({**values, "CA-COUNT": "x"}, layout) == (None, 0)
+
+
+def test_a_dto_area_compares_with_a_text_or_hex_area_by_its_bytes():
+    ctx = cc.Context()
+    exp = {"tasks": [{"seq": 1, "transid": "HX01", "program": "P", "termid": "T001", "at": "x", "trigger": {"kind": "terminal", "step": 0},
+                      "eibaid": "ENTER", "eibcalen": 0, "commarea": None, "end": "normal",
+                      "events": [{"event": "RETURN", "program": "P", "level": 1, "transid": "HX01",
+                                  "commarea": {"length": 1, "text": "S"}}]}]}  # fmt: skip
+
+    def verdict(area):
+        act = copy.deepcopy(exp)
+        act["tasks"][0]["events"][0]["commarea"] = area
+        return cc.compare(exp, act, runner.JAVA_CAPS, ctx)
+
+    assert verdict(cc.FieldArea({"WS-CA": "S"}, 1, b"\xe2", 1)).status == "pass"
+    assert verdict(cc.FieldArea({"WS-CA": "S"}, cc.FULL, b"\xe2", 1)).status == "pass"
+    bad = verdict(cc.FieldArea({"WS-CA": "X"}, 1, b"\xe7", 1))
+    assert (bad.status, bad.reason) == ("fail", "task 1 (HX01) event 1: commarea byte 0: 'S' expected, got 'X'")
+    assert verdict(cc.FieldArea({"WS-CA": "S"}, 3, b"\xe2", 1)).status == "unsupported"  # past the DTO's record
+    assert verdict(cc.FieldArea({"WS-CA": "S", "B": None}, 1, b"\xe2\x40", 1)).status == "pass"  # before the null
+    assert verdict(cc.FieldArea({"WS-CA": "S", "B": None}, 2, b"\xe2\x40", 1)).status == "unsupported"
+    assert verdict(cc.FieldArea({"WS-CA": None}, 1, None)).status == "unsupported"
+    # a COMMAREA no DTO describes, passed as a String or byte[]: its bytes
+    assert verdict(runner._raw_area({"class": "java.lang.String", "value": "S  "}, 1)).status == "pass"
+    assert verdict(runner._raw_area({"class": "[B", "value": "4g=="}, None)).status == "pass"  # X'E2'
+    assert runner._raw_area({"class": "java.util.Map", "value": {}}, 1) is None
+
+
+def test_overlays_are_laid_over_the_generated_package(tmp_path):
+    ports = tmp_path / "ports"
+    for key in ("PA", "PB"):
+        f = ports / key / "overlay" / "service" / f"{key.title()}Service.java"
+        f.parent.mkdir(parents=True)
+        f.write_text(f"// {key}\n")
+    (ports / "stray").mkdir()
+    assert list(runner.case_overlays(ports)) == ["PA", "PB"]
+    assert runner.case_overlays(tmp_path / "none") == {}
+    project = tmp_path / "project"
+    laid = runner.lay_overlay(ports / "PA" / "overlay", project)
+    assert laid == ["src/main/java/com/gitgalaxy/modernized/service/PaService.java"]
+    assert (project / laid[0]).read_text() == "// PA\n"
+
+
+def test_a_case_with_no_port_fails_its_ported_cells_without_building(tmp_path):
+    cells = {}
+
+    def put(scenario, side, v):
+        cells[(scenario, side)] = v
+
+    opts = runner.PortOptions(root=tmp_path)
+    runner.measure_ported(_case(), tmp_path / "w", True, opts, put)
+    assert {k: (v.status, v.kind) for k, v in cells.items()} == {
+        ("three-visits", "java-ported"): ("fail", "not ported")
+    }
+    cells.clear()
+    runner.measure_ported(_case(), tmp_path / "w", True, runner.PortOptions(root=tmp_path, program="NOPE"), put)
+    assert cells == {}  # no scenario runs that program
+    assert not (tmp_path / "w").exists()
+
+
+def test_a_proof_reports_per_scenario_and_feeds_back_the_first_divergence(tmp_path):
+    case = _case()
+    cid = "fx-text-chain/three-visits/java-ported"
+    reason = "task 3 (FX01) event 2: XCTL expected, got RETURN"
+    results = {"crucible_ref": "v0", "cells": {cid: {"case": case.id, "trap": case.trap, "scenario": "three-visits",
+                                                     "side": "java-ported", "status": "fail", "reason": reason,
+                                                     "features": [], "kind": "XCTL expected, other event"}}}  # fmt: skip
+    got = [{"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 003", "length": 20, "options": ["ERASE"]},
+           {"event": "RETURN", "program": "FXCHAIN", "level": 1, "transid": "FX01",
+            "commarea": cc.FieldArea({"WS-COUNT": 3, "WS-NAME": "FIRST"}, 11)}]  # fmt: skip
+    opts = runner.PortOptions(ports=tmp_path / "ports", program="FXCHAIN")
+    opts.actual[cid] = {"tasks": [{"events": []}, {"events": []}, {"events": got}]}
+    assert runner.write_proof(tmp_path / "proof", case, results, opts) is False
+    report = json.loads((tmp_path / "proof" / "report.json").read_text())
+    assert report["outputs"] == {"three-visits": {"equal": 0, "records": 1}} and report["proven"] is False
+    fb = report["feedback"]
+    assert f"First divergence: {reason}" in fb and '"aid": "PF3"' in fb  # the scenario's operator steps
+    assert '"event": "XCTL"' in fb and '"target": "FXLAST"' in fb  # the expected event at the divergence
+    assert '"WS-COUNT": 3' in fb  # what the port recorded in that task
+    results["cells"][cid].update(status="pass", reason="")
+    assert runner.write_proof(tmp_path / "proof", case, results, opts) is True

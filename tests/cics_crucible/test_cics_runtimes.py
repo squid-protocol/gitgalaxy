@@ -227,7 +227,7 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "{commarea=PING-SUB-SUB2, event=LINK, issuer=MAIN, length=40000, resp=LENGERR, resp2=11, target=SUB}",
         "{commarea=null, event=LINK, issuer=MAIN, length=0, resp=NORMAL, resp2=null, target=NOCA}",
         "{caller_commarea=null, event=RETURN, issuer=NOCA, level=2}",
-        "{commarea=null, event=RETURN, issuer=MAIN, transid=null}",
+        "{commarea=null, event=RETURN, issuer=MAIN, length=null, transid=null}",
         "read once per task",
     ]
 

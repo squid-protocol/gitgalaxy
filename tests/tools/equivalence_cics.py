@@ -154,6 +154,22 @@ def _resp(opts: dict[str, str | None], can_fail: bool, labels: list[str] | None 
     return lines
 
 
+# #4007: the keys HANDLE AID names (IBM, EXEC CICS HANDLE AID).
+AID_KEYS = frozenset(["ANYKEY", "ENTER", "CLEAR", "CLRPARTN", "LIGHTPEN", "OPERID", "TRIGGER", "PA1", "PA2", "PA3"]
+                     + [f"PF{n}" for n in range(1, 25)])  # fmt: skip
+
+
+def _aid(opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4007: after an input command (RECEIVE MAP, terminal RECEIVE) that completed normally, HANDLE AID's
+    label for the key pressed -- unless RESP or NOHANDLE suspends the handlers (IBM, RESP: "RESP implies
+    NOHANDLE"). A condition the command raised is handled first (_resp); which one wins when both apply is
+    not documented, and the crucible never has both."""
+    if opts.get("RESP") or "NOHANDLE" in opts:
+        return []
+    return (["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS"]
+            + [f"    {ln}" for ln in _transfer(labels)] + ["END-IF"])  # fmt: skip
+
+
 # #4003: the commands whose options name the labels a program's handlers transfer to.
 _HANDLE_KINDS = ("CONDITION", "ABEND", "AID")
 
@@ -189,6 +205,14 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
         if other or not asked or not opts.get("ABCODE"):
             raise Unsupported(f"ASSIGN {' '.join(other) or 'without ABCODE'}", [f"ASSIGN {n}" for n in other or ["?"]])
         return _call("GGCASGN", []) + [f"MOVE GG-NAME1(1:4) TO {opts['ABCODE']}"] + _resp(opts, False)
+    if verb == "HANDLE" and kind == "AID":  # #4007
+        lines = []
+        for key, label in pairs[2:]:
+            if key not in AID_KEYS:
+                raise Unsupported(f"HANDLE AID {key}: not an attention key", ["HANDLE AID"])
+            index = labels.index(label.upper()) + 1 if label else 0
+            lines += [f"MOVE '{key}' TO GG-NAME1", f"MOVE {index} TO GG-ITEM"] + _call("GGCHAID", [])
+        return lines
     if kind == "ABEND":
         if "PROGRAM" in opts:
             raise Unsupported("HANDLE ABEND PROGRAM", ["HANDLE ABEND PROGRAM"])
@@ -283,10 +307,10 @@ def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str])
     return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
 
 
-def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
+def translate_command(body: str, labels: list[str] | None = None, handle_aid: bool = False) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
-    command's own."""
+    command's own. `handle_aid`: the program issues HANDLE AID, so its input commands consult it (#4007)."""
     pairs = _options(body)
     if not pairs:
         raise Unsupported("empty EXEC CICS")
@@ -316,7 +340,7 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
             raise Unsupported("RECEIVE MAP(data-name) without INTO")
         return ([name(opts["MAP"], "GG-NAME1"), name(opts.get("MAPSET") or opts["MAP"], "GG-NAME2")]
                 + _call("GGCRECV", [f"BY REFERENCE {into}", f"BY VALUE LENGTH OF {into}"])
-                + _resp(opts, True, labels))  # fmt: skip
+                + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else []))  # fmt: skip
     if verb == "RECEIVE":  # #4005: terminal input, unformatted (SPEC 5: the step's `text`)
         for bad in ("SET", "NOTRUNCATE", "BUFFER", "PARTN", "SESSION", "CONVID", "LDC"):
             if bad in opts:
@@ -331,7 +355,7 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
         lines = [f"MOVE {limit} TO GG-LEN"] + _call("GGCRECT", [f"BY REFERENCE {into}"])
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
-        return lines + _resp(opts, True, labels)
+        return lines + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else [])
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
         return _ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
@@ -393,7 +417,7 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
         return ([name(opts.get("ABCODE"), "GG-NAME1"), "MOVE 'CANCEL' TO GG-FLAGS" if "CANCEL" in opts else "MOVE SPACES TO GG-FLAGS"]
                 + _call("GGCABND", []) + _transfer(labels) + ["GOBACK"])  # fmt: skip
     if (
-        (verb in ("HANDLE", "IGNORE") and len(pairs) > 1 and pairs[1][0] in ("CONDITION", "ABEND"))
+        (verb in ("HANDLE", "IGNORE") and len(pairs) > 1 and pairs[1][0] in ("CONDITION", "ABEND", "AID"))
         or (verb in ("PUSH", "POP") and len(pairs) > 1 and pairs[1][0] == "HANDLE")
         or verb == "ASSIGN"
     ):
@@ -435,6 +459,7 @@ def translate(source: str) -> tuple[str, bool]:
     lines = source.splitlines()
     blocks = list(_exec_blocks(lines))
     labels = handler_labels([b[3] for b in blocks])  # #4003: what GG-GOTO indexes, program-wide
+    handle_aid = any(re.match(r"\s*HANDLE\s+AID\b", b[3], re.I) for b in blocks)  # #4007
     out: list[str] = []
     problems: list[str] = []
     features: list[str] = []
@@ -446,7 +471,7 @@ def translate(source: str) -> tuple[str, bool]:
         if prefix.strip():
             out.append(line[:7] + prefix.rstrip())
         try:
-            stmts = translate_command(body, labels)
+            stmts = translate_command(body, labels, handle_aid)
         except Unsupported as e:
             problems.append(f"line {i + 1}: EXEC CICS {e}")
             features += [f for f in e.features if f not in features]

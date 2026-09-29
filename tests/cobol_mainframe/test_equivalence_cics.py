@@ -113,6 +113,26 @@ def test_the_task_driver_and_dispatcher_are_generated_for_the_cases_programs():
     assert all(len(ln) <= 72 for ln in (run + drv).splitlines())
 
 
+def test_handle_aid_labels_are_taken_after_an_input_command():
+    """#4007: HANDLE AID registers each key's label; RECEIVE MAP / RECEIVE then GO TO the pressed key's label
+    (GGCAID) when they completed normally, unless RESP or NOHANDLE suspends the handlers."""
+    labels = ["MENU-EXIT", "MENU-REFRESH"]
+    assert ec.translate_command("HANDLE AID PF3(MENU-EXIT) PF5(MENU-REFRESH) PF9", labels) == [
+        "MOVE 'PF3' TO GG-NAME1", "MOVE 1 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS",
+        "MOVE 'PF5' TO GG-NAME1", "MOVE 2 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS",
+        "MOVE 'PF9' TO GG-NAME1", "MOVE 0 TO GG-ITEM", "CALL 'GGCHAID' USING GG-CICS"]  # fmt: skip
+    recv = ec.translate_command("RECEIVE MAP('PCMN') MAPSET('PCSET2') INTO(PCMNI)", labels, handle_aid=True)
+    assert recv[-8:] == ["IF GG-RESP = 0", "    MOVE EIBAID TO GG-NAME1", "    CALL 'GGCAID' USING GG-CICS",
+                         "    GO TO", "        MENU-EXIT", "        MENU-REFRESH", "        DEPENDING ON GG-GOTO",
+                         "END-IF"]  # fmt: skip
+    assert "    CALL 'GGCAID' USING GG-CICS" in ec.translate_command("RECEIVE INTO(X) LENGTH(L)", labels, True)
+    assert "    CALL 'GGCAID' USING GG-CICS" not in ec.translate_command("RECEIVE MAP('M') INTO(X)", labels)
+    for body in ("RECEIVE MAP('M') INTO(X) RESP(R)", "RECEIVE MAP('M') INTO(X) NOHANDLE"):
+        assert "    CALL 'GGCAID' USING GG-CICS" not in ec.translate_command(body, labels, handle_aid=True)
+    with pytest.raises(ec.Unsupported):
+        ec.translate_command("HANDLE AID PF99(X)", ["X"])
+
+
 def test_a_program_names_itself_to_the_stub_as_it_starts():
     text, _ = ec.translate(PROGRAM)
     lines = text.splitlines()

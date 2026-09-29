@@ -583,3 +583,56 @@ def test_the_stub_xctl_fails_in_place_and_copies_length_bytes(tmp_path):
                       "003 XCTL pgm= program=CAXB len=80 area=1 resp=0 resp2=0"]  # fmt: skip
     assert (tmp_path / "out" / "003.bin").read_bytes()[:14] == b"1C00420007GOLD"
     assert len((tmp_path / "out" / "003.bin").read_bytes()) == 80
+
+
+# ---- #4007: HANDLE AID ------------------------------------------------------------------------------------
+_AID_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCHAID(gg_cics *c); int GGCAID(gg_cics *c); int GGCPUSH(gg_cics *c); int GGCPOP(gg_cics *c);
+static gg_cics c;
+static void handle(const char *key, int label) {
+    memset(c.name1, ' ', 8); memcpy(c.name1, key, strlen(key)); c.item = label; GGCHAID(&c);
+}
+static void press(char aid) { memset(c.name1, ' ', 8); c.name1[0] = aid; GGCAID(&c); printf("%d ", c.go_to); }
+int main(void) {
+    memset(&c, 0, sizeof c);
+    press('5');                                   /* no HANDLE AID: 0 */
+    handle("PF5", 1); handle("PF3", 2);
+    press('5'); press('3'); press('9'); press('\'');  /* PF5, PF3, PF9 (no label), ENTER */
+    handle("ANYKEY", 3);
+    press('9'); press('_'); press('\''); press('%');  /* ANYKEY: PF9, CLEAR, not ENTER, PA1 */
+    handle("PF5", 0); press('5');                 /* no label: deactivated, ANYKEY takes it */
+    GGCPUSH(&c); press('3'); GGCPOP(&c); press('3');  /* PUSH suspends HANDLE AID; POP restores it */
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_handle_aid_gives_each_key_its_label(tmp_path):
+    """IBM, HANDLE AID: control goes to the key's label after the input command; a key without a label is
+    left to the program; ANYKEY is any PA or PF key or CLEAR, not ENTER; an option without a label
+    deactivates it; PUSH HANDLE suspends it."""
+    exe = _stub(tmp_path, _AID_MAIN)
+    assert [ln.strip() for ln in _run_stub(exe, tmp_path)] == ["0 1 2 0 0 3 3 0 3 3 0 2"]
+
+
+def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
+    """GGCAID reads EIBAID as the harness's DFHAID.cpy spells each key (the driver sets EIBAID from it)."""
+    cpy = (STUB.parent / "DFHAID.cpy").read_text()
+    names = {"ENTER": "DFHENTER", "CLEAR": "DFHCLEAR", "CLRPARTN": "DFHCLRP", "LIGHTPEN": "DFHPEN", "OPERID": "DFHOPID",
+             "TRIGGER": "DFHTRIG"} | {k: f"DFH{k}" for k in [f"PA{n}" for n in (1, 2, 3)] + [f"PF{n}" for n in range(1, 25)]}  # fmt: skip
+    values = {}
+    for m in re.finditer(r"02 (DFH\w+)\s+PIC X VALUE (X'([0-9A-F]{2})'|'(''|[^'])')\.", cpy):
+        values[m.group(1)] = chr(int(m.group(3), 16)) if m.group(3) else ("'" if m.group(4) == "''" else m.group(4))
+    src = STUB.read_text()
+    for key, dfh in names.items():
+        m = re.search(r'\{"' + key + r'", (\'\\\'\'|\'.\'|0x[0-9A-F]+)\}', src)
+        assert m, key
+        raw = m.group(1)
+        got = "'" if raw == "'\\''" else (chr(int(raw, 16)) if raw.startswith("0x") else raw[1])
+        assert got == values[dfh], (key, got, values[dfh])

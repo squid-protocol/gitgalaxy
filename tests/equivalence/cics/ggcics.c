@@ -390,6 +390,7 @@ enum { ERRCOND = 1 };
 
 typedef struct {
     short cond[NCOND]; /* >0 label index, -1 IGNORE, 0 default */
+    short aid[40];     /* HANDLE AID (#4007): per key (aid_keys), its label index, 0 none */
     int exit_label;    /* HANDLE ABEND LABEL index, 0 none */
     int exit_active;   /* deactivated when it gets control (IBM, abend recovery) */
     char exit_name[31];
@@ -492,6 +493,50 @@ int GGCPOP(gg_cics *c) {
     if (L->npushed == 0) { c->resp = INVREQ; return 0; }
     L->h = L->pushed[--L->npushed];
     c->resp = NORMAL;
+    return 0;
+}
+
+/* ---- HANDLE AID (#4007) ---------------------------------------------------------------- *
+ * The keys HANDLE AID names, and the EIBAID byte each one sends (the harness's DFHAID.cpy:
+ * tests/equivalence/cics, kept equal by a test). ANYKEY is any PA or PF key or CLEAR, not
+ * ENTER (IBM, HANDLE AID). */
+static const struct { const char *name; char eibaid; } aid_keys[] = {
+    {"ANYKEY", 0}, {"ENTER", '\''}, {"CLEAR", '_'}, {"CLRPARTN", 0x6A}, {"LIGHTPEN", '='}, {"OPERID", 'W'},
+    {"TRIGGER", '"'}, {"PA1", '%'}, {"PA2", '>'}, {"PA3", ','}, {"PF1", '1'}, {"PF2", '2'}, {"PF3", '3'},
+    {"PF4", '4'}, {"PF5", '5'}, {"PF6", '6'}, {"PF7", '7'}, {"PF8", '8'}, {"PF9", '9'}, {"PF10", ':'},
+    {"PF11", '#'}, {"PF12", '@'}, {"PF13", 'A'}, {"PF14", 'B'}, {"PF15", 'C'}, {"PF16", 'D'}, {"PF17", 'E'},
+    {"PF18", 'F'}, {"PF19", 'G'}, {"PF20", 'H'}, {"PF21", 'I'}, {"PF22", '['}, {"PF23", '.'}, {"PF24", '<'},
+};
+#define NAIDS ((int)(sizeof aid_keys / sizeof aid_keys[0]))
+
+/* HANDLE AID <key>(label): the key (GG-NAME1) gets label GG-ITEM; 0 deactivates it ("To ignore
+ * an AID, issue a HANDLE AID command that specifies the associated option without a label"). */
+int GGCHAID(gg_cics *c) {
+    char key[9];
+    trim(c->name1, 8, key);
+    for (int i = 0; i < NAIDS; i++) {
+        if (strcmp(aid_keys[i].name, key) == 0) levels[lvl].h.aid[i] = (short)c->item;
+    }
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    return 0;
+}
+
+/* After an input command that completed normally, with neither RESP nor NOHANDLE: the label of
+ * the key that was pressed (the EIBAID byte in GG-NAME1), else ANYKEY's for a PA / PF key or CLEAR,
+ * else 0 -- "control returns to the application program at the instruction immediately following
+ * the input command" (IBM, HANDLE AID). */
+int GGCAID(gg_cics *c) {
+    handlers *h = &levels[lvl].h;
+    char aid = c->name1[0];
+    c->go_to = 0;
+    for (int i = 1; i < NAIDS; i++) {
+        if (aid_keys[i].eibaid != aid) continue;
+        if (h->aid[i] > 0) c->go_to = h->aid[i];
+        else if (h->aid[0] > 0 && (aid_keys[i].name[0] == 'P' || strcmp(aid_keys[i].name, "CLEAR") == 0))
+            c->go_to = h->aid[0];
+        break;
+    }
     return 0;
 }
 

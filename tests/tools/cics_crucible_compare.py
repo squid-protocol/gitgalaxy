@@ -27,7 +27,8 @@ area's known length (trailing blanks optional, embedded ones not); hex is exact 
 field is compared as a number. Areas are compared on their bytes: a side that holds real bytes
 hands them over as a `RawArea` in its runtime's code page, transcoded here field by field
 (DISPLAY fields through the page, COMP / COMP-3 bytes as they are); the Java side hands over
-field values (`FieldArea`), which a DTO holds without a length.
+field values (`FieldArea`) with the length CicsTask recorded beside the DTO (#4009), or FULL when
+the program passed it without a LENGTH: then it is its layout's whole record.
 """
 
 from __future__ import annotations
@@ -455,11 +456,19 @@ class _Walk:
         size = max((f["offset"] + f["bytes"] for f in layout), default=0)
         if isinstance(act.length, Unmodelled):
             self.later(f"{self.caps.layer}: {act.length.feature}")
-        elif act.length == FULL:
+        elif act.length == FULL:  # #4009: passed without a LENGTH, so its record's; a shorter one is stated
             if exp["length"] != size:
-                self.later(f"{self.caps.layer}: {key} shorter than its record (a DTO has no EIBCALEN)")
+                self.fail(where, f"{key} length {exp['length']} expected, got its whole record ({size} bytes, "
+                          "no LENGTH given)", f"{key} length differs")  # fmt: skip
         elif act.length != exp["length"]:
             self.fail(where, f"{key} length {exp['length']} expected, got {act.length}", f"{key} length differs")
+
+    def record_bytes(self, exp: Optional[dict[str, Any]]) -> Any:
+        """#4009: the length of a COMMAREA a side passed as its whole record (FULL): its layout's."""
+        layout = self.ctx.layouts.get(exp["layout"]) if exp and "layout" in exp else None
+        if layout is None:
+            return Unmodelled("task eibcalen of a whole record with no layout")
+        return max((f["offset"] + f["bytes"] for f in layout), default=0)
 
     # -- events
     def fields(self, where: str, exp_ev: dict[str, Any], act: Any, keys: frozenset[str]) -> None:
@@ -534,6 +543,8 @@ class _Walk:
                 self.later(feature_name(self.caps.layer, None, key))
             elif key == "commarea":
                 self.area(where, key, exp[key], act.get(key))
+            elif key == "eibcalen" and act.get(key) == FULL:
+                self.value(where, key, exp[key], self.record_bytes(exp.get("commarea")))
             else:
                 self.value(where, key, exp[key], act.get(key))
         if self.pending:

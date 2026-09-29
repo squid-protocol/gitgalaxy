@@ -198,6 +198,11 @@ def test_task_keys_are_compared():
     act = _actual_from_expected(exp)
     act["tasks"][1]["eibcalen"] = 10
     assert cc.compare(exp, act, ALL, _ctx()).reason == "task 2 (FX01): eibcalen 11 expected, got 10"
+    # #4009: a COMMAREA passed as its whole record has its layout's length (STATE: 11 bytes)
+    act["tasks"][1]["eibcalen"] = cc.FULL
+    assert cc.compare(exp, act, ALL, _ctx()).status == "pass"
+    exp["tasks"][1]["eibcalen"] = 3
+    assert cc.compare(exp, act, ALL, _ctx()).reason == "task 2 (FX01): eibcalen 3 expected, got 11"
 
 
 def test_an_event_the_side_cannot_record_is_unsupported_unless_something_diverged_first():
@@ -280,7 +285,7 @@ def test_areas_compare_by_layout_hex_and_number():
         w.area("here", "data", {"length": 4, "hex": "C1C2C3C4"}, cc.RawArea("AXCD".encode(E), E))
 
 
-def test_a_dto_area_holds_the_whole_record_and_no_length():
+def test_a_dto_area_is_its_whole_record_unless_a_length_is_given():
     lay = _ctx().layouts
     w = cc._Walk(ALL, cc.Context(layouts=lay))
     full = {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "3", "WS-NAME": "FIRST"}}
@@ -289,8 +294,13 @@ def test_a_dto_area_holds_the_whole_record_and_no_length():
     with pytest.raises(cc._Decided, match="WS-NAME 'FIRST' expected, got 'LAST'"):
         w.area("here", "commarea", full, cc.FieldArea({"WS-COUNT": 3, "WS-NAME": "LAST"}))
     short = {"length": 3, "layout": "STATE", "fields": {"WS-COUNT": "3"}}
-    w.area("here", "commarea", short, cc.FieldArea({"WS-COUNT": Decimal(3), "WS-NAME": "FIRST"}))
-    assert w.pending == "all: commarea shorter than its record (a DTO has no EIBCALEN)"
+    # #4009: a DTO passed without a LENGTH is its whole record; a shorter COMMAREA must state its length
+    with pytest.raises(cc._Decided, match=r"commarea length 3 expected, got its whole record \(11 bytes"):
+        w.area("here", "commarea", short, cc.FieldArea({"WS-COUNT": Decimal(3), "WS-NAME": "FIRST"}))
+    w.area("here", "commarea", short, cc.FieldArea({"WS-COUNT": Decimal(3), "WS-NAME": "FIRST"}, 3))
+    with pytest.raises(cc._Decided, match="commarea length 3 expected, got 11"):
+        w.area("here", "commarea", short, cc.FieldArea({"WS-COUNT": Decimal(3), "WS-NAME": "FIRST"}, 11))
+    assert w.pending is None
 
 
 def test_blockers_name_every_missing_feature_once():
@@ -396,10 +406,12 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
     raw = {"_scenario": "three-visits", "stopped": None, "ts_queues": {"Q": ["c1c2"]}, "tasks": [
         {"step": 1, "transid": "FX01", "program": "FXCHAIN", "commarea": ca, "end": "normal", "events": [
             {"event": "SEND-MAP", "program": "FXCHAIN", "map": "M1", "screen": {"NAME": "ADA", "MSG": None}},
-            {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002"},
+            {"event": "RECEIVE-MAP", "program": "FXCHAIN", "map": "M1", "mapset": "MS", "resp": "MAPFAIL"},
+            {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002", "length": 40, "options": ["ERASE"]},
             {"event": "RECEIVE", "program": "FXCHAIN", "resp": "NORMAL", "length": 4, "data": "FX01"},
             {"event": "READQ-TS", "program": "FXCHAIN", "queue": "Q", "item": 1, "resp": "NORMAL", "length": 1,
              "data": "wQ=="},
+            {"event": "RETURN", "program": "FXCHAIN", "transid": "FX01", "commarea": ca, "length": 3},
             {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "commarea": ca},
             {"event": "DRIVER-ERROR", "program": "FXLAST", "message": "no generated service for program FXLAST"}]}]}  # fmt: skip
     act = runner.java_actual(_case(), raw, src)
@@ -407,11 +419,20 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
     t = act["tasks"][0]
     assert (t["at"], t["eibaid"], t["trigger"], t["termid"]) == ("2026-03-02T10:00:10", "ENTER",
                                                                  {"kind": "terminal", "step": 1}, "T001")  # fmt: skip
-    assert isinstance(t["eibcalen"], cc.Unmodelled) and t["commarea"].fields == {"WS-COUNT": 2, "WS-NAME": "FIRST"}
+    # #4009: no EIBCALEN from the driver -> the whole record, resolved against the layout by the comparison
+    assert t["eibcalen"] == cc.FULL and t["commarea"].fields == {"WS-COUNT": 2, "WS-NAME": "FIRST"}
+    assert t["commarea"].length == cc.FULL
     assert t["events"][0]["fields"] == {"NAME": {"data": "ADA"}, "MSG": {"data": None}}
-    assert (t["events"][2]["resp"], t["events"][2]["length"], t["events"][2]["data"].data) == ("NORMAL", 4, b"FX01")
-    assert (t["events"][3]["queue"], t["events"][3]["length"], t["events"][3]["data"].data) == ("Q", 1, b"\xc1")
-    assert t["events"][4]["target"] == "FXLAST" and t["events"][5]["message"].startswith("no generated service")
+    assert t["events"][1] == {"event": "RECEIVE-MAP", "program": "FXCHAIN", "map": "M1", "mapset": "MS",
+                              "resp": "MAPFAIL"}  # fmt: skip
+    assert (t["events"][2]["text"], t["events"][2]["length"], t["events"][2]["options"]) == ("VISIT 002", 40, ["ERASE"])
+    assert (t["events"][3]["resp"], t["events"][3]["length"], t["events"][3]["data"].data) == ("NORMAL", 4, b"FX01")
+    assert (t["events"][4]["queue"], t["events"][4]["length"], t["events"][4]["data"].data) == ("Q", 1, b"\xc1")
+    assert t["events"][5]["commarea"].length == 3  # RETURN ... LENGTH(3)
+    assert t["events"][6]["target"] == "FXLAST" and t["events"][7]["message"].startswith("no generated service")
+    raw["tasks"][0]["eibcalen"] = 3
+    t = runner.java_actual(_case(), raw, src)["tasks"][0]
+    assert t["eibcalen"] == 3 and t["commarea"].length == 3
 
 
 # ---- the translator names what it refuses -----------------------------------------------------

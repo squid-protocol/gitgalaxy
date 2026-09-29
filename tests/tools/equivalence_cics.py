@@ -851,6 +851,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"]})
         elif verb == "SEND-TEXT":
             out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
+            out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
             out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,
                         "commarea": res["return"]["commarea"]})  # fmt: skip

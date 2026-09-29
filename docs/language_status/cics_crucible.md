@@ -54,11 +54,9 @@ Each missing feature belongs to a piece of harness work (below: the features the
 |---|---|---|---|---|
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 0 |
 | 2 | LINK: levels, by-reference COMMAREA, PGMIDERR | 7 | 0 | 0 |
-| 3 | RECEIVE MAP recorded as an event | 9 | 0 | 0 |
-| 4 | SEND TEXT length and options | 28 | 0 | 0 |
-| 5 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
-| 6 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 0 |
-| 7 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
+| 3 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
+| 4 | condition machinery: HANDLE / IGNORE CONDITION, PUSH / POP HANDLE, abend exits, ASSIGN ABCODE | 4 | 0 | 0 |
+| 5 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -93,14 +91,11 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 
 | feature | cells | harness work |
 |---|---|---|
-| CicsTask: SEND-TEXT length | 28 | SEND TEXT length and options |
-| CicsTask: SEND-TEXT options | 28 | SEND TEXT length and options |
 | CicsTask: SEND-MAP attribute bytes | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP data origin (program / map / none) | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP mapset | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP options | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: RECEIVE-MAP event | 9 | RECEIVE MAP recorded as an event |
 | CicsTask: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: RETRIEVE event | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | scheduler: START-triggered tasks (CicsTask) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |

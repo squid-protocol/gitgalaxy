@@ -123,17 +123,18 @@ import java.util.Optional;
 
 /**
  * One CICS task (#3754): what a transaction receives -- its TRANSID, the key the user pressed (EIBAID), the
- * COMMAREA it was started with (none on a first entry, EIBCALEN = 0) and the screens it RECEIVEs -- and, in
- * order, what the program does with it: RECEIVE, SEND MAP / SEND TEXT, READQ / WRITEQ TS, RETURN TRANSID with
- * a COMMAREA, XCTL, ABEND.
- * A program's service ports its PROCEDURE DIVISION into runTask(CicsTask); the equivalence harness runs the
- * same task through the original COBOL and compares every event, field by field.
+ * COMMAREA it was started with and its length (none on a first entry, EIBCALEN = 0) and the screens it
+ * RECEIVEs -- and, in order, what the program does with it: RECEIVE, RECEIVE MAP, SEND MAP / SEND TEXT,
+ * READQ / WRITEQ TS, RETURN TRANSID with a COMMAREA, XCTL, ABEND. A program's service ports its PROCEDURE
+ * DIVISION into runTask(CicsTask); the equivalence harness runs the same task through the original COBOL and
+ * compares every event, field by field.
  */
 public class CicsTask {
 
     private final String transid;
     private final String aid;
     private final Object commarea;
+    private final Integer eibcalen;
     private final Map<String, Object> received;
     private final List<Map<String, Object>> events = new ArrayList<>();
     private boolean ended;
@@ -141,11 +142,20 @@ public class CicsTask {
     private boolean terminalRead;
     private TempStorage tempStorage = new TempStorage();
 
-    /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. */
+    /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
+     *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
     public CicsTask(String transid, String aid, Object commarea, Map<String, Object> received) {
+        this(transid, aid, commarea, null, received);
+    }
+
+    /** As above, with EIBCALEN (#4009): the length of the COMMAREA the task receives, which may be shorter
+     *  or longer than its DTO's record (a caller passing LENGTH(100) to a program declaring 500 bytes).
+     *  Null means the whole record; with no COMMAREA it is 0. */
+    public CicsTask(String transid, String aid, Object commarea, Integer eibcalen, Map<String, Object> received) {
         this.transid = transid;
         this.aid = aid;
         this.commarea = commarea;
+        this.eibcalen = commarea == null ? Integer.valueOf(0) : eibcalen;
         this.received = received == null ? Map.of() : received;
     }
 
@@ -162,13 +172,25 @@ public class CicsTask {
         return commarea != null;
     }
 
+    /** EIBCALEN: 0 without a COMMAREA, else its length as passed; null when it came as its whole record. */
+    public Integer eibcalen() {
+        return eibcalen;
+    }
+
     public <T> T commarea(Class<T> type) {
         return type.cast(commarea);
     }
 
     /** RECEIVE MAP: the screen the user sent, or empty (MAPFAIL) when nothing was received. */
     public <T> Optional<T> receive(String map, Class<T> type) {
-        return Optional.ofNullable(received.get(map)).map(type::cast);
+        return receive(map, null, type);
+    }
+
+    /** RECEIVE MAP(map) MAPSET(mapset), recorded as an event with its RESP (NORMAL, or MAPFAIL when empty). */
+    public <T> Optional<T> receive(String map, String mapset, Class<T> type) {
+        Optional<T> screen = Optional.ofNullable(received.get(map)).map(type::cast);
+        event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp", screen.isPresent() ? "NORMAL" : "MAPFAIL");
+        return screen;
     }
 
     /** What the operator typed on a cleared screen with the key that started the task (#4005), which an
@@ -307,13 +329,29 @@ public class CicsTask {
         event("SEND-MAP", "map", map, "screen", screen);
     }
 
+    /** SEND TEXT FROM(text): LENGTH is the text's own, no options. */
     public void sendText(String text) {
-        event("SEND-TEXT", "text", text);
+        sendText(text, text == null ? 0 : text.length());
     }
 
-    /** RETURN TRANSID(transid) COMMAREA(commarea): the task ends; `transid` null for a plain RETURN. */
+    /** SEND TEXT FROM(text) LENGTH(length) with its options (ERASE, FREEKB, ALARM, ...), as the program
+     *  passed them: `text` is the FROM data, not the formatted screen. */
+    public void sendText(String text, int length, String... options) {
+        List<String> opts = new ArrayList<>(List.of(options));
+        Collections.sort(opts);
+        event("SEND-TEXT", "text", text, "length", length, "options", opts);
+    }
+
+    /** RETURN TRANSID(transid) COMMAREA(commarea): the task ends; `transid` null for a plain RETURN. The
+     *  COMMAREA is its whole record. */
     public void returnTransid(String transid, Object commarea) {
-        event("RETURN", "transid", transid, "commarea", commarea);
+        returnTransid(transid, commarea, null);
+    }
+
+    /** RETURN TRANSID(transid) COMMAREA(commarea) LENGTH(length): the next task's EIBCALEN is `length`
+     *  (null: the whole record). */
+    public void returnTransid(String transid, Object commarea, Integer length) {
+        event("RETURN", "transid", transid, "commarea", commarea, "length", commarea == null ? null : length);
         ended = true;
     }
 

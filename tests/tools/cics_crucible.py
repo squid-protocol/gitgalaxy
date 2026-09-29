@@ -100,8 +100,9 @@ JAVA_CAPS = cc.Capabilities(
     task_keys=frozenset(cc.TASK_KEYS) | {"end"},
     events={
         "SEND-MAP": frozenset({"map", "fields", "fields.data"}),
-        "SEND-TEXT": frozenset({"text"}),
+        "SEND-TEXT": frozenset({"text", "length", "options"}),
         "RECEIVE": frozenset({"resp", "length", "data"}),
+        "RECEIVE-MAP": frozenset({"map", "mapset", "resp"}),  # #4009
         "RETURN": frozenset({"level", "transid", "commarea"}),
         "XCTL": frozenset({"target", "commarea"}),
         "ABEND": frozenset({"abcode"}),
@@ -408,6 +409,7 @@ class EquivalenceRunTest {
             String stopped = null;
             String pending = null;
             Object pendingCa = null;
+            Integer pendingLen = null;
             JsonNode steps = sc.get("steps");
             CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task of the scenario
             sc.path("ts_queues").fields().forEachRemaining(q -> {
@@ -419,8 +421,10 @@ class EquivalenceRunTest {
                 JsonNode step = steps.get(n);
                 String transid = pending;
                 Object commarea = pendingCa;
+                Integer calen = pendingLen;
                 pending = null;
                 pendingCa = null;
+                pendingLen = null;
                 if (transid == null) {
                     String text = step.path("text").asText("").trim();
                     if (text.isEmpty()) {
@@ -429,6 +433,7 @@ class EquivalenceRunTest {
                     }
                     transid = text.split("\\s+")[0];
                     commarea = null;
+                    calen = null;
                 }
                 String aid = step.get("aid").asText();
                 String program = plan.path("transactions").path(transid).asText(null);
@@ -437,6 +442,7 @@ class EquivalenceRunTest {
                 task.put("transid", transid);
                 task.put("program", program);
                 task.put("commarea", describe(commarea));
+                task.put("eibcalen", commarea == null ? Integer.valueOf(0) : calen);
                 List<Map<String, Object>> events = new ArrayList<>();
                 String end = "normal";
                 Map<String, Object> received = new LinkedHashMap<>();
@@ -450,6 +456,7 @@ class EquivalenceRunTest {
                 }
                 Object ca = commarea;
                 boolean read = false;
+                Integer len = calen;
                 for (int hop = 0; current != null && hop < 32; hop++) {
                     Object service = service(plan, current);
                     if (service == null) {
@@ -457,7 +464,7 @@ class EquivalenceRunTest {
                         end = "abend";
                         break;
                     }
-                    CicsTask t = new CicsTask(transid, aid, ca, received).withTempStorage(ts);
+                    CicsTask t = new CicsTask(transid, aid, ca, len, received).withTempStorage(ts);
                     if (read) {
                         t.terminalInputRead();  // an earlier program of the task read it: a RECEIVE would wait
                     } else if (step.has("text")) {
@@ -483,6 +490,7 @@ class EquivalenceRunTest {
                             copy.put("target", e.get("program"));
                             next = (String) e.get("program");
                             ca = e.get("commarea");
+                            len = e.get("length") instanceof Integer l ? l : null;
                         }
                         copy.put("program", current);
                         if (copy.get("screen") != null) {
@@ -494,6 +502,7 @@ class EquivalenceRunTest {
                         if ("RETURN".equals(e.get("event"))) {
                             pending = (String) e.get("transid");
                             pendingCa = e.get("commarea");
+                            pendingLen = e.get("length") instanceof Integer l ? l : null;
                         }
                         if ("ABEND".equals(e.get("event"))) {
                             end = "abend";
@@ -618,7 +627,10 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
     return {"transactions": case.csd["transactions"], "services": services, "screens": screens, "scenarios": scenarios}
 
 
-def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any]) -> Optional[cc.FieldArea]:
+def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any],
+               length: Any = None) -> Optional[cc.FieldArea]:  # fmt: skip
+    """A DTO the Java side recorded, as field values with the length CicsTask gave it (#4009: a
+    LENGTH, or its whole record when none was given)."""
     import equivalence_cics as ec
 
     if desc is None:
@@ -626,7 +638,7 @@ def _java_area(desc: Optional[dict[str, Any]], src: Path, shapes: dict[str, Any]
     cls = desc["class"]
     if cls not in shapes:
         shapes[cls] = ec.dto_shape(src, cls)  # qualified: the contract DTO, not the entity of that name (#4011)
-    return cc.FieldArea(ec.from_java(desc["value"], shapes[cls]))
+    return cc.FieldArea(ec.from_java(desc["value"], shapes[cls]), cc.FULL if length is None else length)
 
 
 def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]:
@@ -635,9 +647,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
     tasks = []
     for t in raw.get("tasks", []):
         step = case_step(case, raw["_scenario"], t["step"])
-        ca = _java_area(t.get("commarea"), src, shapes)
+        calen = t.get("eibcalen")
+        ca = _java_area(t.get("commarea"), src, shapes, calen)
         task: dict[str, Any] = {"transid": t["transid"], "program": t["program"], **task_frame(case, t["step"], step),
-                                "eibcalen": 0 if ca is None else cc.Unmodelled("task eibcalen (a DTO has no EIBCALEN)"),
+                                "eibcalen": 0 if ca is None else cc.FULL if calen is None else calen,
                                 "commarea": ca, "end": t["end"], "events": []}  # fmt: skip
         for e in t["events"]:
             kind = e["event"]
@@ -645,8 +658,8 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
             if kind == "SEND-MAP":
                 ev["map"] = e.get("map")
                 ev["fields"] = {k: {"data": v} for k, v in (e.get("screen") or {}).items()}
-            elif kind == "SEND-TEXT":
-                ev["text"] = e.get("text")
+            elif kind == "SEND-TEXT":  # #4009: the FROM data, its LENGTH and options
+                ev.update(text=e.get("text"), length=e.get("length"), options=e.get("options") or [])
             elif kind == "RECEIVE":  # #4005: the data as text, the area's bytes in the stub's page
                 ev.update(resp=e.get("resp"), length=e.get("length"),
                           data=cc.RawArea(str(e.get("data") or "").encode("latin-1"), "latin-1"))  # fmt: skip
@@ -656,8 +669,11 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
                 ev.update(queue=e.get("queue"), item=e.get("item"), resp=e.get("resp"), data=data)
                 if kind == "READQ-TS":
                     ev["length"] = e.get("length")
+            elif kind == "RECEIVE-MAP":
+                ev.update(map=e.get("map"), mapset=e.get("mapset"), resp=e.get("resp"))
             elif kind == "RETURN":
-                ev.update(level=1, transid=e.get("transid"), commarea=_java_area(e.get("commarea"), src, shapes))
+                ev.update(level=1, transid=e.get("transid"),
+                          commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
             elif kind == "XCTL":
                 ev.update(target=e.get("target"), commarea=_java_area(e.get("commarea"), src, shapes))
             elif kind == "ABEND":

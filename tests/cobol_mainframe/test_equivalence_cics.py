@@ -246,6 +246,7 @@ def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
                            str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
+    # #4009: a scenario that types into the screen also compares its RECEIVE MAP (CicsTask records it)
     assert {n: (o["equal"], o["records"]) for n, o in report["outputs"].items()} == {
-        "enter-from-menu": (2, 2), "view-account": (2, 2), "account-not-on-file": (2, 2),
-        "account-not-numeric": (2, 2), "pf3-back-to-menu": (1, 1)}  # fmt: skip
+        "enter-from-menu": (2, 2), "view-account": (3, 3), "account-not-on-file": (3, 3),
+        "account-not-numeric": (3, 3), "pf3-back-to-menu": (1, 1)}  # fmt: skip

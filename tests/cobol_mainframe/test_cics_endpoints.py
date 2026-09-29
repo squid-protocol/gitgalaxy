@@ -203,6 +203,13 @@ def test_a_transaction_becomes_an_endpoint_and_a_link_target_takes_the_commarea(
     assert "public void runTask" not in service  # ACCTINQ is only LINKed to: no transaction, no task
     task = (src / "cics/CicsTask.java").read_text(encoding="utf-8")
     assert "public void returnTransid(String transid, Object commarea)" in task and "public void xctl(" in task
+    # #4009: what the CICS crucible compares -- SEND TEXT's LENGTH and options, RECEIVE MAP as an event,
+    # and EIBCALEN beside the DTO (a short or long COMMAREA), both on a task and on RETURN ... LENGTH
+    assert "public void sendText(String text, int length, String... options)" in task
+    assert "public <T> Optional<T> receive(String map, String mapset, Class<T> type)" in task
+    assert 'event("RECEIVE-MAP", "map", map, "mapset", mapset, "resp",' in task
+    assert "public void returnTransid(String transid, Object commarea, Integer length)" in task
+    assert "Integer eibcalen, Map<String, Object> received)" in task and "public Integer eibcalen()" in task
 
     assert not (src / "controller/BatchController.java").exists()  # batch: the generic path, unchanged
     audit = (src.parents[5] / "java_migration_audit.txt").read_text(encoding="utf-8")

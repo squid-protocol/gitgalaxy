@@ -46,12 +46,17 @@ MOCK_DFHCOMMAREA_STATE = {
 # ==============================================================================
 # GOLDEN IMAGES (The "Perfect" Expected Outputs)
 # ==============================================================================
+# #3992: a non-CICS program that opens files is batch even when no SELECT was read -- its input files are
+# uploads, never `@RequestBody <File>DTO`, a class nothing generates.
 GOLDEN_CONTROLLER = """package com.gitgalaxy.modernized.controller;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import com.gitgalaxy.modernized.service.ProcessPayrollService;
+
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/v1/process-payroll")
@@ -60,13 +65,14 @@ public class ProcessPayrollController {
 
     private final ProcessPayrollService processPayrollService;
 
-    @PostMapping("/execute")
-    public ResponseEntity<?> executeProcessPayroll(
-        @RequestBody EmployeeRecordDTO employeeRecordData,
-        @RequestBody TimecardDataDTO timecardDataData
+    @PostMapping(value = "/execute-batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> executeProcessPayrollBatch(
+        @RequestParam("employeeRecordFile") MultipartFile employeeRecordFile,
+        @RequestParam("timecardDataFile") MultipartFile timecardDataFile
     ) {
-        // TRANSACTIONAL PARADIGM DETECTED
-        processPayrollService.executeProcessPayroll(/* pass DTOs here */);
+        // BATCH PARADIGM DETECTED
+        // Pass the InputStream directly to the Service layer.
+        processPayrollService.executeProcessPayroll(/* pass streams here */);
         // Expected Outputs: PAYROLL-RECEIPT
         return ResponseEntity.ok().build();
     }

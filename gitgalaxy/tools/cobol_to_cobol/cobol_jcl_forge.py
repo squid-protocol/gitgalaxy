@@ -26,8 +26,14 @@ from gitgalaxy.core.source_text import read_source
 # character, ASCII exactly as before or any non-ASCII letter or digit. Missing such a SELECT turned the program
 # from batch into transactional and its controller named a DTO nothing generates, so the Java did not compile.
 _W = r"(?:[A-Z0-9\-]|[^\W\x00-\x7f])"
+# #3992: the ASSIGN operand may be a literal (`ASSIGN "TEST-FILE"`, `ASSIGN TO "./input.txt"`: GnuCOBOL,
+# opensourcecobol4j, Micro Focus) and the file OPTIONAL, as the engine's own SELECT reader has them
+# (mainframe_boundary._SELECT_ASSIGN). Missing the literal form made a batch program transactional (a DTO nothing
+# generates); `ASSIGN TO "x"` backtracked to read `TO` as the DD name. A literal is bounded, so an unclosed quote
+# cannot run on; the word form never takes the `TO` keyword itself.
 _FILE_ASSIGN_ANCHOR = re.compile(
-    rf"SELECT\s+({_W}+)\s+ASSIGN\s+(?:TO\s+)?({_W}+)",
+    rf"SELECT\s+(?:OPTIONAL\s+)?({_W}+)\s+ASSIGN\s+(?:TO\s+)?"
+    rf"(?:\"([^\"]{{1,1024}})\"|'([^']{{1,1024}})'|(?!TO\s)({_W}+))",
     re.IGNORECASE,
 )
 
@@ -86,7 +92,9 @@ def analyze_cobol_intent(filepath: Path, declared: Optional[str] = None) -> dict
                 continue
             consumed = stop + 1
             internal_name = match.group(1).strip()
-            raw_dd = match.group(2).strip()
+            raw_dd = next(g for g in match.groups()[1:] if g is not None).strip()
+            if not raw_dd:
+                continue
             clean_dd = re.sub(r"^(?:UT|UR)-S-", "", raw_dd)
             intent["files_requested"].append({"internal": internal_name, "dd_name": clean_dd})
 

@@ -24,6 +24,8 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
     _WORD_BREAKS,
     capitalize_name,
     java_class_base,
+    java_legal_chars,
+    java_start_ok,
     java_url_segment,
     lower_name,
     output_key,
@@ -54,6 +56,11 @@ def generate_rest_controller(
     files_requested = base_intent.get("files_requested", [])
     is_cics = base_intent.get("is_cics", False)
 
+    # #3992: a non-CICS program that opens files is batch. Its files are its SELECTs (files_requested); when the
+    # intent reader read none (a SELECT form it does not know) the files it OPENs for input (the lineage) stand in,
+    # so its files arrive as uploads -- never as a request DTO, which no generator writes.
+    if not files_requested and not is_cics:
+        files_requested = [{"dd_name": i} for i in inputs]
     is_batch = len(files_requested) > 0 and not is_cics
 
     java = []
@@ -106,6 +113,11 @@ def generate_rest_controller(
             if not dd_parts:
                 dd_parts = ["unknown"]
             safe_dd_name = lower_name(dd_parts[0]) + "".join(capitalize_name(word) for word in dd_parts[1:])
+            # #3992: a literal ASSIGN (`"01.DAT"`, `"KUNDE§NR"`) may start with a digit or hold a character Java
+            # rejects; such a name is made legal, a legal one is unchanged.
+            safe_dd_name = java_legal_chars(safe_dd_name)
+            if not java_start_ok(safe_dd_name[0]):
+                safe_dd_name = f"file{safe_dd_name}"
             base_var_name = f"{safe_dd_name}File"
 
             # Enforce unique variable names and Spring request params
@@ -135,16 +147,11 @@ def generate_rest_controller(
         java.append('    @PostMapping("/execute")')
         java.append(f"    public ResponseEntity<?> execute{camel_prog}(")
 
-        params = []
+        # #3992: the controller names only classes the run generates. No generator writes a DTO per input file
+        # (a CICS program's COMMAREA contract comes from its skeleton, forges.cics.controller), so a file input is
+        # listed for the porter, not bound as an `@RequestBody <File>DTO` that cannot compile.
         if inputs:
-            for i in inputs:
-                words = [w for w in _WORD_BREAKS.split(i) if w]
-                safe_class = "".join(capitalize_name(word) for word in words) if words else "Unknown"
-                safe_var = lower_name(safe_class[0]) + safe_class[1:] if safe_class else "unknown"
-                params.append(f"@RequestBody {safe_class}DTO {safe_var}Data")
-
-        if params:
-            java.append("        " + ",\n        ".join(params))
+            java.append(f"        // Input files: {', '.join(inputs)} (no request DTO is generated for them)")
         else:
             java.append("        /* No external data dependencies detected */")
 

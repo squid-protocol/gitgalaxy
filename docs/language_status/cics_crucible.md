@@ -12,9 +12,9 @@ Every cell that does not pass is ledgered in `tests/cics_crucible/baseline.json`
 |---|---|---|---|---|
 | engine-facts | 10 | 0 | 0 | 10 |
 | forge-compile | 10 | 0 | 0 | 10 |
-| cobol-stub | 15 | 1 | 21 | 37 |
+| cobol-stub | 24 | 1 | 12 | 37 |
 | java | 0 | 37 | 0 | 37 |
-| **all** | **35** | **38** | **21** | **94** |
+| **all** | **44** | **38** | **12** | **94** |
 
 ## By trap and case
 
@@ -26,8 +26,8 @@ Pass counts per side (scenario sides: passing / scenarios).
 | commarea-mismatch | `ca-xctl-versions` | pass | pass | 2 / 3 | 0 / 3 |
 | condition-handling | `hc-abend-link` | pass | pass | 5 / 5 | 0 / 5 |
 | condition-handling | `hc-perform-range` | pass | pass | 4 / 4 | 0 / 4 |
-| ghost-tasks | `gt-start-retrieve` | pass | pass | 0 / 5 | 0 / 5 |
-| ghost-tasks | `gt-terminal-coalesce` | pass | pass | 0 / 4 | 0 / 4 |
+| ghost-tasks | `gt-start-retrieve` | pass | pass | 5 / 5 | 0 / 5 |
+| ghost-tasks | `gt-terminal-coalesce` | pass | pass | 4 / 4 | 0 / 4 |
 | hex-attributes | `hx-attr-bytes` | pass | pass | 0 / 3 | 0 / 3 |
 | hex-attributes | `hx-extended-cursor` | pass | pass | 0 / 3 | 0 / 3 |
 | pseudo-conversational | `pc-aid-menu` | pass | pass | 0 / 3 | 0 / 3 |
@@ -37,14 +37,13 @@ Pass counts per side (scenario sides: passing / scenarios).
 
 Each missing feature belongs to a piece of harness work (below: the features themselves). A cell is *unlocked* when every piece its features need is done: it then gets a pass or fail verdict rather than `unsupported`. **needs** counts the cells that do not pass and need the piece, **alone** the unsupported cells it unlocks by itself, and **cumulative** the unsupported cells unlocked by it and every row above it (rows are chosen greedily).
 
-### cobol-stub (21 unsupported)
+### cobol-stub (12 unsupported)
 
 | # | harness work | needs | alone | cumulative |
 |---|---|---|---|---|
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 9 | 9 |
-| 2 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 9 | 18 |
-| 3 | HANDLE AID | 3 | 0 | 21 |
-| 4 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 21 |
+| 2 | HANDLE AID | 3 | 0 | 12 |
+| 3 | XCTL LENGTH / RESP / RESP2 | 1 | 0 | 12 |
 
 ### java (0 unsupported)
 
@@ -52,7 +51,6 @@ Each missing feature belongs to a piece of harness work (below: the features the
 |---|---|---|---|---|
 | 1 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes | 12 | 0 | 0 |
 | 2 | XCTL LENGTH / RESP / RESP2 | 5 | 0 | 0 |
-| 3 | interval control: START / RETRIEVE / CANCEL and started tasks | 9 | 0 | 0 |
 
 ## Unsupported features, by how many cells need them
 
@@ -64,14 +62,7 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 |---|---|---|
 | stub: SEND-MAP cursor | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | stub: SEND-MAP fields | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| stub: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| translator: START | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| scheduler: START-triggered tasks (stub) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| stub: RETRIEVE event | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| translator: RETRIEVE | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| translator: CANCEL | 4 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | translator: HANDLE AID | 3 | HANDLE AID |
-| stub: CANCEL event | 2 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | stub: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
 ### java
@@ -83,14 +74,10 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | CicsTask: SEND-MAP data origin (program / map / none) | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP mapset | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP options | 12 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: START event | 9 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| CicsTask: RETRIEVE event | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
-| scheduler: START-triggered tasks (CicsTask) | 8 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: XCTL length | 5 | XCTL LENGTH / RESP / RESP2 |
 | CicsTask: XCTL resp | 5 | XCTL LENGTH / RESP / RESP2 |
 | CicsTask: SEND-MAP DATAONLY field omission | 4 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
 | CicsTask: SEND-MAP extended attributes | 3 | BMS output fidelity: attributes, cursor, data origin, DATAONLY, extended attributes |
-| CicsTask: CANCEL event | 2 | interval control: START / RETRIEVE / CANCEL and started tasks |
 | CicsTask: XCTL resp2 | 1 | XCTL LENGTH / RESP / RESP2 |
 
 ## Failure reasons, grouped
@@ -112,23 +99,14 @@ Each feature a cell needs that its side does not model (`translator:` the COBOL 
 | `ca-xctl-versions/length-range/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/long-overread/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
 | `ca-xctl-versions/short-upgrade/java` | fail | task 1 (CA02) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/interval-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/interval-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/no-data/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/no-data/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/protect-abend/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/protect-abend/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/retrieve-lengerr/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/retrieve-lengerr/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-start-retrieve/time-six-hours/cobol-stub` | unsupported | translator: START; translator: RETRIEVE |
 | `gt-start-retrieve/time-six-hours/java` | fail | task 1 (GT01) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-terminal-coalesce/cancel-in-time/cobol-stub` | unsupported | translator: START; translator: CANCEL |
 | `gt-terminal-coalesce/cancel-in-time/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-terminal-coalesce/cancel-too-late/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
 | `gt-terminal-coalesce/cancel-too-late/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-terminal-coalesce/staggered/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
 | `gt-terminal-coalesce/staggered/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
-| `gt-terminal-coalesce/three-in-one/cobol-stub` | unsupported | translator: START; translator: CANCEL; translator: RETRIEVE |
 | `gt-terminal-coalesce/three-in-one/java` | fail | task 1 (GT11) event 1: RECEIVE expected, the side recorded no further event |
 | `hc-abend-link/push-pop/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |
 | `hc-abend-link/pushed-abend/java` | fail | task 1 (HC02) event 1: READQ-TS expected, the side recorded no further event |

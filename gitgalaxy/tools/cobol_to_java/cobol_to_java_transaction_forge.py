@@ -354,7 +354,7 @@ public class CicsTask {
         e.put("event", "START");
         e.put("transid", transid);
         e.put("termid", termid);
-        e.put(isTime ? "time" : "interval", String.format("%06d", hhmmss));
+        e.put(isTime ? "time" : "interval", String.format(java.util.Locale.ROOT, "%06d", hhmmss));
         e.put("from", from == null ? null : from.clone());
         if (reqid != null) {
             e.put("reqid", reqid);

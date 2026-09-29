@@ -287,7 +287,7 @@ def test_cics_task_xctl_fails_in_place_with_lengerr_or_pgmiderr(tmp_path):
                     System.out.println(task.xctl("GONE", "V1", 10) + " " + task.ended());
                     System.out.println(task.xctl("CAXB", "V1", 80) + " " + task.ended());
                 } else {
-                    System.out.println(p + " calen=" + task.linkLength() + " ca=" + task.commarea(String.class));
+                    System.out.println(p + " calen=" + task.eibcalen() + " ca=" + task.commarea(String.class));
                 }
             }
         };

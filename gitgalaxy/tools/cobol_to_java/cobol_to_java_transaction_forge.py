@@ -112,6 +112,8 @@ def commarea_alternative_todos(commarea: dict) -> list[str]:
 # #3754: one CICS task, the runtime a program's runTask is written against.
 CICS_TASK_JAVA = """package __PACKAGE__.cics;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -150,6 +152,11 @@ public class CicsTask {
     private String xctlTarget;
     private Object xctlCommarea;
     private Integer xctlLength;
+    private LocalDateTime now;                              // #4006: the virtual clock (the task's root)
+    private List<byte[]> retrieveData = List.of();
+    private int retrieved;
+    private Map<String, LocalDateTime> unexpired = Map.of();
+    private final Map<String, LocalDateTime> ownRequests = new HashMap<>();
     private String terminalInput;
     private boolean terminalRead;
     private TempStorage tempStorage = new TempStorage();
@@ -199,6 +206,16 @@ public class CicsTask {
         boolean defined(String program);
 
         void run(String program, CicsTask task);
+
+        /** Whether the CSD defines a transaction (START's TRANSIDERR, #4006). */
+        default boolean transaction(String transid) {
+            return true;
+        }
+
+        /** Whether the region has a terminal (START's TERMIDERR, #4006). */
+        default boolean terminal(String termid) {
+            return true;
+        }
     }
 
     /** How LINK / XCTL reach other programs (#4004). */
@@ -271,6 +288,122 @@ public class CicsTask {
             current = current.xctlTarget == null ? null
                     : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
         }
+    }
+
+    /** The virtual time the task was dispatched at (#4006): a task takes no time (EIBTIME, ASKTIME). */
+    public CicsTask withClock(LocalDateTime now) {
+        this.now = now;
+        return this;
+    }
+
+    public LocalDateTime now() {
+        return root().now;
+    }
+
+    /** The FROM data of the START requests this task was started for, in expiry order (#4006). */
+    public CicsTask withRetrieveData(List<byte[]> data) {
+        this.retrieveData = data == null ? List.of() : data;
+        return this;
+    }
+
+    /** The region's unexpired interval-control requests by REQID (#4006: what CANCEL can still find). */
+    public CicsTask withRequests(Map<String, LocalDateTime> unexpired) {
+        this.unexpired = unexpired == null ? Map.of() : unexpired;
+        return this;
+    }
+
+    private static final DateTimeFormatter ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+    /** START TRANSID(transid) [TERMID] INTERVAL(hhmmss) [FROM] [REQID] [PROTECT] (#4006, IBM EXEC CICS START):
+     *  the request expires at now + INTERVAL; the harness's scheduler runs it once the starting task has
+     *  ended (a PROTECT request only if it ended normally). `termid`, `from` and `reqid` may be null. */
+    public StartResult start(String transid, String termid, int interval, byte[] from, String reqid, boolean protect) {
+        return start(transid, termid, interval, false, from, reqid, protect);
+    }
+
+    /** START ... TIME(hhmmss): today at that time; a TIME not later than now but within the preceding six hours
+     *  expires at once ("if the START gets triggered at any time within 6 hours after the time specified on
+     *  the START, it runs immediately"), an earlier one tomorrow. */
+    public StartResult startAt(String transid, String termid, int time, byte[] from, String reqid, boolean protect) {
+        return start(transid, termid, time, true, from, reqid, protect);
+    }
+
+    private StartResult start(String transid, String termid, int hhmmss, boolean isTime, byte[] from, String reqid,
+            boolean protect) {
+        int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+        LocalDateTime clock = now();
+        LocalDateTime at = null;
+        String resp = "NORMAL";
+        if (hhmmss < 0 || mm > 59 || ss > 59 || hh > (isTime ? 23 : 99)) {
+            resp = "INVREQ";
+        } else if (from != null && (from.length < 1 || from.length > 32763)) {
+            resp = "LENGERR";
+        } else if (programs != null && !programs.transaction(transid)) {
+            resp = "TRANSIDERR";
+        } else if (termid != null && programs != null && !programs.terminal(termid)) {
+            resp = "TERMIDERR";
+        } else if (isTime) {
+            at = clock.toLocalDate().atTime(hh, mm, ss);
+            if (!at.isAfter(clock)) {
+                at = at.isBefore(clock.minusHours(6)) ? at.plusDays(1) : clock;
+            }
+        } else {
+            at = clock.plusSeconds(hh * 3600L + mm * 60L + ss);
+        }
+        Map<String, Object> e = new LinkedHashMap<>();
+        e.put("event", "START");
+        e.put("transid", transid);
+        e.put("termid", termid);
+        e.put(isTime ? "time" : "interval", String.format("%06d", hhmmss));
+        e.put("from", from == null ? null : from.clone());
+        if (reqid != null) {
+            e.put("reqid", reqid);
+            if (at != null) {
+                root().ownRequests.put(reqid, at);
+            }
+        }
+        e.put("protect", protect);
+        e.put("resp", resp);
+        e.put("expires", at == null ? null : at.format(ISO));
+        add(e);
+        return new StartResult(resp, at);
+    }
+
+    /** A START's outcome: its condition and when the request expires (null unless NORMAL). */
+    public record StartResult(String resp, LocalDateTime expires) {
+    }
+
+    /** RETRIEVE INTO LENGTH(maxLength) (#4006, IBM EXEC CICS RETRIEVE): the next data record of the requests
+     *  the task was started for, truncated with LENGERR when longer (the length is then the record's own);
+     *  ENDDATA when none is left, as for a task no START started. */
+    public RetrieveResult retrieve(int maxLength) {
+        CicsTask task = root();
+        if (task.retrieved >= task.retrieveData.size()) {
+            event("RETRIEVE", "resp", "ENDDATA", "length", null, "data", null);
+            return new RetrieveResult("ENDDATA", -1, null);
+        }
+        byte[] stored = task.retrieveData.get(task.retrieved++);
+        byte[] data = stored.length > maxLength ? Arrays.copyOf(stored, Math.max(maxLength, 0)) : stored.clone();
+        String resp = stored.length > maxLength ? "LENGERR" : "NORMAL";
+        event("RETRIEVE", "resp", resp, "length", stored.length, "data", data);
+        return new RetrieveResult(resp, stored.length, data);
+    }
+
+    /** A RETRIEVE's outcome: its condition, the LENGTH it sets (-1 when none) and the data moved INTO. */
+    public record RetrieveResult(String resp, int length, byte[] data) {
+    }
+
+    /** CANCEL REQID(reqid) (#4006, IBM EXEC CICS CANCEL): NORMAL for a request that has not expired yet (the
+     *  harness then drops it), NOTFND when none matches "an unexpired interval control command". */
+    public String cancel(String reqid) {
+        CicsTask task = root();
+        LocalDateTime at = task.ownRequests.containsKey(reqid) ? task.ownRequests.get(reqid) : task.unexpired.get(reqid);
+        String resp = at != null && at.isAfter(now()) ? "NORMAL" : "NOTFND";
+        if ("NORMAL".equals(resp)) {
+            task.ownRequests.remove(reqid);
+        }
+        event("CANCEL", "reqid", reqid, "resp", resp);
+        return resp;
     }
 
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */

@@ -9,6 +9,13 @@
  *   terminal.in           what an unformatted terminal RECEIVE returns (#4005: the
  *                         step's text, typed on a cleared screen); absent means the
  *                         step transmitted no data
+ *   retrieve_NNN.bin      the data of the START requests this task was started for, in
+ *                         expiry order (#4006: what RETRIEVE returns; none: ENDDATA)
+ *   requests.cfg          the unexpired interval-control requests: REQID EXPIRY (epoch
+ *                         seconds, the virtual clock) per line (#4006: CANCEL's search)
+ *   transactions.cfg      the transactions the CSD defines (START's TRANSIDERR)
+ *   terminals.cfg         the region's terminals (START's TERMIDERR)
+ * $GGCICS_NOW is the virtual time the task was dispatched at (YYYY-MM-DDTHH:MM:SS).
  *   programs.cfg          the programs the CSD defines, one per line (#4004: a LINK to
  *                         any other is PGMIDERR); absent means every program is
  *                         defined
@@ -30,10 +37,12 @@
  * GG-RESP / GG-RESP2 (the DFHRESP codes), the translator copied the names and
  * options into GG-NAME1 / GG-NAME2 / GG-FLAGS.
  */
+#define _DEFAULT_SOURCE /* timegm, gmtime_r */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 
 typedef struct {
     int resp;
@@ -683,6 +692,158 @@ int GGCLRET(gg_cics *c) {
             c->go_to = -1;
         }
     }
+    return 0;
+}
+
+/* ---- interval control (#4006) ---------------------------------------------------------- *
+ * The virtual clock is $GGCICS_NOW; a task takes no time (SPEC 4). START records its request
+ * as an event (with its expiry); the runner's scheduler keeps the requests and dispatches
+ * them. RETRIEVE reads the data of the requests the task was started for. */
+enum { TRANSIDERR = 28, TERMIDERR = 11 };
+
+static time_t now_epoch(void) {
+    const char *s = getenv("GGCICS_NOW");
+    struct tm t;
+    memset(&t, 0, sizeof t);
+    if (!s || sscanf(s, "%d-%d-%dT%d:%d:%d", &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min,
+                     &t.tm_sec) != 6)
+        return 0;
+    t.tm_year -= 1900;
+    t.tm_mon -= 1;
+    return timegm(&t);
+}
+
+static void iso(time_t when, char *out, size_t size) {
+    struct tm t;
+    gmtime_r(&when, &t);
+    strftime(out, size, "%Y-%m-%dT%H:%M:%S", &t);
+}
+
+static int listed(const char *file, const char *name) {
+    char path[4096], line[64], word[64];
+    int found = 0;
+    snprintf(path, sizeof path, "%s/%s", dir_in(), file);
+    FILE *f = fopen(path, "r");
+    if (!f) return 1;
+    while (!found && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s", word) == 1 && strcmp(word, name) == 0) found = 1;
+    }
+    fclose(f);
+    return found;
+}
+
+/* This task's own STARTs with a REQID, for a CANCEL in the same task. */
+static struct { char reqid[17]; time_t expires; int cancelled; } own[64];
+static int nown = 0;
+
+/* START TRANSID(name1) [TERMID(name2)] [REQID(qname)] INTERVAL(hhmmss) | TIME(hhmmss) (GG-NUM,
+ * GG-FLAGS says which) [FROM LENGTH: GG-ITEM 1] [PROTECT] (IBM, EXEC CICS START): the request
+ * expires at now + INTERVAL, or at TIME today -- a TIME not later than now but within the
+ * preceding six hours expires at once ("if the START gets triggered at any time within 6 hours
+ * after the time specified on the START, it runs immediately"); one earlier than that is
+ * tomorrow's. INVREQ for hours / minutes / seconds out of range, TRANSIDERR for a transaction
+ * the CSD does not define, TERMIDERR for a terminal other than the region's. */
+int GGCSTRT(gg_cics *c, char *from) {
+    char transid[9], termid[9], reqid[17], flags[41], ev[256], expires[32] = "";
+    int hhmmss = c->num, has = c->item != 0, len = has ? c->len : 0;
+    int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
+    int is_time = 0, protect;
+    time_t now = now_epoch(), at = now;
+    trim(c->name1, 8, transid);
+    trim(c->name2, 8, termid);
+    trim(c->qname, 8, reqid);
+    trim(c->flags, 40, flags);
+    is_time = strstr(flags, "TIME") != NULL;
+    protect = strstr(flags, "PROTECT") != NULL;
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    if (hhmmss < 0 || mm > 59 || ss > 59 || (is_time && hh > 23) || hh > 99) {
+        c->resp = INVREQ;
+    } else if (has && (len < 1 || len > 32763)) {
+        c->resp = LENGERR;
+    } else if (!listed("transactions.cfg", transid)) {
+        c->resp = TRANSIDERR;
+    } else if (termid[0] && !listed("terminals.cfg", termid)) {
+        c->resp = TERMIDERR;
+    } else if (is_time) {
+        struct tm t;
+        gmtime_r(&now, &t);
+        t.tm_hour = hh;
+        t.tm_min = mm;
+        t.tm_sec = ss;
+        at = timegm(&t);
+        if (at <= now) {
+            if (now - at <= 6 * 3600) at = now;
+            else at += 24 * 3600;
+        }
+    } else {
+        at = now + hh * 3600 + mm * 60 + ss;
+    }
+    if (c->resp == NORMAL) {
+        iso(at, expires, sizeof expires);
+        if (reqid[0] && nown < 64) {
+            snprintf(own[nown].reqid, sizeof own[nown].reqid, "%s", reqid);
+            own[nown].expires = at;
+            own[nown++].cancelled = 0;
+        }
+    }
+    snprintf(ev, sizeof ev, "START transid=%s termid=%s %s=%06d reqid=%s protect=%d resp=%d expires=%s len=%d area=%d",
+             transid, termid, is_time ? "time" : "interval", hhmmss, reqid, protect, c->resp, expires, len, has);
+    event(ev, has ? from : NULL, has && c->resp == NORMAL ? len : 0);
+    return 0;
+}
+
+/* RETRIEVE INTO LENGTH(c->len) (IBM, EXEC CICS RETRIEVE): the next data record of the requests
+ * the task was started for, in expiry order -- truncated with LENGERR when longer than LENGTH,
+ * which is then set to the record's length; ENDDATA when there is none left (also for a task no
+ * START started). */
+static int retrieved = 0;
+
+int GGCRTRV(gg_cics *c, char *into) {
+    char path[4096], ev[96], buf[32768];
+    int n = -1, max = c->len, copied = 0;
+    snprintf(path, sizeof path, "%s/retrieve_%03d.bin", dir_in(), retrieved + 1);
+    FILE *f = fopen(path, "rb");
+    c->resp2 = 0;
+    if (!f) {
+        c->resp = ENDDATA;
+    } else {
+        n = (int)fread(buf, 1, sizeof buf, f);
+        fclose(f);
+        retrieved++;
+        copied = n < max ? n : (max > 0 ? max : 0);
+        memcpy(into, buf, (size_t)copied);
+        c->resp = n > max ? LENGERR : NORMAL;
+        c->len = n;
+    }
+    snprintf(ev, sizeof ev, "RETRIEVE resp=%d len=%d copied=%d", c->resp, n, copied);
+    event(ev, into, copied);
+    return 0;
+}
+
+/* CANCEL REQID(qname) (IBM, EXEC CICS CANCEL): NORMAL for a request that has not expired, NOTFND
+ * when none matches ("fails to match an unexpired interval control command"). */
+int GGCCNCL(gg_cics *c) {
+    char reqid[17], path[4096], line[128], word[64], ev[96];
+    long expires;
+    time_t now = now_epoch();
+    int found = 0;
+    trim(c->qname, 8, reqid);
+    for (int i = 0; i < nown && !found; i++) {
+        if (!own[i].cancelled && strcmp(own[i].reqid, reqid) == 0 && own[i].expires > now) {
+            own[i].cancelled = found = 1;
+        }
+    }
+    snprintf(path, sizeof path, "%s/requests.cfg", dir_in());
+    FILE *f = found ? NULL : fopen(path, "r");
+    while (f && !found && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s %ld", word, &expires) == 2 && strcmp(word, reqid) == 0 && expires > now) found = 1;
+    }
+    if (f) fclose(f);
+    c->resp = found ? NORMAL : NOTFND;
+    c->resp2 = 0;
+    snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);
+    event(ev, NULL, 0);
     return 0;
 }
 

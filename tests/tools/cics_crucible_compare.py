@@ -580,7 +580,10 @@ class _Walk:
                         f"final TS queue {q}", f"{len(items)} items expected, got {len(have)}", "final TS differs"
                     )
                 for n, (e, a) in enumerate(zip(items, have)):
-                    self.text(f"final TS queue {q} item {n + 1}", "item", e, a, None)
+                    # SPEC 6.1: a TS item's length is known -- its own -- so the log's text is blank-padded to it
+                    # (trailing blanks optional); #4006 met the first items written from a longer area
+                    known = len(a) if isinstance(a, (bytes, bytearray)) else None
+                    self.text(f"final TS queue {q} item {n + 1}", "item", e, a, known)
 
 
 def compare(expected: dict[str, Any], actual: dict[str, Any], caps: Capabilities, ctx: Context,

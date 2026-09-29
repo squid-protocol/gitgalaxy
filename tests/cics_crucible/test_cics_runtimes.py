@@ -95,8 +95,9 @@ def _cics_task(tmp_path: Path, main_body: str) -> str:
     (pkg / "Main.java").write_text("package t.cics;\n\npublic class Main {\n    public static void main(String[] a) {\n"
                                    + main_body + "\n    }\n}\n", encoding="utf-8")  # fmt: skip
     classes = tmp_path / "classes"
-    subprocess.run(["javac", "-d", str(classes), *map(str, pkg.glob("*.java"))], check=True,  # noqa: S603, S607
-                   capture_output=True)  # fmt: skip
+    built = subprocess.run(["javac", "-d", str(classes), *map(str, pkg.glob("*.java"))], check=False,  # noqa: S603, S607
+                           capture_output=True, text=True)  # fmt: skip
+    assert built.returncode == 0, built.stderr
     proc = subprocess.run(["java", "-cp", str(classes), "t.cics.Main"], capture_output=True, text=True,  # noqa: S603, S607
                           check=True)  # fmt: skip
     return proc.stdout
@@ -229,6 +230,42 @@ def test_cics_task_link_runs_the_callee_on_the_callers_commarea(tmp_path):
         "{caller_commarea=null, event=RETURN, issuer=NOCA, level=2}",
         "{commarea=null, event=RETURN, issuer=MAIN, length=null, transid=null}",
         "read once per task",
+    ]
+
+
+@needs_javac
+def test_cics_task_interval_control_follows_start_retrieve_and_cancel(tmp_path):
+    out = _cics_task(
+        tmp_path,
+        """
+        java.time.LocalDateTime ten = java.time.LocalDateTime.of(2026, 3, 2, 10, 0, 0);
+        CicsTask t = new CicsTask("GT01", "ENTER", null, null).withClock(ten)
+                .withRetrieveData(java.util.List.of("ALPHA".getBytes(), "BRA".getBytes()))
+                .withRequests(java.util.Map.of("R2", ten.plusSeconds(5), "R3", ten));
+        System.out.println(t.start("GT02", null, 130, "ABC".getBytes(), "R1", true).expires());
+        System.out.println(t.startAt("GT02", null, 93000, null, null, false).expires() + " "
+                + t.startAt("GT02", null, 30000, null, null, false).expires() + " "
+                + t.start("GT02", null, 170, null, null, false).resp());
+        System.out.println(t.cancel("R1") + " " + t.cancel("R1") + " " + t.cancel("R2") + " " + t.cancel("R3"));
+        CicsTask.RetrieveResult r1 = t.retrieve(4);
+        CicsTask.RetrieveResult r2 = t.retrieve(4);
+        System.out.println(r1.resp() + " " + r1.length() + " " + new String(r1.data()) + " " + r2.resp() + " "
+                + t.retrieve(4).resp());
+        for (java.util.Map<String, Object> e : t.events()) {
+            if (e.get("event").equals("START")) {
+                System.out.println(new java.util.TreeMap<>(e).keySet() + " " + e.get("interval") + e.get("time"));
+            }
+        }""",
+    )
+    assert out.splitlines() == [
+        "2026-03-02T10:01:30",
+        "2026-03-02T10:00 2026-03-03T03:00 INVREQ",
+        "NORMAL NOTFND NORMAL NOTFND",
+        "LENGERR 5 ALPH NORMAL ENDDATA",
+        "[event, expires, from, interval, protect, reqid, resp, termid, transid] 000130null",
+        "[event, expires, from, protect, resp, termid, time, transid] null093000",
+        "[event, expires, from, protect, resp, termid, time, transid] null030000",
+        "[event, expires, from, interval, protect, resp, termid, transid] 000170null",
     ]
 
 
@@ -398,3 +435,71 @@ def test_the_stub_and_the_runner_agree_on_condition_abend_codes():
     table = dict(re.findall(r'case (\w+): return "(\w{4})";', src))
     assert {c: table[c] for c in runner.CONDITION_ABCODE} == runner.CONDITION_ABCODE
     assert all(c in ec.DFHRESP for c in table)
+
+
+# ---- #4006: interval control ----------------------------------------------------------------------------
+_IC_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCSTRT(gg_cics *c, char *from); int GGCRTRV(gg_cics *c, char *into); int GGCCNCL(gg_cics *c);
+static gg_cics c;
+static void blank(char *f, int n, const char *v) { memset(f, ' ', n); memcpy(f, v, strlen(v)); }
+static void start(const char *transid, const char *termid, const char *reqid, int hhmmss, const char *how) {
+    blank(c.name1, 8, transid); blank(c.name2, 8, termid); blank(c.qname, 16, reqid); blank(c.flags, 40, how);
+    c.num = hhmmss; c.item = 1; c.len = 3;
+    GGCSTRT(&c, "ABC");
+    printf("%d ", c.resp);
+}
+int main(void) {
+    char into[8];
+    start("GT02", "", "", 0, "INTERVAL");
+    start("GT02", "T001", "R1", 130, "INTERVAL PROTECT");
+    start("GT02", "", "", 103000, "TIME");
+    start("GT02", "", "", 93000, "TIME");       /* within the preceding six hours: now */
+    start("GT02", "", "", 30000, "TIME");       /* seven hours before: tomorrow */
+    start("GT02", "", "", 170, "INTERVAL");     /* 70 seconds: INVREQ */
+    start("NOPE", "", "", 0, "INTERVAL");       /* TRANSIDERR */
+    start("GT02", "T999", "", 0, "INTERVAL");   /* TERMIDERR */
+    blank(c.qname, 16, "R1"); GGCCNCL(&c); printf("%d ", c.resp);  /* this task's own, unexpired */
+    blank(c.qname, 16, "R1"); GGCCNCL(&c); printf("%d ", c.resp);  /* already cancelled */
+    blank(c.qname, 16, "R2"); GGCCNCL(&c); printf("%d ", c.resp);  /* requests.cfg: unexpired */
+    blank(c.qname, 16, "R3"); GGCCNCL(&c); printf("%d ", c.resp);  /* requests.cfg: expired */
+    for (int i = 0; i < 3; i++) {
+        memset(into, '.', sizeof into);
+        c.len = 4;
+        GGCRTRV(&c, into);
+        printf("%d/%d/%.6s ", c.resp, c.len, into);
+    }
+    printf("\n");
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_interval_control_follows_start_retrieve_and_cancel(tmp_path):
+    """IBM EXEC CICS START: expiry at now + INTERVAL or at TIME (the six-hour rule), INVREQ / TRANSIDERR /
+    TERMIDERR; RETRIEVE: the started task's data in order, LENGERR truncating (LENGTH = the record's length),
+    then ENDDATA; CANCEL: NORMAL only for an unexpired request."""
+    exe = _stub(tmp_path, _IC_MAIN)
+    (tmp_path / "transactions.cfg").write_text("GT01\nGT02\n")
+    (tmp_path / "terminals.cfg").write_text("T001\n")
+    now = 1772445600  # 2026-03-02T10:00:00 as the stub's clock counts it
+    (tmp_path / "requests.cfg").write_text(f"R2 {now + 5}\nR3 {now}\n")
+    (tmp_path / "retrieve_001.bin").write_bytes(b"ALPHA")
+    (tmp_path / "retrieve_002.bin").write_bytes(b"BRA")
+    out = subprocess.run([str(exe)], env={"GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path),
+                                          "GGCICS_NOW": "2026-03-02T10:00:00"},
+                         capture_output=True, text=True, check=True).stdout  # fmt: skip
+    assert out.split() == ["0", "0", "0", "0", "0", "16", "28", "11", "0", "13", "0", "13",
+                           "22/5/ALPH..", "0/3/BRA...", "29/4/......"]  # fmt: skip
+    events = (tmp_path / "events.txt").read_text().splitlines()
+    expires = [re.search(r"expires=(\S*)", e).group(1) for e in events if " START " in e]
+    assert expires == ["2026-03-02T10:00:00", "2026-03-02T10:01:30", "2026-03-02T10:30:00", "2026-03-02T10:00:00",
+                       "2026-03-03T03:00:00", "", "", ""]  # fmt: skip
+    assert "interval=000130 reqid=R1 protect=1 resp=0" in events[1] and "termid=T001" in events[1]
+    assert "time=093000" in events[3]
+    assert events[-3] == "013 RETRIEVE pgm= resp=22 len=5 copied=4"
+    assert events[-1] == "015 RETRIEVE pgm= resp=29 len=-1 copied=0"

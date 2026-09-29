@@ -9,6 +9,7 @@ runs it through every side and needs EQUIVALENCE_E2E=1 (Docker GnuCOBOL + a JDK 
 """
 
 import copy
+import datetime
 import json
 import os
 import re
@@ -318,18 +319,20 @@ def test_blockers_name_every_missing_feature_once():
                    "CicsTask: START termid", "CicsTask: START from", "CicsTask: START protect", "CicsTask: START resp",
                    "CicsTask: START expires", "scheduler: START-triggered tasks (CicsTask)",
                    "CicsTask: TS queue final state"]  # fmt: skip
-    assert cc.blockers(exp, runner.JAVA_CAPS) == [
-        "CicsTask: START event",
-        "scheduler: START-triggered tasks (CicsTask)",
-    ]
+    assert cc.blockers(exp, runner.JAVA_CAPS) == []  # #4006: CicsTask records START, the driver schedules it
 
 
 def test_final_ts_queues_are_compared_exactly():
     exp = _case().expected["three-visits"] | {"final": {"ts_queues": {"Q": ["AB", {"hex": "00"}]}}}
     act = _actual_from_expected(exp) | {"final": {"ts_queues": {"Q": ["AB".encode(E), b"\x00"]}}}
     assert cc.compare(exp, act, ALL, _ctx()).status == "pass"
-    act["final"]["ts_queues"]["Q"][0] = "AB ".encode(E)  # a TS item has no length to pad to
-    assert cc.compare(exp, act, ALL, _ctx()).kind == "item differs"
+    # SPEC 6.1: an item's length is known (its own), so the log's text is blank-padded to it: trailing blanks
+    # are optional (#4006: GTLOG's 34-byte items are logged as their text), embedded or missing bytes are not
+    act["final"]["ts_queues"]["Q"][0] = "AB  ".encode(E)
+    assert cc.compare(exp, act, ALL, _ctx()).status == "pass"
+    for wrong in ("A B", "A", "ABC"):
+        act["final"]["ts_queues"]["Q"][0] = wrong.encode(E)
+        assert cc.compare(exp, act, ALL, _ctx()).kind == "item differs"
     assert cc.compare(exp, act, runner.COBOL_CAPS, _ctx()).status in ("unsupported", "fail")
 
 
@@ -436,7 +439,8 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
                                  "    // WS-NAME: PIC X(8), offset 3\n    private String wsName;\n}\n")  # fmt: skip
     ca = {"class": "com.gitgalaxy.modernized.dto.contract.St", "value": {"wsCount": 2, "wsName": "FIRST"}}
     raw = {"_scenario": "three-visits", "stopped": None, "ts_queues": {"Q": ["c1c2"]}, "tasks": [
-        {"step": 1, "transid": "FX01", "program": "FXCHAIN", "commarea": ca, "end": "normal", "events": [
+        {"termid": "T001", "at": "2026-03-02T10:00:10", "trigger": {"kind": "terminal", "step": 1}, "eibaid": "ENTER",
+         "transid": "FX01", "program": "FXCHAIN", "commarea": ca, "end": "normal", "events": [
             {"event": "SEND-MAP", "program": "FXCHAIN", "map": "M1", "screen": {"NAME": "ADA", "MSG": None}},
             {"event": "RECEIVE-MAP", "program": "FXCHAIN", "map": "M1", "mapset": "MS", "resp": "MAPFAIL"},
             {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002", "length": 40, "options": ["ERASE"]},
@@ -447,6 +451,10 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
             {"event": "LINK", "program": "FXCHAIN", "target": "SUB", "length": 11, "commarea": ca, "resp": "NORMAL",
              "resp2": None},
             {"event": "RETURN", "program": "SUB", "level": 2, "caller_commarea": ca},
+            {"event": "START", "program": "FXCHAIN", "transid": "GT02", "termid": None, "interval": "000010",
+             "from": "wcI=", "protect": False, "resp": "NORMAL", "expires": "2026-03-02T10:00:20"},
+            {"event": "RETRIEVE", "program": "FXCHAIN", "resp": "ENDDATA", "length": None, "data": None},
+            {"event": "CANCEL", "program": "FXCHAIN", "reqid": "R1", "resp": "NOTFND"},
             {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "commarea": ca},
             {"event": "DRIVER-ERROR", "program": "FXLAST", "message": "no generated service for program FXLAST"}]}]}  # fmt: skip
     act = runner.java_actual(_case(), raw, src)
@@ -467,7 +475,11 @@ def test_the_java_output_becomes_an_actual_log(tmp_path):
     link, back = t["events"][6], t["events"][7]  # #4004
     assert (link["target"], link["commarea"].fields["WS-COUNT"], link["commarea"].length) == ("SUB", 2, 11)
     assert back["level"] == 2 and back["caller_commarea"].fields["WS-NAME"] == "FIRST"
-    assert t["events"][8]["target"] == "FXLAST" and t["events"][9]["message"].startswith("no generated service")
+    start, retrieve, cancel = t["events"][8:11]  # #4006
+    assert (start["interval"], start["from"].data, start["expires"], "reqid" in start) == (
+        "000010", b"\xc1\xc2", "2026-03-02T10:00:20", False)  # fmt: skip
+    assert (retrieve["resp"], retrieve["data"], cancel["reqid"], cancel["resp"]) == ("ENDDATA", None, "R1", "NOTFND")
+    assert t["events"][11]["target"] == "FXLAST" and t["events"][12]["message"].startswith("no generated service")
     raw["tasks"][0]["eibcalen"] = 3
     t = runner.java_actual(_case(), raw, src)["tasks"][0]
     assert t["eibcalen"] == 3 and t["commarea"].length == 3
@@ -587,3 +599,114 @@ def test_the_fixture_runs_through_every_side(tmp_path):
     java = res["cells"]["fx-text-chain/three-visits/java"]
     assert java["reason"] == "task 1 (FX01) event 1: SEND-TEXT expected, the side recorded no further event"
     assert java["kind"].startswith("runTask records no events")
+
+
+# ---- #4006: the scheduler (SPEC section 4) --------------------------------------------------------------
+def _sched_case(scenario: dict) -> cc.Case:
+    data = {"clock": "2026-03-02T10:00:00", "terminal": "T001", "scenarios": [scenario]}
+    return cc.Case(Path("."), data, {}, {"programs": set(), "transactions": {}, "mapsets": set()})
+
+
+def _start(transid, expires, termid=None, data=None, reqid=None, protect=False):
+    e = {"event": "START", "program": "P", "transid": transid, "termid": termid, "protect": protect,
+         "resp": "NORMAL", "expires": expires, "from": _raw(data) if data else None}  # fmt: skip
+    return e | ({"reqid": reqid} if reqid else {})
+
+
+def _drive(scenario: dict, script: dict):
+    """Runs the scheduler with fake tasks: script[transid] -> the events a task of it records (a callable of
+    the task's inputs, or a list), each run noted as (transid, at, termid, trigger, data)."""
+    runs = []
+
+    def run_one(frame, transid, commarea, step, data, requests):
+        runs.append((transid, frame["at"][11:], frame["termid"], frame["trigger"], [d.decode() for d in data]))
+        got = script.get(transid, [])
+        events = got(frame, requests) if callable(got) else got
+        end = "abend" if any(e.get("outcome") == "terminated" for e in events) else "normal"
+        return {"termid": frame["termid"], "events": events, "end": end}
+
+    tasks, stopped = runner.drive_scenario(_sched_case(scenario), scenario, run_one)
+    return runs, stopped
+
+
+def test_expired_starts_run_after_their_starter_in_expiry_order_then_the_next_step():
+    """SPEC 4: when a task ends, expired requests run first (earliest expiry, ties by issue order), then the next
+    operator step once its time has come; virtual time jumps to the next expiry or step; after the last step,
+    requests keep running until none expires before `until`."""
+    sc = {"id": "s", "steps": [{"at": 0, "aid": "ENTER", "text": "GT01"}, {"at": 20, "aid": "ENTER", "text": "GT01"}],
+          "until": 60}  # fmt: skip
+    first = [_start("GT02", "2026-03-02T10:00:30", data="LATE"), _start("GT02", "2026-03-02T10:00:00", data="NOW"),
+             _start("GT02", "2026-03-02T10:00:10", data="TEN"), _start("GT02", "2026-03-02T10:02:00", data="NEVER")]  # fmt: skip
+    calls = iter([first, []])
+    runs, stopped = _drive(sc, {"GT01": lambda f, r: next(calls)})
+    assert stopped is None
+    assert [(t, at, trig.get("event", trig.get("step")), d) for t, at, _termid, trig, d in runs] == [
+        ("GT01", "10:00:00", 0, []), ("GT02", "10:00:00", 1, ["NOW"]), ("GT02", "10:00:10", 2, ["TEN"]),
+        ("GT01", "10:00:20", 1, []), ("GT02", "10:00:30", 0, ["LATE"])]  # fmt: skip
+    assert runs[1][3] == {"kind": "start", "task": 1, "event": 1} and runs[1][2] is None
+
+
+def test_expired_terminal_starts_for_one_transid_become_one_task():
+    """SPEC 4 / IBM START: all expired requests for the same TRANSID and TERMID are satisfied by one task, which
+    RETRIEVEs their data in expiry order; a request not yet expired waits for its own task."""
+    sc = {"id": "s", "steps": [{"at": 0, "aid": "ENTER", "text": "GT11"}], "until": 60}
+    starts = [_start("GT12", "2026-03-02T10:00:00", "T001", "ALPHA"), _start("GT12", "2026-03-02T10:00:00", "T001", "BRAVO"),
+              _start("GT12", "2026-03-02T10:00:10", "T001", "LATER"), _start("GT13", "2026-03-02T10:00:00", "T001", "OTHER")]  # fmt: skip
+    runs, _ = _drive(sc, {"GT11": starts})
+    assert [(t, at, termid, d) for t, at, termid, _trig, d in runs] == [
+        ("GT11", "10:00:00", "T001", []), ("GT12", "10:00:00", "T001", ["ALPHA", "BRAVO"]),
+        ("GT13", "10:00:00", "T001", ["OTHER"]), ("GT12", "10:00:10", "T001", ["LATER"])]  # fmt: skip
+    assert runs[1][3] == {"kind": "start", "task": 1, "event": 0}  # a coalesced task names the first request
+
+
+def test_a_protect_start_dies_with_its_abending_starter_and_a_cancel_drops_a_request():
+    sc = {"id": "s", "steps": [{"at": 0, "aid": "ENTER", "text": "GT01"}, {"at": 10, "aid": "ENTER", "text": "GT09"}],
+          "until": 120}  # fmt: skip
+    abend = {"event": "ABEND", "program": "P", "abcode": "GTAB", "cause": "command", "outcome": "terminated"}
+    starts = [_start("GT02", "2026-03-02T10:00:00", data="PLAIN"), _start("GT02", "2026-03-02T10:00:00", data="PROT", protect=True),
+              _start("GT03", "2026-03-02T10:00:30", reqid="R1"), abend]  # fmt: skip
+    seen = []
+
+    def cancel(frame, requests):
+        seen.append(requests)
+        return [{"event": "CANCEL", "program": "P", "reqid": "R1", "resp": "NORMAL"}]
+
+    runs, _ = _drive(sc, {"GT01": starts, "GT09": cancel})
+    assert [(t, d) for t, _at, _termid, _trig, d in runs] == [("GT01", []), ("GT02", ["PLAIN"]), ("GT09", [])]
+    assert seen == [[("R1", runner._epoch(datetime.datetime(2026, 3, 2, 10, 0, 30)))]]
+
+
+def test_the_terminal_follows_its_last_tasks_return_transid():
+    ret = {"event": "RETURN", "program": "P", "level": 1, "transid": "NX01", "commarea": _raw("CA")}
+    sc = {"id": "s", "steps": [{"at": 0, "aid": "ENTER", "text": "AA01"}, {"at": 10, "aid": "PF3"},
+                               {"at": 20, "aid": "ENTER"}]}  # fmt: skip
+    runs, stopped = _drive(sc, {"AA01": [ret]})
+    assert [t for t, *_ in runs] == [
+        "AA01",
+        "NX01",
+    ] and stopped == "step 2: no pending RETURN TRANSID and no transaction id typed"
+
+
+def test_interval_events_are_logged_as_spec_spells_them(tmp_path):
+    (tmp_path / "events.txt").write_text(
+        "001 START pgm=GTSTART transid=GT02 termid= time=103000 reqid= protect=0 resp=0 expires=2026-03-02T10:30:00 len=20 area=1\n"
+        "002 START pgm=GTTERM transid=GT12 termid=T001 interval=000030 reqid=GTREQ001 protect=1 resp=0 "
+        "expires=2026-03-02T10:00:30 len=0 area=0\n003 START pgm=X transid=NOPE termid= interval=000000 reqid= protect=0 "
+        "resp=28 expires= len=0 area=0\n004 RETRIEVE pgm=GTWORK resp=22 len=30 copied=20\n"
+        "005 RETRIEVE pgm=GTWORK resp=29 len=-1 copied=0\n006 CANCEL pgm=GTTERM reqid=GTREQ001 resp=13\n",
+        encoding="latin-1")  # fmt: skip
+    (tmp_path / "001.bin").write_bytes(b"ORDER 0001 READY    ")
+    (tmp_path / "004.bin").write_bytes(b"THIRTY BYTE PAYLOAD ")
+    evs = runner._cobol_events(tmp_path, "P")
+    assert evs[0]["time"] == "103000" and "interval" not in evs[0] and "reqid" not in evs[0]
+    assert (evs[0]["termid"], evs[0]["protect"], evs[0]["from"].data[:5]) == (None, False, b"ORDER")
+    assert (evs[1]["interval"], evs[1]["reqid"], evs[1]["protect"], evs[1]["from"]) == (
+        "000030",
+        "GTREQ001",
+        True,
+        None,
+    )
+    assert (evs[2]["resp"], evs[2]["expires"]) == ("TRANSIDERR", None)
+    assert (evs[3]["resp"], evs[3]["length"], evs[3]["data"].data) == ("LENGERR", 30, b"THIRTY BYTE PAYLOAD ")
+    assert (evs[4]["resp"], evs[4]["length"], evs[4]["data"]) == ("ENDDATA", None, None)
+    assert (evs[5]["reqid"], evs[5]["resp"]) == ("GTREQ001", "NOTFND")

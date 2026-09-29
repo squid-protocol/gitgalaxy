@@ -246,6 +246,43 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
     return lines + after + _resp(opts, True, labels)
 
 
+def _interval_command(verb: str, opts: dict[str, str | None], labels: list[str]) -> list[str]:
+    """#4006: START -> GGCSTRT (the request is an event; the runner's scheduler dispatches it), RETRIEVE
+    -> GGCRTRV (LENGTH in-out, set back on NORMAL / LENGERR), CANCEL REQID -> GGCCNCL."""
+    refused = {"START": ("AFTER", "AT", "HOURS", "MINUTES", "SECONDS", "RTRANSID", "RTERMID", "QUEUE", "SYSID",
+                         "USERID", "CHANNEL", "NOCHECK", "ATTACH", "BREXIT"),
+               "RETRIEVE": ("SET", "RTRANSID", "RTERMID", "QUEUE", "WAIT"),
+               "CANCEL": ("TRANSID", "SYSID", "ACTIVITY", "ACQACTIVITY", "ACQPROCESS")}[verb]  # fmt: skip
+    bad = [o for o in refused if o in opts]
+    if bad:
+        raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {o}" for o in bad])
+    if verb == "START":
+        if not opts.get("TRANSID"):
+            raise Unsupported("START without TRANSID", ["START"])
+        area = opts.get("FROM")
+        when = "TIME" if opts.get("TIME") is not None else "INTERVAL"
+        flags = " ".join([when] + (["PROTECT"] if "PROTECT" in opts else []))
+        length = opts.get("LENGTH") or opts.get("FLENGTH") or (f"LENGTH OF {area}" if area else "0")
+        lines = [f"MOVE {opts['TRANSID']} TO GG-NAME1",
+                 f"MOVE {opts['TERMID']} TO GG-NAME2" if opts.get("TERMID") else "MOVE SPACES TO GG-NAME2",
+                 f"MOVE {opts['REQID']} TO GG-QNAME" if opts.get("REQID") else "MOVE SPACES TO GG-QNAME",
+                 f"MOVE {opts.get(when) or 0} TO GG-NUM", f"MOVE '{flags}' TO GG-FLAGS", f"MOVE {length} TO GG-LEN",
+                 f"MOVE {1 if area else 0} TO GG-ITEM"]  # fmt: skip
+        return lines + _call("GGCSTRT", [f"BY REFERENCE {area or 'GG-FLAGS'}"]) + _resp(opts, True, labels)
+    if verb == "RETRIEVE":
+        into = opts.get("INTO")
+        if not into:
+            raise Unsupported("RETRIEVE without INTO", ["RETRIEVE"])
+        length = opts.get("LENGTH") or opts.get("FLENGTH")
+        lines = [f"MOVE {length or f'LENGTH OF {into}'} TO GG-LEN"] + _call("GGCRTRV", [f"BY REFERENCE {into}"])
+        if length:
+            lines += ["IF GG-RESP = 0 OR GG-RESP = 22", f"    MOVE GG-LEN TO {length}", "END-IF"]
+        return lines + _resp(opts, True, labels)
+    if not opts.get("REQID"):
+        raise Unsupported("CANCEL without REQID", ["CANCEL without REQID"])
+    return [f"MOVE {opts['REQID']} TO GG-QNAME"] + _call("GGCCNCL", []) + _resp(opts, True, labels)
+
+
 def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
     """One EXEC CICS body -> the COBOL statements that replace it. `labels` are the program's HANDLE
     labels (handler_labels), which a condition or abend exit GOes TO (#4003); by default, this
@@ -331,6 +368,8 @@ def translate_command(body: str, labels: list[str] | None = None) -> list[str]:
                 else ["BY REFERENCE GG-FLAGS", "BY VALUE 0"])  # fmt: skip
         entry = "GGCRETN" if verb == "RETURN" else "GGCXCTL"
         return [name(target, "GG-NAME1")] + _call(entry, args) + ["GOBACK"]
+    if verb in ("START", "RETRIEVE", "CANCEL"):  # #4006: interval control
+        return _interval_command(verb, opts, labels)
     if verb == "LINK":  # #4004: a new level runs the program on the caller's own COMMAREA storage
         for bad in ("SYSID", "TRANSID", "SYNCONRETURN", "CHANNEL", "INPUTMSG", "INPUTMSGLEN", "DATALENGTH"):
             if bad in opts:

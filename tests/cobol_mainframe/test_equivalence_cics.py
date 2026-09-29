@@ -80,6 +80,28 @@ def test_a_link_runs_a_new_level_on_the_callers_own_commarea():
     assert ec.translate_command("LINK PROGRAM('X') COMMAREA(CA)")[1] == "MOVE LENGTH OF CA TO GG-LEN"
 
 
+def test_interval_control_commands_become_stub_calls():
+    """#4006: START's TRANSID / TERMID / REQID / INTERVAL or TIME / FROM / PROTECT go to GGCSTRT; RETRIEVE's LENGTH
+    is set back on NORMAL / LENGERR only; CANCEL needs a REQID."""
+    got = ec.translate_command("START TRANSID('GT12') TERMID(WS-TERM) INTERVAL(30) FROM(WS-A) LENGTH(10) "
+                               "REQID('GTREQ001') PROTECT")  # fmt: skip
+    assert got[:7] == ["MOVE 'GT12' TO GG-NAME1", "MOVE WS-TERM TO GG-NAME2", "MOVE 'GTREQ001' TO GG-QNAME",
+                       "MOVE 30 TO GG-NUM", "MOVE 'INTERVAL PROTECT' TO GG-FLAGS", "MOVE 10 TO GG-LEN",
+                       "MOVE 1 TO GG-ITEM"]  # fmt: skip
+    bare = ec.translate_command("START TRANSID('GT02') TIME(093000)")
+    assert bare[1:7] == ["MOVE SPACES TO GG-NAME2", "MOVE SPACES TO GG-QNAME", "MOVE 093000 TO GG-NUM",
+                         "MOVE 'TIME' TO GG-FLAGS", "MOVE 0 TO GG-LEN", "MOVE 0 TO GG-ITEM"]  # fmt: skip
+    assert ec.translate_command("START TRANSID('GT02')")[3] == "MOVE 0 TO GG-NUM"
+    r = ec.translate_command("RETRIEVE INTO(WS-DATA) LENGTH(WS-LEN) RESP(WS-RESP)")
+    assert r[:5] == ["MOVE WS-LEN TO GG-LEN", "CALL 'GGCRTRV' USING GG-CICS", "    BY REFERENCE WS-DATA",
+                     "IF GG-RESP = 0 OR GG-RESP = 22", "    MOVE GG-LEN TO WS-LEN"]  # fmt: skip
+    assert ec.translate_command("CANCEL REQID('GTREQ001')")[:2] == ["MOVE 'GTREQ001' TO GG-QNAME",
+                                                                   "CALL 'GGCCNCL' USING GG-CICS"]  # fmt: skip
+    for body in ("START TRANSID('X') AFTER SECONDS(5)", "RETRIEVE SET(P) LENGTH(L)", "CANCEL", "START INTERVAL(0)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(body)
+
+
 def test_the_task_driver_and_dispatcher_are_generated_for_the_cases_programs():
     run = ec.task_dispatcher({"CALINK": False, "CASUB": True})
     assert "PROGRAM-ID. GGCRUN RECURSIVE." in run and "LOCAL-STORAGE SECTION." in run

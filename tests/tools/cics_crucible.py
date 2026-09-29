@@ -93,8 +93,14 @@ COBOL_CAPS = cc.Capabilities(
         "READ": frozenset({"file", "ridfld", "resp"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        "START": frozenset(
+            {"transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"}
+        ),
+        "RETRIEVE": frozenset({"resp", "length", "data"}),
+        "CANCEL": frozenset({"reqid", "resp"}),
     },
     ts_queues=True,
+    start_tasks=True,
 )
 JAVA_CAPS = cc.Capabilities(
     layer="CicsTask",
@@ -110,8 +116,14 @@ JAVA_CAPS = cc.Capabilities(
         "ABEND": frozenset({"abcode", "cause", "condition", "outcome", "exit"}),
         "READQ-TS": frozenset({"queue", "item", "resp", "length", "data"}),
         "WRITEQ-TS": frozenset({"queue", "data", "resp", "item"}),
+        "START": frozenset(
+            {"transid", "termid", "interval", "time", "from", "reqid", "protect", "resp", "resp2", "expires"}
+        ),
+        "RETRIEVE": frozenset({"resp", "length", "data"}),
+        "CANCEL": frozenset({"reqid", "resp"}),
     },
     ts_queues=True,
+    start_tasks=True,
 )
 
 
@@ -377,7 +389,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import @PKG@.cics.CicsTask;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -407,132 +421,109 @@ class EquivalenceRunTest {
     void run() throws Exception {
         JsonNode plan = json.readTree(in.resolve("plan.json").toFile());
         for (JsonNode sc : plan.get("scenarios")) {
-            List<Map<String, Object>> tasks = new ArrayList<>();
-            String stopped = null;
-            String pending = null;
-            Object pendingCa = null;
-            Integer pendingLen = null;
-            JsonNode steps = sc.get("steps");
-            CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task of the scenario
+            json.writeValue(out.resolve(sc.get("id").asText() + ".json").toFile(), new Scenario(plan, sc).drive());
+        }
+    }
+
+    static final Comparator<Map<String, Object>> EXPIRY = Comparator
+            .comparing((Map<String, Object> r) -> (LocalDateTime) r.get("expires"))
+            .thenComparing(r -> (Integer) r.get("issue"));
+
+    /** One scenario, scheduled as SPEC section 4 says -- the same rules as tests/tools/cics_crucible.py's
+     *  drive_scenario: when a task ends its STARTs become requests (#4006: a PROTECT one only if it ended
+     *  normally; a CANCEL drops one), then expired requests run (earliest first, ties by issue order; one with
+     *  a TERMID takes every expired request for its TRANSID and terminal), then the next operator step. */
+    class Scenario {
+        final JsonNode plan;
+        final JsonNode sc;
+        final LocalDateTime clock;
+        final LocalDateTime until;
+        final String terminal;
+        final List<Map<String, Object>> tasks = new ArrayList<>();
+        final List<Map<String, Object>> requests = new ArrayList<>();
+        final CicsTask.TempStorage ts = new CicsTask.TempStorage();  // #4002: shared by every task
+        int issued;
+        String pending;
+        Object pendingCa;
+        Integer pendingLen;  // #4009: the next task's EIBCALEN (null: the whole record)
+        LocalDateTime now;
+
+        Scenario(JsonNode plan, JsonNode sc) {
+            this.plan = plan;
+            this.sc = sc;
+            this.clock = LocalDateTime.parse(plan.get("clock").asText());
+            this.until = sc.hasNonNull("until") ? clock.plusSeconds(sc.get("until").asLong()) : null;
+            this.terminal = plan.get("terminal").asText();
+            this.now = clock;
             sc.path("ts_queues").fields().forEachRemaining(q -> {
                 List<byte[]> items = new ArrayList<>();
                 q.getValue().forEach(item -> items.add(HexFormat.of().parseHex(item.asText())));
                 ts.seed(q.getKey(), items);
             });
-            for (int n = 0; n < steps.size(); n++) {
-                JsonNode step = steps.get(n);
-                String transid = pending;
-                Object commarea = pendingCa;
-                Integer calen = pendingLen;
-                pending = null;
-                pendingCa = null;
-                pendingLen = null;
-                if (transid == null) {
-                    String text = step.path("text").asText("").trim();
-                    if (text.isEmpty()) {
-                        stopped = "step " + n + ": no pending RETURN TRANSID and no transaction id typed";
-                        break;
-                    }
-                    transid = text.split("\\s+")[0];
-                    commarea = null;
-                    calen = null;
-                }
-                String aid = step.get("aid").asText();
-                String program = plan.path("transactions").path(transid).asText(null);
-                Map<String, Object> task = new LinkedHashMap<>();
-                task.put("step", n);
-                task.put("transid", transid);
-                task.put("program", program);
-                task.put("commarea", describe(commarea));
-                task.put("eibcalen", commarea == null ? Integer.valueOf(0) : calen);
-                List<Map<String, Object>> events = new ArrayList<>();
-                String end = "normal";
-                Map<String, Object> received = new LinkedHashMap<>();
-                String inputError = input(plan, step, received);
-                if (inputError != null) {
-                    events.add(error(program, inputError));
-                } else if (program == null) {
-                    events.add(error(null, "transaction " + transid + " has no program in the CSD"));
-                }
-                CicsTask.Programs programs = new CicsTask.Programs() {  // #4004: LINK / XCTL through the services
-                    public boolean defined(String p) {
-                        for (JsonNode d : plan.path("programs")) {
-                            if (d.asText().equals(p)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
+        }
 
-                    public void run(String p, CicsTask task) {
-                        Object service = service(plan, p);
-                        if (service == null) {
-                            throw new IllegalStateException("no generated service for program " + p);
+        Map<String, Object> drive() {
+            JsonNode steps = sc.get("steps");
+            int next = 0;
+            String stopped = null;
+            while (true) {
+                List<Map<String, Object>> expired = requests.stream()
+                        .filter(r -> !((LocalDateTime) r.get("expires")).isAfter(now)).toList();
+                if (!expired.isEmpty()) {
+                    Map<String, Object> first = expired.stream().min(EXPIRY).get();
+                    List<Map<String, Object>> group = first.get("termid") == null ? List.of(first)
+                            : expired.stream().filter(r -> r.get("transid").equals(first.get("transid"))
+                                    && first.get("termid").equals(r.get("termid"))).sorted(EXPIRY).toList();
+                    requests.removeAll(group);
+                    List<byte[]> data = new ArrayList<>();
+                    group.forEach(r -> {
+                        if (r.get("data") != null) {
+                            data.add((byte[]) r.get("data"));
                         }
-                        try {
-                            service.getClass().getMethod("runTask", CicsTask.class).invoke(service, task);
-                        } catch (InvocationTargetException e) {
-                            throw e.getCause() instanceof RuntimeException r ? r : new IllegalStateException(e.getCause());
-                        } catch (NoSuchMethodException e) {
-                            throw new IllegalStateException("the service of " + p + " has no runTask(CicsTask)");
-                        } catch (IllegalAccessException e) {
-                            throw new IllegalStateException(e);
-                        }
-                    }
-                };
-                if (inputError == null && program != null) {
-                    CicsTask t = new CicsTask(transid, aid, commarea, calen, received).withTempStorage(ts)
-                            .withPrograms(programs).withSnapshot(this::snapshot);
-                    if (step.has("text")) {
-                        t.withTerminalInput(step.get("text").asText());
-                    }
-                    String thrown = null;
-                    try {
-                        t.run(program);
-                    } catch (RuntimeException e) {
-                        String code = abcode(e);
-                        if (code != null) {
-                            t.abend(code);
-                        } else {
-                            thrown = e.getMessage() != null && e instanceof IllegalStateException ? e.getMessage()
-                                    : "runTask threw " + e;
-                        }
-                    }
-                    for (Map<String, Object> e : t.events()) {
-                        Map<String, Object> copy = new LinkedHashMap<>(e);
-                        if ("XCTL".equals(e.get("event"))) {
-                            copy.put("target", e.get("program"));
-                        }
-                        copy.put("program", e.getOrDefault("issuer", program));
-                        copy.remove("issuer");
-                        if (copy.get("screen") != null) {
-                            copy.put("screen", screenValues(copy.get("screen")));
-                        }
-                        if ("RETURN".equals(e.get("event")) && !e.containsKey("level")) {
-                            pending = (String) e.get("transid");
-                            pendingCa = e.get("commarea") instanceof Map<?, ?> m ? m.get("object") : null;
-                            pendingLen = e.get("length") instanceof Integer l ? l : null;
-                        }
-                        for (String k : List.of("commarea", "caller_commarea")) {
-                            if (copy.get(k) instanceof Map<?, ?> m) {
-                                Map<Object, Object> d = new LinkedHashMap<>(m);
-                                d.remove("object");
-                                copy.put(k, d);
-                            }
-                        }
-                        if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
-                            end = "abend";
-                        }
-                        events.add(copy);
-                    }
-                    if (thrown != null) {
-                        events.add(error(program, thrown));
-                        end = "abend";
-                    }
+                    });
+                    Map<String, Object> trigger = new LinkedHashMap<>();
+                    trigger.put("kind", "start");
+                    trigger.put("task", first.get("task"));
+                    trigger.put("event", first.get("event"));
+                    runOne(frame((String) first.get("termid"), trigger, null), (String) first.get("transid"), null,
+                            null, null, data);
+                    continue;
                 }
-                task.put("events", events);
-                task.put("end", end);
-                tasks.add(task);
+                LocalDateTime nxt = requests.stream().map(r -> (LocalDateTime) r.get("expires"))
+                        .min(Comparator.naturalOrder()).orElse(null);
+                if (next < steps.size()) {
+                    JsonNode step = steps.get(next);
+                    LocalDateTime at = clock.plusSeconds(step.get("at").asLong());
+                    if (nxt != null && !nxt.isAfter(at)) {
+                        now = nxt.isAfter(now) ? nxt : now;
+                        continue;
+                    }
+                    int n = next++;
+                    now = at.isAfter(now) ? at : now;
+                    String transid = pending;
+                    Object commarea = pendingCa;
+                    Integer calen = pendingLen;
+                    if (transid == null) {
+                        String text = step.path("text").asText("").trim();
+                        if (text.isEmpty()) {
+                            stopped = "step " + n + ": no pending RETURN TRANSID and no transaction id typed";
+                            break;
+                        }
+                        transid = text.split("\\s+")[0];
+                        commarea = null;
+                        calen = null;
+                    }
+                    Map<String, Object> trigger = new LinkedHashMap<>();
+                    trigger.put("kind", "terminal");
+                    trigger.put("step", n);
+                    runOne(frame(terminal, trigger, step.get("aid").asText()), transid, commarea, calen, step, List.of());
+                    continue;
+                }
+                if (nxt != null && until != null && nxt.isBefore(until)) {
+                    now = nxt.isAfter(now) ? nxt : now;
+                    continue;
+                }
+                break;
             }
             Map<String, Object> log = new LinkedHashMap<>();
             log.put("tasks", tasks);
@@ -540,8 +531,169 @@ class EquivalenceRunTest {
             Map<String, List<String>> queues = new LinkedHashMap<>();
             ts.queues().forEach((q, items) -> queues.put(q, items.stream().map(b -> HexFormat.of().formatHex(b)).toList()));
             log.put("ts_queues", queues);
-            json.writeValue(out.resolve(sc.get("id").asText() + ".json").toFile(), log);
+            return log;
         }
+
+        Map<String, Object> frame(String termid, Map<String, Object> trigger, String aid) {
+            Map<String, Object> f = new LinkedHashMap<>();
+            f.put("termid", termid);
+            f.put("at", now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+            f.put("trigger", trigger);
+            f.put("eibaid", aid);
+            return f;
+        }
+
+        void runOne(Map<String, Object> frame, String transid, Object commarea, Integer calen, JsonNode step,
+                List<byte[]> data) {
+            String program = plan.path("transactions").path(transid).asText(null);
+            Map<String, Object> task = new LinkedHashMap<>(frame);
+            task.put("transid", transid);
+            task.put("program", program);
+            task.put("commarea", describe(commarea));
+            task.put("eibcalen", commarea == null ? Integer.valueOf(0) : calen);
+            List<Map<String, Object>> events = new ArrayList<>();
+            List<Map<String, Object>> raw = new ArrayList<>();
+            String end = "normal";
+            Map<String, Object> received = new LinkedHashMap<>();
+            String inputError = step == null ? null : input(plan, step, received);
+            if (inputError != null) {
+                events.add(error(program, inputError));
+            } else if (program == null) {
+                events.add(error(null, "transaction " + transid + " has no program in the CSD"));
+            }
+            CicsTask.Programs programs = new CicsTask.Programs() {  // #4004: LINK / XCTL through the services
+                public boolean defined(String p) {
+                    return listed(plan.path("programs"), p);
+                }
+
+                public boolean transaction(String t) {
+                    return plan.path("transactions").has(t);
+                }
+
+                public boolean terminal(String t) {
+                    return terminal.equals(t);
+                }
+
+                public void run(String p, CicsTask task) {
+                    Object service = service(plan, p);
+                    if (service == null) {
+                        throw new IllegalStateException("no generated service for program " + p);
+                    }
+                    try {
+                        service.getClass().getMethod("runTask", CicsTask.class).invoke(service, task);
+                    } catch (InvocationTargetException e) {
+                        throw e.getCause() instanceof RuntimeException r ? r : new IllegalStateException(e.getCause());
+                    } catch (NoSuchMethodException e) {
+                        throw new IllegalStateException("the service of " + p + " has no runTask(CicsTask)");
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalStateException(e);
+                    }
+                }
+            };
+            if (inputError == null && program != null) {
+                Map<String, LocalDateTime> unexpired = new LinkedHashMap<>();
+                requests.forEach(r -> {
+                    if (r.get("reqid") != null && ((LocalDateTime) r.get("expires")).isAfter(now)) {
+                        unexpired.putIfAbsent((String) r.get("reqid"), (LocalDateTime) r.get("expires"));
+                    }
+                });
+                CicsTask t = new CicsTask(transid, (String) frame.get("eibaid"), commarea, calen, received)
+                        .withTempStorage(ts)
+                        .withPrograms(programs).withSnapshot(EquivalenceRunTest.this::snapshot).withClock(now)
+                        .withRetrieveData(data).withRequests(unexpired);
+                if (step != null && step.has("text")) {
+                    t.withTerminalInput(step.get("text").asText());
+                }
+                String thrown = null;
+                try {
+                    t.run(program);
+                } catch (RuntimeException e) {
+                    String code = abcode(e);
+                    if (code != null) {
+                        t.abend(code);
+                    } else {
+                        thrown = e.getMessage() != null && e instanceof IllegalStateException ? e.getMessage()
+                                : "runTask threw " + e;
+                    }
+                }
+                for (Map<String, Object> e : t.events()) {
+                    raw.add(e);
+                    Map<String, Object> copy = new LinkedHashMap<>(e);
+                    if ("XCTL".equals(e.get("event"))) {
+                        copy.put("target", e.get("program"));
+                    }
+                    copy.put("program", e.getOrDefault("issuer", program));
+                    copy.remove("issuer");
+                    if (copy.get("screen") != null) {
+                        copy.put("screen", screenValues(copy.get("screen")));
+                    }
+                    for (String k : List.of("commarea", "caller_commarea")) {
+                        if (copy.get(k) instanceof Map<?, ?> m) {
+                            Map<Object, Object> d = new LinkedHashMap<>(m);
+                            d.remove("object");
+                            copy.put(k, d);
+                        }
+                    }
+                    if ("ABEND".equals(e.get("event")) && "terminated".equals(e.get("outcome"))) {
+                        end = "abend";
+                    }
+                    events.add(copy);
+                }
+                if (thrown != null) {
+                    events.add(error(program, thrown));
+                    end = "abend";
+                }
+            }
+            task.put("events", events);
+            task.put("end", end);
+            tasks.add(task);
+            ended(raw, "abend".equals(end), terminal.equals(frame.get("termid")));
+        }
+
+        /** A task ended: its STARTs become requests, its CANCELs drop them, and a terminal task's level-1
+         *  RETURN TRANSID decides what the terminal's next input starts. */
+        void ended(List<Map<String, Object>> raw, boolean abended, boolean atTerminal) {
+            String transid = null;
+            Object commarea = null;
+            Integer length = null;
+            for (int j = 0; j < raw.size(); j++) {
+                Map<String, Object> e = raw.get(j);
+                if ("START".equals(e.get("event")) && "NORMAL".equals(e.get("resp"))
+                        && !(Boolean.TRUE.equals(e.get("protect")) && abended)) {
+                    Map<String, Object> r = new LinkedHashMap<>();
+                    r.put("issue", ++issued);
+                    r.put("transid", e.get("transid"));
+                    r.put("termid", e.get("termid"));
+                    r.put("expires", LocalDateTime.parse((String) e.get("expires")));
+                    r.put("reqid", e.get("reqid"));
+                    r.put("data", e.get("from"));
+                    r.put("task", tasks.size());
+                    r.put("event", j);
+                    requests.add(r);
+                } else if ("CANCEL".equals(e.get("event")) && "NORMAL".equals(e.get("resp"))) {
+                    requests.stream().filter(r -> e.get("reqid").equals(r.get("reqid"))
+                            && ((LocalDateTime) r.get("expires")).isAfter(now)).findFirst().ifPresent(requests::remove);
+                } else if ("RETURN".equals(e.get("event")) && !e.containsKey("level")) {
+                    transid = (String) e.get("transid");
+                    commarea = e.get("commarea") instanceof Map<?, ?> m ? m.get("object") : null;
+                    length = e.get("length") instanceof Integer l ? l : null;
+                }
+            }
+            if (atTerminal) {
+                pending = abended ? null : transid;
+                pendingCa = abended || transid == null ? null : commarea;
+                pendingLen = abended || transid == null ? null : length;
+            }
+        }
+    }
+
+    static boolean listed(JsonNode names, String name) {
+        for (JsonNode d : names) {
+            if (d.asText().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** A formatted step's fields as the map's screen view model (none sent: MAPFAIL); an error, else null. */
@@ -643,13 +795,16 @@ def java_plan(case: cc.Case, src: Path) -> dict[str, Any]:
         with contextlib.suppress(RuntimeError):
             cls = ec._generated_class(src, 'String MAP = "' + re.escape(m) + '";')
             screens[m] = f"{ej.PKG}.dto.screen.{cls}"
-    scenarios = [{"id": sc["id"], "steps": sc["steps"],  # #4002: seeds as EBCDIC hex (SPEC 2: the region's page)
+    # #4002: seeds as EBCDIC hex (SPEC 2: the region's page); #4006: `until` for the scheduler
+    scenarios = [{"id": sc["id"], "steps": sc["steps"], "until": sc.get("until"),
                   "ts_queues": {q: [cc.expected_bytes(i).hex() for i in items]
                                 for q, items in ((sc.get("initial") or {}).get("ts_queues") or {}).items()}}
                  for sc in case.scenarios]  # fmt: skip
     return {
         "transactions": case.csd["transactions"],
         "programs": sorted(case.csd["programs"]),  # #4004: LINK's PGMIDERR
+        "clock": case.data["clock"],  # #4006: the scheduler's virtual clock and terminal
+        "terminal": case.data["terminal"],
         "services": services,
         "screens": screens,
         "scenarios": scenarios,
@@ -675,10 +830,10 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
     shapes: dict[str, Any] = {}
     tasks = []
     for t in raw.get("tasks", []):
-        step = case_step(case, raw["_scenario"], t["step"])
         calen = t.get("eibcalen")
         ca = _java_area(t.get("commarea"), src, shapes, calen)
-        task: dict[str, Any] = {"transid": t["transid"], "program": t["program"], **task_frame(case, t["step"], step),
+        frame = {k: t.get(k) for k in ("termid", "at", "trigger", "eibaid")}  # #4006: the Java scheduler's
+        task: dict[str, Any] = {"transid": t["transid"], "program": t["program"], **frame,
                                 "eibcalen": 0 if ca is None else cc.FULL if calen is None else calen,
                                 "commarea": ca, "end": t["end"], "events": []}  # fmt: skip
         for e in t["events"]:
@@ -710,6 +865,17 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
                           commarea=_java_area(e.get("commarea"), src, shapes, e.get("length")))  # fmt: skip
             elif kind == "XCTL":
                 ev.update(target=e.get("target"), commarea=_java_area(e.get("commarea"), src, shapes))
+            elif kind == "START":  # #4006: FROM data as base64, EBCDIC bytes; REQID only if the program named one
+                b64 = e.get("from")
+                ev.update({k: e[k] for k in ("transid", "termid", "interval", "time", "reqid", "protect", "resp",
+                                              "expires") if k in e})  # fmt: skip
+                ev["from"] = cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None
+            elif kind == "RETRIEVE":
+                b64 = e.get("data")
+                ev.update(resp=e.get("resp"), length=e.get("length"),
+                          data=cc.RawArea(base64.b64decode(b64), cc.EBCDIC) if b64 is not None else None)  # fmt: skip
+            elif kind == "CANCEL":
+                ev.update(reqid=e.get("reqid"), resp=e.get("resp"))
             elif kind == "ABEND":  # #4003: cause, condition, outcome and the exit, as CicsTask records them
                 ev.update({k: e[k] for k in ("abcode", "cause", "condition", "outcome", "exit") if k in e})
             else:
@@ -718,11 +884,6 @@ def java_actual(case: cc.Case, raw: dict[str, Any], src: Path) -> dict[str, Any]
         tasks.append(task)
     final = {q: [bytes.fromhex(i) for i in items] for q, items in (raw.get("ts_queues") or {}).items()}
     return {"tasks": tasks, "stopped": raw.get("stopped"), "final": {"ts_queues": final}}
-
-
-def case_step(case: cc.Case, scenario: str, n: int) -> dict[str, Any]:
-    sc = next(s for s in case.scenarios if s["id"] == scenario)
-    return dict(sc["steps"][n])
 
 
 def run_java(case: cc.Case, project: Path, work: Path, offline: bool) -> dict[str, dict[str, Any]]:
@@ -818,6 +979,19 @@ def _cobol_events(out: Path, program: str) -> list[dict[str, Any]]:
         elif verb == "RECEIVE-WAIT":
             ev = {"event": "DRIVER-ERROR", "program": issuer,
                   "message": "a second terminal RECEIVE in one task waits for input no scenario step gives"}  # fmt: skip
+        elif verb == "START":  # #4006: INTERVAL or TIME as given (hhmmss), REQID only if the program named one
+            resp = names.get(int(arg("resp") or 0), arg("resp"))
+            ev.update(transid=arg("transid"), termid=arg("termid") or None,
+                      **({"time": arg("time")} if arg("time") else {"interval": arg("interval")}),
+                      **({"reqid": arg("reqid")} if arg("reqid") else {}),
+                      protect=arg("protect") == "1", resp=resp, expires=arg("expires") if resp == "NORMAL" else None,
+                      **{"from": cc.RawArea(data, "latin-1") if arg("area") == "1" else None})  # fmt: skip
+        elif verb == "RETRIEVE":
+            n = int(arg("len") or -1)
+            ev.update(resp=names.get(int(arg("resp") or 0), arg("resp")), length=n if n >= 0 else None,
+                      data=cc.RawArea(data, "latin-1") if n >= 0 else None)  # fmt: skip
+        elif verb == "CANCEL":
+            ev.update(reqid=arg("reqid"), resp=names.get(int(arg("resp") or 0), arg("resp")))
         elif verb == "NOPROGRAM":
             ev = {"event": "DRIVER-ERROR", "program": arg("target"),
                   "message": f"{arg('target')} is not a translated program of the case"}  # fmt: skip
@@ -933,38 +1107,122 @@ def run_cobol(case: cc.Case, programs: dict[str, tuple[str, bool]], scenarios: l
         box.close()
 
 
-def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path) -> dict[str, Any]:
-    """One scenario on the stub (SPEC section 4): each terminal step starts the TRANSID and COMMAREA of the
-    previous task's level-1 RETURN, else the transaction id typed as text."""
+def _epoch(when: datetime.datetime) -> int:
+    """A virtual time as the stub's clock counts it (seconds, the naive time read as UTC)."""
+    import calendar
+
+    return calendar.timegm(when.timetuple())
+
+
+def drive_scenario(case: cc.Case, sc: dict[str, Any], run_one: Any) -> tuple[list[dict[str, Any]], Optional[str]]:
+    """The scheduler of SPEC section 4, for either side: (tasks in dispatch order, why it stopped early).
+
+    `run_one(frame, transid, commarea, step, data, requests)` runs one task and returns it (its `events` as
+    SPEC 6.2 spells them, its `end`): `frame` is what the scheduler decided (termid, at, trigger, eibaid),
+    `data` the FROM data its RETRIEVEs get (expiry order), `requests` the unexpired interval-control
+    requests (for CANCEL). When a task ends, its STARTs become requests (#4006: a PROTECT one only if the
+    task ended normally; a CANCEL removes one); then, in order: expired requests (earliest expiry first,
+    ties by issue order; one with a TERMID takes every expired request for its TRANSID and terminal), then
+    the next operator step once its time has come. Virtual time jumps to the next expiry or step; after the
+    last step, requests keep running until none expires before `until`."""
+    clock = datetime.datetime.fromisoformat(case.data["clock"])
+    until = clock + datetime.timedelta(seconds=sc["until"]) if sc.get("until") is not None else None
+    terminal = case.data["terminal"]
     tasks: list[dict[str, Any]] = []
-    stopped = None
+    requests: list[dict[str, Any]] = []
+    issued = 0
     pending: Optional[str] = None
     pending_ca: Optional[bytes] = None
+    now = clock
+    steps = list(enumerate(sc["steps"]))
+
+    def ended(task: dict[str, Any], at: datetime.datetime) -> None:
+        nonlocal issued, pending, pending_ca
+        for j, e in enumerate(task["events"]):
+            if (
+                e["event"] == "START"
+                and e.get("resp") == "NORMAL"
+                and not (e.get("protect") and task["end"] != "normal")
+            ):
+                issued += 1
+                requests.append({"issue": issued, "transid": e["transid"], "termid": e.get("termid"),
+                                 "expires": datetime.datetime.fromisoformat(e["expires"]), "reqid": e.get("reqid"),
+                                 "data": e["from"].data if e.get("from") is not None else None,
+                                 "task": len(tasks), "event": j})  # fmt: skip
+            elif e["event"] == "CANCEL" and e.get("resp") == "NORMAL":
+                r = next((r for r in requests if r["reqid"] == e["reqid"] and r["expires"] > at), None)
+                if r is not None:
+                    requests.remove(r)
+        if task.get("termid") == terminal:  # the terminal's next input starts this task's RETURN TRANSID
+            last = next((e for e in reversed(task["events"]) if e["event"] == "RETURN" and e.get("level") == 1), None)
+            pending = last["transid"] if last is not None and task["end"] == "normal" else None
+            pending_ca = last["commarea"].data if pending and last is not None and last["commarea"] else None
+
+    def run(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
+            data: list[bytes], at: datetime.datetime) -> None:  # fmt: skip
+        unexpired = [(r["reqid"], _epoch(r["expires"])) for r in requests if r["reqid"] and r["expires"] > at]
+        task = run_one(frame, transid, commarea, step, data, unexpired)
+        tasks.append(task)
+        ended(task, at)
+
+    while True:
+        expired = [r for r in requests if r["expires"] <= now]
+        if expired:
+            first = min(expired, key=lambda r: (r["expires"], r["issue"]))
+            group = [first]
+            if first["termid"]:
+                group = sorted((r for r in expired if (r["transid"], r["termid"]) == (first["transid"], first["termid"])),
+                               key=lambda r: (r["expires"], r["issue"]))  # fmt: skip
+            for r in group:
+                requests.remove(r)
+            frame = {"termid": first["termid"], "at": now.strftime("%Y-%m-%dT%H:%M:%S"),
+                     "trigger": {"kind": "start", "task": first["task"], "event": first["event"]}, "eibaid": None}  # fmt: skip
+            run(frame, first["transid"], None, None, [r["data"] for r in group if r["data"] is not None], now)
+            continue
+        nxt = min((r["expires"] for r in requests), default=None)
+        if steps:
+            n, step = steps[0]
+            at = clock + datetime.timedelta(seconds=step["at"])
+            if nxt is not None and nxt <= at:
+                now = max(now, nxt)
+                continue
+            steps.pop(0)
+            now = max(now, at)
+            transid, commarea = pending, pending_ca
+            if transid is None:
+                words = (step.get("text") or "").split()
+                if not words:
+                    return tasks, f"step {n}: no pending RETURN TRANSID and no transaction id typed"
+                transid, commarea = words[0], None
+            run(task_frame(case, n, step), transid, commarea, step, [], now)
+            continue
+        if nxt is not None and until is not None and nxt < until:
+            now = max(now, nxt)
+            continue
+        return tasks, None
+
+
+def run_scenario(case: cc.Case, sc: dict[str, Any], box: "Container", work: Path) -> dict[str, Any]:
+    """One scenario on the stub, scheduled as SPEC section 4 says (drive_scenario)."""
     ts = f"runs/{sc['id']}/ts"  # #4002: the region's TS queues, shared by every task of the scenario
     seed_ts(work / ts, (sc.get("initial") or {}).get("ts_queues") or {})
-    for n, step in enumerate(sc["steps"]):
-        transid, commarea = pending, pending_ca
-        pending, pending_ca = None, None
-        if transid is None:
-            words = (step.get("text") or "").split()
-            if not words:
-                stopped = f"step {n}: no pending RETURN TRANSID and no transaction id typed"
-                break
-            transid, commarea = words[0], None
-        frame = task_frame(case, n, step)
-        task = run_task(case, box, work, f"runs/{sc['id']}/{n:02d}", ts, transid, frame, commarea, step)
-        tasks.append(task)
-        last = next((e for e in reversed(task["events"]) if e["event"] == "RETURN" and e.get("level") == 1), None)
-        if last is not None and task["end"] == "normal":
-            pending = last["transid"]
-            pending_ca = last["commarea"].data if last["commarea"] else None
+    count = iter(range(1000))
+
+    def run_one(frame: dict[str, Any], transid: str, commarea: Optional[bytes], step: Optional[dict[str, Any]],
+                data: list[bytes], requests: list[tuple[str, int]]) -> dict[str, Any]:  # fmt: skip
+        rel = f"runs/{sc['id']}/{next(count):02d}"
+        return run_task(case, box, work, rel, ts, transid, frame, commarea, step, data, requests)
+
+    tasks, stopped = drive_scenario(case, sc, run_one)
     return {"tasks": tasks, "stopped": stopped, "final": {"ts_queues": read_ts(work / ts)}}
 
 
 def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, transid: str, frame: dict[str, Any],
-             commarea: Optional[bytes], step: Optional[dict[str, Any]]) -> dict[str, Any]:  # fmt: skip
+             commarea: Optional[bytes], step: Optional[dict[str, Any]], data: Optional[list[bytes]] = None,
+             requests: Optional[list[tuple[str, int]]] = None) -> dict[str, Any]:  # fmt: skip
     """One task in one process: its inputs in `rel` (the COMMAREA, the terminal's input -- a step's text or
-    map fields -- the EIB, the CSD's programs), then the stub's events as the task's."""
+    map fields -- the EIB, the CSD's programs and transactions, #4006: the START data it RETRIEVEs and the
+    unexpired requests a CANCEL searches, the virtual clock), then the stub's events as the task's."""
     import equivalence_cics as ec
     import equivalence_common as common
 
@@ -981,6 +1239,11 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "out").mkdir(parents=True, exist_ok=True)
     (d / "files.cfg").write_text("", encoding="ascii")
     (d / "programs.cfg").write_text("".join(f"{p}\n" for p in sorted(case.csd["programs"])), encoding="ascii")
+    (d / "transactions.cfg").write_text("".join(f"{t}\n" for t in sorted(case.csd["transactions"])), encoding="ascii")
+    (d / "terminals.cfg").write_text(f"{case.data['terminal']}\n", encoding="ascii")
+    (d / "requests.cfg").write_text("".join(f"{r} {e}\n" for r, e in requests or []), encoding="ascii")
+    for i, item in enumerate(data or [], 1):
+        (d / f"retrieve_{i:03d}.bin").write_bytes(item)
     if commarea:
         (d / "commarea.in").write_bytes(commarea)
     step = step or {}
@@ -999,7 +1262,7 @@ def run_task(case: cc.Case, box: "Container", work: Path, rel: str, ts: str, tra
     (d / "eib.in").write_text(f"{transid:<4} {aid:<8} {eib_date} {eib_time} {program:<8} {frame.get('termid') or '':<4}\n",
                               encoding="ascii")  # fmt: skip
     box.sh(f"cd /work && GGCICS_DIR=/work/{rel} GGCICS_OUT=/work/{rel}/out EIBIN=/work/{rel}/eib.in "
-           f"GGCICS_TS=/work/{ts} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
+           f"GGCICS_TS=/work/{ts} GGCICS_NOW={frame['at']} COB_CURRENT_DATE='{when.strftime('%Y/%m/%d %H:%M:%S')}.00' ./bin/task "
            f"> /work/{rel}/stdout.txt 2>&1")  # fmt: skip
     task["events"] = _cobol_events(d / "out", program)
     if any((e["event"] == "ABEND" and e.get("outcome") == "terminated") or e["event"] == "DRIVER-ERROR"

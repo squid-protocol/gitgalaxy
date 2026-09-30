@@ -129,6 +129,15 @@ PORTING_RULES = [
         "collation (#3822)."
     ),
     (
+        "Compare alphanumeric operands (PIC X / A items, group items, alphanumeric literals and figurative "
+        "constants) in IF, EVALUATE, PERFORM UNTIL and SEARCH WHEN only through the generated CobolCompare "
+        "(compare, eq, gt, ge, lt, le), never String.compareTo or equals: it compares the code page's bytes "
+        "as the mainframe does -- lower case before upper, letters before digits, so IF CUST-ID > 'A' is true "
+        "for '1001' -- and pads the shorter operand with spaces ('AB' = 'AB  '). HIGH-VALUES / LOW-VALUES are "
+        "CobolCompare.highValues(n) / lowValues(n). A numeric comparison stays BigDecimal.compareTo. A program "
+        "that declares PROGRAM COLLATING SEQUENCE compares by that alphabet instead: flag it in a TODO (#3986)."
+    ),
+    (
         "A CICS program is ported into runTask(CicsTask task), one task per call (#3754): EIBCALEN = 0 is "
         "!task.hasCommarea(), EIBCALEN is task.eibcalen() (#4009: null = the whole record), DFHCOMMAREA is "
         "task.commarea(<its DTO>.class), EIBAID is task.aid() (ENTER, CLEAR, PF1-PF24, PA1-PA3), EIBTRMID is "
@@ -261,6 +270,22 @@ def decimal_point_rules(text: str, culture: dict[str, Any] | None) -> list[str]:
             'Java literal is still written with `.` (new BigDecimal("12.50")) (#3984).'
         ]
     return []
+
+
+def collation_rules(culture: dict[str, Any] | None) -> list[str]:
+    """#3986: CobolCompare always follows the code page's bytes, as the program did; under a key_collation
+    other than ebcdic the generated repositories browse in another order, so a program that compares the
+    keys it browses can see them out of its own order. Said once, where it applies."""
+    collation = str((culture or {}).get("key_collation") or "ebcdic")
+    if collation == "ebcdic":
+        return []
+    order = "UTF-8 byte order" if collation == "binary" else "the database's default collation"
+    return [
+        f"This migration declares culture.key_collation: {collation}: repository browses return keys in "
+        f"{order}, while CobolCompare compares as the mainframe did. Where the program compares a key it "
+        "browsed with another (a READNEXT loop ending on a limit, a control break), the two orders can "
+        "disagree: flag it in a TODO rather than switching the comparison (#3986)."
+    ]
 
 
 def option_rules(options: list[dict[str, Any]]) -> list[str]:
@@ -542,6 +567,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     file_control = (skeleton.get("sections", {}).get("file_control") or {}).get("facts") or []
     rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
     rules += decimal_point_rules(text, target.get("culture"))  # #3984
+    rules += collation_rules(target.get("culture"))  # #3986
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "

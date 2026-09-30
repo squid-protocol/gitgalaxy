@@ -63,6 +63,7 @@ _RUNTIME_HELPERS = (
     "entity/vsam/CobolRecords.java",
     "entity/vsam/CobolEdit.java",
     "repository/db2/Db2Dates.java",  # #3828
+    "util/CobolCompare.java",  # #3986
 )
 
 

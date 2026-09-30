@@ -591,100 +591,195 @@ def test_detector_c_macro_dead_branch_nesting_and_else():
     assert result["threat_locations"]["high_risk_execution"] == [3, 12], "hits are the live strcpy on lines 3 and 12"
 
 
-def test_detector_c_macro_else_branch_is_scanned_issue_1720():
+def _c_macro_fn(name):
+    """A small C function in the shape MOCK_LANG_DEFS' c `func_start` matches (#1720 tests)."""
+    return f"void {name}(int n) {{\n    return;\n}}\n"
+
+
+def _c_macro_function_names(code):
+    return [f["name"] for f in StructuralExtractor("c", MOCK_LANG_DEFS).splice(code, "")["functions"]]
+
+
+@pytest.mark.parametrize(
+    "opener",
+    ["#ifdef USE_FAST_PATH", "#ifndef USE_FAST_PATH", "#if USE_FAST_PATH", "#if defined(USE_FAST_PATH) && !NDEBUG"],
+)
+def test_detector_c_macro_unknown_condition_keeps_else_branch_function(opener):
     """
-    Regression test for #1720: the preprocessor shield used to assume the
-    first branch of every #if/#ifdef is the active one and blindly blanked
-    the #else branch, so real implementations living in #else were silently
-    dropped from extraction. With an unknown condition (e.g. #if FEATURE_FLAG)
-    the shield now scans BOTH branches; only statically-decidable conditions
-    (#if 0 / #if 1) prune a branch.
+    #1720: the macro shield used to assume the first branch of every
+    `#if`/`#ifdef`/`#ifndef` was the live one and blank the whole `#else` side,
+    so an implementation living only in `#else` was never found. An unknown
+    condition (macro name, `defined(X)`, an expression, any `#ifdef`/`#ifndef`)
+    now keeps both branches, and both functions are extracted with their own
+    line spans.
     """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    code = (
-        "#if FEATURE_FLAG\n"
-        "int fastImplementation() {\n"
-        "    return 1;\n"
-        "}\n"
-        "#else\n"
-        "int portableImplementation() {\n"
-        "    return 2;\n"
-        "}\n"
-        "#endif\n"
+    code = f"{opener}\n" + _c_macro_fn("fast_impl") + "#else\n" + _c_macro_fn("portable_impl") + "#endif\n"
+    result = StructuralExtractor("c", MOCK_LANG_DEFS).splice(code, "")
+    spans = {f["name"]: (f["start_line"], f["end_line"]) for f in result["functions"]}
+    assert spans == {"fast_impl": (2, 4), "portable_impl": (6, 8)}, (
+        f"{opener}: the #else implementation must survive an undecidable condition, got {spans}"
     )
 
-    result = opt_detector.splice(code, "")
 
-    names = [f["name"] for f in result["functions"]]
-    assert "fastImplementation" in names, "First branch of an unknown #if must still be scanned!"
-    assert "portableImplementation" in names, (
-        "#1720: implementation living in the #else branch was dropped from extraction!"
+@pytest.mark.parametrize(
+    ("opener", "expected"),
+    [
+        ("#if 0", "else_impl"),
+        ("#if false", "else_impl"),
+        ("#if (0)", "else_impl"),
+        ("#if 0x0", "else_impl"),
+        ("#if 1", "first_impl"),
+        ("#if true", "first_impl"),
+        ("#if ((1))", "first_impl"),
+        ("#if 2UL", "first_impl"),
+    ],
+)
+def test_detector_c_macro_static_condition_hides_dead_branch_function(opener, expected):
+    """
+    #1720: a statically false `#if` hides its first branch and leaves `#else`
+    live; a statically true one keeps its first branch and hides `#else`.
+    """
+    code = f"{opener}\n" + _c_macro_fn("first_impl") + "#else\n" + _c_macro_fn("else_impl") + "#endif\n"
+    names = _c_macro_function_names(code)
+    assert names == [expected], f"{opener}: only {expected} is in a live branch, got {names}"
+
+
+def test_detector_c_macro_elif_chain_function_liveness():
+    """
+    #1720: each `#elif` starts a new condition for the rest of its chain. A
+    statically false branch is skipped without closing the chain; once one
+    branch is statically true every later `#elif`/`#else` is dead; unknown
+    branches stay live alongside the rest.
+    """
+    decided_chain = (
+        "#if 0\n"
+        + _c_macro_fn("zero_impl")  # dead: #if 0
+        + "#elif 1\n"
+        + _c_macro_fn("one_impl")  # live: first statically true branch
+        + "#elif HAVE_OTHER\n"
+        + _c_macro_fn("other_impl")  # dead: an earlier branch was true
+        + "#else\n"
+        + _c_macro_fn("fallback_impl")  # dead: an earlier branch was true
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(decided_chain) == ["one_impl"], "#elif 1 takes the chain; the rest is dead"
+
+    open_chain = (
+        "#if HAVE_SSE\n"
+        + _c_macro_fn("sse_impl")  # live: unknown
+        + "#elif 0\n"
+        + _c_macro_fn("never_impl")  # dead: statically false
+        + "#elif defined(HAVE_NEON)\n"
+        + _c_macro_fn("neon_impl")  # live: unknown
+        + "#else\n"
+        + _c_macro_fn("scalar_impl")  # live: nothing earlier was statically true
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(open_chain) == ["sse_impl", "neon_impl", "scalar_impl"], (
+        "unknown #if/#elif branches and the #else stay live; only the #elif 0 branch is dead"
     )
 
 
-def test_detector_c_macro_static_truth_prunes_branches():
+def test_detector_c_macro_nested_blocks_inside_dead_region_stay_dead():
     """
-    Companion to the #1720 fix: statically-decidable #if conditions still
-    prune the dead branch. #if 0 => first branch dead, #else alive;
-    #if 1 => first branch alive, #else dead. Nested blocks must also honor
-    the outer branch's liveness (any() over the open-#if stack).
+    #1720: inside a dead region everything stays dead until the enclosing
+    block's `#endif`, whatever a nested block's own condition says -- a nested
+    `#if 1`, its `#else`, and a nested `#ifdef` cannot revive code. A nested
+    `#endif` closes only its own block, so the outer `#else` is still found.
     """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-
-    code_if_zero = "#if 0\nint deadFast() {\n    return 1;\n}\n#else\nint aliveFallback() {\n    return 2;\n}\n#endif\n"
-    names_zero = [f["name"] for f in opt_detector.splice(code_if_zero, "")["functions"]]
-    assert "deadFast" not in names_zero, "#if 0 first branch must be pruned!"
-    assert "aliveFallback" in names_zero, "#if 0 #else branch must survive!"
-
-    code_if_one = "#if 1\nint aliveFast() {\n    return 1;\n}\n#else\nint deadFallback() {\n    return 2;\n}\n#endif\n"
-    names_one = [f["name"] for f in opt_detector.splice(code_if_one, "")["functions"]]
-    assert "aliveFast" in names_one, "#if 1 first branch must survive!"
-    assert "deadFallback" not in names_one, "#if 1 #else branch must be pruned!"
-
-
-def test_detector_c_macro_no_space_boundaries_issue_1764():
-    """
-    Regression test for a bug where `#if(1)` or `#elif(0)` (valid C preprocessor
-    syntax without a space) failed to push onto the branch stack because
-    `startswith("#if ")` was used. This led to premature `#endif` pops and
-    desynced branch nesting.
-    """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
     code = (
         "#if 0\n"
-        "int deadOne() { return 1; }\n"
-        "#if(1)\n"
-        "int deadTwo() { return 2; }\n"
-        "#endif\n"
-        "int deadThree() { return 3; }\n"  # should stay dead -- still inside outer #if 0, before #else
-        "#else\n"
-        "int aliveOne() { return 4; }\n"
-        "#endif\n"
-    )
-
-    result = opt_detector.splice(code, "")
-    names = [f["name"] for f in result["functions"]]
-
-    assert "deadThree" not in names, "Premature pop caused dead code to be scanned as alive!"
-    assert "aliveOne" in names, "Valid #else branch was dropped due to stack desync!"
-
-    code_nested = (
-        "#if 0\n"
-        "int a() { return 1; }\n"
-        "#else\n"
-        "int b() { return 2; }\n"
         "#if 1\n"
-        "int c() { return 3; }\n"
-        "#else\n"
-        "int d() { return 4; }\n"
-        "#endif\n"
-        "int e() { return 5; }\n"
-        "#endif\n"
+        + _c_macro_fn("nested_true_impl")
+        + "#else\n"
+        + _c_macro_fn("nested_else_impl")
+        + "#endif\n"
+        + "#ifdef FEATURE\n"
+        + _c_macro_fn("nested_ifdef_impl")
+        + "#endif\n"
+        + _c_macro_fn("outer_dead_impl")
+        + "#else\n"
+        + _c_macro_fn("outer_live_impl")
+        + "#endif\n"
     )
-    names_nested = [f["name"] for f in opt_detector.splice(code_nested, "")["functions"]]
-    assert set(names_nested) == {"b", "c", "e"}, (
-        "Nested #if liveness was not honored: expected only b, c, e, got %r" % names_nested
+    assert _c_macro_function_names(code) == ["outer_live_impl"], "nothing nested in #if 0 revives; #else is live"
+
+    # The dead #else side of a live #if 1 is just as dead for its nested #if 0 / #else.
+    live_outer = (
+        "#if 1\n"
+        + _c_macro_fn("kept_impl")
+        + "#else\n"
+        + "#if 0\n"
+        + _c_macro_fn("inner_zero_impl")
+        + "#else\n"
+        + _c_macro_fn("inner_else_impl")
+        + "#endif\n"
+        + "#endif\n"
     )
+    assert _c_macro_function_names(live_outer) == ["kept_impl"], "an #else nested in a dead region stays dead"
+
+
+def test_detector_c_macro_directive_keywords_are_whole_words():
+    """
+    #1720: directives are recognised by whole keyword. `#if(0)` (no space),
+    `#  if` (blanks after `#`) and a condition followed by a comment are all
+    `#if 0`; `#ifdef`/`#ifndef` are openers of their own (not `#if def...`), so
+    their `#endif` closes only them and the enclosing `#if 1`'s `#else` stays
+    dead; `#endif` is never taken for `#else`/`#elif`.
+    """
+    for opener in ("#if(0)", "#  if 0", "#\tif 0 // disabled", "#if /* off */ 0 /* for now */"):
+        code = f"{opener}\n" + _c_macro_fn("hidden_impl") + "#else\n" + _c_macro_fn("shown_impl") + "#endif\n"
+        names = _c_macro_function_names(code)
+        assert names == ["shown_impl"], f"{opener!r} is a static #if 0, got {names}"
+
+    code = (
+        "#if 1\n"
+        "#ifdef FEATURE\n"
+        + _c_macro_fn("feature_impl")
+        + "#endif\n"
+        + "#ifndef FEATURE\n"
+        + _c_macro_fn("no_feature_impl")
+        + "#endif\n"
+        + _c_macro_fn("after_impl")
+        + "#else\n"
+        + _c_macro_fn("dead_else_impl")
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(code) == ["feature_impl", "no_feature_impl", "after_impl"], (
+        "#ifdef/#ifndef open their own blocks; the #if 1's #else remains dead"
+    )
+
+
+def test_detector_c_macro_count_path_blanking_keeps_markers_and_length():
+    """
+    #2814: `_blank_dead_preproc_branches` blanks only dead lines (including a
+    dead multi-line `#define` and its continuation), keeps the live branch
+    markers and live directives verbatim, and preserves length and line
+    endings (CRLF included) so every offset stays valid.
+    """
+    detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "#include <string.h>\r\n"
+        "#if 0\r\n"
+        "#define COPY(a, b) \\\r\n"
+        "    strcpy(a, b)\r\n"
+        "#elif KEEP\r\n"
+        "    strncpy(a, b, 4);\r\n"
+        "#endif\r\n"
+    )
+    blanked = detector._blank_dead_preproc_branches(code, "c")
+    assert len(blanked) == len(code)
+    assert blanked.split("\r\n") == [
+        "#include <string.h>",
+        "#if 0",
+        " " * len("#define COPY(a, b) \\"),
+        " " * len("    strcpy(a, b)"),
+        "#elif KEEP",
+        "    strncpy(a, b, 4);",
+        "#endif",
+        "",
+    ]
+    assert detector._blank_dead_preproc_branches(code, "python") == code, "non-C-family code is untouched"
 
 
 def test_detector_nested_function_is_counted_as_own_node_braces():

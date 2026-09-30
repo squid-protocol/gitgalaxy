@@ -1317,7 +1317,7 @@
     "c/micropython": {
       "Average Risk Exposures": {
         "API Exposure": "6.31%",
-        "Cognitive Load Exposure": "37.26%",
+        "Cognitive Load Exposure": "37.27%",
         "Commented Logic Exposure": "4.65%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "57.43%",

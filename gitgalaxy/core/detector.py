@@ -2049,6 +2049,140 @@ def _compiled_rules(lang_config: dict[str, Any]) -> dict[str, Any]:
     return rules
 
 
+# #1720 / #2814: C-family preprocessor directive line, applied to ONE line at a
+# time with `.match`. `#`, optional blanks, then the directive keyword as a whole
+# word (`\w*` is greedy and never backtracks into the keyword, so `#ifdef` can't
+# read as `#if` and `#if(0)` still reads as `#if`), then the rest of the line.
+# Every quantifier sits on a disjoint character class -- linear, ReDoS-safe.
+_PREPROC_DIRECTIVE_RE = re.compile(r"[ \t\f\v]*#[ \t\f\v]*(\w*)(.*)")
+# A statically-decidable `#if` condition: an integer literal (dec/hex/bin with an
+# optional u/l suffix) or `true`/`false`. Anything else is unknown.
+_PREPROC_INT_LITERAL_RE = re.compile(r"(0[xX][0-9a-fA-F]+|0[bB][01]+|[0-9]+)[uUlL]{0,3}")
+_PREPROC_IF_OPENERS = frozenset({"if", "ifdef", "ifndef"})
+# `#elseif` is Swift's spelling; `#elifdef` / `#elifndef` are C23/C++23.
+_PREPROC_ELIF_KEYWORDS = frozenset({"elif", "elseif", "elifdef", "elifndef"})
+
+
+def _preproc_condition_value(condition: str) -> Optional[bool]:
+    """Static value of a `#if` / `#elif` condition: True, False, or None (unknown).
+
+    Only literal conditions are decided (`0`, `1`, `(0)`, `0x0`, `true`,
+    `false`); macro names, `defined(X)` and any expression are unknown (#1720).
+    Trailing `//` and `/* */` comments are ignored. Plain string scans rather
+    than a lazy comment regex, so a line of repeated `/*` stays linear.
+    """
+    text = condition
+    cut = text.find("//")
+    if cut != -1:
+        text = text[:cut]
+    parts = []
+    pos = 0
+    while True:
+        open_idx = text.find("/*", pos)
+        if open_idx == -1:
+            parts.append(text[pos:])
+            break
+        parts.append(text[pos:open_idx])
+        close_idx = text.find("*/", open_idx + 2)
+        if close_idx == -1:
+            break  # comment runs past the line; the condition is what came before it
+        parts.append(" ")
+        pos = close_idx + 2
+    text = "".join(parts).strip()
+    # Peel wrapping parens. Only a paren-free literal is decided below, so a
+    # non-wrapping pair such as `(0) || (1)` can only peel into an unknown.
+    while len(text) >= 2 and text[0] == "(" and text[-1] == ")":
+        text = text[1:-1].strip()
+    if text == "true":
+        return True
+    if text == "false":
+        return False
+    m = _PREPROC_INT_LITERAL_RE.fullmatch(text)
+    if not m:
+        return None
+    digits = m.group(1)
+    if digits[:2] in ("0x", "0X", "0b", "0B"):
+        digits = digits[2:]
+    return digits.strip("0") != ""
+
+
+def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
+    """Per-line `(is_directive, is_live)` for C-family source split into lines.
+
+    The single home of the #if/#elif/#else policy (#1720), shared by
+    `_build_brace_safe_stream` (function-boundary path) and
+    `_blank_dead_preproc_branches` (count path, #2814) so the two can't drift.
+
+    - `#if` with a statically true condition: its first branch is live and every
+      later branch is dead; statically false: the first branch is dead and the
+      rest of the chain is still open; unknown (macro names, `defined(X)`,
+      expressions, every `#ifdef`/`#ifndef`): the branch is live.
+    - `#elif` starts a new condition for the rest of its chain; `#else` is live
+      unless an earlier branch of the chain was statically true.
+    - Nesting: inside a dead region everything stays dead until the enclosing
+      block's `#endif`, whatever its own condition says.
+
+    `is_directive` is True for a directive line and for the `\\`-continuation
+    lines that belong to it (e.g. a multi-line `#define`). A branch marker's own
+    `is_live` is its enclosing region's liveness (a `#else` inside dead code is
+    dead; the `#else` of a live `#if 0` is live); any other directive, and
+    every non-directive line, takes the liveness of the region it sits in.
+    Unbalanced `#else`/`#elif`/`#endif` (no open `#if`) change nothing.
+    """
+    states: list[tuple[bool, bool]] = []
+    # One frame per open #if: [enclosing region live?, a branch of this chain was statically true?]
+    stack: list[list[bool]] = []
+    live = True
+    continuation_live: Optional[bool] = None  # set while inside a `\`-continued directive
+
+    for line in lines:
+        content = line.rstrip("\r\n")
+        continued = content.rstrip(" \t").endswith("\\")
+
+        if continuation_live is not None:
+            states.append((True, continuation_live))
+            if not continued:
+                continuation_live = None
+            continue
+
+        m = _PREPROC_DIRECTIVE_RE.match(content) if "#" in content else None
+        if not m:
+            states.append((False, live))
+            continue
+
+        keyword, rest = m.group(1), m.group(2)
+        line_live = live
+        if keyword in _PREPROC_IF_OPENERS:
+            # A condition continued onto the next line is not decided here: unknown.
+            value = _preproc_condition_value(rest) if keyword == "if" and not continued else None
+            stack.append([live, value is True])
+            live = live and value is not False
+        elif keyword in _PREPROC_ELIF_KEYWORDS and stack:
+            frame = stack[-1]
+            line_live = frame[0]
+            value = _preproc_condition_value(rest) if keyword in ("elif", "elseif") and not continued else None
+            live = frame[0] and not frame[1] and value is not False
+            frame[1] = frame[1] or value is True
+        elif keyword == "else" and stack:
+            frame = stack[-1]
+            line_live = frame[0]
+            live = frame[0] and not frame[1]
+            frame[1] = True
+        elif keyword == "endif" and stack:
+            line_live = live = stack.pop()[0]
+
+        states.append((True, line_live))
+        if continued:
+            continuation_live = line_live
+    return states
+
+
+def _blank_line(line: str) -> str:
+    """`line` with every character but its line terminator turned into a space."""
+    body = line.rstrip("\r\n")
+    return " " * len(body) + line[len(body) :]
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -5408,94 +5542,21 @@ class StructuralExtractor:
             safe_code = "".join(parts)
             safe_code = re.sub(combined_pattern, fast_shield, safe_code, flags=re.DOTALL)
 
-        # Macro Shields (Strictly Gated to C-Family)
-        if lang_id in self._C_FAMILY_MACRO_LANGS:
-            lines = safe_code.splitlines(keepends=True)
-            # Per-open-#if branch policy. Each stack entry is a (policy, side)
-            # pair where policy is the #if condition's static truth value and
-            # side is which branch of that #if we are currently in:
-            #   policy True  (#if 1 / #if true)   -> first branch alive, #else dead
-            #   policy False (#if 0 / #if false)  -> first branch dead, #else alive
-            #   policy None  (unknown, e.g. #if FOO / #ifdef FOO)
-            #                                -> scan BOTH branches. This is the
-            #                                   #1720 fix: tree-sitter ground truth
-            #                                   parses both, and implementations
-            #                                   living in #else were being blanked.
-            # any() over the stack: an inner #if inside an outer dead region stays
-            # dead even if its own condition would flip it; #endif pops restore it.
-            branch_stack: list[tuple[Optional[bool], str]] = []
-            in_multiline_macro = False
-
-            def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
-                policy, side = entry
-                if policy is True:
-                    return side == "else"
-                if policy is False:
-                    return side == "first"
-                return False
-
-            for i in range(len(lines)):
-                line = lines[i]
-                stripped = line.lstrip()
-
-                if in_multiline_macro:
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-                    if not stripped.rstrip(" \t\r\n").endswith("\\"):
-                        in_multiline_macro = False
-                    continue
-
-                if stripped.startswith("#"):
-                    if re.match(r"#if\b", stripped):
-                        branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
-                    elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
-                        branch_stack.append((None, "first"))
-                    elif re.match(r"#elif\b", stripped) and branch_stack:
-                        # an #elif starts a fresh condition on the else side
-                        branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
-                    elif stripped.startswith("#else") and branch_stack:
-                        policy, _ = branch_stack[-1]
-                        branch_stack[-1] = (policy, "else")
-                    elif stripped.startswith("#endif") and branch_stack:
-                        branch_stack.pop()
-
-                    if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
-                        in_multiline_macro = True
-
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-                    continue
-
-                if any(_branch_dead(e) for e in branch_stack):
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-
-            safe_code = "".join(lines)
+        # Macro Shields (Strictly Gated to C-Family). Each branch's liveness
+        # follows the static value of its condition (#1720, rules in
+        # `_preproc_line_liveness`): only statically-dead branches are blanked,
+        # an unknown condition keeps both sides so an implementation in the
+        # `#else` of an `#ifdef` is still found. Every directive line (and each
+        # `\`-continuation line of one, e.g. a multi-line `#define`) is blanked
+        # too. Length-preserving: each blanked line keeps its length and newline.
+        if lang_id in self._C_FAMILY_MACRO_LANGS and "#" in safe_code:
+            lines = safe_code.split("\n")
+            for i, (is_directive, is_live) in enumerate(_preproc_line_liveness(lines)):
+                if is_directive or not is_live:
+                    lines[i] = _blank_line(lines[i])
+            safe_code = "\n".join(lines)
 
         return safe_code
-
-    @staticmethod
-    def _classify_preproc_condition(condition: str) -> Optional[bool]:
-        """
-        Returns the static truth value of a C-family preprocessor #if condition,
-        or None when it cannot be evaluated without a macro table.
-
-        Recognized constants (after stripping C comments and whitespace):
-          True  -- "1", "true", "TRUE"
-          False -- "0", "false", "FALSE"
-          None  -- everything else (macro names, defined(X), expressions)
-
-        Used by _build_brace_safe_stream's macro shield so #else branches that
-        genuinely contain implementations are scanned instead of blindly blanked
-        (#1720): only a statically-true #if (#if 1) makes its #else branch dead,
-        and only a statically-false #if (#if 0) makes its first branch dead.
-        """
-        if condition is None:
-            return None
-        # strip C-style comments and surrounding whitespace
-        cond = re.sub(r"/\*.*?\*/|//.*$", "", condition, flags=re.S).strip()
-        if cond in ("1", "true", "TRUE", "True"):
-            return True
-        if cond in ("0", "false", "FALSE", "False"):
-            return False
-        return None
 
     def _blank_dead_preproc_branches(self, code: str, lang_id: str) -> str:
         """
@@ -5518,67 +5579,15 @@ class StructuralExtractor:
         dead, `#if 0` -> first branch dead, unknown (`#if FOO` / `#ifdef` /
         `#if defined(X)`) -> both branches kept alive and counted.
         """
-        if lang_id not in self._C_FAMILY_MACRO_LANGS:
+        if lang_id not in self._C_FAMILY_MACRO_LANGS or "#" not in code:
             return code
-
-        lines = code.splitlines(keepends=True)
-        branch_stack: list[tuple[Optional[bool], str]] = []
-        in_multiline_macro = False
-
-        def _blank_line(line: str) -> str:
-            return " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-
-        def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
-            policy, side = entry
-            if policy is True:
-                return side == "else"
-            if policy is False:
-                return side == "first"
-            return False
-
-        for i in range(len(lines)):
-            line = lines[i]
-            stripped = line.lstrip()
-
-            if in_multiline_macro:
-                # A dead multi-line macro's continuation lines vanish with the
-                # branch; a live one stays for the rules to read.
-                if any(_branch_dead(e) for e in branch_stack):
-                    lines[i] = _blank_line(line)
-                if not stripped.rstrip(" \t\r\n").endswith("\\"):
-                    in_multiline_macro = False
-                continue
-
-            if stripped.startswith("#"):
-                # Deadness is judged on the stack BEFORE this directive mutates
-                # it, so the markers delimiting the dead branch (and every live
-                # directive) survive, while a non-conditional directive nested
-                # inside an already-dead region is blanked.
-                enclosing_dead = any(_branch_dead(e) for e in branch_stack)
-
-                if re.match(r"#if\b", stripped):
-                    branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
-                elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
-                    branch_stack.append((None, "first"))
-                elif re.match(r"#elif\b", stripped) and branch_stack:
-                    branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
-                elif stripped.startswith("#else") and branch_stack:
-                    policy, _ = branch_stack[-1]
-                    branch_stack[-1] = (policy, "else")
-                elif stripped.startswith("#endif") and branch_stack:
-                    branch_stack.pop()
-
-                if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
-                    in_multiline_macro = True
-
-                if enclosing_dead:
-                    lines[i] = _blank_line(line)
-                continue
-
-            if any(_branch_dead(e) for e in branch_stack):
-                lines[i] = _blank_line(line)
-
-        return "".join(lines)
+        lines = code.split("\n")
+        changed = False
+        for i, (_is_directive, is_live) in enumerate(_preproc_line_liveness(lines)):
+            if not is_live:
+                lines[i] = _blank_line(lines[i])
+                changed = True
+        return "\n".join(lines) if changed else code
 
     def _ts_js_arrow_body_end(self, safe_code: str, body_idx: int, limit: int, opener: str, closer: str) -> int:
         """End of a TS/JS arrow function's body, starting just past its `=>` (#3339).

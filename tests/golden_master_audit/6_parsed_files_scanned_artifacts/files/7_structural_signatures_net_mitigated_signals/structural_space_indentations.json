@@ -440,7 +440,7 @@
       "c/micropython/compile.c": 2476,
       "c/micropython/compile.h": 0,
       "c/micropython/emitnative.c": 2049,
-      "c/micropython/gc.c": 801,
+      "c/micropython/gc.c": 802,
       "c/micropython/gc.h": 11,
       "c/micropython/modmachine.c": 109,
       "c/micropython/modmachine.h": 44,

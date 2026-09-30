@@ -266,6 +266,10 @@
     "yaml/vscode_workflows": {
       "yaml/vscode_workflows/pr.yml": "1 instances"
     },
+    "zig/mach": {
+      "zig/mach/graph.zig": "1 instances",
+      "zig/mach/module.zig": "1 instances"
+    },
     "zig/zig": {
       "zig/zig/InternPool.zig": "36 instances",
       "zig/zig/Zcu.zig": "1 instances"
@@ -273,10 +277,6 @@
     "zig/zls": {
       "zig/zls/DocumentStore.zig": "1 instances",
       "zig/zls/Server.zig": "1 instances"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/graph.zig": "1 instances",
-      "zig/zls/mach/module.zig": "1 instances"
     }
   },
   "path": [

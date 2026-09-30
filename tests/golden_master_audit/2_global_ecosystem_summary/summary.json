@@ -4,29 +4,29 @@
     "summary"
   ],
   "value": {
-    "Percent_Visible": 90.3,
+    "Percent_Visible": 89.8,
     "dominant_language": "c",
     "file_composition_distribution": {
       "Callbacks & Closures Files": 56,
       "Compute Cores Files": 74,
-      "Data / Markup / Trivial": 622,
+      "Data / Markup / Trivial": 662,
       "Declarative / Non-Code": 727,
       "Encapsulated Accessors Files": 57,
       "Generic / Templated Code Files": 65,
       "Interface Declarations Files": 410,
-      "Large Core Modules": 335,
+      "Large Core Modules": 333,
       "Large Core Modules (2)": 243,
-      "Large Core Modules (3)": 318,
+      "Large Core Modules (3)": 310,
       "Many-Argument Workhorses Files": 73,
-      "Parameter Forwarders Files": 154,
-      "State Mutators Files": 76,
+      "Parameter Forwarders Files": 162,
+      "State Mutators Files": 73,
       "Type Conversions Files": 11
     },
     "repo_composition_archetype": "Hub-Coupled Monorepo",
-    "repo_composition_z": 5.48,
-    "total_files": 3568,
-    "total_loc": 914932,
-    "verified_files": 3221,
+    "repo_composition_z": 5.594,
+    "total_files": 3625,
+    "total_loc": 919168,
+    "verified_files": 3256,
     "volatility_index": 0.0
   }
 }

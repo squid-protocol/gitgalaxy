@@ -58,27 +58,27 @@
         "tech_debt": 0.0,
         "verification": 0.0
       },
-      "file_count": 1,
-      "total_mass": 1.0
+      "file_count": 2,
+      "total_mass": 2.0
     },
     "ada/alire": {
       "avg_exposures": {
-        "api_exposure": 0.32,
+        "api_exposure": 0.31,
         "churn": 0.0,
-        "cognitive_load": 16.68,
-        "concurrency": 6.35,
-        "dead_code": 6.02,
-        "documentation": 100.0,
-        "safety_score": 46.75,
+        "cognitive_load": 16.06,
+        "concurrency": 6.11,
+        "dead_code": 5.8,
+        "documentation": 96.3,
+        "safety_score": 45.02,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 24.02,
-        "tech_debt": 25.7,
-        "verification": 80.0
+        "stability": 48.15,
+        "state_flux": 23.13,
+        "tech_debt": 24.74,
+        "verification": 77.04
       },
-      "file_count": 26,
-      "total_mass": 7277.54
+      "file_count": 27,
+      "total_mass": 7291.04
     },
     "ada/functional": {
       "avg_exposures": {
@@ -441,24 +441,24 @@
       "file_count": 22,
       "total_mass": 279.58
     },
-    "assembly/raspberrypi_baremetal": {
+    "assembly/rpi_smartstart_baremetal": {
       "avg_exposures": {
-        "api_exposure": 0.0,
+        "api_exposure": 9.41,
         "churn": 0.0,
-        "cognitive_load": 6.71,
+        "cognitive_load": 5.86,
         "concurrency": 0.0,
-        "dead_code": 1.24,
+        "dead_code": 5.88,
         "documentation": 100.0,
-        "safety_score": 0.0,
+        "safety_score": 26.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 84.55,
-        "verification": 2.55
+        "tech_debt": 55.45,
+        "verification": 80.0
       },
-      "file_count": 15,
-      "total_mass": 414.72
+      "file_count": 10,
+      "total_mass": 1659.14
     },
     "assembly/x86_bare_metal": {
       "avg_exposures": {
@@ -593,24 +593,62 @@
       "file_count": 5,
       "total_mass": 83.48
     },
-    "bms/cbsa": {
+    "bms": {
       "avg_exposures": {
-        "api_exposure": 4.54,
+        "api_exposure": 0.0,
         "churn": 0.0,
         "cognitive_load": 0.0,
         "concurrency": 0.0,
-        "dead_code": 0.62,
-        "documentation": 84.65,
+        "dead_code": 0.0,
+        "documentation": 0.0,
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 45.45,
+        "stability": 0.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.11
+        "verification": 0.0
       },
-      "file_count": 11,
-      "total_mass": 5.76
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "bms/cbsa": {
+      "avg_exposures": {
+        "api_exposure": 4.35,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 83.8,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 45.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.09
+      },
+      "file_count": 10,
+      "total_mass": 4.08
+    },
+    "bms/genapp": {
+      "avg_exposures": {
+        "api_exposure": 6.36,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 6.86,
+        "documentation": 100.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.31
+      },
+      "file_count": 1,
+      "total_mass": 1.68
     },
     "c": {
       "avg_exposures": {
@@ -690,22 +728,22 @@
     },
     "c/sqlite": {
       "avg_exposures": {
-        "api_exposure": 4.22,
+        "api_exposure": 2.81,
         "churn": 0.0,
-        "cognitive_load": 44.95,
+        "cognitive_load": 29.97,
         "concurrency": 0.0,
-        "dead_code": 2.58,
-        "documentation": 24.79,
-        "safety_score": 49.92,
+        "dead_code": 1.72,
+        "documentation": 16.53,
+        "safety_score": 33.28,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 25.0,
-        "state_flux": 50.0,
-        "tech_debt": 4.01,
-        "verification": 40.0
+        "stability": 16.67,
+        "state_flux": 33.33,
+        "tech_debt": 2.68,
+        "verification": 26.67
       },
-      "file_count": 2,
-      "total_mass": 8117.46
+      "file_count": 3,
+      "total_mass": 8119.18
     },
     "cobol/CICS-Cobol": {
       "avg_exposures": {
@@ -747,22 +785,22 @@
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "avg_exposures": {
-        "api_exposure": 1.63,
+        "api_exposure": 1.57,
         "churn": 0.0,
-        "cognitive_load": 30.12,
+        "cognitive_load": 28.91,
         "concurrency": 0.0,
-        "dead_code": 0.95,
-        "documentation": 38.89,
-        "safety_score": 38.97,
+        "dead_code": 0.91,
+        "documentation": 18.67,
+        "safety_score": 37.42,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 40.61,
-        "tech_debt": 3.8,
-        "verification": 20.67
+        "stability": 48.0,
+        "state_flux": 38.98,
+        "tech_debt": 3.65,
+        "verification": 19.84
       },
-      "file_count": 72,
-      "total_mass": 10104.32
+      "file_count": 75,
+      "total_mass": 10127.48
     },
     "cobol/cash-account-cobol": {
       "avg_exposures": {
@@ -787,20 +825,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 16.62,
+        "cognitive_load": 9.97,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 30.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.3
+        "verification": 1.38
       },
-      "file_count": 3,
-      "total_mass": 2.35
+      "file_count": 5,
+      "total_mass": 24.51
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "avg_exposures": {
@@ -975,22 +1013,22 @@
     },
     "cobol/gnucobol_internals": {
       "avg_exposures": {
-        "api_exposure": 5.89,
+        "api_exposure": 5.05,
         "churn": 0.0,
-        "cognitive_load": 66.92,
+        "cognitive_load": 57.36,
         "concurrency": 0.0,
-        "dead_code": 0.8,
-        "documentation": 82.61,
-        "safety_score": 78.47,
+        "dead_code": 0.69,
+        "documentation": 70.81,
+        "safety_score": 67.26,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 83.33,
-        "tech_debt": 16.02,
-        "verification": 67.05
+        "stability": 42.86,
+        "state_flux": 71.43,
+        "tech_debt": 13.74,
+        "verification": 57.47
       },
-      "file_count": 6,
-      "total_mass": 37722.9
+      "file_count": 7,
+      "total_mass": 37736.4
     },
     "cobol/zECS": {
       "avg_exposures": {
@@ -1125,24 +1163,43 @@
       "file_count": 7,
       "total_mass": 1171.7
     },
-    "csd/carddemo": {
+    "csd": {
       "avg_exposures": {
-        "api_exposure": 7.42,
+        "api_exposure": 0.0,
         "churn": 0.0,
         "cognitive_load": 0.0,
         "concurrency": 0.0,
         "dead_code": 0.0,
-        "documentation": 65.48,
+        "documentation": 0.0,
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 40.0,
+        "stability": 0.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 1.87
+        "verification": 0.0
       },
-      "file_count": 5,
-      "total_mass": 123.6
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "csd/carddemo": {
+      "avg_exposures": {
+        "api_exposure": 6.18,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 54.56,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 33.33,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 1.56
+      },
+      "file_count": 6,
+      "total_mass": 124.6
     },
     "csd/cbsa": {
       "avg_exposures": {
@@ -1448,24 +1505,43 @@
       "file_count": 7,
       "total_mass": 26398.0
     },
+    "db2_sql": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
     "db2_sql/db2unit": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 7.53,
+        "cognitive_load": 6.77,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 36.33,
+        "safety_score": 32.7,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 44.44,
+        "stability": 40.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 19.38
+        "verification": 17.44
       },
-      "file_count": 9,
-      "total_mass": 589.66
+      "file_count": 10,
+      "total_mass": 603.16
     },
     "dockerfile": {
       "avg_exposures": {
@@ -2091,8 +2167,8 @@
         "tech_debt": 0.0,
         "verification": 0.0
       },
-      "file_count": 1,
-      "total_mass": 1.0
+      "file_count": 2,
+      "total_mass": 2.0
     },
     "hlasm/che4z_hlasm": {
       "avg_exposures": {
@@ -2100,18 +2176,18 @@
         "churn": 0.0,
         "cognitive_load": 0.0,
         "concurrency": 0.0,
-        "dead_code": 6.23,
+        "dead_code": 5.87,
         "documentation": 0.0,
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 47.06,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.3
+        "verification": 2.16
       },
-      "file_count": 16,
-      "total_mass": 203.84
+      "file_count": 17,
+      "total_mass": 204.84
     },
     "hlasm/zecs": {
       "avg_exposures": {
@@ -2400,7 +2476,7 @@
     },
     "html/polyglot_vscode": {
       "avg_exposures": {
-        "api_exposure": 5.59,
+        "api_exposure": 2.79,
         "churn": 0.0,
         "cognitive_load": 0.0,
         "concurrency": 0.0,
@@ -2409,13 +2485,13 @@
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 25.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.3
+        "verification": 1.15
       },
-      "file_count": 1,
-      "total_mass": 0.03
+      "file_count": 2,
+      "total_mass": 1.03
     },
     "html/revealjs_decks": {
       "avg_exposures": {
@@ -2583,7 +2659,7 @@
         "stability": 50.0,
         "state_flux": 68.54,
         "tech_debt": 38.96,
-        "verification": 54.16
+        "verification": 54.17
       },
       "file_count": 6,
       "total_mass": 10590.74
@@ -2913,22 +2989,22 @@
     },
     "lua/freebsd-src": {
       "avg_exposures": {
-        "api_exposure": 27.75,
+        "api_exposure": 26.12,
         "churn": 0.0,
-        "cognitive_load": 27.45,
+        "cognitive_load": 25.83,
         "concurrency": 0.0,
-        "dead_code": 1.67,
-        "documentation": 56.25,
-        "safety_score": 78.37,
+        "dead_code": 1.57,
+        "documentation": 52.94,
+        "safety_score": 73.76,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 68.7,
-        "tech_debt": 2.86,
-        "verification": 31.54
+        "stability": 47.06,
+        "state_flux": 64.66,
+        "tech_debt": 2.69,
+        "verification": 29.68
       },
-      "file_count": 16,
-      "total_mass": 2145.4
+      "file_count": 17,
+      "total_mass": 2147.9
     },
     "lua/pandoc": {
       "avg_exposures": {
@@ -3207,13 +3283,13 @@
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 33.33,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.3
+        "verification": 1.53
       },
-      "file_count": 2,
-      "total_mass": 34.38
+      "file_count": 3,
+      "total_mass": 35.86
     },
     "nix/ghostty": {
       "avg_exposures": {
@@ -3400,7 +3476,7 @@
         "stability": 50.0,
         "state_flux": 99.97,
         "tech_debt": 71.48,
-        "verification": 35.36
+        "verification": 35.37
       },
       "file_count": 7,
       "total_mass": 1938.02
@@ -3516,8 +3592,8 @@
         "tech_debt": 0.0,
         "verification": 0.0
       },
-      "file_count": 1,
-      "total_mass": 1.0
+      "file_count": 2,
+      "total_mass": 14.5
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
       "avg_exposures": {
@@ -3577,6 +3653,25 @@
       "total_mass": 1.0
     },
     "plaintext/opencv/include": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 0.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 0.0
+      },
+      "file_count": 1,
+      "total_mass": 1.0
+    },
+    "pli": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
@@ -3844,41 +3939,41 @@
     },
     "python/airflow": {
       "avg_exposures": {
-        "api_exposure": 5.74,
+        "api_exposure": 4.3,
         "churn": 0.0,
-        "cognitive_load": 54.17,
-        "concurrency": 39.18,
-        "dead_code": 3.48,
-        "documentation": 64.57,
-        "safety_score": 91.78,
+        "cognitive_load": 40.63,
+        "concurrency": 29.38,
+        "dead_code": 2.61,
+        "documentation": 48.43,
+        "safety_score": 68.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 100.0,
-        "tech_debt": 49.13,
-        "verification": 80.0
+        "stability": 37.5,
+        "state_flux": 75.0,
+        "tech_debt": 36.84,
+        "verification": 60.0
       },
-      "file_count": 3,
-      "total_mass": 3881.72
+      "file_count": 4,
+      "total_mass": 3882.72
     },
     "python/cython": {
       "avg_exposures": {
-        "api_exposure": 47.12,
+        "api_exposure": 31.41,
         "churn": 0.0,
-        "cognitive_load": 39.75,
-        "concurrency": 3.32,
-        "dead_code": 3.19,
-        "documentation": 97.42,
-        "safety_score": 81.03,
+        "cognitive_load": 26.5,
+        "concurrency": 2.21,
+        "dead_code": 2.13,
+        "documentation": 64.95,
+        "safety_score": 54.02,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 57.75,
-        "tech_debt": 63.01,
-        "verification": 41.23
+        "stability": 33.33,
+        "state_flux": 38.5,
+        "tech_debt": 42.01,
+        "verification": 27.49
       },
-      "file_count": 4,
-      "total_mass": 13469.68
+      "file_count": 6,
+      "total_mass": 13474.22
     },
     "python/fastapi": {
       "avg_exposures": {
@@ -4010,46 +4105,65 @@
         "tech_debt": 0.0,
         "verification": 0.0
       },
-      "file_count": 1,
-      "total_mass": 1.0
+      "file_count": 2,
+      "total_mass": 2.0
+    },
+    "rexx/hercules_390_hyperion": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 23.5,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 45.14,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 25.0,
+        "state_flux": 49.96,
+        "tech_debt": 0.0,
+        "verification": 1.16
+      },
+      "file_count": 2,
+      "total_mass": 28.58
     },
     "rexx/hercules_hyperion": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 46.63,
+        "cognitive_load": 39.92,
         "concurrency": 0.0,
         "dead_code": 0.74,
         "documentation": 28.57,
-        "safety_score": 90.35,
+        "safety_score": 77.46,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 98.67,
+        "stability": 42.86,
+        "state_flux": 84.4,
         "tech_debt": 16.23,
-        "verification": 13.42
+        "verification": 13.09
       },
       "file_count": 7,
-      "total_mass": 640.64
+      "total_mass": 614.06
     },
     "rexx/ibm_z_zos": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 66.8,
+        "cognitive_load": 63.29,
         "concurrency": 0.0,
-        "dead_code": 1.28,
-        "documentation": 84.26,
-        "safety_score": 98.01,
+        "dead_code": 1.21,
+        "documentation": 39.91,
+        "safety_score": 92.85,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 97.17,
-        "tech_debt": 0.63,
-        "verification": 32.59
+        "stability": 47.37,
+        "state_flux": 92.06,
+        "tech_debt": 0.6,
+        "verification": 30.87
       },
-      "file_count": 18,
-      "total_mass": 4195.34
+      "file_count": 19,
+      "total_mass": 4199.38
     },
     "ruby": {
       "avg_exposures": {
@@ -4110,22 +4224,22 @@
     },
     "rust/bevy": {
       "avg_exposures": {
-        "api_exposure": 6.59,
+        "api_exposure": 5.13,
         "churn": 0.0,
-        "cognitive_load": 11.41,
-        "concurrency": 16.82,
-        "dead_code": 12.87,
-        "documentation": 45.56,
-        "safety_score": 45.86,
+        "cognitive_load": 8.87,
+        "concurrency": 13.08,
+        "dead_code": 10.01,
+        "documentation": 35.44,
+        "safety_score": 35.67,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 37.76,
-        "tech_debt": 62.27,
-        "verification": 35.64
+        "stability": 38.89,
+        "state_flux": 29.37,
+        "tech_debt": 48.43,
+        "verification": 27.72
       },
-      "file_count": 7,
-      "total_mass": 1676.16
+      "file_count": 9,
+      "total_mass": 1680.7
     },
     "rust/holylang": {
       "avg_exposures": {
@@ -4148,22 +4262,22 @@
     },
     "rust/serde": {
       "avg_exposures": {
-        "api_exposure": 5.71,
+        "api_exposure": 4.44,
         "churn": 0.0,
-        "cognitive_load": 6.44,
+        "cognitive_load": 5.01,
         "concurrency": 0.0,
-        "dead_code": 9.86,
-        "documentation": 65.02,
-        "safety_score": 33.59,
+        "dead_code": 7.67,
+        "documentation": 50.57,
+        "safety_score": 26.13,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 17.35,
-        "tech_debt": 47.3,
-        "verification": 57.8
+        "stability": 38.89,
+        "state_flux": 13.49,
+        "tech_debt": 36.79,
+        "verification": 44.96
       },
-      "file_count": 7,
-      "total_mass": 2884.78
+      "file_count": 9,
+      "total_mass": 2889.32
     },
     "rust/syn": {
       "avg_exposures": {
@@ -4395,22 +4509,22 @@
     },
     "shell/freebsd-src": {
       "avg_exposures": {
-        "api_exposure": 0.86,
+        "api_exposure": 0.83,
         "churn": 0.0,
-        "cognitive_load": 24.15,
-        "concurrency": 15.3,
-        "dead_code": 0.6,
-        "documentation": 88.46,
-        "safety_score": 70.28,
+        "cognitive_load": 23.25,
+        "concurrency": 14.74,
+        "dead_code": 0.58,
+        "documentation": 85.19,
+        "safety_score": 67.68,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 53.31,
-        "tech_debt": 74.55,
-        "verification": 3.55
+        "stability": 48.15,
+        "state_flux": 51.34,
+        "tech_debt": 71.79,
+        "verification": 3.42
       },
-      "file_count": 26,
-      "total_mass": 1540.74
+      "file_count": 27,
+      "total_mass": 1543.24
     },
     "shell/haiku": {
       "avg_exposures": {
@@ -4640,7 +4754,7 @@
       "file_count": 1,
       "total_mass": 812.8
     },
-    "sql/mysql/mediawiki": {
+    "sql/mediawiki_mysql": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
@@ -4659,7 +4773,26 @@
       "file_count": 2,
       "total_mass": 8.88
     },
-    "sql/mysql/spamassassin": {
+    "sql/mediawiki_postgresql": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 0.0,
+        "safety_score": 31.29,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 25.0,
+        "state_flux": 0.0,
+        "tech_debt": 18.88,
+        "verification": 1.29
+      },
+      "file_count": 2,
+      "total_mass": 34.22
+    },
+    "sql/spamassassin_mysql": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
@@ -4670,34 +4803,34 @@
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 25.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.31
+        "verification": 1.15
       },
-      "file_count": 1,
-      "total_mass": 3.14
+      "file_count": 2,
+      "total_mass": 4.14
     },
-    "sql/postgresql/mediawiki": {
+    "sql/sqlite": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.0,
+        "cognitive_load": 6.23,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 62.58,
+        "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 37.5,
         "state_flux": 0.0,
-        "tech_debt": 37.75,
-        "verification": 2.59
+        "tech_debt": 0.0,
+        "verification": 1.84
       },
-      "file_count": 1,
-      "total_mass": 26.64
+      "file_count": 4,
+      "total_mass": 53.78
     },
-    "sql/postgresql/sqlmap": {
+    "sql/sqlmap_postgresql": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
@@ -4715,25 +4848,6 @@
       },
       "file_count": 1,
       "total_mass": 4.08
-    },
-    "sql/sqlite": {
-      "avg_exposures": {
-        "api_exposure": 0.0,
-        "churn": 0.0,
-        "cognitive_load": 8.3,
-        "concurrency": 0.0,
-        "dead_code": 0.0,
-        "documentation": 0.0,
-        "safety_score": 0.0,
-        "secrets_risk": 0.0,
-        "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 0.0,
-        "tech_debt": 0.0,
-        "verification": 2.46
-      },
-      "file_count": 3,
-      "total_mass": 52.06
     },
     "sqlite": {
       "avg_exposures": {
@@ -5100,20 +5214,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 64.48,
-        "concurrency": 11.5,
-        "dead_code": 3.51,
-        "documentation": 30.0,
-        "safety_score": 79.41,
+        "cognitive_load": 53.73,
+        "concurrency": 9.59,
+        "dead_code": 2.92,
+        "documentation": 25.0,
+        "safety_score": 66.18,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 40.0,
-        "state_flux": 80.0,
-        "tech_debt": 33.35,
-        "verification": 33.02
+        "stability": 33.33,
+        "state_flux": 66.67,
+        "tech_debt": 27.79,
+        "verification": 27.51
       },
-      "file_count": 5,
-      "total_mass": 5351.44
+      "file_count": 6,
+      "total_mass": 5353.16
     },
     "tcl/sqlite_core_dml": {
       "avg_exposures": {
@@ -5480,20 +5594,20 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 0.85,
+        "cognitive_load": 0.73,
         "concurrency": 0.0,
         "dead_code": 0.0,
-        "documentation": 44.44,
-        "safety_score": 6.48,
+        "documentation": 19.05,
+        "safety_score": 5.56,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 1.79,
-        "tech_debt": 42.89,
-        "verification": 2.3
+        "stability": 42.86,
+        "state_flux": 1.53,
+        "tech_debt": 36.76,
+        "verification": 1.97
       },
-      "file_count": 6,
-      "total_mass": 80.76
+      "file_count": 7,
+      "total_mass": 83.16
     },
     "xml/jenkins": {
       "avg_exposures": {
@@ -5506,13 +5620,13 @@
         "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 50.0,
+        "stability": 37.5,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 2.3
+        "verification": 1.72
       },
-      "file_count": 3,
-      "total_mass": 31.56
+      "file_count": 4,
+      "total_mass": 32.56
     },
     "xml/odoo": {
       "avg_exposures": {
@@ -5934,22 +6048,41 @@
     },
     "zig/bun": {
       "avg_exposures": {
-        "api_exposure": 11.32,
+        "api_exposure": 9.06,
         "churn": 0.0,
-        "cognitive_load": 24.17,
+        "cognitive_load": 19.34,
         "concurrency": 0.0,
-        "dead_code": 3.63,
-        "documentation": 83.99,
-        "safety_score": 49.45,
+        "dead_code": 2.9,
+        "documentation": 33.59,
+        "safety_score": 39.56,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 40.0,
+        "state_flux": 39.76,
+        "tech_debt": 53.89,
+        "verification": 48.49
+      },
+      "file_count": 5,
+      "total_mass": 3561.96
+    },
+    "zig/mach": {
+      "avg_exposures": {
+        "api_exposure": 40.75,
+        "churn": 0.0,
+        "cognitive_load": 11.8,
+        "concurrency": 1.67,
+        "dead_code": 3.69,
+        "documentation": 53.4,
+        "safety_score": 30.76,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 49.7,
-        "tech_debt": 67.36,
-        "verification": 60.61
+        "state_flux": 41.38,
+        "tech_debt": 37.01,
+        "verification": 41.22
       },
-      "file_count": 4,
-      "total_mass": 3560.48
+      "file_count": 8,
+      "total_mass": 2977.78
     },
     "zig/tigerbeetle": {
       "avg_exposures": {
@@ -6007,25 +6140,6 @@
       },
       "file_count": 7,
       "total_mass": 6255.6
-    },
-    "zig/zls/mach": {
-      "avg_exposures": {
-        "api_exposure": 40.75,
-        "churn": 0.0,
-        "cognitive_load": 11.8,
-        "concurrency": 1.67,
-        "dead_code": 3.69,
-        "documentation": 53.4,
-        "safety_score": 30.76,
-        "secrets_risk": 0.0,
-        "spec_match": 0.0,
-        "stability": 50.0,
-        "state_flux": 41.38,
-        "tech_debt": 37.01,
-        "verification": 41.22
-      },
-      "file_count": 8,
-      "total_mass": 2977.78
     }
   }
 }

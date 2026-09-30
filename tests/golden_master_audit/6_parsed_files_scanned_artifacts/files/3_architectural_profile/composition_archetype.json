@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Large Core Modules"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Data / Markup / Trivial"
+      "ada/PROVENANCE.md": "Data / Markup / Trivial",
+      "ada/SOURCES.md": "Data / Markup / Trivial"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Data / Markup / Trivial",
       "ada/alire/alire-conditional_trees.adb": "Large Core Modules (3)",
       "ada/alire/alire-crate_configuration.adb": "Large Core Modules (3)",
       "ada/alire/alire-dependencies-states.ads": "Parameter Forwarders Files",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "Large Core Modules",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "Data / Markup / Trivial"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "State Mutators Files",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Parameter Forwarders Files",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Parameter Forwarders Files",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "Large Core Modules (3)",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "Large Core Modules",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "Large Core Modules"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Parameter Forwarders Files",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "Parameter Forwarders Files"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Data / Markup / Trivial",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "Declarative / Non-Code",
       "blueprint/ghostty/window.blp": "Declarative / Non-Code"
     },
+    "bms": {
+      "bms/SOURCES.md": "Data / Markup / Trivial"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Large Core Modules",
       "bms/cbsa/BNK1CAM.bms": "Large Core Modules",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "Large Core Modules",
       "bms/cbsa/BNK1TFM.bms": "Large Core Modules",
       "bms/cbsa/BNK1UAM.bms": "Large Core Modules",
-      "bms/cbsa/PROVENANCE.md": "Data / Markup / Trivial",
-      "bms/cbsa/ssmap.bms": "Large Core Modules"
+      "bms/cbsa/PROVENANCE.md": "Data / Markup / Trivial"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "Large Core Modules"
     },
     "c": {
       "c/SOURCES.md": "Data / Markup / Trivial"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "Compute Cores Files"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "c/sqlite/README.md": "Data / Markup / Trivial",
       "c/sqlite/lemon.c": "Large Core Modules (3)"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "Declarative / Non-Code",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "Declarative / Non-Code",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Data / Markup / Trivial",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Data / Markup / Trivial",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Data / Markup / Trivial",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "Data / Markup / Trivial"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "Declarative / Non-Code"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Data / Markup / Trivial",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Data / Markup / Trivial",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "Declarative / Non-Code",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "Declarative / Non-Code",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "Declarative / Non-Code"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "Declarative / Non-Code"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Data / Markup / Trivial",
       "cobol/gnucobol_internals/codegen.c": "Large Core Modules (3)",
       "cobol/gnucobol_internals/fileio.c": "Many-Argument Workhorses Files",
       "cobol/gnucobol_internals/numeric.c": "Large Core Modules (3)",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "Large Core Modules (3)",
       "cpp/powertoys/powertoy_module.h": "Large Core Modules (3)"
     },
+    "csd": {
+      "csd/SOURCES.md": "Data / Markup / Trivial"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "State Mutators Files",
       "csd/carddemo/CRDDEMO2.csd": "State Mutators Files",
       "csd/carddemo/CRDDEMOD.csd": "State Mutators Files",
       "csd/carddemo/CRDDEMOM.csd": "State Mutators Files",
+      "csd/carddemo/NOTICE": "Data / Markup / Trivial",
       "csd/carddemo/PROVENANCE.md": "Data / Markup / Trivial"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "Large Core Modules (2)",
       "dart/flutter/theme_data.dart": "Large Core Modules (2)"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Data / Markup / Trivial"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Large Core Modules (3)",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "Declarative / Non-Code",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "Data / Markup / Trivial",
       "db2_sql/db2unit/98-Clean.sql": "Declarative / Non-Code",
       "db2_sql/db2unit/99-CleanAdmin.sql": "Data / Markup / Trivial",
+      "db2_sql/db2unit/LICENSE.txt": "Data / Markup / Trivial",
       "db2_sql/db2unit/PROVENANCE.md": "Data / Markup / Trivial"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "State Mutators Files"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Data / Markup / Trivial"
+      "hlasm/PROVENANCE.md": "Data / Markup / Trivial",
+      "hlasm/SOURCES.md": "Data / Markup / Trivial"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Data / Markup / Trivial",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Data / Markup / Trivial",
+      "hlasm/che4z_hlasm/NOTICE.md": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Data / Markup / Trivial",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Declarative / Non-Code",
       "hlasm/che4z_hlasm/comments.hlasm": "Data / Markup / Trivial",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "Data / Markup / Trivial"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Data / Markup / Trivial",
       "html/polyglot_vscode/vscode_builtin.html": "Data / Markup / Trivial"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "Declarative / Non-Code"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "lua/freebsd-src/cli.lua": "Parameter Forwarders Files",
       "lua/freebsd-src/color.lua": "Interface Declarations Files",
       "lua/freebsd-src/config.lua": "Compute Cores Files",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "Data / Markup / Trivial"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Data / Markup / Trivial",
       "nix/bun/flake.nix": "Declarative / Non-Code",
       "nix/bun/shell.nix": "Declarative / Non-Code"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "Data / Markup / Trivial"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Data / Markup / Trivial",
       "plaintext/ansible/requirements.txt": "Data / Markup / Trivial"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Data / Markup / Trivial"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Data / Markup / Trivial"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Data / Markup / Trivial",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "Data / Markup / Trivial"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Data / Markup / Trivial",
       "python/airflow/dag.py": "Generic / Templated Code Files",
       "python/airflow/s3.py": "Many-Argument Workhorses Files",
       "python/airflow/scheduler_job_runner.py": "Many-Argument Workhorses Files"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "Data / Markup / Trivial",
       "python/cython/CodeGeneration.py": "Parameter Forwarders Files",
+      "python/cython/LICENSE.txt": "Data / Markup / Trivial",
       "python/cython/MemoryView.pxd": "State Mutators Files",
       "python/cython/MemoryView.pyx": "Large Core Modules (3)",
       "python/cython/Nodes.py": "Large Core Modules (3)"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "Generic / Templated Code Files"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Data / Markup / Trivial"
+      "rexx/PROVENANCE.md": "Data / Markup / Trivial",
+      "rexx/SOURCES.md": "Data / Markup / Trivial"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Data / Markup / Trivial",
+      "rexx/hercules_390_hyperion/sample.rexx": "Declarative / Non-Code"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Data / Markup / Trivial",
       "rexx/hercules_hyperion/cmpsc.rexx": "Large Core Modules",
       "rexx/hercules_hyperion/hbasic1.rexx": "Declarative / Non-Code",
       "rexx/hercules_hyperion/hcommand.rexx": "Large Core Modules",
       "rexx/hercules_hyperion/hexecio.rexx": "Declarative / Non-Code",
       "rexx/hercules_hyperion/hlinein.rexx": "Declarative / Non-Code",
-      "rexx/hercules_hyperion/hrecurs.rexx": "Declarative / Non-Code",
-      "rexx/hercules_hyperion/sample.rexx": "Declarative / Non-Code"
+      "rexx/hercules_hyperion/hrecurs.rexx": "Declarative / Non-Code"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Data / Markup / Trivial",
       "rexx/ibm_z_zos/bpxget.rexx": "Large Core Modules (3)",
       "rexx/ibm_z_zos/bpxput.rexx": "Large Core Modules (3)",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "Large Core Modules",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "Data / Markup / Trivial"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Data / Markup / Trivial",
+      "rust/bevy/LICENSE-MIT": "Data / Markup / Trivial",
       "rust/bevy/bevy_ecs_macros.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_ecs_query.rs": "Generic / Templated Code Files",
       "rust/bevy/bevy_ecs_table.rs": "Generic / Templated Code Files",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "Large Core Modules (3)"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Data / Markup / Trivial",
+      "rust/serde/LICENSE-MIT": "Data / Markup / Trivial",
       "rust/serde/serde_core_de_impls.rs": "Generic / Templated Code Files",
       "rust/serde/serde_core_de_mod.rs": "Generic / Templated Code Files",
       "rust/serde/serde_core_macros.rs": "Declarative / Non-Code",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "Parameter Forwarders Files"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Data / Markup / Trivial",
       "shell/freebsd-src/chflags_test.sh": "Large Core Modules",
       "shell/freebsd-src/chmod_test.sh": "Large Core Modules",
       "shell/freebsd-src/cp_test.sh": "Large Core Modules",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "Large Core Modules (2)"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Data / Markup / Trivial",
-      "sql/mysql/mediawiki/blobs.sql": "Data / Markup / Trivial"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Data / Markup / Trivial",
+      "sql/mediawiki_mysql/blobs.sql": "Data / Markup / Trivial"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "Declarative / Non-Code"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Data / Markup / Trivial",
+      "sql/mediawiki_postgresql/tables.sql": "Declarative / Non-Code"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "Declarative / Non-Code"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "Declarative / Non-Code"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Data / Markup / Trivial",
+      "sql/spamassassin_mysql/neural_mysql.sql": "Declarative / Non-Code"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "Declarative / Non-Code",
       "sql/sqlite/001-sudoku.sql": "Declarative / Non-Code",
+      "sql/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "sql/sqlite/dotcmd01.sql": "Declarative / Non-Code"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "Declarative / Non-Code"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Data / Markup / Trivial"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "Parameter Forwarders Files"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Data / Markup / Trivial",
       "tcl/sqlite/README.md": "Data / Markup / Trivial",
       "tcl/sqlite/malloc_common.tcl": "Large Core Modules (3)",
       "tcl/sqlite/speedtest.tcl": "Declarative / Non-Code",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Data / Markup / Trivial",
       "xml/apex/IterationRecipes_Tests.cls": "Declarative / Non-Code",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Data / Markup / Trivial",
+      "xml/apex/LICENSE.md": "Data / Markup / Trivial",
       "xml/apex/ListSortingRecipes_Tests.cls": "Large Core Modules",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Data / Markup / Trivial"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Data / Markup / Trivial",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Data / Markup / Trivial",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Data / Markup / Trivial",
       "xml/jenkins/excludesFilter.xml": "Data / Markup / Trivial"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "Data / Markup / Trivial"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Data / Markup / Trivial",
       "zig/bun/MimallocArena.zig": "Large Core Modules (3)",
       "zig/bun/Parser.zig": "Large Core Modules (3)",
       "zig/bun/comptime_string_map.zig": "Large Core Modules (3)",
       "zig/bun/napi.zig": "State Mutators Files"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Large Core Modules (3)",
+      "zig/mach/StringTable.zig": "Large Core Modules (3)",
+      "zig/mach/collision.zig": "Large Core Modules (3)",
+      "zig/mach/graph.zig": "Large Core Modules (2)",
+      "zig/mach/main.zig": "Declarative / Non-Code",
+      "zig/mach/module.zig": "Large Core Modules (3)",
+      "zig/mach/testing.zig": "Large Core Modules (2)",
+      "zig/mach/win32.zig": "Type Conversions Files"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "Large Core Modules (3)",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "Large Core Modules (3)",
       "zig/zls/config_gen.zig": "Large Core Modules (2)",
       "zig/zls/print_ast.zig": "Large Core Modules (2)"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Large Core Modules (3)",
-      "zig/zls/mach/StringTable.zig": "Large Core Modules (3)",
-      "zig/zls/mach/collision.zig": "Large Core Modules (3)",
-      "zig/zls/mach/graph.zig": "Large Core Modules (2)",
-      "zig/zls/mach/main.zig": "Declarative / Non-Code",
-      "zig/zls/mach/module.zig": "Large Core Modules (3)",
-      "zig/zls/mach/testing.zig": "Large Core Modules (2)",
-      "zig/zls/mach/win32.zig": "Type Conversions Files"
     }
   },
   "path": [

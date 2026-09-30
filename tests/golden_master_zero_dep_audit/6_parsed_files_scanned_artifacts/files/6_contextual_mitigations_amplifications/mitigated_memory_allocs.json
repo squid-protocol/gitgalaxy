@@ -123,6 +123,12 @@
       "zig/bun/MimallocArena.zig": "1 instances",
       "zig/bun/Parser.zig": "2 instances"
     },
+    "zig/mach": {
+      "zig/mach/Core.zig": "2 instances",
+      "zig/mach/StringTable.zig": "1 instances",
+      "zig/mach/graph.zig": "5 instances",
+      "zig/mach/module.zig": "7 instances"
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "12 instances",
       "zig/tigerbeetle/build.zig": "4 instances",
@@ -145,12 +151,6 @@
       "zig/zls/ast.zig": "3 instances",
       "zig/zls/config_gen.zig": "19 instances",
       "zig/zls/print_ast.zig": "1 instances"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "2 instances",
-      "zig/zls/mach/StringTable.zig": "1 instances",
-      "zig/zls/mach/graph.zig": "5 instances",
-      "zig/zls/mach/module.zig": "7 instances"
     }
   },
   "path": [

@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "utf-8"
     },
     "ada": {
-      "ada/PROVENANCE.md": "utf-8"
+      "ada/PROVENANCE.md": "utf-8",
+      "ada/SOURCES.md": "utf-8"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "utf-8",
       "ada/alire/alire-conditional_trees.adb": "utf-8",
       "ada/alire/alire-crate_configuration.adb": "utf-8",
       "ada/alire/alire-dependencies-states.ads": "utf-8",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "utf-8",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "utf-8"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "utf-8",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "utf-8"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "utf-8",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "bom",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "bom",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "utf-8"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "utf-8",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "utf-8",
       "blueprint/ghostty/window.blp": "utf-8"
     },
+    "bms": {
+      "bms/SOURCES.md": "utf-8"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "utf-8",
       "bms/cbsa/BNK1CAM.bms": "utf-8",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "utf-8",
       "bms/cbsa/BNK1TFM.bms": "utf-8",
       "bms/cbsa/BNK1UAM.bms": "utf-8",
-      "bms/cbsa/PROVENANCE.md": "utf-8",
-      "bms/cbsa/ssmap.bms": "utf-8"
+      "bms/cbsa/PROVENANCE.md": "utf-8"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "utf-8"
     },
     "c": {
       "c/SOURCES.md": "utf-8"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "utf-8"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "utf-8",
       "c/sqlite/README.md": "utf-8",
       "c/sqlite/lemon.c": "utf-8"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "utf-8",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "utf-8",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "utf-8"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "utf-8"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "utf-8",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "utf-8",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "utf-8"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "utf-8"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "utf-8",
       "cobol/gnucobol_internals/codegen.c": "utf-8",
       "cobol/gnucobol_internals/fileio.c": "utf-8",
       "cobol/gnucobol_internals/numeric.c": "utf-8",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "utf-8",
       "cpp/powertoys/powertoy_module.h": "utf-8"
     },
+    "csd": {
+      "csd/SOURCES.md": "utf-8"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "utf-8",
       "csd/carddemo/CRDDEMO2.csd": "utf-8",
       "csd/carddemo/CRDDEMOD.csd": "utf-8",
       "csd/carddemo/CRDDEMOM.csd": "utf-8",
+      "csd/carddemo/NOTICE": "utf-8",
       "csd/carddemo/PROVENANCE.md": "utf-8"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "utf-8",
       "dart/flutter/theme_data.dart": "utf-8"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "utf-8"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "utf-8",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "utf-8",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "utf-8",
       "db2_sql/db2unit/98-Clean.sql": "utf-8",
       "db2_sql/db2unit/99-CleanAdmin.sql": "utf-8",
+      "db2_sql/db2unit/LICENSE.txt": "utf-8",
       "db2_sql/db2unit/PROVENANCE.md": "utf-8"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "utf-8"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "utf-8"
+      "hlasm/PROVENANCE.md": "utf-8",
+      "hlasm/SOURCES.md": "utf-8"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "utf-8",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "utf-8",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "utf-8",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "utf-8",
+      "hlasm/che4z_hlasm/NOTICE.md": "utf-8",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "utf-8",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "utf-8",
       "hlasm/che4z_hlasm/comments.hlasm": "utf-8",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "utf-8"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "utf-8",
       "html/polyglot_vscode/vscode_builtin.html": "utf-8"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "utf-8"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "utf-8",
       "lua/freebsd-src/cli.lua": "utf-8",
       "lua/freebsd-src/color.lua": "utf-8",
       "lua/freebsd-src/config.lua": "utf-8",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "utf-8"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "utf-8",
       "nix/bun/flake.nix": "utf-8",
       "nix/bun/shell.nix": "utf-8"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "utf-8"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "utf-8",
       "plaintext/ansible/requirements.txt": "utf-8"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "utf-8"
+    },
+    "pli": {
+      "pli/SOURCES.md": "utf-8"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "utf-8",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "utf-8"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "utf-8",
       "python/airflow/dag.py": "utf-8",
       "python/airflow/s3.py": "utf-8",
       "python/airflow/scheduler_job_runner.py": "utf-8"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "utf-8",
       "python/cython/CodeGeneration.py": "utf-8",
+      "python/cython/LICENSE.txt": "utf-8",
       "python/cython/MemoryView.pxd": "utf-8",
       "python/cython/MemoryView.pyx": "utf-8",
       "python/cython/Nodes.py": "utf-8"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "utf-8"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "utf-8"
+      "rexx/PROVENANCE.md": "utf-8",
+      "rexx/SOURCES.md": "utf-8"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "utf-8",
+      "rexx/hercules_390_hyperion/sample.rexx": "utf-8"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "utf-8",
       "rexx/hercules_hyperion/cmpsc.rexx": "utf-8",
       "rexx/hercules_hyperion/hbasic1.rexx": "utf-8",
       "rexx/hercules_hyperion/hcommand.rexx": "utf-8",
       "rexx/hercules_hyperion/hexecio.rexx": "utf-8",
       "rexx/hercules_hyperion/hlinein.rexx": "utf-8",
-      "rexx/hercules_hyperion/hrecurs.rexx": "utf-8",
-      "rexx/hercules_hyperion/sample.rexx": "utf-8"
+      "rexx/hercules_hyperion/hrecurs.rexx": "utf-8"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "utf-8",
       "rexx/ibm_z_zos/bpxget.rexx": "utf-8",
       "rexx/ibm_z_zos/bpxput.rexx": "utf-8",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "utf-8",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "utf-8"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "utf-8",
+      "rust/bevy/LICENSE-MIT": "utf-8",
       "rust/bevy/bevy_ecs_macros.rs": "utf-8",
       "rust/bevy/bevy_ecs_query.rs": "utf-8",
       "rust/bevy/bevy_ecs_table.rs": "utf-8",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "utf-8"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "utf-8",
+      "rust/serde/LICENSE-MIT": "utf-8",
       "rust/serde/serde_core_de_impls.rs": "utf-8",
       "rust/serde/serde_core_de_mod.rs": "utf-8",
       "rust/serde/serde_core_macros.rs": "utf-8",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "utf-8"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "utf-8",
       "shell/freebsd-src/chflags_test.sh": "utf-8",
       "shell/freebsd-src/chmod_test.sh": "utf-8",
       "shell/freebsd-src/cp_test.sh": "utf-8",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "utf-8"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "utf-8",
-      "sql/mysql/mediawiki/blobs.sql": "utf-8"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "utf-8",
+      "sql/mediawiki_mysql/blobs.sql": "utf-8"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "utf-8"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "utf-8",
+      "sql/mediawiki_postgresql/tables.sql": "utf-8"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "utf-8"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "utf-8"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "utf-8",
+      "sql/spamassassin_mysql/neural_mysql.sql": "utf-8"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "utf-8",
       "sql/sqlite/001-sudoku.sql": "utf-8",
+      "sql/sqlite/LICENSE.md": "utf-8",
       "sql/sqlite/dotcmd01.sql": "utf-8"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "utf-8"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "utf-8"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "utf-8"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "utf-8",
       "tcl/sqlite/README.md": "utf-8",
       "tcl/sqlite/malloc_common.tcl": "utf-8",
       "tcl/sqlite/speedtest.tcl": "utf-8",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "utf-8",
       "xml/apex/IterationRecipes_Tests.cls": "utf-8",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "utf-8",
+      "xml/apex/LICENSE.md": "utf-8",
       "xml/apex/ListSortingRecipes_Tests.cls": "utf-8",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "utf-8"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "utf-8",
       "xml/jenkins/XStreamDOMTest.data1.xml": "utf-8",
       "xml/jenkins/XStreamDOMTest.data2.xml": "utf-8",
       "xml/jenkins/excludesFilter.xml": "utf-8"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "utf-8"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "utf-8",
       "zig/bun/MimallocArena.zig": "utf-8",
       "zig/bun/Parser.zig": "utf-8",
       "zig/bun/comptime_string_map.zig": "utf-8",
       "zig/bun/napi.zig": "utf-8"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "utf-8",
+      "zig/mach/StringTable.zig": "utf-8",
+      "zig/mach/collision.zig": "utf-8",
+      "zig/mach/graph.zig": "utf-8",
+      "zig/mach/main.zig": "utf-8",
+      "zig/mach/module.zig": "utf-8",
+      "zig/mach/testing.zig": "utf-8",
+      "zig/mach/win32.zig": "utf-8"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "utf-8",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "utf-8",
       "zig/zls/config_gen.zig": "utf-8",
       "zig/zls/print_ast.zig": "utf-8"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "utf-8",
-      "zig/zls/mach/StringTable.zig": "utf-8",
-      "zig/zls/mach/collision.zig": "utf-8",
-      "zig/zls/mach/graph.zig": "utf-8",
-      "zig/zls/mach/main.zig": "utf-8",
-      "zig/zls/mach/module.zig": "utf-8",
-      "zig/zls/mach/testing.zig": "utf-8",
-      "zig/zls/mach/win32.zig": "utf-8"
     }
   },
   "path": [

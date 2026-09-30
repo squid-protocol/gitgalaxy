@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Abap"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Markdown"
+      "ada/PROVENANCE.md": "Markdown",
+      "ada/SOURCES.md": "Markdown"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Plaintext",
       "ada/alire/alire-conditional_trees.adb": "Ada",
       "ada/alire/alire-crate_configuration.adb": "Ada",
       "ada/alire/alire-dependencies-states.ads": "Ada",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "Assembly",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "Assembly"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "Assembly",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "Assembly"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Assembly",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "Assembly"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Markdown",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "Blp",
       "blueprint/ghostty/window.blp": "Blp"
     },
+    "bms": {
+      "bms/SOURCES.md": "Markdown"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Bms",
       "bms/cbsa/BNK1CAM.bms": "Bms",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "Bms",
       "bms/cbsa/BNK1TFM.bms": "Bms",
       "bms/cbsa/BNK1UAM.bms": "Bms",
-      "bms/cbsa/PROVENANCE.md": "Markdown",
-      "bms/cbsa/ssmap.bms": "Bms"
+      "bms/cbsa/PROVENANCE.md": "Markdown"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "Bms"
     },
     "c": {
       "c/SOURCES.md": "Markdown"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "C"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Markdown",
       "c/sqlite/README.md": "Markdown",
       "c/sqlite/lemon.c": "C"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "Cobol",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "Cobol",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "Cobol",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Markdown",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Markdown",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Markdown",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "Cobol"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "Cobol"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Markdown",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Markdown",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "Cobol",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "Cobol",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "Cobol"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "Cobol"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Plaintext",
       "cobol/gnucobol_internals/codegen.c": "C",
       "cobol/gnucobol_internals/fileio.c": "C",
       "cobol/gnucobol_internals/numeric.c": "C",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "Cpp",
       "cpp/powertoys/powertoy_module.h": "Cpp"
     },
+    "csd": {
+      "csd/SOURCES.md": "Markdown"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "Csd",
       "csd/carddemo/CRDDEMO2.csd": "Csd",
       "csd/carddemo/CRDDEMOD.csd": "Csd",
       "csd/carddemo/CRDDEMOM.csd": "Csd",
+      "csd/carddemo/NOTICE": "Plaintext",
       "csd/carddemo/PROVENANCE.md": "Markdown"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "Dart",
       "dart/flutter/theme_data.dart": "Dart"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Markdown"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Db2_Sql",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "Db2_Sql",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "Db2_Sql",
       "db2_sql/db2unit/98-Clean.sql": "Db2_Sql",
       "db2_sql/db2unit/99-CleanAdmin.sql": "Db2_Sql",
+      "db2_sql/db2unit/LICENSE.txt": "Plaintext",
       "db2_sql/db2unit/PROVENANCE.md": "Markdown"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "Haskell"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Markdown"
+      "hlasm/PROVENANCE.md": "Markdown",
+      "hlasm/SOURCES.md": "Markdown"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Hlasm",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Hlasm",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "Hlasm",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Hlasm",
+      "hlasm/che4z_hlasm/NOTICE.md": "Markdown",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Hlasm",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Hlasm",
       "hlasm/che4z_hlasm/comments.hlasm": "Hlasm",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "Html"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Plaintext",
       "html/polyglot_vscode/vscode_builtin.html": "Html"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "Lua"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Plaintext",
       "lua/freebsd-src/cli.lua": "Lua",
       "lua/freebsd-src/color.lua": "Lua",
       "lua/freebsd-src/config.lua": "Lua",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "Markdown"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Markdown",
       "nix/bun/flake.nix": "Nix",
       "nix/bun/shell.nix": "Nix"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "Markdown"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Plaintext",
       "plaintext/ansible/requirements.txt": "Plaintext"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Plaintext"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Markdown"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Markdown",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "Markdown"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Plaintext",
       "python/airflow/dag.py": "Python",
       "python/airflow/s3.py": "Python",
       "python/airflow/scheduler_job_runner.py": "Python"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "Plaintext",
       "python/cython/CodeGeneration.py": "Python",
+      "python/cython/LICENSE.txt": "Plaintext",
       "python/cython/MemoryView.pxd": "Python",
       "python/cython/MemoryView.pyx": "Python",
       "python/cython/Nodes.py": "Python"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "Python"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Markdown"
+      "rexx/PROVENANCE.md": "Markdown",
+      "rexx/SOURCES.md": "Markdown"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Plaintext",
+      "rexx/hercules_390_hyperion/sample.rexx": "Rexx"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Plaintext",
       "rexx/hercules_hyperion/cmpsc.rexx": "Rexx",
       "rexx/hercules_hyperion/hbasic1.rexx": "Rexx",
       "rexx/hercules_hyperion/hcommand.rexx": "Rexx",
       "rexx/hercules_hyperion/hexecio.rexx": "Rexx",
       "rexx/hercules_hyperion/hlinein.rexx": "Rexx",
-      "rexx/hercules_hyperion/hrecurs.rexx": "Rexx",
-      "rexx/hercules_hyperion/sample.rexx": "Rexx"
+      "rexx/hercules_hyperion/hrecurs.rexx": "Rexx"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Markdown",
       "rexx/ibm_z_zos/bpxget.rexx": "Rexx",
       "rexx/ibm_z_zos/bpxput.rexx": "Rexx",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "Rexx",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "Markdown"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Plaintext",
+      "rust/bevy/LICENSE-MIT": "Plaintext",
       "rust/bevy/bevy_ecs_macros.rs": "Rust",
       "rust/bevy/bevy_ecs_query.rs": "Rust",
       "rust/bevy/bevy_ecs_table.rs": "Rust",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "Rust"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Plaintext",
+      "rust/serde/LICENSE-MIT": "Plaintext",
       "rust/serde/serde_core_de_impls.rs": "Rust",
       "rust/serde/serde_core_de_mod.rs": "Rust",
       "rust/serde/serde_core_macros.rs": "Rust",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "Shell"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Plaintext",
       "shell/freebsd-src/chflags_test.sh": "Shell",
       "shell/freebsd-src/chmod_test.sh": "Shell",
       "shell/freebsd-src/cp_test.sh": "Shell",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "Php"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Plaintext",
-      "sql/mysql/mediawiki/blobs.sql": "Sqlite"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Plaintext",
+      "sql/mediawiki_mysql/blobs.sql": "Sqlite"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "Sqlite"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Plaintext",
+      "sql/mediawiki_postgresql/tables.sql": "Sqlite"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "Sqlite"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "Sqlite"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Plaintext",
+      "sql/spamassassin_mysql/neural_mysql.sql": "Sqlite"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "Sqlite",
       "sql/sqlite/001-sudoku.sql": "Sqlite",
+      "sql/sqlite/LICENSE.md": "Markdown",
       "sql/sqlite/dotcmd01.sql": "Sqlite"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "Sqlite"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Markdown"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "Tcl"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Markdown",
       "tcl/sqlite/README.md": "Markdown",
       "tcl/sqlite/malloc_common.tcl": "Tcl",
       "tcl/sqlite/speedtest.tcl": "Tcl",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Xml",
       "xml/apex/IterationRecipes_Tests.cls": "Apex",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Xml",
+      "xml/apex/LICENSE.md": "Markdown",
       "xml/apex/ListSortingRecipes_Tests.cls": "Apex",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Xml"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Plaintext",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Xml",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Xml",
       "xml/jenkins/excludesFilter.xml": "Xml"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "Markdown"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Markdown",
       "zig/bun/MimallocArena.zig": "Zig",
       "zig/bun/Parser.zig": "Zig",
       "zig/bun/comptime_string_map.zig": "Zig",
       "zig/bun/napi.zig": "Zig"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Zig",
+      "zig/mach/StringTable.zig": "Zig",
+      "zig/mach/collision.zig": "Zig",
+      "zig/mach/graph.zig": "Zig",
+      "zig/mach/main.zig": "Zig",
+      "zig/mach/module.zig": "Zig",
+      "zig/mach/testing.zig": "Zig",
+      "zig/mach/win32.zig": "Zig"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "Zig",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "Zig",
       "zig/zls/config_gen.zig": "Zig",
       "zig/zls/print_ast.zig": "Zig"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Zig",
-      "zig/zls/mach/StringTable.zig": "Zig",
-      "zig/zls/mach/collision.zig": "Zig",
-      "zig/zls/mach/graph.zig": "Zig",
-      "zig/zls/mach/main.zig": "Zig",
-      "zig/zls/mach/module.zig": "Zig",
-      "zig/zls/mach/testing.zig": "Zig",
-      "zig/zls/mach/win32.zig": "Zig"
     }
   },
   "path": [

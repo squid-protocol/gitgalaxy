@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "N/A"
     },
     "ada": {
-      "ada/PROVENANCE.md": "N/A"
+      "ada/PROVENANCE.md": "N/A",
+      "ada/SOURCES.md": "N/A"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "N/A",
       "ada/alire/alire-conditional_trees.adb": "N/A",
       "ada/alire/alire-crate_configuration.adb": "N/A",
       "ada/alire/alire-dependencies-states.ads": "N/A",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "N/A",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "N/A"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "N/A",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "N/A",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "N/A",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "N/A",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "N/A"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "N/A",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "N/A"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "N/A",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "N/A",
       "blueprint/ghostty/window.blp": "N/A"
     },
+    "bms": {
+      "bms/SOURCES.md": "N/A"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "N/A",
       "bms/cbsa/BNK1CAM.bms": "N/A",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "N/A",
       "bms/cbsa/BNK1TFM.bms": "N/A",
       "bms/cbsa/BNK1UAM.bms": "N/A",
-      "bms/cbsa/PROVENANCE.md": "N/A",
-      "bms/cbsa/ssmap.bms": "N/A"
+      "bms/cbsa/PROVENANCE.md": "N/A"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "N/A"
     },
     "c": {
       "c/SOURCES.md": "N/A"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "N/A"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "N/A",
       "c/sqlite/README.md": "N/A",
       "c/sqlite/lemon.c": "N/A"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "N/A",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "N/A",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "N/A",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "N/A",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "N/A",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "N/A",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "N/A"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "N/A"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "N/A",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "N/A",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "N/A",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "N/A",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "N/A"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "N/A"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "N/A",
       "cobol/gnucobol_internals/codegen.c": "N/A",
       "cobol/gnucobol_internals/fileio.c": "N/A",
       "cobol/gnucobol_internals/numeric.c": "N/A",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "N/A",
       "cpp/powertoys/powertoy_module.h": "N/A"
     },
+    "csd": {
+      "csd/SOURCES.md": "N/A"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "N/A",
       "csd/carddemo/CRDDEMO2.csd": "N/A",
       "csd/carddemo/CRDDEMOD.csd": "N/A",
       "csd/carddemo/CRDDEMOM.csd": "N/A",
+      "csd/carddemo/NOTICE": "N/A",
       "csd/carddemo/PROVENANCE.md": "N/A"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "N/A",
       "dart/flutter/theme_data.dart": "N/A"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "N/A"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "N/A",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "N/A",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "N/A",
       "db2_sql/db2unit/98-Clean.sql": "N/A",
       "db2_sql/db2unit/99-CleanAdmin.sql": "N/A",
+      "db2_sql/db2unit/LICENSE.txt": "N/A",
       "db2_sql/db2unit/PROVENANCE.md": "N/A"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "N/A"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "N/A"
+      "hlasm/PROVENANCE.md": "N/A",
+      "hlasm/SOURCES.md": "N/A"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "N/A",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "N/A",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "N/A",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "N/A",
+      "hlasm/che4z_hlasm/NOTICE.md": "N/A",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "N/A",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "N/A",
       "hlasm/che4z_hlasm/comments.hlasm": "N/A",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "N/A"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "N/A",
       "html/polyglot_vscode/vscode_builtin.html": "N/A"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "N/A"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "N/A",
       "lua/freebsd-src/cli.lua": "N/A",
       "lua/freebsd-src/color.lua": "N/A",
       "lua/freebsd-src/config.lua": "N/A",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "N/A"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "N/A",
       "nix/bun/flake.nix": "N/A",
       "nix/bun/shell.nix": "N/A"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "N/A"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "N/A",
       "plaintext/ansible/requirements.txt": "N/A"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "N/A"
+    },
+    "pli": {
+      "pli/SOURCES.md": "N/A"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "N/A",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "N/A"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "N/A",
       "python/airflow/dag.py": "N/A",
       "python/airflow/s3.py": "N/A",
       "python/airflow/scheduler_job_runner.py": "N/A"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "N/A",
       "python/cython/CodeGeneration.py": "N/A",
+      "python/cython/LICENSE.txt": "N/A",
       "python/cython/MemoryView.pxd": "N/A",
       "python/cython/MemoryView.pyx": "N/A",
       "python/cython/Nodes.py": "N/A"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "N/A"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "N/A"
+      "rexx/PROVENANCE.md": "N/A",
+      "rexx/SOURCES.md": "N/A"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "N/A",
+      "rexx/hercules_390_hyperion/sample.rexx": "N/A"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "N/A",
       "rexx/hercules_hyperion/cmpsc.rexx": "N/A",
       "rexx/hercules_hyperion/hbasic1.rexx": "N/A",
       "rexx/hercules_hyperion/hcommand.rexx": "N/A",
       "rexx/hercules_hyperion/hexecio.rexx": "N/A",
       "rexx/hercules_hyperion/hlinein.rexx": "N/A",
-      "rexx/hercules_hyperion/hrecurs.rexx": "N/A",
-      "rexx/hercules_hyperion/sample.rexx": "N/A"
+      "rexx/hercules_hyperion/hrecurs.rexx": "N/A"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "N/A",
       "rexx/ibm_z_zos/bpxget.rexx": "N/A",
       "rexx/ibm_z_zos/bpxput.rexx": "N/A",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "N/A",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "N/A"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "N/A",
+      "rust/bevy/LICENSE-MIT": "N/A",
       "rust/bevy/bevy_ecs_macros.rs": "N/A",
       "rust/bevy/bevy_ecs_query.rs": "N/A",
       "rust/bevy/bevy_ecs_table.rs": "N/A",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "N/A"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "N/A",
+      "rust/serde/LICENSE-MIT": "N/A",
       "rust/serde/serde_core_de_impls.rs": "N/A",
       "rust/serde/serde_core_de_mod.rs": "N/A",
       "rust/serde/serde_core_macros.rs": "N/A",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "N/A"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "N/A",
       "shell/freebsd-src/chflags_test.sh": "N/A",
       "shell/freebsd-src/chmod_test.sh": "N/A",
       "shell/freebsd-src/cp_test.sh": "N/A",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "N/A"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "N/A",
-      "sql/mysql/mediawiki/blobs.sql": "N/A"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "N/A",
+      "sql/mediawiki_mysql/blobs.sql": "N/A"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "N/A"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "N/A",
+      "sql/mediawiki_postgresql/tables.sql": "N/A"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "N/A"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "N/A"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "N/A",
+      "sql/spamassassin_mysql/neural_mysql.sql": "N/A"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "N/A",
       "sql/sqlite/001-sudoku.sql": "N/A",
+      "sql/sqlite/LICENSE.md": "N/A",
       "sql/sqlite/dotcmd01.sql": "N/A"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "N/A"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "N/A"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "N/A"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "N/A",
       "tcl/sqlite/README.md": "N/A",
       "tcl/sqlite/malloc_common.tcl": "N/A",
       "tcl/sqlite/speedtest.tcl": "N/A",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "N/A",
       "xml/apex/IterationRecipes_Tests.cls": "N/A",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "N/A",
+      "xml/apex/LICENSE.md": "N/A",
       "xml/apex/ListSortingRecipes_Tests.cls": "N/A",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "N/A"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "N/A",
       "xml/jenkins/XStreamDOMTest.data1.xml": "N/A",
       "xml/jenkins/XStreamDOMTest.data2.xml": "N/A",
       "xml/jenkins/excludesFilter.xml": "N/A"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "N/A"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "N/A",
       "zig/bun/MimallocArena.zig": "N/A",
       "zig/bun/Parser.zig": "N/A",
       "zig/bun/comptime_string_map.zig": "N/A",
       "zig/bun/napi.zig": "N/A"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "N/A",
+      "zig/mach/StringTable.zig": "N/A",
+      "zig/mach/collision.zig": "N/A",
+      "zig/mach/graph.zig": "N/A",
+      "zig/mach/main.zig": "N/A",
+      "zig/mach/module.zig": "N/A",
+      "zig/mach/testing.zig": "N/A",
+      "zig/mach/win32.zig": "N/A"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "N/A",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "N/A",
       "zig/zls/config_gen.zig": "N/A",
       "zig/zls/print_ast.zig": "N/A"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "N/A",
-      "zig/zls/mach/StringTable.zig": "N/A",
-      "zig/zls/mach/collision.zig": "N/A",
-      "zig/zls/mach/graph.zig": "N/A",
-      "zig/zls/mach/main.zig": "N/A",
-      "zig/zls/mach/module.zig": "N/A",
-      "zig/zls/mach/testing.zig": "N/A",
-      "zig/zls/mach/win32.zig": "N/A"
     }
   },
   "path": [

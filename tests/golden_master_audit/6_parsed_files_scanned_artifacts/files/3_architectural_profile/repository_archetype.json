@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "file_cluster_11"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Static: Literature & Documentation"
+      "ada/PROVENANCE.md": "Static: Literature & Documentation",
+      "ada/SOURCES.md": "Static: Literature & Documentation"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Static: Literature & Documentation",
       "ada/alire/alire-conditional_trees.adb": "file_cluster_15",
       "ada/alire/alire-crate_configuration.adb": "file_cluster_15",
       "ada/alire/alire-dependencies-states.ads": "file_cluster_15",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "file_cluster_2",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "file_cluster_2"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "file_cluster_15",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "file_cluster_15"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "file_cluster_15",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "file_cluster_15"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Static: Literature & Documentation",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "file_cluster_2",
       "blueprint/ghostty/window.blp": "file_cluster_2"
     },
+    "bms": {
+      "bms/SOURCES.md": "Static: Literature & Documentation"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "file_cluster_2",
       "bms/cbsa/BNK1CAM.bms": "file_cluster_2",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "file_cluster_2",
       "bms/cbsa/BNK1TFM.bms": "file_cluster_2",
       "bms/cbsa/BNK1UAM.bms": "file_cluster_2",
-      "bms/cbsa/PROVENANCE.md": "Static: Literature & Documentation",
-      "bms/cbsa/ssmap.bms": "file_cluster_2"
+      "bms/cbsa/PROVENANCE.md": "Static: Literature & Documentation"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "file_cluster_2"
     },
     "c": {
       "c/SOURCES.md": "Static: Literature & Documentation"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "file_cluster_17"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Static: Literature & Documentation",
       "c/sqlite/README.md": "Static: Literature & Documentation",
       "c/sqlite/lemon.c": "file_cluster_6"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "file_cluster_2",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "file_cluster_2",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "file_cluster_2",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Static: Literature & Documentation",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Static: Literature & Documentation",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Static: Literature & Documentation",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "file_cluster_2"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "file_cluster_2"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Static: Literature & Documentation",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Static: Literature & Documentation",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "file_cluster_2",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "file_cluster_2",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "file_cluster_2"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "file_cluster_2"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Static: Literature & Documentation",
       "cobol/gnucobol_internals/codegen.c": "file_cluster_8",
       "cobol/gnucobol_internals/fileio.c": "file_cluster_8",
       "cobol/gnucobol_internals/numeric.c": "file_cluster_4",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "file_cluster_6",
       "cpp/powertoys/powertoy_module.h": "file_cluster_11"
     },
+    "csd": {
+      "csd/SOURCES.md": "Static: Literature & Documentation"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "file_cluster_2",
       "csd/carddemo/CRDDEMO2.csd": "file_cluster_2",
       "csd/carddemo/CRDDEMOD.csd": "file_cluster_2",
       "csd/carddemo/CRDDEMOM.csd": "file_cluster_2",
+      "csd/carddemo/NOTICE": "Static: Literature & Documentation",
       "csd/carddemo/PROVENANCE.md": "Static: Literature & Documentation"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "file_cluster_12",
       "dart/flutter/theme_data.dart": "file_cluster_4"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Static: Literature & Documentation"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "file_cluster_2",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "file_cluster_2",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "file_cluster_2",
       "db2_sql/db2unit/98-Clean.sql": "file_cluster_14",
       "db2_sql/db2unit/99-CleanAdmin.sql": "file_cluster_2",
+      "db2_sql/db2unit/LICENSE.txt": "Static: Literature & Documentation",
       "db2_sql/db2unit/PROVENANCE.md": "Static: Literature & Documentation"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "file_cluster_15"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Static: Literature & Documentation"
+      "hlasm/PROVENANCE.md": "Static: Literature & Documentation",
+      "hlasm/SOURCES.md": "Static: Literature & Documentation"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Unclassified",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Unclassified",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "file_cluster_17",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "file_cluster_2",
+      "hlasm/che4z_hlasm/NOTICE.md": "Static: Literature & Documentation",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "file_cluster_2",
       "hlasm/che4z_hlasm/comments.hlasm": "file_cluster_2",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "file_cluster_13"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Static: Literature & Documentation",
       "html/polyglot_vscode/vscode_builtin.html": "file_cluster_2"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "file_cluster_10"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Static: Literature & Documentation",
       "lua/freebsd-src/cli.lua": "file_cluster_15",
       "lua/freebsd-src/color.lua": "file_cluster_11",
       "lua/freebsd-src/config.lua": "file_cluster_6",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "Static: Literature & Documentation"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Static: Literature & Documentation",
       "nix/bun/flake.nix": "file_cluster_2",
       "nix/bun/shell.nix": "file_cluster_2"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "Static: Literature & Documentation"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Static: Literature & Documentation",
       "plaintext/ansible/requirements.txt": "Static: Literature & Documentation"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Static: Literature & Documentation"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Static: Literature & Documentation"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Static: Literature & Documentation",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "Static: Literature & Documentation"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Static: Literature & Documentation",
       "python/airflow/dag.py": "file_cluster_5",
       "python/airflow/s3.py": "file_cluster_5",
       "python/airflow/scheduler_job_runner.py": "file_cluster_4"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "Static: Literature & Documentation",
       "python/cython/CodeGeneration.py": "file_cluster_7",
+      "python/cython/LICENSE.txt": "Static: Literature & Documentation",
       "python/cython/MemoryView.pxd": "file_cluster_7",
       "python/cython/MemoryView.pyx": "file_cluster_12",
       "python/cython/Nodes.py": "file_cluster_4"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "file_cluster_0"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Static: Literature & Documentation"
+      "rexx/PROVENANCE.md": "Static: Literature & Documentation",
+      "rexx/SOURCES.md": "Static: Literature & Documentation"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Static: Literature & Documentation",
+      "rexx/hercules_390_hyperion/sample.rexx": "file_cluster_2"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Static: Literature & Documentation",
       "rexx/hercules_hyperion/cmpsc.rexx": "file_cluster_11",
       "rexx/hercules_hyperion/hbasic1.rexx": "file_cluster_2",
       "rexx/hercules_hyperion/hcommand.rexx": "file_cluster_7",
       "rexx/hercules_hyperion/hexecio.rexx": "file_cluster_2",
       "rexx/hercules_hyperion/hlinein.rexx": "file_cluster_2",
-      "rexx/hercules_hyperion/hrecurs.rexx": "file_cluster_2",
-      "rexx/hercules_hyperion/sample.rexx": "file_cluster_2"
+      "rexx/hercules_hyperion/hrecurs.rexx": "file_cluster_2"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Static: Literature & Documentation",
       "rexx/ibm_z_zos/bpxget.rexx": "file_cluster_15",
       "rexx/ibm_z_zos/bpxput.rexx": "file_cluster_15",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "file_cluster_9",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "Static: Literature & Documentation"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Static: Literature & Documentation",
+      "rust/bevy/LICENSE-MIT": "Static: Literature & Documentation",
       "rust/bevy/bevy_ecs_macros.rs": "file_cluster_0",
       "rust/bevy/bevy_ecs_query.rs": "file_cluster_0",
       "rust/bevy/bevy_ecs_table.rs": "file_cluster_0",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "file_cluster_8"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Static: Literature & Documentation",
+      "rust/serde/LICENSE-MIT": "Static: Literature & Documentation",
       "rust/serde/serde_core_de_impls.rs": "file_cluster_0",
       "rust/serde/serde_core_de_mod.rs": "file_cluster_0",
       "rust/serde/serde_core_macros.rs": "file_cluster_0",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "file_cluster_12"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Static: Literature & Documentation",
       "shell/freebsd-src/chflags_test.sh": "file_cluster_11",
       "shell/freebsd-src/chmod_test.sh": "file_cluster_12",
       "shell/freebsd-src/cp_test.sh": "file_cluster_12",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "file_cluster_8"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Static: Literature & Documentation",
-      "sql/mysql/mediawiki/blobs.sql": "file_cluster_2"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Static: Literature & Documentation",
+      "sql/mediawiki_mysql/blobs.sql": "file_cluster_2"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "file_cluster_2"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Static: Literature & Documentation",
+      "sql/mediawiki_postgresql/tables.sql": "file_cluster_2"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "file_cluster_2"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "file_cluster_7"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Static: Literature & Documentation",
+      "sql/spamassassin_mysql/neural_mysql.sql": "file_cluster_2"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "file_cluster_2",
       "sql/sqlite/001-sudoku.sql": "file_cluster_2",
+      "sql/sqlite/LICENSE.md": "Static: Literature & Documentation",
       "sql/sqlite/dotcmd01.sql": "file_cluster_2"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "file_cluster_7"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Static: Literature & Documentation"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "file_cluster_6"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Static: Literature & Documentation",
       "tcl/sqlite/README.md": "Static: Literature & Documentation",
       "tcl/sqlite/malloc_common.tcl": "file_cluster_12",
       "tcl/sqlite/speedtest.tcl": "file_cluster_2",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Unclassified",
       "xml/apex/IterationRecipes_Tests.cls": "file_cluster_0",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Unclassified",
+      "xml/apex/LICENSE.md": "Static: Literature & Documentation",
       "xml/apex/ListSortingRecipes_Tests.cls": "file_cluster_0",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Unclassified"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Static: Literature & Documentation",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Unclassified",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Unclassified",
       "xml/jenkins/excludesFilter.xml": "Unclassified"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "Static: Literature & Documentation"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Static: Literature & Documentation",
       "zig/bun/MimallocArena.zig": "file_cluster_12",
       "zig/bun/Parser.zig": "file_cluster_6",
       "zig/bun/comptime_string_map.zig": "file_cluster_4",
       "zig/bun/napi.zig": "file_cluster_12"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "file_cluster_12",
+      "zig/mach/StringTable.zig": "file_cluster_7",
+      "zig/mach/collision.zig": "file_cluster_4",
+      "zig/mach/graph.zig": "file_cluster_12",
+      "zig/mach/main.zig": "file_cluster_2",
+      "zig/mach/module.zig": "file_cluster_5",
+      "zig/mach/testing.zig": "file_cluster_0",
+      "zig/mach/win32.zig": "file_cluster_12"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "file_cluster_4",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "file_cluster_4",
       "zig/zls/config_gen.zig": "file_cluster_6",
       "zig/zls/print_ast.zig": "file_cluster_12"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "file_cluster_12",
-      "zig/zls/mach/StringTable.zig": "file_cluster_7",
-      "zig/zls/mach/collision.zig": "file_cluster_4",
-      "zig/zls/mach/graph.zig": "file_cluster_12",
-      "zig/zls/mach/main.zig": "file_cluster_2",
-      "zig/zls/mach/module.zig": "file_cluster_5",
-      "zig/zls/mach/testing.zig": "file_cluster_0",
-      "zig/zls/mach/win32.zig": "file_cluster_12"
     }
   },
   "path": [

@@ -3654,155 +3654,186 @@ def test_objectivec_c_style_real_definition_still_extracted():
     assert found["c_style_func"] == 2, f"expected args=2, got args={found['c_style_func']}"
 
 
-def test_go_bodyless_function_declarations_extracted():
+def test_go_bodyless_declarations_extracted_with_own_span_1756():
     """
-    #1756: Go's bodyless function declarations (assembly-backed
-    implementations and //go:linkname targets -- func memmove(to, from
-    unsafe.Pointer, n uintptr) with no { body) have no brace group, and
-    Go's automatic-semicolon-insertion rule means the declaration ends at
-    the end of its signature line without a literal ;. The generic
-    Mode-B brace-only fallback in _slice_by_braces (detector.py)
-    required a { within the search window and silently dropped every
-    one of these. func_start's own regex always matched them -- the gap
-    was purely in detector.py's downstream body-boundary search, not the
-    regex (the same shape as #1314/#1319's rust/objc bodyless handling).
+    #1756: Go bodyless declarations (assembly-backed functions, `//go:linkname`
+    targets) have no `{...}` at all -- Go's automatic semicolon insertion ends
+    them at their signature line. func_start already matched them, but the
+    generic brace-only fallback in `_slice_by_braces` either dropped them (no
+    `{` in the window) or handed them the NEXT declaration's body. They must be
+    extracted with a span covering only the declaration, and the function or
+    type declared right after must keep its own span.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package runtime\n"
-        "\n"
-        "func memmove(to, from unsafe.Pointer, n uintptr)\n"
-        "\n"
-        "func add(a, b int) int {\n"
-        "\treturn a + b\n"
-        "}\n"
-        "\n"
-        "//go:linkname gogo runtime.gogo\n"
-        "func gogo()\n"
-        "\n"
-        "func sub(a, b int) int {\n"
-        "\treturn a - b\n"
-        "}\n"
+        "package runtime\n"  # 1
+        "\n"  # 2
+        "//go:linkname memmove runtime.memmove\n"  # 3
+        "func memmove(to, from unsafe.Pointer, n uintptr)\n"  # 4
+        "\n"  # 5
+        "func add(a, b int) int {\n"  # 6
+        "\treturn a + b\n"  # 7
+        "}\n"  # 8
+        "\n"  # 9
+        "func getg() *g\n"  # 10
+        "\n"  # 11
+        "type point struct {\n"  # 12
+        "\tx, y int\n"  # 13
+        "}\n"  # 14
+        "\n"  # 15
+        "func cputicks() int64;\n"  # 16
+        "\n"  # 17
+        "func procyield(cycles uint32)"  # 18 -- last line, no trailing newline
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    expected = {"memmove", "gogo", "add", "sub"}
-    missing = expected - set(found)
-    assert not missing, f"Go function declaration(s) not extracted: {missing}"
-    assert found["memmove"]["args"] == 3, f"expected memmove args=3, got args={found['memmove']['args']}"
-    # Bodyless declarations span their signature line only -- no phantom body.
-    assert found["memmove"]["start_line"] == found["memmove"]["end_line"], (
-        "bodyless memmove should span just its signature line"
-    )
-    assert found["gogo"]["start_line"] == found["gogo"]["end_line"], "bodyless gogo should span just its signature line"
+    by_name = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected_spans = {
+        "memmove": (4, 4),
+        "add": (6, 8),
+        "getg": (10, 10),
+        "cputicks": (16, 16),
+        "procyield": (18, 18),
+    }
+    missing = set(expected_spans) - set(by_name)
+    assert not missing, f"bodyless Go declaration(s) not extracted: {missing}"
+    for name, span in expected_spans.items():
+        actual = (by_name[name]["start_line"], by_name[name]["end_line"])
+        assert actual == span, f"{name}: expected span {span}, got {actual}"
+    assert by_name["memmove"]["args"] == 3, f"memmove: expected args=3, got {by_name['memmove']['args']}"
 
 
-def test_go_bodyless_declaration_not_misattributed_following_block():
+def test_go_bodyless_declaration_does_not_borrow_later_brace_block_1756():
     """
-    #1756 companion: when a bodyless declaration is followed by an
-    unrelated brace block (a struct literal later in the file), the
-    pre-fix generic brace search grabbed that block as the phantom
-    function's body. A bodyless declaration must end at its own
-    signature line instead.
+    #1756: a bodyless declaration must never claim a `{ ... }` that belongs to
+    something later in the file -- here a composite literal in a `var` and a
+    struct type declaration, neither of which is a func_start match that would
+    cut the search window short.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func flushICache(begin, end uintptr)\n"
-        "\n"
-        "type Foo struct {\n"
-        "\tX int\n"
-        "}\n"
-        "\n"
-        "func bar() int {\n"
-        "\treturn 1\n"
-        "}\n"
+        "func nanotime1() int64\n"  # 1
+        "var defaults = map[string]int{\n"  # 2
+        '\t"a": 1,\n'  # 3
+        '\t"b": 2,\n'  # 4
+        "}\n"  # 5
+        "func walltime() (sec int64, nsec int32)\n"  # 6
+        "type config struct {\n"  # 7
+        "\tname string\n"  # 8
+        "}\n"  # 9
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    assert "flushICache" in found, "bodyless flushICache should be extracted"
-    assert found["flushICache"]["end_line"] == 3, (
-        f"flushICache must end at its own signature line, got end_line={found['flushICache']['end_line']}"
-    )
-    assert "bar" in found, "ordinary braced function after the struct must still be extracted"
+    spans = {fn["name"]: (fn["start_line"], fn["end_line"]) for fn in result.get("functions", [])}
+    assert spans.get("nanotime1") == (1, 1), f"nanotime1 borrowed a later block: {spans.get('nanotime1')}"
+    assert spans.get("walltime") == (6, 6), f"walltime borrowed a later block: {spans.get('walltime')}"
+    assert set(spans) == {"nanotime1", "walltime"}, f"unexpected functions: {sorted(spans)}"
 
 
-def test_go_channel_direction_operator_does_not_poison_body_scan():
+def test_go_return_type_braces_and_channels_not_mistaken_for_body_1756():
     """
-    #1760 review follow-up: Go's channel-direction operator (chan<- / <-chan)
-    contains a lone < that an angle-bracket depth counter would never balance,
-    stalling the body-boundary scan and silently dropping every following
-    function. Go has no angle-bracket grouping (generics are [T any]), so the
-    Go branch must track parens and brackets only.
+    #1756: a result type can carry braces of its own (`struct{ ... }`,
+    `interface{ ... }`, even spread over several lines) or channel arrows
+    (`<-chan T`, `chan<- T`). None of those may be taken as the body -- for a
+    bodied function the span must reach the real body's closing `}`, and for a
+    bodyless one the span must stop at its own signature line.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func makeSendChan() chan<- int {\n"
-        "\tch := make(chan int)\n"
-        "\treturn ch\n"
-        "}\n"
-        "\n"
-        "func makeRecvChan() <-chan int {\n"
-        "\tch := make(chan int)\n"
-        "\treturn ch\n"
-        "}\n"
-        "\n"
-        "func add(a, b int) int {\n"
-        "\treturn a + b\n"
-        "}\n"
+        "func pair() struct{ a, b int } {\n"  # 1
+        "\treturn struct{ a, b int }{1, 2}\n"  # 2
+        "}\n"  # 3
+        "\n"  # 4
+        "func newReader() interface {\n"  # 5
+        "\tRead(p []byte) (int, error)\n"  # 6
+        "} {\n"  # 7
+        "\treturn nil\n"  # 8
+        "}\n"  # 9
+        "\n"  # 10
+        "func ticks() <-chan time.Time {\n"  # 11
+        "\treturn nil\n"  # 12
+        "}\n"  # 13
+        "\n"  # 14
+        "func sink() chan<- int\n"  # 15
+        "\n"  # 16
+        "func emptyBox() interface{}\n"  # 17
+        "\n"  # 18
+        "func after() int {\n"  # 19
+        "\treturn 1\n"  # 20
+        "}\n"  # 21
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    expected = {"makeSendChan", "makeRecvChan", "add"}
-    missing = expected - set(found)
-    assert not missing, f"Go function(s) dropped by channel operator: {missing}"
-    assert found["makeSendChan"]["args"] == 0, "makeSendChan should take no args"
-    assert found["makeRecvChan"]["args"] == 0, "makeRecvChan should take no args"
+    spans = {fn["name"]: (fn["start_line"], fn["end_line"]) for fn in result.get("functions", [])}
+    expected = {
+        "pair": (1, 3),
+        "newReader": (5, 9),
+        "ticks": (11, 13),
+        "sink": (15, 15),
+        "emptyBox": (17, 17),
+        "after": (19, 21),
+    }
+    assert spans == expected, f"expected {expected}, got {spans}"
 
 
-def test_go_struct_return_type_not_truncated_at_type_literal_brace():
+def test_go_ordinary_function_spans_unchanged_1756():
     """
-    #1756 wrinkle: a return type that itself contains a brace group
-    (func f() struct{ X int } { ... }) puts a top-level { before the real
-    body -- the generic brace search stopped at the struct literal's {,
-    truncating the function's span to the type. The real body must be
-    included.
+    #1756 companion: the Go-specific terminator walk must not move the span of
+    any ordinary bodied function -- plain functions with multiple results,
+    methods with receivers, generics with square-bracket type parameters,
+    multi-line parameter lists and functions returning `func(...)` types all
+    keep their exact start and end lines.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func makePoint() struct{ X, Y int } {\n"
-        "\treturn struct{ X, Y int }{1, 2}\n"
-        "}\n"
-        "\n"
-        "func other() int {\n"
-        "\treturn 2\n"
-        "}\n"
+        "func parse(x int) (int, error) {\n"  # 1
+        "\tif x < 0 {\n"  # 2
+        "\t\treturn 0, nil\n"  # 3
+        "\t}\n"  # 4
+        "\treturn x, nil\n"  # 5
+        "}\n"  # 6
+        "\n"  # 7
+        "func (s *Server) Start(addr string) error {\n"  # 8
+        "\treturn nil\n"  # 9
+        "}\n"  # 10
+        "\n"  # 11
+        "func Map[T any, U any](xs []T, f func(T) U) []U {\n"  # 12
+        "\tout := make([]U, 0, len(xs))\n"  # 13
+        "\treturn out\n"  # 14
+        "}\n"  # 15
+        "\n"  # 16
+        "func connect(\n"  # 17
+        "\thost string,\n"  # 18
+        "\tport int,\n"  # 19
+        ") (net.Conn, error) {\n"  # 20
+        "\treturn nil, nil\n"  # 21
+        "}\n"  # 22
+        "\n"  # 23
+        "func adder(base int) func(int) int {\n"  # 24
+        "\treturn func(x int) int { return base + x }\n"  # 25
+        "}\n"  # 26
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    assert "makePoint" in found, "makePoint should be extracted"
-    assert found["makePoint"]["start_line"] == 3
-    assert found["makePoint"]["end_line"] == 5, (
-        f"makePoint's span must include its real body, got end_line={found['makePoint']['end_line']}"
-    )
-    assert "other" in found, "ordinary braced function after it must still be extracted"
+    by_name = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected_spans = {
+        "parse": (1, 6),
+        "Start": (8, 10),
+        "Map": (12, 15),
+        "connect": (17, 22),
+        "adder": (24, 26),
+    }
+    spans = {name: (fn["start_line"], fn["end_line"]) for name, fn in by_name.items()}
+    assert spans == expected_spans, f"expected {expected_spans}, got {spans}"
+    assert by_name["connect"]["args"] == 2, f"connect: expected args=2, got {by_name['connect']['args']}"
 
 
 def test_objectivec_args_body_lookalikes_excluded_by_signature_bound():

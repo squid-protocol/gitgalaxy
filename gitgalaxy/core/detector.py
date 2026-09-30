@@ -6059,86 +6059,6 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
-            # #1756: Go's bodyless function declarations (assembly-backed
-            # implementations and //go:linkname targets -- e.g. "func
-            # memmove(to, from unsafe.Pointer, n uintptr)" with no { body,
-            # legal and common in the stdlib) were silently dropped by the
-            # generic brace-only fallback below: Go's automatic-semicolon-
-            # insertion rule means a bodyless declaration ends at the end of
-            # its signature line without a literal ";", so the brace search
-            # either found nothing in the bounded window (brace_idx == -1,
-            # match discarded) or -- when a struct/interface literal
-            # happened to appear later -- attributed an unrelated block as
-            # the function's body. Mirrors #1319's rust bodyless
-            # trait-method handling, with the declaration bound taken from
-            # Go's own ASI rule: after the parameter list closes, the first
-            # top-level { is the body; a literal ";" or (far more common)
-            # the end of the line means the declaration is bodyless. "func"
-            # at line start is unambiguous in Go (never a call or bare
-            # statement), so a bodyless terminator is never a false match.
-            #
-            # One Go-specific wrinkle: a return type may itself contain a
-            # brace group ("func f() struct{ X int } { ... }",
-            # "interface{ ... }"), which sits at top level after the
-            # parameter list and would be mistaken for the body. Such a
-            # group is always closed on the same line, and a real body {
-            # always follows on that same line -- so a top-level { whose
-            # balanced close is followed by another { before the line ends
-            # is a type literal, not the body; skip past it and keep
-            # scanning.
-            elif lang_id == "go":
-                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
-                search_limit = min(next_match_start, params_end_idx + 2000)
-                # Go has no angle-bracket grouping: generics use square brackets
-                # ([T any]), so < and > only ever appear as operators -- most
-                # notably the channel-direction operator (chan<- / <-chan),
-                # whose lone < would poison an angle-depth counter and stall the
-                # scan below. Track parens and brackets only.
-                depth_paren = depth_bracket = 0
-                pos = params_end_idx
-                term_idx, term_kind = -1, None
-                while pos < search_limit:
-                    ch = safe_code[pos]
-                    if ch == "(":
-                        depth_paren += 1
-                    elif ch == ")":
-                        depth_paren = max(0, depth_paren - 1)
-                    elif ch == "[":
-                        depth_bracket += 1
-                    elif ch == "]":
-                        depth_bracket = max(0, depth_bracket - 1)
-                    elif depth_paren == 0 and depth_bracket == 0:
-                        if ch == opener:
-                            # A brace group that is a type literal (struct{
-                            # ... } / interface{ ... } in the return type)
-                            # closes before the line ends and is followed by
-                            # the real body's { on that same line -- or, for
-                            # a bodyless declaration, by the end of the
-                            # line. Only a { whose balanced close is NOT
-                            # followed by another { before the next newline
-                            # is the function's own body.
-                            group_end = self._find_balanced_end(safe_code, pos, opener, closer)
-                            line_end = safe_code.find("\n", group_end + 1, search_limit)
-                            if line_end == -1:
-                                line_end = search_limit
-                            if safe_code.find(opener, group_end + 1, line_end) != -1:
-                                pos = group_end + 1
-                                continue
-                            term_idx, term_kind = pos, "brace"
-                            break
-                        elif ch == ";":
-                            term_idx, term_kind = pos, "semi"
-                            break
-                        elif ch == "\n":
-                            term_idx, term_kind = pos, "eol"
-                            break
-                    pos += 1
-                if term_kind == "brace":
-                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
-                elif term_kind in ("semi", "eol"):
-                    end_idx = term_idx + 1
-                else:
-                    continue  # neither a body nor a bodyless declaration bound showed up in the window
             elif lang_id == "kotlin":
                 paren_idx = safe_code.find("(", match.end(), search_limit)
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
@@ -6793,6 +6713,79 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            # #1756: Go allows BODYLESS function declarations -- assembly-backed
+            # functions and `//go:linkname` targets (`func memmove(to, from
+            # unsafe.Pointer, n uintptr)`). func_start matches their signatures, but
+            # the generic brace-only fallback below dropped every one whose window held
+            # no `{`, and -- worse -- handed the rest the NEXT declaration's `{...}`
+            # (a later func, a `type T struct {`, a composite literal) as a borrowed
+            # body. func_start consumes the parameter list's own `(`, so the params are
+            # closed first, then the result type is walked to the real terminator:
+            #   - a `{` at depth 0 is the body -- unless it directly follows the
+            #     `struct`/`interface` keyword, in which case it opens a type literal
+            #     in the result type (`func f() struct{ a int } {`) and is tracked;
+            #   - a `;` or a NEWLINE at depth 0 ends a bodyless declaration: Go's
+            #     automatic semicolon insertion ends the signature at its line end,
+            #     and a real body's `{` must sit on that same line for the same
+            #     reason. Newlines inside `(...)`/`[...]`/type-literal braces are
+            #     ignored (multi-line result lists, multi-line struct/interface types).
+            # Channel types (`<-chan T`, `chan<- int`) contain no tracked character,
+            # so they pass through as plain result-type text. The walk is bounded by
+            # the same next-match/+2000 window as the sibling branches.
+            elif lang_id == "go":
+                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
+                depth_paren = depth_bracket = depth_type_brace = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == opener:
+                        if depth_paren or depth_bracket or depth_type_brace:
+                            depth_type_brace += 1
+                        else:
+                            # Bounded look-back for the keyword owning this `{`.
+                            kw_end = pos
+                            while kw_end > params_end_idx and pos - kw_end < 64 and safe_code[kw_end - 1] in " \t":
+                                kw_end -= 1
+                            kw_start = kw_end
+                            while (
+                                kw_start > params_end_idx
+                                and kw_end - kw_start < 16
+                                and (safe_code[kw_start - 1].isalnum() or safe_code[kw_start - 1] == "_")
+                            ):
+                                kw_start -= 1
+                            if safe_code[kw_start:kw_end] in ("struct", "interface"):
+                                depth_type_brace += 1
+                            else:
+                                term_idx, term_kind = pos, "brace"
+                                break
+                    elif ch == closer:
+                        depth_type_brace = max(0, depth_type_brace - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_type_brace == 0 and ch in ";\n":
+                        term_idx, term_kind = pos, "semi"
+                        break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "semi":
+                    # The span covers the declaration only: through an explicit `;`,
+                    # or up to (not including) the newline that implies one.
+                    end_idx = term_idx + 1 if safe_code[term_idx] == ";" else term_idx
+                elif (
+                    search_limit == len(safe_code) and depth_paren == 0 and depth_bracket == 0 and depth_type_brace == 0
+                ):
+                    end_idx = search_limit  # bodyless declaration on the file's last, unterminated line
+                else:
+                    continue  # unbalanced signature -- no terminator anywhere in the window
             # #2763: a tcl `proc` has TWO brace groups, not one -- the PARAMETER
             # LIST (`proc name {a b}`) and then the body (`{ ... }`). The generic
             # fallback below starts its brace search at `start_idx`, so for tcl it

@@ -17,6 +17,8 @@ from __future__ import annotations
 import codecs
 import functools
 import re
+import shutil
+import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
@@ -504,3 +506,41 @@ def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[st
     shown = "\n".join(errors[:40]) if errors else "\n".join(text.splitlines()[-60:])
     return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
             "java_failed": True, "feedback": "### The Java side did not build or run\n\n```\n" + shown + "\n```"}  # fmt: skip
+
+
+# ---- --reuse: an earlier run's COBOL side and generated project ----------------------------------------------------
+# Mutation testing (tests/tools/mutation.py) proves hundreds of ports of ONE case. Each would redo the same COBOL
+# runs and regenerate the same estate; only the port differs. With `run --reuse EARLIER`, a COBOL step whose
+# run.sh is byte-identical to the one EARLIER ran takes EARLIER's outputs instead of running (the step is
+# deterministic: the same program, inputs, clock and fault plan), and the Java project is EARLIER's, re-overlaid
+# with the port (the same files, or it refuses). Everything after -- reading, comparing, coverage -- is unchanged.
+_REUSE: tuple[Path, Path] | None = None  # (this run's work root, the earlier run's)
+
+
+def reuse(work: Path, earlier: Path) -> None:
+    global _REUSE
+    if not (earlier / "report.json").is_file():
+        raise SystemExit(f"--reuse: {earlier} is not a finished run (no report.json)")
+    _REUSE = (work.resolve(), earlier.resolve())
+
+
+def reused(work: Path) -> Path | None:
+    """The earlier run's directory for this run's `work`, when reusing; else None."""
+    if _REUSE is None:
+        return None
+    root, earlier = _REUSE
+    return earlier / work.resolve().relative_to(root)
+
+
+def run_cobol_step(work: Path) -> subprocess.CompletedProcess[str]:
+    """Run work/run.sh in the GnuCOBOL image -- or, with --reuse, copy in what the earlier run's identical step
+    wrote."""
+    earlier = reused(work)
+    if earlier is None:
+        return subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/work", IMAGE, "bash", "/work/run.sh"],  # noqa: S603, S607
+                              capture_output=True, text=True, check=False)  # fmt: skip
+    script = earlier / "run.sh"
+    if not script.is_file() or script.read_bytes() != (work / "run.sh").read_bytes():
+        raise RuntimeError(f"--reuse: {earlier} did not run this COBOL step (its run.sh differs or is missing)")
+    shutil.copytree(earlier, work, dirs_exist_ok=True)
+    return subprocess.CompletedProcess(["reuse", str(earlier)], 0, "", "")

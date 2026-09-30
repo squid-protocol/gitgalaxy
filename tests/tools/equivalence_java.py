@@ -20,11 +20,12 @@ Maven runs offline when the local repository already holds the build's artifacts
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import equivalence_common as common
 import java_target_matrix as jtm
@@ -177,20 +178,78 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     """The generated project (config `h2`) with the port overlaid and `test_source` as its
     EquivalenceRunTest. `port` False keeps the generated service as generated (the stub)."""
     work.mkdir(parents=True, exist_ok=True)
-    clean = jtm.refactor(corpus, work, scan=True)
-    # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
-    config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
-    project = jtm.generate(clean, "h2", config, work)
     # #3753: any candidate port, laid out the same way; #3804: a case may prove another case's port
     port_dir = port_dir or CASES / case.get("port_from", case["name"]) / "port"
-    for f in port_dir.rglob("*.java") if port else []:
-        dest = project / "src/main/java" / PKG_DIR / f.relative_to(port_dir)
+    overlay = sorted(f.relative_to(port_dir).as_posix() for f in port_dir.rglob("*.java")) if port else []
+    earlier = common.reused(work)
+    if earlier is not None:  # --reuse: the earlier run's project, built from the same estate by the same generator
+        project = _reused_project(earlier, work, overlay)
+    else:
+        clean = jtm.refactor(corpus, work, scan=True)
+        # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
+        config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
+        project = jtm.generate(clean, "h2", config, work)
+    (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
+    for rel in overlay:
+        dest = project / "src/main/java" / PKG_DIR / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(f, dest)
+        shutil.copy(port_dir / rel, dest)
+    if earlier is not None and overlay:
+        _compile_overlay(project, earlier, overlay, work)
     test = project / "src/test/java" / PKG_DIR / "EquivalenceRunTest.java"
     test.parent.mkdir(parents=True, exist_ok=True)
     test.write_text(test_source, encoding="utf-8")
     return project
+
+
+OVERLAY_FILE = "equivalence_overlay.json"  # the port files laid over the generated project, for --reuse
+
+
+def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
+    """The earlier run's generated project, copied (its build too): only valid when the port covers the same
+    files, so that every one the earlier port replaced is replaced again."""
+    poms = sorted(earlier.glob(f"*/{OVERLAY_FILE}"))
+    if len(poms) != 1:
+        raise RuntimeError(f"--reuse: no single generated project under {earlier}")
+    before = json.loads(poms[0].read_text(encoding="utf-8"))
+    if before != overlay:
+        raise RuntimeError(f"--reuse: the port's files {overlay} are not the earlier run's {before}")
+    project = work / poms[0].parent.name
+    shutil.copytree(poms[0].parent, project, dirs_exist_ok=True, ignore=shutil.ignore_patterns("surefire-reports"))
+    (project / PRECOMPILED).unlink(missing_ok=True)
+    return project
+
+
+# javac exactly as the generated pom's maven-compiler-plugin runs it (Spring Boot's parent: -parameters, release 17;
+# Lombok found on the classpath)
+JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
+PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
+
+
+def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
+    """--reuse: compile only the port's files into the copied build (the rest of it is the earlier run's, from the
+    same sources), against the classpath the earlier run's tests ran on. A compile error is the Java side failing,
+    as Maven's would be."""
+    import xml.etree.ElementTree as ET
+
+    reports = sorted(earlier.glob("*/target/surefire-reports/TEST-*.xml"))
+    if not reports:
+        raise RuntimeError(f"--reuse: {earlier} has no surefire report to take the classpath from")
+    props = {p.get("name"): p.get("value") for p in ET.parse(reports[0]).iter("property")}  # noqa: S314
+    old = str(reports[0].parents[2])
+    entries = [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
+    classpath = os.pathsep.join(e for e in entries if not e.endswith("test-classes"))
+    classes = project / "target" / "classes"
+    sources = [str(project / "src/main/java" / PKG_DIR / rel) for rel in overlay]
+    env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
+    javac = str(Path(env["JAVA_HOME"]) / "bin" / "javac")
+    proc = subprocess.run([javac, *JAVAC_OPTIONS, "-d", str(classes), "-cp", classpath, *sources],  # noqa: S603
+                          env=env, capture_output=True, text=True, check=False)  # fmt: skip
+    if proc.returncode != 0:
+        errors = [f"[ERROR] {x}" for x in proc.stderr.splitlines() if ": error: " in x]
+        (work / "maven.log").write_text("\n".join(errors) + "\n" + proc.stderr, encoding="utf-8")
+        raise RuntimeError(f"Java side failed (see {work / 'maven.log'}):\n" + "\n".join(errors[:20]))
+    (project / PRECOMPILED).write_text("", encoding="utf-8")
 
 
 def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None, props: str = "") -> Path:
@@ -202,7 +261,8 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     props = f"{jvm_args(env or environment('default'))} {props}".strip()
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
-    cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
+    skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
+    cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
            f"-DargLine=-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"]  # fmt: skip
     proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
     (work / "maven.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
@@ -224,10 +284,12 @@ def run_java(
 def run_java_environments(
     case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
     port_dir: Path | None = None, faults: tuple[tuple[str, str], ...] = (),
+    stop: Callable[[str, dict[str, bytes]], bool] | None = None,
 ) -> dict[str, dict[str, bytes]]:  # fmt: skip
     """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}.
     #4023 follow-up: each of `faults` ((name, plan text)) runs once more in the first environment with the
-    plan as gitgalaxy.faults.plan, as `fault:<name>` -- its outputs, and ABEND / FAULTS (the faults that fired)."""
+    plan as gitgalaxy.faults.plan, as `fault:<name>` -- its outputs, and ABEND / FAULTS (the faults that fired).
+    `stop(name, outputs)` True after a run ends there: the runs not made are missing from the result."""
     project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
     runs: dict[str, dict[str, bytes]] = {}
     for env in envs:
@@ -238,6 +300,8 @@ def run_java_environments(
             if "input" in spec and not spec.get("entity"):
                 shutil.copy(inputs / f"{dd}.in", datasets / dd)
         runs[env["name"]] = _run_area(case, project, area, inputs, env)
+        if stop and stop(env["name"], runs[env["name"]]):
+            return runs
     for name, plan in faults:
         area = work / "faults" / name
         (area / "out").mkdir(parents=True, exist_ok=True)
@@ -246,6 +310,8 @@ def run_java_environments(
         read = _run_area(case, project, area, inputs, envs[0], props)
         read.setdefault("FAULTS", b"")
         runs[f"fault:{name}"] = read
+        if stop and stop(f"fault:{name}", read):
+            return runs
     return runs
 
 

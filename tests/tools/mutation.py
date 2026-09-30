@@ -308,11 +308,12 @@ def compiles(mutant_port: Path, classpath: str, out: Path) -> tuple[bool, str]:
 
 
 # ---- proving one mutant ---------------------------------------------------------------------------------------------
-def prove(case: str, port: Path | None, work: Path, timeout: float) -> dict[str, Any]:
+def prove(case: str, port: Path | None, work: Path, timeout: float, extra: tuple[str, ...] = ()) -> dict[str, Any]:
     """`equivalence.py run <case> [--port]` in its own process group; the report, or TIMEOUT."""
     argv = [sys.executable, str(EQUIVALENCE), "run", case, "--keep", str(work)]
     if port is not None:
         argv += ["--port", str(port)]
+    argv += list(extra)
     start = time.time()
     with (work.parent / f"{work.name}.log").open("w", encoding="utf-8") as log:
         proc = subprocess.Popen(argv, cwd=REPO_ROOT, stdout=log, stderr=subprocess.STDOUT,  # noqa: S603
@@ -351,7 +352,7 @@ def killers(report: dict[str, Any]) -> list[str]:
 
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
-        keep: bool) -> dict[str, Any]:  # fmt: skip
+        keep: bool, full: bool = False) -> dict[str, Any]:  # fmt: skip
     work.mkdir(parents=True, exist_ok=True)
     port = port_dir(case)
     started = time.time()
@@ -361,6 +362,9 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
         raise SystemExit(f"{case}: the committed port is not proven ({base['verdict']}); nothing to measure")
     limit = timeout or max(300.0, 3 * base["seconds"])
     classpath = baseline_classpath(work / "baseline", work)
+    # fast (the default): each mutant reuses the baseline's COBOL side and generated project, compiles only the
+    # port, and stops at the first run that differs -- the same verdict as --full, which re-proves from scratch
+    fast = () if full else ("--reuse", str(work / "baseline"), "--first-difference")
     every = all_mutants(port, ops)
     chosen = sample(every, n, seed)
     print(f"{case}: {len(every)} mutants, {len(chosen)} chosen; baseline {base['seconds']} s, limit {limit:.0f} s",
@@ -378,7 +382,7 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
 
     def one(m: Mutant) -> tuple[Mutant, dict[str, Any]]:
         mw = work / "mutants" / m.id
-        res = prove(case, mw / "port", mw / "proof", limit)
+        res = prove(case, mw / "port", mw / "proof", limit, fast)
         res.pop("report", None)
         res["verdict"] = {"proven": "survived", "refuted": "killed"}.get(res["verdict"], res["verdict"])
         if not keep and res["verdict"] in ("killed", "timeout"):
@@ -392,16 +396,16 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
             done += 1
             print(f"  [{done}/{len(live)}] {m.op} {m.file}:{m.line} {res['verdict']} "
                   f"{','.join(res.get('killed_by', []))[:60]}", flush=True)  # fmt: skip
-            _save(work, case, base, every, chosen, results, started, seed)
-    return _save(work, case, base, every, chosen, results, started, seed)
+            _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
+    return _save(work, case, base, every, chosen, results, started, seed, "full" if full else "fast")
 
 
 def _save(work: Path, case: str, base: dict[str, Any], every: list[Mutant], chosen: list[Mutant],
-          results: dict[str, dict[str, Any]], started: float, seed: int) -> dict[str, Any]:  # fmt: skip
+          results: dict[str, dict[str, Any]], started: float, seed: int, mode: str) -> dict[str, Any]:  # fmt: skip
     log = work / "baseline.log"
     claim = re.search(r"COBOL coverage: (.+)", log.read_text(encoding="utf-8")) if log.is_file() else None
     summary = {"case": case, "program": (base.get("report") or {}).get("program"), "mutants": len(every),
-               "chosen": len(chosen), "seed": seed, "seconds": round(time.time() - started),
+               "chosen": len(chosen), "seed": seed, "mode": mode, "seconds": round(time.time() - started),
                "coverage": claim.group(1) if claim else None,
                "results": [{**{k: v for k, v in asdict(m).items() if k not in ("offset", "length", "replacement")},
                             **results.get(m.id, {"verdict": "pending"})} for m in chosen]}  # fmt: skip
@@ -425,7 +429,8 @@ def mutation_md(s: dict[str, Any]) -> str:
     lines = [f"# Mutation testing: {s['case']} ({s.get('program') or '?'})", "",
              f"**Score: {caught}/{judged} caught ({pct})** -- killed {c['killed']}, timeout {c['timeout']}, "
              f"survived {c['survived']}; stillborn (javac) {c['stillborn']}, error {c['error']}, "
-             f"pending {c['pending']}. {s['chosen']} of {s['mutants']} mutants run (seed {s['seed']}), "
+             f"pending {c['pending']}. {s['chosen']} of {s['mutants']} mutants run (seed {s['seed']}, "
+             f"{s.get('mode', 'full')} mode), "
              f"{s['seconds']} s.", ""]  # fmt: skip
     if s.get("coverage"):
         lines += [f"The proof, as committed: {s['coverage']}.", ""]
@@ -454,6 +459,24 @@ def mutation_md(s: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def compare(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
+    """Two runs of the same case (fast and --full): the mutants both judged, and every one they judge differently.
+    Caught (killed or timeout) against survived is the verdict; stillborn is javac's in both."""
+
+    def caught(v: str) -> str:
+        return {"killed": "caught", "timeout": "caught"}.get(v, v)
+
+    ra = {r["id"]: r for r in a["results"]}
+    rb = {r["id"]: r for r in b["results"]}
+    both = [i for i in ra if i in rb and "pending" not in (ra[i]["verdict"], rb[i]["verdict"])]
+    differ = [{"id": i, "op": ra[i]["op"], "line": ra[i]["line"], a.get("mode", "a"): ra[i]["verdict"],
+               b.get("mode", "b"): rb[i]["verdict"]} for i in both
+              if caught(ra[i]["verdict"]) != caught(rb[i]["verdict"])]  # fmt: skip
+    secs = {m: sum(r.get("seconds", 0) for r in x["results"] if r["id"] in both) for m, x in (("a", a), ("b", b))}
+    return {"judged_by_both": len(both), "agree": len(both) - len(differ), "differ": differ,
+            "proof_seconds": {a.get("mode", "a"): secs["a"], b.get("mode", "b"): secs["b"]}}  # fmt: skip
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -466,12 +489,21 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--ops", default=",".join(OPERATORS), help="operators: " + ", ".join(OPERATORS))
     r.add_argument("--timeout", type=float, help="seconds per mutant (default: 3x the baseline, at least 300)")
     r.add_argument("--keep", action="store_true", help="keep killed mutants' proof directories too")
+    r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
+                   "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
     ls = sub.add_parser("list")
     ls.add_argument("case")
     ls.add_argument("--ops", default=",".join(OPERATORS))
     rp = sub.add_parser("report")
     rp.add_argument("work", type=Path)
+    cp = sub.add_parser("compare", help="two runs of one case (fast and --full): do their verdicts agree?")
+    cp.add_argument("a", type=Path)
+    cp.add_argument("b", type=Path)
     args = ap.parse_args(argv)
+    if args.cmd == "compare":
+        loaded = [json.loads((w / "mutation.json").read_text(encoding="utf-8")) for w in (args.a, args.b)]
+        print(json.dumps(compare(*loaded), indent=2))
+        return 0
     if args.cmd == "report":
         s = json.loads((args.work / "mutation.json").read_text(encoding="utf-8"))
         (args.work / "mutation.md").write_text(mutation_md(s), encoding="utf-8")
@@ -489,7 +521,7 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
-    s = run(args.case, args.work, args.jobs, args.sample, args.seed, ops, args.timeout, args.keep)
+    s = run(args.case, args.work, args.jobs, args.sample, args.seed, ops, args.timeout, args.keep, args.full)
     print(mutation_md(s))
     return 0
 

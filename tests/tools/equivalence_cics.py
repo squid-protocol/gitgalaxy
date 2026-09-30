@@ -27,7 +27,6 @@ from __future__ import annotations
 import json
 import re
 import shutil
-import subprocess
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
@@ -820,10 +819,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
                       f"COB_CURRENT_DATE='{case['clock']}' ./task > {rel}/stdout.txt 2>&1; "
                       f"echo $? > {rel}/rc; set -e")  # fmt: skip
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = subprocess.run(  # noqa: S603 -- fixed argv, a local image
-        ["docker", "run", "--rm", "-v", f"{work}:/work", common.IMAGE, "bash", "/work/run.sh"],  # noqa: S607
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
+    proc = common.run_cobol_step(work)
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)

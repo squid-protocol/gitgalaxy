@@ -5,7 +5,11 @@ a proof's runs killed a mutant, and the score."""
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+import equivalence_common as common
+import equivalence_java as ej
 import mutation as mu
 
 JAVA = """package com.gitgalaxy.modernized.service;
@@ -94,3 +98,41 @@ def test_the_score_counts_timeouts_as_caught_and_stillborn_as_nothing():
                          "coverage": "proven on 2 runs", "results": rs})  # fmt: skip
     assert "**Score: 3/4 caught (75%)**" in md and "stillborn (javac) 1" in md
     assert "Killed only by fault runs: 1" in md and "- `3` ROR f:3" in md
+
+
+# ---- --reuse: an earlier run's COBOL side and generated project (the fast mode) ------------------------------
+@pytest.fixture
+def earlier(tmp_path):
+    """An earlier run's --keep directory: a COBOL step and a generated project with a one-file overlay."""
+    e = tmp_path / "earlier"
+    (e / "cobol").mkdir(parents=True)
+    (e / "cobol" / "run.sh").write_text("cobc ...\n", encoding="ascii")
+    (e / "cobol" / "OUT.out").write_bytes(b"RECORD")
+    project = e / "java" / "java_h2"
+    (project / "target" / "classes").mkdir(parents=True)
+    (project / ej.OVERLAY_FILE).write_text('["service/XService.java"]\n', encoding="utf-8")
+    (e / "report.json").write_text("{}", encoding="utf-8")
+    yield e
+    common._REUSE = None
+
+
+def test_a_reused_cobol_step_must_be_the_same_step(tmp_path, earlier):
+    work = tmp_path / "now"
+    common.reuse(work, earlier)
+    (work / "cobol").mkdir(parents=True)
+    (work / "cobol" / "run.sh").write_text("cobc ...\n", encoding="ascii")
+    assert common.run_cobol_step(work / "cobol").returncode == 0
+    assert (work / "cobol" / "OUT.out").read_bytes() == b"RECORD"  # the earlier step's output, not a new run
+    (work / "cobol" / "run.sh").write_text("cobc -DOTHER ...\n", encoding="ascii")
+    with pytest.raises(RuntimeError, match=r"run\.sh differs"):
+        common.run_cobol_step(work / "cobol")
+
+
+def test_a_reused_project_must_be_overlaid_with_the_same_files(tmp_path, earlier):
+    work = tmp_path / "now" / "java"
+    project = ej._reused_project(earlier / "java", work, ["service/XService.java"])
+    assert project == work / "java_h2" and (project / "target" / "classes").is_dir()
+    with pytest.raises(RuntimeError, match="not the earlier run's"):
+        ej._reused_project(earlier / "java", work, [])  # the generated stub, where the earlier had a port
+    with pytest.raises(SystemExit):
+        common.reuse(work, tmp_path / "nowhere")  # not a finished run

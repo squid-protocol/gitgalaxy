@@ -96,6 +96,8 @@ from equivalence_common import (
     layout_fields,
     read_program,
     require_ascii_runtime,
+    reuse,
+    run_cobol_step,
 )
 
 
@@ -247,10 +249,7 @@ def run_cobol(
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = subprocess.run(
-        ["docker", "run", "--rm", "-v", f"{work}:/work", IMAGE, "bash", "/work/run.sh"],
-        capture_output=True, text=True, check=False,
-    )  # fmt: skip
+    proc = run_cobol_step(work)
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
@@ -468,6 +467,11 @@ def main() -> int:
                    "the case's `data_encoding`, else latin-1)")  # fmt: skip
     r.add_argument("--faults", help="#4023 follow-up: the case's fault runs to run as well: all (default) | none | "
                    "NAME,NAME")  # fmt: skip
+    r.add_argument("--reuse", type=Path, help="an earlier run's --keep directory of this case: its COBOL side "
+                   "(each step whose run.sh is identical) and its generated project, re-overlaid with the port "
+                   "(mutation testing: many ports of one case)")  # fmt: skip
+    r.add_argument("--first-difference", action="store_true", help="stop at the first run that differs: the "
+                   "verdict is the same, the report names only that run (mutation testing)")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     sub.add_parser("list")
@@ -486,7 +490,10 @@ def main() -> int:
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
-    build_image()
+    if args.reuse:
+        reuse(work, args.reuse)
+    else:
+        build_image()
     if case.get("kind") == "call":  # #4023 follow-up: a CALLed subprogram, driven through its USING items
         import equivalence_call as ecall
 
@@ -510,10 +517,17 @@ def main() -> int:
     import equivalence_java as ej
 
     envs = _environments(args.environments, case)
+    by_name = {f"fault:{f['name']}": f for f in faults}
+
+    def differs(name: str, java: dict[str, bytes]) -> bool:
+        f = by_name.get(name)
+        return not compare_run(case, corpus, cobol_faults[f["name"]] if f else cobol, java, fault=f)["ok"]
+
     try:
         runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                         port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f)) for f in faults))  # fmt: skip
+                                        faults=tuple((f["name"], fault_plan(f)) for f in faults),
+                                        stop=differs if args.first_difference else None)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
@@ -523,14 +537,18 @@ def main() -> int:
                               "java": "generated" if args.generated_only else "ported", "collation": COLLATION,
                               "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
     ok = True
-    for i, env in enumerate(envs):
+    made = [e for e in envs if e["name"] in runs]  # --first-difference: the runs after the first difference
+    faults_made = [f for f in faults if f"fault:{f['name']}" in runs]  # are not made
+    if len(made) < len(envs) or len(faults_made) < len(faults):
+        report["stopped"] = f"at the first difference: {len(made) + len(faults_made)} of {len(envs) + len(faults)} runs"
+    for i, env in enumerate(made):
         run = compare_run(case, corpus, cobol, runs[env["name"]])
         if i == 0:  # the first environment's outputs are the report's, as before #3821
             report["return_code"], report["outputs"], report["abend"] = run["return_code"], run["outputs"], run["abend"]
         report.setdefault("environments", []).append({**env, "ok": run["ok"], "return_code": run["return_code"],
                                                       "outputs": run["outputs"], "abend": run["abend"]})  # fmt: skip
         ok &= run["ok"]
-    for f in faults:  # #4023 follow-up: each fault run, proven like the normal one
+    for f in faults_made:  # #4023 follow-up: each fault run, proven like the normal one
         run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
         report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
                                                 .strip().splitlines(), **run})  # fmt: skip

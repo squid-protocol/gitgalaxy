@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import json
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
@@ -107,8 +106,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
               f"{cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND OUTFILE=/work/CALLS.out ./call "
               "> /work/stdout.txt 2>&1"]  # fmt: skip
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/work", common.IMAGE, "bash", "/work/run.sh"],  # noqa: S603, S607
-                          capture_output=True, text=True, check=False)  # fmt: skip
+    proc = common.run_cobol_step(work)
     if proc.returncode != 0:
         out = decode_bytes((work / "stdout.txt").read_bytes()) if (work / "stdout.txt").is_file() else ""
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}\n{out}")

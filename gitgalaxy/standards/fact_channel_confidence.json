@@ -409,7 +409,7 @@
     "units": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
-      "engine_defects": 5,
+      "engine_defects": 6,
       "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,

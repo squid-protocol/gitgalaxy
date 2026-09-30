@@ -6,6 +6,11 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
+    "engine_end_prefixed_paragraph_not_a_unit": {
+      "issue": 4031,
+      "kind": "defect",
+      "summary": "The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so a legal paragraph named END-... (GENAPP's End-Program., reached by PERFORM END-PROGRAM) is not a unit. The forge and the key reader were fixed in #4028; the engine's rule is #4031."
+    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
@@ -1549,7 +1554,12 @@
         "engine | dead | base/src/lgupol01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | base/src/lgwebst5.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name"
+        "engine | dead | base/src/lgwebst5.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | units | base/src/lgipdb01.cbl | END-PROGRAM | fn": "engine_end_prefixed_paragraph_not_a_unit",
+        "engine | units | base/src/lgucdb01.cbl | END-PROGRAM | fn": "engine_end_prefixed_paragraph_not_a_unit",
+        "engine | units | base/src/lgucus01.cbl | END-PROGRAM | fn": "engine_end_prefixed_paragraph_not_a_unit",
+        "engine | units | base/src/lgupdb01.cbl | END-PROGRAM | fn": "engine_end_prefixed_paragraph_not_a_unit",
+        "engine | units | base/src/lgupol01.cbl | END-PROGRAM | fn": "engine_end_prefixed_paragraph_not_a_unit"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -1937,12 +1947,12 @@
           "engine": {
             "got": 157,
             "tp": 157,
-            "truth": 157
+            "truth": 162
           },
           "forge": {
-            "got": 157,
-            "tp": 157,
-            "truth": 157
+            "got": 162,
+            "tp": 162,
+            "truth": 162
           },
           "truth": "cross_verified"
         },

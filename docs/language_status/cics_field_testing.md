@@ -46,7 +46,7 @@ counted in it (their fact counts are not recorded here).
 | call targets | 6 | 0 | 3 | 142 | 1 | 1 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | program_id | 6 | 0 | 3 | 123 | 2 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | record fields | 6 | 0 | 3 | 5,475 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| units | 6 | 0 | 3 | 2,032 | 5 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| units | 6 | 0 | 3 | 2,037 | 6 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS task control | 5 | 0 | 3 | 206 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -76,7 +76,7 @@ counted in it (their fact counts are not recorded here).
 | 1 | zopeneditor-sample | public | 967 | 3 | 1 | 1 | 1 |
 | 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 1 | 1 | 0 |
 | 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 7 | 4 | 1 |
-| 4 | cics-genapp | public | 2,294 | 10 | 3 | 1 | 0 |
+| 4 | cics-genapp | public | 2,294 | 10 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
 
@@ -123,7 +123,8 @@ counted in it (their fact counts are not recorded here).
 | D033 | unkeyed estate, after 6 | forge | attribute | file control | #3957 / #3965 | A file ASSIGNed to a literal path put the path into Java identifiers (`@RequestBody ./testFileDTO ./testFileData`), so the generated controller did not compile. No fact was wrong -- a name built from it was; `file control` is the closest field (the ASSIGN clause). |
 | D034 | unkeyed estate, after 6 | forge | attribute | record fields | #3958 / #3961 | Target config `data.code_page` accepted any Python codec, not just EBCDIC pages: `shift_jis` made half-width katakana the zoned-decimal "sign characters" baked into CobolRecords and the decoder, with no warning. No extracted fact was wrong; `record fields` is the closest field (the zoned-decimal fields it decodes). |
 | D035 | review, after 6 | forge | fact | inputs, outputs, file control | #3998 | The refractor without `--scan` read SELECT with its own regex (cobol_dag_architect): `ASSIGN TO "x"` gave DD `TO`, `SELECT OPTIONAL f` and Japanese / full-width file names were missed, so lineage differed from `--scan`. It now uses the engine's SELECT reader. Found while fixing #3992, not by the estate scan. |
-| D036 | unkeyed estate, after 6 | forge | fact | units, dead | #4026 | cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them. |
+| D036 | unkeyed estate, after 6 | forge | fact | units, dead | #4026 / #4028 | cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them. |
+| D037 | 4 | engine | fact | units | #4031 | The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so GENAPP's legal paragraph `End-Program.` (5 programs, reached by PERFORM END-PROGRAM) is not a unit. Surfaced when #4028 fixed the same rule in the forge and the key reader, and the key gained the paragraph. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

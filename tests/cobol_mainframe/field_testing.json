@@ -662,7 +662,21 @@
       "severity": "fact",
       "found_by": "coverage trace (#4023) on the fresh-estate scan (#3806)",
       "issue": 4026,
-      "summary": "cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them."
+      "summary": "cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them.",
+      "fixed_by": "#4028"
+    },
+    {
+      "id": "D037",
+      "estate": "cics-genapp",
+      "side": "engine",
+      "fields": [
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4031,
+      "summary": "The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so GENAPP's legal paragraph `End-Program.` (5 programs, reached by PERFORM END-PROGRAM) is not a unit. Surfaced when #4028 fixed the same rule in the forge and the key reader, and the key gained the paragraph."
     }
   ],
   "fields": {

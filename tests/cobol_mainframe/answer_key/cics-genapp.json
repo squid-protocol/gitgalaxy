@@ -10067,6 +10067,11 @@
           "line": 230
         },
         {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 312
+        },
+        {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
           "line": 315
@@ -11413,7 +11418,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 312 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -15901,6 +15908,11 @@
           "line": 101
         },
         {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 142
+        },
+        {
           "name": "MAINLINE-EXIT",
           "kind": "paragraph",
           "line": 145
@@ -16678,7 +16690,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 142 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -16706,6 +16720,11 @@
           "name": "MAINLINE",
           "kind": "section",
           "line": 83
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 119
         },
         {
           "name": "MAINLINE-EXIT",
@@ -17259,7 +17278,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 119 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -17845,6 +17866,11 @@
           "name": "MAINLINE",
           "kind": "section",
           "line": 162
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 215
         },
         {
           "name": "MAINLINE-EXIT",
@@ -18825,7 +18851,9 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 215 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",
@@ -18853,6 +18881,11 @@
           "name": "MAINLINE",
           "kind": "section",
           "line": 83
+        },
+        {
+          "name": "END-PROGRAM",
+          "kind": "paragraph",
+          "line": 146
         },
         {
           "name": "MAINLINE-EXIT",
@@ -19422,7 +19455,9 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "notes": [],
+        "notes": [
+          "2026-09-30 key_fixed (#4026, #4028): units gains END-PROGRAM -- `End-Program.` in Area A at line 146 is a paragraph (reached by fall-through from MAINLINE and by PERFORM END-PROGRAM). The key's reader, like the forge and the engine, rejected every END-... name as a scope terminator; it now rejects only the reserved END- words. Read against the source; dead is unchanged (MAINLINE-EXIT)."
+        ],
         "tier": "cross_verified",
         "cross_by": "claude-opus-5.5 blind reviewers (genapp census)",
         "cross_at": "2026-09-24",

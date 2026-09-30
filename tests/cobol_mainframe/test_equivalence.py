@@ -192,6 +192,23 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     assert len(report["faults"]) == 19 and all(f["ok"] for f in report["faults"]), report["faults"]
 
 
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
+def test_carddemo_posttran_is_equivalent_end_to_end(tmp_path):
+    """CardDemo CBTRN02C, ported: every output equal (accounts, category balances, posted transactions, rejects),
+    RETURN-CODE 4, and every injected fault proven -- the abends, and the program's two silent defects (a READ
+    error posts against the previous record; an ACCOUNT REWRITE's status is never tested)."""
+    import subprocess
+
+    proc = subprocess.run([sys.executable, str(Path(eq.__file__)), "run", "carddemo-posttran", "--keep",  # noqa: S603
+                           str(tmp_path)], capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
+    report = json.loads((tmp_path / "report.json").read_text())
+    assert report["return_code"] == {"cobol": "4", "java": "4"}
+    assert {dd: (o["equal"], o["records"]) for dd, o in report["outputs"].items()} == {
+        "ACCTFILE": (50, 50), "TCATBALF": (100, 100), "TRANFILE": (262, 262), "DALYREJS": (38, 38)}  # fmt: skip
+    assert len(report["faults"]) == 28 and all(f["ok"] for f in report["faults"]), report["faults"]
+
+
 def test_the_two_sides_share_the_cases_directory():
     assert ej.CASES == eq.CASES and (eq.CASES / "carddemo-intcalc" / "case.json").is_file()
 

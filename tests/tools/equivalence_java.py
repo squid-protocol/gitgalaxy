@@ -101,6 +101,7 @@ def equivalence_test(case: dict[str, Any]) -> str:
     )
     return f"""package {PKG};
 
+import {PKG}.batch.CobolAbend;
 import {PKG}.batch.Dd;
 {imports}import java.io.IOException;
 import java.nio.charset.Charset;
@@ -136,7 +137,16 @@ class EquivalenceRunTest {{
     @Test
     void run() throws IOException {{
 {chr(10).join(loads)}
-        int rc = {var}.runBatch(List.of({dds}), {parm});
+        int rc;
+        try {{
+            rc = {var}.runBatch(List.of({dds}), {parm});
+        }} catch (CobolAbend abend) {{  // the step ends ABEND Unnnn, with no return code
+            Files.writeString(out.resolve("ABEND"), abend.code());
+            return;
+        }} catch (RuntimeException e) {{  // an abend the port did not code as one: never equal to the COBOL's
+            Files.writeString(out.resolve("ABEND"), ("UNCODED " + e).lines().findFirst().orElse("UNCODED"));
+            return;
+        }}
         Files.writeString(out.resolve("RETURN-CODE"), Integer.toString(rc));
 {chr(10).join(dumps)}
     }}
@@ -183,12 +193,13 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     return project
 
 
-def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None) -> Path:
-    """Run EquivalenceRunTest in `env` (#3821; default: `default`); the directory it wrote its outputs to."""
+def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | None = None, props: str = "") -> Path:
+    """Run EquivalenceRunTest in `env` (#3821; default: `default`), with more system properties `props`; the
+    directory it wrote its outputs to."""
     out, datasets = work / "out", work / "datasets"
     for d in (out, datasets):
         d.mkdir(parents=True, exist_ok=True)
-    props = jvm_args(env or environment("default"))
+    props = f"{jvm_args(env or environment('default'))} {props}".strip()
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
     cmd = ["mvn", "-q", "-B", "test", "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
@@ -212,9 +223,11 @@ def run_java(
 
 def run_java_environments(
     case: dict[str, Any], corpus: Path, work: Path, inputs: Path, envs: list[dict[str, str]], port: bool = True,
-    port_dir: Path | None = None,
+    port_dir: Path | None = None, faults: tuple[tuple[str, str], ...] = (),
 ) -> dict[str, dict[str, bytes]]:  # fmt: skip
-    """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}."""
+    """#3821: the project built once, run in each environment from a fresh work area; {env name: {dd: bytes}}.
+    #4023 follow-up: each of `faults` ((name, plan text)) runs once more in the first environment with the
+    plan as gitgalaxy.faults.plan, as `fault:<name>` -- its outputs, and ABEND / FAULTS (the faults that fired)."""
     project = prepare_project(case, corpus, work, equivalence_test(case), port, port_dir)
     runs: dict[str, dict[str, bytes]] = {}
     for env in envs:
@@ -224,11 +237,32 @@ def run_java_environments(
         for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
             if "input" in spec and not spec.get("entity"):
                 shutil.copy(inputs / f"{dd}.in", datasets / dd)
-        out = run_maven(project, area, inputs, env)
-        outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
-        outs["RETURN-CODE"] = out / "RETURN-CODE"
-        read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
-        if "RETURN-CODE" in read:
-            read["RETURN-CODE"] = read["RETURN-CODE"].strip()  # a number, not a record: whitespace is not data
-        runs[env["name"]] = read
+        runs[env["name"]] = _run_area(case, project, area, inputs, env)
+    for name, plan in faults:
+        area = work / "faults" / name
+        (area / "out").mkdir(parents=True, exist_ok=True)
+        (area / "fault.plan").write_text(plan, encoding="ascii")
+        props = f"-Dgitgalaxy.faults.plan={area / 'fault.plan'} -Dgitgalaxy.faults.log={area / 'out' / 'FAULTS'}"
+        read = _run_area(case, project, area, inputs, envs[0], props)
+        read.setdefault("FAULTS", b"")
+        runs[f"fault:{name}"] = read
     return runs
+
+
+def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env: dict[str, str],
+              props: str = "") -> dict[str, bytes]:  # fmt: skip
+    """One run of the step from a fresh datasets area: {dd: bytes}, RETURN-CODE or ABEND, and FAULTS."""
+    datasets = area / "datasets"
+    datasets.mkdir(parents=True, exist_ok=True)
+    for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
+        if "input" in spec and not spec.get("entity"):
+            shutil.copy(inputs / f"{dd}.in", datasets / dd)
+    out = run_maven(project, area, inputs, env, props)
+    outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
+    for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
+        outs[extra] = out / extra
+    read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+    for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
+        if extra in read:
+            read[extra] = read[extra].strip()
+    return read

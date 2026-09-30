@@ -48,6 +48,16 @@ sources are read; default the engine's read_source ladder) and `--data-encoding`
 (the record bytes' code page -- inputs, generated records, outputs, the diff and the Java side's
 record Charset; default Latin-1, as before). See equivalence_common.
 
+#4023 follow-up -- fault runs: a case's `"faults"` ([{name, plan: [{dd, op, nth, status}], why}]) each run the
+step once more with those FILE STATUS values injected on both sides at the same statement -- GnuCOBOL through
+tests/equivalence/faults/ggfault.c (preloaded in front of libcob's file I/O), Java through the generated
+CobolFiles, which a port calls once per I/O statement (the porting rules). A planned statement returns its status
+instead of running. CALL 'CEE3ABD' is tests/equivalence/faults/ggabend.c, which records ABEND Unnnn; the Java
+side's is CobolAbend. A run is proven when both sides abend with the same code, or neither does and RETURN-CODE and
+every output are equal -- and, for a fault run, the same faults fired, at least one. `--faults all|none|NAME,...`;
+the COBOL coverage (#4023) counts every run. A CICS case's scenario may carry `"faults"` too (READ conditions:
+equivalence_cics.fault_lines).
+
 A case with `"kind": "cics"` is an online program (#3754, equivalence_cics.py): its
 EXEC CICS is translated to calls into a stub runtime, each scenario (COMMAREA, key
 pressed, screen input) runs as one task on both sides -- the Java as a CicsTask through
@@ -60,6 +70,7 @@ from __future__ import annotations
 import argparse
 import codecs
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -158,8 +169,27 @@ def cobol_driver(program: str, parm: Optional[str]) -> str:
     return _cbl(lines)
 
 
-def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes]:
-    """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}."""
+FAULTS_DIR = CASES / "faults"  # the fault injector and the abend stub (ggfault.c, ggabend.c)
+FAULT_OPS = ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START")
+
+
+def fault_plan(fault: dict[str, Any]) -> str:
+    """A case fault's plan as both sides read it: `DD OP NTH STATUS` per line (see faults/ggfault.c)."""
+    lines = []
+    for f in fault["plan"]:
+        if f["op"] not in FAULT_OPS or not re.fullmatch(r"[0-9A-Z]{2}", str(f["status"])):
+            raise ValueError(f"fault {fault['name']}: bad op / status {f}")
+        nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
+        lines.append(f"{f['dd']} {f['op']} {nth} {f['status']}")
+    return "\n".join(lines) + "\n"
+
+
+def run_cobol(
+    case: dict[str, Any], corpus: Path, work: Path, fault: Optional[dict[str, Any]] = None
+) -> dict[str, bytes]:
+    """Stage, compile and run the case's program under GnuCOBOL; {dd: output bytes}, plus RETURN-CODE -- or,
+    when the step abended, ABEND (Unnnn, the CEE3ABD stub's) -- and, for a `fault` run, FAULTS: the planned
+    faults that fired (#4023 follow-up; the plan is injected by faults/ggfault.c)."""
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
     src.mkdir(exist_ok=True)
@@ -193,18 +223,27 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
     (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
-    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl")  # #4023: traced
+    for stub in ("ggabend.c", "ggfault.c"):
+        shutil.copy(FAULTS_DIR / stub, src / stub)
+    # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
+    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c")
+    inject = ""
+    if fault is not None:
+        (work / "fault.plan").write_text(fault_plan(fault), encoding="ascii")
+        script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
+        inject = "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD=/work/ggfault.so "
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
-    script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}{tz}{clock}{env} ./program > /work/stdout.txt 2>&1; "
-                  "echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+    script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND {inject}{tz}{clock}{env} "
+                  "./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+    # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
-            script.append(f"{dd}=/work/{dd}.idx OUTFILE=/work/{dd}.out ./ul{dd}")
+            script.append(f"[ ! -e /work/{dd}.idx ] || {dd}=/work/{dd}.idx OUTFILE=/work/{dd}.out ./ul{dd} || true")
         elif spec.get("compare"):
-            script.append(f"cp /work/{dd}.idx /work/{dd}.out")
+            script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
     proc = subprocess.run(
         ["docker", "run", "--rm", "-v", f"{work}:/work", IMAGE, "bash", "/work/run.sh"],
@@ -212,13 +251,26 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> dict[str, bytes
     )  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
-    # #4023: how much of the program this run executes (work/coverage.json)
-    cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=source,
-                           compiled=program, traces=[work / cov.TRACE_NAME], compiled_name="PROGRAM.cbl",
-                           copybooks=corpus, encoding=staged)  # fmt: skip
-    outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items() if spec.get("compare")}
-    outs["RETURN-CODE"] = (work / "RETURN-CODE").read_text(encoding="ascii").strip().encode()
+    outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
+            if spec.get("compare") and (work / f"{dd}.out").is_file()}  # fmt: skip
+    abend = work / "ABEND"
+    if abend.is_file():
+        outs["ABEND"] = abend.read_bytes().strip()
+    else:
+        outs["RETURN-CODE"] = (work / "RETURN-CODE").read_text(encoding="ascii").strip().encode()
+    if fault is not None:
+        fired = work / "FAULTS"
+        outs["FAULTS"] = fired.read_bytes() if fired.is_file() else b""
     return outs
+
+
+def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: Path) -> Optional[dict[str, Any]]:
+    """#4023: how much of the program the runs execute together (the normal run and every fault run)."""
+    source, staged = read_program(case, corpus / case["program_source"])
+    program, _flags = compile_options(case, source)
+    return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
+                                  traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",
+                                  copybooks=corpus, encoding=staged)  # fmt: skip
 
 
 def build_image() -> None:
@@ -336,7 +388,18 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         lines += ["", "| JVM environment | locale | time zone | equal to COBOL |", "|---|---|---|---|"]
         for e in report["environments"]:
             lines.append(f"| {e['name']} | {e['locale']} | {e['tz']} | {'yes' if e['ok'] else '**no**'} |")
-    lines += cov.report_lines(report.get("coverage"), 1, report.get("proven", False))  # #4023
+    if report.get("abend") and (report["abend"]["cobol"] or report["abend"]["java"]):
+        lines += ["", f"ABEND: COBOL `{report['abend']['cobol']}`, Java `{report['abend']['java']}`."]
+    if report.get("faults"):  # #4023 follow-up
+        lines += ["", "## Fault runs", "",
+                  "Each run injects file statuses on both sides at the same statement (tests/equivalence/faults/"
+                  "ggfault.c for GnuCOBOL, the generated CobolFiles for Java) and is proven like the normal run: "
+                  "the same abend, or the same RETURN-CODE and outputs, and the same faults fired.", "",
+                  "| fault | plan (DD OP NTH STATUS) | why | outcome | equal |", "|---|---|---|---|---|"]  # fmt: skip
+        for f in report["faults"]:
+            lines.append(f"| {f['name']} | {'; '.join(f'`{x}`' for x in f['plan'])} | {f['why']} | {f['summary']} | "
+                         f"{'yes' if f['ok'] else '**no**'} |")  # fmt: skip
+    lines += cov.report_lines(report.get("coverage"), report.get("runs", 1), report.get("proven", False))  # #4023
     for dd, d in report["outputs"].items():
         if d["diffs"]:
             lines += ["", f"## {dd}: differences", "", "| record | field | COBOL | Java |", "|---|---|---|---|"]
@@ -364,6 +427,64 @@ def _environments(arg: Optional[str], case: dict[str, Any]) -> list[dict[str, st
     return [ej.environment(n.strip()) for n in names if n.strip()]
 
 
+# ---- #4023 follow-up: fault runs ------------------------------------------------------
+def selected_faults(case: dict[str, Any], arg: Optional[str]) -> list[dict[str, Any]]:
+    """The case's `faults` to run: `all` (the default), `none`, or names separated by commas."""
+    faults = case.get("faults", [])
+    if arg in (None, "all"):
+        return faults
+    if arg == "none":
+        return []
+    names = [n.strip() for n in arg.split(",") if n.strip()]
+    unknown = sorted(set(names) - {f["name"] for f in faults})
+    if unknown:
+        raise SystemExit(f"{case['name']}: no fault named {unknown} (the case has {[f['name'] for f in faults]})")
+    return [f for f in faults if f["name"] in names]
+
+
+def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], java: dict[str, bytes],
+                fault: Optional[dict[str, Any]] = None) -> dict[str, Any]:  # fmt: skip
+    """One run of the step on both sides: equal when both abend with the same code, or neither does and their
+    RETURN-CODE and every compared output are equal. A fault run also needs the same faults fired on both
+    sides, and at least one: a planned fault the run never reaches tested nothing. After an abend the outputs
+    are not compared -- what an abended step leaves in its datasets is not defined."""
+    abend = {"cobol": cobol.get("ABEND", b"").decode() or None, "java": java.get("ABEND", b"").decode() or None}
+    rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
+    run: dict[str, Any] = {"abend": abend, "return_code": rc, "outputs": {}}
+    why: list[str] = []
+    if fault is not None:
+        fired = {side: sorted(res.get("FAULTS", b"").decode().split("\n")) for side, res in
+                 (("cobol", cobol), ("java", java))}  # fmt: skip
+        fired = {side: [x for x in lines if x.strip()] for side, lines in fired.items()}
+        run["fired"] = fired
+        if not fired["cobol"]:
+            why.append("the planned fault never fired on the COBOL side: the run does not reach it")
+        if fired["cobol"] != fired["java"]:
+            why.append(f"faults fired differ: COBOL {fired['cobol']}, Java {fired['java']}")
+    if abend["cobol"] or abend["java"]:
+        if abend["cobol"] != abend["java"]:
+            why.append(f"ABEND: COBOL {abend['cobol']}, Java {abend['java']}")
+    else:
+        if rc["cobol"] != rc["java"]:
+            why.append(f"RETURN-CODE: COBOL {rc['cobol']}, Java {rc['java']}")
+        for dd, spec in case["datasets"].items():
+            if not spec.get("compare"):
+                continue
+            fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
+            d = diff_records(cobol.get(dd, b""), java.get(dd, b""), spec["reclen"], fields,
+                             case.get("code_page", "cp037"), data_encoding(case))  # fmt: skip
+            if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
+                print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
+            run["outputs"][dd] = d
+            if d["equal"] != d["records"] or d["diffs"]:
+                why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
+    run["ok"] = not why
+    ends = (f"both ABEND {abend['cobol']}" if abend["cobol"] and abend["cobol"] == abend["java"]
+            else f"both end RETURN-CODE {rc['cobol']}" if not why else "")  # fmt: skip
+    run["summary"] = "; ".join(why) if why else ends
+    return run
+
+
 # ---- CLI -----------------------------------------------------------------------------
 def load_case(name: str) -> dict[str, Any]:
     case = json.loads((CASES / name / "case.json").read_text(encoding="utf-8"))
@@ -389,6 +510,8 @@ def main() -> int:
                    "`source_encoding`, else the engine's read_source ladder: BOM, UTF-8, cp1252, Latin-1)")  # fmt: skip
     r.add_argument("--data-encoding", help="#3815: the record bytes' code page, e.g. cp277, utf-8 (default: "
                    "the case's `data_encoding`, else latin-1)")  # fmt: skip
+    r.add_argument("--faults", help="#4023 follow-up: the case's fault runs to run as well: all (default) | none | "
+                   "NAME,NAME")  # fmt: skip
     r.add_argument("--generated-only", action="store_true",
                    help="run the generated service as generated (no port): the generator's own baseline")  # fmt: skip
     sub.add_parser("list")
@@ -413,49 +536,49 @@ def main() -> int:
 
         return ec.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
                            cobol_only=args.cobol_only)  # fmt: skip
+    faults = selected_faults(case, args.faults)
     cobol = run_cobol(case, corpus, work / "cobol")
+    cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
     if args.cobol_only:
-        for dd, data in cobol.items():
-            if dd == "RETURN-CODE":
-                print(f"RETURN-CODE: {data.decode()}")
-                continue
-            print(f"{dd}: {len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records")
+        for name, res in [("", cobol), *cobol_faults.items()]:
+            for dd, data in res.items():
+                what = (f"{data.decode().strip() or '(none)'}" if dd in ("RETURN-CODE", "ABEND", "FAULTS")
+                        else f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records")  # fmt: skip
+                print(f"{'fault ' + name + ' ' if name else ''}{dd}: {what}")
         return 0
     import equivalence_java as ej
 
     envs = _environments(args.environments, case)
     runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs, port=not args.generated_only,
-                                    port_dir=args.port)  # fmt: skip
+                                    port_dir=args.port,
+                                    faults=tuple((f["name"], fault_plan(f)) for f in faults))  # fmt: skip
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
                               "java": "generated" if args.generated_only else "ported", "collation": COLLATION,
                               "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
     ok = True
     for i, env in enumerate(envs):
-        java = runs[env["name"]]
-        rc = {"cobol": cobol.get("RETURN-CODE", b"").decode(), "java": java.get("RETURN-CODE", b"").decode()}
-        env_ok, outputs = rc["cobol"] == rc["java"], {}
-        for dd, spec in case["datasets"].items():
-            if not spec.get("compare"):
-                continue
-            fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
-            d = diff_records(cobol[dd], java.get(dd, b""), spec["reclen"], fields, case.get("code_page", "cp037"),
-                             data_encoding(case))  # fmt: skip
-            if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
-                print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
-            outputs[dd] = d
-            env_ok &= d["equal"] == d["records"] and not d["diffs"]
+        run = compare_run(case, corpus, cobol, runs[env["name"]])
         if i == 0:  # the first environment's outputs are the report's, as before #3821
-            report["return_code"], report["outputs"] = rc, outputs
-        report.setdefault("environments", []).append({**env, "ok": env_ok, "return_code": rc, "outputs": outputs})
-        ok &= env_ok
+            report["return_code"], report["outputs"], report["abend"] = run["return_code"], run["outputs"], run["abend"]
+        report.setdefault("environments", []).append({**env, "ok": run["ok"], "return_code": run["return_code"],
+                                                      "outputs": run["outputs"], "abend": run["abend"]})  # fmt: skip
+        ok &= run["ok"]
+    for f in faults:  # #4023 follow-up: each fault run, proven like the normal one
+        run = compare_run(case, corpus, cobol_faults[f["name"]], runs[f"fault:{f['name']}"], fault=f)
+        report.setdefault("faults", []).append({"name": f["name"], "why": f.get("why", ""), "plan": fault_plan(f)
+                                                .strip().splitlines(), **run})  # fmt: skip
+        ok &= run["ok"]
     rc = report["return_code"]
     report["proven"] = ok
-    covered = work / "cobol" / "coverage.json"  # #4023
-    report["coverage"] = json.loads(covered.read_text(encoding="utf-8")) if covered.is_file() else None
-    if report["coverage"] and "error" in report["coverage"]:
-        report["coverage"] = None
+    traces = [work / "cobol" / cov.TRACE_NAME] + [
+        work / "faults" / f["name"] / "cobol" / cov.TRACE_NAME for f in faults
+    ]
+    report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
+    report["runs"] = 1 + len(faults)
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
+    if report["abend"]["cobol"] or report["abend"]["java"]:
+        print(f"{case['program']} ABEND: COBOL {report['abend']['cobol']}, Java {report['abend']['java']}")
     print(
         f"{case['program']} RETURN-CODE: COBOL {rc['cobol']}, Java {rc['java']}"
         + ("" if rc["cobol"] == rc["java"] else "  <-- differs")
@@ -468,8 +591,10 @@ def main() -> int:
         for e in report["environments"]:
             print(f"{case['program']} under {e['name']} ({e['locale']}, {e['tz']}): "
                   f"{'equal to COBOL' if e['ok'] else 'DIFFERS'}")  # fmt: skip
+    for f in report.get("faults", []):
+        print(f"{case['program']} fault {f['name']}: {'equal' if f['ok'] else 'DIFFERS'} -- {f['summary']}")
     if report["coverage"]:
-        print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], 1, ok)}")
+        print(f"{case['program']} COBOL coverage: {cov.headline(report['coverage'], report['runs'], ok)}")
     print(f"report: {work / 'report.json'}")
     return 0 if ok else 1
 

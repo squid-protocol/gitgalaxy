@@ -32,7 +32,9 @@
 #                         (SORT, IDCAMS, ...) fails the job unless
 #                         gitgalaxy.batch.skip-unimplemented -- never a silent success;
 #   JclJobLauncher        runs a job by its JCL name (the REST endpoint, and the programs
-#                         that submit jobs through the internal reader: job_submissions).
+#                         that submit jobs through the internal reader: job_submissions);
+#   CobolFiles / CobolAbend  a ported program's FILE STATUS per I/O statement and its abends
+#                         (#4023 follow-up), with the equivalence harness's fault plan.
 # ==============================================================================
 from __future__ import annotations
 
@@ -380,6 +382,204 @@ class BatchForge:
 
 
 _RUNTIME = {
+    "CobolAbend": """package {pkg};
+
+import java.util.Locale;
+
+/**
+ * A program's abend (#4023 follow-up): `CALL 'CEE3ABD' USING ABCODE` is `throw CobolAbend.user(abcode, why)`.
+ * The step ends ABEND Unnnn (the code modulo 4096, as a user completion code is) with no return code.
+ */
+public class CobolAbend extends RuntimeException {
+
+    private final String code;
+
+    public CobolAbend(String code, String message) {
+        super(code + ": " + message);
+        this.code = code;
+    }
+
+    /** A user abend: CEE3ABD's ABCODE. */
+    public static CobolAbend user(int abcode, String why) {
+        return new CobolAbend(String.format(Locale.ROOT, "U%04d", Math.floorMod(abcode, 4096)), why);
+    }
+
+    /** The completion code: U0999. */
+    public String code() {
+        return code;
+    }
+}
+""",
+    "CobolFiles": """package {pkg};
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * The FILE STATUS of each COBOL file I/O statement (#4023 follow-up). A port makes ONE call here per I/O
+ * statement of the program, in the order the program runs them, and takes the program's FILE STATUS logic
+ * (IF WS-STATUS = '00', AT END, INVALID KEY) from the status it returns: "00" done, "23" no record with that
+ * key, "10" end of file, "35" an input dataset that does not exist.
+ *
+ * gitgalaxy.faults.plan names a fault plan -- the equivalence harness's, the same file its GnuCOBOL side
+ * reads (tests/equivalence/faults/ggfault.c): one fault per line, `DD OP NTH STATUS` (e.g. `XREFFILE READ 2 23`;
+ * NTH `*` = every occurrence). The planned statement is not performed: it returns its status, and the port's
+ * error handling runs as the program's does. Every statement is counted, faulted or not, by DD and operation
+ * (READ counts keyed and sequential reads alike). Each fault that fires is appended to gitgalaxy.faults.log.
+ * With no plan (production) nothing is injected.
+ */
+@Component
+public class CobolFiles {
+
+    public enum Op { OPEN, CLOSE, READ, WRITE, REWRITE, DELETE, START }
+
+    /** A READ's outcome: its FILE STATUS, and the record when there is one. */
+    public record Read<T>(String status, T record) {
+        public boolean found() {
+            return record != null;
+        }
+    }
+
+    /** An I/O action that may fail on the file system. */
+    @FunctionalInterface
+    public interface Io {
+        void run() throws IOException;
+    }
+
+    private record Fault(String dd, Op op, int nth, String status) {
+    }
+
+    private final List<Fault> plan = new ArrayList<>();
+    private final Map<String, Integer> seen = new HashMap<>();
+    private final Path log;
+
+    public CobolFiles(@Value("${gitgalaxy.faults.plan:}") String plan, @Value("${gitgalaxy.faults.log:}") String log) {
+        this.log = log.isBlank() ? null : Path.of(log);
+        if (plan.isBlank()) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(Path.of(plan), StandardCharsets.US_ASCII)) {
+                String[] w = line.trim().split("[ ]+");
+                if (w.length == 4) {
+                    this.plan.add(new Fault(w[0], Op.valueOf(w[1]), "*".equals(w[2]) ? 0 : Integer.parseInt(w[2]), w[3]));
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /** The planned status of this statement, or null. Every statement counts, whether or not it faults. */
+    public String planned(String dd, Op op) {
+        if (plan.isEmpty()) {
+            return null;
+        }
+        int n = seen.merge(dd + " " + op, 1, Integer::sum);
+        for (Fault f : plan) {
+            if (f.dd().equals(dd) && f.op() == op && (f.nth() == 0 || f.nth() == n)) {
+                if (log != null) {
+                    try {
+                        Files.writeString(log, String.format(Locale.ROOT, "%s %s %d %s%n", dd, op, n, f.status()),
+                                StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }
+                return f.status();
+            }
+        }
+        return null;
+    }
+
+    /** OPEN of a file the port keeps in a repository (a VSAM store): "00". */
+    public String open(String dd) {
+        String p = planned(dd, Op.OPEN);
+        return p != null ? p : "00";
+    }
+
+    /** OPEN of a dataset file: "35" when an input (or I-O) dataset does not exist, else "00". */
+    public String open(String dd, Path file, boolean input) {
+        String p = planned(dd, Op.OPEN);
+        return p != null ? p : input && (file == null || !Files.exists(file)) ? "35" : "00";
+    }
+
+    /** CLOSE: `close` runs, "00" (a planned status: it does not run). */
+    public String close(String dd, Io close) {
+        return perform(dd, Op.CLOSE, close);
+    }
+
+    public String close(String dd) {
+        return close(dd, () -> { });
+    }
+
+    /** A keyed READ: "00" and the record, or "23" when there is none. */
+    public <T> Read<T> read(String dd, Supplier<Optional<T>> read) {
+        String p = planned(dd, Op.READ);
+        if (p != null) {
+            return new Read<>(p, null);
+        }
+        T r = read.get().orElse(null);
+        return new Read<>(r != null ? "00" : "23", r);
+    }
+
+    /** A sequential READ (READ NEXT): "00" and the next record, or "10" at the end. A planned status does not
+     *  advance the cursor. */
+    public <T> Read<T> readNext(String dd, Iterator<T> cursor) {
+        String p = planned(dd, Op.READ);
+        if (p != null) {
+            return new Read<>(p, null);
+        }
+        return cursor.hasNext() ? new Read<>("00", cursor.next()) : new Read<>("10", null);
+    }
+
+    public String write(String dd, Io write) {
+        return perform(dd, Op.WRITE, write);
+    }
+
+    public String rewrite(String dd, Io rewrite) {
+        return perform(dd, Op.REWRITE, rewrite);
+    }
+
+    public String delete(String dd, Io delete) {
+        return perform(dd, Op.DELETE, delete);
+    }
+
+    /** START: "00" when a record satisfies the key condition, else "23". */
+    public String start(String dd, BooleanSupplier found) {
+        String p = planned(dd, Op.START);
+        return p != null ? p : found.getAsBoolean() ? "00" : "23";
+    }
+
+    private String perform(String dd, Op op, Io io) {
+        String p = planned(dd, op);
+        if (p != null) {
+            return p;
+        }
+        try {
+            io.run();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return "00";
+    }
+}
+""",
     "MainframeClock": """package {pkg};
 
 import java.time.LocalDateTime;

@@ -72,5 +72,241 @@
       "copybook": "app/cpy/CVTRA05Y.cpy"
     }
   },
-  "notes": "TCATBALF: CardDemo's tcatbal.txt keys (the 50 account / type / category rows) with balances rewritten so the interest arithmetic is exercised -- the corpus ships every balance as zero. The first eight are S9(09)V99's extremes and truncation edges (+-999999999.99, +-0.01, 0, 11.99 / 12.01 / -12.01 around a monthly rate's cent), the rest spread over -50000.00..199999.99. Every other input is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+  "notes": "TCATBALF: CardDemo's tcatbal.txt keys (the 50 account / type / category rows) with balances rewritten so the interest arithmetic is exercised -- the corpus ships every balance as zero. The first eight are S9(09)V99's extremes and truncation edges (+-999999999.99, +-0.01, 0, 11.99 / 12.01 / -12.01 around a monthly rate's cent), the rest spread over -50000.00..199999.99. Every other input is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+  "faults": [
+    {
+      "name": "open-tcatbalf",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "35"
+        }
+      ],
+      "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 0000..0300 OPEN error -> ABEND U0999"
+    },
+    {
+      "name": "open-xreffile",
+      "plan": [
+        {
+          "dd": "XREFFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "35"
+        }
+      ],
+      "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 0000..0300 OPEN error -> ABEND U0999"
+    },
+    {
+      "name": "open-discgrp",
+      "plan": [
+        {
+          "dd": "DISCGRP",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "35"
+        }
+      ],
+      "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 0000..0300 OPEN error -> ABEND U0999"
+    },
+    {
+      "name": "open-acctfile",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "35"
+        }
+      ],
+      "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 0000..0300 OPEN error -> ABEND U0999"
+    },
+    {
+      "name": "open-transact",
+      "plan": [
+        {
+          "dd": "TRANSACT",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "37"
+        }
+      ],
+      "why": "37: OPEN mode not permitted for the file (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 0400-TRANFILE-OPEN -> ABEND U0999"
+    },
+    {
+      "name": "tcatbalf-read-error",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "READ",
+          "nth": 3,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third category balance: 1000-TCATBALF-GET-NEXT -> ABEND U0999"
+    },
+    {
+      "name": "tcatbalf-early-end",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "READ",
+          "nth": 3,
+          "status": "10"
+        }
+      ],
+      "why": "10: end of file (IBM Enterprise COBOL for z/OS Language Reference, File status key values) after two balances: the step ends normally with what it has posted"
+    },
+    {
+      "name": "tcatbalf-status-9",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "READ",
+          "nth": 1,
+          "status": "9A"
+        }
+      ],
+      "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 9910-DISPLAY-IO-STATUS's non-numeric / 9 arm, then ABEND U0999"
+    },
+    {
+      "name": "account-not-found",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "READ",
+          "nth": 2,
+          "status": "23"
+        }
+      ],
+      "why": "23: no record with the key (IBM Enterprise COBOL for z/OS Language Reference, File status key values) for the second account: INVALID KEY in 1100-GET-ACCT-DATA -> ABEND U0999"
+    },
+    {
+      "name": "xref-not-found",
+      "plan": [
+        {
+          "dd": "XREFFILE",
+          "op": "READ",
+          "nth": 1,
+          "status": "23"
+        }
+      ],
+      "why": "23: no cross reference for the first account (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1110-GET-XREF-DATA -> ABEND U0999"
+    },
+    {
+      "name": "default-group-missing",
+      "plan": [
+        {
+          "dd": "DISCGRP",
+          "op": "READ",
+          "nth": 1,
+          "status": "23"
+        },
+        {
+          "dd": "DISCGRP",
+          "op": "READ",
+          "nth": 2,
+          "status": "23"
+        }
+      ],
+      "why": "23 on the group (as every account's group already is in this data) AND on its DEFAULT fallback (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1200-A-GET-DEFAULT-INT-RATE -> ABEND U0999"
+    },
+    {
+      "name": "disclosure-read-error",
+      "plan": [
+        {
+          "dd": "DISCGRP",
+          "op": "READ",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on a disclosure-group READ: 1200-GET-INTEREST-RATE -> ABEND U0999"
+    },
+    {
+      "name": "account-rewrite-error",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "REWRITE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) rewriting the first account: 1050-UPDATE-ACCOUNT -> ABEND U0999"
+    },
+    {
+      "name": "transaction-write-error",
+      "plan": [
+        {
+          "dd": "TRANSACT",
+          "op": "WRITE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) writing the first interest transaction: 1300-B-WRITE-TX -> ABEND U0999"
+    },
+    {
+      "name": "close-tcatbalf",
+      "plan": [
+        {
+          "dd": "TCATBALF",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing TCATBALF: its 9x00 CLOSE paragraph -> ABEND U0999"
+    },
+    {
+      "name": "close-xreffile",
+      "plan": [
+        {
+          "dd": "XREFFILE",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing XREFFILE: its 9x00 CLOSE paragraph -> ABEND U0999"
+    },
+    {
+      "name": "close-discgrp",
+      "plan": [
+        {
+          "dd": "DISCGRP",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing DISCGRP: its 9x00 CLOSE paragraph -> ABEND U0999"
+    },
+    {
+      "name": "close-acctfile",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing ACCTFILE: its 9x00 CLOSE paragraph -> ABEND U0999"
+    },
+    {
+      "name": "close-transact",
+      "plan": [
+        {
+          "dd": "TRANSACT",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing TRANSACT: its 9x00 CLOSE paragraph -> ABEND U0999"
+    }
+  ]
 }

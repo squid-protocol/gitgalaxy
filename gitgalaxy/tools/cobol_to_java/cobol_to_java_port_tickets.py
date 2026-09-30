@@ -81,8 +81,19 @@ PORTING_RULES = [
         " than this service; do not invent calls, files, queues or tables the facts do not name."
     ),
     (
-        "An abend (a CALL to CEE3ABD, an unrecoverable file status) becomes an exception; a DISPLAY becomes a"
-        " log line; the step's RETURN-CODE is runBatch's return value."
+        "An abend is `throw CobolAbend.user(abcode, why)` (the generated batch runtime; CALL 'CEE3ABD' USING "
+        "ABCODE: the step ends ABEND Unnnn) -- never another exception; a DISPLAY becomes a log line; the "
+        "step's RETURN-CODE is runBatch's return value."
+    ),
+    (
+        "Every file I/O statement of a batch program (OPEN, CLOSE, READ, READ NEXT, WRITE, REWRITE, DELETE, "
+        "START) is ONE call to the generated CobolFiles, per file (its DD name), in the order the program runs "
+        'them: open(dd) / open(dd, path, input), read(dd, supplier) ("00" or "23"), readNext(dd, iterator) '
+        '("00" or "10"), write / rewrite / delete / close(dd, action), start(dd, found). Take the program\'s '
+        "FILE STATUS logic -- IF <status> = '00', AT END, INVALID KEY, its error paragraphs -- from the status "
+        "returned, exactly as the program does; never skip a statement the program runs (a read-ahead, a "
+        "CLOSE) or add one it does not. The equivalence harness injects file faults through CobolFiles and "
+        "through GnuCOBOL at the same statement, and proves the error paths too."
     ),
     (
         "A sequential dataset is fixed-length records (RECFM=FB): write each record's toRecord(...) bytes "
@@ -130,8 +141,10 @@ PORTING_RULES = [
         "task.returnTransid(transid, commarea, length), XCTL is task.xctl, LINK is task.link, ABEND is task.abend "
         "-- in the order "
         "the program does them, and "
-        "the task ends at RETURN / XCTL / ABEND. A file READ is the service's generated read method (an empty "
-        "result is NOTFND, DFHRESP 13). A screen field shows what the symbolic map's O field would hold: text "
+        "the task ends at RETURN / XCTL / ABEND. A file READ is task.read(file, () -> <the service's generated read "
+        "method>): its resp() is NORMAL (0), NOTFND (13) when the read finds nothing, or a condition the "
+        "equivalence harness injects (NOTOPEN, IOERR, DISABLED, ...), and its resp2(); port every arm of the "
+        "program's RESP handling (EVALUATE WS-RESP-CD ... WHEN OTHER) from it (#4023 follow-up). A screen field shows what the symbolic map's O field would hold: text "
         "as moved, an edited PICTURE formatted as COBOL formats it. A COMMAREA is the generated DTO of its "
         "record; an area no generated DTO describes (a plain PIC X(n) item) is passed as a String of its n "
         "characters, or a byte[] of its EBCDIC bytes (#3989)."

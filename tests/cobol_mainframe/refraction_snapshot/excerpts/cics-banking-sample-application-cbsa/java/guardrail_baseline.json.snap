@@ -325,6 +325,30 @@
       "program": "src/base/cobol_src/CRDTAGY1.cbl",
       "sha256": "a35d622a0cbb4e0654688a2a5b2db751df29cc39230615664e23550c6acdd89f"
     },
+    "src/main/java/com/gitgalaxy/modernized/util/CobolCompare.java": {
+      "calls": [],
+      "classes": [
+        "CobolCompare"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "CobolCompare",
+        "bytes",
+        "compare",
+        "eq",
+        "filled",
+        "ge",
+        "gt",
+        "highValues",
+        "le",
+        "lowValues",
+        "lt"
+      ],
+      "program": null,
+      "sha256": "a97626e7b0add603f98f9cc6bc825ef247c7fa57a6bba7619738a77b4385a45f"
+    },
     "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
       "calls": [],
       "classes": [

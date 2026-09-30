@@ -2024,13 +2024,13 @@ def coverage_md(results: dict[str, Any]) -> list[str]:
     if not per:
         return []
     lines = ["", "## COBOL coverage", "",
-             "Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/cobol_coverage.py, "
+             ("Each cobol-stub scenario runs the COBOL compiled with `-ftraceall` (tests/tools/cobol_coverage.py, "
              "#4023). Per program: the live paragraphs and sections the passing scenarios enter, out of all the live "
              "ones, and the branch outcomes they take (IF true / false; each EVALUATE arm, and no arm when there is "
              "no WHEN OTHER) in live code. Code that nothing can reach (the engine's reachability: PERFORM, GO TO, "
              "fall-through, HANDLE labels) is dead, and is listed apart. A port's claim counts only the scenarios "
              "its java-ported cell passes on. `tests/cics_crucible/coverage.json` holds what each scenario executes, "
-             "and CI holds it as a ratchet.", "",
+             "and CI holds it as a ratchet."), "",
              "| case | program | scenarios | paragraphs | branches | HANDLE labels | dead | port |",
              "|---|---|---|---|---|---|---|---|"]  # fmt: skip
     for case, progs in per.items():
@@ -2045,8 +2045,8 @@ def coverage_md(results: dict[str, Any]) -> list[str]:
             or r["summary"]["paragraphs"].get("unread")]  # fmt: skip
     if gaps:
         lines += ["", "### Live code no scenario reaches", "",
-                  "Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected "
-                  "log, like every other. Dead code is not a gap: nothing can reach it.", ""]  # fmt: skip
+                  ("Each item is a scenario to propose: a crucible PR adds it with a hand-written, doc-cited expected "
+                  "log, like every other. Dead code is not a gap: nothing can reach it."), ""]  # fmt: skip
         for case, prog, s in gaps:
             lines += [f"#### `{case}` {prog}", "", *cov.gaps_md(s)]
             if s["paragraphs"]["dead"]:

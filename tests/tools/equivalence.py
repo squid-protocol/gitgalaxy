@@ -392,9 +392,9 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
         lines += ["", f"ABEND: COBOL `{report['abend']['cobol']}`, Java `{report['abend']['java']}`."]
     if report.get("faults"):  # #4023 follow-up
         lines += ["", "## Fault runs", "",
-                  "Each run injects file statuses on both sides at the same statement (tests/equivalence/faults/"
-                  "ggfault.c for GnuCOBOL, the generated CobolFiles for Java) and is proven like the normal run: "
-                  "the same abend, or the same RETURN-CODE and outputs, and the same faults fired.", "",
+                  ("Each run injects file statuses on both sides at the same statement (tests/equivalence/faults/"
+                   "ggfault.c for GnuCOBOL, the generated CobolFiles for Java) and is proven like the normal run: "
+                   "the same abend, or the same RETURN-CODE and outputs, and the same faults fired."), "",
                   "| fault | plan (DD OP NTH STATUS) | why | outcome | equal |", "|---|---|---|---|---|"]  # fmt: skip
         for f in report["faults"]:
             lines.append(f"| {f['name']} | {'; '.join(f'`{x}`' for x in f['plan'])} | {f['why']} | {f['summary']} | "

@@ -718,8 +718,8 @@ def _uid() -> Optional[str]:
 
 def autotest_md(results: list[dict[str, Any]]) -> str:
     lines = ["# COBOL coverage of an Autotest suite's own tests (#4023)", "",
-             "Each case run under GnuCOBOL with `-ftraceall` (tests/tools/cobol_coverage.py autotest): per program, "
-             "the paragraphs and branch outcomes the case's own runs execute.", "",
+             ("Each case run under GnuCOBOL with `-ftraceall` (tests/tools/cobol_coverage.py autotest): per program, "
+             "the paragraphs and branch outcomes the case's own runs execute."), "",
              "| case | program | runs | paragraphs | branches | HANDLE labels |", "|---|---|---|---|---|---|"]  # fmt: skip
     by = Counter(r["status"] for r in results)
     lines[4:4] = [f"Cases: {len(results)} -- " + ", ".join(f"{by[k]} {k}" for k in STATUSES if by[k]) + ". A case "
@@ -740,9 +740,9 @@ def autotest_md(results: list[dict[str, Any]]) -> str:
               if s["paragraphs"].get("unread")]  # fmt: skip
     if unread:
         lines += ["## Units the engine does not read", "",
-                  "A run entered these, but the engine's unit reader (cobol_graveyard_finder) does not see them as "
+                  ("A run entered these, but the engine's unit reader (cobol_graveyard_finder) does not see them as "
                   "paragraphs or sections, so they are missing from the counts above -- an engine defect, not a gap "
-                  "in the tests.", ""]  # fmt: skip
+                  "in the tests."), ""]  # fmt: skip
         lines += [f"- `{c}` {pid}: {', '.join(f'`{n}`' for n in names)}" for c, pid, names in unread] + [""]
     for r in results:
         for pid, s in r["programs"].items():

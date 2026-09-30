@@ -312,15 +312,17 @@ DEFINITION: dict[str, Any] = {
         # (`record Foo<T>(T Value) : Base<T>`, C# 9+ records / C# 12 primary constructors on
         # classes/structs, mainstream and common) for the same reason -- the `(...)` between the
         # generics and the `:` was equally unconsumed.
-        # #1708: modifier alternation was missing `readonly`/`ref` -- C# 7.2+
-        # `readonly struct`, `ref struct`, and `readonly ref struct` declarations
-        # (mainstream in modern codebases, e.g. Roslyn's own parser) structurally failed to
-        # match, a pure class_recall gap. Verified via roslyn/CSharpCompilation.cs
-        # (`readonly struct ImportInfo`) and roslyn/LanguageParser.cs
-        # (`readonly ref struct ParserSyntaxContextResetter`): found_classes 22 -> 24,
-        # class recall 91.7% -> 100%, zero precision cost (extra_classes still 0).
+        # Issue #1708: `readonly` and `ref` are also valid type-declaration modifiers (C# 7.2+).
+        # `readonly struct` promises the compiler every field is immutable (so it can skip
+        # defensive copies), and `ref struct` pins a struct to the stack (Span<T>-style types
+        # that must never be boxed or captured on the heap). They combine in either order
+        # (`readonly ref struct`, `ref readonly struct`) and with `record struct`. Both keywords
+        # still have to sit in the modifier run directly before a type keyword + name, so
+        # fields (`private readonly Foo _x;`) and ref returns (`public ref readonly T Get()`)
+        # remain unmatched. The modifier run cap is 6 (was 5) to leave room for the longer
+        # stacks these enable (e.g. `public readonly ref partial struct`), still bounded.
         "class_start": re.compile(
-            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,5}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+(["
+            r"^[ \t]*(?:\[[^\]]*\][ \t]*){0,5}(?:(?:public|internal|private|protected|static|sealed|abstract|partial|file|unsafe|new|readonly|ref)[ \t]+){0,6}(?:class|interface|struct|record(?:[ \t]+(?:struct|class))?|enum)\s+(["
             + ID_START
             + r"$]["
             + ID_CONTINUE

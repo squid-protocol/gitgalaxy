@@ -27,6 +27,7 @@
 # ==============================================================================
 from __future__ import annotations
 
+import codecs
 import functools
 import json
 import math
@@ -36,6 +37,7 @@ from typing import Any
 
 from gitgalaxy.core.compiler_options import compiler_options, effective
 from gitgalaxy.core.data_moves import rounding_facts
+from gitgalaxy.core.ebcdic_codecs import register as register_code_pages
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.unicode_paths import on_disk
@@ -285,6 +287,29 @@ def collation_rules(culture: dict[str, Any] | None) -> list[str]:
         f"{order}, while CobolCompare compares as the mainframe did. Where the program compares a key it "
         "browsed with another (a READNEXT loop ending on a limit, a control break), the two orders can "
         "disagree: flag it in a TODO rather than switching the comparison (#3986)."
+    ]
+
+
+def multibyte_rules(data: dict[str, Any] | None) -> list[str]:
+    """#3985: under a multi-byte code page a PIC X field's width is bytes, not characters -- a mixed EBCDIC
+    page (cp930 / cp939 / cp933 / cp935 / cp937) wraps each double-byte run in Shift-Out / Shift-In, and an
+    ASCII DBCS page (shift_jis, cp932) takes two bytes per Kanji -- so String.length() and substring() stop
+    matching the record. Said only where the code page can encode a CJK character; a single-byte estate keeps
+    today's rules."""
+    code_page = str((data or {}).get("code_page") or "cp037")
+    register_code_pages()
+    try:
+        codecs.lookup(code_page)
+        "\u65e5".encode(code_page)
+    except (LookupError, UnicodeError):
+        return []
+    return [
+        f"This migration's code page ({code_page}) is multi-byte: a PIC X field's width is BYTES, not characters "
+        "(`AB日本C` is 5 characters and, in a mixed EBCDIC page, 9 bytes: Shift-Out and Shift-In count). "
+        "Measure a field with CobolRecords.width(value, text) and cut or pad it with CobolRecords.fit(value, "
+        "width, text), which keeps whole characters; never String.length(), substring() or String.format "
+        "widths for fixed-width logic. A reference modification (X(3:5)) of such a field can split a "
+        "double-byte run: flag it in a TODO (#3985)."
     ]
 
 
@@ -568,6 +593,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     rules = list(PORTING_RULES) + option_rules(options) + line_sequential_rules(file_control)  # #3833
     rules += decimal_point_rules(text, target.get("culture"))  # #3984
     rules += collation_rules(target.get("culture"))  # #3986
+    rules += multibyte_rules(target.get("data"))  # #3985
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "

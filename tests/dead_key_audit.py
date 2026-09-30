@@ -201,6 +201,7 @@ ALLOWLIST = {
     # Culture field decimal_point is a real key of the port ticket's target["culture"].
     "decimal_point": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3984)",
     "key_collation": "Culture dataclass field, written by target_as_dict's vars() (port tickets, #3986)",
+    "code_page": "Data dataclass field, written by target_as_dict's vars() (port tickets, #3985)",
     # --- External user-provided data ---
     "known_programs": "user-provided IR JSON field, documented as external input (terabyte_log_scanner.py)",
     # --- Regex named-capture-group access, not dict keys ---

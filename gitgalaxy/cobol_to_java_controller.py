@@ -477,7 +477,8 @@ def main():
     # #3752: a porting ticket for every program with business logic to write, linked from the worklist
     if skeletons and target.features.agent_tickets:
         chosen = target_as_dict(target)
-        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture")}  # #3819: culture too
+        # #3819: culture too; #3985: data, so the ticket names the code page (DBCS widths, sortKey's codePage)
+        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture", "data")}
         stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
         tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
                                      ir_dir, clean_room_path.name, clean_room_path,

@@ -1,0 +1,85 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "ca-xctl-versions",
+ "program": "CAXB",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:01:23+00:00",
+ "ticket_sha256": "a212bc54ab81da9384f3634491b2fca2f83dee76777ed681df34cf81d31eca92",
+ "prompt_tokens": 24805,
+ "feedback_from": 1,
+ "notes": "Fix from attempt 1: it did not compile because CobolEdit was imported from com.gitgalaxy.modernized.batch. It lives in com.gitgalaxy.modernized.entity.vsam and is now imported from there. WS-BAL-ED is also formatted with currency null, since its PICTURE has no currency symbol.\n\nDefects of the original, kept:\n- EIBCALEN is trusted blindly (lines 33-39). With EIBCALEN >= 80, CAXA's XCTL LENGTH(80) of its 10-byte WS-V1, or its 32767-byte WS-BIG, is taken whole. The caller's neighbouring storage becomes V2-TIER, V2-BALANCE and V2-NOTE, and V2-VERSION is neither checked nor set. Fix: IF V2-VERSION OF DFHCOMMAREA NOT = '2', take only the first 10 bytes and default the rest.\n- ADD 1 TO V2-VISITS has no ON SIZE ERROR, so the counter wraps from 9999 to 0000. Fix: add ON SIZE ERROR or widen V2-VISITS.\n- MOVE EIBCALEN TO WS-CALEN-D (PIC 9(4)) keeps only the low-order 4 digits. EIBCALEN tops out at 32767, which shows as 2767. Fix: widen WS-CALEN-D to 9(5).\n\nPorting notes:\n- EIBCALEN < 80 is ported as a byte overlay of the first EIBCALEN bytes onto the defaulted WS-V2. A field the length cuts through keeps its tail from the INITIALIZEd or defaulted value.\n- A null DTO field is treated as the INITIALIZE value (spaces or zero); this is how the DTO represents undecodable bytes, for example invalid packed data in V2-BALANCE. On the mainframe such data would be a data exception (ASRA), which the port does not reproduce.\n\nNo fact was contradicted by the source.",
+ "proof": {
+  "at": "2026-09-29T22:05:52+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "long-overread": "1/1",
+   "short-upgrade": "1/1"
+  },
+  "sibling_ports": [
+   "CAXA",
+   "CAXB"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:47:42+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:48:19+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "long-overread": "0/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:58:39+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "long-overread": "0/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:01:23+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:02:07+00:00",
+   "event": "proof-failed",
+   "attempt": 2,
+   "summary": {
+    "long-overread": "1/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:03:57+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "long-overread": "1/1",
+    "short-upgrade": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:05:52+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "long-overread": "1/1",
+    "short-upgrade": "1/1"
+   }
+  }
+ ]
+}

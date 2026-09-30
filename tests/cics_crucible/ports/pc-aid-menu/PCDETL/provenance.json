@@ -1,0 +1,71 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-aid-menu",
+ "program": "PCDETL",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:00:53+00:00",
+ "ticket_sha256": "98494150e65dd249178f5e54019cf54c915456a071bded373e97f9071f700ada",
+ "prompt_tokens": 26042,
+ "feedback_from": 1,
+ "notes": "- Fix from attempt 1: the compile error \"reference to sendMap is ambiguous\" is gone.\n  - The call now passes an explicit `new CicsTask.MapSubfields()` (nothing set) instead of an untyped null.\n  - The program sets no <f>A / <f>C / <f>H / <f>L subfield: MOVE LOW-VALUES TO PCDTO leaves them X'00'.\n- Defect kept: MOVE DFHCOMMAREA TO WS-CA (line 27) copies 10 bytes without checking EIBCALEN >= 10.\n  - A shorter COMMAREA would make the MOVE read past it.\n  - One-line fix: IF EIBCALEN < LENGTH OF WS-CA, SEND WS-NOCTX and RETURN.\n- Behaviour kept as designed: RETURN TRANSID('PC11') passes no COMMAREA.\n  - The next menu task therefore has EIBCALEN 0 (a new session), so PF3 there is not an exit, as the header comment states.\n- MN-VISITS as a null Integer (bytes that are not digits, e.g. spaces) is shown as four spaces. This is an assumption about the codec's null; the harness is the oracle.\n- No verified fact was contradicted by the source.\n- DFHCOMMAREA is declared PIC X(10); the facts pair it with PCMENU's WS-CA (a \"shape\" mismatch). The port reads it through PcdetlWsCa, which has the PCMENUCA layout that MOVE DFHCOMMAREA TO WS-CA gives it.",
+ "proof": {
+  "at": "2026-09-29T22:01:50+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "aid-keys": "1/1",
+   "option1-xctl": "1/1",
+   "option2-next-transid": "1/1"
+  },
+  "sibling_ports": [
+   "PCDETL",
+   "PCMENU"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:49:20+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:50:42+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "aid-keys": "0/1",
+    "option1-xctl": "0/1",
+    "option2-next-transid": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:45+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "aid-keys": "0/1",
+    "option1-xctl": "0/1",
+    "option2-next-transid": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:00:53+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:01:50+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "aid-keys": "1/1",
+    "option1-xctl": "1/1",
+    "option2-next-transid": "1/1"
+   }
+  }
+ ]
+}

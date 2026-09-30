@@ -1,0 +1,55 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "pc-wizard",
+ "program": "PCWIZ",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:51:16+00:00",
+ "ticket_sha256": "2d531ff26f33e2a864ec3aa564c0697e174e9af1331b1ee972e66040bf633d0d",
+ "prompt_tokens": 20364,
+ "feedback_from": null,
+ "notes": "Kept defects and behaviours of the original:\n- PC-ERRORS is incremented on every rejected name but never reset nor read by PCWIZ.\n  Fix: MOVE 0 TO PC-ERRORS once a name is accepted.\n- A name typed as spaces only has NAMEL > 0 and is accepted as a blank PC-NAME.\n  Fix: add OR NAMEI = SPACES to the test at line 51.\n- The EVALUATE tests PC-BACK = 'Y' before DFHCLEAR. So CLEAR on a state coming back from PCCONF shows step 2, not step 1.\n  Fix: move the WHEN EIBAID = DFHCLEAR branch before the PC-BACK branch.\n- SEND-STEP2 leaves AMTO as LOW-VALUES when PC-AMOUNT <= 0, so a zero or negative amount is not shown.\n- ADD 1 TO PC-ERRORS has no SIZE ERROR. The port keeps the low-order 4 digits, so 9999 + 1 gives 0. This assumes TRUNC(STD); TRUNC(BIN) would keep the binary value up to 32767, and it cannot be seen from the CBL cards.\n- MAIN-PARA only relies on the RETURN inside SEND-STEP1, CANCEL-WIZARD and SEND-STEP2 to stop. It would otherwise touch DFHCOMMAREA without a COMMAREA, and fall through into TAKE-NAME. The port returns after each of those paragraphs.\n\nPort assumptions:\n- NAMEL is taken as the length of the received NAME with trailing nulls stripped. It is 0 when the name is null or empty, or on MAPFAIL.\n- NAMEI is padded with blanks (JUSTIFY=(LEFT,BLANK)).\n- Symbolic-map fields the program leaves at LOW-VALUES are sent as strings of NUL characters, as PCM1O / PCM2O hold them. No attribute subfields are set.\n- MOVE DFHCOMMAREA TO WS-STATE copies the whole 30-byte DTO. With an EIBCALEN below 30, the mainframe would read bytes past the passed COMMAREA; the port cannot reproduce that.\n- executePcwiz only logs, because PCWIZ has no batch entry.\n- handleTransaction, handleLink and submitPcm1 are convenience wrappers that drive runTask. They are not part of the proven path.\n\nFacts contradicted: none found. The field-tested RESP check on the RECEIVE at line 48 (NORMAL) matches the source.",
+ "proof": {
+  "at": "2026-09-29T22:00:07+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "back-and-fix": "1/1",
+   "happy-post": "1/1",
+   "mapfail-clear-cancel": "1/1"
+  },
+  "sibling_ports": [
+   "PCCONF",
+   "PCWIZ"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:51:16+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:52:50+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "back-and-fix": "1/1",
+    "happy-post": "1/1",
+    "mapfail-clear-cancel": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:00:07+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "back-and-fix": "1/1",
+    "happy-post": "1/1",
+    "mapfail-clear-cancel": "1/1"
+   }
+  }
+ ]
+}

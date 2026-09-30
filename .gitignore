@@ -146,6 +146,7 @@ museum_2/
 # ...and the equivalence cases (#3624) and their ports' provenance (#4023 follow-up): source, not output
 !tests/equivalence/*/case.json
 !tests/equivalence/*/port/provenance.json
+!tests/cics_crucible/ports/*/*/provenance.json
 !tests/cics_crucible/fixture/**/*.json
 *_llm.md
 venvs/

@@ -1,0 +1,57 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "hc-perform-range",
+ "program": "HCQREAD",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:51:20+00:00",
+ "ticket_sha256": "996ed4059ae0c6b165d34507cdc851a6e9548b457a2684bc3dc1a17c1399b17d",
+ "prompt_tokens": 14461,
+ "feedback_from": null,
+ "notes": "Defects of the original kept as they are (each is also commented in the code):\n- WS-ILEN is set to 8 once and never reset. READQ's LENGTH is both the maximum length and the length returned, so a short HCQ1 or HCWORK item shrinks the maximum, and a later longer item raises LENGERR, which goes to ANY-ERROR and ends the task early. Fix: MOVE 8 TO WS-ILEN before each READQ.\n- READ-ITEMS falls through into NO-QUEUE and PAST-END. A clean 5-item loop therefore appends \"lqp\", though no condition was raised. Fix: GO TO READ-ITEMS-EXIT after STRING 'l'.\n- NO-QUEUE falls through into PAST-END, so QIDERR appends \"qp\". Fix: GO TO READ-ITEMS-EXIT at the end of NO-QUEUE.\n- ANY-ERROR sits outside the PERFORM ... THRU range. A LENGERR during READ-ITEMS abandons the PERFORM and the rest of MAIN-PARA: no 'b', no HCWORK write, the trail ends \"e22\". Fix: handle it inside the range and GO TO READ-ITEMS-EXIT.\n- The RESP of READQ at line 41 is never tested, only shown in the trail as \"rNN\". Fix: IF WS-RESP NOT = DFHRESP(NORMAL) ... after the READQ.\n- A handler label reached from MAIN-PARA after the PERFORM has finished would fall through READ-ITEMS-EXIT into LATE-ITEM. This is unreachable with the source as written (the line 41 read uses RESP, the line 49 ITEMERR is ignored, and the WRITEQ cannot raise ITEMERR or QIDERR), but it is modelled anyway.\n- HCWORK is written on every task and never deleted, so the region-shared queue keeps growing. On the second task in the same storage, ITEM(2) exists and shows \"r00\" (then ITEM(3) \"i00\" \u2026), and WS-ILEN becomes 1. The port reproduces this through the task's temporary storage.\n- If HCWORK were seeded with an item longer than 8 bytes, the RESP-protected LENGERR at line 41 sets WS-ILEN above 8. The later READQs would then move more than 8 bytes into WS-ITEM, which overlays storage under CICS. The port copies only WS-ITEM's own 8 bytes.\n\nPorting choices and facts:\n- The TS commands in runTask go through CicsTask.readqTs / writeqTs (#4002), not the generated messaging.TempStorage helpers (readqTsHcworkL41 and the others). Those helpers return only Optional<String>, so they cannot report QIDERR, ITEMERR, LENGERR or the LENGTH that HANDLE CONDITION, IGNORE and RESP depend on. The helpers are left unchanged and unused.\n- The EBCDIC code page is assumed to be IBM037, used for WS-ONE 'W' (X'E6') and for WS-ITEM(1:1). Confirm the region's code page.\n- HCQREAD has no batch interface. executeHcqread and handleTransaction run one HC01 task with no COMMAREA on the task's own in-memory temporary storage.\n- No verified fact was contradicted by the source.",
+ "proof": {
+  "at": "2026-09-29T21:59:31+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "five-items": "1/1",
+   "length-trap": "1/1",
+   "no-queue": "1/1",
+   "three-items": "1/1"
+  },
+  "sibling_ports": [
+   "HCQREAD"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:51:20+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:51:41+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "five-items": "1/1",
+    "length-trap": "1/1",
+    "no-queue": "1/1",
+    "three-items": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:31+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "five-items": "1/1",
+    "length-trap": "1/1",
+    "no-queue": "1/1",
+    "three-items": "1/1"
+   }
+  }
+ ]
+}

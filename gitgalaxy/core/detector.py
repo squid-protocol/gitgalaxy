@@ -3408,18 +3408,19 @@ class StructuralExtractor:
         # the untouched `content`.
         scan_view = _mask_lua_long_brackets(content) if primary_id == "lua" else content
 
-        triggers = [
-            {
-                "start": m.start(),
-                "end_pattern": h["end"],
-                "target": h["target"],
-                "pair": h["pair"],
-                "open_delimiter": h.get("open_delimiter"),
-                "trigger_end": m.end(),
-            }
-            for h in self.HANDSHAKE_REGISTRY
-            for m in h["trigger"].finditer(scan_view)
-        ]
+        triggers = []
+        for h in self.HANDSHAKE_REGISTRY:
+            for m in h["trigger"].finditer(scan_view):
+                triggers.append(
+                    {
+                        "start": m.start(),
+                        "end_pattern": h["end"],
+                        "target": h["target"],
+                        "pair": h["pair"],
+                        "open_delimiter": h.get("open_delimiter"),
+                        "trigger_end": m.end(),
+                    }
+                )
 
         triggers.sort(key=lambda x: x["start"])
 
@@ -3657,7 +3658,7 @@ class StructuralExtractor:
             "amplified_cascading_flux": 0,
         }
         segment_spatial_maps = []
-        extracted_parents: list[str] = []
+        extracted_parents = []
         threat_locations: dict[str, list[int]] = {}
 
         for seg_lang, seg_code, current_line_offset in segments:

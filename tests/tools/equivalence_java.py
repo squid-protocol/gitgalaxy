@@ -224,6 +224,83 @@ def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:
 # Lombok found on the classpath)
 JAVAC_OPTIONS = ["-g", "-parameters", "--release", "17", "-encoding", "UTF-8", "-nowarn"]
 PRECOMPILED = "target/equivalence-precompiled"  # present: the main classes are built, Maven skips compiling them
+TEST_CLASSPATH = "target/equivalence-test-classpath"  # --reuse: the classpath the tests run on, this project's
+TEST_SOURCE = "target/equivalence-test-source"  # the EquivalenceRunTest source target/test-classes was built from
+TEST_FILE = f"src/test/java/{PKG_DIR}/EquivalenceRunTest.java"
+RUNNER = f"""import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.junit.platform.launcher.listeners.TestExecutionSummary;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+
+/** --reuse: EquivalenceRunTest without Maven -- the JUnit Platform launcher surefire itself drives, in a fresh JVM. */
+public class EquivalenceMain {{
+    public static void main(String[] args) {{
+        SummaryGeneratingListener listener = new SummaryGeneratingListener();
+        LauncherFactory.create().execute(LauncherDiscoveryRequestBuilder.request()
+                .selectors(selectClass("{PKG}.EquivalenceRunTest")).build(), listener);
+        TestExecutionSummary s = listener.getSummary();
+        s.printFailuresTo(new java.io.PrintWriter(System.out, true), 40);
+        System.out.println("Tests run: " + s.getTestsFoundCount() + ", Failures: " + s.getTotalFailureCount());
+        System.exit(s.getTestsSucceededCount() == 1 && s.getTotalFailureCount() == 0 ? 0 : 1);
+    }}
+}}
+"""
+
+
+def _launcher(classpath: list[str]) -> Path | None:
+    """The junit-platform-launcher jar of the platform version the tests run on (surefire resolved it into the
+    local repository), or None."""
+    import re
+
+    for e in classpath:
+        m = re.search(r"(.*)/junit-platform-engine/([^/]+)/junit-platform-engine-\2\.jar$", e)
+        if m:
+            jar = (
+                Path(m.group(1)) / "junit-platform-launcher" / m.group(2) / f"junit-platform-launcher-{m.group(2)}.jar"
+            )
+            return jar if jar.is_file() else None
+    return None
+
+
+def _runner(launcher: Path, java_bin: Path, classpath: str, shell: dict[str, str]) -> Path:
+    """EquivalenceMain, compiled once per launcher version and runner source (shared by every mutant's proof)."""
+    import hashlib
+    import tempfile
+
+    key = hashlib.sha256((str(launcher) + RUNNER).encode()).hexdigest()[:12]
+    runner = Path(tempfile.gettempdir()) / f"gitgalaxy-equivalence-runner-{key}"
+    if (runner / "EquivalenceMain.class").is_file():
+        return runner
+    build = Path(tempfile.mkdtemp(prefix="equivalence-runner-"))
+    (build / "EquivalenceMain.java").write_text(RUNNER, encoding="utf-8")
+    subprocess.run([str(java_bin / "javac"), "-nowarn", "-d", str(build), "-cp", classpath,  # noqa: S603
+                    str(build / "EquivalenceMain.java")], env=shell, check=True, capture_output=True)  # fmt: skip
+    try:
+        build.rename(runner)  # atomic: a proof running beside this one may have made it first
+    except OSError:
+        shutil.rmtree(build, ignore_errors=True)
+    return runner
+
+
+def _run_direct(project: Path, argline: str, shell: dict[str, str]) -> subprocess.CompletedProcess[str] | None:
+    """--reuse: the test in a fresh JVM without Maven, when that is the same run -- the main classes compiled from
+    the port, the test classes from this very test source; else None (Maven runs it)."""
+    import shlex
+
+    test, snapshot, cp_file = project / TEST_FILE, project / TEST_SOURCE, project / TEST_CLASSPATH
+    if not ((project / PRECOMPILED).is_file() and cp_file.is_file() and snapshot.is_file()
+            and snapshot.read_bytes() == test.read_bytes()):  # fmt: skip
+        return None
+    classpath = cp_file.read_text(encoding="utf-8").split(os.pathsep)
+    launcher = _launcher(classpath)
+    if launcher is None:
+        return None
+    java_bin = Path(shell["JAVA_HOME"]) / "bin"
+    runner = _runner(launcher, java_bin, os.pathsep.join([*classpath, str(launcher)]), shell)
+    full = os.pathsep.join([*classpath, str(launcher), str(runner)])
+    return subprocess.run([str(java_bin / "java"), *shlex.split(argline), "-cp", full, "EquivalenceMain"],  # noqa: S603
+                          cwd=project, env=shell, capture_output=True, text=True, check=False)  # fmt: skip
 
 
 def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Path) -> None:
@@ -239,6 +316,7 @@ def _compile_overlay(project: Path, earlier: Path, overlay: list[str], work: Pat
     old = str(reports[0].parents[2])
     entries = [e.replace(old, str(project)) for e in props["surefire.test.class.path"].split(os.pathsep)]
     classpath = os.pathsep.join(e for e in entries if not e.endswith("test-classes"))
+    (project / TEST_CLASSPATH).write_text(os.pathsep.join(entries), encoding="utf-8")
     classes = project / "target" / "classes"
     sources = [str(project / "src/main/java" / PKG_DIR / rel) for rel in overlay]
     env = dict(os.environ, JAVA_HOME=jtm._jdk(17))
@@ -261,10 +339,15 @@ def run_maven(project: Path, work: Path, inputs: Path, env: dict[str, str] | Non
     props = f"{jvm_args(env or environment('default'))} {props}".strip()
     shell = dict(os.environ, JAVA_HOME=jtm._jdk(17))
     shell["PATH"] = str(Path(shell["JAVA_HOME"]) / "bin") + os.pathsep + shell["PATH"]
-    skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
-    cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
-           f"-DargLine=-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"]  # fmt: skip
-    proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
+    argline = f"-Dequivalence.in={inputs} -Dequivalence.out={out} -Dequivalence.datasets={datasets} {props}"
+    proc = _run_direct(project, argline, shell)
+    if proc is None:
+        skip = ["-Dmaven.main.skip=true"] if (project / PRECOMPILED).is_file() else []  # --reuse: compiled already
+        cmd = ["mvn", "-q", "-B", "test", *skip, "-Dtest=EquivalenceRunTest", "-Dsurefire.failIfNoSpecifiedTests=false",
+               f"-DargLine={argline}"]  # fmt: skip
+        proc = subprocess.run(cmd, cwd=project, env=shell, capture_output=True, text=True, check=False)  # noqa: S603
+        if proc.returncode == 0 and (project / TEST_FILE).is_file():  # target/test-classes is this source's build
+            (project / TEST_SOURCE).write_bytes((project / TEST_FILE).read_bytes())
     (work / "maven.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
     if proc.returncode != 0:
         tail = "\n".join((proc.stdout + proc.stderr).splitlines()[-60:])

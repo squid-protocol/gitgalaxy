@@ -136,3 +136,26 @@ def test_a_reused_project_must_be_overlaid_with_the_same_files(tmp_path, earlier
         ej._reused_project(earlier / "java", work, [])  # the generated stub, where the earlier had a port
     with pytest.raises(SystemExit):
         common.reuse(work, tmp_path / "nowhere")  # not a finished run
+
+
+def test_the_test_runs_without_maven_only_on_a_build_of_this_very_source(tmp_path):
+    """--reuse runs EquivalenceRunTest in a plain JVM only when the main classes were compiled from the port and
+    the test classes from this test source; anything else goes back to Maven (None)."""
+    project = tmp_path / "java_h2"
+    (project / ej.TEST_FILE).parent.mkdir(parents=True)
+    (project / "target").mkdir()
+    (project / ej.TEST_FILE).write_text("class EquivalenceRunTest {}", encoding="utf-8")
+    shell = {"JAVA_HOME": "/nonexistent"}
+    assert ej._run_direct(project, "", shell) is None  # nothing precompiled
+    (project / ej.PRECOMPILED).write_text("", encoding="utf-8")
+    (project / ej.TEST_CLASSPATH).write_text("/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar")
+    (project / ej.TEST_SOURCE).write_text("class EquivalenceRunTest { /* another test */ }", encoding="utf-8")
+    assert ej._run_direct(project, "", shell) is None  # the test classes are another source's build
+    (project / ej.TEST_SOURCE).write_text("class EquivalenceRunTest {}", encoding="utf-8")
+    assert ej._run_direct(project, "", shell) is None  # the launcher jar is not in the local repository
+    assert ej._launcher(["/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar"]) is None
+    jar = tmp_path / "m2/junit-platform-launcher/1.10.2/junit-platform-launcher-1.10.2.jar"
+    jar.parent.mkdir(parents=True)
+    jar.write_bytes(b"")
+    engine = f"{tmp_path}/m2/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar"
+    assert ej._launcher(["/x/classes", engine]) == jar

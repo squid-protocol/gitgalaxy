@@ -837,14 +837,14 @@ class RepositoryForge:
 
     def edit_source(self, needed: bool = False) -> str | None:
         """#3827: the CobolEdit runtime (numeric-edited PICTUREs), beside CobolRecords, or None without an
-        entity -- unless `needed` (#3989: a CICS program's port formats its screen fields through it)."""
+        entity -- unless `needed` (#3989 / #4039: a program to port -- its ticket formats edited fields through it)."""
         if not self.stores and not needed:
             return None
         return cobol_edit_source(self.target.project.package)
 
     def records_source(self, needed: bool = False) -> str | None:
         """#3624: the CobolRecords runtime the record codecs share, or None without an entity -- unless `needed`
-        (#3989: a CICS program's port reads a number from a screen field through CobolRecords.numval)."""
+        (#3989 / #4039: a program to port -- its ticket reads numbers and fixed-width fields through it)."""
         if not self.stores and not needed:
             return None
         from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters

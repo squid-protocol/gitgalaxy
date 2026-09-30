@@ -203,8 +203,6 @@ def feedback_md(case: dict[str, Any], diff: dict[str, Any]) -> str:
 
 def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, port_dir: Optional[Path] = None,
              cobol_only: bool = False) -> int:  # fmt: skip
-    import equivalence as eq
-
     cobol = run_cobol(case, corpus, work / "cobol")
     n = reclen(case)
     if cobol_only:
@@ -214,11 +212,11 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     try:
         java = run_java(case, corpus, work / "java", port, port_dir)
     except RuntimeError as e:
-        failed = eq.java_failure_report(case, work, str(e))
+        failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
         print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
         return 1
-    diff = eq.diff_records(cobol, java, n, record_fields(case), case.get("code_page", "cp037"),
+    diff = common.diff_records(cobol, java, n, record_fields(case), case.get("code_page", "cp037"),
                            common.data_encoding(case))  # fmt: skip
     ok = diff["equal"] == diff["records"] == len(case["calls"]) and not diff["diffs"]
     source, staged = common.read_program(case, corpus / case["program_source"])

@@ -91,6 +91,8 @@ from equivalence_common import (
     compile_options,
     data_encoding,
     decode_field,
+    diff_records,
+    java_failure_report,
     layout_fields,
     read_program,
     require_ascii_runtime,
@@ -280,99 +282,6 @@ def build_image() -> None:
     )  # fmt: skip
 
 
-# ---- the field-by-field diff ---------------------------------------------------------
-# #3815: the usages whose bytes are characters in the data's page (the rest -- COMP, COMP-3 -- are binary)
-_TEXT_USAGES = frozenset({"DISPLAY"})
-
-
-def _as_text(raw: bytes, enc: str) -> Any:
-    """#3815: bytes as text in `enc`, or the bytes themselves when they are not text there (never lost)."""
-    try:
-        return raw.decode(enc)
-    except UnicodeDecodeError:
-        return raw
-
-
-def diff_records(
-    left: bytes,
-    right: bytes,
-    reclen: int,
-    fields: list[dict[str, Any]],
-    code_page: str = "cp037",
-    data_encoding: str = DEFAULT_DATA_ENCODING,
-    right_encoding: Optional[str] = None,
-) -> dict[str, Any]:
-    """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
-    equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
-    shown as hex (#3830): the files differ, and a later program may test the sign. A FILLER is counted
-    apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
-    INITIALIZE or a new record is the runtime's leftover record area, not the program's logic.
-
-    #3820: the bytes no field covers are compared too, as `(bytes outside the layout)`. The layout is
-    read from the copybook, so a width it gets wrong (a currency string sized as one byte) leaves the
-    record's tail -- where the real later fields sit -- unread: comparing only the listed fields let
-    two different records pass as equal. `layout_bytes` reports the layout's own width beside `reclen`.
-
-    #3815: text and zoned fields are decoded in `data_encoding` (the case's page, default Latin-1), the right
-    side in `right_encoding` when it was written in another (a mainframe's cp277 unload against a run in
-    ISO-8859-1): then the same text in two pages is equal, and only a binary field's (COMP / COMP-3) bytes,
-    which no page changes, are compared as bytes; FILLER and the bytes outside the layout are compared as text.
-    Across pages, a record's layout must fit both (single-byte pages): offsets are bytes."""
-    renc = right_encoding or data_encoding
-    same_page = codecs.lookup(renc).name == codecs.lookup(data_encoding).name
-
-    def same_bytes(x: bytes, y: bytes, usage: Optional[str] = None) -> bool:
-        if same_page or (usage or "DISPLAY").upper() not in _TEXT_USAGES:
-            return x == y
-        return _as_text(x, data_encoding) == _as_text(y, renc)
-
-    covered = bytearray(reclen)
-    for f in fields:
-        for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
-            covered[i] = 1
-    layout_bytes = max((f["offset"] + f["bytes"] for f in fields), default=0)
-    lrecs = [left[i : i + reclen] for i in range(0, len(left), reclen)]
-    rrecs = [right[i : i + reclen] for i in range(0, len(right), reclen)]
-    diffs, equal, filler = [], 0, 0
-    for n in range(max(len(lrecs), len(rrecs))):
-        a = lrecs[n] if n < len(lrecs) else None
-        b = rrecs[n] if n < len(rrecs) else None
-        if a is None or b is None:
-            diffs.append({"record": n + 1, "missing": "cobol" if a is None else "java"})
-            continue
-        bad, filler_bad = [], False
-        for f in fields:
-            sl = slice(f["offset"], f["offset"] + f["bytes"])
-            sep = f.get("sign_separate", False)
-            va, vb = (
-                decode_field(a[sl], f["pic"], f["usage"], code_page, sep, data_encoding),
-                decode_field(b[sl], f["pic"], f["usage"], code_page, sep, renc),
-            )
-            if not same_bytes(a[sl], b[sl], f["usage"]) and f["name"] == "FILLER":
-                filler_bad = True
-            elif va != vb:
-                bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
-            elif not same_bytes(a[sl], b[sl], f["usage"]):  # #3830: same value, other bytes -- C vs F sign, -0 / +0
-                bad.append({"field": f["name"], "cobol": a[sl].hex(), "java": b[sl].hex(), "raw": True})
-        outside = [
-            i
-            for i in range(max(len(a), len(b)))
-            if (i >= reclen or not covered[i]) and not same_bytes(a[i : i + 1], b[i : i + 1])
-        ]
-        if outside:
-            lo, hi = outside[0], outside[-1] + 1
-            bad.append(
-                {"field": f"(bytes outside the layout @{lo}..{hi})", "cobol": repr(a[lo:hi]), "java": repr(b[lo:hi])}
-            )
-        filler += filler_bad
-        if bad:
-            diffs.append({"record": n + 1, "fields": bad})
-        else:
-            equal += 1
-    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs, "filler_differs": filler,
-            "layout_bytes": layout_bytes}  # fmt: skip
-
-
 def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
     """The run as Markdown: per output, records equal / total and every differing field."""
     lines = [f"# {case['program']} -- COBOL vs Java ({report['java']})", "",
@@ -472,30 +381,6 @@ def feedback_md(report: dict[str, Any]) -> str:
                     f"sides -- {f.get('why', '')}", ""]  # fmt: skip
             out += _run_feedback(f"Fault run {f['name']}", f)
     return "\n".join(out).strip()
-
-
-def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[str, Any]:
-    """The report of a proof whose Java side did not build or run: its compiler / test errors as the feedback."""
-    log = next((p for p in [work / "java" / "maven.log", *(work / "java").glob("**/maven.log")] if p.is_file()), None)
-    text = log.read_text(encoding="utf-8", errors="replace") if log else error
-    errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
-    boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
-              "Failed to execute goal", "-> [Help")  # fmt: skip
-    lines = text.splitlines()
-    for i, ln in enumerate(lines):
-        keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
-            ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
-        )  # fmt: skip
-        if keep:
-            ln = re.sub(r"\S*/([A-Za-z0-9_$]+\.java)", r"\1", ln)
-            if ln not in errors:
-                errors.append(ln)
-            if ln.startswith("java.") and "Exception" in ln:  # where in the port: its first frames
-                frames = [f.strip() for f in lines[i + 1 : i + 40] if f.strip().startswith("at com.gitgalaxy.")]
-                errors += [f"    {f}" for f in frames[:4] if f"    {f}" not in errors]
-    shown = "\n".join(errors[:40]) if errors else "\n".join(text.splitlines()[-60:])
-    return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
-            "java_failed": True, "feedback": "### The Java side did not build or run\n\n```\n" + shown + "\n```"}  # fmt: skip
 
 
 # ---- #4023 follow-up: fault runs ------------------------------------------------------

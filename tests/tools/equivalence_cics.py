@@ -1258,9 +1258,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     try:
         java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir)
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
-        import equivalence as eq
-
-        failed = eq.java_failure_report(case, work, str(e))
+        failed = common.java_failure_report(case, work, str(e))
         (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
         print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
         return 1

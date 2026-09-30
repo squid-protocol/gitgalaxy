@@ -212,12 +212,46 @@ public final class CobolRecords {
         return new String(rec, offset, length, text);
     }
 
+    /** #3985: stores `value` in `length` bytes as fit(...) sizes it: under a mixed DBCS page (IBM930 / 939)
+     *  a value too wide loses whole characters, so the record never ends inside a Shift-Out run or half a
+     *  double-byte character. */
     public static void putText(byte[] rec, int offset, int length, String value, Charset text) {
-        byte[] v = (value == null ? "" : value).getBytes(text);
+        byte[] v = fit(value, length, text).getBytes(text);
         byte space = " ".getBytes(text)[0];
         for (int i = 0; i < length; i++) {
             rec[offset + i] = i < v.length ? v[i] : space;
         }
+    }
+
+    /** #3985: the bytes `value` takes in the record -- a PIC X field's width, which String.length() is not
+     *  under a multi-byte page: `AB日本C` is 5 characters and, in IBM939, 9 bytes (Shift-Out and Shift-In
+     *  count). */
+    public static int width(String value, Charset text) {
+        return value == null ? 0 : value.getBytes(text).length;
+    }
+
+    /** #3985: `value` cut and space-padded to exactly `width` bytes. A value too wide loses whole characters
+     *  from the right, so a double-byte character is never split and the encoder closes the Shift-Out run
+     *  (a deliberate deviation: COBOL's MOVE truncates at the byte). On a single-byte page it is the MOVE. */
+    public static String fit(String value, int width, Charset text) {
+        String v = value == null ? "" : value;
+        int bytes = width(v, text);
+        if (bytes > width) {
+            int end = Math.min(v.length(), Math.max(width, 0));  // a character is at least one byte
+            if (end > 0 && Character.isHighSurrogate(v.charAt(end - 1))) {
+                end--;  // never half a surrogate pair
+            }
+            while (end > 0 && width(v.substring(0, end), text) > width) {
+                end -= end > 1 && Character.isLowSurrogate(v.charAt(end - 1)) ? 2 : 1;
+            }
+            v = v.substring(0, end);
+            bytes = width(v, text);
+        }
+        StringBuilder out = new StringBuilder(v);
+        for (int i = bytes; i < width; i++) {
+            out.append(' ');
+        }
+        return out.toString();
     }
 
     public static BigDecimal zoned(byte[] rec, int offset, int length, int scale, Charset text) {
@@ -803,14 +837,14 @@ class RepositoryForge:
 
     def edit_source(self, needed: bool = False) -> str | None:
         """#3827: the CobolEdit runtime (numeric-edited PICTUREs), beside CobolRecords, or None without an
-        entity -- unless `needed` (#3989: a CICS program's port formats its screen fields through it)."""
+        entity -- unless `needed` (#3989 / #4039: a program to port -- its ticket formats edited fields through it)."""
         if not self.stores and not needed:
             return None
         return cobol_edit_source(self.target.project.package)
 
     def records_source(self, needed: bool = False) -> str | None:
         """#3624: the CobolRecords runtime the record codecs share, or None without an entity -- unless `needed`
-        (#3989: a CICS program's port reads a number from a screen field through CobolRecords.numval)."""
+        (#3989 / #4039: a program to port -- its ticket reads numbers and fixed-width fields through it)."""
         if not self.stores and not needed:
             return None
         from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters

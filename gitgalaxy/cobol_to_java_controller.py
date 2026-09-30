@@ -50,6 +50,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
     generate_pom_xml,
     generate_settings_gradle,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_compare_forge import generate_compare_util
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
 )
@@ -291,9 +292,14 @@ def main():
             decoder_content = java_header + decoder_content
         (java_dirs["util"] / "EbcdicDecoderUtil.java").write_text(decoder_content, encoding="utf-8")
         stats["config_files"] += 1
+    # #3986: alphanumeric comparison by the code page's bytes, for every port's relation conditions
+    compare_content = generate_compare_util(args.pkg, target.data.code_page)
+    if java_header:
+        compare_content = java_header + compare_content
+    (java_dirs["util"] / "CobolCompare.java").write_text(compare_content, encoding="utf-8")
     # -------------------------------------------
 
-    print("  [+] Generated Build System: pom.xml, application.yml, Main Class, DecoderUtil")
+    print("  [+] Generated Build System: pom.xml, application.yml, Main Class, DecoderUtil, CobolCompare")
 
     # 2. Generate JPA Entities from Schemas
     schema_dir = clean_room_path / "02_cloud_schemas"
@@ -471,7 +477,8 @@ def main():
     # #3752: a porting ticket for every program with business logic to write, linked from the worklist
     if skeletons and target.features.agent_tickets:
         chosen = target_as_dict(target)
-        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture")}  # #3819: culture too
+        # #3819: culture too; #3985: data, so the ticket names the code page (DBCS widths, sortKey's codePage)
+        stack = {k: chosen[k] for k in ("java", "spring_boot", "integration", "ui", "culture", "data")}
         stack.update(package=chosen["project"]["package"], database=chosen["database"]["engine"])
         tickets = write_port_tickets(java_out_dir, skeletons, worklist, manifest, args.pkg, stack,
                                      ir_dir, clean_room_path.name, clean_room_path,

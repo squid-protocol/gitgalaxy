@@ -63,12 +63,14 @@ class SkeletonForges:
         entities = {st.entity: repos.entity_source(st) for st in repos.stores}
         entities.update({st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite})
         # #3624: the runtime the entities' record codecs share; #3989: a CICS program's port needs it (and
-        # CobolEdit) for its screen fields -- the porting rules name both -- even with no entity to share it
-        cics = bool(self.cics.programs)
-        records = repos.records_source(needed=cics)
+        # CobolEdit) for its screen fields even with no entity to share it; #4039: so does every port -- every
+        # ticket's rules name both (numval, zoned / packed, sortKey, width / fit, CobolEdit.format) -- so a
+        # batch-only estate, or a CICS program with no CICS resource the forge sees, gets them too
+        needed = bool(self.skeletons)
+        records = repos.records_source(needed=needed)
         if records:
             entities["CobolRecords"] = records
-        edit = repos.edit_source(needed=cics)
+        edit = repos.edit_source(needed=needed)
         if edit:
             entities["CobolEdit"] = edit
         out: dict[tuple[str, ...], dict[str, str]] = {

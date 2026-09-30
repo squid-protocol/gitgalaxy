@@ -1,6 +1,6 @@
 {
  "format": "cics-crucible-coverage/1",
- "crucible_ref": "v0.1.0 (0c942cb8)",
+ "crucible_ref": "v0.2.0 (94f2afcb)",
  "note": "#4023: the COBOL each passing cobol-stub scenario executes (live paragraphs and sections entered; branch outcomes as LINE:OUTCOME of the crucible's source) -- a ratchet (tests/tools/cics_crucible.py --ci). Regenerate with --update-baseline.",
  "programs": {
   "ca-link-lengths/CALINK": {
@@ -129,6 +129,16 @@
       "33:true",
       "34:false"
      ]
+    },
+    "direct-entry": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false"
+     ]
     }
    }
   },
@@ -174,6 +184,14 @@
      ],
      "outcomes": [
       "32:WHEN@51"
+     ]
+    },
+    "unknown-mode": {
+     "units": [
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "32:none"
      ]
     }
    }
@@ -473,6 +491,19 @@
       "29:true",
       "32:true"
      ]
+    },
+    "pa-key-mapfail": {
+     "units": [
+      "ECHO-SCREEN",
+      "FIRST-SCREEN",
+      "MAIN-PARA"
+     ],
+     "outcomes": [
+      "29:false",
+      "29:true",
+      "32:false",
+      "78:false"
+     ]
     }
    }
   },
@@ -591,6 +622,19 @@
       "33:true",
       "42:true"
      ]
+    },
+    "invalid-option": {
+     "units": [
+      "MAIN-PARA",
+      "SHOW-MENU"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "33:false",
+      "42:false",
+      "46:OTHER"
+     ]
     }
    }
   },
@@ -632,6 +676,47 @@
       "34:WHEN@48",
       "34:WHEN@53",
       "64:false",
+      "92:false"
+     ]
+    },
+    "clear-and-bad-amount": {
+     "units": [
+      "MAIN-PARA",
+      "POST-IT",
+      "SEND-STEP2",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:OTHER",
+      "34:WHEN@39",
+      "34:WHEN@46",
+      "34:WHEN@53",
+      "41:false",
+      "41:true",
+      "64:false",
+      "64:true",
+      "77:false",
+      "92:false",
+      "92:true"
+     ]
+    },
+    "back-clear-keeps-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP2",
+      "SEND-STEP3",
+      "TAKE-AMOUNT"
+     ],
+     "outcomes": [
+      "34:WHEN@35",
+      "34:WHEN@39",
+      "34:WHEN@46",
+      "34:WHEN@48",
+      "41:false",
+      "64:false",
+      "64:true",
+      "77:true",
       "92:false"
      ]
     }
@@ -688,6 +773,50 @@
       "51:false",
       "71:false",
       "71:true"
+     ]
+    },
+    "clear-and-bad-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "51:false",
+      "71:false"
+     ]
+    },
+    "back-clear-keeps-amount": {
+     "units": [
+      "MAIN-PARA",
+      "SEND-STEP1",
+      "SEND-STEP2",
+      "TAKE-NAME"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:OTHER",
+      "32:WHEN@35",
+      "51:false",
+      "71:false",
+      "71:true"
+     ]
+    },
+    "cancel-first-screen": {
+     "units": [
+      "CANCEL-WIZARD",
+      "MAIN-PARA",
+      "SEND-STEP1"
+     ],
+     "outcomes": [
+      "25:false",
+      "25:true",
+      "32:WHEN@33"
      ]
     }
    }

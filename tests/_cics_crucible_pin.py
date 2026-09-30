@@ -31,7 +31,7 @@ Local runs find the checkout through the `CICS_CRUCIBLE_PATH` environment variab
 LANGUAGE_CRUCIBLE_PATH), else `../cics-crucible` beside the main gitgalaxy checkout.
 """
 
-PINNED_REF = "v0.1.0"
+PINNED_REF = "v0.2.0"
 
 # Where a local checkout lives when not beside the main gitgalaxy checkout.
 PATH_ENV = "CICS_CRUCIBLE_PATH"

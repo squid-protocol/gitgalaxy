@@ -30,6 +30,8 @@ from typing import Any, Optional
 import cobol_coverage as cov
 import equivalence_common as common
 
+from gitgalaxy.core.source_text import decode_bytes
+
 LE = common.CASES / "le"
 FAULTS = common.CASES / "faults"
 RC_BYTES = 5  # RETURN-CODE as S9(4) SIGN LEADING SEPARATE
@@ -108,11 +110,7 @@ def run_cobol(case: dict[str, Any], corpus: Path, work: Path) -> bytes:
     proc = subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/work", common.IMAGE, "bash", "/work/run.sh"],  # noqa: S603, S607
                           capture_output=True, text=True, check=False)  # fmt: skip
     if proc.returncode != 0:
-        out = (
-            (work / "stdout.txt").read_text(encoding="latin-1", errors="replace")
-            if (work / "stdout.txt").is_file()
-            else ""
-        )
+        out = decode_bytes((work / "stdout.txt").read_bytes()) if (work / "stdout.txt").is_file() else ""
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}\n{out}")
     return (work / "CALLS.out").read_bytes()
 

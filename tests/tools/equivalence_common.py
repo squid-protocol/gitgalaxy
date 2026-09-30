@@ -25,7 +25,7 @@ from typing import Any, Optional
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import decode_bytes, read_source
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -485,7 +485,7 @@ def diff_records(
 def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[str, Any]:
     """The report of a proof whose Java side did not build or run: its compiler / test errors as the feedback."""
     log = next((p for p in [work / "java" / "maven.log", *(work / "java").glob("**/maven.log")] if p.is_file()), None)
-    text = log.read_text(encoding="utf-8", errors="replace") if log else error
+    text = decode_bytes(log.read_bytes()) if log else error  # #3813: the lossless ladder, never errors=
     errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
     boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
               "Failed to execute goal", "-> [Help")  # fmt: skip

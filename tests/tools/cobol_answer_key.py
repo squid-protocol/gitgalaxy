@@ -113,6 +113,17 @@ _HEADER = re.compile(rf"^({NAME})(?:\s+(SECTION)(?:\s+[0-9]{{1,2}})?)?\s*\.(?:\s
 _HEADER_NO_PERIOD = re.compile(rf"^({NAME})(?:\s+SECTION(?:\s+[0-9]{{1,2}})?)?$")
 # Words that can sit in Area A followed by a period without being a unit header.
 _NOT_A_HEADER = {"DECLARATIVES", "END", "EXIT", "GOBACK", "CONTINUE", "STOP", "ELSE"}
+# The reserved END- words (scope terminators and `END-OF-PAGE`). #4026: only these,
+# not every `END-...` word -- GENAPP LGIPDB01's `End-Program.` is a PERFORMed
+# paragraph, and opensourcecobol4j's `END-IPROC1.` a GO TO target.
+_RESERVED_END = {
+    "END-" + w
+    for w in (
+        "ACCEPT ADD CALL CHAIN COLOR COMPUTE DELETE DISPLAY DIVIDE EVALUATE EXEC FREE IF INVOKE JSON"
+        " MULTIPLY OF-PAGE PERFORM READ RECEIVE RETURN REWRITE SEARCH SEND START STRING SUBTRACT"
+        " UNSTRING WAIT WRITE XML"
+    ).split()
+}
 # `(?<![\w-])` for the same reason as _CALL below: `END-PERFORM` followed by a
 # real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
 # (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
@@ -364,7 +375,7 @@ def _units(src: Source) -> list[dict[str, Any]]:
             if nxt.startswith("."):
                 head += " ."
         m = _HEADER.match(head) if head and lead < 4 else None
-        if m and m.group(1) not in _NOT_A_HEADER and not m.group(1).startswith("END-"):
+        if m and m.group(1) not in _NOT_A_HEADER and m.group(1) not in _RESERVED_END:
             units.append({"name": m.group(1), "kind": "section" if m.group(2) else "paragraph", "line": no, "body": []})
             rest = head[m.end() :] if head == area.strip() else ""
             if rest.strip():

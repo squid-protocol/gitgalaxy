@@ -24,6 +24,7 @@ so the Java side can be compared field by field (see equivalence_java).
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 import subprocess
@@ -335,6 +336,11 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb == "INQUIRE" and "PROGRAM" in opts:  # #4023 follow-up: is the program installed (COMEN01C's option check)
+        extra = sorted(set(opts) - {"INQUIRE", "PROGRAM", "NOHANDLE", "RESP", "RESP2"})
+        if extra or not opts["PROGRAM"]:
+            raise Unsupported(f"INQUIRE PROGRAM {' '.join(extra) or 'without a name'}", ["INQUIRE PROGRAM"])
+        return [name(opts["PROGRAM"], "GG-NAME1")] + _call("GGCINQP", []) + _resp(opts, True, labels)
     if verb == "RECEIVE" and "MAP" in opts:
         into = opts.get("INTO") or (f"{_literal(opts['MAP'])}I" if _literal(opts["MAP"]) else None)
         if not into:
@@ -733,17 +739,25 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
 CICS_RESP = {"NORMAL": 0, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "INVREQ": 16, "IOERR": 17, "NOSPACE": 18,
-             "NOTOPEN": 19, "ILLOGIC": 21, "LENGERR": 22, "NOTAUTH": 70, "DISABLED": 84, "LOADING": 94}  # fmt: skip
+             "NOTOPEN": 19, "ILLOGIC": 21, "LENGERR": 22, "PGMIDERR": 27, "NOTAUTH": 70, "DISABLED": 84,
+             "LOADING": 94}  # fmt: skip
+
+
+FAULT_COMMANDS = ("READ", "INQUIRE")  # a file READ (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
-    """A scenario's `faults` as both sides read them: `CMD FILE NTH RESP RESP2` (faults.cfg, CicsTask.withFaults)."""
+    """A scenario's `faults` as both sides read them: `CMD NAME NTH RESP RESP2` (faults.cfg, CicsTask.withFaults) --
+    NAME the file a READ names, or the program an INQUIRE PROGRAM names."""
     out = []
     for f in sc.get("faults") or []:
-        if f.get("cmd", "READ") != "READ" or f.get("resp") not in CICS_RESP:
-            raise Unsupported(f"scenario {sc['name']}: fault {f} (READ with a CICS_RESP condition only)")
+        cmd = f.get("cmd", "READ")
+        if cmd not in FAULT_COMMANDS or f.get("resp") not in CICS_RESP:
+            raise Unsupported(
+                f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
+            )
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-        out.append(f"READ {f['file']} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
+        out.append(f"{cmd} {f.get('file') or f.get('program')} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
     return out
 
 
@@ -1025,7 +1039,8 @@ class EquivalenceRunTest {{
             Map<String, Object> received = new LinkedHashMap<>();
             JsonNode r = sc.get("receive");
 {chr(10).join(recv)}
-            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received);
+            CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received)
+                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"));  // EIBTIME / ASKTIME: the case's clock
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
             if (!faults.isEmpty()) {{
@@ -1195,6 +1210,33 @@ def report_markdown(case: dict[str, Any], report: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) -> str:
+    """#4023 follow-up: the proof's findings for the porting loop's next attempt -- per scenario that is not equal,
+    its inputs (COMMAREA, key, screen input, injected conditions) and the first differing events, field by field."""
+    out: list[str] = []
+    for sc in case["scenarios"]:
+        o = report["outputs"].get(sc["name"])
+        fired = (o or {}).get("fired")
+        bad_fired = bool(sc.get("faults")) and (not fired or not fired["cobol"] or fired["cobol"] != fired["java"])
+        if o is None or (o["equal"] == o["records"] and not bad_fired):
+            continue
+        out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
+                f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
+                f"screen input {json.dumps(sc.get('receive'))}"
+                + (f"; injected {json.dumps(sc['faults'])}" if sc.get("faults") else ""), ""]  # fmt: skip
+        if bad_fired:
+            out += [f"Injected conditions fired: COBOL {fired and fired['cobol']}, Java {fired and fired['java']}", ""]
+        for x in o["diffs"][:limit]:
+            if "fields" not in x:
+                out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")
+            for fd in x.get("fields", [])[:10]:
+                out.append(
+                    f"- event {x['event']} ({x.get('kind')}) {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`"
+                )
+        out.append("")
+    return "\n".join(out).strip()
+
+
 def _fired(log: Path) -> list[str]:
     return sorted(x for x in log.read_text(encoding="ascii").splitlines() if x.strip()) if log.is_file() else []
 
@@ -1213,7 +1255,15 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         for name, res in cobol.items():
             print(f"{name}: " + "; ".join(res["events"]))
         return 0
-    java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir)
+    try:
+        java = run_java_cics(case, corpus, work / "java", work / "cobol", files, port, port_dir)
+    except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
+        import equivalence as eq
+
+        failed = eq.java_failure_report(case, work, str(e))
+        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+        print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
+        return 1
     report: dict[str, Any] = {"case": case["name"], "program": case["program"], "kind": "cics", "files": files,
                               "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
     ok = True
@@ -1234,6 +1284,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         for x in d["diffs"][:6]:
             print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
     report["proven"] = ok
+    report["feedback"] = feedback_md(case, report) if not ok else ""
     covered = work / "cobol" / "coverage.json"  # #4023
     report["coverage"] = json.loads(covered.read_text(encoding="utf-8")) if covered.is_file() else None
     if report["coverage"] and "error" in report["coverage"]:

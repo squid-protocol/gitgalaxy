@@ -143,6 +143,9 @@ museum_2/
 !tests/cics_crucible/baseline.json
 # #4023: the crucible's COBOL coverage ledger (a ratchet, like baseline.json)
 !tests/cics_crucible/coverage.json
+# ...and the equivalence cases (#3624) and their ports' provenance (#4023 follow-up): source, not output
+!tests/equivalence/*/case.json
+!tests/equivalence/*/port/provenance.json
 !tests/cics_crucible/fixture/**/*.json
 *_llm.md
 venvs/

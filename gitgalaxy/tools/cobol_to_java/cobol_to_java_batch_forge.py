@@ -552,6 +552,26 @@ public class CobolFiles {
         return perform(dd, Op.WRITE, write);
     }
 
+    /** WRITE of a new record to a keyed (VSAM KSDS) file: "22" when a record with that key is already on file --
+     *  a WRITE never replaces one, as repository.save() would -- else `write` runs, "00". */
+    public String writeKeyed(String dd, BooleanSupplier exists, Io write) {
+        String p = planned(dd, Op.WRITE);
+        if (p != null) {
+            return p;
+        }
+        return exists.getAsBoolean() ? "22" : perform(write);
+    }
+
+    /** REWRITE of a keyed file's record: "23" when no record with that key is on file (save() would insert one),
+     *  else `rewrite` runs, "00". */
+    public String rewriteKeyed(String dd, BooleanSupplier exists, Io rewrite) {
+        String p = planned(dd, Op.REWRITE);
+        if (p != null) {
+            return p;
+        }
+        return exists.getAsBoolean() ? perform(rewrite) : "23";
+    }
+
     public String rewrite(String dd, Io rewrite) {
         return perform(dd, Op.REWRITE, rewrite);
     }
@@ -568,9 +588,10 @@ public class CobolFiles {
 
     private String perform(String dd, Op op, Io io) {
         String p = planned(dd, op);
-        if (p != null) {
-            return p;
-        }
+        return p != null ? p : perform(io);
+    }
+
+    private static String perform(Io io) {
         try {
             io.run();
         } catch (IOException e) {

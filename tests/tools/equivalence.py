@@ -427,6 +427,77 @@ def _environments(arg: Optional[str], case: dict[str, Any]) -> list[dict[str, st
     return [ej.environment(n.strip()) for n in names if n.strip()]
 
 
+# ---- the porting loop's feedback (port_runner run --feedback) -------------------------------
+def _run_feedback(title: str, run: dict[str, Any], limit: int = 5) -> list[str]:
+    """What one run found, for the next porting attempt: its outcome, and per differing output the first
+    records that differ, field by field (COBOL value vs the port's)."""
+    out = [f"### {title}: {run.get('summary') or 'differs'}", ""]
+    for dd, d in (run.get("outputs") or {}).items():
+        if not d["diffs"]:
+            continue
+        out.append(f"{dd}: {d['equal']}/{d['records']} records equal. First differences:")
+        for x in d["diffs"][:limit]:
+            if x.get("missing"):
+                out.append(
+                    f"- record {x['record']}: missing on the {'COBOL' if x['missing'] == 'cobol' else 'Java'} side"
+                )
+            for fd in x.get("fields", [])[:8]:
+                out.append(f"- record {x['record']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`")
+        out.append("")
+    return out
+
+
+def feedback_md(report: dict[str, Any]) -> str:
+    """#4023 follow-up: the proof's findings as port_runner's `--feedback` hands them to the next attempt --
+    every run that is not equal (the normal run, each JVM environment, each fault run with its plan and why)."""
+    out: list[str] = []
+    first = {"summary": None, "outputs": report.get("outputs", {})}
+    rc, ab = report.get("return_code") or {}, report.get("abend") or {}
+    why = []
+    if ab.get("cobol") or ab.get("java"):
+        if ab.get("cobol") != ab.get("java"):
+            why.append(f"ABEND: COBOL {ab.get('cobol')}, Java {ab.get('java')}")
+    elif rc.get("cobol") != rc.get("java"):
+        why.append(f"RETURN-CODE: COBOL {rc.get('cobol')}, Java {rc.get('java')}")
+    why += [f"{dd}: {d['equal']}/{d['records']} records equal" for dd, d in first["outputs"].items() if d["diffs"]]
+    if why:
+        first["summary"] = "; ".join(why)
+        out += _run_feedback("The normal run (the case's own inputs)", first)
+    for e in report.get("environments", [])[1:]:
+        if not e.get("ok"):
+            out += [f"### JVM environment {e['name']} ({e['locale']}, {e['tz']}): differs from the COBOL", ""]
+    for f in report.get("faults", []):
+        if not f["ok"]:
+            out += [f"The fault run `{f['name']}` injects {'; '.join(f['plan'])} (DD OP NTH FILE-STATUS) on both "
+                    f"sides -- {f.get('why', '')}", ""]  # fmt: skip
+            out += _run_feedback(f"Fault run {f['name']}", f)
+    return "\n".join(out).strip()
+
+
+def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[str, Any]:
+    """The report of a proof whose Java side did not build or run: its compiler / test errors as the feedback."""
+    log = next((p for p in [work / "java" / "maven.log", *(work / "java").glob("**/maven.log")] if p.is_file()), None)
+    text = log.read_text(encoding="utf-8", errors="replace") if log else error
+    errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
+    boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
+              "Failed to execute goal", "-> [Help")  # fmt: skip
+    lines = text.splitlines()
+    for i, ln in enumerate(lines):
+        keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
+            ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
+        )  # fmt: skip
+        if keep:
+            ln = re.sub(r"\S*/([A-Za-z0-9_$]+\.java)", r"\1", ln)
+            if ln not in errors:
+                errors.append(ln)
+            if ln.startswith("java.") and "Exception" in ln:  # where in the port: its first frames
+                frames = [f.strip() for f in lines[i + 1 : i + 40] if f.strip().startswith("at com.gitgalaxy.")]
+                errors += [f"    {f}" for f in frames[:4] if f"    {f}" not in errors]
+    shown = "\n".join(errors[:40]) if errors else "\n".join(text.splitlines()[-60:])
+    return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
+            "java_failed": True, "feedback": "### The Java side did not build or run\n\n```\n" + shown + "\n```"}  # fmt: skip
+
+
 # ---- #4023 follow-up: fault runs ------------------------------------------------------
 def selected_faults(case: dict[str, Any], arg: Optional[str]) -> list[dict[str, Any]]:
     """The case's `faults` to run: `all` (the default), `none`, or names separated by commas."""
@@ -531,6 +602,11 @@ def main() -> int:
     corpus = mc.require_clone(corpus_entry)
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     build_image()
+    if case.get("kind") == "call":  # #4023 follow-up: a CALLed subprogram, driven through its USING items
+        import equivalence_call as ecall
+
+        return ecall.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
+                              cobol_only=args.cobol_only)  # fmt: skip
     if case.get("kind") == "cics":  # #3754: an online program, run as tasks under the stub CICS runtime
         import equivalence_cics as ec
 
@@ -549,9 +625,15 @@ def main() -> int:
     import equivalence_java as ej
 
     envs = _environments(args.environments, case)
-    runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs, port=not args.generated_only,
-                                    port_dir=args.port,
-                                    faults=tuple((f["name"], fault_plan(f)) for f in faults))  # fmt: skip
+    try:
+        runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
+                                        port=not args.generated_only, port_dir=args.port,
+                                        faults=tuple((f["name"], fault_plan(f)) for f in faults))  # fmt: skip
+    except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
+        failed = java_failure_report(case, work, str(e))
+        (work / "report.json").write_text(json.dumps(failed, indent=2) + "\n", encoding="utf-8")
+        print(f"{case['program']}: the Java side failed -- see {work / 'report.json'}")
+        return 1
     report: dict[str, Any] = {"case": args.case, "program": case["program"], "outputs": {},
                               "java": "generated" if args.generated_only else "ported", "collation": COLLATION,
                               "port": str(args.port) if args.port else f"tests/equivalence/{args.case}/port"}  # fmt: skip
@@ -575,6 +657,7 @@ def main() -> int:
     ]
     report["coverage"] = cobol_coverage(case, corpus, traces, work / "coverage.json")  # #4023, every run together
     report["runs"] = 1 + len(faults)
+    report["feedback"] = feedback_md(report) if not ok else ""
     (work / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     (work / "report.md").write_text(report_markdown(case, report), encoding="utf-8")
     if report["abend"]["cobol"] or report["abend"]["java"]:

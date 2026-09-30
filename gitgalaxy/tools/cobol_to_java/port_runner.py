@@ -59,6 +59,8 @@ def _read(path: Path) -> str:
 # The generated runtime a port reads datasets, the pinned clock and record fields through.
 _RUNTIME_HELPERS = (
     "batch/DatasetResolver.java",
+    "batch/CobolFiles.java",  # #4023 follow-up: every file I/O statement's FILE STATUS (the porting rules)
+    "batch/CobolAbend.java",  # an abend (CALL 'CEE3ABD')
     "batch/MainframeClock.java",
     "entity/vsam/CobolRecords.java",
     "entity/vsam/CobolEdit.java",

@@ -527,6 +527,18 @@ public class CicsTask {
         return new FileRead<>(record != null ? 0 : 13, 0, record);
     }
 
+    /** INQUIRE PROGRAM(program) (#4023 follow-up): its RESP -- NORMAL (0) for a program the region defines, else
+     *  PGMIDERR (27) -- or the condition the harness planned. It changes nothing else a task can see. */
+    public int inquireProgram(String program) {
+        String name = program == null ? "" : program.trim();
+        int[] planned = root().injected("INQUIRE", name);
+        if (planned != null) {
+            return planned[0];
+        }
+        Programs known = programs != null ? programs : root().programs;
+        return known == null || known.defined(name) ? 0 : 27;
+    }
+
     /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
     public record FileRead<T>(int resp, int resp2, T record) {
         public boolean normal() {

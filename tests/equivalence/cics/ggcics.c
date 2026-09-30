@@ -26,7 +26,8 @@
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
  *   faults.cfg            #4023 follow-up: injected conditions, one per line: CMD FILE NTH
- *                         RESP [RESP2] -- the NTH (or `*`: every) CMD (READ) on FILE in
+ *                         RESP [RESP2] -- the NTH (or `*`: every) CMD (READ, or INQUIRE with
+ *                         the program's name as FILE) on FILE in
  *                         this task gets RESP / RESP2 (DFHRESP numbers) and does nothing
  *                         else; each one that fires is appended to $GGCICS_OUT/faults.txt
  *                         (`CMD FILE NTH RESP RESP2`). The Java side's CicsTask.read reads
@@ -409,6 +410,21 @@ int GGCRETN(gg_cics *c, char *commarea, int len) {
  * program the CSD does not define. */
 static void xctl_next(const char *program, char *commarea, int len);
 static int program_defined(const char *program);
+
+/* #4023 follow-up: INQUIRE PROGRAM(name1) -- NORMAL for a program the CSD defines, else PGMIDERR (or the condition
+ * faults.cfg injects). It changes nothing a task can see but its RESP, so it records no event. */
+int GGCINQP(gg_cics *c) {
+    char program[9];
+    int fresp, fresp2;
+    trim(c->name1, 8, program);
+    c->resp = program_defined(program) ? NORMAL : PGMIDERR;
+    c->resp2 = 0;
+    if (injected("INQUIRE", program, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+    }
+    return 0;
+}
 
 int GGCXCTL(gg_cics *c, char *commarea, int len) {
     char program[9], ev[128];

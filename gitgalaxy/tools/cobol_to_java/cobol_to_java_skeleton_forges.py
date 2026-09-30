@@ -76,6 +76,7 @@ class SkeletonForges:
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
             ("dto", "contract"): self.cics.dto_sources(),
             ("base_pkg", "client"): self.calls.client_sources(),
+            ("base_pkg", "call"): self.calls.ref_sources(),  # #4023 follow-up: CobolRef, a CALL's BY REFERENCE item
             ("base_pkg", "cics"): self.cics.runtime_sources(),  # #3754: CicsTask
             **self.db2.sources(),
         }

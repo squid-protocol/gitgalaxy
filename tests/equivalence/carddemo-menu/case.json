@@ -1,0 +1,190 @@
+{
+  "kind": "cics",
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "COMEN01C",
+  "program_source": "app/cbl/COMEN01C.cbl",
+  "copy_dirs": [
+    "app/cpy",
+    "app/cpy-bms"
+  ],
+  "transid": "CM00",
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {},
+  "commarea": {
+    "segments": [
+      {
+        "copybook": "app/cpy/COCOM01Y.cpy",
+        "record": "CARDDEMO-COMMAREA"
+      }
+    ]
+  },
+  "screens": {
+    "COMEN1A": {
+      "copybook": "app/cpy-bms/COMEN01.CPY",
+      "input": "COMEN1AI",
+      "output": "COMEN1AO"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "first-entry",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 0
+      }
+    },
+    {
+      "name": "no-commarea",
+      "aid": "DFHENTER",
+      "commarea": null
+    },
+    {
+      "name": "option-1-account-view",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "1"
+        }
+      }
+    },
+    {
+      "name": "option-11-installed",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "11"
+        }
+      }
+    },
+    {
+      "name": "option-11-not-installed",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "11"
+        }
+      },
+      "faults": [
+        {
+          "cmd": "INQUIRE",
+          "program": "COPAUS0C",
+          "nth": 1,
+          "resp": "PGMIDERR"
+        }
+      ],
+      "why": "PGMIDERR: the program is not defined (IBM CICS TS, INQUIRE PROGRAM conditions): 'This option ... is not installed...' in red, the menu again"
+    },
+    {
+      "name": "option-zero",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "0"
+        }
+      }
+    },
+    {
+      "name": "option-past-the-table",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "12"
+        }
+      }
+    },
+    {
+      "name": "option-blank",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": ""
+        }
+      }
+    },
+    {
+      "name": "pf3-to-signon",
+      "aid": "DFHPF3",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      }
+    },
+    {
+      "name": "invalid-key",
+      "aid": "DFHPF5",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      }
+    },
+    {
+      "name": "option-right-justified",
+      "aid": "DFHENTER",
+      "commarea": {
+        "CDEMO-FROM-TRANID": "CC00",
+        "CDEMO-FROM-PROGRAM": "COSGN00C",
+        "CDEMO-USER-ID": "USER0001",
+        "CDEMO-USER-TYPE": "U",
+        "CDEMO-PGM-CONTEXT": 1
+      },
+      "receive": {
+        "COMEN1A": {
+          "OPTIONI": "3 "
+        }
+      }
+    }
+  ],
+  "notes": "CardDemo's main menu (transaction CM00), pseudo-conversational: first entry sends the menu; re-entered with an option it XCTLs to the option's program (option 11, the authorization module, only when INQUIRE PROGRAM finds it installed), or re-sends the menu with a message; PF3 returns to sign-on. Options 0 and 12 are rejected, and are then still used as a subscript of the 11-entry table (CDEMO-MENU-OPT-USRTYPE(WS-OPTION)) -- storage beside the table, not an error, in COBOL. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

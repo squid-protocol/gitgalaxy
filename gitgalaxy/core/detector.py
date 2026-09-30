@@ -3793,6 +3793,7 @@ class StructuralExtractor:
             "amplified_cascading_flux": 0,
         }
         segment_spatial_maps = []
+        extracted_parents: list[str]
         extracted_parents = []
         threat_locations: dict[str, list[int]] = {}
 

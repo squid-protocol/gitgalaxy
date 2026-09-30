@@ -5865,49 +5865,51 @@ class StructuralExtractor:
                     if _enclosing != _head:
                         continue
 
-            # #1631: typescript's func_start colon-annotated-arrow branch
-            # cannot distinguish a real arrow-function property from a
-            # parameter's function-type annotation -- both are the same
-            # `IDENT: (...) => ...` surface syntax, but only the property
-            # has a runtime function. A nested parameter (`f: (a: A) => B`
-            # inside an interface member's own signature, fp-ts pipeable.ts's
-            # `f`/`g` phantoms) is always the first thing after an
-            # already-open parameter list, so its line is directly preceded
-            # by `(`. An object-literal arrow property is never preceded by
-            # `(` -- its enclosing `{` is -- so dropping line-anchored
-            # matches whose preceding non-whitespace char is `(` removes
-            # the phantom parameter annotations without touching real
-            # arrow-function properties. JavaScript shares the same regex
-            # branch and the same ambiguity, so the gate covers both.
+            # #1631 / #1632: func_start's line-anchored colon branch (`name: (...) =>`,
+            # `name: function`) reads any `IDENT:` followed by a function shape as an
+            # object-literal method key. Two other shapes look the same. Both gates
+            # apply only to that branch, recognised by the next non-blank character
+            # after the match being `:` (every other TS/JS branch stops before `=`,
+            # `(`, `<` or `?`), and both backward scans are bounded.
             if lang_id in ("typescript", "javascript"):
-                name_start = match.start(match.lastindex) if match.lastindex else start_idx
-                line_start = safe_code.rfind("\n", 0, name_start) + 1
-                p = line_start - 2  # line_start - 1 is the line's own \n
-                while p >= 0 and safe_code[p] in " \t":
-                    p -= 1
-                if p >= 0 and safe_code[p] == "(":
-                    continue
-
-            # #1632: the object-literal-method branch matches `IDENT :` followed
-            # by a function/arrow -- but a ternary's true branch (`cond ? name :
-            # function() { ... }`, jquery/deferred.js:182-184) has the identical
-            # `name :\nfunction() {` surface while `name` is a plain identifier
-            # reference, not an object key. A real object/namespace key is never
-            # preceded (skipping whitespace/newlines) by `?` -- that position is
-            # exclusively the ternary true-branch -- so a bounded backward scan
-            # for the preceding non-whitespace char rules the shape out the same
-            # way #1221's Invocation Shield rules out bare call statements.
-            # JavaScript and TypeScript share the branch, so the gate covers both.
-            if lang_id in ("typescript", "javascript"):
-                name_start = match.start(match.lastindex) if match.lastindex else start_idx
-                line_start = safe_code.rfind("\n", 0, name_start) + 1
-                p = line_start - 1
-                back_steps = 0
-                while p >= 0 and back_steps < 200 and safe_code[p] in " \t\n\r":
-                    p -= 1
-                    back_steps += 1
-                if p >= 0 and safe_code[p] == "?":
-                    continue
+                _key_start = match.start(match.lastindex) if match.lastindex else match.start()
+                while _key_start < match.end() and safe_code[_key_start] in " \t\r\n":
+                    _key_start += 1
+                _after = match.end()
+                while _after < len(safe_code) and _after - match.end() < 256 and safe_code[_after] in " \t\r\n":
+                    _after += 1
+                if _after < len(safe_code) and safe_code[_after] == ":":
+                    _floor = max(0, _key_start - 1000)
+                    _prev = _key_start - 1
+                    while _prev >= _floor and safe_code[_prev] in " \t\r\n":
+                        _prev -= 1
+                    _prev_ch = safe_code[_prev] if _prev >= _floor else ""
+                    # #1632: `cond ? name :\n function() {...}` -- the identifier is a
+                    # ternary's true branch, not a key. A real object key is never
+                    # directly preceded by `?` (optional chaining puts a `.` last).
+                    if _prev_ch == "?":
+                        continue
+                    # #1631: `f: (a: A) => B` right after `(` or `,` is a parameter's
+                    # function-type annotation when the nearest unclosed bracket is a
+                    # `(` (an open parameter list, e.g. inside an interface member's
+                    # own signature). An object-literal arrow property also follows
+                    # `,`, but its nearest unclosed bracket is `{`, so it is kept.
+                    if _prev_ch in ("(", ","):
+                        _container = "(" if _prev_ch == "(" else None
+                        _q = _prev - 1
+                        _depth = 0
+                        _scan_floor = max(0, _prev - 4000)
+                        while _container is None and _q >= _scan_floor:
+                            _c = safe_code[_q]
+                            if _c in ")]}":
+                                _depth += 1
+                            elif _c in "([{":
+                                if _depth == 0:
+                                    _container = _c
+                                _depth -= 1
+                            _q -= 1
+                        if _container == "(":
+                            continue
 
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
@@ -6438,30 +6440,35 @@ class StructuralExtractor:
                     args_sig_end = min(term_idx + 2, end_idx)  # +2: past the full "=>"
                 else:
                     continue
-            # #1629: typescript/javascript idiomatically use brace-less,
-            # expression-bodied arrow functions (`const swap = (x) => x + 1`,
-            # curried FP chains with no `{` anywhere in the definition --
-            # fp-ts's primary export shape). The generic brace-only fallback
-            # below drops every one of them; at least 88 of the corpus's 159
-            # func recall misses are this shape. Mirror #1266's scala
-            # approach: when no `{` shows up in the window, find the first
-            # un-nested `=>` after the signature and bound the expression
-            # body by the next func_start match (TS/JS arrow bodies have no
-            # reliable `;` terminator either, so the next-match bound is the
-            # closer analogy than csharp's trailing-semicolon scan).
             elif lang_id in ("typescript", "javascript"):
-                # A brace-less assignment match that is itself in expression
+                # #1629: brace-less, expression-bodied arrows (`const swap = (x) =>
+                # x + 1`, fp-ts's curried chains) have no `{` at all, so the generic
+                # brace search below dropped them. Scan forward for whichever comes
+                # first at bracket depth 0: a `{` body, an arrow `=>` body, or a `;`.
+                #
+                # A match sitting in expression
                 # position (preceding non-whitespace char is `>`/`)`) is a
-                # return type, not a name -- `=> M = (M) => ...` in fp-ts's
+                # type or value that follows an `=>`, a closing `)` or a generic's
+                # `>` -- a return type or an arrow body, never a declaration name.
+                # fp-ts's curried signatures put a bare type parameter right after
+                # an `=>` (`... => M`); without this check
                 # foldMap reports a phantom `M`. We removed `,` from this check
                 # because object literal properties are preceded by `,`.
-                if start_idx > 0:
-                    p = start_idx - 1
+                # Only spaces/tabs are skipped: the check never crosses a newline.
+                name_start = match.start(match.lastindex) if match.lastindex else match.start()
+                while name_start < match.end() and safe_code[name_start] in " \t\r\n":
+                    name_start += 1
+                if name_start > 0:
+                    p = name_start - 1
                     while p >= 0 and safe_code[p] in " \t":
                         p -= 1
                     if p >= 0 and safe_code[p] in ">)":
                         continue
                 depth_paren = depth_bracket = depth_angle = 0
+                # Start right after the match: every TS/JS func_start branch ends at
+                # the name (lookahead-only terminator) except the assignment branch,
+                # which also consumes a `: Type` annotation, so a `=>` inside that
+                # annotation is never mistaken for the body's arrow.
                 pos = match.end()
                 saw_assignment = False
                 saw_colon = False
@@ -6492,7 +6499,14 @@ class StructuralExtractor:
                             term_idx = pos
                             term_kind = "brace"
                             break
-                        if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                        elif ch == "=" and safe_code[pos + 1 : pos + 2] != ">":
+                            # a lone `=` is an assignment; `==`, `===`, `!=`, `<=`,
+                            # `>=` are comparisons and leave the flag alone
+                            prev_ch = safe_code[pos - 1] if pos > 0 else ""
+                            if safe_code[pos + 1 : pos + 2] != "=" and prev_ch not in ("=", "!", "<", ">"):
+                                saw_assignment = True
+                        elif ch == "=":
+                            # `=>` at depth 0
                             if saw_assignment or saw_colon:
                                 if saw_colon and not saw_assignment:
                                     p_idx = start_idx - 1
@@ -6554,9 +6568,15 @@ class StructuralExtractor:
                                 term_idx = pos
                                 term_kind = "arrow"
                                 break
-                            break  # the `=>` belongs to an annotation, not an assignment
-                        if ch == "=":
-                            saw_assignment = True
+                            else:
+                                # A depth-0 `=>` with no `=` or `:` before it: the
+                                # matched word opens an arrow expression rather than
+                                # naming one. `async () => {` passed as a call
+                                # argument or returned from a curried arrow has
+                                # func_start capture the `async` modifier as a name,
+                                # and there is no real name to report.
+                                term_kind = "anonymous_arrow"
+                                break
                         elif ch == ":":
                             saw_colon = True
                         elif ch == ";":
@@ -6564,6 +6584,9 @@ class StructuralExtractor:
                             term_kind = "semi"
                             break  # bodyless prototype
                     pos += 1
+
+                if term_kind == "anonymous_arrow":
+                    continue
 
                 # a `;` (or no terminator at all, #2278) before any body: a signature
                 ts_bodyless = term_kind not in ("brace", "arrow")

@@ -2805,78 +2805,171 @@ def test_detector_csharp_lambda_default_parameter_arrow_not_mistaken_for_body():
     assert "f(1)" in code[: code.index(";") + 1]
 
 
-def test_detector_ts_js_braceless_arrow_capture():
+def test_detector_ts_js_braceless_arrow_function_captured():
     """
-    #1629: typescript/javascript brace-less arrow functions
-    (`const double = (x) => x * 2;`) are real functions and must be
-    captured by _slice_by_braces, not dropped by the generic brace-only
-    fallback. This replaced the old expectation (tested pre-#1629 in
-    test_detector_csharp_expression_body_fallback_gated_to_csharp_only)
-    that no non-csharp language may use an arrow fallback -- TS/JS now
-    have their own next-match-bounded version of that handling, because
-    brace-less expression bodies are their dominant export shape
-    (88 of 159 corpus recall misses were this shape).
+    #1629: an expression-bodied arrow (`const swap = (...) => expr`) or a
+    curried chain of them has no `{` anywhere, so the generic brace search
+    dropped it. The typescript/javascript branch now takes the first depth-0
+    `=>` after the assignment as the body. Brace-bodied functions are
+    unchanged, and the fix is gated on the language: the same rules run
+    under another lang_id still drop the brace-less ones.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "export const swap = <E, A>(ma: Pair<E, A>): Pair<A, E> => flip(ma)\n"
+        "\n"
+        "export const compose =\n"
+        "  <A>(f: Fn<A>) =>\n"
+        "  (g: Fn<A>) =>\n"
+        "    (a: A) => f(g(a))\n"
+        "\n"
+        "function withBody(x: number) {\n"
+        "  return x;\n"
+        "}\n"
+    )
+    ts_rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        satellites, _ = detector._slice_by_braces(code, lang, ts_rules, 0, {})
+        by_name = {s["name"]: s for s in satellites}
+        assert [s["name"] for s in satellites] == ["swap", "compose", "withBody"], f"[{lang}] {list(by_name)}"
+        assert by_name["swap"]["start_line"] == 1
+        assert by_name["compose"]["start_line"] == 3
+        assert "flip(ma)" in code[by_name["swap"]["start_idx"] : by_name["swap"]["end_idx"]]
+        assert "withBody" not in code[by_name["compose"]["start_idx"] : by_name["compose"]["end_idx"]]
+
+    # javascript's own rules take the same path
+    js_code = "const inc = (n) => n + 1\nconst twice = (f) => (x) => f(f(x))\n"
+    js_detector = StructuralExtractor("javascript", LANGUAGE_DEFINITIONS)
+    js_sats, _ = js_detector._slice_by_braces(js_code, "javascript", LANGUAGE_DEFINITIONS["javascript"]["rules"], 0, {})
+    assert [(s["name"], s["start_line"]) for s in js_sats] == [("inc", 1), ("twice", 2)]
+
+    # another language on the generic brace fallback is unaffected
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_sats, _ = c_detector._slice_by_braces(code, "c", ts_rules, 0, {})
+    assert [s["name"] for s in c_sats] == ["withBody"]
+
+
+def test_detector_ts_parameter_function_type_annotation_not_a_function():
+    """
+    #1631: `onTick: (n: number) => report(n)` inside a parameter list has the
+    same `IDENT: (...) =>` shape as an object-literal arrow property, but it
+    is a parameter's function-type annotation, not a definition. The gate
+    finds the nearest unclosed bracket: `(` (an open parameter list) drops
+    the match, `{` (an object literal) keeps it. Here the preceding
+    parameter's `>` comparison throws off the in-scan container check, so
+    the gate is what removes the phantom.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("typescript", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    code = (
+        "const handlers = {\n"
+        "  onReady: (event) => event.target,\n"
+        "  onClose: (event) => event.code,\n"
+        "};\n"
+        "function schedule(\n"
+        "  limit = max > 10 ? 10 : max,\n"
+        "  onTick: (n: number) => report(n),\n"
+        ") {\n"
+        "  return limit;\n"
+        "}\n"
+    )
+    # the regex itself still proposes `onTick`; the detector must drop it
+    assert any(m.group(m.lastindex) == "onTick" for m in rules["func_start"].finditer(code))
+
+    satellites, _ = detector._slice_by_braces(code, "typescript", rules, 0, {})
+    names = [s["name"] for s in satellites]
+    assert names == ["onReady", "onClose", "schedule"], names
+
+
+def test_detector_js_ts_ternary_true_branch_not_an_object_method():
+    """
+    #1632: in `cond ?\n name :\n function() {...}` the identifier is the
+    ternary's true branch, but `name :` followed by `function` looks like an
+    object-literal method key, so the anonymous false branch was reported as
+    a function called `name`. A real key is never directly preceded by `?`.
+    A real `key: function` in an object literal is still kept.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "process = special ?\n"
+        "    mightThrow :\n"
+        "    function() {\n"
+        "        return mightThrow();\n"
+        "    };\n"
+        "var api = {\n"
+        "    resolve: function(value) {\n"
+        "        return value;\n"
+        "    }\n"
+        "};\n"
+    )
+    for lang in ("javascript", "typescript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert "mightThrow" not in names, f"[{lang}] {names}"
+        assert "resolve" in names, f"[{lang}] {names}"
+
+
+def test_detector_ts_js_anonymous_async_arrow_not_named_async():
+    """
+    An anonymous `async () => {...}` has func_start capture the `async`
+    modifier as a name. The TS/JS scan must not turn it into a function
+    called `async`: its `=>` has no `=` or `:` before it, so nothing names
+    it. Covers an async arrow returned by a curried arrow on its own line,
+    and async arrows passed as call arguments (with and without a
+    parameter). The enclosing named functions are still reported.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    curried = (
+        "export const attempt =\n"
+        "  <E, A>(run: Thunk<Promise<A>>, onError: (why: unknown) => E): Result<E, A> =>\n"
+        "  async () => {\n"
+        "    try {\n"
+        "      return ok(await run())\n"
+        "    } catch (why) {\n"
+        "      return fail(onError(why))\n"
+        "    }\n"
+        "  }\n"
+    )
+    call_args = (
+        "class Page {\n"
+        "  load(progress) {\n"
+        "    return this.retryWithBackoff(progress, [100], async () => {\n"
+        "      const mode = kind === 'main' ? 1 : 2;\n"
+        "    });\n"
+        "    await this.raceAction(progress, async () => {\n"
+        "      const until = opts.until === undefined ? 'load' : opts.until;\n"
+        "    });\n"
+        "  }\n"
+        "}\n"
+        "function produce(source) {\n"
+        "\treturn new Producer(source, async (emitter) => {\n"
+        "\t\tconst sub = source.token.onCancel(() => {});\n"
+        "\t});\n"
+        "}\n"
+    )
+
+    ts_detector = StructuralExtractor("typescript", LANGUAGE_DEFINITIONS)
+    ts_rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    # the regex does propose `async` here; the detector must not report it
+    assert any(m.group(m.lastindex) == "async" for m in ts_rules["func_start"].finditer(curried))
+    satellites, _ = ts_detector._slice_by_braces(curried, "typescript", ts_rules, 0, {})
+    assert [s["name"] for s in satellites] == ["attempt"]
 
     for lang in ("typescript", "javascript"):
         detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
         rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-        code = "const double = (x) => x * 2;\n"
-
-        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        satellites, _ = detector._slice_by_braces(call_args, lang, rules, 0, {})
         names = [s["name"] for s in satellites]
-        assert names == ["double"], f"[{lang}] brace-less arrow not captured: {names}"
-
-
-def test_detector_ts_js_braceless_arrow_capture_gated_from_other_mode_b_languages():
-    """
-    The #1629 brace-less arrow capture is deliberately gated to
-    `lang_id in ("typescript", "javascript")` -- other Mode-B languages
-    keep the generic brace-only fallback. Proves a Mode-B language without
-    the gate still drops a brace-less arrow-shaped const rather than
-    hallucinating a function from it.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
-    php_rules = LANGUAGE_DEFINITIONS["php"]["rules"]
-    code = "const double = (x) => x * 2;\n"
-
-    satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
-    assert satellites == [], "the ts/js brace-less arrow capture must not fire for other Mode-B languages"
-
-
-# ==============================================================================
-# JAVASCRIPT/TYPESCRIPT STRING-LITERAL FALSE POSITIVE (epic #813, #814/#815)
-# ==============================================================================
-def test_detector_ts_js_ternary_branch_not_misattributed_as_function():
-    """
-    Regression test for issue #1632: the object-literal-method branch
-    matches `IDENT :` followed by a function/arrow -- but a ternary's true
-    branch (`cond ? name : function() { ... }`, jquery/deferred.js:182-184)
-    has the identical `name :\nfunction() {` surface while `name` is a
-    plain identifier reference, not an object key. The fix skips matches
-    whose preceding non-whitespace char (bounded backward scan) is `?`.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    for lang in ("javascript", "typescript"):
-        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
-        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-        code = (
-            "process = special ?\n"
-            "    mightThrow :\n"
-            "    function() {\n"
-            "        try {\n"
-            "            mightThrow();\n"
-            "        } catch (e) {\n"
-            "        }\n"
-            "    };\n"
-        )
-        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
-        names = [s["name"] for s in satellites]
-        assert "mightThrow" not in names, f"[{lang}] ternary true-branch misattributed as a function: {names}"
+        assert "async" not in names, f"[{lang}] {names}"
+        assert names == ["load", "produce"], f"[{lang}] {names}"
 
 
 def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
@@ -2901,47 +2994,6 @@ def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
         satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
         names = [s["name"] for s in satellites]
         assert names == ["realFn"], f"[{lang}] string-literal lookalike still hallucinated a function: {names}"
-
-
-def test_detector_ts_param_function_type_annotation_not_counted_as_function():
-    """
-    Regression test for issue #1631: typescript's func_start
-    colon-annotated-arrow branch cannot distinguish a real arrow-function
-    property from a parameter's function-type annotation -- both are the
-    same `IDENT: (...) => ...` surface syntax, but only the property has a
-    runtime function. A nested parameter (`f: (a: A) => B` inside an
-    interface member's own signature, e.g. fp-ts pipeable.ts's `f`/`g`
-    phantoms) is always the first thing after an already-open parameter
-    list, so its line is directly preceded by `(`; those line-anchored
-    matches are now dropped in _slice_by_braces. An object-literal arrow
-    property is never preceded by `(` (its enclosing `{` is), so it must
-    still be counted.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    for lang in ("typescript", "javascript"):
-        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
-        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-
-        # fp-ts pipeable.ts shape: a generic function-type member whose
-        # parameter list carries its own function-typed parameters.
-        interface_code = (
-            "export interface PipeableApply2<F extends URIS2> {\n"
-            "  readonly chainFirst: <S, R, E, A, B>(\n"
-            "    f: (a: A) => Kind4<F, S, R, E, B>\n"
-            "  ) => (ma: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, A>\n"
-            "}\n"
-        )
-        satellites, _ = detector._slice_by_braces(interface_code, lang, rules, 0, {})
-        names = [s["name"] for s in satellites]
-        assert "f" not in names, f"[{lang}] parameter annotation counted as a function: {names}"
-
-        # The object-literal arrow property must still be counted: its line
-        # is preceded by `{`/`,`, never `(`.
-        object_code = "export const Either = {\n  URI,\n  ap: (fab, fa) => ({ fab, fa }),\n}\n"
-        satellites2, _ = detector._slice_by_braces(object_code, lang, rules, 0, {})
-        names2 = [s["name"] for s in satellites2]
-        assert "ap" in names2, f"[{lang}] object-literal arrow property dropped: {names2}"
 
 
 def test_detector_ts_js_quoted_method_key_after_modifier_is_not_named_by_the_modifier():

@@ -478,18 +478,17 @@ DEFINITION: dict[str, Any] = {
             # because the `^[ \t]*` anchor enforces it must be the start of a line. We cannot
             # easily fix this without massive ReDoS or losing precision.
             # Mid-statement function values cannot be reliably matched without a full AST.
-            # BUG FIX (epic #1261 / issue #1630): the zero-prefix branch's
-            # parameter-list terminator used a FLAT `\([^)]*\)` character class,
-            # which cannot represent even one level of nested parens. Any
-            # callback-typed parameter (`onDisconnect: () => void`, `handler:
-            # (...args: any[]) => void`) has an inner `()`, so the class stopped
-            # at the first inner `)`, the terminator lookahead then failed to find
-            # its `{`/`;`/`:` anchor, and the WHOLE signature -- constructor or
-            # method -- silently stopped matching (regex-level non-match, not just a
-            # misrecord). Replaced with the bounded one-level-nesting form
-            # `\((?:[^()]|\([^()]*\))*\)` -- same Rule 11 shape the generic
-            # step-over already uses (`(?:[^<>]|<[^<>]*>)*`), linear because the
-            # two alternatives never match overlapping text.
+            # BUG FIX (issue #1630): the parameter list below used to be closed
+            # by a flat `\([^)]*\)`, which stops at the FIRST `)`. A
+            # callback-typed parameter (`onDone: () => void`, `handler:
+            # (...args: any[]) => void`) carries its own `(...)`, so that
+            # inner `)` ended the list early, the terminator lookahead never
+            # found its `{`/`;`, and the whole constructor or method went
+            # unmatched. The list now allows nested parens:
+            # `\((?:[^()]|\( ... \))*\)`. It stays linear because the two
+            # alternatives cannot overlap: `[^()]` never takes a paren and the
+            # nested group must start with one, so each character can only be
+            # consumed one way and no backtracking blow-up is possible (Rule 11).
             # BUG FIX (issue #1838, R1): one level of nesting still wasn't
             # enough -- a callback-typed parameter can itself contain a
             # parenthesized sub-expression (nesting depth 2 from the outer

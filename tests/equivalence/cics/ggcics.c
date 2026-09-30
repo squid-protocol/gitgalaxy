@@ -25,6 +25,12 @@
  *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN --
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
+ *   faults.cfg            #4023 follow-up: injected conditions, one per line: CMD FILE NTH
+ *                         RESP [RESP2] -- the NTH (or `*`: every) CMD (READ) on FILE in
+ *                         this task gets RESP / RESP2 (DFHRESP numbers) and does nothing
+ *                         else; each one that fires is appended to $GGCICS_OUT/faults.txt
+ *                         (`CMD FILE NTH RESP RESP2`). The Java side's CicsTask.read reads
+ *                         the same plan.
  * Outputs go to $GGCICS_OUT: events.txt, one line per command in order (`NNN VERB
  * pgm=<issuing program> key=value ...`), and NNN.bin, the bytes the command carried.
  *
@@ -104,13 +110,59 @@ int GGCLOAD(char *area, int maxlen) {
     return n;
 }
 
+/* #4023 follow-up: the planned condition of this command on this file, if faults.cfg plans one. Every
+ * command counts (per task: a task is one process), whether or not it faults. */
+static int fault_counts[32];
+static char fault_keys[32][24];
+static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
+    char path[3000], line[256], pcmd[16], pfile[16], nth[16];
+    int presp, presp2, n = 0, slot = -1, hit = 0;
+    char key[24];
+    snprintf(key, sizeof key, "%.7s %.9s", cmd, file);
+    for (int i = 0; i < 32; i++) {
+        if (fault_keys[i][0] == 0 || strcmp(fault_keys[i], key) == 0) { slot = i; break; }
+    }
+    if (slot < 0) return 0;
+    if (fault_keys[slot][0] == 0) snprintf(fault_keys[slot], sizeof fault_keys[slot], "%s", key);
+    n = ++fault_counts[slot];
+    snprintf(path, sizeof path, "%s/faults.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    while (f && !hit && fgets(line, sizeof line, f)) {
+        presp2 = 0;
+        if (sscanf(line, "%15s %15s %15s %d %d", pcmd, pfile, nth, &presp, &presp2) < 4) continue;
+        if (strcmp(pcmd, cmd) != 0 || strcmp(pfile, file) != 0) continue;
+        if (nth[0] != '*' && atoi(nth) != n) continue;
+        *resp = presp;
+        *resp2 = presp2;
+        hit = 1;
+    }
+    if (f) fclose(f);
+    if (hit) {
+        snprintf(path, sizeof path, "%s/faults.txt", dir_out());
+        FILE *log = fopen(path, "a");
+        if (log) { fprintf(log, "%s %s %d %d %d\n", cmd, file, n, *resp, *resp2); fclose(log); }
+    }
+    return hit;
+}
+
 /* READ FILE(name1) RIDFLD INTO: the first record whose key equals RIDFLD. */
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     char want[9], line[4096], name[64], path[3000], ev[320];
-    int reclen, keyoff, klen;
+    int reclen, keyoff, klen, fresp, fresp2;
     trim(c->name1, 8, want);
     c->resp = FILENOTFOUND;
     c->resp2 = 0;
+    if (injected("READ", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        char key[256];
+        int shown = keylen < 200 ? keylen : 200;
+        memcpy(key, ridfld, (size_t)shown);
+        key[shown] = '\0';
+        snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
+        event(ev, NULL, 0);
+        return 0;
+    }
     snprintf(line, sizeof line, "%s/files.cfg", dir_in());
     FILE *cfg = fopen(line, "r");
     if (cfg) {

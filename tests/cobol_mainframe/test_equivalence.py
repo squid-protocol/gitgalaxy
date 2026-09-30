@@ -188,6 +188,8 @@ def test_carddemo_intcalc_is_equivalent_end_to_end(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     assert all(o["equal"] == o["records"] == 50 for o in report["outputs"].values())
+    # #4023 follow-up: every injected file fault is proven too -- the port takes the COBOL's error path
+    assert len(report["faults"]) == 19 and all(f["ok"] for f in report["faults"]), report["faults"]
 
 
 def test_the_two_sides_share_the_cases_directory():

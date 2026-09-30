@@ -167,6 +167,9 @@ public class CicsTask {
     private boolean exitActive;
     private final java.util.ArrayDeque<Object[]> pushedExits = new java.util.ArrayDeque<>();
     private String unwoundTo;                               // an abend below went to this level's exit
+    private List<String[]> faultPlan = List.of();           // #4023 follow-up: injected conditions (the task's root)
+    private java.nio.file.Path faultLog;
+    private final Map<String, Integer> faultSeen = new HashMap<>();
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
      *  COMMAREA, if any, is its whole record (as long as its DTO's layout). */
@@ -495,6 +498,64 @@ public class CicsTask {
 
     /** A terminal RECEIVE's outcome: its condition, the LENGTH it sets, and the data it moved INTO. */
     public record Received(String resp, int length, String data) {
+    }
+
+    /** #4023 follow-up: the equivalence harness's injected conditions for this task, as its stub reads them
+     *  (faults.cfg: `CMD FILE NTH RESP [RESP2]`, NTH `*` = every one; DFHRESP numbers), and the file each one
+     *  that fires is appended to (`CMD FILE NTH RESP RESP2`). Commands are counted per task. */
+    public CicsTask withFaults(List<String> plan, java.nio.file.Path log) {
+        List<String[]> parsed = new ArrayList<>();
+        for (String line : plan) {
+            String[] w = line.trim().split("[ ]+");
+            if (w.length >= 4) {
+                parsed.add(w);
+            }
+        }
+        this.faultPlan = List.copyOf(parsed);
+        this.faultLog = log;
+        return this;
+    }
+
+    /** READ FILE(file) (#4023 follow-up): `lookup` is the service's generated read method. RESP NORMAL (0) and the
+     *  record, or NOTFND (13) without one -- or the condition the harness planned, and then nothing is read. */
+    public <T> FileRead<T> read(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        int[] planned = root().injected("READ", file);
+        if (planned != null) {
+            return new FileRead<>(planned[0], planned[1], null);
+        }
+        T record = lookup.get().orElse(null);
+        return new FileRead<>(record != null ? 0 : 13, 0, record);
+    }
+
+    /** A file command's outcome: RESP and RESP2 (DFHRESP numbers) and the record read, when there is one. */
+    public record FileRead<T>(int resp, int resp2, T record) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    private int[] injected(String cmd, String file) {
+        if (faultPlan.isEmpty()) {
+            return null;
+        }
+        int n = faultSeen.merge(cmd + " " + file, 1, Integer::sum);
+        for (String[] f : faultPlan) {
+            if (f[0].equals(cmd) && f[1].equals(file) && ("*".equals(f[2]) || Integer.parseInt(f[2]) == n)) {
+                int resp = Integer.parseInt(f[3]);
+                int resp2 = f.length > 4 ? Integer.parseInt(f[4]) : 0;
+                if (faultLog != null) {
+                    try {
+                        java.nio.file.Files.writeString(faultLog, cmd + " " + file + " " + n + " " + resp + " " + resp2
+                                + System.lineSeparator(), java.nio.file.StandardOpenOption.CREATE,
+                                java.nio.file.StandardOpenOption.APPEND);
+                    } catch (java.io.IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                }
+                return new int[] {resp, resp2};
+            }
+        }
+        return null;
     }
 
     /** The region's temporary storage this task works on (#4002): one store is shared by every task of a

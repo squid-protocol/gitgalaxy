@@ -63,6 +63,7 @@ BINS = ("@1", "@2", "@3", "@4+")
 HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.py", "tests/tools/equivalence_java.py",
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
+                 "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
                  "tests/equivalence/gnucobol.Dockerfile")  # fmt: skip
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line
 _TRAILER = re.compile(r"^Trial-Cause:[ \t]{0,8}([a-z]{1,12})[ \t]{1,8}([A-Za-z0-9$#@_-]{1,64})[ \t]{0,8}$", re.M)

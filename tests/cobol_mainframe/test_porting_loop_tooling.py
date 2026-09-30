@@ -157,3 +157,16 @@ def test_the_loops_committed_ports_are_proven(case, tmp_path):
                           capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     assert json.loads((tmp_path / "report.json").read_text())["proven"]
+
+
+def test_no_committed_port_or_case_lost_its_json_to_the_ignore_rule():
+    """.gitignore ignores *.json repo-wide, with exceptions. A new case.json or provenance.json outside them is
+    silently never committed: #4025's 17 crucible provenance files were lost that way. CI checks out only tracked
+    files, so a missing one fails here."""
+    root = eq.CASES.parents[1]
+    ports = sorted(p for p in (root / "tests" / "cics_crucible" / "ports").glob("*/*") if (p / "overlay").is_dir())
+    assert ports and [p for p in ports if not (p / "provenance.json").is_file()] == []
+    cases = sorted(p for p in eq.CASES.iterdir() if p.is_dir() and (p / "LICENSE").is_file())
+    assert cases and [p for p in cases if not (p / "case.json").is_file()] == []
+    looped = [p for p in cases if (p / "port").is_dir() and (p / "port" / "provenance.json").exists()]
+    assert {p.name for p in looped} >= {"carddemo-trnrpt", "carddemo-menu", "carddemo-dateutil"}

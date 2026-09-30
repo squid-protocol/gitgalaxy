@@ -265,6 +265,15 @@ is invalid or the report is stale. A new corpus is a new round; a new channel ne
 with its honest `development_rounds`; key errors are counted automatically. Quote coverage only
 from that report. The full protocol is in the `mainframe-ground-truth` skill ("Field testing").
 
+### The porting loop (automated COBOL -> Java)
+
+`tests/tools/porting_loop.py` runs port_runner end to end on one equivalence case. A model ports the program from
+its ticket, the harness proves it (outputs, CICS events or CALLs, and every fault run), and a failed proof's
+feedback drives the next attempt. Use the `porting-loop` skill: it covers running it (JDK 17, the corpora cache, the
+no-tools model), deciding whose a failure is (model, ticket, generator, harness, case), building cases with fault
+runs and coverage, and committing a proven port with provenance. CardDemo / CBSA / crucible results are development
+numbers, never first-try rates. Results and lessons so far: `docs/language_status/porting_loop.md`.
+
 ## Testing conventions
 
 `tests/` has no `__init__.py` anywhere in this repo. A new test file that needs to import a

@@ -23,6 +23,7 @@ import time
 from typing import Any, ClassVar, Optional, TypedDict, cast
 
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
+from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -5132,21 +5133,18 @@ class StructuralExtractor:
                 and re.search(r"\bdef[ \t]+$", code[max(0, m.start() - 10) : m.start()])
             ):
                 return text
+            # #1718: a C++ digit-separated number (`1'000'000`) is claimed by the
+            # shield only so its `'` can't open a bogus char literal; it holds no
+            # braces, so keep it verbatim rather than blanking real code.
+            if lang_id in CPP_LANG_IDS and text and (text[0].isdigit() or text[0] == "."):
+                return text
             if "\n" not in text:
                 return " " * len(text)
             return "\n".join(" " * len(line) for line in text.split("\n"))
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id == "cpp":
-            # #1718: C++14+ digit separators (512'000, 1'000'000, 0xDE'AD) use ' inside
-            # numeric literals. The unbounded branch read a separator as a char-literal opener
-            # and paired it with the next unrelated ' anywhere later in the file, blanking every
-            # real function body in between from the brace scan. Consume separators as their own
-            # alternative (same shape as prism.py's CPP_LITERAL_MASK_PATTERN) and bound the branch
-            # to 64 chars, matching #1302/#1426.
-            single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
-        elif lang_id in ("rust", "zig"):
+        if lang_id in ("rust", "zig"):
             # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
             # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are
             # never shielded at all here (a separate, pre-existing gap) -- so a real
@@ -5164,6 +5162,14 @@ class StructuralExtractor:
             # file), stuck at 18 total functions found regardless of #1419's separate
             # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
             single_quote = r"'(?![" + ID_START + r"][" + ID_CONTINUE + r"]*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r]){0,10}'"
+        elif lang_id in CPP_LANG_IDS:
+            # #1718: C++14 digit separators (`512'000`, `0xDE'AD'BE'EF`) put a bare `'`
+            # inside a number. The unbounded default above read it as a char-literal
+            # opener that ran to the next unrelated `'` in the file, blanking every
+            # real `{`/`}` in between and hiding those functions from the slicer.
+            # Claim a separator-bearing number first (kept verbatim by fast_shield),
+            # then a real, short, single-line char literal. Both shared with prism.py.
+            single_quote = CPP_DIGIT_SEPARATED_NUMBER_PATTERN + r"|" + CPP_CHAR_LITERAL_PATTERN
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
         # (e.g. `` `type` ``), never a long delimiter -- unlike JS/TS template literals, which

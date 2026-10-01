@@ -746,6 +746,16 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
 
 
 # ---- running a case -------------------------------------------------------------------
+def csd_programs(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
+    """The programs the case's CSD (its "csd": a DFHCSDUP listing in the corpus) defines, or None: every program
+    is defined. With autoinstall off, an XCTL / LINK / INQUIRE of any other is PGMIDERR (CardDemo's admin menu
+    lists COTRTLIC / COTRTUPC, which its base CSD does not define: 'This option is not installed ...')."""
+    if not case.get("csd"):
+        return None
+    text = (corpus / case["csd"]).read_text(encoding="latin-1")
+    return sorted(set(re.findall(r"DEFINE\s+PROGRAM\(([A-Z0-9@#$]{1,8})\)", text)))
+
+
 def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
@@ -833,6 +843,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     )
     script = ["set -e", "cd /work", compile_task]
     date, _, time = case["clock"].partition(" ")
+    programs = csd_programs(corpus, case)
     for sc in case["scenarios"]:
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
@@ -846,6 +857,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
         for m, typed in (sc.get("receive") or {}).items():
             (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
+        if programs is not None:  # the CSD's programs; absent, every program is defined
+            (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         y, mo, dd = date.split("/")
@@ -1058,7 +1071,8 @@ def _generated_class(src: Path, pattern: str) -> str:
     raise RuntimeError(f"no generated class matches {pattern!r}")
 
 
-def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]]) -> str:
+def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
+                          programs: Optional[list[str]] = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -1071,6 +1085,16 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                    next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
     by_base = {f["base"]: f for f in files}
+    csd_java = ""
+    if programs is not None:  # the CSD's programs: an XCTL / LINK / INQUIRE of any other is PGMIDERR
+        names = ", ".join(f'"{p}"' for p in programs)
+        csd_java = (f"            task.withPrograms(new CicsTask.Programs() {{\n"
+                    f"                final java.util.Set<String> defined = java.util.Set.of({names});\n"
+                    f"                public boolean defined(String program) {{ return defined.contains(program); }}\n"
+                    f"                public void run(String program, CicsTask t) {{\n"
+                    f'                    throw new UnsupportedOperationException("the equivalence harness runs one program");\n'
+                    f"                }}\n"
+                    f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case["datasets"].items():
         ent = spec["entity"]
@@ -1134,6 +1158,7 @@ class EquivalenceRunTest {{
 {chr(10).join(recv)}
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received)
                     .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"));  // EIBTIME / ASKTIME: the case's clock
+{csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
             if (!faults.isEmpty()) {{
@@ -1199,7 +1224,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                        svc_file.read_text(encoding="utf-8")).group(1)  # fmt: skip
     shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
-    test.write_text(cics_equivalence_test(case, src, files), encoding="utf-8")
+    test.write_text(cics_equivalence_test(case, src, files, csd_programs(corpus, case)), encoding="utf-8")
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:

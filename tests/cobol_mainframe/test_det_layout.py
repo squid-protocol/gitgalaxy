@@ -19,7 +19,6 @@ sys.path.insert(0, str(ROOT / "tests/tools"))
 sys.path.insert(0, str(ROOT))
 
 from gitgalaxy.tools.cobol_to_java.det import layout as L  # noqa: E402
-from gitgalaxy.tools.cobol_to_java.det.source import program_lines  # noqa: E402
 
 CASES = ROOT / "tests/equivalence"
 CICS_COPY = CASES / "cics"

@@ -83,14 +83,35 @@ public final class Cobol {
     // is the model the harness applies to GnuCOBOL: zoned and packed / binary shown as zoned digits, sign
     // overpunched; groups and alphanumerics as their bytes)
     public static String displayText(Field f, Charset cs);
-    // STRING / UNSTRING / INSPECT (tallying, replacing, converting) -- see the IBM reference; signatures are the
-    // implementer's, documented in the class
+    // STRING / UNSTRING / INSPECT: operands are built with the nested StringPart / Delim / Into / Clause
+    public static boolean string(Field into, Field pointerOrNull, Charset cs, StringPart... parts);   // true = OVERFLOW
+    //   StringPart.size(Field | String, cs) = DELIMITED BY SIZE; StringPart.delimited(Field | String src, Field | String delim, cs)
+    public static boolean unstring(Field src, Field pointerOrNull, Field tallyingOrNull, List<Delim> delims,
+                                   Charset cs, Into... intos);                                        // true = OVERFLOW
+    //   Delim.of(String | Field, all[, cs]); Into.of(target).delimiterIn(f).countIn(f)
+    public static void inspect(Field target, Charset cs, Clause... clauses);
+    //   Clause.tally(counter, Mode.CHARACTERS | ALL | LEADING, pattern|null[, cs]); Clause.replace(Mode.CHARACTERS | ALL |
+    //   LEADING | FIRST, pattern|null, by[, cs]); Clause.converting(from, to[, cs]); each .before(x) / .after(x) (INITIAL)
+    public static void setTruncBinary(boolean on);   // TRUNC(STD) for binary items; default off, see below
 }
 ```
 
 Arithmetic intermediates: exact `BigDecimal` (GnuCOBOL's default is exact decimal arithmetic for these programs'
-sizes); `store` truncates high-order digits beyond the PICTURE (binary: by PICTURE digits, as `TRUNC(STD)`) and
-low-order digits beyond the scale (or rounds half away from zero with ROUNDED).
+sizes); `store` truncates high-order digits beyond the PICTURE and low-order digits beyond the scale (or rounds half
+away from zero with ROUNDED).
+
+What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `tests/cobol_mainframe/test_cobolrt.py`):
+
+- **Binary items are not truncated to the PICTURE digits** (the harness's GnuCOBOL behaves as `TRUNC(BIN)`): an
+  `S9(4) COMP` holds anything its two bytes hold (99999 MOVEd in wraps to X'869F'; ON SIZE ERROR fires only past the
+  byte capacity). `Cobol.setTruncBinary(true)` selects `TRUNC(STD)` (digits) instead.
+- **COMP-5 is native little-endian**; COMP / COMP-4 / BINARY are big-endian; 1-4 digits 2 bytes, 5-9 4, 10-18 8.
+- A MOVE keeps the sending sign through truncation (a `-0.05` into `S9(3)` is X"30307D", negative zero).
+- `MOVE SPACES` to a numeric or numeric-edited item does not compile (cobc error); the runtime fills it with spaces.
+- `MOVE ALL "12"` to `PIC 9(5)` gives 21212 (the pattern ends at the right edge).
+- `INSPECT ... TALLYING ... REPLACING ...` runs as two passes (tallying does not take characters from replacing).
+- `UNSTRING` without DELIMITED BY cuts by the receivers' sizes; an alphanumeric item compared with a numeric
+  literal is compared as text with the literal's digits.
 
 ## Proof of the runtime
 

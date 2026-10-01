@@ -11,7 +11,6 @@ import re
 from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
-from typing import Optional
 
 from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed
 
@@ -28,13 +27,13 @@ class Item:
     level: int
     name: str
     section: str  # FILE | WORKING-STORAGE | LOCAL-STORAGE | LINKAGE
-    fd: Optional[str] = None
-    pic: Optional[str] = None
+    fd: str | None = None
+    pic: str | None = None
     usage: str = "DISPLAY"  # DISPLAY | BINARY | PACKED | COMP-5 | COMP-1 | COMP-2 | POINTER | INDEX
     occurs: int = 1
-    occurs_min: Optional[int] = None
-    depending: Optional[str] = None
-    redefines: Optional[str] = None
+    occurs_min: int | None = None
+    depending: str | None = None
+    redefines: str | None = None
     values: list = field(default_factory=list)  # literal values (88: several, ranges as (lo, hi))
     sign_leading: bool = False
     sign_separate: bool = False
@@ -42,12 +41,12 @@ class Item:
     blank_when_zero: bool = False
     children: list = field(default_factory=list)
     conditions: list = field(default_factory=list)  # its 88s
-    parent: Optional["Item"] = None
+    parent: Item | None = None
     line: int = 0
     # computed
     offset: int = 0  # within its 01 record
     size: int = 0  # one occurrence
-    record: Optional["Item"] = None  # its 01 / 77
+    record: Item | None = None  # its 01 / 77
 
     # ---- the PICTURE ------------------------------------------------------------------------------------------
     def picture(self) -> str:
@@ -150,7 +149,7 @@ def parse(lines: list[Line]) -> list[Item]:
     records: list[Item] = []
     errors = []
 
-    def visit(node, section: Optional[str], fd: Optional[str]):
+    def visit(node, section: str | None, fd: str | None):
         if node.type == "ERROR":
             errors.append(node.start_point[0] + 1)
         if node.type in _SECTIONS:
@@ -207,7 +206,7 @@ def parse(lines: list[Line]) -> list[Item]:
     return records
 
 
-def _item(node, src: bytes, section: str, fd: Optional[str]) -> Item:
+def _item(node, src: bytes, section: str, fd: str | None) -> Item:
     level = name = None
     it = Item(level=0, name="", section=section, fd=fd)
     for c in node.children:
@@ -248,7 +247,7 @@ def _item(node, src: bytes, section: str, fd: Optional[str]) -> Item:
 def _value(node, src: bytes):
     """A VALUE item: ('lit', text) | ('num', Decimal) | ('fig', SPACES|ZEROS|LOW|HIGH|QUOTES) | ('all', text) |
     ('hex', bytes) | ('range', lo, hi)."""
-    parts = [c for c in node.children]
+    parts = list(node.children)
     if any(c.type == "THRU" or c.type == "THROUGH" for c in parts):
         vals = [c for c in parts if c.type not in ("THRU", "THROUGH")]
         return ("range", _one(vals[0], src), _one(vals[-1], src))
@@ -281,11 +280,11 @@ def _one(node, src: bytes):
         return ("lit", text[1:-1])
     try:
         return ("num", Decimal(text))
-    except Exception:  # noqa: BLE001
+    except Exception:
         return ("lit", text)
 
 
-def _inherit_usage(it: Item, usage: Optional[str]) -> None:
+def _inherit_usage(it: Item, usage: str | None) -> None:
     if it.usage == "DISPLAY" and usage and usage != "DISPLAY":
         it.usage = usage
     for c in it.children:

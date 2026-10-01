@@ -573,7 +573,8 @@ def main() -> int:
                 elif dd in case["datasets"]:
                     what = f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records"
                 else:  # SYSOUT (#4056): lines, not records
-                    what = f"{len(data)} bytes, {data.count(b'\n')} lines"
+                    lines = data.count(b"\n")  # (no backslash inside an f-string: Python < 3.12)
+                    what = f"{len(data)} bytes, {lines} lines"
                 print(f"{'fault ' + name + ' ' if name else ''}{dd}: {what}")
         return 0
     import equivalence_java as ej

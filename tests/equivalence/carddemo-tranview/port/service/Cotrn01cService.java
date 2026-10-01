@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.cics.CicsTask;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea5;
-import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea6;
 import com.gitgalaxy.modernized.dto.contract.CarddemoCommarea;
+import com.gitgalaxy.modernized.dto.contract.Cotrn00cCarddemoCommarea;
+import com.gitgalaxy.modernized.dto.contract.Cotrn01cCarddemoCommarea;
 import com.gitgalaxy.modernized.dto.screen.Cotrn1aScreen;
 import com.gitgalaxy.modernized.dto.screen.ScreenModel;
 import com.gitgalaxy.modernized.entity.vsam.CobolEdit;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Response handling (field testing: field-tested (6 public / 0 private estates)):
  * READ at line 269 tests NORMAL,NOTFND
- * The RESP of RECEIVE at line 232 (paragraph RECEIVE-TRNVIEW-SCREEN) is never tested by the program; kept so.
+ * The RESP of RECEIVE at line 232 (paragraph RECEIVE-TRNVIEW-SCREEN) is never tested by the program.
  * Screens (#3619): Cotrn1aScreen.
  */
 @Service
@@ -39,6 +39,7 @@ public class Cotrn01cService {
 
     private static final String WS_PGMNAME = "COTRN01C";
     private static final String WS_TRANID = "CT01";
+    private static final String WS_TRANSACT_FILE = "TRANSACT";
     private static final String CCDA_TITLE01 = "      AWS Mainframe Modernization       ";
     private static final String CCDA_TITLE02 = "              CardDemo                  ";
     private static final String CCDA_MSG_INVALID_KEY = "Invalid key pressed. Please see below...         ";
@@ -49,165 +50,177 @@ public class Cotrn01cService {
     private final TranRecordRepository tranRecordRepository;
 
     /** The program's working storage for one task. */
-    private static final class State {
-        Cotrn1aScreen scr = lowScreen();     // COTRN1AI / COTRN1AO (one storage, REDEFINES)
-        String message = spaces(80);         // WS-MESSAGE
-        boolean err;                         // WS-ERR-FLG
-        boolean cursor;                      // TRNIDINL = -1
-        CarddemoCommarea6 ca = newCommarea(); // CARDDEMO-COMMAREA
-        TranRecord tran;                     // TRAN-RECORD (the program's own copy)
+    private static final class Ctx {
+        CicsTask task;
+        Cotrn01cCarddemoCommarea commarea;
+        Cotrn1aScreen screen;          // COTRN1AI / COTRN1AO share one storage area
+        String message = x("", 80);    // WS-MESSAGE
+        boolean errFlg;                // WS-ERR-FLG
+        boolean cursor;                // TRNIDINL = -1
     }
 
     public void executeCotrn01c(/* Parameters mapped from Controller */) {
         log.info("Executing modernized business logic for COTRN01C");
-        // The program's business logic is pseudo-conversational and lives in runTask(CicsTask).
+        // The program's logic is a CICS task: it is ported in runTask(CicsTask).
     }
 
-    /** A CICS transaction entered the program: the logic is in runTask. */
-    public CarddemoCommarea6 handleTransaction(String transid, CarddemoCommarea6 request) {
+    /** A CICS transaction entered the program. TODO: [AI AGENT] implement from the program's business rules. */
+    public Cotrn01cCarddemoCommarea handleTransaction(String transid, Cotrn01cCarddemoCommarea request) {
         log.info("Cotrn01c: handleTransaction");
         return request;
     }
 
-    /** One pseudo-conversational task of this program (#3754). */
+    /** One pseudo-conversational task of this program (#3754): MAIN-PARA. */
     public void runTask(CicsTask task) {
-        log.info("Cotrn01c: runTask");
-        State st = new State();
+        Ctx c = new Ctx();
+        c.task = task;
+        c.screen = filled('\u0020');
 
-        // MAIN-PARA
-        st.err = false;                       // SET ERR-FLG-OFF
-        st.message = spaces(80);              // MOVE SPACES TO WS-MESSAGE
-        st.scr.setErrmsg(spaces(78));         //                ERRMSGO
+        // MAIN-PARA: SET ERR-FLG-OFF / USR-MODIFIED-NO, MOVE SPACES TO WS-MESSAGE ERRMSGO
+        c.errFlg = false;
+        c.message = x("", 80);
+        c.screen.setErrmsg(x("", 78));
 
-        if (!task.hasCommarea()) {            // IF EIBCALEN = 0
-            st.ca.setCdemoToProgram("COSGN00C");
-            returnToPrevScreen(task, st);     // PERFORM RETURN-TO-PREV-SCREEN (XCTL never returns)
+        if (!task.hasCommarea()) {
+            // EIBCALEN = 0: the commarea is the program's own (initial) working storage
+            c.commarea = initialCommarea();
+            c.commarea.setCdemoToProgram(x("COSGN00C", 8));
+            returnToPrevScreen(c);
             return;
         }
-        st.ca = copyCommarea(task.commarea(CarddemoCommarea6.class));   // MOVE DFHCOMMAREA(1:EIBCALEN)
-        if (!(st.ca.getCdemoPgmContext() != null && st.ca.getCdemoPgmContext() == 1)) {  // NOT CDEMO-PGM-REENTER
-            st.ca.setCdemoPgmContext(1);      // SET CDEMO-PGM-REENTER TO TRUE
-            st.scr = lowScreen();             // MOVE LOW-VALUES TO COTRN1AO
-            st.cursor = true;                 // MOVE -1 TO TRNIDINL
-            String sel = st.ca.getCdemoCt01TrnSelected();
-            if (!blankOrLow(sel, 16)) {       // NOT = SPACES AND LOW-VALUES
-                st.scr.setTrnidin(x(sel, 16));
-                processEnterKey(task, st);
+        c.commarea = task.commarea(Cotrn01cCarddemoCommarea.class);
+        Cotrn01cCarddemoCommarea cc = c.commarea;
+
+        if (!pgmReenter(cc)) {
+            cc.setCdemoPgmContext(1);                       // SET CDEMO-PGM-REENTER TO TRUE
+            c.screen = filled('\u0000');                    // MOVE LOW-VALUES TO COTRN1AO
+            c.cursor = true;                                // MOVE -1 TO TRNIDINL
+            if (!blankOrLow(cc.getCdemoCt01TrnSelected(), 16)) {
+                c.screen.setTrnidin(x(cc.getCdemoCt01TrnSelected(), 16));
+                processEnterKey(c);
             }
-            // DEFECT kept: when PROCESS-ENTER-KEY already sent the screen (error), this sends it a second time.
-            // Fix: send here only if NOT ERR-FLG-ON.
-            sendTrnviewScreen(task, st);
+            sendTrnviewScreen(c);
         } else {
-            receiveTrnviewScreen(task, st);
+            receiveTrnviewScreen(c);
             String aid = task.aid();
-            if ("ENTER".equals(aid)) {                       // WHEN DFHENTER
-                processEnterKey(task, st);
-            } else if ("PF3".equals(aid)) {                  // WHEN DFHPF3
-                String from = st.ca.getCdemoFromProgram();
-                if (blankOrLow(from, 8)) {
-                    st.ca.setCdemoToProgram("COMEN01C");
+            if ("ENTER".equals(aid)) {
+                processEnterKey(c);
+            } else if ("PF3".equals(aid)) {
+                if (blankOrLow(cc.getCdemoFromProgram(), 8)) {
+                    cc.setCdemoToProgram(x("COMEN01C", 8));
                 } else {
-                    st.ca.setCdemoToProgram(x(from, 8));
+                    cc.setCdemoToProgram(x(cc.getCdemoFromProgram(), 8));
                 }
-                returnToPrevScreen(task, st);
+                returnToPrevScreen(c);
                 return;
-            } else if ("PF4".equals(aid)) {                  // WHEN DFHPF4
-                clearCurrentScreen(task, st);
-            } else if ("PF5".equals(aid)) {                  // WHEN DFHPF5
-                st.ca.setCdemoToProgram("COTRN00C");
-                returnToPrevScreen(task, st);
+            } else if ("PF4".equals(aid)) {
+                clearCurrentScreen(c);
+            } else if ("PF5".equals(aid)) {
+                cc.setCdemoToProgram(x("COTRN00C", 8));
+                returnToPrevScreen(c);
                 return;
-            } else {                                         // WHEN OTHER
-                st.err = true;
-                st.message = x(CCDA_MSG_INVALID_KEY, 80);
-                sendTrnviewScreen(task, st);
+            } else {
+                c.errFlg = true;
+                c.message = x(CCDA_MSG_INVALID_KEY, 80);
+                sendTrnviewScreen(c);
             }
         }
 
-        // EXEC CICS RETURN TRANSID(WS-TRANID) COMMAREA(CARDDEMO-COMMAREA)
-        task.returnTransid(WS_TRANID, st.ca);
+        task.returnTransid(WS_TRANID, cc);
     }
 
-    /** PROCESS-ENTER-KEY */
-    private void processEnterKey(CicsTask task, State st) {
-        if (blankOrLow(st.scr.getTrnidin(), 16)) {           // WHEN TRNIDINI = SPACES OR LOW-VALUES
-            st.err = true;
-            st.message = x("Tran ID can NOT be empty...", 80);
-            st.cursor = true;
-            sendTrnviewScreen(task, st);
-        } else {                                             // WHEN OTHER
-            st.cursor = true;
+    /** PROCESS-ENTER-KEY. */
+    private void processEnterKey(Ctx c) {
+        if (blankOrLow(c.screen.getTrnidin(), 16)) {
+            c.errFlg = true;
+            c.message = x("Tran ID can NOT be empty...", 80);
+            c.cursor = true;
+            sendTrnviewScreen(c);
+        } else {
+            c.cursor = true;
         }
 
-        if (!st.err) {
-            clearDetailFields(st.scr);
-            String tranId = x(st.scr.getTrnidin(), 16);      // MOVE TRNIDINI TO TRAN-ID
-            readTransactFile(task, st, tranId);
+        TranRecord rec = null;
+        if (!c.errFlg) {
+            Cotrn1aScreen s = c.screen;
+            s.setTrnid(x("", 16));
+            s.setCardnum(x("", 16));
+            s.setTtypcd(x("", 2));
+            s.setTcatcd(x("", 4));
+            s.setTrnsrc(x("", 10));
+            s.setTrnamt(x("", 12));
+            s.setTdesc(x("", 60));
+            s.setTorigdt(x("", 10));
+            s.setTprocdt(x("", 10));
+            s.setMid(x("", 9));
+            s.setMname(x("", 30));
+            s.setMcity(x("", 25));
+            s.setMzip(x("", 10));
+            String tranId = x(s.getTrnidin(), 16);          // MOVE TRNIDINI TO TRAN-ID
+            rec = readTransactFile(c, tranId);
         }
 
-        if (!st.err) {
-            TranRecord t = st.tran;
-            Cotrn1aScreen s = st.scr;
-            String wsTranAmt = CobolEdit.format("+99999999.99",
-                    t.getTranAmt() == null ? BigDecimal.ZERO : t.getTranAmt(), false, null);   // MOVE TRAN-AMT TO WS-TRAN-AMT
-            s.setTrnid(x(t.getTranId(), 16));
-            s.setCardnum(x(t.getTranCardNum(), 16));
-            s.setTtypcd(x(t.getTranTypeCd(), 2));
-            s.setTcatcd(Sysout.number(CobolRecords.decimal(t.getTranCatCd()), 4, 0, false));
-            s.setTrnsrc(x(t.getTranSource(), 10));
+        if (!c.errFlg) {
+            Cotrn1aScreen s = c.screen;
+            BigDecimal amt = CobolRecords.decimal(rec.getTranAmt());
+            String wsTranAmt = CobolEdit.format("+99999999.99", amt, false, null);   // WS-TRAN-AMT
+            s.setTrnid(x(rec.getTranId(), 16));
+            s.setCardnum(x(rec.getTranCardNum(), 16));
+            s.setTtypcd(x(rec.getTranTypeCd(), 2));
+            s.setTcatcd(x(Sysout.number(CobolRecords.decimal(rec.getTranCatCd()), 4, 0, false), 4));
+            s.setTrnsrc(x(rec.getTranSource(), 10));
             s.setTrnamt(x(wsTranAmt, 12));
-            s.setTdesc(x(t.getTranDesc(), 60));
-            s.setTorigdt(x(t.getTranOrigTs(), 10));
-            s.setTprocdt(x(t.getTranProcTs(), 10));
-            s.setMid(Sysout.number(CobolRecords.decimal(t.getTranMerchantId()), 9, 0, false));
-            s.setMname(x(t.getTranMerchantName(), 30));
-            s.setMcity(x(t.getTranMerchantCity(), 25));
-            s.setMzip(x(t.getTranMerchantZip(), 10));
-            sendTrnviewScreen(task, st);
+            s.setTdesc(x(rec.getTranDesc(), 60));
+            s.setTorigdt(x(rec.getTranOrigTs(), 10));
+            s.setTprocdt(x(rec.getTranProcTs(), 10));
+            s.setMid(x(Sysout.number(CobolRecords.decimal(rec.getTranMerchantId()), 9, 0, false), 9));
+            s.setMname(x(rec.getTranMerchantName(), 30));
+            s.setMcity(x(rec.getTranMerchantCity(), 25));
+            s.setMzip(x(rec.getTranMerchantZip(), 10));
+            sendTrnviewScreen(c);
         }
     }
 
-    /** RETURN-TO-PREV-SCREEN */
-    private void returnToPrevScreen(CicsTask task, State st) {
-        if (blankOrLow(st.ca.getCdemoToProgram(), 8)) {
-            st.ca.setCdemoToProgram("COSGN00C");
+    /** RETURN-TO-PREV-SCREEN: XCTL never returns to the program. */
+    private void returnToPrevScreen(Ctx c) {
+        Cotrn01cCarddemoCommarea cc = c.commarea;
+        if (blankOrLow(cc.getCdemoToProgram(), 8)) {
+            cc.setCdemoToProgram(x("COSGN00C", 8));
         }
-        st.ca.setCdemoFromTranid(WS_TRANID);
-        st.ca.setCdemoFromProgram(WS_PGMNAME);
-        st.ca.setCdemoPgmContext(0);
-        String program = x(st.ca.getCdemoToProgram(), 8).stripTrailing();
-        String resp = task.xctl(program, st.ca);             // XCTL PROGRAM(CDEMO-TO-PROGRAM)
+        cc.setCdemoFromTranid(x(WS_TRANID, 4));
+        cc.setCdemoFromProgram(x(WS_PGMNAME, 8));
+        cc.setCdemoPgmContext(0);
+        String resp = c.task.xctl(cc.getCdemoToProgram().trim(), cc);
         if (!"NORMAL".equals(resp)) {
-            task.abendOnCondition(resp);                     // no RESP coded: CICS default action
+            // no RESP on the XCTL: the condition takes CICS's default action
+            c.task.abendOnCondition(resp);
         }
     }
 
-    /** SEND-TRNVIEW-SCREEN */
-    private void sendTrnviewScreen(CicsTask task, State st) {
-        populateHeaderInfo(task, st);
-        st.scr.setErrmsg(x(st.message, 78));                 // MOVE WS-MESSAGE TO ERRMSGO
+    /** SEND-TRNVIEW-SCREEN. */
+    private void sendTrnviewScreen(Ctx c) {
+        populateHeaderInfo(c);
+        c.screen.setErrmsg(x(c.message, 78));
         CicsTask.MapSubfields sub = new CicsTask.MapSubfields();
-        if (st.cursor) {
-            sub.cursor("TRNIDIN");                           // TRNIDINL = -1
+        if (c.cursor) {
+            sub.cursor("TRNIDIN");
         }
-        task.sendMap(Cotrn1aScreen.MAP, Cotrn1aScreen.MAPSET, Cotrn1aScreen.fromValues(st.scr.screenValues()),
-                sub, "ERASE", "CURSOR");
+        c.task.sendMap(Cotrn1aScreen.MAP, Cotrn1aScreen.MAPSET, copy(c.screen), sub, "ERASE", "CURSOR");
     }
 
-    /** RECEIVE-TRNVIEW-SCREEN: RESP / RESP2 are stored by the program and never tested. */
-    private void receiveTrnviewScreen(CicsTask task, State st) {
-        Optional<Cotrn1aScreen> in = task.receive(Cotrn1aScreen.MAP, Cotrn1aScreen.MAPSET, Cotrn1aScreen.class);
+    /** RECEIVE-TRNVIEW-SCREEN: RESP is never tested (defect kept; a MAPFAIL leaves the storage as it was). */
+    private void receiveTrnviewScreen(Ctx c) {
+        Optional<Cotrn1aScreen> in = c.task.receive(Cotrn1aScreen.MAP, Cotrn1aScreen.MAPSET, Cotrn1aScreen.class);
         if (in.isPresent()) {
-            st.scr = loadScreen(in.get());
+            c.screen = copy(in.get());
+            c.cursor = false;   // TRNIDINL now holds the received length, not -1
         }
-        // MAPFAIL: COTRN1AI keeps its storage.
-        // DEFECT kept: the RESP is not tested. Fix: EVALUATE WS-RESP-CD after the RECEIVE.
     }
 
-    /** POPULATE-HEADER-INFO */
-    private void populateHeaderInfo(CicsTask task, State st) {
-        LocalDateTime now = task.now();                      // FUNCTION CURRENT-DATE
-        Cotrn1aScreen s = st.scr;
+    /** POPULATE-HEADER-INFO. */
+    private void populateHeaderInfo(Ctx c) {
+        LocalDateTime now = c.task.now();                   // FUNCTION CURRENT-DATE
+        Cotrn1aScreen s = c.screen;
         s.setTitle01(x(CCDA_TITLE01, 40));
         s.setTitle02(x(CCDA_TITLE02, 40));
         s.setTrnname(x(WS_TRANID, 4));
@@ -217,172 +230,149 @@ public class Cotrn01cService {
         s.setCurtime(String.format(Locale.ROOT, "%02d:%02d:%02d", now.getHour(), now.getMinute(), now.getSecond()));
     }
 
-    /** READ-TRANSACT-FILE */
-    private void readTransactFile(CicsTask task, State st, String tranId) {
-        CicsTask.FileRead<TranRecord> read = task.readForUpdate("TRANSACT", () -> readTransact(tranId));
-        switch (read.resp()) {
-            case 0:                                          // DFHRESP(NORMAL)
-                st.tran = TranRecord.fromRecord(read.record().toRecord(CobolRecords.charset()), CobolRecords.charset());
-                break;
-            case 13:                                         // DFHRESP(NOTFND)
-                st.err = true;
-                st.message = x("Transaction ID NOT found...", 80);
-                st.cursor = true;
-                sendTrnviewScreen(task, st);
-                break;
-            default:                                         // WHEN OTHER
-                Sysout.display("RESP:", Sysout.number(BigDecimal.valueOf(read.resp()), 9, 0, true),
-                        "REAS:", Sysout.number(BigDecimal.valueOf(read.resp2()), 9, 0, true));
-                st.err = true;
-                st.message = x("Unable to lookup Transaction...", 80);
-                st.cursor = true;
-                sendTrnviewScreen(task, st);
-                break;
+    /** READ-TRANSACT-FILE: returns the record, or null with the error flag set. */
+    private TranRecord readTransactFile(Ctx c, String tranId) {
+        CicsTask.FileRead<TranRecord> r = c.task.readForUpdate(WS_TRANSACT_FILE, () -> readTransact(tranId));
+        int resp = r.resp();
+        if (resp == 0) {
+            return r.record();
+        } else if (resp == 13) {
+            c.errFlg = true;
+            c.message = x("Transaction ID NOT found...", 80);
+            c.cursor = true;
+            sendTrnviewScreen(c);
+        } else {
+            Sysout.display("RESP:", Sysout.number(BigDecimal.valueOf(resp), 9, 0, true),
+                    "REAS:", Sysout.number(BigDecimal.valueOf(r.resp2()), 9, 0, true));
+            c.errFlg = true;
+            c.message = x("Unable to lookup Transaction...", 80);
+            c.cursor = true;
+            sendTrnviewScreen(c);
         }
-        // DEFECT kept: READ ... UPDATE with no REWRITE / UNLOCK holds the record needlessly. Fix: drop UPDATE.
+        return null;
     }
 
-    /** CLEAR-CURRENT-SCREEN + INITIALIZE-ALL-FIELDS */
-    private void clearCurrentScreen(CicsTask task, State st) {
-        st.cursor = true;                                    // MOVE -1 TO TRNIDINL
-        st.scr.setTrnidin(spaces(16));
-        clearDetailFields(st.scr);
-        st.scr.setTrnid(spaces(16));
-        st.message = spaces(80);
-        sendTrnviewScreen(task, st);
+    /** CLEAR-CURRENT-SCREEN + INITIALIZE-ALL-FIELDS. */
+    private void clearCurrentScreen(Ctx c) {
+        c.cursor = true;
+        Cotrn1aScreen s = c.screen;
+        s.setTrnidin(x("", 16));
+        s.setTrnid(x("", 16));
+        s.setCardnum(x("", 16));
+        s.setTtypcd(x("", 2));
+        s.setTcatcd(x("", 4));
+        s.setTrnsrc(x("", 10));
+        s.setTrnamt(x("", 12));
+        s.setTdesc(x("", 60));
+        s.setTorigdt(x("", 10));
+        s.setTprocdt(x("", 10));
+        s.setMid(x("", 9));
+        s.setMname(x("", 30));
+        s.setMcity(x("", 25));
+        s.setMzip(x("", 10));
+        c.message = x("", 80);
+        sendTrnviewScreen(c);
     }
 
-    private static void clearDetailFields(Cotrn1aScreen s) {
-        s.setTrnid(spaces(16));
-        s.setCardnum(spaces(16));
-        s.setTtypcd(spaces(2));
-        s.setTcatcd(spaces(4));
-        s.setTrnsrc(spaces(10));
-        s.setTrnamt(spaces(12));
-        s.setTdesc(spaces(60));
-        s.setTorigdt(spaces(10));
-        s.setTprocdt(spaces(10));
-        s.setMid(spaces(9));
-        s.setMname(spaces(30));
-        s.setMcity(spaces(25));
-        s.setMzip(spaces(10));
+    // ---- storage helpers ----
+
+    private static String x(String v, int n) {
+        return CobolRecords.fit(v, n, CobolRecords.charset());
     }
 
-    private static Cotrn1aScreen lowScreen() {
+    private static boolean blankOrLow(String v, int n) {
+        String s = x(v, n);
+        return CobolCompare.eq(s, "") || CobolCompare.eq(s, "\u0000".repeat(n));
+    }
+
+    private static boolean pgmReenter(Cotrn01cCarddemoCommarea cc) {
+        return cc.getCdemoPgmContext() != null && cc.getCdemoPgmContext() == 1;
+    }
+
+    private static Cotrn1aScreen filled(char ch) {
+        String f = String.valueOf(ch);
         Cotrn1aScreen s = new Cotrn1aScreen();
-        s.setTrnname(low(4));
-        s.setTitle01(low(40));
-        s.setCurdate(low(8));
-        s.setPgmname(low(8));
-        s.setTitle02(low(40));
-        s.setCurtime(low(8));
-        s.setTrnidin(low(16));
-        s.setTrnid(low(16));
-        s.setCardnum(low(16));
-        s.setTtypcd(low(2));
-        s.setTcatcd(low(4));
-        s.setTrnsrc(low(10));
-        s.setTdesc(low(60));
-        s.setTrnamt(low(12));
-        s.setTorigdt(low(10));
-        s.setTprocdt(low(10));
-        s.setMid(low(9));
-        s.setMname(low(30));
-        s.setMcity(low(25));
-        s.setMzip(low(10));
-        s.setErrmsg(low(78));
+        s.setTrnname(f.repeat(4));
+        s.setTitle01(f.repeat(40));
+        s.setCurdate(f.repeat(8));
+        s.setPgmname(f.repeat(8));
+        s.setTitle02(f.repeat(40));
+        s.setCurtime(f.repeat(8));
+        s.setTrnidin(f.repeat(16));
+        s.setTrnid(f.repeat(16));
+        s.setCardnum(f.repeat(16));
+        s.setTtypcd(f.repeat(2));
+        s.setTcatcd(f.repeat(4));
+        s.setTrnsrc(f.repeat(10));
+        s.setTdesc(f.repeat(60));
+        s.setTrnamt(f.repeat(12));
+        s.setTorigdt(f.repeat(10));
+        s.setTprocdt(f.repeat(10));
+        s.setMid(f.repeat(9));
+        s.setMname(f.repeat(30));
+        s.setMcity(f.repeat(25));
+        s.setMzip(f.repeat(10));
+        s.setErrmsg(f.repeat(78));
         return s;
     }
 
-    /** The received map as the program's storage: each field its width, a field not sent stays low-values. */
-    private static Cotrn1aScreen loadScreen(Cotrn1aScreen in) {
+    /** A copy with every field at its PICTURE length (also what an event must hold: a snapshot). */
+    private static Cotrn1aScreen copy(Cotrn1aScreen in) {
         Cotrn1aScreen s = new Cotrn1aScreen();
-        s.setTrnname(norm(in.getTrnname(), 4));
-        s.setTitle01(norm(in.getTitle01(), 40));
-        s.setCurdate(norm(in.getCurdate(), 8));
-        s.setPgmname(norm(in.getPgmname(), 8));
-        s.setTitle02(norm(in.getTitle02(), 40));
-        s.setCurtime(norm(in.getCurtime(), 8));
-        s.setTrnidin(norm(in.getTrnidin(), 16));
-        s.setTrnid(norm(in.getTrnid(), 16));
-        s.setCardnum(norm(in.getCardnum(), 16));
-        s.setTtypcd(norm(in.getTtypcd(), 2));
-        s.setTcatcd(norm(in.getTcatcd(), 4));
-        s.setTrnsrc(norm(in.getTrnsrc(), 10));
-        s.setTdesc(norm(in.getTdesc(), 60));
-        s.setTrnamt(norm(in.getTrnamt(), 12));
-        s.setTorigdt(norm(in.getTorigdt(), 10));
-        s.setTprocdt(norm(in.getTprocdt(), 10));
-        s.setMid(norm(in.getMid(), 9));
-        s.setMname(norm(in.getMname(), 30));
-        s.setMcity(norm(in.getMcity(), 25));
-        s.setMzip(norm(in.getMzip(), 10));
-        s.setErrmsg(norm(in.getErrmsg(), 78));
+        s.setTrnname(x(in.getTrnname(), 4));
+        s.setTitle01(x(in.getTitle01(), 40));
+        s.setCurdate(x(in.getCurdate(), 8));
+        s.setPgmname(x(in.getPgmname(), 8));
+        s.setTitle02(x(in.getTitle02(), 40));
+        s.setCurtime(x(in.getCurtime(), 8));
+        s.setTrnidin(x(in.getTrnidin(), 16));
+        s.setTrnid(x(in.getTrnid(), 16));
+        s.setCardnum(x(in.getCardnum(), 16));
+        s.setTtypcd(x(in.getTtypcd(), 2));
+        s.setTcatcd(x(in.getTcatcd(), 4));
+        s.setTrnsrc(x(in.getTrnsrc(), 10));
+        s.setTdesc(x(in.getTdesc(), 60));
+        s.setTrnamt(x(in.getTrnamt(), 12));
+        s.setTorigdt(x(in.getTorigdt(), 10));
+        s.setTprocdt(x(in.getTprocdt(), 10));
+        s.setMid(x(in.getMid(), 9));
+        s.setMname(x(in.getMname(), 30));
+        s.setMcity(x(in.getMcity(), 25));
+        s.setMzip(x(in.getMzip(), 10));
+        s.setErrmsg(x(in.getErrmsg(), 78));
         return s;
     }
 
-    /** Fresh CARDDEMO-COMMAREA: numeric items start at zero (the first-entry XCTL passes them), CT01-NEXT-PAGE-FLG VALUE 'N'. */
-    private static CarddemoCommarea6 newCommarea() {
-        CarddemoCommarea6 c = new CarddemoCommarea6();
-        c.setCdemoPgmContext(0);
-        c.setCdemoCustId(0);
-        c.setCdemoAcctId(0L);
-        c.setCdemoCardNum(0L);
-        c.setCdemoCt01PageNum(0);
-        c.setCdemoCt01NextPageFlg("N");                      // VALUE 'N'
-        return c;
+    /** CARDDEMO-COMMAREA as working storage holds it before any MOVE (X spaces, 9 zeros, NEXT-PAGE-FLG 'N'). */
+    private static Cotrn01cCarddemoCommarea initialCommarea() {
+        Cotrn01cCarddemoCommarea cc = new Cotrn01cCarddemoCommarea();
+        cc.setCdemoFromTranid(x("", 4));
+        cc.setCdemoFromProgram(x("", 8));
+        cc.setCdemoToTranid(x("", 4));
+        cc.setCdemoToProgram(x("", 8));
+        cc.setCdemoUserId(x("", 8));
+        cc.setCdemoUserType(x("", 1));
+        cc.setCdemoPgmContext(0);
+        cc.setCdemoCustId(0);
+        cc.setCdemoCustFname(x("", 25));
+        cc.setCdemoCustMname(x("", 25));
+        cc.setCdemoCustLname(x("", 25));
+        cc.setCdemoAcctId(0L);
+        cc.setCdemoAcctStatus(x("", 1));
+        cc.setCdemoCardNum(0L);
+        cc.setCdemoLastMap(x("", 7));
+        cc.setCdemoLastMapset(x("", 7));
+        cc.setCdemoCt01TrnidFirst(x("", 16));
+        cc.setCdemoCt01TrnidLast(x("", 16));
+        cc.setCdemoCt01PageNum(0);
+        cc.setCdemoCt01NextPageFlg("N");
+        cc.setCdemoCt01TrnSelFlg(x("", 1));
+        cc.setCdemoCt01TrnSelected(x("", 16));
+        return cc;
     }
 
-    private static CarddemoCommarea6 copyCommarea(CarddemoCommarea6 in) {
-        CarddemoCommarea6 c = new CarddemoCommarea6();
-        c.setCdemoFromTranid(in.getCdemoFromTranid());
-        c.setCdemoFromProgram(in.getCdemoFromProgram());
-        c.setCdemoToTranid(in.getCdemoToTranid());
-        c.setCdemoToProgram(in.getCdemoToProgram());
-        c.setCdemoUserId(in.getCdemoUserId());
-        c.setCdemoUserType(in.getCdemoUserType());
-        c.setCdemoPgmContext(in.getCdemoPgmContext());
-        c.setCdemoCustId(in.getCdemoCustId());
-        c.setCdemoCustFname(in.getCdemoCustFname());
-        c.setCdemoCustMname(in.getCdemoCustMname());
-        c.setCdemoCustLname(in.getCdemoCustLname());
-        c.setCdemoAcctId(in.getCdemoAcctId());
-        c.setCdemoAcctStatus(in.getCdemoAcctStatus());
-        c.setCdemoCardNum(in.getCdemoCardNum());
-        c.setCdemoLastMap(in.getCdemoLastMap());
-        c.setCdemoLastMapset(in.getCdemoLastMapset());
-        c.setCdemoCt01TrnidFirst(in.getCdemoCt01TrnidFirst());
-        c.setCdemoCt01TrnidLast(in.getCdemoCt01TrnidLast());
-        c.setCdemoCt01PageNum(in.getCdemoCt01PageNum());
-        c.setCdemoCt01NextPageFlg(in.getCdemoCt01NextPageFlg());
-        c.setCdemoCt01TrnSelFlg(in.getCdemoCt01TrnSelFlg());
-        c.setCdemoCt01TrnSelected(in.getCdemoCt01TrnSelected());
-        return c;
-    }
-
-    /** IF x = SPACES OR LOW-VALUES */
-    private static boolean blankOrLow(String v, int width) {
-        return CobolCompare.eq(v, "") || CobolCompare.eq(v, low(width));
-    }
-
-    private static String x(String v, int width) {
-        return CobolRecords.fit(v, width, CobolRecords.charset());
-    }
-
-    private static String norm(String v, int width) {
-        return v == null ? low(width) : x(v, width);
-    }
-
-    private static String spaces(int n) {
-        return " ".repeat(n);
-    }
-
-    private static String low(int n) {
-        return "\u0000".repeat(n);
-    }
-
-    /** Another program LINKed / XCTLed to this one: the logic is in runTask. */
-    public CarddemoCommarea6 handleLink(CarddemoCommarea6 request) {
+    /** Another program LINKed / XCTLed to this one. TODO: [AI AGENT] implement from the program's business rules. */
+    public Cotrn01cCarddemoCommarea handleLink(Cotrn01cCarddemoCommarea request) {
         log.info("Cotrn01c: handleLink");
         return request;
     }
@@ -398,7 +388,7 @@ public class Cotrn01cService {
                 cosgn00cService.getObject().handleLink();
                 return null;
             case "COTRN00C":
-                return cotrn00cService.getObject().handleLink((CarddemoCommarea5) request);
+                return cotrn00cService.getObject().handleLink((Cotrn00cCarddemoCommarea) request);
             default:
                 throw new IllegalArgumentException("XCTL PROGRAM(CDEMO-TO-PROGRAM) at app/cbl/COTRN01C.cbl:205: no known target " + program);
         }
@@ -409,12 +399,14 @@ public class Cotrn01cService {
         return tranRecordRepository.findById(key);
     }
 
-    /** SEND MAP(COTRN1A) MAPSET(COTRN01) FROM(COTRN1AO) at app/cbl/COTRN01C.cbl:219 (#3619); the logic is in runTask. */
+    /** SEND MAP(COTRN1A) MAPSET(COTRN01) FROM(COTRN1AO) at app/cbl/COTRN01C.cbl:219 (#3619); the logic that
+     *  fills COTRN1AO is in runTask / sendTrnviewScreen. */
     public Cotrn1aScreen renderCotrn1a(Cotrn1aScreen screen) {
         return screen;
     }
 
-    /** RECEIVE MAP(COTRN1A) MAPSET(COTRN01) INTO(COTRN1AI) at app/cbl/COTRN01C.cbl:232 (#3619); the logic is in runTask. */
+    /** RECEIVE MAP(COTRN1A) MAPSET(COTRN01) INTO(COTRN1AI) at app/cbl/COTRN01C.cbl:232 (#3619); the
+     *  pseudo-conversational logic is in runTask. */
     public ScreenModel submitCotrn1a(Cotrn1aScreen input, String aid) {
         return renderCotrn1a(input);
     }

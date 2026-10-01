@@ -4,7 +4,7 @@
  "written_by": "model (the #4023 follow-up porting loop), not a person",
  "model": "claude-sonnet-5-5",
  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
- "proposed": "2026-09-30T14:16:42+00:00",
+ "proposed": "2026-10-01T15:07:08+00:00",
  "attempt": 1,
  "attempts": [
   {
@@ -12,9 +12,9 @@
    "verdict": "proven"
   }
  ],
- "ticket_sha256": "7070bf8251d492564d7034649bbe4652e6f370588a8d1145d89ed1130d70dd67",
- "prompt_tokens": 58842,
- "proof": "tests/tools/equivalence.py run carddemo-menu (every output / call / scenario and every fault run equal)",
- "edited_after": "none: the file is the model's answer as the loop stored it",
+ "ticket_sha256": "80d46fb284b24ce774f94504028c7de4b4bc4fd707e1172ce3bb63f423005553",
+ "prompt_tokens": 74726,
+ "proof": "tests/tools/equivalence.py run carddemo-menu",
+ "edited_after": "none: the files are the model's answer as the loop stored it",
  "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
 }

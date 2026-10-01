@@ -102,6 +102,15 @@ def start_baseline(
     return subprocess.Popen(argv, stdout=log, stderr=subprocess.STDOUT, cwd=REPO_ROOT), [rel]  # noqa: S603
 
 
+def _baseline_built(baseline: Path) -> bool:
+    """Whether the baseline proof got as far as running the Java side: a generated service that does not even
+    compile (no runBatch for a program its estate's JCL never runs) leaves nothing to reuse -- prove in full."""
+    report = baseline / "report.json"
+    if not report.is_file():
+        return False
+    return not json.loads(report.read_text(encoding="utf-8")).get("java_failed")
+
+
 def _events(project: Path) -> list[dict[str, Any]]:
     log = project / "ai_agent_jobs" / "ports" / "port_log.jsonl"
     return [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()] if log.is_file() else []
@@ -144,12 +153,15 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Opti
             continue
         started = time.time()
         baseline.wait()
-        reuse = (work / "baseline").is_dir() and _overlay_files(overlay) == baseline_files
+        reuse = _baseline_built(work / "baseline") and _overlay_files(overlay) == baseline_files
         att["reused"] = reuse
         command_ = prove + (f" --reuse {work / 'baseline'}" if reuse else "")
         proof = _run([*runner, "prove", str(project), "--ticket", key, "--command", command_], log)
         att["prove_seconds"] = round(time.time() - started)
-        report = project / "ai_agent_jobs" / "ports" / key / "attempts" / f"{n:03d}_proof" / "report.json"
+        # port_runner numbers proofs by port proposed, not by loop attempt (an attempt that returned no Java takes
+        # no number): the newest proof is this attempt's
+        proofs = sorted((project / "ai_agent_jobs" / "ports" / key / "attempts").glob("*_proof"))
+        report = proofs[-1] / "report.json" if proofs else Path("/nonexistent")
         r = json.loads(report.read_text(encoding="utf-8")) if report.is_file() else {}
         att["verdict"] = "proven" if proof.returncode == 0 else "not proven"
         att["java_failed"] = bool(r.get("java_failed"))

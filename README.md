@@ -283,6 +283,10 @@ A port that is not proven is not done, and a person approves every port.
 | COCRDLIC (card list) | CICS, filtered browse both ways | Claude Sonnet 5.5, attempt 2 | 43 scenarios | -- | not measured |
 | COSGN00C (sign-on) | CICS, ASSIGN APPLID / SYSID | Claude Sonnet 5.5, attempt 1 | 12 scenarios | 17/17 | not measured |
 | CORPT00C (report request) | CICS, WRITEQ TD (JCL to JOBS), CALLs CSUTLDTC | Claude Sonnet 5.5, attempt 1 | 16 scenarios, each JCL line compared | -- | not measured |
+| CBACT02C (card file listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults, SYSOUT compared | -- | not measured |
+| CBACT03C (card xref listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
+| CBCUS01C (customer listing) | batch | Claude Sonnet 5.5, attempt 1 | normal run + 6 faults | -- | not measured |
+| CBTRN01C (daily transaction check) | batch, no JCL in the estate | Claude Sonnet 5.5, attempt 3 | normal run + 20 faults | -- | not measured |
 
 On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
 applications built around known migration traps, all 17 programs are proven on 44 scenarios.
@@ -300,10 +304,13 @@ What these numbers do not show:
 - **"Proven" covers the paths the runs take.** The date check's runs reach 4 of 10 COBOL
   branches. The mutation scores are raw: mutants that cannot change behaviour are not
   removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
-- **19 of CardDemo's 44 programs** are ported so far.
+- **23 of CardDemo's 44 programs** are ported so far.
 - **Not proven, on purpose:** COCRDUPC (card update). Its confirmed update writes blanks into the card's
   `PIC 9(3)` CVV -- invalid numeric data a typed Java field cannot hold. The case keeps the scenario and the
   port stays unproven rather than hide the defect.
+- **Blocked, with no faithful run possible yet:** CBACT01C and COBSWAIT CALL assembler routines nothing models
+  (COBDATFT, MVSWAIT); CBSTM03A reads z/OS control blocks (PSA / TCB / TIOT) through a null pointer; CBEXPORT and
+  CBIMPORT do not compile (their RECORD KEY is outside the file's record).
 - **Pending:** COACTUPC (account update, 4,236 lines) -- its case is written (54 scenarios), but the program is
   too large to port in one model answer.
 

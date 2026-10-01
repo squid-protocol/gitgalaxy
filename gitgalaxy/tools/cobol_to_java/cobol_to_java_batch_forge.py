@@ -109,6 +109,9 @@ class BatchForge:
         sections = estate.get("sections") or {}
         self.status = status_text(sections.get("job_steps"))
         self.programs: dict[str, str] = {}  # PROGRAM-ID / stem -> skeleton key
+        # A main program no JCL step names (CardDemo's CBTRN01C): files of its own, a PROCEDURE DIVISION with no
+        # USING and no COMMAREA -- it is still a batch step, run by JCL the estate does not hold.
+        self.unscheduled: set[str] = set()
         self.lineage: dict[str, list[dict]] = {}
         self.submissions: dict[str, list[dict]] = {}
         for key, sk in skeletons.items():
@@ -116,6 +119,13 @@ class BatchForge:
             for pid in [*prog.get("program_ids", []), key]:
                 self.programs.setdefault(str(pid).upper(), key)
             secs = sk.get("sections") or {}
+            entries = (secs.get("entry_points") or {}).get("facts", [])
+            itf = (secs.get("interface") or {}).get("facts") or {}
+            if ((secs.get("file_control") or {}).get("facts") and entries
+                    and all(e.get("kind") == "PROCEDURE" and not e.get("params") for e in entries)
+                    and not (itf.get("commarea") if isinstance(itf, dict) else None)
+                    and not (secs.get("cics_tasks") or {}).get("facts")):  # fmt: skip
+                self.unscheduled.add(key)
             self.lineage[key] = (secs.get("dataset_lineage") or {}).get("facts", [])
             self.submissions[key] = [s for s in (secs.get("job_submissions") or {}).get("facts", [])
                                      if s.get("submitter") == prog.get("file")]  # fmt: skip
@@ -326,16 +336,20 @@ class BatchForge:
     def service_extras(self, key: str) -> dict[str, Any] | None:
         runs = [(j, st) for j in self.applications for st in j.steps if st.key == key]
         subs = self.submissions.get(key, []) if self.enabled else []
-        if not runs and not subs:
+        # only where the batch runtime is generated (an estate with JCL jobs): a JCL-free estate's file programs keep
+        # their upload controllers (#3992)
+        unscheduled = bool(self.applications) and not runs and key in self.unscheduled
+        if not runs and not subs and not unscheduled:
             return None
         pkg = f"{self.package}.{SUBPACKAGE}"
         imports: list[str] = []
         methods: list[str] = []
         fields: list[tuple[str, str]] = []
-        if runs:
+        if runs or unscheduled:
             imports += [f"import {pkg}.Dd;", "import java.util.List;"]
             where = "; ".join(f"job {j.job} step {st.jcl} ({j.file}:{st.line})"
                               + (f" through {st.runner} ({st.via})" if st.runner else "") for j, st in runs)  # fmt: skip
+            where = where or "no JCL step in this estate (a main program with files of its own: its JCL is elsewhere)"
             lin = self.lineage.get(key, [])
             dd_doc = sorted({f"{x['dd_name']} ({'/'.join(x.get('modes') or [])}) -> {x.get('dataset') or x.get('dsn') or '?'}"
                              for x in lin if x.get("dd_name")})  # fmt: skip

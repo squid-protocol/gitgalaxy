@@ -1,0 +1,101 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CBCUS01C",
+ "program_source": "app/cbl/CBCUS01C.cbl",
+ "copy_dirs": [
+  "app/cpy"
+ ],
+ "job": "READCUST",
+ "step": "STEP05",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "CUSTFILE": {
+   "input": "app/data/ASCII/custdata.txt",
+   "organization": "indexed",
+   "reclen": 500,
+   "keys": [
+    {
+     "offset": 0,
+     "length": 9
+    }
+   ],
+   "entity": "CustomerRecord"
+  }
+ },
+ "notes": "Job READCUST step STEP05: CBCUS01C reads CardDemo's customer master (the CUSTDATA KSDS, custdata.txt) in key order and DISPLAYs each CUSTOMER-RECORD on SYSOUT; it writes no file, so SYSOUT, RETURN-CODE and the abend are the outputs compared. Every record is DISPLAYed TWICE -- once in 1000-CUSTFILE-GET-NEXT on status '00' and again in the main loop (the program's defect: CBACT02C has the first DISPLAY commented out). Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+ "faults": [
+  {
+   "name": "open-custfile",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "35"
+    }
+   ],
+   "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING CUSTFILE' from 0000-CUSTFILE-OPEN, Z-DISPLAY-IO-STATUS, then Z-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "open-custfile-verified",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "OPEN",
+     "nth": 1,
+     "status": "97"
+    }
+   ],
+   "why": "97: OPEN successful, file integrity verified (IBM Enterprise COBOL for z/OS Language Reference, File status key values) -- a SUCCESSFUL open, but 0000-CUSTFILE-OPEN accepts only '00', so the step abends (the program's defect) through Z-DISPLAY-IO-STATUS's 9 arm, then Z-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "custfile-read-error",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third customer: 'ERROR READING ...' from 1000-CUSTFILE-GET-NEXT after two customers are displayed, Z-DISPLAY-IO-STATUS, then Z-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "custfile-early-end",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "READ",
+     "nth": 3,
+     "status": "10"
+    }
+   ],
+   "why": "10: end of file (IBM Enterprise COBOL for z/OS Language Reference, File status key values) after two customers: END-OF-FILE is set, the file is closed and the step ends normally with what it has displayed"
+  },
+  {
+   "name": "custfile-status-9",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "READ",
+     "nth": 1,
+     "status": "9A"
+    }
+   ],
+   "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1000-CUSTFILE-GET-NEXT -> Z-DISPLAY-IO-STATUS's non-numeric / 9 arm, then Z-ABEND-PROGRAM -> ABEND U0999"
+  },
+  {
+   "name": "close-custfile",
+   "plan": [
+    {
+     "dd": "CUSTFILE",
+     "op": "CLOSE",
+     "nth": 1,
+     "status": "30"
+    }
+   ],
+   "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing CUSTFILE after every record is displayed: 'ERROR CLOSING ...' from 9000-CUSTFILE-CLOSE, Z-DISPLAY-IO-STATUS, then Z-ABEND-PROGRAM -> ABEND U0999"
+  }
+ ]
+}

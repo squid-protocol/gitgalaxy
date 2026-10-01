@@ -259,6 +259,13 @@ def run_cobol(
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
             if spec.get("compare") and (work / f"{dd}.out").is_file()}  # fmt: skip
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
+    # A CALL to a routine nothing here provides (CBACT01C's assembler COBDATFT) ends the run in libcob's own
+    # "module not found": that is GnuCOBOL's failure, never the program's behaviour -- refused, not recorded as the
+    # oracle (SYSOUT leaves libcob's lines out, so a port imitating the crash would otherwise prove).
+    missing = re.search(rb"libcob: [^\n]*module '([^']+)' not found", outs["SYSOUT"])
+    if missing:
+        raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
+                           "(GnuCOBOL: module not found) -- not runnable faithfully")  # fmt: skip
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()
@@ -561,8 +568,13 @@ def main() -> int:
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
             for dd, data in res.items():
-                what = (f"{data.decode().strip() or '(none)'}" if dd in ("RETURN-CODE", "ABEND", "FAULTS")
-                        else f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records")  # fmt: skip
+                if dd in ("RETURN-CODE", "ABEND", "FAULTS"):
+                    what = data.decode().strip() or "(none)"
+                elif dd in case["datasets"]:
+                    what = f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records"
+                else:  # SYSOUT (#4056): lines, not records
+                    lines = data.count(b"\n")  # (no backslash inside an f-string: Python < 3.12)
+                    what = f"{len(data)} bytes, {lines} lines"
                 print(f"{'fault ' + name + ' ' if name else ''}{dd}: {what}")
         return 0
     import equivalence_java as ej

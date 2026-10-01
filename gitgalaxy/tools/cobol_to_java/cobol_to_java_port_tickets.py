@@ -194,7 +194,10 @@ PORTING_RULES = [
         "the browse's position and CICS's repositioning rules (a READPREV right after a READNEXT reads the same "
         "record again): pass RIDFLD exactly as the program holds it. ASKTIME ABSTIME is task.asktime(); FORMATTIME "
         'is CicsTask.formatDate(abstime, "YYYYMMDD" (or the form given), <DATESEP>) and '
-        "CicsTask.formatTime(abstime, <TIMESEP>). "
+        "CicsTask.formatTime(abstime, <TIMESEP>). ASSIGN APPLID / SYSID are task.assignApplid() / "
+        "task.assignSysid() (the region's identity: never a literal). WRITEQ TD QUEUE FROM is "
+        "task.writeqTd(queue, <the record as text, its full LENGTH>), which returns the RESP (QIDERR 44 for a queue "
+        "the CSD does not define). "
         "INQUIRE PROGRAM(p) is task.inquireProgram(p): its RESP (NORMAL 0, "
         "PGMIDERR 27). A screen field shows what the symbolic map's O field would hold: text "
         "as moved, an edited PICTURE formatted as COBOL formats it. A COMMAREA is the generated DTO of its "

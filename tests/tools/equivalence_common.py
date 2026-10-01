@@ -297,6 +297,9 @@ def _copy_statement(lines: list[str], i: int) -> tuple[str, int]:
     return text, j
 
 
+_PROCEDURE_DIVISION = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
+
+
 def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, str]], depth: int = 0) -> list[str]:
     """The code lines of `path` with each `COPY member.` replaced by the member's own (expanded)
     lines, found in `dirs` in order. A COPY found nowhere contributes no lines: its position (the
@@ -305,6 +308,9 @@ def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, st
     out: list[str] = []
     i = 0
     while i < len(lines):
+        if _PROCEDURE_DIVISION.match(lines[i]):  # no record is laid out here: its COPYs (COACTUPC's 39 COPY
+            out.extend(lines[i:])  # CSSETATY REPLACING, screen-attribute code) are left as written
+            break
         m = _COPY_START.match(lines[i])
         if not m:
             out.append(lines[i])
@@ -337,7 +343,8 @@ def layout_fields(
     #4010: each COPY in the file is expanded first, its member looked up in `copy_dirs` (default:
     the file's own directory, then `corpus`), so the fields after a nested COPY keep their offsets.
     A COPY that resolves nowhere is harmless outside the chosen record but raises LayoutError
-    inside it, as does a COPY ... REPLACING anywhere: a shifted layout is never returned."""
+    inside it, as does a COPY ... REPLACING anywhere before the PROCEDURE DIVISION (after it, no record
+    is laid out and nothing is expanded): a shifted layout is never returned."""
     import cobol_answer_key as ak
 
     path = corpus / copybook

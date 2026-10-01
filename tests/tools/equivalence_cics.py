@@ -201,12 +201,19 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     opts = dict(pairs)
     if verb in ("PUSH", "POP") and kind == "HANDLE":
         return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
-    if verb == "ASSIGN":
+    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region"
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        other = [n for n, _v in asked if n != "ABCODE"]
-        if other or not asked or not opts.get("ABCODE"):
-            raise Unsupported(f"ASSIGN {' '.join(other) or 'without ABCODE'}", [f"ASSIGN {n}" for n in other or ["?"]])
-        return _call("GGCASGN", []) + [f"MOVE GG-NAME1(1:4) TO {opts['ABCODE']}"] + _resp(opts, False)
+        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID")]
+        if other or not asked or not all(v for _n, v in asked):
+            raise Unsupported(
+                f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
+            )
+        lines: list[str] = []
+        for n, target in asked:
+            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4}[n]
+            lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", [])
+            lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
+        return lines + _resp(opts, False)
     if verb == "HANDLE" and kind == "AID":  # #4007
         lines = []
         for key, label in pairs[2:]:
@@ -441,6 +448,15 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if length:
             lines.append(f"MOVE GG-LEN TO {length}")
         return lines + _resp(opts, True, labels) + (_aid(opts, labels) if handle_aid else [])
+    if verb == "WRITEQ" and "TD" in opts:  # transient data: a record on an extrapartition / intrapartition queue
+        for bad in ("SYSID",):
+            if bad in opts:
+                raise Unsupported(f"WRITEQ TD {bad}", [f"WRITEQ TD {bad}"])
+        queue, frm = opts.get("QUEUE"), opts.get("FROM")
+        if not (queue and frm):
+            raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
+        return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
+                + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
         return _ts_command(verb, opts, labels)
     if verb == "SEND" and "MAP" in opts:
@@ -853,6 +869,14 @@ def csd_programs(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
     return sorted(set(re.findall(r"DEFINE\s+PROGRAM\(([A-Z0-9@#$]{1,8})\)", text)))
 
 
+def csd_tdqueues(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
+    """The transient-data queues the case's CSD defines (DEFINE TDQUEUE), or None: every queue is defined."""
+    if not case.get("csd"):
+        return None
+    text = (corpus / case["csd"]).read_text(encoding="latin-1")
+    return sorted(set(re.findall(r"DEFINE\s+TDQUEUE\(([A-Z0-9@#$]{1,4})\)", text)))
+
+
 def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
     """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
     own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
@@ -888,6 +912,7 @@ FAULT_COMMANDS = (
     "READPREV",
     "ENDBR",
     "DELETE",
+    "WRITEQ-TD",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 
@@ -957,6 +982,10 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     script = ["set -e", "cd /work", compile_task]
     date, _, time = case["clock"].partition(" ")
     programs = csd_programs(corpus, case)
+    tdqueues = csd_tdqueues(corpus, case)
+    if "'APPLID' TO GG-NAME2" in text or "'SYSID' TO GG-NAME2" in text:
+        if not (case.get("region") or {}).get("applid") or not case["region"].get("sysid"):
+            raise Unsupported('ASSIGN APPLID / SYSID: the case states no region ("region": {"applid", "sysid"})')
     for sc in case["scenarios"]:
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
@@ -972,6 +1001,11 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / f"receive_{m}.bin").write_bytes(map_input(screen_fields(corpus, case, m, "input"), typed, enc))
         if programs is not None:  # the CSD's programs; absent, every program is defined
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
+        if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
+            (d / "tdqueues.cfg").write_text("".join(f"{q}\n" for q in tdqueues), encoding="ascii")
+        if case.get("region"):  # ASSIGN APPLID / SYSID: the region's identity, a deployment fact the case states
+            (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
+                                          encoding="ascii")  # fmt: skip
         if sc.get("faults"):  # #4023 follow-up: the stub's injected conditions
             (d / "faults.cfg").write_text("".join(x + "\n" for x in fault_lines(sc)), encoding="ascii")
         y, mo, dd = date.split("/")
@@ -1034,6 +1068,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
         elif verb == "ABEND":
             res["abend"] = args
+        elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
+            text = common._decode_text(data, enc)
+            res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
     return res
 
 
@@ -1195,7 +1232,7 @@ def _generated_class(src: Path, pattern: str) -> str:
 
 
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
-                          programs: Optional[list[str]] = None) -> str:  # fmt: skip
+                          programs: Optional[list[str]] = None, tdqueues: Optional[list[str]] = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
     each scenario (in/scenarios.json) run as a CicsTask through the service's runTask, its events
     written to out/<scenario>.json -- a screen as its screenValues(), a COMMAREA as its DTO."""
@@ -1208,7 +1245,12 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                    next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
     by_base = {f["base"]: f for f in files}
+    region = case.get("region") or {}
+    region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
     csd_java = ""
+    if tdqueues is not None:  # the CSD's transient-data queues: a WRITEQ TD to any other is QIDERR
+        names = ", ".join(f'"{q}"' for q in tdqueues)
+        csd_java += f"            task.withTdQueues(java.util.Set.of({names}));\n"
     if programs is not None:  # the CSD's programs: an XCTL / LINK / INQUIRE of any other is PGMIDERR
         names = ", ".join(f'"{p}"' for p in programs)
         csd_java = (f"            task.withPrograms(new CicsTask.Programs() {{\n"
@@ -1280,7 +1322,8 @@ class EquivalenceRunTest {{
             JsonNode r = sc.get("receive");
 {chr(10).join(recv)}
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received)
-                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"));  // EIBTIME / ASKTIME: the case's clock
+                    .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
+                    .withRegion({region_java});  // ASSIGN APPLID / SYSID
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
@@ -1347,7 +1390,10 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
                        svc_file.read_text(encoding="utf-8")).group(1)  # fmt: skip
     shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
-    test.write_text(cics_equivalence_test(case, src, files, csd_programs(corpus, case)), encoding="utf-8")
+    test.write_text(
+        cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueues(corpus, case)),
+        encoding="utf-8",
+    )
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     for f in files:
@@ -1409,7 +1455,7 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
-    screens, texts = iter(res["screens"]), iter(res["text"])
+    screens, texts, records = iter(res["screens"]), iter(res["text"]), iter(res.get("td", []))
     for line in res["events"]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
@@ -1420,6 +1466,10 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
             out.append({"event": "SEND-TEXT", "text": next(texts)})
         elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # file updates: CicsTask.syncpoint / rollback record them
             out.append({"event": verb})
+        elif verb == "WRITEQ-TD":  # CicsTask.writeqTd records the queue and the record's text
+            queue = re.search(r"\bqueue=(\S*)", args).group(1)
+            resp = re.search(r"\bresp=(\S*)", args).group(1)
+            out.append({"event": "WRITEQ-TD", "queue": queue, "text": next(records) if resp == "0" else None})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -1453,7 +1503,7 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             diffs.append({"event": n + 1, "cobol": c and c["event"], "java": j and j["event"]})
             continue
         bad = []
-        for key in ("map", "transid", "program", "text", "abcode"):
+        for key in ("map", "transid", "program", "text", "abcode", "queue"):
             if key in c and not _same(c[key], j.get(key)):
                 bad.append({"field": key, "cobol": c[key], "java": j.get(key)})
         for part in ("screen", "commarea"):

@@ -1128,10 +1128,51 @@ int GGCCOND(gg_cics *c) {
 
 /* ASSIGN ABCODE: the task's current abend code, blanks when there has been none. */
 int GGCASGN(gg_cics *c) {
+    char want[9], line[256], key[16], value[16], path[4096];
+    trim(c->name2, 8, want);
     memset(c->name1, ' ', 8);
-    memcpy(c->name1, task_abcode, 4);
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
+        memcpy(c->name1, task_abcode, 4);
+        return 0;
+    }
+    /* ASSIGN APPLID / SYSID: the region's identity, as the case declares it (region.cfg: "APPLID x", "SYSID y") */
+    snprintf(path, sizeof path, "%s/region.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    while (cfg && fgets(line, sizeof line, cfg)) {
+        if (sscanf(line, "%15s %15s", key, value) == 2 && strcmp(key, want) == 0) {
+            memcpy(c->name1, value, strlen(value) < 8 ? strlen(value) : 8);
+        }
+    }
+    if (cfg) fclose(cfg);
+    return 0;
+}
+
+/* WRITEQ TD QUEUE(qname) FROM LENGTH(GG-LEN): one record on a transient-data queue -- recorded with its data and
+ * compared (CardDemo's CORPT00C submits JCL through the JOBS queue). QIDERR for a queue the CSD does not define
+ * (tdqueues.cfg; absent, every queue is defined). */
+int GGCWRTD(gg_cics *c, char *from) {
+    char queue[17], line[256], name[32], ev[96], path[4096];
+    int fresp, fresp2, defined = 1;
+    trim(c->qname, 16, queue);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    snprintf(path, sizeof path, "%s/tdqueues.cfg", dir_in());
+    FILE *cfg = fopen(path, "r");
+    if (cfg) {
+        defined = 0;
+        while (fgets(line, sizeof line, cfg)) if (sscanf(line, "%31s", name) == 1 && strcmp(name, queue) == 0) defined = 1;
+        fclose(cfg);
+    }
+    if (injected("WRITEQ-TD", queue, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+    } else if (!defined) {
+        c->resp = QIDERR;
+    }
+    snprintf(ev, sizeof ev, "WRITEQ-TD queue=%s len=%d resp=%d", queue, c->len, c->resp);
+    event(ev, c->resp == NORMAL ? from : NULL, c->resp == NORMAL ? c->len : 0);
     return 0;
 }
 

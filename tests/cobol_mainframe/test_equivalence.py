@@ -79,6 +79,11 @@ def test_layout_fields_fails_loudly_on_a_copy_it_cannot_expand(tmp_path):
     (tmp_path / "HDR.cpy").write_text(_cobol("    05  :X:-A   PIC X."))
     with pytest.raises(common.LayoutError, match="COPY HDR REPLACING"):
         common.layout_fields(tmp_path, "R.cbl", "WS-R")
+    # after the PROCEDURE DIVISION no record is laid out: COACTUPC's 39 COPY CSSETATY REPLACING are no reason to refuse
+    (tmp_path / "Q.cbl").write_text(_cobol("DATA DIVISION.", "WORKING-STORAGE SECTION.", "01  WS-Q.",
+                                           "    05  Q-1   PIC X(3).", "PROCEDURE DIVISION.", "    COPY HDR",
+                                           "        REPLACING ==:X:== BY ==WS==."))  # fmt: skip
+    assert [(f["name"], f["offset"]) for f in common.layout_fields(tmp_path, "Q.cbl", "WS-Q")] == [("Q-1", 0)]
 
 
 def test_decode_field_reads_cobol_storage_exactly():

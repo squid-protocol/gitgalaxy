@@ -58,7 +58,7 @@ def test_handle_ignore_push_pop_and_assign_become_stub_calls():
     assert ec.translate_command("HANDLE ABEND RESET")[0] == "MOVE 'RESET' TO GG-NAME2"
     assert ec.translate_command("PUSH HANDLE")[0] == "CALL 'GGCPUSH' USING GG-CICS"
     assert "    CALL 'GGCCOND' USING GG-CICS" in ec.translate_command("POP HANDLE")  # INVREQ with nothing pushed
-    assert ec.translate_command("ASSIGN ABCODE(WS-AB)")[:2] == ["CALL 'GGCASGN' USING GG-CICS",
+    assert ec.translate_command("ASSIGN ABCODE(WS-AB)")[1:3] == ["CALL 'GGCASGN' USING GG-CICS",
                                                                 "MOVE GG-NAME1(1:4) TO WS-AB"]  # fmt: skip
     abend = ec.translate_command("ABEND ABCODE('HCX1')", ["SUB-ABEND"])
     assert abend[:3] == ["MOVE 'HCX1' TO GG-NAME1", "MOVE SPACES TO GG-FLAGS", "CALL 'GGCABND' USING GG-CICS"]
@@ -232,8 +232,8 @@ def test_a_program_is_translated_whole():
 
 
 def test_an_unknown_command_in_a_program_names_its_line():
-    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS WRITEQ TD"):
-        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "WRITEQ TD QUEUE('CSSL') FROM(WS-KEY)"))
+    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS READQ TD"):
+        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "READQ TD QUEUE('CSSL') INTO(WS-KEY)"))
 
 
 CSD = """\
@@ -437,3 +437,14 @@ def test_an_alphanumeric_commarea_field_reaches_the_port_as_text():
     shape = {"sel": "SEL", "page": "PAGE", "amt": "AMT"}
     got = ec.to_java({"SEL": "0000000000683580", "PAGE": "00000002", "AMT": "12.50"}, shape, ec.alphanumeric(fields))
     assert got == {"sel": "0000000000683580", "page": 2, "amt": 12.5}
+
+
+def test_assign_applid_sysid_and_writeq_td_translate():
+    got = ec.translate_command("ASSIGN APPLID(A) SYSID(S)")
+    assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A"]
+    assert got[3:6] == ["MOVE 'SYSID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:4) TO S"]
+    td = ec.translate_command("WRITEQ TD QUEUE('JOBS') FROM(REC) RESP(R)")
+    assert td[:4] == ["MOVE 'JOBS' TO GG-QNAME", "MOVE LENGTH OF REC TO GG-LEN", "CALL 'GGCWRTD' USING GG-CICS",
+                      "    BY REFERENCE REC"]  # fmt: skip
+    with pytest.raises(ec.Unsupported):
+        ec.translate_command("ASSIGN USERID(U)")

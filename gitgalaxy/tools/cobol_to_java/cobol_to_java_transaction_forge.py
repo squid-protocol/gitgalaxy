@@ -314,6 +314,53 @@ public class CicsTask {
         return root().now;
     }
 
+    private String applid;
+    private String sysid;
+    private java.util.Set<String> tdQueues;
+
+    /** The region's identity (ASSIGN APPLID / SYSID): a deployment fact, set by whoever runs the task. */
+    public CicsTask withRegion(String applid, String sysid) {
+        this.applid = applid;
+        this.sysid = sysid;
+        return this;
+    }
+
+    /** ASSIGN APPLID: the region's application id, 8 characters. */
+    public String assignApplid() {
+        String a = root().applid;
+        if (a == null) {
+            throw new IllegalStateException("ASSIGN APPLID: no region configured (withRegion)");
+        }
+        return String.format("%-8.8s", a);
+    }
+
+    /** ASSIGN SYSID: the region's system id, 4 characters. */
+    public String assignSysid() {
+        String s = root().sysid;
+        if (s == null) {
+            throw new IllegalStateException("ASSIGN SYSID: no region configured (withRegion)");
+        }
+        return String.format("%-4.4s", s);
+    }
+
+    /** The transient-data queues the CSD defines; null, every queue is defined. */
+    public CicsTask withTdQueues(java.util.Set<String> queues) {
+        this.tdQueues = queues;
+        return this;
+    }
+
+    /** WRITEQ TD QUEUE(queue) FROM(record) (IBM CICS TS): one record on a transient-data queue -- recorded, with the
+     *  record's text, and compared (CardDemo's CORPT00C submits JCL through JOBS). QIDERR (44) for a queue the
+     *  CSD does not define, or the condition the harness planned; then nothing is written. */
+    public int writeqTd(String queue, String record) {
+        String q = queue.strip();
+        int[] planned = root().injected("WRITEQ-TD", q);
+        int resp = planned != null ? planned[0]
+                : root().tdQueues != null && !root().tdQueues.contains(q) ? 44 : 0;
+        event("WRITEQ-TD", "queue", q, "text", resp == 0 ? record : null, "resp", resp);
+        return resp;
+    }
+
     private static final LocalDateTime ABSTIME_EPOCH = LocalDateTime.of(1900, 1, 1, 0, 0);
 
     /** ASKTIME ABSTIME (IBM CICS TS): milliseconds since 00:00 on 1 January 1900, at the task's clock. */

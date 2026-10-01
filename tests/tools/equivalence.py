@@ -237,7 +237,9 @@ def run_cobol(
     if fault is not None:
         (work / "fault.plan").write_text(fault_plan(fault), encoding="ascii")
         script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
-        inject = "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD='/work/ggfault.so /work/ggdisplay.so' "
+        inject = (
+            "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD='/work/ggfault.so /work/ggdisplay.so' "
+        )
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""

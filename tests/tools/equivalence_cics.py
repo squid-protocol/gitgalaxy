@@ -874,7 +874,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
 _SUBFIELDS = {"A": "attr", "F": "attr", "C": "color", "H": "hilight"}
 
 
-def map_subfields(corpus: Path, case: dict[str, Any], map_name: str, data: bytes, enc: str) -> dict[str, dict[str, int]]:
+def map_subfields(
+    corpus: Path, case: dict[str, Any], map_name: str, data: bytes, enc: str
+) -> dict[str, dict[str, int]]:
     """The subfields a SEND MAP's symbolic map holds, as CicsTask.MapSubfields records them: per field (the BMS
     name), the attribute byte (<f>A), extended colour (<f>C) and highlight (<f>H) as their byte values, and length
     -1 (<f>L: the cursor goes there). The harness's DFHBMSCA (tests/equivalence/cics) holds the EBCDIC bytes

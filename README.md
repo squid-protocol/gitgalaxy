@@ -271,6 +271,10 @@ A port that is not proven is not done, and a person approves every port.
 | COACTVWC (account view) | CICS | a person | 11 scenarios | 47/71 | not measured |
 | CSUTLDTC (date check) | CALL | Claude Sonnet 5.5, attempt 2 | 11 calls | 4/10 | 131/190 (all) |
 | COUSR01C (add user) | CICS, writes a file | Claude Sonnet 5.5, attempt 1 | 13 scenarios, each file compared after the task | 20/21 | not measured |
+| COADM01C (admin menu) | CICS, CSD-defined programs (PGMIDERR) | Claude Sonnet 5.5, attempt 2 | 16 scenarios | -- | not measured |
+| COCRDSLC (card detail) | CICS, reads a file | Claude Sonnet 5.5, attempt 2 | 21 scenarios | -- | not measured |
+| COUSR02C (update user) | CICS, READ UPDATE / REWRITE | Claude Sonnet 5.5, attempt 1 | 23 scenarios, each file compared | -- | not measured |
+| COTRN01C (view transaction) | CICS, reads a file | Claude Sonnet 5.5, attempt 4 | 15 scenarios | -- | not measured |
 
 On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
 applications built around known migration traps, all 17 programs are proven on 44 scenarios.
@@ -288,7 +292,7 @@ What these numbers do not show:
 - **"Proven" covers the paths the runs take.** The date check's runs reach 4 of 10 COBOL
   branches. The mutation scores are raw: mutants that cannot change behaviour are not
   removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
-- **7 of CardDemo's 44 programs** are ported so far.
+- **11 of CardDemo's 44 programs** are ported so far.
 
 ------------------------------------------------------------------------
 

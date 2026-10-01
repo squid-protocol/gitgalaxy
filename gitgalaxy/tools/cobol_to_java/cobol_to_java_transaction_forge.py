@@ -1131,10 +1131,15 @@ class CicsForge:
             if use:
                 self.dtos[name].uses.append(use)
             return name
-        shared = file not in self.program_files and not layout.get("extended") and record.upper() != "DFHCOMMAREA"
+        # A copybook record continued by a program's own entries (COPY COCOM01Y, then COTRN01C's 05 CDEMO-CT01-INFO)
+        # is extended whether or not the layout says so: an unpacked COMMAREA's fields carry the files they come
+        # from. Named after its owner it keeps its name whatever else the estate holds -- numbered, it was renamed
+        # each time another program's extension appeared, and every port naming it stopped compiling.
+        extended = layout.get("extended") or any(f.get("file") not in (None, file) for f in layout.get("fields", []))
+        shared = file not in self.program_files and not extended and record.upper() != "DFHCOMMAREA"
         # A copybook record is named alone; a program's own record after the program declaring it
         # (MENU's WS-COMM -> MenuWsComm, whichever program receives it); an extended copy after its owner.
-        declarer = self._file_cls.get(file) if not layout.get("extended") else None
+        declarer = self._file_cls.get(file) if not extended else None
         name = java_class_base(record) if shared else (declarer or owner_cls) + java_class_base(record)
         base, n = name, 1
         while name in self.dtos or name in self.names:

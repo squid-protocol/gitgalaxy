@@ -147,7 +147,19 @@ def test_a_call_cases_file_is_well_formed():
 
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1", reason="needs Docker (GnuCOBOL) and a JDK + Maven")
-@pytest.mark.parametrize("case", ["carddemo-trnrpt", "carddemo-menu", "carddemo-dateutil", "carddemo-useradd"])
+@pytest.mark.parametrize(
+    "case",
+    [
+        "carddemo-trnrpt",
+        "carddemo-menu",
+        "carddemo-dateutil",
+        "carddemo-useradd",
+        "carddemo-adminmenu",
+        "carddemo-cardview",
+        "carddemo-userupd",
+        "carddemo-tranview",
+    ],
+)
 def test_the_loops_committed_ports_are_proven(case, tmp_path):
     """The ports the porting loop wrote (port/provenance.json: the model's answer, unedited) prove against their case:
     the report with its 24 fault runs, the menu's 11 CICS scenarios, the date check's 11 CALLs."""

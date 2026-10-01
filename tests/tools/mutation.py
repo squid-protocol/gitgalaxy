@@ -432,10 +432,9 @@ def mutation_md(s: dict[str, Any]) -> str:
     pct = f"{100 * caught / judged:.0f}%" if judged else "n/a"
     lines = [f"# Mutation testing: {s['case']} ({s.get('program') or '?'})", "",
              f"**Score: {caught}/{judged} caught ({pct})** -- killed {c['killed']}, timeout {c['timeout']}, "
-             f"survived {c['survived']}; stillborn (javac) {c['stillborn']}, error {c['error']}, "
-             f"pending {c['pending']}. {s['chosen']} of {s['mutants']} mutants run (seed {s['seed']}, "
-             f"{s.get('mode', 'full')} mode), "
-             f"{s['seconds']} s.", ""]  # fmt: skip
+             + f"survived {c['survived']}; stillborn (javac) {c['stillborn']}, error {c['error']}, "
+             + f"pending {c['pending']}. {s['chosen']} of {s['mutants']} mutants run (seed {s['seed']}, "
+             + f"{s.get('mode', 'full')} mode), {s['seconds']} s.", ""]  # fmt: skip
     if s.get("coverage"):
         lines += [f"The proof, as committed: {s['coverage']}.", ""]
     ops: dict[str, dict[str, int]] = {}
@@ -452,11 +451,11 @@ def mutation_md(s: dict[str, Any]) -> str:
                    and not any(k.startswith("call ") for k in r["killed_by"])]  # fmt: skip
     if only_faults and any(r.get("killed_by") and "main" in r["killed_by"] for r in s["results"]):
         lines += ["", f"**Killed only by fault runs: {len(only_faults)}** (the normal run alone would have "
-                  "proven them)."]  # fmt: skip
+                  + "proven them)."]  # fmt: skip
     survivors = [r for r in s["results"] if r["verdict"] == "survived"]
     if survivors:
         lines += ["", "## Survivors", "", "Each is an equivalent mutant (noise) or a place the case never looks. "
-                  "Read each one.", ""]  # fmt: skip
+                  + "Read each one.", ""]  # fmt: skip
         for r in survivors:
             lines += [f"- `{r['id']}` {r['op']} {r['file']}:{r['line']}", f"  - was: `{r['before']}`",
                       f"  - now: `{r['after']}`"]  # fmt: skip

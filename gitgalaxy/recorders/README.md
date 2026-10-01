@@ -30,7 +30,7 @@ Each file in this directory represents a specialized data exit strategy, tailore
 * **`record_keeper.py` (The SQL Telemetry Layer):** Generates the `_master.db` artifact. A native SQLite3 recorder that captures the complete forensic state of the scan. It creates a robust, time-series schema designed for Enterprise Data Warehouse (EDW) aggregation, SQL-based security auditing, and delta-scan rehydration.
 * **`sarif_recorder.py` (The Enterprise CI/CD Layer):** Generates the `_sarif.json` payload. Translates the XGBoost threat classifications, AI AppSec guardrails, and structural risk thresholds into the industry-standard Static Analysis Results Interchange Format (SARIF 2.1.0), enabling native integration with GitHub Advanced Security and GitLab Ultimate.
 * **`sbom_recorder.py` (The Supply Chain Manifest):** Generates the `_sbom.json` payload. Transforms the resolved repository dependency graph into a formalized CycloneDX 1.4 manifest. Integrates a Zero-Trust physical audit to flag locally spoofed or maliciously packed dependencies.
-* **`llm_recorder.py` (The AI Context Layer):** Generates the `_llm.md` and `_graph.sqlite` artifacts. It calculates repository-wide statistical metrics (Min/Max/Mean for all 18 risk dimensions) and produces a targeted brief that grants autonomous AI agents (like Claude or Cursor) total ecosystem awareness before they write a single line of code.
+* **`llm_recorder.py` (The AI Context Layer):** Generates the `_llm.md` and `_graph.sqlite` artifacts. It calculates repository-wide statistical metrics (Min/Max/Mean for all 13 per-file vectors) and produces a targeted brief that grants autonomous AI agents (like Claude or Cursor) total ecosystem awareness before they write a single line of code.
 * **`audit_recorder.py` (The Compliance & Forensic Layer):** Generates the `_audit.json` log. Designed for compliance, security debugging, and human review. It cryptographically binds the scan to a specific Git Commit Hash (acting as a Structural Health Bill of Materials), decodes the internal XGBoost ML Threat taxonomy, and maps raw integers back to descriptive, enterprise-friendly terminology.
 
 ---
@@ -197,7 +197,7 @@ WHERE p.dsn IS NULL;
 
 **Delta mode.** `state_rehydrator.py` restores both tables for unchanged files, the same way it restores `raw_imports` (#3220) — without that, an incremental scan would describe only the files that changed in the last commit. Resolution (`dst_file_id` / `resolved_path`) is deliberately *not* restored and is redone every scan, because a file added or deleted this commit can change what an unchanged file's `CALL` resolves to.
 
-**What these tables are not.** The call edges are a separate `edge_kind` and are never handed to the DiGraph, so `pagerank_score`, `popularity`, `internal_dependency_links`, betweenness and every risk score are unchanged by them. There is no reachability here: an `OPEN` inside an unreachable paragraph is still extracted, because the engine has no reachability model (`docs/unreferenced_by_name_contract.md` corollary 3). FD/01 record layouts are not extracted.
+**What these tables are not.** The call edges are a separate `edge_kind` and are never handed to the DiGraph, so `pagerank_score`, `popularity`, `internal_dependency_links`, betweenness and every risk score are unchanged by them. There is no reachability here: an `OPEN` inside an unreachable paragraph is still extracted, because the engine has no reachability model (`docs/unreferenced_by_name_contract.md` corollary 3). FD/01 record layouts are extracted separately, as `record_data` (#3246; see above).
 
 ---
 
@@ -219,5 +219,5 @@ This documentation is part of the [GitGalaxy Ecosystem](https://squid-protocol.g
 
 * **[GitGalaxy Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** - Deep dives into the mathematics and pipeline architecture.
 * **[GitGalaxy Visualizer](http://gitgalaxy.io/)** - Render your codebase locally in 3D using WebGPU.
-* **[The blAST Paradigm Wiki](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** - The academic and structural thesis backing the engine.
+* **[The blAST Paradigm Wiki](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)** - The academic and structural thesis backing the engine.
 * **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** - Guide to extending the comparative lexical taxonomy.

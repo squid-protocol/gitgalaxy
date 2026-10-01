@@ -23,6 +23,12 @@ numbers (`tests/tools/trial.py`). They measure the loop and our tooling.
 Every committed port of a case that had none before (`tests/equivalence/<case>/port`) is the model's answer as the
 loop stored it. Its `provenance.json` records the model, the attempt and the ticket hash.
 
+**Re-run, 2026-10-01 (#4056).** When batch proofs began comparing DISPLAY / SYSOUT, the committed CBTRN03C port no
+longer proved. It had logged its DISPLAYs, as the ticket then said to. A model's port is never hand-edited, so the
+loop ran again from scratch on the new ticket. It was proven on attempt **2**: 447 report lines, 264 SYSOUT lines and
+24 fault runs. Attempt 1 read the records as IBM037 instead of the data's ISO-8859-1. The ticket never states the
+records' code page (#4060), and the SYSOUT feedback is what showed it.
+
 ## What each failure taught us, and what changed
 
 Before the fixes, INTCALC and POSTTRAN each took 2 attempts, and the menu and CSUTLDTC did not prove at all. **No

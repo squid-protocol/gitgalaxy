@@ -54,9 +54,8 @@ You do not need to run the tools individually. The central orchestrator handles 
 
 **Basic Modernization (Sanitize, Map, and Generate JCL/Schemas):**
 ```bash
-python3 cobol_refractor_controller.py /path/to/legacy/repo
+cobol-refractor /path/to/legacy/repo          # add --scan to read it through the GitGalaxy engine (GalaxyIR)
 ```
-![Refractor Controller Pipeline](../../../docs/wiki/assets/refractor_controller.gif)
 
 ---
 

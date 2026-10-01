@@ -1,7 +1,7 @@
 # GitGalaxy: API Network Map & Shadow API Hunter
 
 [![Frameworks](https://img.shields.io/badge/Supported-Python_|_Node_|_Java_|_Go_|_C%23_|_Rust_|_Ruby_|_PHP-00C957.svg)](https://squid-protocol.github.io/gitgalaxy/04-01-full-api-network-map/)
-[![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Heuristics-00BFFF.svg)](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)
+[![Architecture](https://img.shields.io/badge/Architecture-AST--Free_Heuristics-00BFFF.svg)](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)
 
 Welcome to the **GitGalaxy Full API Network Map**.
 
@@ -47,21 +47,21 @@ We built this engine to prioritize **velocity, resilience, and scale**:
 Execute the tool directly against your physical source code. The engine will auto-discover your Swagger file and generate an immediate gap analysis:
 
 ```bash
-python3 full_api_network_map.py /path/to/source/code
+api-network-map /path/to/source/code
 ```
 
 #### 2. Handling Microservice Monorepos
 If your repository contains multiple microservices, each with its own Swagger file, you can instruct the engine to union them into a single mathematical truth state:
 
 ```bash
-python3 full_api_network_map.py /path/to/source/code --merge-all
+api-network-map /path/to/source/code --merge-all
 ```
 
 #### 3. Explicit Specification Targeting
 Bypass the auto-discovery engine and audit the codebase against a highly specific, mandated architectural contract:
 
 ```bash
-python3 full_api_network_map.py /path/to/source/code --swagger /path/to/official_swagger.json
+api-network-map /path/to/source/code --swagger /path/to/official_swagger.json
 ```
 
 #### Example Output Dashboard
@@ -113,8 +113,8 @@ jobs:
 
       - name: Run Shadow API Hunter
         run: |
-          pip install pyyaml
-          python3 full_api_network_map.py .
+          pip install "gitgalaxy[yaml]"
+          api-network-map .
 ```
 
 ---

@@ -3,7 +3,7 @@
 One doc per language describing what GitGalaxy's structural-signature engine actually covers —
 what it detects, what it explicitly doesn't, how deep the test evidence is, which closed
 issues/PRs shaped it, and real-world scan output proving it runs on production code in that
-language. Built entirely from primary sources (`gitgalaxy/standards/language_standards.py`, the
+language. Built entirely from primary sources (the `gitgalaxy/standards/language_standards/` package, the
 `tests/extraction/languages/` suite, closed GitHub issues, and the
 [`gitgalaxy-raw-output`](https://github.com/squid-protocol/gitgalaxy-raw-output) corpus) — see the
 `language-status` skill (`.claude/skills/language-status/SKILL.md`) for the exact process and
@@ -96,13 +96,13 @@ epic #813), not that no cases exist.
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
 | **[db2_sql](db2_sql.md)** | production | multi_style_dash | 43/53 | | 141 | **written** (#2511) |
 | dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |
-| embedded_python | production | line_exclusive | 51/52 | 64 | 107 | not written |
+| embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
 | **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |
 | **[hlasm](hlasm.md)** | production | positional_anchored | 44/54 | | 145 | **written** (#2503) |
-| html | production | block_exclusive | 39/48 | 91 | 123 | not written |
+| html | production | block_exclusive | 39/48 | 91 | 123 | [html.md](html.md) |
 | **[java](java.md)** | production | standard_block | 50/52 | 70 | 91 | **written** |
 | **[javascript](javascript.md)** | production | standard_block | 61/64 | 53 | 73 | **written** |
 | **[jcl](jcl.md)** | production | line_exclusive | 11/24 | 41 | 51 | **written** |
@@ -111,7 +111,7 @@ epic #813), not that no cases exist.
 | **[lua](lua.md)** | production | multi_style_dash | 50/52 | 41 | 78 | **written** (§9 via tri-comparison sweep) |
 | m4 | production | line_exclusive | 31/47 | 21 | 73 | not written |
 | makefile | production | line_exclusive | 39/52 | 55 | 73 | not written |
-| markdown | production | line_exclusive | 4/4 | — | 11 | not written |
+| markdown | production | line_exclusive | 4/4 | — | 11 | [markdown.md](markdown.md) |
 | matlab | production | line_exclusive | 48/52 | 45 | 70 | not written |
 | objective-c | production | standard_block | 52/52 | 95 | 83 | not written |
 | perl | production | line_exclusive | 52/52 | 32 | 69 | not written |

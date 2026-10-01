@@ -8,7 +8,7 @@
 [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) ·
 [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
 
-**1 scan · 97 structural signals · 50+ languages · no compilation · 17
+**1 scan · 98 structural signals · 50+ languages · no compilation · 17
 risk-exposure categories · 6 outputs**
 
 ## The short version
@@ -39,6 +39,9 @@ How that thesis is tested — against Tree-sitter and Ctags, against a planted
 control corpus, and next against Git history — is summarized in
 [Accuracy, measured](#accuracy-measured) below and laid out in full in
 [the validation program](docs/validation.md).
+
+For mainframe estates, the same facts drive a COBOL-to-Java migration where every ported
+program is proven against the original: [COBOL to Java](#cobol-to-java-ported-then-proven).
 
 ------------------------------------------------------------------------
 
@@ -230,6 +233,64 @@ sizes each confirmed shape against real licensed code.
 
 ------------------------------------------------------------------------
 
+## COBOL to Java: ported, then proven
+
+For mainframe estates the structural graph is the start of a migration. `cobol-to-java`
+turns an estate into a compiling Spring Boot project, and an equivalence harness proves
+each ported program against the original COBOL: same inputs, byte-identical outputs.
+A port that is not proven is not done, and a person approves every port.
+
+1. **Facts.** `cobol-refractor` records what the engine verified per program: record
+   layouts, datasets, JCL steps, CICS commands, COMMAREAs, CALLs, DB2 tables.
+2. **Skeleton.** `cobol-to-java` generates the project from those facts: JPA entities and
+   repositories for VSAM, JDBC repositories for DB2, Spring Batch jobs from JCL, REST
+   endpoints for CICS transactions, BMS screens as view models, and a runtime for FILE
+   STATUS, abends and DISPLAY. Where a fact is missing it writes a worklist item, not a
+   guess. The kind of Java is [configurable](gitgalaxy/tools/cobol_to_java/README.md#choosing-the-java-you-get-the-target-config).
+3. **Port.** Each program with business logic gets a porting ticket. A person, or a model
+   the customer chooses, writes the logic from it
+   ([`port_runner`](gitgalaxy/tools/cobol_to_java/port_runner.py)).
+4. **Prove.** [`tests/tools/equivalence.py`](tests/tools/equivalence.py) runs the COBOL
+   under GnuCOBOL and the port on the JVM. Every output record, the return code or abend,
+   every DISPLAY line, every CICS screen (text, attributes, cursor), every COMMAREA, and
+   every injected file-status or CICS-response fault run must match. A failed proof's
+   findings go back to the porter: [the porting loop](docs/language_status/porting_loop.md).
+5. **Measure the proof.** The COBOL's paragraph and branch coverage across the runs says
+   what was exercised. [Mutation testing](docs/language_status/mutation_testing.md) breaks
+   the port on purpose and counts how many broken ports the proof still catches.
+
+**Proven so far,** on [CardDemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo)
+([cases](tests/equivalence)):
+
+| program | kind | ported by | proven on | COBOL branches covered | mutants caught |
+|---|---|---|---|---|---|
+| CBACT04C (interest) | batch | a person | 20 runs, 19 with faults | 82/86 | 30/35 (40 sampled) |
+| CBTRN02C (posting) | batch | a person | 29 runs, 28 with faults | 94/96 | 25/32 (40 sampled) |
+| CBTRN03C (report) | batch | Claude Sonnet 5.5, attempt 2 | 25 runs, 24 with faults | 81/82 | 26/37 (40 sampled) |
+| COMEN01C (menu) | CICS | Claude Sonnet 5.5, attempt 1 | 11 scenarios | 28/33 | 77/135 (150 sampled) |
+| COACTVWC (account view) | CICS | a person | 11 scenarios | 47/71 | not measured |
+| CSUTLDTC (date check) | CALL | Claude Sonnet 5.5, attempt 2 | 11 calls | 4/10 | 131/190 (all) |
+
+On the [CICS crucible](docs/language_status/cics_crucible.md), a corpus of small CICS
+applications built around known migration traps, all 17 programs are proven on 44 scenarios.
+The scenarios cover every live paragraph and branch. The ports were written by Claude Opus
+5.5: 9 on the first attempt, 7 on the second, 1 on the third.
+
+What these numbers do not show:
+
+- **The oracle is not a mainframe.** It is GnuCOBOL, a stub CICS runtime, and IBM services
+  modelled only where IBM documents them. Anything else is refused, never guessed. Proving
+  against captured z/OS output is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
+- **This is development data.** CardDemo and the crucible are public, and the porting rules
+  were built on them, so a model's attempt counts on them are not first-try rates. No
+  fresh-estate trial has run yet ([trial protocol](docs/language_status/fresh_estate_trials.md)).
+- **"Proven" covers the paths the runs take.** The date check's runs reach 4 of 10 COBOL
+  branches. The mutation scores are raw: mutants that cannot change behaviour are not
+  removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
+- **6 of CardDemo's 44 programs** are ported so far.
+
+------------------------------------------------------------------------
+
 ## Real-world scale
 
 Example: **Kubernetes** — ~1.39M lines across Go, YAML, JSON, Shell and Proto.
@@ -376,10 +437,13 @@ repositories.
 
 ### Regression suite
 
-**7,043 tests** in the default suite (`python -m pytest tests/`), of which
-**6,165** are per-signature tests across all 45 structurally-signatured
-languages — positive matches, explicit exclusions, and adversarial/ReDoS
-inputs. See [`tests/README.md`](tests/README.md) for the breakdown, and
+**13,281 tests** collected in the default suite (`python -m pytest tests/
+--collect-only -q`, 2026-10-01), of which **8,704** are per-language extraction
+tests (`tests/extraction/languages`, 54 languages) — positive matches, explicit
+exclusions, and adversarial/ReDoS inputs — and **1,222** cover the mainframe
+pipeline and the COBOL-to-Java proofs (`tests/cobol_mainframe`,
+`tests/cics_crucible`). The end-to-end proofs that need Docker GnuCOBOL and a JDK
+are skipped by default and run with `EQUIVALENCE_E2E=1`. See [`tests/README.md`](tests/README.md) for the breakdown, and
 [`docs/why_gitgalaxy_beats_ast_here.md`](docs/why_gitgalaxy_beats_ast_here.md)
 for specific, evidenced cases where this extraction beats an AST read.
 
@@ -516,6 +580,8 @@ guide](github-action-readme.md).
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
 | [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 50-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
+| [COBOL → Java: the tool](gitgalaxy/tools/cobol_to_java/README.md) | The pipeline from facts to a proven port, the target config, and the porting ticket |
+| [Porting loop](docs/language_status/porting_loop.md) · [Mutation testing](docs/language_status/mutation_testing.md) · [CICS crucible](docs/language_status/cics_crucible.md) | How ports are written and proven, how strong each proof is, and the CICS trap corpus |
 | [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | 10 COBOL repos auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |
 | [Population analyses](https://github.com/squid-protocol/gitgalaxy-population-analyses) | Statistical analyses over the raw-output scan population: archetype clustering, risk distributions, threat-classifier studies |
 | [Museum of Code](https://squid-protocol.github.io/gitgalaxy/museum-of-code/) | Full architectural teardowns of real codebases (Apollo 11, IBM CICS benchmarks) |

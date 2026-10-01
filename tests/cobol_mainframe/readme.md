@@ -58,3 +58,37 @@ The unit tests above run on synthetic fixtures. These three run the tools over r
   * To bless an intended change, run `python tests/tools/refraction_snapshot.py update [--corpus NAME ...]`, then explain what moved in the PR.
 * **`test_tool_regex_redos.py`**: the ReDoS scaling sweep over every regex in both tool suites (#3214). A pattern outside `tool_regex_redos_baseline.json` that is slow, or that grows superlinearly, fails the test. The CLI is `python tests/tools/tool_regex_redos.py [--ci | --update-baseline]`.
 * **`test_refraction_differential.py`**: classifies every forge↔engine-DB delta (`refraction_differential.py`) with a cause code, adjudicates the independent fields (program_id, copybook) against the answer key where a validated one exists, and fails when a run ADDS `unexplained` deltas over `refraction_differential_baseline.json` (#3211). CLI: `python tests/tools/refraction_differential.py [--ci | --update-baseline | --corpus NAME …]`; the bare `<repo>` form still prints the raw #3120 report, now with a `cause` on each delta in `--json`. Like the snapshot, `--ci` gates the committed excerpts (CI) and the full pinned corpora are gated only when fetched (local). Both keyed corpora reach 0 unexplained; carddemo's `full` baseline carries a note (no answer key yet, and the forge drops paragraphs on its cols-73-80 sequence numbers, #3244).
+
+#### 8. COBOL to Java: the generated project, porting, and proof
+These pin the [COBOL-to-Java pipeline](../../gitgalaxy/tools/cobol_to_java/README.md): facts, then a generated
+project, then a ported program proven against its COBOL. The end-to-end proofs need Docker GnuCOBOL and a JDK
+17 + Maven. They are skipped by default and run with `EQUIVALENCE_E2E=1`.
+
+* **The generated project:**
+  * `test_cobol_to_java_controller.py`: one class per clean-room key.
+  * `test_java_target.py` and `test_java_matrix_gate.py`: the target config and the compile-matrix gate.
+  * `test_cics_endpoints.py`: CICS transactions as REST endpoints.
+  * `test_service_calls.py`: CALL / LINK / XCTL as service calls.
+  * `test_generated_record_layer.py`: the record layer behaving as the mainframe does.
+  * `test_key_collation.py`: EBCDIC key order.
+  * `test_decimal_comma.py`, `test_rounding.py` and `test_regional_options.py`: DECIMAL-POINT IS COMMA, ROUNDED, and compiler / DB2 options.
+  * `test_migration_worklist.py`: every TODO the generators leave, as one plan.
+* **Porting:**
+  * `test_port_tickets.py`, `test_port_order.py`, `test_port_ticket_references.py`, `test_port_ticket_budget.py` and `test_port_rules_culture.py`: a ticket for every program with business logic, in dependency order, within its token budget, with its rules.
+  * `test_port_runner.py`: the porting loop end to end, with a stand-in backend.
+  * `test_agent_guardrail.py`: a port checked against the generated project's inventory.
+* **Proof** (`tests/tools/equivalence*.py`):
+  * `test_equivalence.py`: the batch harness and its field decoder.
+  * `test_equivalence_cics.py`: the CICS translator and stub runtime.
+  * `test_equivalence_faults.py`: file-status and CICS-response fault runs on both sides.
+  * `test_equivalence_inputs.py`: inputs generated from record layouts.
+  * `test_equivalence_encodings.py`: declared source and data encodings.
+  * `test_equivalence_environments.py`: the JVM locale and time zone a claim holds in.
+  * `test_equivalence_sysout_attrs.py`: DISPLAY / SYSOUT, as IBM COBOL writes it, and SEND MAP attributes.
+  * `test_porting_loop_tooling.py`: the loop's feedback, CALL cases, the CEEDAYS model, and the committed loop ports proven (`EQUIVALENCE_E2E`).
+* **How strong a proof is:**
+  * `test_mutation_tooling.py`: mutation testing and its validated fast mode ([write-up](../../docs/language_status/mutation_testing.md)).
+  * `test_trials.py`: the fresh-estate trial ledger ([page](../../docs/language_status/fresh_estate_trials.md)).
+
+The proof cases themselves (inputs, scenarios, fault plans, the proven ports with their provenance) live in
+[`tests/equivalence/`](../equivalence). The CICS trap corpus's suite is [`tests/cics_crucible/`](../cics_crucible).

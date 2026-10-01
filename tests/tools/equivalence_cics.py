@@ -36,6 +36,7 @@ import cobol_coverage as cov  # #4023
 import equivalence_common as common
 
 STUB = common.CASES / "cics"
+LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
 
 # The documented CICS response codes (DFHRESP) the translator replaces by number.
 DFHRESP = {
@@ -938,9 +939,20 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             common._fixed(common._input_path(case, corpus, spec["input"]), f["reclen"], enc)
         )
     ca_fields = commarea_fields(corpus, case)
+    # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
+    # (tests/equivalence/le: CEEDAYS) they may call in turn.
+    subs = []
+    for rel in case.get("subprograms", []):
+        sub_text, _ = common.read_program(case, corpus / rel)
+        name = Path(rel).stem.upper()
+        (src / f"SUB{name}.cbl").write_text(common.compile_options(case, sub_text)[0], encoding=staged)
+        subs.append(f"src/SUB{name}.cbl")
+    for model in sorted(LE_MODELS.glob("*.c")) if subs else []:
+        shutil.copy(model, src / model.name)
+        subs.append(f"src/{model.name}")
     compile_task = (
         f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {cov.TRACE_FLAG} {''.join(f + ' ' for f in option_flags)}"
-        "-I /work/src -o task src/EQCICSDR.cbl src/PROGRAM.cbl src/ggcics.c"
+        f"-I /work/src -o task src/EQCICSDR.cbl src/PROGRAM.cbl {''.join(s + ' ' for s in subs)}src/ggcics.c"
     )
     script = ["set -e", "cd /work", compile_task]
     date, _, time = case["clock"].partition(" ")

@@ -166,6 +166,10 @@ def test_a_call_cases_file_is_well_formed():
         "carddemo-cardlist",
         "carddemo-signon",
         "carddemo-report",
+        "carddemo-readcard",
+        "carddemo-readxref",
+        "carddemo-readcust",
+        "carddemo-dailyval",
     ],
 )
 def test_the_loops_committed_ports_are_proven(case, tmp_path):

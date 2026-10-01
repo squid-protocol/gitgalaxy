@@ -1,0 +1,315 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR03C",
+ "program_source": "app/cbl/COUSR03C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CU03",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@case/usrsec.txt",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COUSR03C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR3A": {
+   "copybook": "app/cpy-bms/COUSR03.CPY",
+   "input": "COUSR3AI",
+   "output": "COUSR3AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "first-entry-with-selected-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU03-USR-SELECTED": "USER0004"
+   }
+  },
+  {
+   "name": "first-entry-selected-user-missing",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU03-USR-SELECTED": "NOBODY01"
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "enter-looks-up-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "enter-empty-user-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {}
+   }
+  },
+  {
+   "name": "enter-user-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "NOBODY01"
+    }
+   }
+  },
+  {
+   "name": "pf5-deletes-user",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "pf5-deletes-an-admin",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "ADMIN002"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-user-id",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {}
+   }
+  },
+  {
+   "name": "pf5-user-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "NOBODY01"
+    }
+   },
+   "why": "the READ UPDATE finds nothing, yet DELETE-USER-INFO still DELETEs: no record is held, INVREQ, 'Unable to Update User...'"
+  },
+  {
+   "name": "pf5-delete-not-open",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "DELETE",
+     "file": "USRSEC",
+     "resp": "NOTOPEN",
+     "why": "19 on the DELETE -> WHEN OTHER; the user stays"
+    }
+   ]
+  },
+  {
+   "name": "lookup-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the READ UPDATE -> WHEN OTHER: 'Unable to lookup User...'"
+    }
+   ]
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-admin-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "pf4-clear",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "pf12-admin-menu",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR3A": {
+     "USRIDINI": "USER0004"
+    }
+   }
+  }
+ ],
+ "notes": "CardDemo's delete-user screen (transaction CU03, program COUSR03C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 reads it FOR UPDATE and DELETEs it -- even when the read found nothing, so the DELETE then has no record held (INVREQ, 'Unable to Update User...'); PF3 / PF12 return, PF4 clears. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

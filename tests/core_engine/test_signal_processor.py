@@ -1,4 +1,5 @@
 import logging
+import math
 
 import pytest
 
@@ -1761,104 +1762,109 @@ def test_signal_processor_ecosystem_native_match_is_neutral(processor):
 
 
 # ==============================================================================
-# K-MEANS ARCHETYPE CLASSIFICATION (#1157 / #1158)
+# #1157: ARCHETYPE DIMENSION GUARD (no silent zip() truncation)
 # ==============================================================================
-# The pre-trained archetype models (function: 62-dim, file: 115-dim,
-# per-language: 74-dim) carry no feature-name metadata and no training script
-# lives in this repo, while the live feature vectors are 5-dim (function) and
-# 83-dim (file) -- 84 candidate features since #3084's system_config_mutation
-# append, but the self-describing brains keep reading their own recorded 83
-# until the owed retrain. They have never matched, and the old distance loops
-# silently truncated to the shorter sequence -- producing confidently-wrong
-# labels.
-# These tests pin the loud-failure guard: a mismatch must yield "Unclassified"
-# (plus one warning per vector/centroid length pair), never a truncated label.
+def test_classify_archetype_dimension_mismatch_is_unclassified_and_warns(processor, caplog):
+    """A live vector whose width differs from a centroid must not be compared on a
+    truncated prefix -- it returns the exact Unclassified sentinel and warns."""
+    centroids = {"arch_a": [0.0, 0.0, 0.0], "arch_b": [9.0, 9.0, 9.0]}
+
+    with caplog.at_level(logging.WARNING, logger="processing"):
+        result = processor._classify_archetype([0.0, 0.0], centroids)
+
+    assert result == ("Unclassified", 0.0, {})
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
+    assert "mismatch" in warnings[0].getMessage().lower()
 
 
-def test_classify_archetype_rejects_dimension_mismatch(processor, caplog):
-    """A live vector and centroid of different lengths must not be compared."""
-    result = processor._classify_archetype([0.5, 0.5], {"cluster_0": [1.0, 2.0, 3.0]})
+def test_classify_archetype_dimension_mismatch_warns_once(processor, caplog):
+    """Thousands of functions hit the same drifted model; the warning must be
+    de-duplicated per (live length, centroid length, centroid name)."""
+    centroids = {"arch_a": [0.0, 0.0, 0.0]}
 
-    assert result == ("Unclassified", 0.0, {}), (
-        "Dimension mismatch must fall back to Unclassified instead of truncating"
-    )
-    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
-        "The mismatch should be logged loudly"
-    )
+    with caplog.at_level(logging.WARNING, logger="processing"):
+        first = processor._classify_archetype([1.0, 2.0], centroids)
+        second = processor._classify_archetype([3.0, 4.0], centroids)
 
-
-def test_classify_archetype_matching_dims_classifies_normally(processor):
-    """Matching dimensions keep the nearest-centroid behavior intact."""
-    centroids = {
-        "cluster_near": [0.0, 0.0],
-        "cluster_far": [10.0, 10.0],
-    }
-    best, drift, fingerprint = processor._classify_archetype([1.0, 1.0], centroids)
-
-    assert best == "cluster_near"
-    assert drift == round(2**0.5, 3)
-    assert set(fingerprint) == {"cluster_near", "cluster_far"}
+    assert first == ("Unclassified", 0.0, {})
+    assert second == ("Unclassified", 0.0, {})
+    warnings = [r for r in caplog.records if r.levelno == logging.WARNING]
+    assert len(warnings) == 1
 
 
-def _five_geometry_model(archetypes, names):
-    """A minimal new-contract function model over the 5 geometry features only
-    (no DNA densities, so hit_vector is irrelevant). Used to exercise the
-    classifier without pinning to the full 38-D shipped model."""
+def test_classify_archetype_matching_dimensions_picks_nearest_centroid(processor):
+    """With matching widths the Euclidean nearest-centroid behaviour is intact."""
+    centroids = {"near": [1.0, 1.0], "far": [10.0, 10.0], "origin": [0.0, 0.0]}
+
+    best, dist, fingerprint = processor._classify_archetype([1.0, 2.0], centroids)
+
+    assert best == "near"
+    assert dist == 1.0
+    assert set(fingerprint) == {"near", "far", "origin"}
+    assert fingerprint["near"] == 1.0
+    assert fingerprint["origin"] == round(math.sqrt(5.0), 3)
+    assert fingerprint["far"] == round(math.sqrt(81.0 + 64.0), 3)
+
+
+def _tiny_function_model(centroid_width):
+    """Smallest GENERAL_FUNCTION_INFERENCE_MODEL the function classifier consumes:
+    two geometry features, identity scaling, and two centroids keyed "N: name"."""
     return {
-        "FEATURE_NAMES": ["log_loc", "log_complexity", "log_args", "keyword_density", "func_internal_density"],
-        "FEATURE_WEIGHTS": [1.0, 1.0, 1.0, 1.0, 1.0],
-        "SCALER_MEDIANS": [0.0, 0.0, 0.0, 0.0, 0.0],
-        "SCALER_IQRS": [1.0, 1.0, 1.0, 1.0, 1.0],
+        "FEATURE_NAMES": ["log_loc", "log_complexity"],
+        "FEATURE_WEIGHTS": [1.0, 1.0],
         "CAP_VALUES": {},
         "DNA_SOURCES": {},
-        "cluster_names": names,
-        "ARCHETYPES_K2": archetypes,
+        "SCALER_MEDIANS": [0.0, 0.0],
+        "SCALER_IQRS": [1.0, 1.0],
+        "cluster_names": ["Tiny Helper", "Huge Router"],
+        "ARCHETYPES_K2": {
+            "0: Tiny Helper": [0.0] * centroid_width,
+            "1: Huge Router": [7.0] * centroid_width,
+        },
     }
 
 
-def test_function_archetype_unclassified_when_model_dims_mismatch(processor, monkeypatch):
-    """
-    A model whose centroids don't match the built feature-vector length must
-    leave every function "Unclassified" rather than emit a truncated label
-    (the length guard in signal_processor's nearest-centroid loop).
-    """
-    # FEATURE_NAMES declares 5 features but centroids are length 3 -> all skipped.
-    bad_model = _five_geometry_model({"0: A": [0.0, 0.0, 0.0], "1: B": [9.0, 9.0, 9.0]}, ["A", "B"])
-    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", bad_model)
-    functions = [{"name": "hot_path", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}]
-    meta, sig = create_synthetic_star(processor, "mismatch", 50, functions=functions)
+def _function_star(processor):
+    functions = [
+        {"name": "small", "loc": 1, "branch": 0, "args": 0},
+        {"name": "big", "loc": 1000, "branch": 500, "args": 3},
+    ]
+    return create_synthetic_star(processor, "func_arch", 1001, functions=functions)
+
+
+def test_function_archetype_dimension_mismatch_leaves_unclassified(processor, monkeypatch):
+    """Function centroids wider than the live function vector classify nothing."""
+    from gitgalaxy.metrics import signal_processor as sp_mod
+
+    monkeypatch.setattr(sp_mod.analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", _tiny_function_model(3))
+    meta, sig = _function_star(processor)
+
     processor.calculate_risk_vector(meta, sig)
 
-    assert functions[0]["archetype"] == "Unclassified"
+    assert [f["archetype"] for f in meta["functions"]] == ["Unclassified", "Unclassified"]
 
 
-def test_function_archetype_classified_when_model_matches_live_dims(processor, monkeypatch):
-    """
-    With a model whose centroids match the built vector length, the function is
-    classified to the nearest centroid's plain cluster name (regression guard
-    for the 38-D rosetta classifier). A loc=30/branch=25 function sits near the
-    "Dense Logic" centroid, not the zero "Tiny Stub" one.
-    """
-    good_model = _five_geometry_model(
-        {"0: Tiny Stub": [0.0, 0.0, 0.0, 0.0, 0.0], "1: Dense Logic": [3.4, 3.3, 1.6, 0.15, 0.83]},
-        ["Tiny Stub", "Dense Logic"],
-    )
-    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", good_model)
-    functions = [{"name": "mutator", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}]
-    meta, sig = create_synthetic_star(processor, "match", 50, functions=functions)
+def test_function_archetype_matching_dimensions_uses_plain_cluster_name(processor, monkeypatch):
+    """With matching widths each function gets its nearest cluster's plain name,
+    not the "N: " prefixed centroid key."""
+    from gitgalaxy.metrics import signal_processor as sp_mod
+
+    monkeypatch.setattr(sp_mod.analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", _tiny_function_model(2))
+    meta, sig = _function_star(processor)
+
     processor.calculate_risk_vector(meta, sig)
 
-    assert functions[0]["archetype"] == "Dense Logic"
+    assert [f["archetype"] for f in meta["functions"]] == ["Tiny Helper", "Huge Router"]
 
 
-def test_file_archetype_deferred_to_record_keeper(processor):
-    """File-level archetype classification moved out of signal_processor: it now
-    happens in record_keeper post-assembly, from the fully-computed file metrics +
-    the function->file composition rollup, against the self-describing brain
-    (FEATURE_NAMES-ordered, so a dimension mismatch is structurally impossible).
-    signal_processor emits a placeholder that record_keeper overwrites."""
-    meta, sig = create_synthetic_star(processor, "file_defer", 50, {"branch": 20})
+def test_file_archetype_is_unclassified_placeholder(processor):
+    """File-level archetypes are classified later in record_keeper; the signal
+    processor only emits the Unclassified placeholder."""
+    meta, sig = create_synthetic_star(processor, "file_arch", 50)
+
     res = processor.calculate_risk_vector(meta, sig)
+
     assert res["telemetry"]["archetype"] == "Unclassified"
 
 

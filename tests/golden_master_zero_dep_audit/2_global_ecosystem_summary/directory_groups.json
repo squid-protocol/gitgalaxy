@@ -711,7 +711,7 @@
       "avg_exposures": {
         "api_exposure": 6.31,
         "churn": 0.0,
-        "cognitive_load": 37.26,
+        "cognitive_load": 37.27,
         "concurrency": 0.0,
         "dead_code": 4.65,
         "documentation": 57.43,

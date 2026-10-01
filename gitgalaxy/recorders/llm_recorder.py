@@ -1254,7 +1254,7 @@ class LLMRecorder:
             )
         else:
             lines.append(
-                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."  # noqa: RUF001
+                "> **ℹ️ TYPICAL INTERPRETATION:** This repository falls within standard variance (Z-Score between -1.0 and 2.0), representing a typical implementation of this archetype."
             )
         lines.append("")
 
@@ -1423,7 +1423,8 @@ class LLMRecorder:
                 reverse=True,
             )[:3]
             lines.append("### Top I/O Latency Risks")
-            lines.extend(f"- `{s.get('path')}` (Hits: {s.get('hit_vector', [])[io_idx]})" for s in top_io)
+            for s in top_io:
+                lines.append(f"- `{s.get('path')}` (Hits: {s.get('hit_vector', [])[io_idx]})")
             lines.append("")
 
         pillars = sorted(
@@ -1500,10 +1501,11 @@ class LLMRecorder:
             "> *Note: The 'Impact' metric below represents Structural Magnitude (complexity, arguments, and length), NOT operational risk. These are the load-bearing pillars of the logic.*\n"
         )
 
-        all_functions: list[tuple[dict, str]] = []
+        all_functions = []
         for s in parsed_files:
             file_path = s.get("path", "Unknown")
-            all_functions.extend((func, file_path) for func in s.get("functions", []))
+            for func in s.get("functions", []):
+                all_functions.append((func, file_path))
 
         top_impact = heapq.nlargest(10, all_functions, key=lambda x: x[0].get("impact", 0))
 
@@ -1564,11 +1566,9 @@ class LLMRecorder:
             )[:5]
             if high_debt and high_debt[0].get("risk_vector", [])[debt_idx] > 0:
                 lines.append("### Highest Debt Markers (formerly Tech Debt; Fragile/Planned)")
-                lines.extend(
-                    f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure"
-                    for s in high_debt
-                    if s.get("risk_vector", [])[debt_idx] > 0
-                )
+                for s in high_debt:
+                    if s.get("risk_vector", [])[debt_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure")
 
         flux_idx = self.RISK_SCHEMA.index("state_flux") if "state_flux" in self.RISK_SCHEMA else -1
         if flux_idx >= 0:
@@ -1579,11 +1579,9 @@ class LLMRecorder:
             )[:5]
             if high_flux and high_flux[0].get("risk_vector", [])[flux_idx] > 0:
                 lines.append("### Highest Mutation Surface (formerly State Flux; Mutation/Volatility)")
-                lines.extend(
-                    f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure"
-                    for s in high_flux
-                    if s.get("risk_vector", [])[flux_idx] > 0
-                )
+                for s in high_flux:
+                    if s.get("risk_vector", [])[flux_idx] > 0:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure")
 
         orphan_idx = (
             self.SIGNAL_SCHEMA.index("unreferenced_by_name") if "unreferenced_by_name" in self.SIGNAL_SCHEMA else -1
@@ -1652,9 +1650,8 @@ class LLMRecorder:
                     old_label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
                     label = self._surface_label(v_key, old_label)
                     lines.append(f"### {label}")
-                    lines.extend(
-                        f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure" for s in v_files[:5]
-                    )
+                    for s in v_files[:5]:
+                        lines.append(f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure")
 
         if not vuln_found:
             lines.append("*No critical vulnerabilities or security lens thresholds breached.*")
@@ -2054,11 +2051,11 @@ class LLMRecorder:
                 lines.append(
                     "These files act as structural bridges between components, but possess highly volatile, mutating state. They cause unpredictable side-effects for all downstream consumers.\n"
                 )
-                lines.extend(
-                    f"- `{c['path']}` -> **Severity: {c['score']}** (Bridge: {c['btw']} * Flux: {c['state_mutation']}%)"
-                    for c in cm
-                    if c["score"] > 0
-                )
+                for c in cm:
+                    if c["score"] > 0:
+                        lines.append(
+                            f"- `{c['path']}` -> **Severity: {c['score']}** (Bridge: {c['btw']} * Flux: {c['state_mutation']}%)"
+                        )
                 lines.append("")
 
             # #370: the real bottleneck-detector key is "fragile_dependency_chain"
@@ -2070,11 +2067,11 @@ class LLMRecorder:
                 lines.append(
                     "These files are deeply embedded (1 or 2 hops from the entire codebase) but possess high error exposure. A runtime exception here will cascade instantly across the application.\n"
                 )
-                lines.extend(
-                    f"- `{h['path']}` -> **Severity: {h['score']}** (Embedded: {h['close']} * Error Risk: {h['err']}%)"
-                    for h in hoc
-                    if h["score"] > 0
-                )
+                for h in hoc:
+                    if h["score"] > 0:
+                        lines.append(
+                            f"- `{h['path']}` -> **Severity: {h['score']}** (Embedded: {h['close']} * Error Risk: {h['err']}%)"
+                        )
                 lines.append("")
 
             bb = sys_bots.get("undocumented_critical_path", [])
@@ -2083,11 +2080,11 @@ class LLMRecorder:
                 lines.append(
                     "These are 'Core Architecture Nodes' that the entire ecosystem relies upon, but they lack human intent, documentation, or ownership metadata. Modifying them is flying blind.\n"
                 )
-                lines.extend(
-                    f"- `{b['path']}` -> **Severity: {b['score']}** (Blast Radius: {b['pr']} * Doc Risk: {b['doc']}%)"
-                    for b in bb
-                    if b["score"] > 0
-                )
+                for b in bb:
+                    if b["score"] > 0:
+                        lines.append(
+                            f"- `{b['path']}` -> **Severity: {b['score']}** (Blast Radius: {b['pr']} * Doc Risk: {b['doc']}%)"
+                        )
                 lines.append("")
 
         # ==============================================================================

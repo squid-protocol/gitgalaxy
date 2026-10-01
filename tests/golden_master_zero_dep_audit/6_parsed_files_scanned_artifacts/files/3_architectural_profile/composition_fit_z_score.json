@@ -1049,7 +1049,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 0.0,
       "cobol/gnucobol_internals/codegen.c": 0.469,
-      "cobol/gnucobol_internals/fileio.c": 1.11,
+      "cobol/gnucobol_internals/fileio.c": 1.166,
       "cobol/gnucobol_internals/numeric.c": -0.088,
       "cobol/gnucobol_internals/parser.y": 2.853,
       "cobol/gnucobol_internals/scanner.l": 2.359,

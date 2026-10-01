@@ -227,15 +227,14 @@ DEFINITION: dict[str, Any] = {
             # literal `[*&]`, the other forbids consuming past the first
             # non-whitespace char), so this doesn't reopen the Rule 14
             # backtracking gap the surrounding bounds were built to close.
-            r"(?:(?![ \t]*#)(?!(?:["
+            # OPERATOR-KEYWORD GUARD: no segment of a return-type word may be
+            # the `operator` keyword. Without this, `Box::operator Payload()`
+            # was read as return type `Box::operator` + function `Payload`.
+            r"(?:(?![ \t]*#)(?!operator\b)["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator\b)["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:::["
+            + r"]*(?:::(?!operator\b)["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -253,23 +252,20 @@ DEFINITION: dict[str, Any] = {
             # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
             # .cpp file, declared in the header) are mainstream, common C++ -- completely
             # invisible to func_start before this fix.
+            # CALL / CONVERSION OPERATORS: two more operator shapes.
+            #   - function-call operator `Widget::operator()(int x)`: the symbol
+            #     alternative can't take it (its class excludes `(`), so the
+            #     literal `()` gets its own branch; the real parameter list
+            #     follows in item 7.
+            #   - conversion operator `Handle::operator bool()`,
+            #     `Path::operator std::string()`, `operator const char*()`,
+            #     `operator Vector<T>()`: up to two cv-qualifiers, a qualified
+            #     type name (at most 10 `::` segments), an optional 2-level
+            #     template argument list and an optional pointer/reference run.
+            #     Tried after `new`/`delete` so those keep their own branch.
+            #   Every repeat is bounded or separated by a literal (`::`, `<`),
+            #   so no two quantifiers compete for the same characters.
             r"(?![ \t]*#)((?:["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*::)*operator[ \t]*\(\)|(?:["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*::)*operator[ \t]+(?:::)?["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:::["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*)*(?:<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t]*[*&]+)?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -277,7 +273,23 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
+            + r"]*::)*operator[ \t]*\(\)|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
             + r"]*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,10}(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?(?:[ \t]{0,20}[*&]{1,5})?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE

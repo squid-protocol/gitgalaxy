@@ -1141,9 +1141,10 @@ class NetworkRiskSensor:
             local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
             pagerank_score = round(pr_score, 6)
             blast_radius = round(pr_normalized, 3)
-            systemic_threat_vector = [
-                round(pr_normalized * (local_risk / 100.0), 3) for local_risk in local_risk_vector
-            ]
+            systemic_threat_vector = []
+            for local_risk in local_risk_vector:
+                # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
+                systemic_threat_vector.append(round(pr_normalized * (local_risk / 100.0), 3))
 
         return {
             "pagerank_score": pagerank_score,

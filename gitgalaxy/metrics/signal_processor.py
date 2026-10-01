@@ -152,6 +152,11 @@ class SignalProcessor:
         arch_key = next((k for k in inference_model if k.startswith("ARCHETYPES_K")), None)
         self.GLOBAL_ARCHETYPES = inference_model.get(arch_key, {}) if arch_key else {}
 
+        # #1157: (live vector length, centroid length, centroid name) combinations
+        # already warned about by _classify_archetype, so a drifted model logs once
+        # per instance rather than once per classified function.
+        self._archetype_dim_mismatch_warned: set[tuple[int, int, str]] = set()
+
         # ---> NEW: Fetch Language-Specific Clustering Models <---
         self.LANGUAGE_INFERENCE_MODELS = getattr(config, "SPECIFIC_FILE_INFERENCE_MODEL", {})
 
@@ -195,10 +200,6 @@ class SignalProcessor:
         # ---> NEW: Fetch the Archetype Matrix
         self.CONTEXT_VIOLATION_MATRIX = security_profiles.get("CONTEXT_VIOLATION_MATRIX", {})
 
-        # Dimension-mismatch warnings are deduplicated per (vector len, centroid
-        # len, model) so a stale model doesn't spam one warning per function/file.
-        self._archetype_dim_warned: set[tuple[int, int, str]] = set()
-
         self.logger.info("Signal Processor Online | Context-Aware Risk Schema & ML Archetypes loaded.")
 
     def _classify_archetype(
@@ -216,19 +217,17 @@ class SignalProcessor:
             return best_match, 0.0, fingerprint
 
         for arch_name, centroid_vector in archetypes_dict.items():
+            # #1157: a live vector whose width differs from the trained centroid
+            # is schema drift. Comparing a truncated prefix yields a confidently
+            # wrong label, so refuse to classify at all and say so (once per
+            # distinct mismatch -- this runs for every function in a scan).
             if len(scaled_vector) != len(centroid_vector):
-                # #1157/#1158: this mismatch used to be silently truncated
-                # (zip()/min() over the shorter sequence), producing a
-                # confidently-wrong archetype label with no signal that the
-                # classification was untrustworthy. Refuse to classify and say
-                # why instead. Warn once per (vector, centroid) length pair so
-                # a big scan doesn't spam one line per function/file.
-                warn_key = (len(scaled_vector), len(centroid_vector), arch_name)
-                if warn_key not in self._archetype_dim_warned:
-                    self._archetype_dim_warned.add(warn_key)
+                mismatch_key = (len(scaled_vector), len(centroid_vector), arch_name)
+                if mismatch_key not in self._archetype_dim_mismatch_warned:
+                    self._archetype_dim_mismatch_warned.add(mismatch_key)
                     self.logger.warning(
-                        "Archetype dimension mismatch: live vector has %d dims but centroid '%s' has %d; "
-                        "skipping classification rather than silently truncating",
+                        "Archetype dimension mismatch: live feature vector has %d dimensions but "
+                        "centroid %r has %d; refusing to classify (Unclassified) instead of truncating.",
                         len(scaled_vector),
                         arch_name,
                         len(centroid_vector),
@@ -236,9 +235,8 @@ class SignalProcessor:
                 return "Unclassified", 0.0, {}
 
             dist_sq = 0.0
-
-            for i in range(len(scaled_vector)):
-                dist_sq += (scaled_vector[i] - centroid_vector[i]) ** 2
+            for live_value, centroid_value in zip(scaled_vector, centroid_vector):
+                dist_sq += (live_value - centroid_value) ** 2
 
             distance = math.sqrt(dist_sq)
             fingerprint[arch_name] = round(distance, 3)
@@ -2262,17 +2260,18 @@ class SignalProcessor:
         }
 
     def _generate_function_rankings(self, parsed_files: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
-        all_funcs = [
-            {
-                "name": func.get("name", "anon"),
-                "file": f.get("name", "unknown"),
-                "impact": func.get("impact", 0),
-                "loc": func.get("loc", 0),
-            }
-            for f in parsed_files
-            for func in f.get("functions", [])
-            if isinstance(func, dict) and not func.get("calls_only")
-        ]
+        all_funcs = []
+        for f in parsed_files:
+            for func in f.get("functions", []):
+                if isinstance(func, dict) and not func.get("calls_only"):
+                    all_funcs.append(
+                        {
+                            "name": func.get("name", "anon"),
+                            "file": f.get("name", "unknown"),
+                            "impact": func.get("impact", 0),
+                            "loc": func.get("loc", 0),
+                        }
+                    )
         all_funcs.sort(key=lambda x: x["impact"], reverse=True)
         return {
             "highest": all_funcs[:3],

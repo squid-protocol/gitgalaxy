@@ -43,7 +43,7 @@ You can trigger any of the standalone CLI tools securely in your CI/CD pipeline 
       - name: Run GitGalaxy Tool
         uses: squid-protocol/gitgalaxy@main
         with:
-          tool: 'supply-chain-firewall' # Options: vault-sentinel, xray-inspector, api-network-map, etc.
+          tool: 'vault-sentinel'  # or: galaxyscope, supply-chain-firewall, xray-inspector, pii-leak-hunter, api-network-map
           target: '.'
 ```
 

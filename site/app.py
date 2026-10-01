@@ -405,5 +405,9 @@ if __name__ == "__main__":
 
     # Securely load debug state from environment variables
     is_debug = os.getenv("FLASK_ENV", "production").lower() == "development"
-    host = os.getenv("FLASK_HOST", "0.0.0.0" if is_debug else "127.0.0.1")
-    app.run(debug=is_debug, host=host, port=5000, threaded=True)
+
+    # Bind to loopback only unless in development mode; GITGALAXY_BIND_HOST
+    # overrides the address explicitly (e.g. "0.0.0.0" inside a container).
+    default_host = "0.0.0.0" if is_debug else "127.0.0.1"  # noqa: S104 # nosec B104
+    bind_host = os.getenv("GITGALAXY_BIND_HOST") or default_host
+    app.run(debug=is_debug, host=bind_host, port=5000, threaded=True)

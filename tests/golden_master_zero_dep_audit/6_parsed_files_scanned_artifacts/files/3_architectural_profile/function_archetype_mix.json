@@ -3256,10 +3256,10 @@
       },
       "cobol/gnucobol_internals/fileio.c": {
         "C Struct Operations": 8,
-        "Compute Cores": 25,
+        "Compute Cores": 27,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 5,
-        "I/O & Config Routines": 3,
+        "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 55,
         "Parameter Forwarders": 6,
         "Stateful Encapsulated Methods": 23,

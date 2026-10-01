@@ -23,6 +23,7 @@ import time
 from typing import Any, ClassVar, Optional, TypedDict, cast
 
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
+from gitgalaxy.core.prism import CPP_CHAR_LITERAL_PATTERN, CPP_DIGIT_SEPARATED_NUMBER_PATTERN, CPP_LANG_IDS
 from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
@@ -2048,6 +2049,140 @@ def _compiled_rules(lang_config: dict[str, Any]) -> dict[str, Any]:
     return rules
 
 
+# #1720 / #2814: C-family preprocessor directive line, applied to ONE line at a
+# time with `.match`. `#`, optional blanks, then the directive keyword as a whole
+# word (`\w*` is greedy and never backtracks into the keyword, so `#ifdef` can't
+# read as `#if` and `#if(0)` still reads as `#if`), then the rest of the line.
+# Every quantifier sits on a disjoint character class -- linear, ReDoS-safe.
+_PREPROC_DIRECTIVE_RE = re.compile(r"[ \t\f\v]*#[ \t\f\v]*(\w*)(.*)")
+# A statically-decidable `#if` condition: an integer literal (dec/hex/bin with an
+# optional u/l suffix) or `true`/`false`. Anything else is unknown.
+_PREPROC_INT_LITERAL_RE = re.compile(r"(0[xX][0-9a-fA-F]+|0[bB][01]+|[0-9]+)[uUlL]{0,3}")
+_PREPROC_IF_OPENERS = frozenset({"if", "ifdef", "ifndef"})
+# `#elseif` is Swift's spelling; `#elifdef` / `#elifndef` are C23/C++23.
+_PREPROC_ELIF_KEYWORDS = frozenset({"elif", "elseif", "elifdef", "elifndef"})
+
+
+def _preproc_condition_value(condition: str) -> Optional[bool]:
+    """Static value of a `#if` / `#elif` condition: True, False, or None (unknown).
+
+    Only literal conditions are decided (`0`, `1`, `(0)`, `0x0`, `true`,
+    `false`); macro names, `defined(X)` and any expression are unknown (#1720).
+    Trailing `//` and `/* */` comments are ignored. Plain string scans rather
+    than a lazy comment regex, so a line of repeated `/*` stays linear.
+    """
+    text = condition
+    cut = text.find("//")
+    if cut != -1:
+        text = text[:cut]
+    parts = []
+    pos = 0
+    while True:
+        open_idx = text.find("/*", pos)
+        if open_idx == -1:
+            parts.append(text[pos:])
+            break
+        parts.append(text[pos:open_idx])
+        close_idx = text.find("*/", open_idx + 2)
+        if close_idx == -1:
+            break  # comment runs past the line; the condition is what came before it
+        parts.append(" ")
+        pos = close_idx + 2
+    text = "".join(parts).strip()
+    # Peel wrapping parens. Only a paren-free literal is decided below, so a
+    # non-wrapping pair such as `(0) || (1)` can only peel into an unknown.
+    while len(text) >= 2 and text[0] == "(" and text[-1] == ")":
+        text = text[1:-1].strip()
+    if text == "true":
+        return True
+    if text == "false":
+        return False
+    m = _PREPROC_INT_LITERAL_RE.fullmatch(text)
+    if not m:
+        return None
+    digits = m.group(1)
+    if digits[:2] in ("0x", "0X", "0b", "0B"):
+        digits = digits[2:]
+    return digits.strip("0") != ""
+
+
+def _preproc_line_liveness(lines: list[str]) -> list[tuple[bool, bool]]:
+    """Per-line `(is_directive, is_live)` for C-family source split into lines.
+
+    The single home of the #if/#elif/#else policy (#1720), shared by
+    `_build_brace_safe_stream` (function-boundary path) and
+    `_blank_dead_preproc_branches` (count path, #2814) so the two can't drift.
+
+    - `#if` with a statically true condition: its first branch is live and every
+      later branch is dead; statically false: the first branch is dead and the
+      rest of the chain is still open; unknown (macro names, `defined(X)`,
+      expressions, every `#ifdef`/`#ifndef`): the branch is live.
+    - `#elif` starts a new condition for the rest of its chain; `#else` is live
+      unless an earlier branch of the chain was statically true.
+    - Nesting: inside a dead region everything stays dead until the enclosing
+      block's `#endif`, whatever its own condition says.
+
+    `is_directive` is True for a directive line and for the `\\`-continuation
+    lines that belong to it (e.g. a multi-line `#define`). A branch marker's own
+    `is_live` is its enclosing region's liveness (a `#else` inside dead code is
+    dead; the `#else` of a live `#if 0` is live); any other directive, and
+    every non-directive line, takes the liveness of the region it sits in.
+    Unbalanced `#else`/`#elif`/`#endif` (no open `#if`) change nothing.
+    """
+    states: list[tuple[bool, bool]] = []
+    # One frame per open #if: [enclosing region live?, a branch of this chain was statically true?]
+    stack: list[list[bool]] = []
+    live = True
+    continuation_live: Optional[bool] = None  # set while inside a `\`-continued directive
+
+    for line in lines:
+        content = line.rstrip("\r\n")
+        continued = content.rstrip(" \t").endswith("\\")
+
+        if continuation_live is not None:
+            states.append((True, continuation_live))
+            if not continued:
+                continuation_live = None
+            continue
+
+        m = _PREPROC_DIRECTIVE_RE.match(content) if "#" in content else None
+        if not m:
+            states.append((False, live))
+            continue
+
+        keyword, rest = m.group(1), m.group(2)
+        line_live = live
+        if keyword in _PREPROC_IF_OPENERS:
+            # A condition continued onto the next line is not decided here: unknown.
+            value = _preproc_condition_value(rest) if keyword == "if" and not continued else None
+            stack.append([live, value is True])
+            live = live and value is not False
+        elif keyword in _PREPROC_ELIF_KEYWORDS and stack:
+            frame = stack[-1]
+            line_live = frame[0]
+            value = _preproc_condition_value(rest) if keyword in ("elif", "elseif") and not continued else None
+            live = frame[0] and not frame[1] and value is not False
+            frame[1] = frame[1] or value is True
+        elif keyword == "else" and stack:
+            frame = stack[-1]
+            line_live = frame[0]
+            live = frame[0] and not frame[1]
+            frame[1] = True
+        elif keyword == "endif" and stack:
+            line_live = live = stack.pop()[0]
+
+        states.append((True, line_live))
+        if continued:
+            continuation_live = line_live
+    return states
+
+
+def _blank_line(line: str) -> str:
+    """`line` with every character but its line terminator turned into a space."""
+    body = line.rstrip("\r\n")
+    return " " * len(body) + line[len(body) :]
+
+
 class StructuralExtractor:
     """
     GitGalaxy Structural Extractor (Primary Heuristic Logic & Function Mapper).
@@ -3408,18 +3543,19 @@ class StructuralExtractor:
         # the untouched `content`.
         scan_view = _mask_lua_long_brackets(content) if primary_id == "lua" else content
 
-        triggers = [
-            {
-                "start": m.start(),
-                "end_pattern": h["end"],
-                "target": h["target"],
-                "pair": h["pair"],
-                "open_delimiter": h.get("open_delimiter"),
-                "trigger_end": m.end(),
-            }
-            for h in self.HANDSHAKE_REGISTRY
-            for m in h["trigger"].finditer(scan_view)
-        ]
+        triggers = []
+        for h in self.HANDSHAKE_REGISTRY:
+            for m in h["trigger"].finditer(scan_view):
+                triggers.append(
+                    {
+                        "start": m.start(),
+                        "end_pattern": h["end"],
+                        "target": h["target"],
+                        "pair": h["pair"],
+                        "open_delimiter": h.get("open_delimiter"),
+                        "trigger_end": m.end(),
+                    }
+                )
 
         triggers.sort(key=lambda x: x["start"])
 
@@ -3657,7 +3793,8 @@ class StructuralExtractor:
             "amplified_cascading_flux": 0,
         }
         segment_spatial_maps = []
-        extracted_parents: list[str] = []
+        extracted_parents: list[str]
+        extracted_parents = []
         threat_locations: dict[str, list[int]] = {}
 
         for seg_lang, seg_code, current_line_offset in segments:
@@ -5131,21 +5268,18 @@ class StructuralExtractor:
                 and re.search(r"\bdef[ \t]+$", code[max(0, m.start() - 10) : m.start()])
             ):
                 return text
+            # #1718: a C++ digit-separated number (`1'000'000`) is claimed by the
+            # shield only so its `'` can't open a bogus char literal; it holds no
+            # braces, so keep it verbatim rather than blanking real code.
+            if lang_id in CPP_LANG_IDS and text and (text[0].isdigit() or text[0] == "."):
+                return text
             if "\n" not in text:
                 return " " * len(text)
             return "\n".join(" " * len(line) for line in text.split("\n"))
 
         # Rust uses single quotes for lifetimes (e.g. 'a), so a greedy string match corrupts ASTs.
         single_quote = r"'(?:\\.|[^'\\])*'"
-        if lang_id == "cpp":
-            # #1718: C++14+ digit separators (512'000, 1'000'000, 0xDE'AD) use ' inside
-            # numeric literals. The unbounded branch read a separator as a char-literal opener
-            # and paired it with the next unrelated ' anywhere later in the file, blanking every
-            # real function body in between from the brace scan. Consume separators as their own
-            # alternative (same shape as prism.py's CPP_LITERAL_MASK_PATTERN) and bound the branch
-            # to 64 chars, matching #1302/#1426.
-            single_quote = r"[0-9a-fA-F]'[0-9a-fA-F]|(?<!\\)'(?:\\.|[^'\\]){0,64}'"
-        elif lang_id in ("rust", "zig"):
+        if lang_id in ("rust", "zig"):
             # #1426: zig's char literals ('a', '\n', '\u{1F600}') are just as short-lived
             # as rust's, but zig ALSO has multi-line `\\`-prefixed string literals that are
             # never shielded at all here (a separate, pre-existing gap) -- so a real
@@ -5163,6 +5297,14 @@ class StructuralExtractor:
             # file), stuck at 18 total functions found regardless of #1419's separate
             # extern-callconv/quoted-identifier fix. Same idiom as the rust bound above.
             single_quote = r"'(?![" + ID_START + r"][" + ID_CONTINUE + r"]*[=<>(),&|\]\s])(?:\\.|[^'\\\n\r]){0,10}'"
+        elif lang_id in CPP_LANG_IDS:
+            # #1718: C++14 digit separators (`512'000`, `0xDE'AD'BE'EF`) put a bare `'`
+            # inside a number. The unbounded default above read it as a char-literal
+            # opener that ran to the next unrelated `'` in the file, blanking every
+            # real `{`/`}` in between and hiding those functions from the slicer.
+            # Claim a separator-bearing number first (kept verbatim by fast_shield),
+            # then a real, short, single-line char literal. Both shared with prism.py.
+            single_quote = CPP_DIGIT_SEPARATED_NUMBER_PATTERN + r"|" + CPP_CHAR_LITERAL_PATTERN
 
         # #1266 follow-up: Scala's backtick is only ever a short quoted-identifier escape
         # (e.g. `` `type` ``), never a long delimiter -- unlike JS/TS template literals, which
@@ -5401,94 +5543,21 @@ class StructuralExtractor:
             safe_code = "".join(parts)
             safe_code = re.sub(combined_pattern, fast_shield, safe_code, flags=re.DOTALL)
 
-        # Macro Shields (Strictly Gated to C-Family)
-        if lang_id in self._C_FAMILY_MACRO_LANGS:
-            lines = safe_code.splitlines(keepends=True)
-            # Per-open-#if branch policy. Each stack entry is a (policy, side)
-            # pair where policy is the #if condition's static truth value and
-            # side is which branch of that #if we are currently in:
-            #   policy True  (#if 1 / #if true)   -> first branch alive, #else dead
-            #   policy False (#if 0 / #if false)  -> first branch dead, #else alive
-            #   policy None  (unknown, e.g. #if FOO / #ifdef FOO)
-            #                                -> scan BOTH branches. This is the
-            #                                   #1720 fix: tree-sitter ground truth
-            #                                   parses both, and implementations
-            #                                   living in #else were being blanked.
-            # any() over the stack: an inner #if inside an outer dead region stays
-            # dead even if its own condition would flip it; #endif pops restore it.
-            branch_stack: list[tuple[Optional[bool], str]] = []
-            in_multiline_macro = False
-
-            def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
-                policy, side = entry
-                if policy is True:
-                    return side == "else"
-                if policy is False:
-                    return side == "first"
-                return False
-
-            for i in range(len(lines)):
-                line = lines[i]
-                stripped = line.lstrip()
-
-                if in_multiline_macro:
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-                    if not stripped.rstrip(" \t\r\n").endswith("\\"):
-                        in_multiline_macro = False
-                    continue
-
-                if stripped.startswith("#"):
-                    if re.match(r"#if\b", stripped):
-                        branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
-                    elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
-                        branch_stack.append((None, "first"))
-                    elif re.match(r"#elif\b", stripped) and branch_stack:
-                        # an #elif starts a fresh condition on the else side
-                        branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
-                    elif stripped.startswith("#else") and branch_stack:
-                        policy, _ = branch_stack[-1]
-                        branch_stack[-1] = (policy, "else")
-                    elif stripped.startswith("#endif") and branch_stack:
-                        branch_stack.pop()
-
-                    if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
-                        in_multiline_macro = True
-
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-                    continue
-
-                if any(_branch_dead(e) for e in branch_stack):
-                    lines[i] = " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-
-            safe_code = "".join(lines)
+        # Macro Shields (Strictly Gated to C-Family). Each branch's liveness
+        # follows the static value of its condition (#1720, rules in
+        # `_preproc_line_liveness`): only statically-dead branches are blanked,
+        # an unknown condition keeps both sides so an implementation in the
+        # `#else` of an `#ifdef` is still found. Every directive line (and each
+        # `\`-continuation line of one, e.g. a multi-line `#define`) is blanked
+        # too. Length-preserving: each blanked line keeps its length and newline.
+        if lang_id in self._C_FAMILY_MACRO_LANGS and "#" in safe_code:
+            lines = safe_code.split("\n")
+            for i, (is_directive, is_live) in enumerate(_preproc_line_liveness(lines)):
+                if is_directive or not is_live:
+                    lines[i] = _blank_line(lines[i])
+            safe_code = "\n".join(lines)
 
         return safe_code
-
-    @staticmethod
-    def _classify_preproc_condition(condition: str) -> Optional[bool]:
-        """
-        Returns the static truth value of a C-family preprocessor #if condition,
-        or None when it cannot be evaluated without a macro table.
-
-        Recognized constants (after stripping C comments and whitespace):
-          True  -- "1", "true", "TRUE"
-          False -- "0", "false", "FALSE"
-          None  -- everything else (macro names, defined(X), expressions)
-
-        Used by _build_brace_safe_stream's macro shield so #else branches that
-        genuinely contain implementations are scanned instead of blindly blanked
-        (#1720): only a statically-true #if (#if 1) makes its #else branch dead,
-        and only a statically-false #if (#if 0) makes its first branch dead.
-        """
-        if condition is None:
-            return None
-        # strip C-style comments and surrounding whitespace
-        cond = re.sub(r"/\*.*?\*/|//.*$", "", condition, flags=re.S).strip()
-        if cond in ("1", "true", "TRUE", "True"):
-            return True
-        if cond in ("0", "false", "FALSE", "False"):
-            return False
-        return None
 
     def _blank_dead_preproc_branches(self, code: str, lang_id: str) -> str:
         """
@@ -5511,67 +5580,15 @@ class StructuralExtractor:
         dead, `#if 0` -> first branch dead, unknown (`#if FOO` / `#ifdef` /
         `#if defined(X)`) -> both branches kept alive and counted.
         """
-        if lang_id not in self._C_FAMILY_MACRO_LANGS:
+        if lang_id not in self._C_FAMILY_MACRO_LANGS or "#" not in code:
             return code
-
-        lines = code.splitlines(keepends=True)
-        branch_stack: list[tuple[Optional[bool], str]] = []
-        in_multiline_macro = False
-
-        def _blank_line(line: str) -> str:
-            return " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
-
-        def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
-            policy, side = entry
-            if policy is True:
-                return side == "else"
-            if policy is False:
-                return side == "first"
-            return False
-
-        for i in range(len(lines)):
-            line = lines[i]
-            stripped = line.lstrip()
-
-            if in_multiline_macro:
-                # A dead multi-line macro's continuation lines vanish with the
-                # branch; a live one stays for the rules to read.
-                if any(_branch_dead(e) for e in branch_stack):
-                    lines[i] = _blank_line(line)
-                if not stripped.rstrip(" \t\r\n").endswith("\\"):
-                    in_multiline_macro = False
-                continue
-
-            if stripped.startswith("#"):
-                # Deadness is judged on the stack BEFORE this directive mutates
-                # it, so the markers delimiting the dead branch (and every live
-                # directive) survive, while a non-conditional directive nested
-                # inside an already-dead region is blanked.
-                enclosing_dead = any(_branch_dead(e) for e in branch_stack)
-
-                if re.match(r"#if\b", stripped):
-                    branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
-                elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
-                    branch_stack.append((None, "first"))
-                elif re.match(r"#elif\b", stripped) and branch_stack:
-                    branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
-                elif stripped.startswith("#else") and branch_stack:
-                    policy, _ = branch_stack[-1]
-                    branch_stack[-1] = (policy, "else")
-                elif stripped.startswith("#endif") and branch_stack:
-                    branch_stack.pop()
-
-                if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
-                    in_multiline_macro = True
-
-                if enclosing_dead:
-                    lines[i] = _blank_line(line)
-                continue
-
-            if any(_branch_dead(e) for e in branch_stack):
-                lines[i] = _blank_line(line)
-
-        return "".join(lines)
+        lines = code.split("\n")
+        changed = False
+        for i, (_is_directive, is_live) in enumerate(_preproc_line_liveness(lines)):
+            if not is_live:
+                lines[i] = _blank_line(lines[i])
+                changed = True
+        return "\n".join(lines) if changed else code
 
     def _ts_js_arrow_body_end(self, safe_code: str, body_idx: int, limit: int, opener: str, closer: str) -> int:
         """End of a TS/JS arrow function's body, starting just past its `=>` (#3339).
@@ -5849,49 +5866,51 @@ class StructuralExtractor:
                     if _enclosing != _head:
                         continue
 
-            # #1631: typescript's func_start colon-annotated-arrow branch
-            # cannot distinguish a real arrow-function property from a
-            # parameter's function-type annotation -- both are the same
-            # `IDENT: (...) => ...` surface syntax, but only the property
-            # has a runtime function. A nested parameter (`f: (a: A) => B`
-            # inside an interface member's own signature, fp-ts pipeable.ts's
-            # `f`/`g` phantoms) is always the first thing after an
-            # already-open parameter list, so its line is directly preceded
-            # by `(`. An object-literal arrow property is never preceded by
-            # `(` -- its enclosing `{` is -- so dropping line-anchored
-            # matches whose preceding non-whitespace char is `(` removes
-            # the phantom parameter annotations without touching real
-            # arrow-function properties. JavaScript shares the same regex
-            # branch and the same ambiguity, so the gate covers both.
+            # #1631 / #1632: func_start's line-anchored colon branch (`name: (...) =>`,
+            # `name: function`) reads any `IDENT:` followed by a function shape as an
+            # object-literal method key. Two other shapes look the same. Both gates
+            # apply only to that branch, recognised by the next non-blank character
+            # after the match being `:` (every other TS/JS branch stops before `=`,
+            # `(`, `<` or `?`), and both backward scans are bounded.
             if lang_id in ("typescript", "javascript"):
-                name_start = match.start(match.lastindex) if match.lastindex else start_idx
-                line_start = safe_code.rfind("\n", 0, name_start) + 1
-                p = line_start - 2  # line_start - 1 is the line's own \n
-                while p >= 0 and safe_code[p] in " \t":
-                    p -= 1
-                if p >= 0 and safe_code[p] == "(":
-                    continue
-
-            # #1632: the object-literal-method branch matches `IDENT :` followed
-            # by a function/arrow -- but a ternary's true branch (`cond ? name :
-            # function() { ... }`, jquery/deferred.js:182-184) has the identical
-            # `name :\nfunction() {` surface while `name` is a plain identifier
-            # reference, not an object key. A real object/namespace key is never
-            # preceded (skipping whitespace/newlines) by `?` -- that position is
-            # exclusively the ternary true-branch -- so a bounded backward scan
-            # for the preceding non-whitespace char rules the shape out the same
-            # way #1221's Invocation Shield rules out bare call statements.
-            # JavaScript and TypeScript share the branch, so the gate covers both.
-            if lang_id in ("typescript", "javascript"):
-                name_start = match.start(match.lastindex) if match.lastindex else start_idx
-                line_start = safe_code.rfind("\n", 0, name_start) + 1
-                p = line_start - 1
-                back_steps = 0
-                while p >= 0 and back_steps < 200 and safe_code[p] in " \t\n\r":
-                    p -= 1
-                    back_steps += 1
-                if p >= 0 and safe_code[p] == "?":
-                    continue
+                _key_start = match.start(match.lastindex) if match.lastindex else match.start()
+                while _key_start < match.end() and safe_code[_key_start] in " \t\r\n":
+                    _key_start += 1
+                _after = match.end()
+                while _after < len(safe_code) and _after - match.end() < 256 and safe_code[_after] in " \t\r\n":
+                    _after += 1
+                if _after < len(safe_code) and safe_code[_after] == ":":
+                    _floor = max(0, _key_start - 1000)
+                    _prev = _key_start - 1
+                    while _prev >= _floor and safe_code[_prev] in " \t\r\n":
+                        _prev -= 1
+                    _prev_ch = safe_code[_prev] if _prev >= _floor else ""
+                    # #1632: `cond ? name :\n function() {...}` -- the identifier is a
+                    # ternary's true branch, not a key. A real object key is never
+                    # directly preceded by `?` (optional chaining puts a `.` last).
+                    if _prev_ch == "?":
+                        continue
+                    # #1631: `f: (a: A) => B` right after `(` or `,` is a parameter's
+                    # function-type annotation when the nearest unclosed bracket is a
+                    # `(` (an open parameter list, e.g. inside an interface member's
+                    # own signature). An object-literal arrow property also follows
+                    # `,`, but its nearest unclosed bracket is `{`, so it is kept.
+                    if _prev_ch in ("(", ","):
+                        _container = "(" if _prev_ch == "(" else None
+                        _q = _prev - 1
+                        _depth = 0
+                        _scan_floor = max(0, _prev - 4000)
+                        while _container is None and _q >= _scan_floor:
+                            _c = safe_code[_q]
+                            if _c in ")]}":
+                                _depth += 1
+                            elif _c in "([{":
+                                if _depth == 0:
+                                    _container = _c
+                                _depth -= 1
+                            _q -= 1
+                        if _container == "(":
+                            continue
 
             next_match_start = matches[match_idx + 1].start() if match_idx + 1 < len(matches) else len(code)
             search_limit = min(next_match_start, start_idx + 2000)
@@ -6043,86 +6062,6 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
-            # #1756: Go's bodyless function declarations (assembly-backed
-            # implementations and //go:linkname targets -- e.g. "func
-            # memmove(to, from unsafe.Pointer, n uintptr)" with no { body,
-            # legal and common in the stdlib) were silently dropped by the
-            # generic brace-only fallback below: Go's automatic-semicolon-
-            # insertion rule means a bodyless declaration ends at the end of
-            # its signature line without a literal ";", so the brace search
-            # either found nothing in the bounded window (brace_idx == -1,
-            # match discarded) or -- when a struct/interface literal
-            # happened to appear later -- attributed an unrelated block as
-            # the function's body. Mirrors #1319's rust bodyless
-            # trait-method handling, with the declaration bound taken from
-            # Go's own ASI rule: after the parameter list closes, the first
-            # top-level { is the body; a literal ";" or (far more common)
-            # the end of the line means the declaration is bodyless. "func"
-            # at line start is unambiguous in Go (never a call or bare
-            # statement), so a bodyless terminator is never a false match.
-            #
-            # One Go-specific wrinkle: a return type may itself contain a
-            # brace group ("func f() struct{ X int } { ... }",
-            # "interface{ ... }"), which sits at top level after the
-            # parameter list and would be mistaken for the body. Such a
-            # group is always closed on the same line, and a real body {
-            # always follows on that same line -- so a top-level { whose
-            # balanced close is followed by another { before the line ends
-            # is a type literal, not the body; skip past it and keep
-            # scanning.
-            elif lang_id == "go":
-                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
-                search_limit = min(next_match_start, params_end_idx + 2000)
-                # Go has no angle-bracket grouping: generics use square brackets
-                # ([T any]), so < and > only ever appear as operators -- most
-                # notably the channel-direction operator (chan<- / <-chan),
-                # whose lone < would poison an angle-depth counter and stall the
-                # scan below. Track parens and brackets only.
-                depth_paren = depth_bracket = 0
-                pos = params_end_idx
-                term_idx, term_kind = -1, None
-                while pos < search_limit:
-                    ch = safe_code[pos]
-                    if ch == "(":
-                        depth_paren += 1
-                    elif ch == ")":
-                        depth_paren = max(0, depth_paren - 1)
-                    elif ch == "[":
-                        depth_bracket += 1
-                    elif ch == "]":
-                        depth_bracket = max(0, depth_bracket - 1)
-                    elif depth_paren == 0 and depth_bracket == 0:
-                        if ch == opener:
-                            # A brace group that is a type literal (struct{
-                            # ... } / interface{ ... } in the return type)
-                            # closes before the line ends and is followed by
-                            # the real body's { on that same line -- or, for
-                            # a bodyless declaration, by the end of the
-                            # line. Only a { whose balanced close is NOT
-                            # followed by another { before the next newline
-                            # is the function's own body.
-                            group_end = self._find_balanced_end(safe_code, pos, opener, closer)
-                            line_end = safe_code.find("\n", group_end + 1, search_limit)
-                            if line_end == -1:
-                                line_end = search_limit
-                            if safe_code.find(opener, group_end + 1, line_end) != -1:
-                                pos = group_end + 1
-                                continue
-                            term_idx, term_kind = pos, "brace"
-                            break
-                        elif ch == ";":
-                            term_idx, term_kind = pos, "semi"
-                            break
-                        elif ch == "\n":
-                            term_idx, term_kind = pos, "eol"
-                            break
-                    pos += 1
-                if term_kind == "brace":
-                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
-                elif term_kind in ("semi", "eol"):
-                    end_idx = term_idx + 1
-                else:
-                    continue  # neither a body nor a bodyless declaration bound showed up in the window
             elif lang_id == "kotlin":
                 paren_idx = safe_code.find("(", match.end(), search_limit)
                 brace_idx = safe_code.find(opener, match.end(), search_limit)
@@ -6502,30 +6441,35 @@ class StructuralExtractor:
                     args_sig_end = min(term_idx + 2, end_idx)  # +2: past the full "=>"
                 else:
                     continue
-            # #1629: typescript/javascript idiomatically use brace-less,
-            # expression-bodied arrow functions (`const swap = (x) => x + 1`,
-            # curried FP chains with no `{` anywhere in the definition --
-            # fp-ts's primary export shape). The generic brace-only fallback
-            # below drops every one of them; at least 88 of the corpus's 159
-            # func recall misses are this shape. Mirror #1266's scala
-            # approach: when no `{` shows up in the window, find the first
-            # un-nested `=>` after the signature and bound the expression
-            # body by the next func_start match (TS/JS arrow bodies have no
-            # reliable `;` terminator either, so the next-match bound is the
-            # closer analogy than csharp's trailing-semicolon scan).
             elif lang_id in ("typescript", "javascript"):
-                # A brace-less assignment match that is itself in expression
+                # #1629: brace-less, expression-bodied arrows (`const swap = (x) =>
+                # x + 1`, fp-ts's curried chains) have no `{` at all, so the generic
+                # brace search below dropped them. Scan forward for whichever comes
+                # first at bracket depth 0: a `{` body, an arrow `=>` body, or a `;`.
+                #
+                # A match sitting in expression
                 # position (preceding non-whitespace char is `>`/`)`) is a
-                # return type, not a name -- `=> M = (M) => ...` in fp-ts's
+                # type or value that follows an `=>`, a closing `)` or a generic's
+                # `>` -- a return type or an arrow body, never a declaration name.
+                # fp-ts's curried signatures put a bare type parameter right after
+                # an `=>` (`... => M`); without this check
                 # foldMap reports a phantom `M`. We removed `,` from this check
                 # because object literal properties are preceded by `,`.
-                if start_idx > 0:
-                    p = start_idx - 1
+                # Only spaces/tabs are skipped: the check never crosses a newline.
+                name_start = match.start(match.lastindex) if match.lastindex else match.start()
+                while name_start < match.end() and safe_code[name_start] in " \t\r\n":
+                    name_start += 1
+                if name_start > 0:
+                    p = name_start - 1
                     while p >= 0 and safe_code[p] in " \t":
                         p -= 1
                     if p >= 0 and safe_code[p] in ">)":
                         continue
                 depth_paren = depth_bracket = depth_angle = 0
+                # Start right after the match: every TS/JS func_start branch ends at
+                # the name (lookahead-only terminator) except the assignment branch,
+                # which also consumes a `: Type` annotation, so a `=>` inside that
+                # annotation is never mistaken for the body's arrow.
                 pos = match.end()
                 saw_assignment = False
                 saw_colon = False
@@ -6556,7 +6500,14 @@ class StructuralExtractor:
                             term_idx = pos
                             term_kind = "brace"
                             break
-                        if ch == "=" and pos + 1 < search_limit and safe_code[pos + 1] == ">":
+                        elif ch == "=" and safe_code[pos + 1 : pos + 2] != ">":
+                            # a lone `=` is an assignment; `==`, `===`, `!=`, `<=`,
+                            # `>=` are comparisons and leave the flag alone
+                            prev_ch = safe_code[pos - 1] if pos > 0 else ""
+                            if safe_code[pos + 1 : pos + 2] != "=" and prev_ch not in ("=", "!", "<", ">"):
+                                saw_assignment = True
+                        elif ch == "=":
+                            # `=>` at depth 0
                             if saw_assignment or saw_colon:
                                 if saw_colon and not saw_assignment:
                                     p_idx = start_idx - 1
@@ -6618,9 +6569,15 @@ class StructuralExtractor:
                                 term_idx = pos
                                 term_kind = "arrow"
                                 break
-                            break  # the `=>` belongs to an annotation, not an assignment
-                        if ch == "=":
-                            saw_assignment = True
+                            else:
+                                # A depth-0 `=>` with no `=` or `:` before it: the
+                                # matched word opens an arrow expression rather than
+                                # naming one. `async () => {` passed as a call
+                                # argument or returned from a curried arrow has
+                                # func_start capture the `async` modifier as a name,
+                                # and there is no real name to report.
+                                term_kind = "anonymous_arrow"
+                                break
                         elif ch == ":":
                             saw_colon = True
                         elif ch == ";":
@@ -6628,6 +6585,9 @@ class StructuralExtractor:
                             term_kind = "semi"
                             break  # bodyless prototype
                     pos += 1
+
+                if term_kind == "anonymous_arrow":
+                    continue
 
                 # a `;` (or no terminator at all, #2278) before any body: a signature
                 ts_bodyless = term_kind not in ("brace", "arrow")
@@ -6777,6 +6737,79 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            # #1756: Go allows BODYLESS function declarations -- assembly-backed
+            # functions and `//go:linkname` targets (`func memmove(to, from
+            # unsafe.Pointer, n uintptr)`). func_start matches their signatures, but
+            # the generic brace-only fallback below dropped every one whose window held
+            # no `{`, and -- worse -- handed the rest the NEXT declaration's `{...}`
+            # (a later func, a `type T struct {`, a composite literal) as a borrowed
+            # body. func_start consumes the parameter list's own `(`, so the params are
+            # closed first, then the result type is walked to the real terminator:
+            #   - a `{` at depth 0 is the body -- unless it directly follows the
+            #     `struct`/`interface` keyword, in which case it opens a type literal
+            #     in the result type (`func f() struct{ a int } {`) and is tracked;
+            #   - a `;` or a NEWLINE at depth 0 ends a bodyless declaration: Go's
+            #     automatic semicolon insertion ends the signature at its line end,
+            #     and a real body's `{` must sit on that same line for the same
+            #     reason. Newlines inside `(...)`/`[...]`/type-literal braces are
+            #     ignored (multi-line result lists, multi-line struct/interface types).
+            # Channel types (`<-chan T`, `chan<- int`) contain no tracked character,
+            # so they pass through as plain result-type text. The walk is bounded by
+            # the same next-match/+2000 window as the sibling branches.
+            elif lang_id == "go":
+                params_end_idx = self._find_balanced_end(safe_code, match.end() - 1, "(", ")")
+                search_limit = min(next_match_start, params_end_idx + 2000)
+                depth_paren = depth_bracket = depth_type_brace = 0
+                pos = params_end_idx
+                term_idx, term_kind = -1, None
+                while pos < search_limit:
+                    ch = safe_code[pos]
+                    if ch == "(":
+                        depth_paren += 1
+                    elif ch == ")":
+                        depth_paren = max(0, depth_paren - 1)
+                    elif ch == "[":
+                        depth_bracket += 1
+                    elif ch == "]":
+                        depth_bracket = max(0, depth_bracket - 1)
+                    elif ch == opener:
+                        if depth_paren or depth_bracket or depth_type_brace:
+                            depth_type_brace += 1
+                        else:
+                            # Bounded look-back for the keyword owning this `{`.
+                            kw_end = pos
+                            while kw_end > params_end_idx and pos - kw_end < 64 and safe_code[kw_end - 1] in " \t":
+                                kw_end -= 1
+                            kw_start = kw_end
+                            while (
+                                kw_start > params_end_idx
+                                and kw_end - kw_start < 16
+                                and (safe_code[kw_start - 1].isalnum() or safe_code[kw_start - 1] == "_")
+                            ):
+                                kw_start -= 1
+                            if safe_code[kw_start:kw_end] in ("struct", "interface"):
+                                depth_type_brace += 1
+                            else:
+                                term_idx, term_kind = pos, "brace"
+                                break
+                    elif ch == closer:
+                        depth_type_brace = max(0, depth_type_brace - 1)
+                    elif depth_paren == 0 and depth_bracket == 0 and depth_type_brace == 0 and ch in ";\n":
+                        term_idx, term_kind = pos, "semi"
+                        break
+                    pos += 1
+                if term_kind == "brace":
+                    end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
+                elif term_kind == "semi":
+                    # The span covers the declaration only: through an explicit `;`,
+                    # or up to (not including) the newline that implies one.
+                    end_idx = term_idx + 1 if safe_code[term_idx] == ";" else term_idx
+                elif (
+                    search_limit == len(safe_code) and depth_paren == 0 and depth_bracket == 0 and depth_type_brace == 0
+                ):
+                    end_idx = search_limit  # bodyless declaration on the file's last, unterminated line
+                else:
+                    continue  # unbalanced signature -- no terminator anywhere in the window
             # #2763: a tcl `proc` has TWO brace groups, not one -- the PARAMETER
             # LIST (`proc name {a b}`) and then the body (`{ ... }`). The generic
             # fallback below starts its brace search at `start_idx`, so for tcl it

@@ -591,100 +591,195 @@ def test_detector_c_macro_dead_branch_nesting_and_else():
     assert result["threat_locations"]["high_risk_execution"] == [3, 12], "hits are the live strcpy on lines 3 and 12"
 
 
-def test_detector_c_macro_else_branch_is_scanned_issue_1720():
+def _c_macro_fn(name):
+    """A small C function in the shape MOCK_LANG_DEFS' c `func_start` matches (#1720 tests)."""
+    return f"void {name}(int n) {{\n    return;\n}}\n"
+
+
+def _c_macro_function_names(code):
+    return [f["name"] for f in StructuralExtractor("c", MOCK_LANG_DEFS).splice(code, "")["functions"]]
+
+
+@pytest.mark.parametrize(
+    "opener",
+    ["#ifdef USE_FAST_PATH", "#ifndef USE_FAST_PATH", "#if USE_FAST_PATH", "#if defined(USE_FAST_PATH) && !NDEBUG"],
+)
+def test_detector_c_macro_unknown_condition_keeps_else_branch_function(opener):
     """
-    Regression test for #1720: the preprocessor shield used to assume the
-    first branch of every #if/#ifdef is the active one and blindly blanked
-    the #else branch, so real implementations living in #else were silently
-    dropped from extraction. With an unknown condition (e.g. #if FEATURE_FLAG)
-    the shield now scans BOTH branches; only statically-decidable conditions
-    (#if 0 / #if 1) prune a branch.
+    #1720: the macro shield used to assume the first branch of every
+    `#if`/`#ifdef`/`#ifndef` was the live one and blank the whole `#else` side,
+    so an implementation living only in `#else` was never found. An unknown
+    condition (macro name, `defined(X)`, an expression, any `#ifdef`/`#ifndef`)
+    now keeps both branches, and both functions are extracted with their own
+    line spans.
     """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    code = (
-        "#if FEATURE_FLAG\n"
-        "int fastImplementation() {\n"
-        "    return 1;\n"
-        "}\n"
-        "#else\n"
-        "int portableImplementation() {\n"
-        "    return 2;\n"
-        "}\n"
-        "#endif\n"
+    code = f"{opener}\n" + _c_macro_fn("fast_impl") + "#else\n" + _c_macro_fn("portable_impl") + "#endif\n"
+    result = StructuralExtractor("c", MOCK_LANG_DEFS).splice(code, "")
+    spans = {f["name"]: (f["start_line"], f["end_line"]) for f in result["functions"]}
+    assert spans == {"fast_impl": (2, 4), "portable_impl": (6, 8)}, (
+        f"{opener}: the #else implementation must survive an undecidable condition, got {spans}"
     )
 
-    result = opt_detector.splice(code, "")
 
-    names = [f["name"] for f in result["functions"]]
-    assert "fastImplementation" in names, "First branch of an unknown #if must still be scanned!"
-    assert "portableImplementation" in names, (
-        "#1720: implementation living in the #else branch was dropped from extraction!"
+@pytest.mark.parametrize(
+    ("opener", "expected"),
+    [
+        ("#if 0", "else_impl"),
+        ("#if false", "else_impl"),
+        ("#if (0)", "else_impl"),
+        ("#if 0x0", "else_impl"),
+        ("#if 1", "first_impl"),
+        ("#if true", "first_impl"),
+        ("#if ((1))", "first_impl"),
+        ("#if 2UL", "first_impl"),
+    ],
+)
+def test_detector_c_macro_static_condition_hides_dead_branch_function(opener, expected):
+    """
+    #1720: a statically false `#if` hides its first branch and leaves `#else`
+    live; a statically true one keeps its first branch and hides `#else`.
+    """
+    code = f"{opener}\n" + _c_macro_fn("first_impl") + "#else\n" + _c_macro_fn("else_impl") + "#endif\n"
+    names = _c_macro_function_names(code)
+    assert names == [expected], f"{opener}: only {expected} is in a live branch, got {names}"
+
+
+def test_detector_c_macro_elif_chain_function_liveness():
+    """
+    #1720: each `#elif` starts a new condition for the rest of its chain. A
+    statically false branch is skipped without closing the chain; once one
+    branch is statically true every later `#elif`/`#else` is dead; unknown
+    branches stay live alongside the rest.
+    """
+    decided_chain = (
+        "#if 0\n"
+        + _c_macro_fn("zero_impl")  # dead: #if 0
+        + "#elif 1\n"
+        + _c_macro_fn("one_impl")  # live: first statically true branch
+        + "#elif HAVE_OTHER\n"
+        + _c_macro_fn("other_impl")  # dead: an earlier branch was true
+        + "#else\n"
+        + _c_macro_fn("fallback_impl")  # dead: an earlier branch was true
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(decided_chain) == ["one_impl"], "#elif 1 takes the chain; the rest is dead"
+
+    open_chain = (
+        "#if HAVE_SSE\n"
+        + _c_macro_fn("sse_impl")  # live: unknown
+        + "#elif 0\n"
+        + _c_macro_fn("never_impl")  # dead: statically false
+        + "#elif defined(HAVE_NEON)\n"
+        + _c_macro_fn("neon_impl")  # live: unknown
+        + "#else\n"
+        + _c_macro_fn("scalar_impl")  # live: nothing earlier was statically true
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(open_chain) == ["sse_impl", "neon_impl", "scalar_impl"], (
+        "unknown #if/#elif branches and the #else stay live; only the #elif 0 branch is dead"
     )
 
 
-def test_detector_c_macro_static_truth_prunes_branches():
+def test_detector_c_macro_nested_blocks_inside_dead_region_stay_dead():
     """
-    Companion to the #1720 fix: statically-decidable #if conditions still
-    prune the dead branch. #if 0 => first branch dead, #else alive;
-    #if 1 => first branch alive, #else dead. Nested blocks must also honor
-    the outer branch's liveness (any() over the open-#if stack).
+    #1720: inside a dead region everything stays dead until the enclosing
+    block's `#endif`, whatever a nested block's own condition says -- a nested
+    `#if 1`, its `#else`, and a nested `#ifdef` cannot revive code. A nested
+    `#endif` closes only its own block, so the outer `#else` is still found.
     """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-
-    code_if_zero = "#if 0\nint deadFast() {\n    return 1;\n}\n#else\nint aliveFallback() {\n    return 2;\n}\n#endif\n"
-    names_zero = [f["name"] for f in opt_detector.splice(code_if_zero, "")["functions"]]
-    assert "deadFast" not in names_zero, "#if 0 first branch must be pruned!"
-    assert "aliveFallback" in names_zero, "#if 0 #else branch must survive!"
-
-    code_if_one = "#if 1\nint aliveFast() {\n    return 1;\n}\n#else\nint deadFallback() {\n    return 2;\n}\n#endif\n"
-    names_one = [f["name"] for f in opt_detector.splice(code_if_one, "")["functions"]]
-    assert "aliveFast" in names_one, "#if 1 first branch must survive!"
-    assert "deadFallback" not in names_one, "#if 1 #else branch must be pruned!"
-
-
-def test_detector_c_macro_no_space_boundaries_issue_1764():
-    """
-    Regression test for a bug where `#if(1)` or `#elif(0)` (valid C preprocessor
-    syntax without a space) failed to push onto the branch stack because
-    `startswith("#if ")` was used. This led to premature `#endif` pops and
-    desynced branch nesting.
-    """
-    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
     code = (
         "#if 0\n"
-        "int deadOne() { return 1; }\n"
-        "#if(1)\n"
-        "int deadTwo() { return 2; }\n"
-        "#endif\n"
-        "int deadThree() { return 3; }\n"  # should stay dead -- still inside outer #if 0, before #else
-        "#else\n"
-        "int aliveOne() { return 4; }\n"
-        "#endif\n"
-    )
-
-    result = opt_detector.splice(code, "")
-    names = [f["name"] for f in result["functions"]]
-
-    assert "deadThree" not in names, "Premature pop caused dead code to be scanned as alive!"
-    assert "aliveOne" in names, "Valid #else branch was dropped due to stack desync!"
-
-    code_nested = (
-        "#if 0\n"
-        "int a() { return 1; }\n"
-        "#else\n"
-        "int b() { return 2; }\n"
         "#if 1\n"
-        "int c() { return 3; }\n"
-        "#else\n"
-        "int d() { return 4; }\n"
-        "#endif\n"
-        "int e() { return 5; }\n"
-        "#endif\n"
+        + _c_macro_fn("nested_true_impl")
+        + "#else\n"
+        + _c_macro_fn("nested_else_impl")
+        + "#endif\n"
+        + "#ifdef FEATURE\n"
+        + _c_macro_fn("nested_ifdef_impl")
+        + "#endif\n"
+        + _c_macro_fn("outer_dead_impl")
+        + "#else\n"
+        + _c_macro_fn("outer_live_impl")
+        + "#endif\n"
     )
-    names_nested = [f["name"] for f in opt_detector.splice(code_nested, "")["functions"]]
-    assert set(names_nested) == {"b", "c", "e"}, (
-        "Nested #if liveness was not honored: expected only b, c, e, got %r" % names_nested
+    assert _c_macro_function_names(code) == ["outer_live_impl"], "nothing nested in #if 0 revives; #else is live"
+
+    # The dead #else side of a live #if 1 is just as dead for its nested #if 0 / #else.
+    live_outer = (
+        "#if 1\n"
+        + _c_macro_fn("kept_impl")
+        + "#else\n"
+        + "#if 0\n"
+        + _c_macro_fn("inner_zero_impl")
+        + "#else\n"
+        + _c_macro_fn("inner_else_impl")
+        + "#endif\n"
+        + "#endif\n"
     )
+    assert _c_macro_function_names(live_outer) == ["kept_impl"], "an #else nested in a dead region stays dead"
+
+
+def test_detector_c_macro_directive_keywords_are_whole_words():
+    """
+    #1720: directives are recognised by whole keyword. `#if(0)` (no space),
+    `#  if` (blanks after `#`) and a condition followed by a comment are all
+    `#if 0`; `#ifdef`/`#ifndef` are openers of their own (not `#if def...`), so
+    their `#endif` closes only them and the enclosing `#if 1`'s `#else` stays
+    dead; `#endif` is never taken for `#else`/`#elif`.
+    """
+    for opener in ("#if(0)", "#  if 0", "#\tif 0 // disabled", "#if /* off */ 0 /* for now */"):
+        code = f"{opener}\n" + _c_macro_fn("hidden_impl") + "#else\n" + _c_macro_fn("shown_impl") + "#endif\n"
+        names = _c_macro_function_names(code)
+        assert names == ["shown_impl"], f"{opener!r} is a static #if 0, got {names}"
+
+    code = (
+        "#if 1\n"
+        "#ifdef FEATURE\n"
+        + _c_macro_fn("feature_impl")
+        + "#endif\n"
+        + "#ifndef FEATURE\n"
+        + _c_macro_fn("no_feature_impl")
+        + "#endif\n"
+        + _c_macro_fn("after_impl")
+        + "#else\n"
+        + _c_macro_fn("dead_else_impl")
+        + "#endif\n"
+    )
+    assert _c_macro_function_names(code) == ["feature_impl", "no_feature_impl", "after_impl"], (
+        "#ifdef/#ifndef open their own blocks; the #if 1's #else remains dead"
+    )
+
+
+def test_detector_c_macro_count_path_blanking_keeps_markers_and_length():
+    """
+    #2814: `_blank_dead_preproc_branches` blanks only dead lines (including a
+    dead multi-line `#define` and its continuation), keeps the live branch
+    markers and live directives verbatim, and preserves length and line
+    endings (CRLF included) so every offset stays valid.
+    """
+    detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "#include <string.h>\r\n"
+        "#if 0\r\n"
+        "#define COPY(a, b) \\\r\n"
+        "    strcpy(a, b)\r\n"
+        "#elif KEEP\r\n"
+        "    strncpy(a, b, 4);\r\n"
+        "#endif\r\n"
+    )
+    blanked = detector._blank_dead_preproc_branches(code, "c")
+    assert len(blanked) == len(code)
+    assert blanked.split("\r\n") == [
+        "#include <string.h>",
+        "#if 0",
+        " " * len("#define COPY(a, b) \\"),
+        " " * len("    strcpy(a, b)"),
+        "#elif KEEP",
+        "    strncpy(a, b, 4);",
+        "#endif",
+        "",
+    ]
+    assert detector._blank_dead_preproc_branches(code, "python") == code, "non-C-family code is untouched"
 
 
 def test_detector_nested_function_is_counted_as_own_node_braces():
@@ -2710,78 +2805,171 @@ def test_detector_csharp_lambda_default_parameter_arrow_not_mistaken_for_body():
     assert "f(1)" in code[: code.index(";") + 1]
 
 
-def test_detector_ts_js_braceless_arrow_capture():
+def test_detector_ts_js_braceless_arrow_function_captured():
     """
-    #1629: typescript/javascript brace-less arrow functions
-    (`const double = (x) => x * 2;`) are real functions and must be
-    captured by _slice_by_braces, not dropped by the generic brace-only
-    fallback. This replaced the old expectation (tested pre-#1629 in
-    test_detector_csharp_expression_body_fallback_gated_to_csharp_only)
-    that no non-csharp language may use an arrow fallback -- TS/JS now
-    have their own next-match-bounded version of that handling, because
-    brace-less expression bodies are their dominant export shape
-    (88 of 159 corpus recall misses were this shape).
+    #1629: an expression-bodied arrow (`const swap = (...) => expr`) or a
+    curried chain of them has no `{` anywhere, so the generic brace search
+    dropped it. The typescript/javascript branch now takes the first depth-0
+    `=>` after the assignment as the body. Brace-bodied functions are
+    unchanged, and the fix is gated on the language: the same rules run
+    under another lang_id still drop the brace-less ones.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "export const swap = <E, A>(ma: Pair<E, A>): Pair<A, E> => flip(ma)\n"
+        "\n"
+        "export const compose =\n"
+        "  <A>(f: Fn<A>) =>\n"
+        "  (g: Fn<A>) =>\n"
+        "    (a: A) => f(g(a))\n"
+        "\n"
+        "function withBody(x: number) {\n"
+        "  return x;\n"
+        "}\n"
+    )
+    ts_rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    for lang in ("typescript", "javascript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        satellites, _ = detector._slice_by_braces(code, lang, ts_rules, 0, {})
+        by_name = {s["name"]: s for s in satellites}
+        assert [s["name"] for s in satellites] == ["swap", "compose", "withBody"], f"[{lang}] {list(by_name)}"
+        assert by_name["swap"]["start_line"] == 1
+        assert by_name["compose"]["start_line"] == 3
+        assert "flip(ma)" in code[by_name["swap"]["start_idx"] : by_name["swap"]["end_idx"]]
+        assert "withBody" not in code[by_name["compose"]["start_idx"] : by_name["compose"]["end_idx"]]
+
+    # javascript's own rules take the same path
+    js_code = "const inc = (n) => n + 1\nconst twice = (f) => (x) => f(f(x))\n"
+    js_detector = StructuralExtractor("javascript", LANGUAGE_DEFINITIONS)
+    js_sats, _ = js_detector._slice_by_braces(js_code, "javascript", LANGUAGE_DEFINITIONS["javascript"]["rules"], 0, {})
+    assert [(s["name"], s["start_line"]) for s in js_sats] == [("inc", 1), ("twice", 2)]
+
+    # another language on the generic brace fallback is unaffected
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    c_sats, _ = c_detector._slice_by_braces(code, "c", ts_rules, 0, {})
+    assert [s["name"] for s in c_sats] == ["withBody"]
+
+
+def test_detector_ts_parameter_function_type_annotation_not_a_function():
+    """
+    #1631: `onTick: (n: number) => report(n)` inside a parameter list has the
+    same `IDENT: (...) =>` shape as an object-literal arrow property, but it
+    is a parameter's function-type annotation, not a definition. The gate
+    finds the nearest unclosed bracket: `(` (an open parameter list) drops
+    the match, `{` (an object literal) keeps it. Here the preceding
+    parameter's `>` comparison throws off the in-scan container check, so
+    the gate is what removes the phantom.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("typescript", LANGUAGE_DEFINITIONS)
+    rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    code = (
+        "const handlers = {\n"
+        "  onReady: (event) => event.target,\n"
+        "  onClose: (event) => event.code,\n"
+        "};\n"
+        "function schedule(\n"
+        "  limit = max > 10 ? 10 : max,\n"
+        "  onTick: (n: number) => report(n),\n"
+        ") {\n"
+        "  return limit;\n"
+        "}\n"
+    )
+    # the regex itself still proposes `onTick`; the detector must drop it
+    assert any(m.group(m.lastindex) == "onTick" for m in rules["func_start"].finditer(code))
+
+    satellites, _ = detector._slice_by_braces(code, "typescript", rules, 0, {})
+    names = [s["name"] for s in satellites]
+    assert names == ["onReady", "onClose", "schedule"], names
+
+
+def test_detector_js_ts_ternary_true_branch_not_an_object_method():
+    """
+    #1632: in `cond ?\n name :\n function() {...}` the identifier is the
+    ternary's true branch, but `name :` followed by `function` looks like an
+    object-literal method key, so the anonymous false branch was reported as
+    a function called `name`. A real key is never directly preceded by `?`.
+    A real `key: function` in an object literal is still kept.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "process = special ?\n"
+        "    mightThrow :\n"
+        "    function() {\n"
+        "        return mightThrow();\n"
+        "    };\n"
+        "var api = {\n"
+        "    resolve: function(value) {\n"
+        "        return value;\n"
+        "    }\n"
+        "};\n"
+    )
+    for lang in ("javascript", "typescript"):
+        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
+        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
+        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        names = [s["name"] for s in satellites]
+        assert "mightThrow" not in names, f"[{lang}] {names}"
+        assert "resolve" in names, f"[{lang}] {names}"
+
+
+def test_detector_ts_js_anonymous_async_arrow_not_named_async():
+    """
+    An anonymous `async () => {...}` has func_start capture the `async`
+    modifier as a name. The TS/JS scan must not turn it into a function
+    called `async`: its `=>` has no `=` or `:` before it, so nothing names
+    it. Covers an async arrow returned by a curried arrow on its own line,
+    and async arrows passed as call arguments (with and without a
+    parameter). The enclosing named functions are still reported.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    curried = (
+        "export const attempt =\n"
+        "  <E, A>(run: Thunk<Promise<A>>, onError: (why: unknown) => E): Result<E, A> =>\n"
+        "  async () => {\n"
+        "    try {\n"
+        "      return ok(await run())\n"
+        "    } catch (why) {\n"
+        "      return fail(onError(why))\n"
+        "    }\n"
+        "  }\n"
+    )
+    call_args = (
+        "class Page {\n"
+        "  load(progress) {\n"
+        "    return this.retryWithBackoff(progress, [100], async () => {\n"
+        "      const mode = kind === 'main' ? 1 : 2;\n"
+        "    });\n"
+        "    await this.raceAction(progress, async () => {\n"
+        "      const until = opts.until === undefined ? 'load' : opts.until;\n"
+        "    });\n"
+        "  }\n"
+        "}\n"
+        "function produce(source) {\n"
+        "\treturn new Producer(source, async (emitter) => {\n"
+        "\t\tconst sub = source.token.onCancel(() => {});\n"
+        "\t});\n"
+        "}\n"
+    )
+
+    ts_detector = StructuralExtractor("typescript", LANGUAGE_DEFINITIONS)
+    ts_rules = LANGUAGE_DEFINITIONS["typescript"]["rules"]
+    # the regex does propose `async` here; the detector must not report it
+    assert any(m.group(m.lastindex) == "async" for m in ts_rules["func_start"].finditer(curried))
+    satellites, _ = ts_detector._slice_by_braces(curried, "typescript", ts_rules, 0, {})
+    assert [s["name"] for s in satellites] == ["attempt"]
 
     for lang in ("typescript", "javascript"):
         detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
         rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-        code = "const double = (x) => x * 2;\n"
-
-        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
+        satellites, _ = detector._slice_by_braces(call_args, lang, rules, 0, {})
         names = [s["name"] for s in satellites]
-        assert names == ["double"], f"[{lang}] brace-less arrow not captured: {names}"
-
-
-def test_detector_ts_js_braceless_arrow_capture_gated_from_other_mode_b_languages():
-    """
-    The #1629 brace-less arrow capture is deliberately gated to
-    `lang_id in ("typescript", "javascript")` -- other Mode-B languages
-    keep the generic brace-only fallback. Proves a Mode-B language without
-    the gate still drops a brace-less arrow-shaped const rather than
-    hallucinating a function from it.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    php_detector = StructuralExtractor("php", LANGUAGE_DEFINITIONS)
-    php_rules = LANGUAGE_DEFINITIONS["php"]["rules"]
-    code = "const double = (x) => x * 2;\n"
-
-    satellites, _ = php_detector._slice_by_braces(code, "php", php_rules, 0, {})
-    assert satellites == [], "the ts/js brace-less arrow capture must not fire for other Mode-B languages"
-
-
-# ==============================================================================
-# JAVASCRIPT/TYPESCRIPT STRING-LITERAL FALSE POSITIVE (epic #813, #814/#815)
-# ==============================================================================
-def test_detector_ts_js_ternary_branch_not_misattributed_as_function():
-    """
-    Regression test for issue #1632: the object-literal-method branch
-    matches `IDENT :` followed by a function/arrow -- but a ternary's true
-    branch (`cond ? name : function() { ... }`, jquery/deferred.js:182-184)
-    has the identical `name :\nfunction() {` surface while `name` is a
-    plain identifier reference, not an object key. The fix skips matches
-    whose preceding non-whitespace char (bounded backward scan) is `?`.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    for lang in ("javascript", "typescript"):
-        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
-        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-        code = (
-            "process = special ?\n"
-            "    mightThrow :\n"
-            "    function() {\n"
-            "        try {\n"
-            "            mightThrow();\n"
-            "        } catch (e) {\n"
-            "        }\n"
-            "    };\n"
-        )
-        satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
-        names = [s["name"] for s in satellites]
-        assert "mightThrow" not in names, f"[{lang}] ternary true-branch misattributed as a function: {names}"
+        assert "async" not in names, f"[{lang}] {names}"
+        assert names == ["load", "produce"], f"[{lang}] {names}"
 
 
 def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
@@ -2806,47 +2994,6 @@ def test_detector_js_ts_string_literal_no_longer_hallucinated_as_function():
         satellites, _ = detector._slice_by_braces(code, lang, rules, 0, {})
         names = [s["name"] for s in satellites]
         assert names == ["realFn"], f"[{lang}] string-literal lookalike still hallucinated a function: {names}"
-
-
-def test_detector_ts_param_function_type_annotation_not_counted_as_function():
-    """
-    Regression test for issue #1631: typescript's func_start
-    colon-annotated-arrow branch cannot distinguish a real arrow-function
-    property from a parameter's function-type annotation -- both are the
-    same `IDENT: (...) => ...` surface syntax, but only the property has a
-    runtime function. A nested parameter (`f: (a: A) => B` inside an
-    interface member's own signature, e.g. fp-ts pipeable.ts's `f`/`g`
-    phantoms) is always the first thing after an already-open parameter
-    list, so its line is directly preceded by `(`; those line-anchored
-    matches are now dropped in _slice_by_braces. An object-literal arrow
-    property is never preceded by `(` (its enclosing `{` is), so it must
-    still be counted.
-    """
-    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-
-    for lang in ("typescript", "javascript"):
-        detector = StructuralExtractor(lang, LANGUAGE_DEFINITIONS)
-        rules = LANGUAGE_DEFINITIONS[lang]["rules"]
-
-        # fp-ts pipeable.ts shape: a generic function-type member whose
-        # parameter list carries its own function-typed parameters.
-        interface_code = (
-            "export interface PipeableApply2<F extends URIS2> {\n"
-            "  readonly chainFirst: <S, R, E, A, B>(\n"
-            "    f: (a: A) => Kind4<F, S, R, E, B>\n"
-            "  ) => (ma: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, A>\n"
-            "}\n"
-        )
-        satellites, _ = detector._slice_by_braces(interface_code, lang, rules, 0, {})
-        names = [s["name"] for s in satellites]
-        assert "f" not in names, f"[{lang}] parameter annotation counted as a function: {names}"
-
-        # The object-literal arrow property must still be counted: its line
-        # is preceded by `{`/`,`, never `(`.
-        object_code = "export const Either = {\n  URI,\n  ap: (fab, fa) => ({ fab, fa }),\n}\n"
-        satellites2, _ = detector._slice_by_braces(object_code, lang, rules, 0, {})
-        names2 = [s["name"] for s in satellites2]
-        assert "ap" in names2, f"[{lang}] object-literal arrow property dropped: {names2}"
 
 
 def test_detector_ts_js_quoted_method_key_after_modifier_is_not_named_by_the_modifier():
@@ -3559,155 +3706,186 @@ def test_objectivec_c_style_real_definition_still_extracted():
     assert found["c_style_func"] == 2, f"expected args=2, got args={found['c_style_func']}"
 
 
-def test_go_bodyless_function_declarations_extracted():
+def test_go_bodyless_declarations_extracted_with_own_span_1756():
     """
-    #1756: Go's bodyless function declarations (assembly-backed
-    implementations and //go:linkname targets -- func memmove(to, from
-    unsafe.Pointer, n uintptr) with no { body) have no brace group, and
-    Go's automatic-semicolon-insertion rule means the declaration ends at
-    the end of its signature line without a literal ;. The generic
-    Mode-B brace-only fallback in _slice_by_braces (detector.py)
-    required a { within the search window and silently dropped every
-    one of these. func_start's own regex always matched them -- the gap
-    was purely in detector.py's downstream body-boundary search, not the
-    regex (the same shape as #1314/#1319's rust/objc bodyless handling).
+    #1756: Go bodyless declarations (assembly-backed functions, `//go:linkname`
+    targets) have no `{...}` at all -- Go's automatic semicolon insertion ends
+    them at their signature line. func_start already matched them, but the
+    generic brace-only fallback in `_slice_by_braces` either dropped them (no
+    `{` in the window) or handed them the NEXT declaration's body. They must be
+    extracted with a span covering only the declaration, and the function or
+    type declared right after must keep its own span.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package runtime\n"
-        "\n"
-        "func memmove(to, from unsafe.Pointer, n uintptr)\n"
-        "\n"
-        "func add(a, b int) int {\n"
-        "\treturn a + b\n"
-        "}\n"
-        "\n"
-        "//go:linkname gogo runtime.gogo\n"
-        "func gogo()\n"
-        "\n"
-        "func sub(a, b int) int {\n"
-        "\treturn a - b\n"
-        "}\n"
+        "package runtime\n"  # 1
+        "\n"  # 2
+        "//go:linkname memmove runtime.memmove\n"  # 3
+        "func memmove(to, from unsafe.Pointer, n uintptr)\n"  # 4
+        "\n"  # 5
+        "func add(a, b int) int {\n"  # 6
+        "\treturn a + b\n"  # 7
+        "}\n"  # 8
+        "\n"  # 9
+        "func getg() *g\n"  # 10
+        "\n"  # 11
+        "type point struct {\n"  # 12
+        "\tx, y int\n"  # 13
+        "}\n"  # 14
+        "\n"  # 15
+        "func cputicks() int64;\n"  # 16
+        "\n"  # 17
+        "func procyield(cycles uint32)"  # 18 -- last line, no trailing newline
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    expected = {"memmove", "gogo", "add", "sub"}
-    missing = expected - set(found)
-    assert not missing, f"Go function declaration(s) not extracted: {missing}"
-    assert found["memmove"]["args"] == 3, f"expected memmove args=3, got args={found['memmove']['args']}"
-    # Bodyless declarations span their signature line only -- no phantom body.
-    assert found["memmove"]["start_line"] == found["memmove"]["end_line"], (
-        "bodyless memmove should span just its signature line"
-    )
-    assert found["gogo"]["start_line"] == found["gogo"]["end_line"], "bodyless gogo should span just its signature line"
+    by_name = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected_spans = {
+        "memmove": (4, 4),
+        "add": (6, 8),
+        "getg": (10, 10),
+        "cputicks": (16, 16),
+        "procyield": (18, 18),
+    }
+    missing = set(expected_spans) - set(by_name)
+    assert not missing, f"bodyless Go declaration(s) not extracted: {missing}"
+    for name, span in expected_spans.items():
+        actual = (by_name[name]["start_line"], by_name[name]["end_line"])
+        assert actual == span, f"{name}: expected span {span}, got {actual}"
+    assert by_name["memmove"]["args"] == 3, f"memmove: expected args=3, got {by_name['memmove']['args']}"
 
 
-def test_go_bodyless_declaration_not_misattributed_following_block():
+def test_go_bodyless_declaration_does_not_borrow_later_brace_block_1756():
     """
-    #1756 companion: when a bodyless declaration is followed by an
-    unrelated brace block (a struct literal later in the file), the
-    pre-fix generic brace search grabbed that block as the phantom
-    function's body. A bodyless declaration must end at its own
-    signature line instead.
+    #1756: a bodyless declaration must never claim a `{ ... }` that belongs to
+    something later in the file -- here a composite literal in a `var` and a
+    struct type declaration, neither of which is a func_start match that would
+    cut the search window short.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func flushICache(begin, end uintptr)\n"
-        "\n"
-        "type Foo struct {\n"
-        "\tX int\n"
-        "}\n"
-        "\n"
-        "func bar() int {\n"
-        "\treturn 1\n"
-        "}\n"
+        "func nanotime1() int64\n"  # 1
+        "var defaults = map[string]int{\n"  # 2
+        '\t"a": 1,\n'  # 3
+        '\t"b": 2,\n'  # 4
+        "}\n"  # 5
+        "func walltime() (sec int64, nsec int32)\n"  # 6
+        "type config struct {\n"  # 7
+        "\tname string\n"  # 8
+        "}\n"  # 9
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    assert "flushICache" in found, "bodyless flushICache should be extracted"
-    assert found["flushICache"]["end_line"] == 3, (
-        f"flushICache must end at its own signature line, got end_line={found['flushICache']['end_line']}"
-    )
-    assert "bar" in found, "ordinary braced function after the struct must still be extracted"
+    spans = {fn["name"]: (fn["start_line"], fn["end_line"]) for fn in result.get("functions", [])}
+    assert spans.get("nanotime1") == (1, 1), f"nanotime1 borrowed a later block: {spans.get('nanotime1')}"
+    assert spans.get("walltime") == (6, 6), f"walltime borrowed a later block: {spans.get('walltime')}"
+    assert set(spans) == {"nanotime1", "walltime"}, f"unexpected functions: {sorted(spans)}"
 
 
-def test_go_channel_direction_operator_does_not_poison_body_scan():
+def test_go_return_type_braces_and_channels_not_mistaken_for_body_1756():
     """
-    #1760 review follow-up: Go's channel-direction operator (chan<- / <-chan)
-    contains a lone < that an angle-bracket depth counter would never balance,
-    stalling the body-boundary scan and silently dropping every following
-    function. Go has no angle-bracket grouping (generics are [T any]), so the
-    Go branch must track parens and brackets only.
+    #1756: a result type can carry braces of its own (`struct{ ... }`,
+    `interface{ ... }`, even spread over several lines) or channel arrows
+    (`<-chan T`, `chan<- T`). None of those may be taken as the body -- for a
+    bodied function the span must reach the real body's closing `}`, and for a
+    bodyless one the span must stop at its own signature line.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func makeSendChan() chan<- int {\n"
-        "\tch := make(chan int)\n"
-        "\treturn ch\n"
-        "}\n"
-        "\n"
-        "func makeRecvChan() <-chan int {\n"
-        "\tch := make(chan int)\n"
-        "\treturn ch\n"
-        "}\n"
-        "\n"
-        "func add(a, b int) int {\n"
-        "\treturn a + b\n"
-        "}\n"
+        "func pair() struct{ a, b int } {\n"  # 1
+        "\treturn struct{ a, b int }{1, 2}\n"  # 2
+        "}\n"  # 3
+        "\n"  # 4
+        "func newReader() interface {\n"  # 5
+        "\tRead(p []byte) (int, error)\n"  # 6
+        "} {\n"  # 7
+        "\treturn nil\n"  # 8
+        "}\n"  # 9
+        "\n"  # 10
+        "func ticks() <-chan time.Time {\n"  # 11
+        "\treturn nil\n"  # 12
+        "}\n"  # 13
+        "\n"  # 14
+        "func sink() chan<- int\n"  # 15
+        "\n"  # 16
+        "func emptyBox() interface{}\n"  # 17
+        "\n"  # 18
+        "func after() int {\n"  # 19
+        "\treturn 1\n"  # 20
+        "}\n"  # 21
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    expected = {"makeSendChan", "makeRecvChan", "add"}
-    missing = expected - set(found)
-    assert not missing, f"Go function(s) dropped by channel operator: {missing}"
-    assert found["makeSendChan"]["args"] == 0, "makeSendChan should take no args"
-    assert found["makeRecvChan"]["args"] == 0, "makeRecvChan should take no args"
+    spans = {fn["name"]: (fn["start_line"], fn["end_line"]) for fn in result.get("functions", [])}
+    expected = {
+        "pair": (1, 3),
+        "newReader": (5, 9),
+        "ticks": (11, 13),
+        "sink": (15, 15),
+        "emptyBox": (17, 17),
+        "after": (19, 21),
+    }
+    assert spans == expected, f"expected {expected}, got {spans}"
 
 
-def test_go_struct_return_type_not_truncated_at_type_literal_brace():
+def test_go_ordinary_function_spans_unchanged_1756():
     """
-    #1756 wrinkle: a return type that itself contains a brace group
-    (func f() struct{ X int } { ... }) puts a top-level { before the real
-    body -- the generic brace search stopped at the struct literal's {,
-    truncating the function's span to the type. The real body must be
-    included.
+    #1756 companion: the Go-specific terminator walk must not move the span of
+    any ordinary bodied function -- plain functions with multiple results,
+    methods with receivers, generics with square-bracket type parameters,
+    multi-line parameter lists and functions returning `func(...)` types all
+    keep their exact start and end lines.
     """
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     code = (
-        "package main\n"
-        "\n"
-        "func makePoint() struct{ X, Y int } {\n"
-        "\treturn struct{ X, Y int }{1, 2}\n"
-        "}\n"
-        "\n"
-        "func other() int {\n"
-        "\treturn 2\n"
-        "}\n"
+        "func parse(x int) (int, error) {\n"  # 1
+        "\tif x < 0 {\n"  # 2
+        "\t\treturn 0, nil\n"  # 3
+        "\t}\n"  # 4
+        "\treturn x, nil\n"  # 5
+        "}\n"  # 6
+        "\n"  # 7
+        "func (s *Server) Start(addr string) error {\n"  # 8
+        "\treturn nil\n"  # 9
+        "}\n"  # 10
+        "\n"  # 11
+        "func Map[T any, U any](xs []T, f func(T) U) []U {\n"  # 12
+        "\tout := make([]U, 0, len(xs))\n"  # 13
+        "\treturn out\n"  # 14
+        "}\n"  # 15
+        "\n"  # 16
+        "func connect(\n"  # 17
+        "\thost string,\n"  # 18
+        "\tport int,\n"  # 19
+        ") (net.Conn, error) {\n"  # 20
+        "\treturn nil, nil\n"  # 21
+        "}\n"  # 22
+        "\n"  # 23
+        "func adder(base int) func(int) int {\n"  # 24
+        "\treturn func(x int) int { return base + x }\n"  # 25
+        "}\n"  # 26
     )
     detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
     result = detector.splice(code, "", raw_content=code)
 
-    found = {fn["name"]: fn for fn in result.get("functions", [])}
-    assert "makePoint" in found, "makePoint should be extracted"
-    assert found["makePoint"]["start_line"] == 3
-    assert found["makePoint"]["end_line"] == 5, (
-        f"makePoint's span must include its real body, got end_line={found['makePoint']['end_line']}"
-    )
-    assert "other" in found, "ordinary braced function after it must still be extracted"
+    by_name = {fn["name"]: fn for fn in result.get("functions", [])}
+    expected_spans = {
+        "parse": (1, 6),
+        "Start": (8, 10),
+        "Map": (12, 15),
+        "connect": (17, 22),
+        "adder": (24, 26),
+    }
+    spans = {name: (fn["start_line"], fn["end_line"]) for name, fn in by_name.items()}
+    assert spans == expected_spans, f"expected {expected_spans}, got {spans}"
+    assert by_name["connect"]["args"] == 2, f"connect: expected args=2, got {by_name['connect']['args']}"
 
 
 def test_objectivec_args_body_lookalikes_excluded_by_signature_bound():

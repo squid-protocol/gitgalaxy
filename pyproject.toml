@@ -123,6 +123,8 @@ exclude = [
 [tool.setuptools.package-data]
 "gitgalaxy.standards" = ["archetype_brains/*.json", "fact_channel_confidence.json"]
 "gitgalaxy.core" = ["ebcdic_dbcs/*.json"]  # #3816: the mixed CJK EBCDIC tables
+# det-port: the Java runtime a deterministic port is overlaid with, and the CICS copybooks it lays out
+"gitgalaxy.tools.cobol_to_java.det" = ["cobolrt/*.java", "cobolrt/*/*.java", "copy/*.cpy"]
 
 [tool.setuptools_scm]
 # This tells it to expect tags like "v2.0.5" instead of just "2.0.5"

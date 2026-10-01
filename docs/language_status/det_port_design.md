@@ -1,6 +1,6 @@
 # Deterministic port (det-port): design and the runtime contract
 
-**Status: experimental, being measured.** Question it answers: of the 23 CardDemo programs already proven with
+**Status: measured on the 23 proven CardDemo programs: all 23 translate with no hole and all 23 prove.** Question it answers: of the 23 CardDemo programs already proven with
 model-written ports, how much can a deterministic translator port -- and does its port prove?
 
 ## Shape
@@ -118,3 +118,54 @@ What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `t
 Every construct is checked against GnuCOBOL (`gitgalaxy-gnucobol:3`, `cobc -x -std=ibm -fsign=EBCDIC`): a COBOL
 test program performs the construct and DISPLAYs or WRITEs the bytes; the same construct through the runtime must
 give the same bytes.
+
+## Results (CardDemo, the 23 programs with model-written proven ports)
+
+`python tests/tools/det_port.py run --all-proven --work DIR` translates each program onto its generated service and
+proves the result with the same harness as the model-written ports (every case's scenarios and fault runs).
+
+| | programs | statements | translated | holes | proven |
+|---|---|---|---|---|---|
+| batch (runBatch) | 7 | 1,355 | 1,355 | 0 | 7 |
+| CALL (handleCall) | 1 | 27 | 27 | 0 | 1 |
+| CICS (runTask) | 15 | 3,024 | 3,024 | 0 | 15 |
+| **all** | **23** | **4,406** | **4,406** | **0** | **23** |
+
+No model is involved anywhere: the port is a function of the COBOL source and the generated project.
+
+### Where the boundary comes from
+
+Only generator output, never a test case:
+
+- **Batch files.** The stub's per-file methods ("... as BATCH SELECT <name>") name the repository; the FD record and
+  RECORD KEY come from the source. A program no generated job runs (CBTRN01C) is bound by the estate: the DD's
+  dataset in the job configs, that dataset's repository in the other stubs -- written into the port's header as
+  *Inferred*. A file the program only OPENs and CLOSEs with no store bound (CBTRN01C's TRANSACT-FILE) is `Unbound`:
+  its statuses are exact, a record operation would be a Hole.
+- **CICS files.** "... as CICS file <NAME>" over the repository method; `findBy<Property>` marks an alternate index
+  (its key offset from the entity's field comment). A file the program's own stub does not map (COUSR01C only WRITEs
+  USRSEC) takes the repository every other stub binds that name to -- *Inferred* in the header.
+- **COMMAREA.** The contract DTOs' property comments (COBOL name, PICTURE, offset; composite parts with their offsets)
+  give each DTO's byte codec; XCTL targets travel as the stub's `xctl<Program>(Type)` type.
+- **Screens.** `fromValues` / `screenValues` by BMS field name; the symbolic map's `<f>O`, `<f>I`, `<f>L`, `<f>A`/`F`,
+  `<f>C`, `<f>H` items from the program's own copybook. A MAP named by a data item is a constant (VALUE, never
+  written) or fixed by its FROM / INTO record, checked at run time (a different name is a Hole, never a wrong screen).
+- **Library routines.** CEEDAYS is the twin of the harness's own model (tests/equivalence/le/ceedays.c), refusing
+  what that model refuses.
+
+### Declared differences (not covered by the proofs)
+
+- Indexed files are read in the key's EBCDIC (cp037) order, as the generator orders them; the harness's files are in
+  ASCII order (equivalence.py COLLATION). CardDemo's keys sort the same either way; keys mixing letters and digits
+  would not.
+- Indexed records are found by scanning the repository (`findAll`) and comparing key bytes: exact for any key
+  (alternate ones included), slow for large files. A production port would use the generated finders.
+
+### What the proofs found in the translator and runtime
+
+- A numeric literal MOVEd to a group carried an overpunched sign (`23` -> `2C`): a literal without a sign is unsigned.
+- `A NOT = B AND C` lost the NOT on `C`; a data-name object (`EIBAID NOT = DFHENTER AND DFHPF7`) was read as a
+  condition-name.
+- A numeric DISPLAY item MOVEd to an alphanumeric one is its digit bytes as they are -- invalid data included, the
+  sign de-punched (GnuCOBOL, checked): the runtime had decoded `ABC` as `123`.
+- DIVIDE's intermediate follows GnuCOBOL's cob_decimal_div (the dividend shifted 38 digits, truncated).

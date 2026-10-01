@@ -382,7 +382,7 @@ def _put_value(it: Item, buf: bytearray, at: int, v, group: bool) -> None:
         elif kind == "hex":
             data = v[1]
         elif kind == "all":
-            lit = (v[1][1] if v[1][0] == "lit" else v[1][1]).encode("latin-1") if isinstance(v[1], tuple) else b" "
+            lit = v[1][1].encode("latin-1") if isinstance(v[1], tuple) else b" "
             data = (lit * (n // max(1, len(lit)) + 1))[:n]
         elif kind == "fig":
             data = {"SPACES": b" ", "ZEROS": b"0", "LOW": b"\x00", "HIGH": b"\xff", "QUOTES": b'"'}[v[1]] * n

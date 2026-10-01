@@ -56,7 +56,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path) -> dict[str, A
     out: dict[str, Any] = {"case": name, "program": case["program"]}
     port = work / name / "port"
     try:
-        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project))
+        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project)
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out

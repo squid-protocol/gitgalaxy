@@ -230,6 +230,12 @@ mv((X(3), '"ABC"'), (X(5, jr=True), None), "JUSTIFIED RIGHT: padded on the left"
 mv((X(8), '"ABCDEFGH"'), (X(3, jr=True), None), "JUSTIFIED RIGHT: the low-order end kept")
 mv((X(4), '"ABCD"'), (A(6), None), "to alphabetic")
 mv((G(6), txt("AB") + b"\x00\xffCD"), (X(8), None), "group to alphanumeric: no conversion")
+# numeric DISPLAY to alphanumeric: the digit bytes as they are (invalid data too), the sign de-punched
+mv((N("9(11)"), txt("ABC        ")), (X(11), None), "invalid unsigned zoned to alphanumeric: bytes kept")
+mv((N("S9(11)"), txt("ABC0000000C")), (X(11), None), "invalid signed zoned to alphanumeric: bytes, sign de-punched")
+mv((N("S9(5)"), txt("0001K")), (X(7), None), "signed zoned to alphanumeric: sign de-punched")
+mv((N("9(3)V99"), txt("12345")), (X(7), None), "scaled zoned to alphanumeric: digits, no point")
+mv((N("S9(5)", sign="LEADING SEPARATE"), txt("+00012")), (X(7), None), "separate sign dropped")
 mv((X(4), '"WXYZ"'), (G(6), txt("123456")), "alphanumeric to group: space padded")
 mv((G(6), txt("ABCDEF")), (G(4), txt("1234")), "group to group truncates")
 mv(

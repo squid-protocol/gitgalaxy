@@ -82,6 +82,7 @@ class ClassCond:
 @dataclass
 class CondName:
     ref: Ref
+    abbrev: object = None  # (op, subject, negated): an abbreviated relation's object, if not a condition-name
 
 
 @dataclass
@@ -196,7 +197,16 @@ class Parser:
             return LengthOf(self.ref())
         if u in ("ADDRESS",) and self.up(1) == "OF":
             raise ExprError("ADDRESS OF")
-        return self.ref()
+        r = self.ref()
+        if r.name == "DFHRESP" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
+            # DFHRESP(condition): the condition's RESP value (IBM CICS TS)
+            from gitgalaxy.tools.cobol_to_java.det.cics import DFHRESP
+
+            cond = r.subscripts[0].name
+            if cond not in DFHRESP:
+                raise ExprError(f"DFHRESP({cond}) is not a documented condition")
+            return Lit(Decimal(DFHRESP[cond]))
+        return r
 
     def _group(self) -> list[str]:
         """The tokens of the parenthesised group at the cursor (not consumed)."""
@@ -316,15 +326,17 @@ class Parser:
             return c
         # an abbreviated relation: `... OR 2` / `... AND NOT = 'Y'` -- the subject (and operator) of the last one
         if previous is not None and (self._rel_start() or self._looks_like_object_only()):
-            last = _last_rel(previous)
+            last, negated = _last_rel(previous)
             if last is not None:
                 if self._rel_start():
                     op, neg = self._rel_op()
                     obj = self.arith()
                     r = Rel(op, last.left, obj)
                     return Not(r) if neg else r
+                # the object only: the subject and the relation (its NOT included) of the last one
                 obj = self.arith()
-                return Rel(last.op, last.left, obj) if not isinstance(last, tuple) else last
+                r = Rel(last.op, last.left, obj)
+                return Not(r) if negated else r
         left = self.arith()
         if self.up() == "IS":
             self.i += 1
@@ -341,7 +353,13 @@ class Parser:
             r = Rel(op, left, right)
             return Not(r) if (n2 ^ neg) else r
         if isinstance(left, Ref):
-            return CondName(left)
+            cn = CondName(left)
+            last, negated = _last_rel(previous) if previous is not None else (None, False)
+            if last is not None:
+                # `EIBAID NOT = DFHENTER AND DFHPF7`: a data name here is the last relation's object unless it
+                # is a condition-name -- which the translator, knowing the data, decides
+                cn.abbrev = (last.op, last.left, negated)
+            return cn
         raise ExprError(f"not a condition near {self.peek()!r}")
 
     def _paren_is_condition(self) -> bool:
@@ -405,14 +423,18 @@ class Parser:
         return op, neg
 
 
-def _last_rel(c) -> Rel | None:
+def _last_rel(c, negated: bool = False) -> tuple:
+    """The last relation of a condition and whether a NOT applies to it: (Rel | None, negated)."""
     if isinstance(c, Rel):
-        return c
+        return c, negated
     if isinstance(c, Not):
-        return _last_rel(c.cond)
+        return _last_rel(c.cond, not negated)
     if isinstance(c, (And, Or)):
-        return _last_rel(c.right)
-    return None
+        return _last_rel(c.right, negated)
+    if isinstance(c, CondName) and c.abbrev is not None:
+        op, subject, neg = c.abbrev
+        return Rel(op, subject, c.ref), negated ^ neg
+    return None, False
 
 
 def _unquote(tok: str) -> str:

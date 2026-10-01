@@ -87,6 +87,21 @@ public final class Funcs {
         return neg ? v.negate() : v;
     }
 
+    private static final java.time.LocalDate DAY_ZERO = java.time.LocalDate.of(1600, 12, 31);
+
+    /** FUNCTION INTEGER-OF-DATE: YYYYMMDD -> days since 31 December 1600 (1 January 1601 is day 1). */
+    public static BigDecimal integerOfDate(BigDecimal yyyymmdd) {
+        int v = yyyymmdd.intValue();
+        java.time.LocalDate d = java.time.LocalDate.of(v / 10000, v / 100 % 100, v % 100);
+        return BigDecimal.valueOf(java.time.temporal.ChronoUnit.DAYS.between(DAY_ZERO, d));
+    }
+
+    /** FUNCTION DATE-OF-INTEGER: days since 31 December 1600 -> YYYYMMDD. */
+    public static BigDecimal dateOfInteger(BigDecimal days) {
+        java.time.LocalDate d = DAY_ZERO.plusDays(days.longValue());
+        return BigDecimal.valueOf(d.getYear() * 10000L + d.getMonthValue() * 100L + d.getDayOfMonth());
+    }
+
     public static BigDecimal numvalC(String s) {
         return numval(s.replace("$", "").replace(",", ""));
     }

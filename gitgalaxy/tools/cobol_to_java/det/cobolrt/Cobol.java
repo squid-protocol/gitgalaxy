@@ -171,10 +171,34 @@ public final class Cobol {
     /** The sending item as the bytes an alphanumeric receiver gets. */
     private static byte[] sourceText(Field from, int fc, Charset cs) {
         if (fc != NUMERIC) return from.raw();
+        if (from.kind == Field.Kind.NUMERIC_DISPLAY) {
+            // GnuCOBOL (as IBM for an integer): the digit bytes as they are -- invalid data included -- the
+            // overpunched sign turned back into its digit, a separate sign dropped, no decimal point
+            byte[] raw = from.raw();
+            int start = from.signSeparate && from.signLeading ? 1 : 0;
+            int end = from.signSeparate && !from.signLeading ? raw.length - 1 : raw.length;
+            byte[] out = java.util.Arrays.copyOfRange(raw, start, end);
+            if (from.signed && !from.signSeparate && out.length > 0) {
+                int at = from.signLeading ? 0 : out.length - 1;
+                out[at] = unpunch(out[at], cs);
+            }
+            return out;
+        }
         Codec.Num n = Codec.read(from, cs);
         String s = n.mag.toString();
         if (s.length() < from.digits) s = "0".repeat(from.digits - s.length()) + s;
         return s.getBytes(cs);
+    }
+
+    /** An overpunched sign byte ({ A-I: +0..9, } J-R: -0..9 as -fsign=EBCDIC writes them) as its digit; any other
+     *  byte as it is. */
+    private static byte unpunch(byte b, Charset cs) {
+        String c = new String(new byte[] {b}, cs);
+        int i = "{ABCDEFGHI".indexOf(c);
+        if (i < 0) {
+            i = "}JKLMNOPQR".indexOf(c);
+        }
+        return i < 0 ? b : String.valueOf(i).getBytes(cs)[0];
     }
 
     /** The sending item's value as a number: numeric, de-edited, or an alphanumeric read as GnuCOBOL does. */

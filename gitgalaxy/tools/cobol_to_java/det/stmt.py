@@ -163,7 +163,7 @@ def parse(lines: list[Line]) -> Procedure:
             if t == "when_other":
                 f.node.whens.append((None, body))
             else:
-                conds = _whens(node_text(n), len(f.node.data["subjects"]))
+                conds = _whens(node_text(n))
                 # stacked WHENs with no statements between share one body
                 if f.node.whens and not f.node.whens[-1][1] and f.node.whens[-1][0] is not None:
                     prev = f.node.whens.pop()
@@ -265,7 +265,7 @@ def _subjects(text: str) -> list:
     return out
 
 
-def _whens(text: str, subjects: int) -> list:
+def _whens(text: str) -> list:
     """One WHEN node may hold several stacked WHENs: [[object per subject], ...]."""
     out = []
     for w in re.split(r"(?i)\bWHEN\b", text)[1:]:
@@ -478,12 +478,11 @@ def _perform(p: E.Parser, text: str, line: int) -> Stmt:
     d: dict[str, Any] = {"target": None, "thru": None, "times": None, "until": None, "varying": None,
                          "test_after": False, "inline": False}  # fmt: skip
     if not p.done() and p.up() not in ("UNTIL", "VARYING", "WITH", "TEST") and not (
-            E._is_number(p.peek()) and p.up(1) == "TIMES"):  # fmt: skip
+            E._is_number(p.peek()) and p.up(1) == "TIMES") and p.up(1) != "TIMES":  # fmt: skip
         # PERFORM procedure-name [THRU procedure-name]  (or an inline PERFORM n TIMES)
-        if p.up(1) != "TIMES":
-            d["target"] = p.take().upper()
-            if p.accept("THRU", "THROUGH"):
-                d["thru"] = p.take().upper()
+        d["target"] = p.take().upper()
+        if p.accept("THRU", "THROUGH"):
+            d["thru"] = p.take().upper()
     if p.accept("WITH"):
         pass
     if p.accept("TEST"):
@@ -649,22 +648,64 @@ def _string(p: E.Parser, text: str, line: int) -> Stmt:
 
 
 def _inspect(p: E.Parser, text: str, line: int) -> Stmt:
+    """INSPECT target TALLYING ... REPLACING ... | CONVERTING ...: clauses in order, each
+    ("tally", counter, mode, pattern | None, bounds) / ("replace", mode, pattern | None, by, bounds) /
+    ("convert", from, to, bounds); bounds a list of ("BEFORE" | "AFTER", operand)."""
     target = p.ref()
-    rest = " ".join(p.t[p.i :])
-    m = re.match(r"(?i)CONVERTING\s+(\S+)\s+TO\s+(\S+)$", rest)
-    if m:
-        a, b = E.Parser([m.group(1)]).operand(), E.Parser([m.group(2)]).operand()
-        return Stmt("INSPECT", line, text, {"target": target, "converting": (a, b)})
-    m = re.match(r"(?i)REPLACING\s+ALL\s+(\S+)\s+BY\s+(\S+)$", rest)
-    if m:
-        a, b = E.Parser([m.group(1)]).operand(), E.Parser([m.group(2)]).operand()
-        return Stmt("INSPECT", line, text, {"target": target, "replacing_all": (a, b)})
-    m = re.match(r"(?i)TALLYING\s+(\S+)\s+FOR\s+(ALL|LEADING)\s+(\S+)$", rest)
-    if m:
-        cnt = E.Parser([m.group(1)]).ref()
-        what = E.Parser([m.group(3)]).operand()
-        return Stmt("INSPECT", line, text, {"target": target, "tallying": (cnt, m.group(2).upper(), what)})
-    return Stmt("HOLE", line, text, {"why": "INSPECT form not modelled"})
+    clauses: list = []
+
+    def bounds() -> list:
+        out = []
+        while p.up() in ("BEFORE", "AFTER"):
+            which = p.take().upper()
+            p.accept("INITIAL")
+            out.append((which, p.operand()))
+        return out
+
+    if p.accept("CONVERTING"):
+        a = p.operand()
+        if not p.accept("TO"):
+            raise E.ExprError("CONVERTING without TO")
+        b = p.operand()
+        clauses.append(("convert", a, b, bounds()))
+    if p.accept("TALLYING"):
+        while not p.done() and p.up() != "REPLACING":
+            counter = p.ref()
+            if not p.accept("FOR"):
+                raise E.ExprError("TALLYING without FOR")
+            mode = None
+            while not p.done() and p.up() != "REPLACING":
+                if p.up() in ("ALL", "LEADING", "CHARACTERS"):
+                    mode = p.take().upper()
+                    if mode == "CHARACTERS":
+                        clauses.append(("tally", counter, mode, None, bounds()))
+                    continue
+                if mode is None:
+                    raise E.ExprError("TALLYING FOR without ALL / LEADING / CHARACTERS")
+                # another counter: `cnt FOR ...`
+                if p.peek(1) is not None and p.up(1) == "FOR":
+                    break
+                clauses.append(("tally", counter, mode, p.operand(), bounds()))
+    if p.accept("REPLACING"):
+        mode = None
+        while not p.done():
+            if p.up() == "CHARACTERS":
+                p.take()
+                if not p.accept("BY"):
+                    raise E.ExprError("CHARACTERS without BY")
+                clauses.append(("replace", "CHARACTERS", None, p.operand(), bounds()))
+                continue
+            if p.up() in ("ALL", "LEADING", "FIRST"):
+                mode = p.take().upper()
+            if mode is None:
+                raise E.ExprError("REPLACING without ALL / LEADING / FIRST")
+            pat = p.operand()
+            if not p.accept("BY"):
+                raise E.ExprError("REPLACING without BY")
+            clauses.append(("replace", mode, pat, p.operand(), bounds()))
+    if not p.done() or not clauses:
+        raise E.ExprError(f"INSPECT: left over {' '.join(p.t[p.i :])}")
+    return Stmt("INSPECT", line, text, {"target": target, "clauses": clauses})
 
 
 _PARSERS = {

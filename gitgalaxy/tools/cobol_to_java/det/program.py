@@ -12,6 +12,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
 from gitgalaxy.tools.cobol_to_java.det import layout as L
@@ -113,10 +114,27 @@ def estate_files(project: Path) -> dict[str, str]:
     return out
 
 
+def eib_records() -> list:
+    """DFHEIBLK, the EXEC interface block a CICS program sees (det/copy/DFHEIBLK.cpy)."""
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    raw = [
+        "       IDENTIFICATION DIVISION.",
+        "       PROGRAM-ID. GGEIB.",
+        "       DATA DIVISION.",
+        "       WORKING-STORAGE SECTION.",
+        *(C.COPY / "DFHEIBLK.cpy").read_text(encoding="latin-1").splitlines(),
+    ]
+    return L.parse(logical_lines(raw, "DFHEIBLK.cpy"))  # fmt: skip
+
+
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
-              estate: dict[str, str] | None = None) -> Result:  # fmt: skip
-    lines = program_lines(program, copy_dirs)
+              estate: dict[str, str] | None = None, project: Path | None = None) -> Result:  # fmt: skip
+    lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
+    is_cics = "runTask(CicsTask" in stub
+    if is_cics:
+        records += eib_records()
     # RETURN-CODE: the special register, S9(4) BINARY
     rc = L.Item(1, "GG-RETURN-CODE", "WORKING-STORAGE", pic="S9(4)", usage="BINARY")
     L.layout(rc)
@@ -142,8 +160,18 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         sizes[id(r)] = max(sizes.get(id(r), 0), rec.size * rec.occurs)
 
     gen = G.Gen(prog)
+    if is_cics:
+        if project is None:
+            raise ValueError("a CICS program needs the generated project")
+        gen.cics = C.Cics(gen, C.Generated(project, stub), package)
     repos = stub_files(stub)
     imports = stub_imports(stub)
+    # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
+    providers = []
+    for m in re.finditer(r"private final ObjectProvider<(\w+)Service> (\w+);", stub):
+        if re.search(rf"\b{m.group(2)}\.getObject\(\)\.handleCall\(", stub):
+            gen.callees[m.group(1).upper()] = m.group(2)
+            providers.append((f"ObjectProvider<{m.group(1)}Service>", m.group(2)))
     file_decls, file_inits, ctor_repos, inferred = [], [], [], []
     for fc in file_control(lines):
         fd = G.FileDef(fc["select"], fc["assign"], fc["organization"], fc["access"], fc["status"],
@@ -285,10 +313,21 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             imports.setdefault("CobolRef", f"{package}.call.CobolRef")
             extra_imports.append(imports["CobolRef"])
 
+    if providers:
+        ctor_repos += providers
+        extra_imports += ["org.springframework.beans.factory.ObjectProvider", f"{package}.call.CobolRef"]
+    cics_members: list[str] = []
+    cics_entry: list[str] = []
+    if is_cics:
+        cics_members, cics_entry = _cics_parts(gen, records, roots, proc, storages, inits, stub)
+        inferred += gen.cics.gp.inferred
+        ctor_repos += list(gen.cics.repos.items())
+        # the codecs added constants: none (they use their own literals)
+
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
     n_para = len(proc.paragraphs)
     pkg = package
-    imp = sorted({imports.get(c, f"{package}.repository.vsam.{c}") for c, _ in ctor_repos} |
+    imp = sorted({imports.get(c, f"{package}.repository.vsam.{c}") for c, _ in ctor_repos if c.endswith("Repository")} |
                  {imports.get(f.entity, f"{package}.entity.vsam.{f.entity}")
                   for f in prog.files.values() if f.entity})  # fmt: skip
     chunks = [field_lines[i : i + 300] for i in range(0, len(field_lines), 300)] or [[]]
@@ -309,6 +348,18 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         f"import {pkg}.cobolrt.Storage;",
         f"import {pkg}.cobolrt.batch.DetFiles;",
         f"import {pkg}.entity.vsam.CobolRecords;",
+        *(
+            [
+                f"import {pkg}.cics.CicsTask;",
+                f"import {pkg}.cobolrt.cics.DetCics;",
+                f"import {pkg}.dto.screen.*;",
+                f"import {pkg}.dto.contract.*;",
+                f"import {pkg}.entity.vsam.*;",
+                f"import {pkg}.repository.vsam.*;",
+            ]
+            if is_cics
+            else []
+        ),
         *[f"import {i};" for i in sorted(set(imp) | set(extra_imports))],
         "import java.math.BigDecimal;",
         "import java.nio.charset.Charset;",
@@ -329,10 +380,17 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         "    private static final int GOTO = 1 << 20;",
         *consts,
         "",
-        *[f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode("{b}");' for n, b in storages],
+        # (a string constant holds at most 65535 bytes: a large image is joined from pieces at class load)
+        *[
+            f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode(String.join("", '
+            + ", ".join(f'"{b[i : i + 30000]}"' for i in range(0, max(len(b), 1), 30000))
+            + "));"
+            for n, b in storages
+        ],
         *[f"    private final Storage {n} = new Storage(IMAGE_{n}.length);" for n, _ in storages],
         "",
         *[f"    private Field {d};" for d in declared],
+        *cics_members,
         *file_decls,
         "",
         *[f"    private final {c} {f};" for c, f in dict.fromkeys(ctor_repos)],
@@ -364,6 +422,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         "    }",
         "",
         *call_entry,
+        *cics_entry,
         "",
         "    /** GOBACK / STOP RUN. */",
         "    private static final class Goback extends RuntimeException {",
@@ -442,3 +501,133 @@ def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
 
 def _storage_name(rec: L.Item) -> str:
     return "s_" + G.jname(rec.name)
+
+
+def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, storages: list, inits: list,
+                stub: str) -> tuple[list[str], list[str]]:  # fmt: skip
+    """A CICS program's members (task, handlers, file stores, COMMAREA codecs) and its entries: runTask, and the
+    stub's handleTransaction / handleLink kept for their callers."""
+    cx = gen.cics
+    aid = next((r for r in records if r.name == "DFHAID"), None)
+    aid_cases = []
+    if aid is not None:
+        aid_cases.extend(
+            f'            case "{c.name[3:]}" -> Cobol.move({gen.ids[id(c)]}, {gen.eib("EIBAID")}, CS);'
+            for c in aid.children
+            if c.name.startswith("DFH") and gen.ids.get(id(c))
+        )
+    dfhca = next((r for r in records if r.section == "LINKAGE" and r.name == "DFHCOMMAREA"), None)
+    ca_in: list[str] = []
+    if dfhca is not None:
+        st = _storage_name(roots[id(dfhca)])
+        for cls in [x for x in dict.fromkeys([cx.gp.contract, *cx.gp.records.values()]) if x]:
+            # the DTO the task may carry: the program's contract, or a record's own DTO the harness passes
+            if cls != cx.gp.contract and cls not in cx.codecs:
+                continue
+            try:
+                cx.codec(cls)
+            except C.CicsError:
+                continue
+            kw = "if" if not ca_in else "} else if"
+            ca_in += [f"        {kw} (ca instanceof {cls} x) {{", f"            in_{cls}(x, {st}, 0);",
+                      f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
+        if ca_in:
+            ca_in.append("        }")
+    store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
+    members = [
+        "    private CicsTask task;",
+        "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
+        "    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();",
+        "    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();",
+        "",
+        '    @SuppressWarnings("unchecked")',
+        "    private <E> DetCics.Store<E> store(String name) {",
+        *(
+            [
+                "        return (DetCics.Store<E>) stores.computeIfAbsent(name, n -> switch (n) {",
+                *store_cases,
+                '            default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
+                "        });",
+            ]
+            if store_cases
+            else [
+                '        throw new Hole("CICS file " + name + ": the program names no file the generated project stores");'
+            ]
+        ),
+        "    }",
+        "",
+        "    private static final java.util.Map<String, Integer> PARAGRAPHS = java.util.Map.ofEntries(",
+        # a name declared twice (COACTVWC's 0000-MAIN-EXIT) cannot be referenced unqualified: its first one
+        ",\n".join(
+            f'            java.util.Map.entry("{n}", {i})'
+            for n, i in {p.name: i for i, p in reversed(list(enumerate(proc.paragraphs)))}.items()
+        ),
+        "    );",
+        "",
+        "    private static int paragraph(String name) {",
+        "        Integer i = PARAGRAPHS.get(name);",
+        "        if (i == null) {",
+        '            throw new IllegalStateException("no paragraph " + name);',
+        "        }",
+        "        return i;",
+        "    }",
+        "",
+        "    /** A condition the command neither returned in RESP nor ignored: its HANDLE CONDITION label, or CICS's",
+        "     *  default action -- an abend, to this program's HANDLE ABEND exit or ending the task. */",
+        "    private int condition(String cond) {",
+        "        Integer h = handlers.get(cond);",
+        "        if (h != null) {",
+        "            return h;",
+        "        }",
+        "        String label = task.abendOnCondition(cond);",
+        "        if (label == null) {",
+        "            throw new Goback();",
+        "        }",
+        "        return paragraph(label);",
+        "    }",
+        "",
+        "    private static int cx(CicsTask task, int whole) {",
+        "        return task.eibcalen() == null ? whole : task.eibcalen();",
+        "    }",
+        "",
+    ]
+    for code in cx.codecs.values():
+        members += code
+    entry = [
+        "    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */",
+        "    public void runTask(CicsTask task) {",
+        "        this.task = task;",
+        "        handlers.clear();",
+        "        heldKey.clear();",
+        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+        *inits,
+        f"        Cobol.move(task.transid(), {gen.eib('EIBTRNID')}, CS);",
+        "        java.time.LocalDateTime now = task.now();",
+        f"        Cobol.store({gen.eib('EIBDATE')}, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",
+        f"        Cobol.store({gen.eib('EIBTIME')}, BigDecimal.valueOf(now.getHour() * 10000L + now.getMinute() * 100L + now.getSecond()), false, CS);",
+        '        switch (task.aid() == null ? "" : task.aid()) {',
+        *aid_cases,
+        "            default -> { }",
+        "        }",
+        "        Object ca = task.hasCommarea() ? task.commarea(Object.class) : null;",
+        "        int calen = 0;",
+        *ca_in,
+        f"        Cobol.store({gen.eib('EIBCALEN')}, BigDecimal.valueOf(calen), false, CS);",
+        "        try {",
+        f"            perform(0, {len(proc.paragraphs) - 1});",
+        "        } catch (Goback g) {",
+        "            // RETURN / XCTL / an abend ended the program",
+        "        }",
+        "        if (!task.ended()) {",
+        "            task.returnTransid(null, null);  // a GOBACK is a RETURN",
+        "        }",
+        "    }",
+        "",
+    ]
+    for meth in ("handleTransaction", "handleLink"):
+        m = re.search(rf"public (\S+) {meth}\(([^)]*)\)", stub)
+        if m:
+            body = ("        // this port runs as runTask(CicsTask)" if m.group(1) == "void"
+                    else f'        throw new UnsupportedOperationException("{meth}: this port runs as runTask");')  # fmt: skip
+            entry += [f"    public {m.group(1)} {meth}({m.group(2)}) {{", body, "    }", ""]
+    return members, entry

@@ -82,11 +82,8 @@ class Gen:
         for rec in prog.records:
             for it in rec.walk():
                 self.items.setdefault(it.name, []).append(it)
-                if it.name != "FILLER" or it is rec:
-                    n += 1
-                    self.ids[id(it)] = f"f{n}_{jname(it.name)}"
-            for c in rec.conditions:
-                pass
+                n += 1  # FILLER too: an 88 may be on one
+                self.ids[id(it)] = f"f{n}_{jname(it.name)}"
         self.conds: dict[str, list[L.Item]] = {}
         for rec in prog.records:
             for it in rec.walk():
@@ -96,6 +93,9 @@ class Gen:
         self.consts: dict[str, str] = {}
         self.tmp = 0
         self.cur = 0
+        self.cics = None  # det.cics.Cics for a CICS program
+        self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        self.entities: set = set()
 
     # ---- references ---------------------------------------------------------------------------------------------
     def resolve(self, ref: E.Ref) -> L.Item:
@@ -150,6 +150,44 @@ class Gen:
             return str(int(e.value))
         return f"{self.num(e)}.intValue()"
 
+    def never_written(self, it: L.Item) -> bool:
+        """Whether no statement can change the item: none names it, or a group holding it, as a receiver."""
+        if not hasattr(self, "_written"):
+            self._written = set()
+            for p in self.p.proc.paragraphs:
+                for s in S.walk(p.body):
+                    d = s.data
+                    refs = list(d.get("to") or []) + list(d.get("refs") or []) + list(d.get("targets") or [])
+                    refs += list(d.get("giving") or []) + [d.get(k) for k in ("into", "target", "remainder")]
+                    for r in refs:
+                        r = r[0] if isinstance(r, tuple) else r
+                        if isinstance(r, E.Ref):
+                            self._written.add(r.name)
+                    if s.kind == "EXEC" and re.match(r"(?is)\s*EXEC\s+CICS\b", s.text):
+                        from gitgalaxy.tools.cobol_to_java.det.cics import CicsError, parse_exec
+
+                        try:
+                            _, opts = parse_exec(s.text)
+                        except CicsError:
+                            opts = {"?": s.text}
+                        # what CICS only reads: names, the data sent; any other option may be set by the command
+                        read_only = {"MAP", "MAPSET", "FROM", "DATASET", "FILE", "PROGRAM", "TRANSID", "QUEUE",
+                                     "ABCODE", "KEYLENGTH", "LABEL", "DATESEP", "TIMESEP", "CURSOR"}  # fmt: skip
+                        for k, v in opts.items():
+                            if v and k not in read_only:
+                                self._written.update(w.upper() for w in re.findall(r"[A-Za-z0-9-]+", v))
+                    elif s.kind in ("EXEC", "HOLE", "CALL"):
+                        self._written.update(w.upper() for w in re.findall(r"[A-Za-z0-9-]+", s.text))
+        a = it
+        while a is not None:
+            if a.name in self._written:
+                return False
+            a = a.parent
+        return True
+
+    def eib(self, name: str) -> str:
+        return self.field_expr(E.Ref(name, ["DFHEIBLK"]))
+
     # ---- values -----------------------------------------------------------------------------------------------------
     def const(self, v: Decimal) -> str:
         key = str(v)
@@ -189,16 +227,16 @@ class Gen:
             it = self.resolve(e.ref)
             return f"BigDecimal.valueOf({it.size * it.occurs})"
         if isinstance(e, E.Func):
-            return self.func(e, numeric=True)
+            return self.func(e)
         raise Untranslatable(f"expression {type(e).__name__}")
 
-    def func(self, f: E.Func, numeric: bool) -> str:
+    def func(self, f: E.Func) -> str:
         name = f.name
         args = [a for a in f.args if not (isinstance(a, tuple) and a[0] == "REFMOD")]
         if name in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name == "CURRENT-DATE":
-            return "clock.currentDate()"
+            return "DetCics.currentDate(task.now())" if self.cics is not None else "clock.currentDate()"
         if name in ("NUMVAL", "NUMVAL-C") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
@@ -220,7 +258,7 @@ class Gen:
         if isinstance(e, E.Ref):
             return f"Cobol.text({self.field_expr(e)}, CS)"
         if isinstance(e, E.Func):
-            return self.func(e, numeric=False)
+            return self.func(e)
         raise Untranslatable(f"text of {type(e).__name__}")
 
     def is_numeric(self, e) -> bool:
@@ -250,9 +288,13 @@ class Gen:
             return f"!({self.cond(c.cond)})"
         if isinstance(c, E.CondName):
             cn = self.resolve_cond(c.ref)
+            if cn is None and c.abbrev is not None:
+                op, subject, negated = c.abbrev  # an abbreviated relation's object
+                t = self.rel(op, subject, c.ref)
+                return f"!({t})" if negated else t
             if cn is None:
                 raise Untranslatable(f"condition-name {c.ref.name}")
-            return self.cond_test(cn)
+            return self.cond_test(cn, c.ref.subscripts)
         if isinstance(c, E.ClassCond):
             if c.kind in ("POSITIVE", "NEGATIVE", "ZERO"):
                 sig = {"POSITIVE": "> 0", "NEGATIVE": "< 0", "ZERO": "== 0"}[c.kind]
@@ -295,37 +337,45 @@ class Gen:
         if isinstance(b, E.Fig):
             if b.kind == "ALL":
                 return f"Cobol.compareAll({fa}, {jstr(b.all_literal)}, CS)"
-            return f"Cobol.compareFigurative({fa}, Figurative.{b.kind}, CS)"
+            return f"Cobol.compareFigurative({fa}, Figurative.{_fig(b.kind)}, CS)"
         if isinstance(b, E.Func):
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
         if isinstance(b, (E.Bin, E.Neg)):
             return f"Cobol.num({fa}, CS).compareTo({self.num(b)})"
         raise Untranslatable(f"comparison with {type(b).__name__}")
 
-    def cond_test(self, cn: L.Item) -> str:
+    def cond_field(self, cn: L.Item, subscripts=()) -> str:
+        """The item an 88 tests, its subscripts applied (the 88's own, as written on the condition-name)."""
         parent = cn.parent
         f = self.ids.get(id(parent))
         if f is None:
-            raise Untranslatable(f"88 {cn.name} on a FILLER")
-        if _occurs_chain(parent):
-            raise Untranslatable(f"88 {cn.name} on a table element (needs a subscript)")
+            raise Untranslatable(f"88 {cn.name}: no item")
+        levels = _occurs_chain(parent)
+        if len(levels) != len(subscripts):
+            raise Untranslatable(f"88 {cn.name}: {len(subscripts)} subscripts for {len(levels)} OCCURS levels")
+        for lvl, sub in zip(levels, subscripts):
+            f += f".at({self.int_expr(sub)}, {lvl.size})"
+        return f
+
+    def cond_test(self, cn: L.Item, subscripts=()) -> str:
+        f = self.cond_field(cn, subscripts)
         tests = []
         for v in cn.values:
             if v[0] == "range":
                 lo, hi = v[1], v[2]
-                tests.append(f"({self.vcmp(parent, f, lo)} >= 0 && {self.vcmp(parent, f, hi)} <= 0)")
+                tests.append(f"({self.vcmp(f, lo)} >= 0 && {self.vcmp(f, hi)} <= 0)")
             else:
-                tests.append(f"{self.vcmp(parent, f, v)} == 0")
+                tests.append(f"{self.vcmp(f, v)} == 0")
         return "(" + " || ".join(tests) + ")" if len(tests) > 1 else tests[0]
 
-    def vcmp(self, item: L.Item, f: str, v) -> str:
+    def vcmp(self, f: str, v) -> str:
         kind = v[0]
         if kind == "num":
             return f"Cobol.compare({f}, {self.const(v[1])}, CS)"
         if kind == "lit":
             return f"Cobol.compare({f}, {jstr(v[1])}, CS)"
         if kind == "fig":
-            return f"Cobol.compareFigurative({f}, Figurative.{v[1]}, CS)"
+            return f"Cobol.compareFigurative({f}, Figurative.{_fig(v[1])}, CS)"
         if kind == "hex":
             return f"Cobol.compare({f}, {jstr(v[1].decode('latin-1'))}, CS)"
         raise Untranslatable(f"88 value {kind}")
@@ -342,7 +392,7 @@ class Gen:
         if isinstance(src, E.Fig):
             if src.kind == "ALL":
                 return f"Cobol.moveAll({jstr(src.all_literal)}, {ft}, CS);"
-            return f"Cobol.moveFigurative(Figurative.{src.kind}, {ft}, CS);"
+            return f"Cobol.moveFigurative(Figurative.{_fig(src.kind)}, {ft}, CS);"
         if isinstance(src, E.Func):
             if self.is_numeric(src):
                 return f"Cobol.move({self.num(src)}, {ft}, CS);"
@@ -386,7 +436,7 @@ class Gen:
     def _init_one(self, x: L.Item, base: str, top: L.Item, extra: int = 0) -> str:
         fig = "ZEROS" if x.category in ("NUMERIC", "NUMERIC-EDITED") else "SPACES"
         rel = x.offset - top.offset + extra
-        return f"Cobol.moveFigurative(Figurative.{fig}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
+        return f"Cobol.moveFigurative(Figurative.{_fig(fig)}, {self.factory(x, f'{base}.storage()', f'{base}.offset() + {rel}')}, CS);"
 
     # ---- fields -------------------------------------------------------------------------------------------------
     def factory(self, it: L.Item, storage: str, offset: str) -> str:
@@ -511,10 +561,7 @@ class Gen:
                 v = cn.values[0]
                 if v[0] == "range":
                     v = v[1]
-                tgt = E.Ref(cn.parent.name) if cn.parent.name != "FILLER" else None
-                if tgt is None or _occurs_chain(cn.parent):
-                    raise Untranslatable(f"SET {r.name}: its item is a FILLER / table element")
-                f = self.ids[id(cn.parent)]
+                f = self.cond_field(cn, r.subscripts)
                 out.append(ind + self._move_value(v, f))
             return out
         if k == "SET-TO":
@@ -543,7 +590,15 @@ class Gen:
         if k in ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "START"):
             return [c, *self.io(s, ind)]
         if k == "EXEC":
-            raise Untranslatable("EXEC " + s.text.split()[1] if len(s.text.split()) > 1 else "EXEC")
+            words = s.text.split()
+            if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
+                raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
+            from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
+
+            try:
+                return [c, *self.cics.command(s.text, ind)]
+            except (CicsError, E.ExprError, KeyError) as e:
+                raise Untranslatable(f"EXEC CICS: {e}") from e
         raise Untranslatable(f"{k} not translated")
 
     def _move_value(self, v, f: str) -> str:
@@ -553,7 +608,7 @@ class Gen:
         if kind == "lit":
             return f"Cobol.move({jstr(v[1])}, {f}, CS);"
         if kind == "fig":
-            return f"Cobol.moveFigurative(Figurative.{v[1]}, {f}, CS);"
+            return f"Cobol.moveFigurative(Figurative.{_fig(v[1])}, {f}, CS);"
         if kind == "hex":
             return f"Cobol.move({jstr(v[1].decode('latin-1'))}, {f}, CS);"
         raise Untranslatable(f"value {kind}")
@@ -675,7 +730,7 @@ class Gen:
                 cn = self.resolve_cond(obj[1])
                 if cn is None:
                     raise Untranslatable(f"WHEN {obj[1].name}: not a condition")
-                t = self.cond_test(cn)
+                t = self.cond_test(cn, obj[1].subscripts)
             elif kind in ("TRUE", "FALSE"):
                 t = "true" if kind == "TRUE" else "false"
             else:
@@ -743,6 +798,23 @@ class Gen:
             if code is None:
                 return [f'{ind}if (true) throw CobolAbend.user(0, "CEE3ABD");']
             return [f'{ind}if (true) throw CobolAbend.user({self.int_expr(code)}, "CEE3ABD");']
+        callee = self.callees.get(prog)
+        if callee is not None:
+            if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
+                raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
+            refs, out = [], []
+            for _, a in args:
+                v = self.tmpname("arg")
+                refs.append(v)
+                out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({self.field_expr(a)}, CS));")
+            rc = self.tmpname("rc")
+            out.append(f"{ind}int {rc} = {callee}.getObject().handleCall({', '.join(refs)});")
+            for v, (_, a) in zip(refs, args):
+                out.append(f"{ind}Cobol.move({v}.get(), {self.field_expr(a)}, CS);")
+            out.append(
+                f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
+            )
+            return out
         lib = LIBRARY.get(prog)
         if lib is not None:
             if len(args) != lib[1] or any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
@@ -786,28 +858,33 @@ class Gen:
         d = s.data
         f = self.field_expr(d["target"])
 
-        def pair(a, b):
-            x, y = self.str_arg(a), self.str_arg(b)
-            if x.startswith("f") != y.startswith("f"):
-                # one a Field, one a literal: the Field's text
-                x = x if not x.startswith("f") else f"Cobol.text({x}, CS)"
-                y = y if not y.startswith("f") else f"Cobol.text({y}, CS)"
-            return (x, y, "" if x.startswith("f") else ", CS")
+        def txt(e, like=None) -> str:
+            """An INSPECT operand as text; a figurative as long as the operand it stands against."""
+            if isinstance(e, E.Fig) and e.kind != "ALL":
+                ch = FIG_CHAR[e.kind]
+                n = len(like.value) if isinstance(like, E.Lit) and isinstance(like.value, str) else 1
+                return jstr(ch * n)
+            if isinstance(e, E.Fig):
+                return jstr(e.all_literal)
+            return self.text(e)
 
-        if "converting" in d:
-            x, y, cs = pair(*d["converting"])
-            return [f"{ind}Cobol.inspect({f}, CS, Cobol.Clause.converting({x}, {y}{cs}));"]
-        if "replacing_all" in d:
-            x, y, cs = pair(*d["replacing_all"])
-            return [f"{ind}Cobol.inspect({f}, CS, Cobol.Clause.replace(Cobol.Mode.ALL, {x}, {y}{cs}));"]
-        if "tallying" in d:
-            cnt, mode, what = d["tallying"]
-            w = self.str_arg(what)
-            cs = "" if w.startswith("f") else ", CS"
-            return [
-                f"{ind}Cobol.inspect({f}, CS, Cobol.Clause.tally({self.field_expr(cnt)}, Cobol.Mode.{mode}, {w}{cs}));"
-            ]
-        raise Untranslatable("INSPECT")
+        clauses = []
+        for c in d["clauses"]:
+            if c[0] == "tally":
+                _, counter, mode, pat, bounds = c
+                expr = (f"Cobol.Clause.tally({self.field_expr(counter)}, Cobol.Mode.{mode}, "
+                        f"{'null' if pat is None else txt(pat)}, CS)")  # fmt: skip
+            elif c[0] == "replace":
+                _, mode, pat, by, bounds = c
+                expr = (f"Cobol.Clause.replace(Cobol.Mode.{mode}, {'null' if pat is None else txt(pat)}, "
+                        f"{txt(by, pat)}, CS)")  # fmt: skip
+            else:
+                _, a, b, bounds = c
+                expr = f"Cobol.Clause.converting({txt(a)}, {txt(b, a)}, CS)"
+            for which, x in bounds:
+                expr += f".{which.lower()}({txt(x)}, CS)"
+            clauses.append(expr)
+        return [f"{ind}Cobol.inspect({f}, CS, {', '.join(clauses)});"]
 
     # ---- files --------------------------------------------------------------------------------------------------
     def io(self, s: S.Stmt, ind: str) -> list[str]:
@@ -906,6 +983,14 @@ class Gen:
     def tmpname(self, base: str) -> str:
         self.tmp += 1
         return f"{base}{self.tmp}"
+
+
+FIG_CHAR = {"SPACES": " ", "ZEROS": "0", "QUOTES": '"', "LOW": "\x00", "HIGH": "\xff"}
+
+
+def _fig(kind: str) -> str:
+    """The runtime's Figurative constant for a figurative of the AST."""
+    return {"LOW": "LOW_VALUES", "HIGH": "HIGH_VALUES"}.get(kind, kind)
 
 
 def _ancestors(it: L.Item) -> list[str]:

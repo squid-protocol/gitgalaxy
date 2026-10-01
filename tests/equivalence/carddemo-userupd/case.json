@@ -1,0 +1,451 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR02C",
+ "program_source": "app/cbl/COUSR02C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CU02",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@case/usrsec.txt",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/COUSR02C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR2A": {
+   "copybook": "app/cpy-bms/COUSR02.CPY",
+   "input": "COUSR2AI",
+   "output": "COUSR2AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "first-entry-with-selected-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU02-USR-SELECTED": "USER0002"
+   }
+  },
+  {
+   "name": "first-entry-selected-user-missing",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-CU02-USR-SELECTED": "NOBODY01"
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "enter-looks-up-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003"
+    }
+   }
+  },
+  {
+   "name": "enter-empty-user-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {}
+   }
+  },
+  {
+   "name": "enter-user-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "NOBODY01"
+    }
+   }
+  },
+  {
+   "name": "pf5-updates-last-name",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALMEIDA",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-updates-every-field",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURA",
+     "LNAMEI": "ALMEIDA",
+     "PASSWDI": "NEWPASS1",
+     "USRTYPEI": "A"
+    }
+   }
+  },
+  {
+   "name": "pf5-nothing-changed",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-user-id",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-first-name",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-last-name",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-password",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf5-empty-user-type",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "pf5-user-not-found",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "NOBODY01",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf3-saves-and-returns",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "NEWPASS1",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf3-returns-to-admin-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf4-clear",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf12-admin-menu",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALME",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "lookup-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the READ UPDATE -> WHEN OTHER: 'Unable to lookup User...'"
+    }
+   ]
+  },
+  {
+   "name": "rewrite-not-open",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU02",
+    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR2A": {
+     "USRIDINI": "USER0003",
+     "FNAMEI": "LAURITZ",
+     "LNAMEI": "ALMEIDA",
+     "PASSWDI": "PASSWORD",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "USRSEC",
+     "resp": "NOTOPEN",
+     "why": "19 on the REWRITE -> WHEN OTHER: 'Unable to Update User...'; the file is unchanged"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's update-user screen (transaction CU02, program COUSR02C): entered from the user list with a selected user it reads the user FOR UPDATE and shows it; ENTER looks a user up, PF5 validates the five fields and REWRITEs the record when one changed ('Please modify to update ...' otherwise), PF3 saves and returns, PF4 clears, PF12 returns to the admin menu. Each scenario's USRSEC file is compared after the task. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

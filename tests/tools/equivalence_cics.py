@@ -747,10 +747,14 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
 
 # ---- running a case -------------------------------------------------------------------
 def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
-    """The COMMAREA layout: the case's (copybook, record) segments laid end to end."""
+    """The COMMAREA layout: the case's (copybook, record) segments laid end to end. A segment in a program's
+    own source (CardDemo's COUSR02C: COPY COCOM01Y then its own 05 items in the same 01) finds the COPY
+    members in the case's copy_dirs."""
     out, at = [], 0
     for seg in case["commarea"]["segments"]:
-        fields = common.layout_fields(corpus, seg["copybook"], seg["record"])
+        src = corpus / seg["copybook"]
+        dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
+        fields = common.layout_fields(corpus, seg["copybook"], seg["record"], dirs)
         out += [dict(f, offset=f["offset"] + at) for f in fields]
         at += max(f["offset"] + f["bytes"] for f in fields)
     return out

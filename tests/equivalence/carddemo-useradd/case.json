@@ -1,0 +1,277 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COUSR01C",
+ "program_source": "app/cbl/COUSR01C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CU01",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@case/usrsec.txt",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COUSR1A": {
+   "copybook": "app/cpy-bms/COUSR01.CPY",
+   "input": "COUSR1AI",
+   "output": "COUSR1AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "add-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "duplicate-user",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0001",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "empty-first-name",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "empty-last-name",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "empty-user-id",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "empty-password",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "empty-user-type",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-admin",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "pf4-clear",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   }
+  },
+  {
+   "name": "write-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CU01",
+    "CDEMO-FROM-PROGRAM": "COUSR01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "COUSR1A": {
+     "FNAMEI": "GRACE",
+     "LNAMEI": "HOPPER",
+     "USERIDI": "USER0099",
+     "PASSWDI": "COBOL123",
+     "USRTYPEI": "U"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17: an I/O error on the WRITE (IBM CICS, RESP values) -> the program's WHEN OTHER: 'Unable to Add User...'"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's add-user screen (transaction CU01, program COUSR01C): entered from the admin menu it sends the empty screen; re-entered with the five fields it validates them in order and WRITEs the user security record (DUPREC: 'User ID already exist...'); PF3 returns to the admin menu, PF4 clears. Its first proof of a CICS file update: each scenario's USRSEC file is compared after the task. usrsec.txt is the ten users of CardDemo's own app/jcl/DUSRSECJ.jcl in-stream data (SYSUT1 DD *). Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

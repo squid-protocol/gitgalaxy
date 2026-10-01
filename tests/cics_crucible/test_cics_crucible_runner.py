@@ -494,7 +494,8 @@ def test_the_translator_names_each_refused_command_as_a_feature():
         "           IF EIBRESP = DFHRESP(NOSUCH) CONTINUE END-IF\n           STRING 'VISIT '")  # fmt: skip
     with pytest.raises(ec.Unsupported) as e:
         ec.translate(src)
-    assert e.value.features == ["SYNCPOINT", "DFHRESP(NOSUCH)"]  # #4005 / #4002: RECEIVE and READQ TS translate
+    # #4005 / #4002: RECEIVE and READQ TS translate; file updates: SYNCPOINT too
+    assert e.value.features == ["DFHRESP(NOSUCH)"]
     assert ec.translate((FIXTURE / "src/FXCHAIN.cbl").read_text())[1] is True
 
 

@@ -169,6 +169,9 @@ public class CicsTask {
     private String unwoundTo;                               // an abend below went to this level's exit
     private List<String[]> faultPlan = List.of();           // #4023 follow-up: injected conditions (the task's root)
     private java.nio.file.Path faultLog;
+    private final java.util.Set<String> held = new java.util.HashSet<>();  // files a readForUpdate holds (the root's)
+    private boolean syncpointed;                                            // a SYNCPOINT committed (the root's)
+    private Runnable rollbackHook;                                          // how a rollback undoes (the root's)
     private final Map<String, Integer> faultSeen = new HashMap<>();
 
     /** `aid` is ENTER, CLEAR, PF1-PF24 or PA1-PA3; `received` maps a map name to its input screen. The
@@ -525,6 +528,70 @@ public class CicsTask {
         }
         T record = lookup.get().orElse(null);
         return new FileRead<>(record != null ? 0 : 13, 0, record);
+    }
+
+    /** READ FILE(file) UPDATE: as read, and the file's record is held for a REWRITE. */
+    public <T> FileRead<T> readForUpdate(String file, java.util.function.Supplier<Optional<T>> lookup) {
+        FileRead<T> r = read(file, lookup);
+        if (r.normal()) {
+            root().held.add(file);
+        }
+        return r;
+    }
+
+    /** WRITE FILE(file) RIDFLD FROM: `exists` says whether the key is there already (DUPREC, 14, as CICS answers);
+     *  else `store` saves the record (the service's generated repository save) and RESP is NORMAL -- or the
+     *  condition the harness planned, and nothing is written. */
+    public int write(String file, boolean exists, Runnable store) {
+        int[] planned = root().injected("WRITE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (exists) {
+            return 14;
+        }
+        store.run();
+        return 0;
+    }
+
+    /** REWRITE FILE(file) FROM: replaces the record a readForUpdate holds (INVREQ, 16, when none is held). */
+    public int rewrite(String file, Runnable store) {
+        int[] planned = root().injected("REWRITE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!root().held.remove(file)) {
+            return 16;
+        }
+        store.run();
+        return 0;
+    }
+
+    /** SYNCPOINT: the unit of work is committed; a later rollback() cannot undo it. */
+    public void syncpoint() {
+        root().held.clear();
+        root().syncpointed = true;
+        event("SYNCPOINT");
+    }
+
+    /** SYNCPOINT ROLLBACK: the task's file changes are undone -- the transaction the task runs in is marked for
+     *  rollback (the hook, set by whoever runs the task). A rollback after a syncpoint would undo only part of
+     *  the task's work, which this runtime does not model: it refuses rather than undo too much. */
+    public void rollback() {
+        if (root().syncpointed) {
+            throw new UnsupportedOperationException("SYNCPOINT ROLLBACK after a SYNCPOINT is not modelled");
+        }
+        root().held.clear();
+        if (root().rollbackHook != null) {
+            root().rollbackHook.run();
+        }
+        event("SYNCPOINT-ROLLBACK");
+    }
+
+    /** Who runs the task says how a rollback undoes its changes (e.g. a TransactionStatus's setRollbackOnly). */
+    public CicsTask onRollback(Runnable hook) {
+        this.rollbackHook = hook;
+        return this;
     }
 
     /** INQUIRE PROGRAM(program) (#4023 follow-up): its RESP -- NORMAL (0) for a program the region defines, else

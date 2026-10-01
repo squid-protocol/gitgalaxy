@@ -23,7 +23,8 @@ from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db 
 def test_a_read_becomes_a_stub_call_and_its_resp_is_the_programs():
     got = ec.translate_command(" READ DATASET (LIT-ACCTFILENAME) RIDFLD (WS-KEY) KEYLENGTH (LENGTH OF WS-KEY)"
                                " INTO (ACCOUNT-RECORD) RESP (WS-RESP-CD) RESP2 (WS-REAS-CD) ")  # fmt: skip
-    assert got[:2] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "CALL 'GGCREAD' USING GG-CICS"]
+    assert got[:3] == ["MOVE LIT-ACCTFILENAME TO GG-NAME1", "MOVE SPACES TO GG-FLAGS",  # not UPDATE: holds nothing
+                       "CALL 'GGCREAD' USING GG-CICS"]  # fmt: skip
     assert "    BY VALUE LENGTH OF WS-KEY" in got and "    BY REFERENCE ACCOUNT-RECORD" in got
     assert got[-2:] == ["MOVE GG-RESP TO WS-RESP-CD", "MOVE GG-RESP2 TO WS-REAS-CD"]
 
@@ -193,7 +194,7 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
                                   "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",
-                                  "SYNCPOINT", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
+                                  "DELETE FILE('X') RIDFLD(K)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):
         ec.translate_command(body)
@@ -231,8 +232,8 @@ def test_a_program_is_translated_whole():
 
 
 def test_an_unknown_command_in_a_program_names_its_line():
-    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS SYNCPOINT"):
-        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "SYNCPOINT"))
+    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS DELETE"):
+        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "DELETE FILE('ACCT') RIDFLD(WS-KEY)"))
 
 
 CSD = """\
@@ -365,3 +366,38 @@ def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
     assert {n: (o["equal"], o["records"]) for n, o in report["outputs"].items()} == {
         "enter-from-menu": (2, 2), "view-account": (3, 3), "account-not-on-file": (3, 3),
         "account-not-numeric": (3, 3), "pf3-back-to-menu": (1, 1)}  # fmt: skip
+
+
+# ---- file updates: WRITE, REWRITE, READ UPDATE, SYNCPOINT (CardDemo's update programs) -----------------------
+def test_file_updates_translate_to_stub_calls():
+    upd = ec.translate_command("READ DATASET(WS-F) INTO(R) RIDFLD(K) UPDATE RESP(X)")
+    assert upd[:3] == ["MOVE WS-F TO GG-NAME1", "MOVE 'UPDATE' TO GG-FLAGS", "CALL 'GGCREAD' USING GG-CICS"]
+    w = ec.translate_command("WRITE DATASET(F) FROM(REC) RIDFLD(K) RESP(X)")
+    assert w[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCWRIT' USING GG-CICS"] and "    BY REFERENCE REC" in w
+    rw = ec.translate_command("REWRITE FILE(F) FROM(REC) RESP(X) RESP2(Y)")
+    assert rw[:2] == ["MOVE F TO GG-NAME1", "CALL 'GGCREWR' USING GG-CICS"]
+    assert ec.translate_command("SYNCPOINT")[:2] == ["MOVE SPACES TO GG-FLAGS", "CALL 'GGCSYNC' USING GG-CICS"]
+    assert ec.translate_command("SYNCPOINT ROLLBACK")[0] == "MOVE 'ROLLBACK' TO GG-FLAGS"
+    for bad in ("WRITE FILE(F) FROM(R) RIDFLD(K) MASSINSERT", "REWRITE FILE(F) FROM(R) SYSID(S)"):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+    sc = {"faults": [{"cmd": "REWRITE", "file": "ACCTDAT", "resp": "NOTOPEN"}]}
+    assert ec.fault_lines(sc) == ["REWRITE ACCTDAT 1 19 0"]
+
+
+def test_a_tasks_files_are_compared_in_key_order():
+    files = [{"base": "ACCT", "reclen": 6, "key_offset": 0, "key_length": 2}]
+    case = {"datasets": {"ACCT": {}}}
+
+    def compare(cobol, java, tmp):
+        (tmp / "s.ACCT.out").write_bytes(java)
+        return ec.compare_files(case, Path("."), files, {"ACCT": cobol}, tmp, "s")
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        assert compare(b"02BBBB01AAAA", b"01AAAA02BBBB", tmp) == {}  # the order a store keeps is not data
+        diff = compare(b"01AAAA02BBBB", b"01AAAA02BBBX", tmp)
+        assert diff["ACCT"]["equal"] == 1 and diff["ACCT"]["records"] == 2
+        assert compare(b"01AAAA02BBBB03CCCC", b"01AAAA02BBBB", tmp)["ACCT"]["equal"] == 2  # a WRITE the port missed

@@ -331,10 +331,35 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not (file and into and ridfld):
             raise Unsupported("READ without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        return ([name(file, "GG-NAME1")]
+        update = "MOVE 'UPDATE' TO GG-FLAGS" if "UPDATE" in opts else "MOVE SPACES TO GG-FLAGS"  # holds the record
+        return ([name(file, "GG-NAME1"), update]
                 + _call("GGCREAD", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                     f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
+        for bad in ("MASSINSERT", "SYSID", "RBA", "RRN"):
+            if bad in opts:
+                raise Unsupported(f"WRITE {bad}")
+        file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
+        if not (file and frm and ridfld):
+            raise Unsupported("WRITE without FILE / FROM / RIDFLD")
+        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+        return ([name(file, "GG-NAME1")]
+                + _call("GGCWRIT", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {frm}",
+                                    f"BY VALUE LENGTH OF {frm}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
+        for bad in ("SYSID", "TOKEN"):
+            if bad in opts:
+                raise Unsupported(f"REWRITE {bad}")
+        file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
+        if not (file and frm):
+            raise Unsupported("REWRITE without FILE / FROM")
+        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE LENGTH OF {frm}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb == "SYNCPOINT":
+        mode = "MOVE 'ROLLBACK' TO GG-FLAGS" if "ROLLBACK" in opts else "MOVE SPACES TO GG-FLAGS"
+        return [mode] + _call("GGCSYNC", []) + _resp(opts, False, labels)
     if verb == "INQUIRE" and "PROGRAM" in opts:  # #4023 follow-up: is the program installed (COMEN01C's option check)
         extra = sorted(set(opts) - {"INQUIRE", "PROGRAM", "NOHANDLE", "RESP", "RESP2"})
         if extra or not opts["PROGRAM"]:
@@ -742,7 +767,12 @@ CICS_RESP = {"NORMAL": 0, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "INVRE
              "LOADING": 94}  # fmt: skip
 
 
-FAULT_COMMANDS = ("READ", "INQUIRE")  # a file READ (FILE), an INQUIRE PROGRAM (the program's name in `file`)
+FAULT_COMMANDS = (
+    "READ",
+    "INQUIRE",
+    "WRITE",
+    "REWRITE",
+)  # a file READ (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
@@ -802,7 +832,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for sc in case["scenarios"]:
         d = work / "scenarios" / sc["name"]
         (d / "out").mkdir(parents=True, exist_ok=True)
-        shutil.copy(work / "files.cfg", d / "files.cfg")
+        # each task its own copy of the files: what it writes is its own, and is compared (file updates)
+        shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
+        (d / "files.cfg").write_text("".join(
+            f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
+            f"{f['key_length']}\n" for f in files
+        ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
             (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
         for m, typed in (sc.get("receive") or {}).items():
@@ -842,6 +877,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
     `return` ({transid, commarea fields}), `xctl` ({program, commarea fields}), `abend`."""
     res: dict[str, Any] = {"events": [], "screens": [], "text": [], "return": None, "xctl": None, "abend": None}
     enc = common.data_encoding(case)  # #3815: the areas' page; the stub's own log is ASCII, read losslessly
+    files = out.parent / "files"  # what the task left in its own copy of each file (file updates)
+    res["files"] = {p.name: p.read_bytes() for p in sorted(files.iterdir())
+                    if p.is_file() and not p.name.endswith(".uow")} if files.is_dir() else {}  # fmt: skip
     log = out / "events.txt"
     for line in log.read_text(encoding="latin-1").splitlines() if log.is_file() else []:
         seq, _, rest = line.partition(" ")
@@ -1029,12 +1067,17 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                    next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
     by_base = {f["base"]: f for f in files}
-    fields, loads = [], []
+    fields, loads, dumps = [], [], []
     for dsn, spec in case["datasets"].items():
         ent = spec["entity"]
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
-        loads.append(f'        load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});')
+        loads.append(
+            f"            {repo}.deleteAll();\n"
+            f'            load("{dsn}", {by_base[dsn]["reclen"]}, {pkg}.entity.vsam.{ent}::fromRecord, {repo});'
+        )
+        dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", {repo}.findAll().stream()'
+                     f'.map(row -> row.toRecord(TEXT)).toList());')  # fmt: skip
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
             for m, cls in screens.items()]  # fmt: skip
@@ -1073,10 +1116,13 @@ class EquivalenceRunTest {{
     @Autowired {pkg}.service.{svc} {var};
 {chr(10).join(fields)}
 
+    @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
+
     @Test
     void run() throws IOException {{
-{chr(10).join(loads)}
         for (JsonNode sc : json.readTree(in.resolve("scenarios.json").toFile())) {{
+            // each task starts from the files as loaded, and what it leaves is compared (file updates)
+{chr(10).join(loads)}
             Object commarea = sc.get("commarea").isNull() ? null
                     : json.treeToValue(sc.get("commarea"), {pkg}.dto.contract.{ca}.class);
             Map<String, Object> received = new LinkedHashMap<>();
@@ -1089,11 +1135,17 @@ class EquivalenceRunTest {{
             if (!faults.isEmpty()) {{
                 task.withFaults(faults, out.resolve(sc.get("name").asText() + ".faults"));
             }}
-            try {{
-                {var}.runTask(task);
-            }} catch (CicsAbendException e) {{
-                task.abend(e.getAbcode());
-            }}
+            // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
+            new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
+                task.onRollback(status::setRollbackOnly);
+                try {{
+                    {var}.runTask(task);
+                }} catch (CicsAbendException e) {{
+                    status.setRollbackOnly();
+                    task.abend(e.getAbcode());
+                }}
+            }});
+{chr(10).join(dumps)}
             List<Map<String, Object>> events = new ArrayList<>();
             for (Map<String, Object> e : task.events()) {{
                 Map<String, Object> copy = new LinkedHashMap<>(e);
@@ -1103,6 +1155,14 @@ class EquivalenceRunTest {{
                 events.add(copy);
             }}
             json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
+        }}
+    }}
+
+    void dump(String name, List<byte[]> records) throws IOException {{
+        try (var o = Files.newOutputStream(out.resolve(name))) {{
+            for (byte[] r : records) {{
+                o.write(r);
+            }}
         }}
     }}
 
@@ -1168,6 +1228,31 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
 
 
 # ---- the comparison -------------------------------------------------------------------
+def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]], cobol: dict[str, bytes],
+                  java_out: Path, scenario: str) -> dict[str, dict[str, Any]]:  # fmt: skip
+    """File updates: per file, what the task left on each side, both in key order; only the files that differ.
+    A file's layout (its dataset's copybook, when the case names one) names the differing fields."""
+    out: dict[str, dict[str, Any]] = {}
+    enc = common.data_encoding(case)
+    for f in files:
+        base, reclen = f["base"], f["reclen"]
+        left = cobol.get(base, b"")
+        right_file = java_out / f"{scenario}.{base}.out"
+        right = right_file.read_bytes() if right_file.is_file() else b""
+
+        def by_key(data: bytes) -> bytes:
+            recs = [data[i : i + reclen] for i in range(0, len(data) - reclen + 1, reclen)]
+            return b"".join(sorted(recs, key=lambda r: r[f["key_offset"] : f["key_offset"] + f["key_length"]]))
+
+        left, right = by_key(left), by_key(right)
+        if left == right:
+            continue
+        spec = case["datasets"].get(base, {})
+        fields = common.layout_fields(corpus, spec["copybook"], spec.get("record")) if spec.get("copybook") else []
+        out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc)
+    return out
+
+
 def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
     """The COBOL task's outputs as the event list CicsTask records."""
     out: list[dict[str, Any]] = []
@@ -1180,6 +1265,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
                         "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":
             out.append({"event": "SEND-TEXT", "text": next(texts)})
+        elif verb in ("SYNCPOINT", "SYNCPOINT-ROLLBACK"):  # file updates: CicsTask.syncpoint / rollback record them
+            out.append({"event": verb})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
@@ -1334,6 +1421,12 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         print(f"{case['program']} {name}: {d['equal']}/{d['events']} events equal")
         for x in d["diffs"][:6]:
             print(f"   event {x['event']}: {x.get('fields', [])[:3] or (x.get('cobol'), x.get('java'))}")
+        changed = compare_files(case, corpus, files, res.get("files", {}), work / "java" / "out", name)
+        if changed:  # file updates: what the task left in a file differs
+            report["outputs"][name]["files"] = changed
+            ok = False
+            for base, fd in changed.items():
+                print(f"{case['program']} {name}: file {base}: {fd['equal']}/{fd['records']} records equal")
     report["proven"] = ok
     report["feedback"] = feedback_md(case, report) if not ok else ""
     covered = work / "cobol" / "coverage.json"  # #4023

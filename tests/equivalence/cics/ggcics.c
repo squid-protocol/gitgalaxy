@@ -65,7 +65,7 @@ typedef struct {
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
-       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29 };
+       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14 };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -146,6 +146,195 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     return hit;
 }
 
+/* ---- file updates (CardDemo's update programs) --------------------------------------------------------------
+ * READ ... UPDATE holds the record it read (per file, until a REWRITE, another READ UPDATE or a SYNCPOINT);
+ * REWRITE replaces the held record -- INVREQ without one, as CICS raises it; WRITE adds a record, DUPREC when its
+ * key is already there. Each scenario has its own copy of the files, so what a task leaves is its own (and is
+ * compared). A unit of work: the first change to a file since the last SYNCPOINT saves the file aside;
+ * SYNCPOINT drops the copies (commit), SYNCPOINT ROLLBACK puts them back. */
+#define MAX_FILES 16
+static struct { char name[9]; char key[256]; int klen; } held[MAX_FILES];
+static char uow_saved[MAX_FILES][3000];
+
+static void hold(const char *file, const char *key, int klen) {
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (held[i].name[0] == 0 || strcmp(held[i].name, file) == 0) {
+            snprintf(held[i].name, sizeof held[i].name, "%s", file);
+            memcpy(held[i].key, key, (size_t)(klen < 256 ? klen : 256));
+            held[i].klen = klen < 256 ? klen : 256;
+            return;
+        }
+    }
+}
+
+static int held_key(const char *file, const char *key, int klen) {
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (held[i].name[0] && strcmp(held[i].name, file) == 0) {
+            return held[i].klen == (klen < 256 ? klen : 256) && memcmp(held[i].key, key, (size_t)held[i].klen) == 0;
+        }
+    }
+    return 0;
+}
+
+static void release(const char *file) {
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (held[i].name[0] && (!file || strcmp(held[i].name, file) == 0)) held[i].name[0] = 0;
+    }
+}
+
+static void copy_file(const char *from, const char *to) {
+    FILE *a = fopen(from, "rb"), *b = fopen(to, "wb");
+    char buf[8192];
+    size_t n;
+    while (a && b && (n = fread(buf, 1, sizeof buf, a)) > 0) fwrite(buf, 1, n, b);
+    if (a) fclose(a);
+    if (b) fclose(b);
+}
+
+static void uow_save(const char *path) {
+    char aside[3100];
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (strcmp(uow_saved[i], path) == 0) return;
+        if (uow_saved[i][0] == 0) {
+            snprintf(uow_saved[i], sizeof uow_saved[i], "%s", path);
+            snprintf(aside, sizeof aside, "%s.uow", path);
+            copy_file(path, aside);
+            return;
+        }
+    }
+}
+
+/* The file's files.cfg entry: its data path, record length, key offset and length; 0 when not defined. */
+static int file_cfg(const char *want, char *path, int *reclen, int *keyoff, int *klen) {
+    char line[4096], name[64];
+    snprintf(line, sizeof line, "%s/files.cfg", dir_in());
+    FILE *cfg = fopen(line, "r");
+    int found = 0;
+    while (cfg && !found && fgets(line, sizeof line, cfg)) {
+        if (sscanf(line, "%63s %2999s %d %d %d", name, path, reclen, keyoff, klen) == 5 && strcmp(name, want) == 0) {
+            found = 1;
+        }
+    }
+    if (cfg) fclose(cfg);
+    return found;
+}
+
+/* The record number (0-based) whose key is `key`, or -1. */
+static long find_key(const char *path, int reclen, int keyoff, int klen, const char *key) {
+    FILE *data = fopen(path, "rb");
+    char *rec = malloc((size_t)reclen);
+    long at = -1, i = 0;
+    while (data && rec && fread(rec, 1, (size_t)reclen, data) == (size_t)reclen) {
+        if (memcmp(rec + keyoff, key, (size_t)klen) == 0) { at = i; break; }
+        i++;
+    }
+    if (data) fclose(data);
+    free(rec);
+    return at;
+}
+
+static void file_event(const char *verb, const char *file, const char *key, int klen, int resp) {
+    char ev[400], k[201];
+    int shown = klen < 200 ? klen : 200;
+    memcpy(k, key, (size_t)shown);
+    k[shown] = '\0';
+    snprintf(ev, sizeof ev, "%s file=%s key=%s resp=%d", verb, file, k, resp);
+    event(ev, NULL, 0);
+}
+
+/* WRITE FILE(name1) RIDFLD FROM: a new record; DUPREC when its key is there already. */
+int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
+    char want[9], path[3000];
+    int reclen, keyoff, klen, fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    if (injected("WRITE", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        file_event("WRITE", want, ridfld, keylen, c->resp);
+        return 0;
+    }
+    if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+    } else if (find_key(path, reclen, keyoff, klen < keylen ? klen : keylen, ridfld) >= 0) {
+        c->resp = DUPREC;
+    } else {
+        uow_save(path);
+        char *rec = malloc((size_t)reclen);
+        memset(rec, ' ', (size_t)reclen);
+        memcpy(rec, from, (size_t)(fromlen < reclen ? fromlen : reclen));
+        FILE *data = fopen(path, "ab");
+        if (data && rec) fwrite(rec, 1, (size_t)reclen, data);
+        if (data) fclose(data);
+        free(rec);
+        c->resp = NORMAL;
+    }
+    file_event("WRITE", want, ridfld, keylen, c->resp);
+    return 0;
+}
+
+/* REWRITE FILE(name1) FROM: replaces the record a READ UPDATE holds; INVREQ when none is held. */
+int GGCREWR(gg_cics *c, char *from, int fromlen) {
+    char want[9], path[3000];
+    int reclen, keyoff, klen, fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    int have = file_cfg(want, path, &reclen, &keyoff, &klen);
+    const char *key = have ? from + keyoff : from;
+    if (injected("REWRITE", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+        return 0;
+    }
+    if (!have) {
+        c->resp = FILENOTFOUND;
+    } else if (!held_key(want, key, klen)) {
+        c->resp = INVREQ;
+    } else {
+        long at = find_key(path, reclen, keyoff, klen, key);
+        if (at < 0) {
+            c->resp = NOTFND;
+        } else {
+            uow_save(path);
+            char *rec = malloc((size_t)reclen);
+            memset(rec, ' ', (size_t)reclen);
+            memcpy(rec, from, (size_t)(fromlen < reclen ? fromlen : reclen));
+            FILE *data = fopen(path, "r+b");
+            if (data && rec && fseek(data, at * (long)reclen, SEEK_SET) == 0) fwrite(rec, 1, (size_t)reclen, data);
+            if (data) fclose(data);
+            free(rec);
+            release(want);
+            c->resp = NORMAL;
+        }
+    }
+    file_event("REWRITE", want, key, have ? klen : 0, c->resp);
+    return 0;
+}
+
+/* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
+static void uow_end(int rollback) {
+    char aside[3100];
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (!uow_saved[i][0]) continue;
+        snprintf(aside, sizeof aside, "%s.uow", uow_saved[i]);
+        if (rollback) copy_file(aside, uow_saved[i]);
+        remove(aside);
+        uow_saved[i][0] = 0;
+    }
+    release(NULL);
+}
+
+/* SYNCPOINT (flags empty: commit) / SYNCPOINT ROLLBACK (flags ROLLBACK: undo since the last SYNCPOINT). */
+int GGCSYNC(gg_cics *c) {
+    int rollback = strstr(c->flags, "ROLLBACK") != NULL;
+    uow_end(rollback);
+    c->resp = NORMAL;
+    c->resp2 = 0;
+    event(rollback ? "SYNCPOINT-ROLLBACK" : "SYNCPOINT", NULL, 0);
+    return 0;
+}
+
 /* READ FILE(name1) RIDFLD INTO: the first record whose key equals RIDFLD. */
 int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     char want[9], line[4096], name[64], path[3000], ev[320];
@@ -178,6 +367,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
                 if (memcmp(rec + keyoff, ridfld, (size_t)cmp) == 0) {
                     memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
                     c->resp = reclen > intolen ? LENGERR : NORMAL;
+                    if (c->resp == NORMAL && strstr(c->flags, "UPDATE")) hold(want, rec + keyoff, klen);
                     break;
                 }
             }
@@ -626,6 +816,7 @@ static void abend(gg_cics *c, const char *code, const char *cause, int cond, int
     }
     if (at < 0) {
         snprintf(ev, sizeof ev, "ABEND abcode=%s cause=%s%s outcome=terminated", code, cause, what);
+        uow_end(1); /* dynamic transaction backout: the terminated task's file changes are undone */
         ended = 1;
         terminated = 1;
         unwind_to = -1;

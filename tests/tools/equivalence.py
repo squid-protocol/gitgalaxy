@@ -561,8 +561,12 @@ def main() -> int:
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
             for dd, data in res.items():
-                what = (f"{data.decode().strip() or '(none)'}" if dd in ("RETURN-CODE", "ABEND", "FAULTS")
-                        else f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records")  # fmt: skip
+                if dd in ("RETURN-CODE", "ABEND", "FAULTS"):
+                    what = data.decode().strip() or "(none)"
+                elif dd in case["datasets"]:
+                    what = f"{len(data)} bytes, {len(data) // case['datasets'][dd]['reclen']} records"
+                else:  # SYSOUT (#4056): lines, not records
+                    what = f"{len(data)} bytes, {data.count(b'\n')} lines"
                 print(f"{'fault ' + name + ' ' if name else ''}{dd}: {what}")
         return 0
     import equivalence_java as ej

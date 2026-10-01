@@ -357,6 +357,59 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("REWRITE without FILE / FROM")
         return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE LENGTH OF {frm}"])
                 + _resp(opts, True, labels))  # fmt: skip
+    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys
+        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "XRBA", "DEBKEY", "DEBREC"):
+            if bad in opts:
+                raise Unsupported(f"STARTBR {bad}")
+        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
+        if not (file and ridfld):
+            raise Unsupported("STARTBR without FILE / RIDFLD")
+        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+        mode = "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS"  # GTEQ is the default
+        return ([name(file, "GG-NAME1"), mode] + _call("GGCSTBR", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb in ("READNEXT", "READPREV"):
+        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "XRBA", "SET", "UPDATE", "TOKEN", "NOSUSPEND"):
+            if bad in opts:
+                raise Unsupported(f"{verb} {bad}")
+        file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
+        if not (file and into and ridfld):
+            raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
+        keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+        stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
+        return ([name(file, "GG-NAME1")]
+                + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
+                               f"BY VALUE LENGTH OF {into}"])
+                + _resp(opts, True, labels))  # fmt: skip
+    if verb == "ENDBR":
+        for bad in ("REQID", "SYSID"):
+            if bad in opts:
+                raise Unsupported(f"ENDBR {bad}")
+        file = opts.get("FILE") or opts.get("DATASET")
+        if not file:
+            raise Unsupported("ENDBR without FILE")
+        return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
+    if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
+        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "TOKEN", "NOSUSPEND", "NUMREC"):
+            if bad in opts:
+                raise Unsupported(f"DELETE {bad}")
+        file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
+        if ridfld:  # the record with that key
+            keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
+            args = [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"]
+            mode = "MOVE SPACES TO GG-FLAGS"
+        else:  # the record a READ UPDATE holds
+            args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
+        return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
+        if not opts.get("ABSTIME"):
+            return ["CONTINUE"]
+        return ["MOVE FUNCTION CURRENT-DATE(1:8) TO GG-YMD", "MOVE FUNCTION CURRENT-DATE(9:8) TO GG-HMSC",
+                f"COMPUTE {opts['ABSTIME']} =", "    (FUNCTION INTEGER-OF-DATE(GG-DATE8)",
+                "    - FUNCTION INTEGER-OF-DATE(19000101)) * 86400000",
+                "    + GG-HH * 3600000 + GG-MI * 60000", "    + GG-SS * 1000 + GG-CS * 10"]  # fmt: skip
+    if verb == "FORMATTIME":
+        return _formattime(opts)
     if verb == "SYNCPOINT":
         mode = "MOVE 'ROLLBACK' TO GG-FLAGS" if "ROLLBACK" in opts else "MOVE SPACES TO GG-FLAGS"
         return [mode] + _call("GGCSYNC", []) + _resp(opts, False, labels)
@@ -745,6 +798,49 @@ def map_input(fields: list[dict[str, Any]], values: dict[str, str], enc: str = c
     return encode_record(fields, typed, b"\x00", enc)
 
 
+# FORMATTIME's date forms (IBM CICS TS, EXEC CICS FORMATTIME): the parts in order, and the separator's default
+_DATE_FORMS = {"YYYYMMDD": ("GG-Y", "GG-M", "GG-D"), "MMDDYYYY": ("GG-M", "GG-D", "GG-Y"),
+               "DDMMYYYY": ("GG-D", "GG-M", "GG-Y"), "YYMMDD": ("GG-Y(3:2)", "GG-M", "GG-D"),
+               "MMDDYY": ("GG-M", "GG-D", "GG-Y(3:2)"), "DDMMYY": ("GG-D", "GG-M", "GG-Y(3:2)")}  # fmt: skip
+
+
+def _formattime(opts: dict[str, str]) -> list[str]:
+    """FORMATTIME ABSTIME(t) [date forms] [DATESEP] [TIME] [TIMESEP], in COBOL: t split into the day number since
+    1900-01-01 and the milliseconds into the day. DATESEP / TIMESEP without a value are '/' and ':'; absent, none."""
+    supported = {"FORMATTIME", "ABSTIME", "DATESEP", "TIME", "TIMESEP", *_DATE_FORMS}
+    extra = sorted(set(opts) - supported - {"NOHANDLE", "RESP", "RESP2"})
+    if extra or not opts.get("ABSTIME"):
+        raise Unsupported(f"FORMATTIME {' '.join(extra) or 'without ABSTIME'}", ["FORMATTIME"])
+    t = opts["ABSTIME"]
+    lines = [f"COMPUTE GG-DAYS = {t} / 86400000", f"COMPUTE GG-REM = {t} - GG-DAYS * 86400000",
+             "COMPUTE GG-DATE8 = FUNCTION DATE-OF-INTEGER(GG-DAYS",
+             "    + FUNCTION INTEGER-OF-DATE(19000101))",
+             "COMPUTE GG-HH = GG-REM / 3600000", "COMPUTE GG-MI = (GG-REM - GG-HH * 3600000) / 60000",
+             "COMPUTE GG-SS = (GG-REM - GG-HH * 3600000", "    - GG-MI * 60000) / 1000"]  # fmt: skip
+
+    def sep(option: str, default: str) -> Optional[str]:
+        if option not in opts:
+            return None
+        return opts[option] or f"'{default}'"
+
+    def build(parts: tuple[str, ...], separator: Optional[str], target: str) -> list[str]:
+        pieces = []
+        for i, p in enumerate(parts):
+            if i and separator:
+                pieces.append(separator)
+            pieces.append(p)
+        width = sum(4 if p == "GG-Y" else 2 for p in parts) + (len(parts) - 1 if separator else 0)
+        return (["MOVE SPACES TO GG-OUT", "STRING " + " ".join(pieces), "    DELIMITED BY SIZE INTO GG-OUT"]
+                + [f"MOVE GG-OUT(1:{width}) TO {target}(1:{width})"])  # fmt: skip
+
+    for form, parts in _DATE_FORMS.items():
+        if opts.get(form):
+            lines += build(parts, sep("DATESEP", "/"), opts[form])
+    if opts.get("TIME"):
+        lines += build(("GG-HH", "GG-MI", "GG-SS"), sep("TIMESEP", ":"), opts["TIME"])
+    return lines
+
+
 # ---- running a case -------------------------------------------------------------------
 def csd_programs(corpus: Path, case: dict[str, Any]) -> Optional[list[str]]:
     """The programs the case's CSD (its "csd": a DFHCSDUP listing in the corpus) defines, or None: every program
@@ -778,7 +874,7 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
 CICS_RESP = {"NORMAL": 0, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "INVREQ": 16, "IOERR": 17, "NOSPACE": 18,
              "NOTOPEN": 19, "ILLOGIC": 21, "LENGERR": 22, "PGMIDERR": 27, "NOTAUTH": 70, "DISABLED": 84,
-             "LOADING": 94}  # fmt: skip
+             "LOADING": 94, "ENDFILE": 20}  # fmt: skip
 
 
 FAULT_COMMANDS = (
@@ -786,7 +882,12 @@ FAULT_COMMANDS = (
     "INQUIRE",
     "WRITE",
     "REWRITE",
-)  # a file READ (FILE), an INQUIRE PROGRAM (the program's name in `file`)
+    "STARTBR",
+    "READNEXT",
+    "READPREV",
+    "ENDBR",
+    "DELETE",
+)  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:

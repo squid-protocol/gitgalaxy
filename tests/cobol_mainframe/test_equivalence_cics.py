@@ -193,8 +193,8 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
                                   "HANDLE ABEND PROGRAM('X')", "ASSIGN USERID(U)", "HANDLE CONDITION NOSUCH(X)",
                                   "WRITEQ TS QUEUE(Q) FROM(A) SYSID(S)", "WRITEQ TS QUEUE(Q) FROM(A) REWRITE",
                                   "READQ TD QUEUE(Q) INTO(A)",
-                                  "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K)",
-                                  "DELETE FILE('X') RIDFLD(K)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
+                                  "RECEIVE INTO(X) LENGTH(L) NOTRUNCATE", "RECEIVE SET(P) LENGTH(L)", "STARTBR FILE(F) RIDFLD(K) REQID(1)",
+                                  "DELETE FILE('X') RIDFLD(K) GENERIC KEYLENGTH(2)", "LINK PROGRAM('X') SYSID('S')"])  # fmt: skip
 def test_an_unmodelled_command_is_refused_by_name(body):
     with pytest.raises(ec.Unsupported):
         ec.translate_command(body)
@@ -232,8 +232,8 @@ def test_a_program_is_translated_whole():
 
 
 def test_an_unknown_command_in_a_program_names_its_line():
-    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS DELETE"):
-        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "DELETE FILE('ACCT') RIDFLD(WS-KEY)"))
+    with pytest.raises(ec.Unsupported, match="line 13: EXEC CICS WRITEQ TD"):
+        ec.translate(PROGRAM.replace("READ FILE('ACCT') RIDFLD(WS-KEY)", "WRITEQ TD QUEUE('CSSL') FROM(WS-KEY)"))
 
 
 CSD = """\
@@ -409,6 +409,26 @@ def test_a_case_csd_defines_the_programs_and_no_csd_defines_all(tmp_path):
     assert ec.csd_programs(tmp_path, {"csd": "x.csd"}) == ["COMEN01C", "COUSR00C"]
     assert ec.csd_programs(tmp_path, {}) is None
     # the Java side (CicsTask.withPrograms) is proven by carddemo-adminmenu: options 5 and 6 are PGMIDERR on both
+
+
+def test_browse_delete_and_time_commands_translate():
+    assert ec.translate_command("STARTBR DATASET(F) RIDFLD(K) EQUAL RESP(R)")[:3] == [
+        "MOVE F TO GG-NAME1",
+        "MOVE 'EQUAL' TO GG-FLAGS",
+        "CALL 'GGCSTBR' USING GG-CICS",
+    ]
+    assert ec.translate_command("READPREV DATASET(F) INTO(REC) RIDFLD(K) RESP(R)")[1] == "CALL 'GGCRDPV' USING GG-CICS"
+    assert ec.translate_command("DELETE FILE(F) RESP(R)")[1] == "MOVE 'HELD' TO GG-FLAGS"  # the READ UPDATE's record
+    for bad in (
+        "STARTBR FILE(F) RIDFLD(K) GENERIC KEYLENGTH(2)",
+        "READNEXT FILE(F) INTO(R) RIDFLD(K) REQID(1)",
+        "FORMATTIME ABSTIME(T) DAYOFWEEK(D)",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+    long_names = "FORMATTIME ABSTIME(WS-ABS-TIME) YYYYMMDD(WS-CUR-DATE-X10) DATESEP('-') TIME(WS-T) TIMESEP"
+    for cmd in ("ASKTIME ABSTIME(WS-ABS-TIME)", long_names):  # each statement fits area B (col 12-72)
+        assert all(len(s) <= 61 for s in ec.translate_command(cmd))
 
 
 def test_an_alphanumeric_commarea_field_reaches_the_port_as_text():

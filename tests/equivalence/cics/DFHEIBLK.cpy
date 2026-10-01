@@ -53,3 +53,23 @@
            05 GG-ITEM   PIC S9(9) COMP-5.
            05 GG-NUM    PIC S9(9) COMP-5.
            05 GG-GOTO   PIC S9(9) COMP-5.
+      * ASKTIME / FORMATTIME (CardDemo's bill payment): the translator
+      * computes them in COBOL from the task's clock (CURRENT-DATE is the
+      * case's clock), ABSTIME being milliseconds since 00:00 on
+      * 1 January 1900 (IBM CICS TS, EXEC CICS ASKTIME). Each program's
+      * own scratch, not shared.
+       01  GG-TIME.
+           05 GG-MS     PIC S9(18) COMP-3.
+           05 GG-REM    PIC S9(18) COMP-3.
+           05 GG-DAYS   PIC S9(9) COMP-5.
+           05 GG-YMD.
+              10 GG-Y   PIC 9(4).
+              10 GG-M   PIC 9(2).
+              10 GG-D   PIC 9(2).
+           05 GG-DATE8 REDEFINES GG-YMD PIC 9(8).
+           05 GG-HMSC.
+              10 GG-HH  PIC 9(2).
+              10 GG-MI  PIC 9(2).
+              10 GG-SS  PIC 9(2).
+              10 GG-CS  PIC 9(2).
+           05 GG-OUT    PIC X(10).

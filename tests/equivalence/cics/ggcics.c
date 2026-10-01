@@ -80,7 +80,7 @@ typedef struct {
 } gg_cics;
 
 enum { NORMAL = 0, NOTFND = 13, LENGERR = 22, FILENOTFOUND = 12, MAPFAIL = 36, ITEMERR = 26, QIDERR = 44,
-       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14 };
+       INVREQ = 16, PGMIDERR = 27, ENDDATA = 29, DUPREC = 14, ENDFILE = 20 };
 
 static int seq = 0;
 static int ended = 0; /* a RETURN, XCTL or abend ended the task */
@@ -398,6 +398,254 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
     key[shown] = '\0';
     snprintf(ev, sizeof ev, "READ file=%s key=%s resp=%d", want, key, c->resp);
     event(ev, NULL, 0);
+    return 0;
+}
+
+/* ---- browse: STARTBR / READNEXT / READPREV / ENDBR (IBM CICS TS, EXEC CICS STARTBR ... ENDBR) ----------------
+ * One browse per file (no REQID). Positions are found again from the keys on every command, so a record written
+ * during the browse is seen. IBM's rules modelled:
+ *   STARTBR    GTEQ (the default): the first key >= RIDFLD; EQUAL: that key only; NOTFND when none. A RIDFLD of
+ *              all X'FF' positions at the end for a backwards browse. A second STARTBR on the file: INVREQ (33).
+ *   READNEXT   the record STARTBR positioned on, then each next; RIDFLD is set to the key read. A RIDFLD the
+ *              program changed, or a READNEXT after a READPREV, repositions: the first key >= RIDFLD (GTEQ).
+ *              ENDFILE past the last record.
+ *   READPREV   right after STARTBR the STARTBR key must exist (else NOTFND); after a READNEXT, or with RIDFLD
+ *              changed, it repositions to RIDFLD and reads that record (so it reads again the record READNEXT
+ *              just read) -- NOTFND when that key is not there, as documented for the STARTBR case; after an
+ *              X'FF' STARTBR it reads the last record. ENDFILE before the first.
+ *   ENDBR      INVREQ (35) when no browse is active.  */
+static struct { char name[9]; int active, equal, last, dir, have_last; char start[256], lastkey[256]; } br[MAX_FILES];
+
+static int browse_slot(const char *file, int create) {
+    for (int i = 0; i < MAX_FILES; i++) if (br[i].name[0] && strcmp(br[i].name, file) == 0) return i;
+    if (!create) return -1;
+    for (int i = 0; i < MAX_FILES; i++) {
+        if (!br[i].name[0]) { memset(&br[i], 0, sizeof br[i]); snprintf(br[i].name, sizeof br[i].name, "%s", file); return i; }
+    }
+    return -1;
+}
+
+static int all_ff(const char *key, int len) {
+    for (int i = 0; i < len; i++) if ((unsigned char)key[i] != 0xFF) return 0;
+    return len > 0;
+}
+
+/* The file's records; `*n` of them, each `reclen` bytes (the caller frees). */
+static char *load_records(const char *path, int reclen, long *n) {
+    FILE *data = fopen(path, "rb");
+    char *all = NULL;
+    *n = 0;
+    if (!data) return NULL;
+    fseek(data, 0, SEEK_END);
+    long size = ftell(data);
+    fseek(data, 0, SEEK_SET);
+    all = malloc((size_t)(size > 0 ? size : 1));
+    if (all) *n = (long)fread(all, 1, (size_t)size, data) / reclen;
+    fclose(data);
+    return all;
+}
+
+/* The record whose key is the least key > `key` (strict), >= (or_equal), or the greatest < `key` (below); -1 when
+ * none. With `exact`, only a record whose key equals `key`. */
+static long pick(const char *all, long n, int reclen, int keyoff, int klen, const char *key, int mode) {
+    long best = -1;
+    for (long i = 0; i < n; i++) {
+        int c = memcmp(all + i * reclen + keyoff, key, (size_t)klen);
+        const char *bk = best >= 0 ? all + best * reclen + keyoff : NULL;
+        if (mode == 0 && c == 0) return i;                                                      /* exact */
+        if (mode == 1 && c >= 0 && (!bk || memcmp(all + i * reclen + keyoff, bk, (size_t)klen) < 0)) best = i;  /* >= */
+        if (mode == 2 && c > 0 && (!bk || memcmp(all + i * reclen + keyoff, bk, (size_t)klen) < 0)) best = i;   /* > */
+        if (mode == 3 && c < 0 && (!bk || memcmp(all + i * reclen + keyoff, bk, (size_t)klen) > 0)) best = i;   /* < */
+    }
+    return best;
+}
+
+static long pick_last(const char *all, long n, int reclen, int keyoff, int klen) {
+    long best = -1;
+    for (long i = 0; i < n; i++) {
+        if (best < 0 || memcmp(all + i * reclen + keyoff, all + best * reclen + keyoff, (size_t)klen) > 0) best = i;
+    }
+    return best;
+}
+
+/* STARTBR FILE(name1) RIDFLD [GTEQ | EQUAL: GG-FLAGS 'EQUAL']. */
+int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
+    char want[9], path[3000], key[256];
+    int reclen, keyoff, klen, fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    if (injected("STARTBR", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        file_event("STARTBR", want, ridfld, keylen, c->resp);
+        return 0;
+    }
+    int s = browse_slot(want, 1);
+    if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+    } else if (s >= 0 && br[s].active) {
+        c->resp = INVREQ;
+        c->resp2 = 33;
+    } else {
+        int len = keylen < klen ? keylen : klen;
+        memset(key, 0, sizeof key);
+        memcpy(key, ridfld, (size_t)len);
+        int equal = strstr(c->flags, "EQUAL") != NULL, last = all_ff(key, len);
+        long n;
+        char *all = load_records(path, reclen, &n);
+        long at = last ? 0 : pick(all, n, reclen, keyoff, klen, key, equal ? 0 : 1);
+        free(all);
+        if (at < 0) {
+            c->resp = NOTFND;
+            c->resp2 = 80;
+        } else {
+            br[s].active = 1;
+            br[s].equal = equal;
+            br[s].last = last;
+            br[s].dir = 0;
+            br[s].have_last = 0;
+            memcpy(br[s].start, key, sizeof key);
+            c->resp = NORMAL;
+        }
+    }
+    file_event("STARTBR", want, ridfld, keylen, c->resp);
+    return 0;
+}
+
+/* READNEXT (dir 1) / READPREV (dir -1) FILE(name1) INTO RIDFLD. */
+static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into, int intolen) {
+    const char *verb = dir > 0 ? "READNEXT" : "READPREV";
+    char want[9], path[3000], key[256];
+    int reclen, keyoff, klen, fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    if (injected(verb, want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        file_event(verb, want, ridfld, keylen, c->resp);
+        return 0;
+    }
+    int s = browse_slot(want, 0);
+    if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+    } else if (s < 0 || !br[s].active) {
+        c->resp = INVREQ;
+        c->resp2 = 34;
+    } else {
+        int len = keylen < klen ? keylen : klen;
+        memset(key, 0, sizeof key);
+        memcpy(key, ridfld, (size_t)len);
+        const char *was = br[s].have_last ? br[s].lastkey : br[s].start;
+        int changed = memcmp(key, was, (size_t)klen) != 0;
+        long n, at;
+        char *all = load_records(path, reclen, &n);
+        if (dir > 0) {
+            if (br[s].dir == 0 && !br[s].last && !changed) at = pick(all, n, reclen, keyoff, klen, key, br[s].equal ? 0 : 1);
+            else if (br[s].dir == 1 && !changed) at = pick(all, n, reclen, keyoff, klen, key, 2);
+            else at = all_ff(key, klen) ? -1 : pick(all, n, reclen, keyoff, klen, key, br[s].equal ? 0 : 1);
+            c->resp = at < 0 ? ENDFILE : NORMAL;
+            if (at < 0) c->resp2 = 90;
+        } else {
+            if (all_ff(key, klen) && (br[s].dir == 0 || changed)) at = pick_last(all, n, reclen, keyoff, klen);
+            else if (br[s].dir == -1 && !changed) at = pick(all, n, reclen, keyoff, klen, key, 3);
+            else at = pick(all, n, reclen, keyoff, klen, key, 0);
+            if (at >= 0) c->resp = NORMAL;
+            else if (br[s].dir == -1 && !changed) { c->resp = ENDFILE; c->resp2 = 90; }
+            else if (all_ff(key, klen)) { c->resp = ENDFILE; c->resp2 = 90; }
+            else { c->resp = NOTFND; c->resp2 = 80; }
+        }
+        if (at >= 0) {
+            const char *rec = all + at * reclen;
+            memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
+            memcpy(ridfld, rec + keyoff, (size_t)len);
+            memset(br[s].lastkey, 0, sizeof br[s].lastkey);
+            memcpy(br[s].lastkey, rec + keyoff, (size_t)klen);
+            br[s].have_last = 1;
+            br[s].dir = dir;
+            if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
+        }
+        free(all);
+    }
+    file_event(verb, want, ridfld, keylen, c->resp);
+    return 0;
+}
+
+int GGCRDNX(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
+    return browse_read(c, 1, ridfld, keylen, into, intolen);
+}
+
+int GGCRDPV(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
+    return browse_read(c, -1, ridfld, keylen, into, intolen);
+}
+
+/* ENDBR FILE(name1). */
+int GGCENBR(gg_cics *c) {
+    char want[9], ev[100];
+    int fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    int s = browse_slot(want, 0);
+    if (injected("ENDBR", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+    } else if (s < 0 || !br[s].active) {
+        c->resp = INVREQ;
+        c->resp2 = 35;
+    } else {
+        br[s].active = 0;
+        c->resp = NORMAL;
+    }
+    snprintf(ev, sizeof ev, "ENDBR file=%s resp=%d", want, c->resp);
+    event(ev, NULL, 0);
+    return 0;
+}
+
+/* DELETE FILE(name1) [RIDFLD]: the record with that key, or (no RIDFLD: GG-FLAGS 'HELD') the one a READ UPDATE
+ * holds -- INVREQ when none is held; NOTFND when the key is not there. */
+int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
+    char want[9], path[3000];
+    int reclen, keyoff, klen, fresp, fresp2;
+    trim(c->name1, 8, want);
+    c->resp2 = 0;
+    int by_hold = strstr(c->flags, "HELD") != NULL;
+    if (injected("DELETE", want, &fresp, &fresp2)) {
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        return 0;
+    }
+    if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
+        c->resp = FILENOTFOUND;
+        file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
+        return 0;
+    }
+    char key[256];
+    memset(key, 0, sizeof key);
+    int s = -1;
+    if (by_hold) {
+        for (int i = 0; i < MAX_FILES; i++) if (held[i].name[0] && strcmp(held[i].name, want) == 0) { s = i; break; }
+        if (s >= 0) memcpy(key, held[s].key, (size_t)held[s].klen);
+    } else {
+        memcpy(key, ridfld, (size_t)(keylen < klen ? keylen : klen));
+    }
+    long n;
+    char *all = load_records(path, reclen, &n);
+    long at = (by_hold && s < 0) ? -1 : pick(all, n, reclen, keyoff, keylen < klen && !by_hold ? keylen : klen, key, 0);
+    if (by_hold && s < 0) {
+        c->resp = INVREQ;
+    } else if (at < 0) {
+        c->resp = NOTFND;
+        c->resp2 = 80;
+    } else {
+        uow_save(path);
+        FILE *data = fopen(path, "wb");
+        for (long i = 0; data && i < n; i++) if (i != at) fwrite(all + i * reclen, 1, (size_t)reclen, data);
+        if (data) fclose(data);
+        if (by_hold) release(want);
+        c->resp = NORMAL;
+    }
+    free(all);
+    file_event("DELETE", want, key, klen, c->resp);
     return 0;
 }
 

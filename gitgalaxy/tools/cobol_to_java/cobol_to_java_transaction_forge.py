@@ -314,6 +314,38 @@ public class CicsTask {
         return root().now;
     }
 
+    private static final LocalDateTime ABSTIME_EPOCH = LocalDateTime.of(1900, 1, 1, 0, 0);
+
+    /** ASKTIME ABSTIME (IBM CICS TS): milliseconds since 00:00 on 1 January 1900, at the task's clock. */
+    public long asktime() {
+        return java.time.Duration.between(ABSTIME_EPOCH, now()).toMillis();
+    }
+
+    /** FORMATTIME ABSTIME(t) YYYYMMDD / MMDDYYYY / DDMMYYYY / YYMMDD / MMDDYY / DDMMYY: the date of t in that form,
+     *  its parts joined by `datesep` ("" for no DATESEP; DATESEP with no value is "/"). */
+    public static String formatDate(long abstime, String form, String datesep) {
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        String y4 = String.format("%04d", t.getYear()), y2 = y4.substring(2);
+        String m = String.format("%02d", t.getMonthValue()), d = String.format("%02d", t.getDayOfMonth());
+        List<String> parts = switch (form) {
+            case "YYYYMMDD" -> List.of(y4, m, d);
+            case "MMDDYYYY" -> List.of(m, d, y4);
+            case "DDMMYYYY" -> List.of(d, m, y4);
+            case "YYMMDD" -> List.of(y2, m, d);
+            case "MMDDYY" -> List.of(m, d, y2);
+            case "DDMMYY" -> List.of(d, m, y2);
+            default -> throw new IllegalArgumentException("FORMATTIME " + form + " is not modelled");
+        };
+        return String.join(datesep, parts);
+    }
+
+    /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
+    public static String formatTime(long abstime, String timesep) {
+        LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
+        return String.join(timesep, String.format("%02d", t.getHour()), String.format("%02d", t.getMinute()),
+                String.format("%02d", t.getSecond()));
+    }
+
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
     public CicsTask withTermid(String termid) {
         this.termid = termid;
@@ -565,6 +597,156 @@ public class CicsTask {
         }
         store.run();
         return 0;
+    }
+
+    /** DELETE FILE(file) RIDFLD: `exists` says whether the key is there (NOTFND, 13, when not); else `remove`
+     *  deletes it (the service's generated repository delete) -- or the condition the harness planned. */
+    public int delete(String file, boolean exists, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!exists) {
+            return 13;
+        }
+        remove.run();
+        return 0;
+    }
+
+    /** DELETE FILE(file) without RIDFLD: the record a readForUpdate holds (INVREQ, 16, when none is held). */
+    public int deleteHeld(String file, Runnable remove) {
+        int[] planned = root().injected("DELETE", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        if (!root().held.remove(file)) {
+            return 16;
+        }
+        remove.run();
+        return 0;
+    }
+
+    /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
+     *  started, and the last key read and in which direction (0: none yet). */
+    private static final class Browse {
+        java.util.function.Supplier<java.util.NavigableSet<String>> keys;
+        boolean equal;
+        String start;
+        String last;
+        int dir;
+    }
+
+    private final Map<String, Browse> browses = new java.util.HashMap<>();
+
+    /** What a READNEXT / READPREV found: its RESP and the key read (null when none; then look nothing up). */
+    public record Browsed(int resp, String key) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    private static boolean highValues(String key) {
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00FF');
+    }
+
+    /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`
+     *  (GTEQ, the default) or on `key` itself (EQUAL); NOTFND (13) when there is none. A key of all X'FF'
+     *  (HIGH-VALUES) positions at the end, for READPREV. A second STARTBR on the file: INVREQ (16). `keys`: the
+     *  file's keys, in key order (e.g. the repository's ids as a TreeSet). */
+    public int startbr(String file, String key, boolean equal,
+                       java.util.function.Supplier<java.util.NavigableSet<String>> keys) {
+        int[] planned = root().injected("STARTBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        Map<String, Browse> all = root().browses;
+        if (all.containsKey(file)) {
+            return 16;
+        }
+        java.util.NavigableSet<String> k = keys.get();
+        if (!highValues(key) && (equal ? !k.contains(key) : k.ceiling(key) == null)) {
+            return 13;
+        }
+        Browse b = new Browse();
+        b.keys = keys;
+        b.equal = equal;
+        b.start = key;
+        all.put(file, b);
+        return 0;
+    }
+
+    /** READNEXT FILE(file) RIDFLD(ridfld): the key of the next record -- the one STARTBR positioned on first; set
+     *  RIDFLD to it and look the record up by it. A RIDFLD the program changed, or a READNEXT after a READPREV,
+     *  repositions at the first key >= RIDFLD. ENDFILE (20) past the last; INVREQ (16) with no browse. */
+    public Browsed readnext(String file, String ridfld) {
+        int[] planned = root().injected("READNEXT", file);
+        if (planned != null) {
+            return new Browsed(planned[0], null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new Browsed(16, null);
+        }
+        java.util.NavigableSet<String> k = b.keys.get();
+        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
+        String at;
+        if (b.dir == 1 && !changed) {
+            at = k.higher(ridfld);
+        } else if (highValues(ridfld)) {
+            at = null;
+        } else {
+            at = b.equal ? (k.contains(ridfld) ? ridfld : null) : k.ceiling(ridfld);
+        }
+        if (at == null) {
+            return new Browsed(20, null);
+        }
+        b.last = at;
+        b.dir = 1;
+        return new Browsed(0, at);
+    }
+
+    /** READPREV FILE(file) RIDFLD(ridfld): the key of the previous record. Right after STARTBR the STARTBR key must
+     *  exist (else NOTFND, 13); after a READNEXT, or with RIDFLD changed, it repositions to RIDFLD and reads that
+     *  record -- so it reads again the record READNEXT just read; after a HIGH-VALUES STARTBR, the last record.
+     *  ENDFILE (20) before the first; INVREQ (16) with no browse. */
+    public Browsed readprev(String file, String ridfld) {
+        int[] planned = root().injected("READPREV", file);
+        if (planned != null) {
+            return new Browsed(planned[0], null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new Browsed(16, null);
+        }
+        java.util.NavigableSet<String> k = b.keys.get();
+        boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
+        String at;
+        int none;
+        if (highValues(ridfld) && (b.dir == 0 || changed)) {
+            at = k.isEmpty() ? null : k.last();
+            none = 20;
+        } else if (b.dir == -1 && !changed) {
+            at = k.lower(ridfld);
+            none = 20;
+        } else {
+            at = k.contains(ridfld) ? ridfld : null;
+            none = 13;
+        }
+        if (at == null) {
+            return new Browsed(none, null);
+        }
+        b.last = at;
+        b.dir = -1;
+        return new Browsed(0, at);
+    }
+
+    /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */
+    public int endbr(String file) {
+        int[] planned = root().injected("ENDBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        return root().browses.remove(file) != null ? 0 : 16;
     }
 
     /** SYNCPOINT: the unit of work is committed; a later rollback() cannot undo it. */

@@ -708,3 +708,134 @@ def test_the_stubs_aid_bytes_are_the_harness_dfhaid():
         raw = m.group(1)
         got = "'" if raw == "'\\''" else (chr(int(raw, 16)) if raw.startswith("0x") else raw[1])
         assert got == values[dfh], (key, got, values[dfh])
+
+
+# ---- browse and DELETE (IBM CICS TS, STARTBR / READNEXT / READPREV / ENDBR / DELETE) -----------------------------
+_BROWSE_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCSTBR(gg_cics *c, char *rid, int kl); int GGCRDNX(gg_cics *c, char *rid, int kl, char *into, int il);
+int GGCRDPV(gg_cics *c, char *rid, int kl, char *into, int il); int GGCENBR(gg_cics *c);
+int GGCDELT(gg_cics *c, char *rid, int kl);
+int main(int argc, char **argv) {
+    gg_cics c;
+    char rid[3], into[5];
+    memset(&c, 0, sizeof c);
+    memset(c.name1, ' ', 8);
+    memcpy(c.name1, "F", 1);
+    for (int i = 1; i < argc; i++) {
+        char op = argv[i][0];
+        memset(c.flags, ' ', 40);
+        if (argv[i][1] == ':') memcpy(rid, argv[i] + 2, 2);   /* the program sets RIDFLD */
+        if (argv[i][1] == '*') memset(rid, 0xFF, 2);           /* HIGH-VALUES */
+        memset(into, '.', 4);
+        into[4] = 0;
+        if (op == 'S') GGCSTBR(&c, rid, 2);
+        if (op == 'E') { memcpy(c.flags, "EQUAL", 5); GGCSTBR(&c, rid, 2); }
+        if (op == 'N') GGCRDNX(&c, rid, 2, into, 4);
+        if (op == 'P') GGCRDPV(&c, rid, 2, into, 4);
+        if (op == 'B') GGCENBR(&c);
+        if (op == 'D') GGCDELT(&c, rid, 2);
+        printf("%c resp=%d rid=%.2s into=%s\n", op, c.resp, (unsigned char)rid[0] == 0xFF ? "FF" : rid, into);
+    }
+    return 0;
+}
+"""
+
+
+@needs_cc
+def test_the_stub_browses_as_cics_does(tmp_path):
+    """STARTBR GTEQ / EQUAL, READNEXT from the start key then on, READPREV after READNEXT reading the same record
+    again, a HIGH-VALUES start for a backwards browse, ENDFILE at both ends, NOTFND for a READPREV whose start key
+    is not there, INVREQ for a second STARTBR and an ENDBR without a browse; DELETE by key."""
+    (tmp_path / "f.dat").write_bytes(b"10aa20bb30cc")
+    (tmp_path / "files.cfg").write_text(f"F {tmp_path / 'f.dat'} 4 0 2\n", encoding="ascii")
+    exe = _stub(tmp_path, _BROWSE_MAIN)
+    got = _run_stub(exe, tmp_path, "S:15", "N", "N", "P", "P", "P", "S:10", "B", "B",
+                    "E:15", "S:15", "P", "B", "S*", "P", "P", "B", "S*", "N", "B", "S:20", "N", "N", "N", "B",
+                    "D:20", "D:20")  # fmt: skip
+    assert got == [
+        "S resp=0 rid=15 into=....",  # GTEQ: positioned on 20
+        "N resp=0 rid=20 into=20bb",
+        "N resp=0 rid=30 into=30cc",
+        "P resp=0 rid=30 into=30cc",  # after a READNEXT: repositions to RIDFLD, the same record again
+        "P resp=0 rid=20 into=20bb",
+        "P resp=0 rid=10 into=10aa",
+        "S resp=16 rid=10 into=....",  # a browse is active: INVREQ
+        "B resp=0 rid=10 into=....",
+        "B resp=16 rid=10 into=....",  # no browse: INVREQ
+        "E resp=13 rid=15 into=....",  # EQUAL: no record 15
+        "S resp=0 rid=15 into=....",
+        "P resp=13 rid=15 into=....",  # READPREV right after STARTBR: the key must exist
+        "B resp=0 rid=15 into=....",
+        "S resp=0 rid=FF into=....",  # X'FF': the end, for READPREV
+        "P resp=0 rid=30 into=30cc",
+        "P resp=0 rid=20 into=20bb",
+        "B resp=0 rid=20 into=....",
+        "S resp=0 rid=FF into=....",
+        "N resp=20 rid=FF into=....",  # READNEXT from the end: ENDFILE
+        "B resp=0 rid=FF into=....",
+        "S resp=0 rid=20 into=....",
+        "N resp=0 rid=20 into=20bb",
+        "N resp=0 rid=30 into=30cc",
+        "N resp=20 rid=30 into=....",  # past the last: ENDFILE
+        "B resp=0 rid=30 into=....",
+        "D resp=0 rid=20 into=....",
+        "D resp=13 rid=20 into=....",  # gone: NOTFND
+    ]
+    assert (tmp_path / "f.dat").read_bytes() == b"10aa30cc"
+
+
+@needs_javac
+def test_cics_task_browses_as_the_stub_does(tmp_path):
+    """The same browse as test_the_stub_browses_as_cics_does, through CicsTask: the same RESPs and keys."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.TreeSet<String> keys = new java.util.TreeSet<>(java.util.List.of("10", "20", "30"));
+        CicsTask t = new CicsTask("T", "ENTER", null, null);
+        String rid = "";
+        String ff = "\\u00FF\\u00FF";
+        String[] ops = {"S:15", "N", "N", "P", "P", "P", "S:10", "B", "B", "E:15", "S:15", "P", "B", "S*", "P", "P",
+                        "B", "S*", "N", "B", "S:20", "N", "N", "N", "B"};
+        for (String op : ops) {
+            if (op.length() > 1) {
+                rid = op.charAt(1) == '*' ? ff : op.substring(2);
+            }
+            int resp;
+            switch (op.charAt(0)) {
+                case 'S': resp = t.startbr("F", rid, false, () -> keys); break;
+                case 'E': resp = t.startbr("F", rid, true, () -> keys); break;
+                case 'N': { CicsTask.Browsed b = t.readnext("F", rid); resp = b.resp(); if (b.normal()) rid = b.key(); break; }
+                case 'P': { CicsTask.Browsed b = t.readprev("F", rid); resp = b.resp(); if (b.normal()) rid = b.key(); break; }
+                default: resp = t.endbr("F");
+            }
+            System.out.println(op.charAt(0) + " resp=" + resp + " rid=" + (rid.equals(ff) ? "FF" : rid));
+        }
+        System.out.println(t.delete("F", keys.contains("20"), () -> keys.remove("20")) + " "
+                + t.delete("F", keys.contains("20"), () -> keys.remove("20")) + " " + keys);""",
+    )
+    stub = ["S resp=0 rid=15", "N resp=0 rid=20", "N resp=0 rid=30", "P resp=0 rid=30", "P resp=0 rid=20",
+            "P resp=0 rid=10", "S resp=16 rid=10", "B resp=0 rid=10", "B resp=16 rid=10", "E resp=13 rid=15",
+            "S resp=0 rid=15", "P resp=13 rid=15", "B resp=0 rid=15", "S resp=0 rid=FF", "P resp=0 rid=30",
+            "P resp=0 rid=20", "B resp=0 rid=20", "S resp=0 rid=FF", "N resp=20 rid=FF", "B resp=0 rid=FF",
+            "S resp=0 rid=20", "N resp=0 rid=20", "N resp=0 rid=30", "N resp=20 rid=30", "B resp=0 rid=30"]  # fmt: skip
+    assert out.splitlines() == [*stub, "0 13 [10, 30]"]
+
+
+@needs_javac
+def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
+    """ABSTIME is milliseconds since 00:00 on 1 January 1900 (IBM, EXEC CICS ASKTIME): 3867129015000 at
+    2022-07-18 10:30:15, the value the translated COBOL computes under GnuCOBOL at the same clock."""
+    out = _cics_task(
+        tmp_path,
+        """
+        CicsTask t = new CicsTask("T", "ENTER", null, null)
+                .withClock(java.time.LocalDateTime.parse("2022-07-18T10:30:15"));
+        long abs = t.asktime();
+        System.out.println(abs + " " + CicsTask.formatDate(abs, "YYYYMMDD", "-") + " " + CicsTask.formatTime(abs, ":")
+                + " " + CicsTask.formatDate(abs, "MMDDYY", "/") + " " + CicsTask.formatDate(abs, "DDMMYYYY", ""));""",
+    )
+    assert out.split() == ["3867129015000", "2022-07-18", "10:30:15", "07/18/22", "18072022"]

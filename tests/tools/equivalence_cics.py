@@ -1023,20 +1023,30 @@ def _dto_file_shape(src: Path, path: Path) -> dict[str, Any]:
     return shape
 
 
-def to_java(values: dict[str, Any], shape: dict[str, Any]) -> dict[str, Any]:
-    """{COBOL name: value} -> the DTO's JSON (numbers as numbers, text as the program holds it)."""
+def to_java(values: dict[str, Any], shape: dict[str, Any], text: frozenset[str] = frozenset()) -> dict[str, Any]:
+    """{COBOL name: value} -> the DTO's JSON (numbers as numbers, text as the program holds it). A field in `text`
+    (an alphanumeric PICTURE) stays text even when it reads as a number: CardDemo's selected transaction id
+    '0000000000683580' (PIC X(16)) reached the port as 683580."""
     out: dict[str, Any] = {}
     for var, spec in shape.items():
         if isinstance(spec, tuple):
-            out[var] = to_java(values, spec[1])
+            out[var] = to_java(values, spec[1], text)
         elif spec in values:
             v = values[spec]
+            if spec in text:
+                out[var] = v
+                continue
             try:
                 d = Decimal(v)
                 out[var] = int(d) if d == d.to_integral_value() else float(d)
             except (ArithmeticError, ValueError, TypeError):
                 out[var] = v
     return out
+
+
+def alphanumeric(fields: list[dict[str, Any]]) -> frozenset[str]:
+    """The fields whose PICTURE holds text (X / A), not a number."""
+    return frozenset(f["name"] for f in fields if f.get("pic") and not re.search(r"[9SVP]", f["pic"].upper()))
 
 
 def _leaves(shape: dict[str, Any]) -> dict[str, str]:
@@ -1235,7 +1245,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         ca = None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
-            ca = to_java(decode_record(encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc), shape)
+            values = decode_record(encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc)
+            ca = to_java(values, shape, alphanumeric(ca_fields))
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
         receive = {

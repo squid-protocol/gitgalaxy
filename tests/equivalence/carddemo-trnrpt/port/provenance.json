@@ -4,17 +4,23 @@
  "written_by": "model (the #4023 follow-up porting loop), not a person",
  "model": "claude-sonnet-5-5",
  "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
- "proposed": "2026-09-30T13:44:30+00:00",
- "attempt": 1,
+ "proposed": "2026-10-01T01:13:33+00:00",
+ "attempt": 2,
  "attempts": [
   {
    "n": 1,
+   "verdict": "not proven",
+   "why": "read the records as IBM037, not the data's ISO-8859-1 (the ticket does not state the records' code page): garbled SYSOUT, an abend"
+  },
+  {
+   "n": 2,
    "verdict": "proven"
   }
  ],
- "ticket_sha256": "c9f41e56a13676406fb4393da6211a31005ed72f398544978c457fddc04ee911",
- "prompt_tokens": 28754,
- "proof": "tests/tools/equivalence.py run carddemo-trnrpt (every output / call / scenario and every fault run equal)",
+ "ticket_sha256": "a0f2c004d7902c15e3759bd28454cb6ac52cd329bc02f337441436643ebc31b6",
+ "prompt_tokens": 55938,
+ "proof": "tests/tools/equivalence.py run carddemo-trnrpt (every output, SYSOUT (#4056) and every fault run equal)",
  "edited_after": "none: the file is the model's answer as the loop stored it",
- "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
+ "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory",
+ "supersedes": "the 2026-09-30 attempt-1 port, proven before SYSOUT was compared: it logged its DISPLAYs (the ticket then said a DISPLAY is a log line), so it is not proven under #4056; the loop re-ran from scratch on the new ticket"
 }

@@ -158,6 +158,12 @@ def test_a_call_cases_file_is_well_formed():
         "carddemo-cardview",
         "carddemo-userupd",
         "carddemo-tranview",
+        "carddemo-userdel",
+        "carddemo-userlist",
+        "carddemo-tranlist",
+        "carddemo-tranadd",
+        "carddemo-billpay",
+        "carddemo-cardlist",
     ],
 )
 def test_the_loops_committed_ports_are_proven(case, tmp_path):

@@ -325,8 +325,8 @@ public class CicsTask {
      *  its parts joined by `datesep` ("" for no DATESEP; DATESEP with no value is "/"). */
     public static String formatDate(long abstime, String form, String datesep) {
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
-        String y4 = String.format("%04d", t.getYear()), y2 = y4.substring(2);
-        String m = String.format("%02d", t.getMonthValue()), d = String.format("%02d", t.getDayOfMonth());
+        String y4 = String.format(java.util.Locale.ROOT, "%04d", t.getYear()), y2 = y4.substring(2);
+        String m = String.format(java.util.Locale.ROOT, "%02d", t.getMonthValue()), d = String.format(java.util.Locale.ROOT, "%02d", t.getDayOfMonth());
         List<String> parts = switch (form) {
             case "YYYYMMDD" -> List.of(y4, m, d);
             case "MMDDYYYY" -> List.of(m, d, y4);
@@ -342,8 +342,8 @@ public class CicsTask {
     /** FORMATTIME ABSTIME(t) TIME: hhmmss of t, joined by `timesep` ("" for no TIMESEP; TIMESEP alone is ":"). */
     public static String formatTime(long abstime, String timesep) {
         LocalDateTime t = ABSTIME_EPOCH.plus(java.time.Duration.ofMillis(abstime));
-        return String.join(timesep, String.format("%02d", t.getHour()), String.format("%02d", t.getMinute()),
-                String.format("%02d", t.getSecond()));
+        return String.join(timesep, String.format(java.util.Locale.ROOT, "%02d", t.getHour()), String.format(java.util.Locale.ROOT, "%02d", t.getMinute()),
+                String.format(java.util.Locale.ROOT, "%02d", t.getSecond()));
     }
 
     /** The terminal the task is attached to (#3989): EIBTRMID, or null for a task no terminal started. */
@@ -646,7 +646,7 @@ public class CicsTask {
     }
 
     private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00FF');
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00ff');
     }
 
     /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`

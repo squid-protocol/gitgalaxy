@@ -122,7 +122,7 @@ stripe==14.4.1
 threadpoolctl==3.6.0
 tiktoken==0.14.0
 tinycss2==1.5.1
-tornado==6.5.8
+tornado==6.5.10
 tqdm==4.69.0
 traitlets==5.16.1
 twine==7.0.0

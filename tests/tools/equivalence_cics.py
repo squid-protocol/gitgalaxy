@@ -853,7 +853,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         if verb == "SEND-MAP":
             fields = screen_fields(corpus, case, kv["map"], "output")
             vals = decode_record(data, fields, enc)
-            res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")}})
+            res["screens"].append({"map": kv["map"], "fields": {k[:-1]: v for k, v in vals.items() if k.endswith("O")},
+                                   "subfields": map_subfields(corpus, case, kv["map"], data, enc),
+                                   "options": sorted(args.partition("opts=")[2].split()),
+                                   "cursor": None if kv.get("cursor", "-1") == "-1" else int(kv["cursor"])})  # fmt: skip
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
@@ -864,6 +867,48 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "ABEND":
             res["abend"] = args
     return res
+
+
+# #4053: the symbolic map's subfields besides the data -- what the screen shows besides its text
+# <f>F and <f>A are one byte (A REDEFINES F, under a FILLER the layout does not name): the attribute
+_SUBFIELDS = {"A": "attr", "F": "attr", "C": "color", "H": "hilight"}
+
+
+def map_subfields(corpus: Path, case: dict[str, Any], map_name: str, data: bytes, enc: str) -> dict[str, dict[str, int]]:
+    """The subfields a SEND MAP's symbolic map holds, as CicsTask.MapSubfields records them: per field (the BMS
+    name), the attribute byte (<f>A), extended colour (<f>C) and highlight (<f>H) as their byte values, and length
+    -1 (<f>L: the cursor goes there). The harness's DFHBMSCA (tests/equivalence/cics) holds the EBCDIC bytes
+    themselves (DFHRED is X'F2'), so the byte is the value. Not set, and not compared: X'00' -- the LOW-VALUES a
+    program clears its map with, which BMS reads as "the map's own" -- and a space, which is never a BMS value
+    here but WORKING-STORAGE GnuCOBOL initialised to spaces where IBM leaves it undefined (a map the program never
+    cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
+    out: dict[str, dict[str, int]] = {}
+    scr = case["screens"][map_name]
+    layouts = [common.layout_fields(corpus, scr["copybook"], scr[side]) for side in ("input", "output")]
+    data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
+    space = " ".encode(enc)
+    for f in (x for layout in layouts for x in layout):
+        name, kind = f["name"][:-1], f["name"][-1:]
+        if name not in data_names or f["offset"] + f["bytes"] > len(data):
+            continue
+        raw = data[f["offset"] : f["offset"] + f["bytes"]]
+        if kind == "L" and f["bytes"] == 2 and int.from_bytes(raw, "big", signed=True) == -1:
+            out.setdefault(name, {})["length"] = -1
+        elif kind in _SUBFIELDS and f["bytes"] == 1 and raw not in (b"\x00", space):
+            out.setdefault(name, {})[_SUBFIELDS[kind]] = raw[0]
+    return out
+
+
+def java_subfields(sub: Any) -> dict[str, dict[str, int]]:
+    """CicsTask's recorded subfields in the same terms: the set ones only (X'00' and an EBCDIC space are not set,
+    as on the COBOL side), length only as -1."""
+    out: dict[str, dict[str, int]] = {}
+    for name, vals in (sub or {}).items():
+        for key, v in (vals or {}).items():
+            if v is None or (key == "length" and v != -1) or (key != "length" and int(v) & 0xFF in (0x00, 0x40)):
+                continue
+            out.setdefault(name, {})[key] = int(v) if key == "length" else int(v) & 0xFF
+    return out
 
 
 # ---- the Java side --------------------------------------------------------------------
@@ -1129,7 +1174,8 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         verb, _, args = line.partition(" ")
         if verb == "SEND-MAP":
             s = next(screens)
-            out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"]})
+            out.append({"event": "SEND-MAP", "map": s["map"], "screen": s["fields"], "subfields": s["subfields"],
+                        "options": s["options"], "cursor": s["cursor"]})  # fmt: skip
         elif verb == "SEND-TEXT":
             out.append({"event": "SEND-TEXT", "text": next(texts)})
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
@@ -1173,6 +1219,15 @@ def compare_events(cobol: list[dict[str, Any]], java: list[dict[str, Any]]) -> d
             for name in cv:
                 if not _same(cv[name], jv.get(name)):
                     bad.append({"field": f"{part}.{name}", "cobol": cv[name], "java": jv.get(name)})
+        if c["event"] == "SEND-MAP" and "subfields" in c:  # #4053: attributes, colour, highlight, cursor, options
+            cs, js = c["subfields"], java_subfields(j.get("subfields"))
+            for name in sorted(set(cs) | set(js)):
+                if cs.get(name, {}) != js.get(name, {}):
+                    bad.append({"field": f"subfields.{name}", "cobol": cs.get(name, {}), "java": js.get(name, {})})
+            if sorted(c.get("options") or []) != sorted(j.get("options") or []):
+                bad.append({"field": "options", "cobol": c.get("options"), "java": j.get("options")})
+            if c.get("cursor") != j.get("cursor"):
+                bad.append({"field": "cursor", "cobol": c.get("cursor"), "java": j.get("cursor")})
         if bad:
             diffs.append({"event": n + 1, "kind": c["event"], "fields": bad})
         else:

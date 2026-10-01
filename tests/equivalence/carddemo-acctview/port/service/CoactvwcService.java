@@ -131,6 +131,11 @@ public class CoactvwcService {
     }
 
     /** CC-WORK-AREA / WS-MISC-STORAGE: the flags and messages 0000-MAIN INITIALIZEs. */
+    // DFHBMSCA: the EBCDIC bytes BMS reads
+    private static final int DFHBMFSE = 0xC1;
+    private static final int DFHRED = 0xF2;
+    private static final int DFHNEUTR = 0xF7;
+
     private static final class Work {
         boolean inputError;
         char acctFilter = ' '; // FLG-ACCTFILTER: ' ' blank, '0' not ok, '1' valid
@@ -293,13 +298,22 @@ public class CoactvwcService {
         // WS-INFO-MSG is only ever blank (9000-READ-ACCT sets WS-NO-INFO-MESSAGE), so the prompt always shows.
         s.setInfomsg("Enter or update id of account to display");
         s.setErrmsg(w.returnMsg);
-        // 1300-SETUP-SCREEN-ATTRS: a blank filter on re-entry shows '*' (the colours are attributes).
-        if (w.acctFilter == ' ' && ca.getCdemoPgmContext() != null && ca.getCdemoPgmContext() == 1) {
-            s.setAcctsid("*");
+        // 1300-SETUP-SCREEN-ATTRS (#4053: the attributes, colours and cursor are what the screen shows too)
+        CicsTask.MapSubfields attrs = new CicsTask.MapSubfields()
+                .attr("ACCTSID", DFHBMFSE)                   // MOVE DFHBMFSE TO ACCTSIDA (unprotected, modified)
+                .cursor("ACCTSID");                          // MOVE -1 TO ACCTSIDL: every EVALUATE branch
+        // MOVE DFHDFCOL TO ACCTSIDC is X'00', the map's own colour
+        if (w.acctFilter == '0') {                           // FLG-ACCTFILTER-NOT-OK
+            attrs.color("ACCTSID", DFHRED);
         }
+        if (w.acctFilter == ' ' && ca.getCdemoPgmContext() != null && ca.getCdemoPgmContext() == 1) {
+            s.setAcctsid("*");                               // FLG-ACCTFILTER-BLANK AND CDEMO-PGM-REENTER
+            attrs.color("ACCTSID", DFHRED);
+        }
+        attrs.color("INFOMSG", DFHNEUTR);                    // WS-INFO-MSG is never blank here (see above)
         // 1400-SEND-SCREEN
         ca.setCdemoPgmContext(1); // SET CDEMO-PGM-REENTER
-        task.sendMap("CACTVWA", s);
+        task.sendMap("CACTVWA", "COACTVW", s, attrs, "CURSOR", "ERASE", "FREEKB");
     }
 
     /** PIC +ZZZ,ZZZ,ZZZ.99: a sign, nine integer digits with leading zeros (and their commas) blanked, cents. */

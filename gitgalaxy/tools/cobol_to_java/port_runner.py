@@ -273,6 +273,50 @@ def _attempt(project: Path, key: str) -> int:
     return 1 + sum(1 for e in events(project) if e.get("ticket") == key and e.get("event") == "proposed")
 
 
+def _run_agent(opts: argparse.Namespace, project: Path, ticket: dict[str, Any], attempt: int, work: Path,
+               system: str, fed_from: int | None, section: str) -> int:  # fmt: skip
+    """The agent backend (agent_porter): Claude Code with its file tools in a sandboxed workspace. A later attempt
+    starts from the last failed port, with what its proof found."""
+    from gitgalaxy.tools.cobol_to_java import agent_porter
+
+    if not opts.prove_command:
+        raise SystemExit("the agent backend needs --prove-command (the proof, with {port_dir} / {report_dir})")
+    key = opts.ticket
+    service = ticket["target"]["service"]
+    attempts = project / PORTS / key / "attempts"
+    start_from = attempts / f"{fed_from:03d}_{service}.java" if fed_from else None
+    port = agent_porter.build_workspace(project, ticket, system, work, opts.prove_command, start_from, section)
+    started = _now()
+    print(f"{key}: agent porter in {port.parent.parent} (model {opts.model})")
+    try:
+        run = agent_porter.run_agent(port.parent.parent, opts.model, service, opts.timeout)
+    except subprocess.TimeoutExpired:
+        run = {"returncode": None, "result": f"timed out after {opts.timeout} s"}
+    port_dir = agent_porter.collect(port.parent.parent, work)
+    java = (port_dir / port.name).read_text(encoding="utf-8")
+    generated = (project / ticket["target"]["file"]).read_text(encoding="utf-8")
+    notes_file = port_dir / "NOTES.md"
+    notes = notes_file.read_text(encoding="utf-8").strip() if notes_file.is_file() else ""
+    base = {"ticket": key, "attempt": attempt, "backend": "agent", "model": opts.model, "started": started,
+            "agent": {k: run.get(k) for k in ("returncode", "turns", "cost_usd", "proofs_run", "is_error")},
+            "command": agent_porter.describe_command()}  # fmt: skip
+    if java == generated:
+        log_event(
+            project, {**base, "event": "no-port", "error": str(run.get("result") or run.get("stderr") or "")[-1500:]}
+        )
+        print(f"{key}: the agent left the generated service unchanged ({run.get('result')})")
+        return 1
+    dest = _store(project, ticket, java, attempt)
+    log_event(project, {**base, "event": "proposed", "port": str(dest.relative_to(project)), "notes": notes,
+                        "ticket_sha256": ticket_hash(project, key), "feedback_from": fed_from,
+                        "transcript": str((work / "transcript.jsonl").relative_to(project))})  # fmt: skip
+    print(
+        f"{key}: proposed port {dest.relative_to(project)} (attempt {attempt}, agent: {run.get('turns')} turns, "
+        f"{run.get('proofs_run')} proofs run); prove it, then review it"
+    )
+    return 0
+
+
 # ---- the commands --------------------------------------------------------------------
 def cmd_run(opts: argparse.Namespace) -> int:
     project = opts.project.resolve()
@@ -282,9 +326,12 @@ def cmd_run(opts: argparse.Namespace) -> int:
     work.mkdir(parents=True, exist_ok=True)
     system, user = build_prompt(project, ticket)
     fed_from = None
+    section = ""
     if opts.feedback:
         fed_from, section = feedback(project, opts.ticket)
         user += section
+    if opts.backend == "agent":
+        return _run_agent(opts, project, ticket, attempt, work, system, fed_from, section)
     _, prompt_tokens, counter = count_tokens(f"{system}\n\n{user}")
     print(f"{opts.ticket}: sending {prompt_tokens} prompt tokens (measured with {counter})")
     (work / "prompt.md").write_text(f"{system}\n\n{user}", encoding="utf-8")
@@ -456,7 +503,8 @@ def main(argv: list[str] | None = None) -> int:
         x.add_argument("project", type=Path, help="the generated Java project")
     for x in (r, s, p, v):
         x.add_argument("--ticket", required=True, help="the program key, e.g. CBACT04C")
-    r.add_argument("--backend", choices=("openai", "anthropic", "command"), required=True)
+    r.add_argument("--backend", choices=("openai", "anthropic", "command", "agent"), required=True)
+    r.add_argument("--prove-command", help="agent backend: the proof it may run, with {port_dir} / {report_dir}")
     r.add_argument("--model")
     r.add_argument("--base-url", help="openai: the endpoint (required); anthropic: default https://api.anthropic.com")
     r.add_argument("--api-key-env", help="the NAME of the environment variable holding the key")

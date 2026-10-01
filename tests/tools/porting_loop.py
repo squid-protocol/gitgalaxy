@@ -117,7 +117,7 @@ def _events(project: Path) -> list[dict[str, Any]]:
 
 
 def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Optional[str],
-             backend_command: Optional[str]) -> dict[str, Any]:  # fmt: skip
+             backend_command: Optional[str], porter: str = "single-shot") -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
 
     case = eq.load_case(case_name)
@@ -133,19 +133,28 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Opti
         prove += f" --faults {faults}"
     overlay = project / "ai_agent_jobs" / "ports" / key / "overlay"
     record: dict[str, Any] = {"case": case_name, "program": key, "model": model,
-                              "backend": "command" if backend_command else "claude-code-headless",
+                              "backend": "agent" if porter == "agent" else
+                                         "command" if backend_command else "claude-code-headless",
                               "project": str(project), "attempts": [], "proven": False}  # fmt: skip
     runner = [_python(), "-m", "gitgalaxy.tools.cobol_to_java.port_runner"]
     for n in range(1, attempts + 1):
         started = time.time()
-        argv = [*runner, "run", str(project), "--ticket", key, "--backend", "command", "--model", model,
-                "--command", command, *(["--feedback"] if n > 1 else [])]  # fmt: skip
+        if porter == "agent":  # Claude Code with its file tools; it may run the proof itself (agent_porter)
+            baseline.wait()
+            agent_prove = prove + (f" --reuse {work / 'baseline'}" if _baseline_built(work / "baseline") else "")
+            argv = [*runner, "run", str(project), "--ticket", key, "--backend", "agent", "--model", model,
+                    "--prove-command", agent_prove, *(["--feedback"] if n > 1 else [])]  # fmt: skip
+        else:
+            argv = [*runner, "run", str(project), "--ticket", key, "--backend", "command", "--model", model,
+                    "--command", command, *(["--feedback"] if n > 1 else [])]  # fmt: skip
         ran = _run(argv, log)
         att: dict[str, Any] = {"n": n, "port_seconds": round(time.time() - started)}
         proposed = next((e for e in reversed(_events(project)) if e.get("ticket") == key and e.get("event") in
                          ("proposed", "no-port")), None)  # fmt: skip
         att["prompt_tokens"] = (proposed or {}).get("prompt_tokens")
         att["notes"] = (proposed or {}).get("notes", "")
+        if (proposed or {}).get("agent"):
+            att["agent"] = proposed["agent"]
         if ran.returncode != 0 or not proposed or proposed.get("event") != "proposed":
             att["verdict"] = "no-port"
             att["error"] = (ran.stdout + ran.stderr)[-1500:]
@@ -279,6 +288,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     r.add_argument("--model", default="claude-sonnet-5-5")
     r.add_argument("--faults", help="the proof's fault runs: all (default) | none | NAME,...")
     r.add_argument("--backend-command", help="another command backend ({prompt_file} / {prompt_dir})")
+    r.add_argument(
+        "--porter",
+        choices=("single-shot", "agent"),
+        default="single-shot",
+        help="agent: Claude Code with its file tools in a sandboxed workspace (agent_porter)",
+    )
     p = sub.add_parser("report")
     p.add_argument("work", type=Path)
     m = sub.add_parser("run-many")
@@ -304,7 +319,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         print((args.work / "loop.md").read_text(encoding="utf-8"))
         return 0
     os.environ.setdefault("PYTHONUTF8", "1")
-    record = run_loop(args.case, args.work.resolve(), args.attempts, args.model, args.faults, args.backend_command)
+    record = run_loop(
+        args.case, args.work.resolve(), args.attempts, args.model, args.faults, args.backend_command, args.porter
+    )
     print((args.work / "loop.md").read_text(encoding="utf-8"))
     return 0 if record["proven"] else 1
 

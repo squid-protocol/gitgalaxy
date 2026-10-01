@@ -173,6 +173,8 @@ class Parser:
         if u in FIGURATIVES:
             self.i += 1
             return Fig(FIGURATIVES[u])
+        if u in ("NULL", "NULLS"):  # the pointer figurative: pointers are not modelled
+            raise ExprError("NULL: pointers are not modelled")
         if _is_number(tok):
             self.i += 1
             return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
@@ -210,6 +212,14 @@ class Parser:
             if cond not in DFHRESP:
                 raise ExprError(f"DFHRESP({cond}) is not a documented condition")
             return Lit(Decimal(DFHRESP[cond]))
+        if r.name == "DFHVALUE" and len(r.subscripts) == 1 and isinstance(r.subscripts[0], Ref):
+            # DFHVALUE(name): the CVDA's numeric value (IBM CICS TS, CVDAs and numeric values)
+            from gitgalaxy.tools.cobol_to_java.det.cvda import CVDA
+
+            name = r.subscripts[0].name
+            if name not in CVDA:
+                raise ExprError(f"DFHVALUE({name}) is not a documented CVDA")
+            return Lit(Decimal(CVDA[name]))
         return r
 
     def _group(self) -> list[str]:

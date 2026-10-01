@@ -44,6 +44,12 @@ def test_dfhresp_is_its_resp_value():
     assert E.parse_condition("WS-RESP-CD = DFHRESP(NOTFND)") == E.Rel("=", R("WS-RESP-CD"), E.Lit(Decimal(13)))
 
 
+def test_dfhvalue_is_its_cvda():
+    # IBM CICS TS API Reference, CVDAs and numeric values: UCTRAN 450, IMMEDIATE 2
+    assert E.parse_condition("WS-X = DFHVALUE(UCTRAN)") == E.Rel("=", R("WS-X"), E.Lit(Decimal(450)))
+    assert E.parse_arith("DFHVALUE(IMMEDIATE)") == E.Lit(Decimal(2))
+
+
 def test_arithmetic_precedence_and_signed_literal():
     e = E.parse_arith("A + B * 2 ** 3 - -1")
     assert e == E.Bin(

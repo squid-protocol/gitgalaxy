@@ -32,7 +32,11 @@ DFHRESP = {"NORMAL": 0, "ERROR": 1, "EOF": 4, "EODS": 5, "EOC": 6, "INBFMH": 7, 
            "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
            "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96,
            "PARTNERIDERR": 97, "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101,
-           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103}  # fmt: skip
+           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103,
+           # IBM CICS TS API Reference, RESP values (BUSY 128 / INCOMPLETE 126 in its SPI table; the others as the
+           # equivalence harness's own table, tests/tools/equivalence_cics.py, which agrees on every shared name)
+           "RDATT": 2, "WRBRK": 3, "DSIDERR": 12, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124,
+           "CODEPAGEERR": 125, "INCOMPLETE": 126, "APPNOTFOUND": 127, "BUSY": 128}  # fmt: skip
 
 MAP_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET", "MAPONLY", "DATAONLY", "PRINT", "LAST",
                "WAIT", "ACCUM", "PAGING", "TERMINAL", "NLEOM", "FORMFEED")  # fmt: skip

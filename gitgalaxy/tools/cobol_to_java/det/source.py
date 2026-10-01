@@ -10,7 +10,9 @@ from pathlib import Path
 from gitgalaxy.core.source_text import read_source
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
-COPY_EXTS = ("", ".cpy", ".CPY", ".copy", ".cbl", ".CBL", ".cob")
+COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY")
+PROGRAM_EXTS = (".cbl", ".CBL", ".cob", ".COB")
+COPY_EXTS = COPYBOOK_EXTS + PROGRAM_EXTS
 
 
 @dataclass
@@ -99,9 +101,11 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             stmt += " " + lines[j].text
         name = m.group(2).upper()
         # never a file being expanded already (the including program or copybook itself)
-        member = next((d / f"{nm}{ext}" for d in dirs for nm in dict.fromkeys((name, name.lower()))
-                       for ext in COPY_EXTS if (d / f"{nm}{ext}").is_file()
-                       and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
+        # a copybook's extensions in every directory before a program's: CBSA keeps a program INQCUST.cbl next to
+        # its sources and the copybook INQCUST.cpy elsewhere; never a file being expanded already
+        member = next((d / f"{nm}{ext}" for exts in (COPYBOOK_EXTS, PROGRAM_EXTS) for d in dirs
+                       for nm in dict.fromkeys((name, name.lower())) for ext in exts
+                       if (d / f"{nm}{ext}").is_file() and (d / f"{nm}{ext}").resolve() not in chain), None)  # fmt: skip
         if member is None:
             raise CopyNotFound(f"{ln.file}:{ln.line}: COPY {name} found in none of {[str(d) for d in dirs]}")
         if depth > 8:
@@ -160,8 +164,12 @@ def bms_copybooks(bms_files: list[Path], out: Path) -> list[str]:
 
     out.mkdir(parents=True, exist_ok=True)
     made = []
-    for f in bms_files:
-        for mapset, text in symbolic_maps(bms_screen_fields(read_source(f).text)).items():
-            (out / f"{mapset.upper()}.cpy").write_text(text, encoding="utf-8")
-            made.append(mapset.upper())
+    for f in sorted(bms_files):
+        maps = symbolic_maps(bms_screen_fields(read_source(f).text))
+        for mapset, text in maps.items():
+            # the copybook is the source member's (DFHMAPS names it by the member assembled, not the DFHMSD label):
+            # CBSA's BNK1B2M.bms declares mapset BNK1TFM too, and COPY BNK1TFM means BNK1TFM.bms's
+            name = f.stem.upper() if len(maps) == 1 else mapset.upper()
+            (out / f"{name}.cpy").write_text(text, encoding="utf-8")
+            made.append(name)
     return made

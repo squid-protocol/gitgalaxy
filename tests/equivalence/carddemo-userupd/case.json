@@ -77,8 +77,8 @@
    "name": "enter-looks-up-user",
    "aid": "DFHENTER",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -93,8 +93,8 @@
    "name": "enter-empty-user-id",
    "aid": "DFHENTER",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -107,8 +107,8 @@
    "name": "enter-user-not-found",
    "aid": "DFHENTER",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -123,8 +123,8 @@
    "name": "pf5-updates-last-name",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -143,8 +143,8 @@
    "name": "pf5-updates-every-field",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -163,8 +163,8 @@
    "name": "pf5-nothing-changed",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -183,8 +183,8 @@
    "name": "pf5-empty-user-id",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -202,8 +202,8 @@
    "name": "pf5-empty-first-name",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -221,8 +221,8 @@
    "name": "pf5-empty-last-name",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -240,8 +240,8 @@
    "name": "pf5-empty-password",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -259,8 +259,8 @@
    "name": "pf5-empty-user-type",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -278,8 +278,8 @@
    "name": "pf5-user-not-found",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -298,8 +298,8 @@
    "name": "pf3-saves-and-returns",
    "aid": "DFHPF3",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -338,8 +338,8 @@
    "name": "pf4-clear",
    "aid": "DFHPF4",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -358,8 +358,8 @@
    "name": "pf12-admin-menu",
    "aid": "DFHPF12",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -378,8 +378,8 @@
    "name": "invalid-key",
    "aid": "DFHPF7",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -398,8 +398,8 @@
    "name": "lookup-io-error",
    "aid": "DFHENTER",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1
@@ -422,8 +422,8 @@
    "name": "rewrite-not-open",
    "aid": "DFHPF5",
    "commarea": {
-    "CDEMO-FROM-TRANID": "CU02",
-    "CDEMO-FROM-PROGRAM": "COUSR02C",
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
     "CDEMO-USER-ID": "ADMIN001",
     "CDEMO-USER-TYPE": "A",
     "CDEMO-PGM-CONTEXT": 1

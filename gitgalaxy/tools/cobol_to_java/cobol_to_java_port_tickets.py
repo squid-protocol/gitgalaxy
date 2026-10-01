@@ -125,6 +125,12 @@ PORTING_RULES = [
         "methods) or the entity codecs, never a hand-written decoder."
     ),
     (
+        "Record bytes -- every dataset, file and COMMAREA the program reads or writes -- are in the code page "
+        "CobolRecords.charset() returns: the migration's declared data.record_charset, a deployment fact. Pass "
+        "it wherever a record codec, CobolRecords method or String takes a Charset; never Charset.forName, "
+        "StandardCharsets or a guessed EBCDIC page for record data (#4060)."
+    ),
+    (
         "Read a number from text (a screen field, FUNCTION NUMVAL, a PARM) only through "
         "CobolRecords.numval(text, decimalPoint), with ',' when the program codes DECIMAL-POINT IS COMMA; "
         "never Integer.parseInt or new BigDecimal(String), which accept Arabic-Indic, Devanagari and "

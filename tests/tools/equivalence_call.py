@@ -179,7 +179,7 @@ def run_java(case: dict[str, Any], corpus: Path, work: Path, port: bool, port_di
     inputs = work / "in"
     inputs.mkdir(parents=True, exist_ok=True)
     (inputs / "calls.json").write_text(json.dumps([c["args"] for c in case["calls"]]), encoding="utf-8")
-    out = ej.run_maven(project, work, inputs)
+    out = ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case))
     return (out / "CALLS.out").read_bytes() if (out / "CALLS.out").is_file() else b""
 
 

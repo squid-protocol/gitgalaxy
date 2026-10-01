@@ -1155,7 +1155,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
-    out = ej.run_maven(project, work, inputs)
+    out = ej.run_maven(project, work, inputs, props=ej.data_charset_arg(case))
     result = {}
     for sc in case["scenarios"]:
         f = out / f"{sc['name']}.json"

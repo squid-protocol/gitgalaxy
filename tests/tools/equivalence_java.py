@@ -57,6 +57,14 @@ def environment(name: str) -> dict[str, str]:
     return {"name": name, "locale": locale, "tz": tz or "UTC"}
 
 
+def data_charset_arg(case: dict[str, Any]) -> str:
+    """#4060: the port reads and writes record bytes in CobolRecords.charset(); the harness sets it to the case's
+    data encoding -- the bytes the COBOL side wrote -- so a port that hard-codes another charset fails."""
+    from gitgalaxy.core.ebcdic_codecs import java_charset_name
+
+    return f"-Dgitgalaxy.data.charset={java_charset_name(common.data_encoding(case))}"
+
+
 def jvm_args(env: dict[str, str]) -> str:
     """The system properties that put the generated test in `env` (see EquivalenceRunTest's static block)."""
     args = f"-Dequivalence.locale={env['locale']} -Dequivalence.tz={env['tz']}"
@@ -409,7 +417,7 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
     sysout = area / "out" / "SYSOUT"  # #4056: what the port DISPLAYs (the generated Sysout appends to it)
     sysout.parent.mkdir(parents=True, exist_ok=True)
     sysout.unlink(missing_ok=True)
-    out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout}".strip())
+    out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
         outs[extra] = out / extra

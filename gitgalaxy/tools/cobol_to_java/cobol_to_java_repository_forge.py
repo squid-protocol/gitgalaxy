@@ -198,8 +198,18 @@ public final class CobolRecords {
 
     private static final String POSITIVE = "__POSITIVE__";
     private static final String NEGATIVE = "__NEGATIVE__";
+    private static final String RECORD_CHARSET = "__RECORD_CHARSET__";
 
     private CobolRecords() {
+    }
+
+    /**
+     * #4060: the code page the migrated system's record bytes are in -- every dataset, file and COMMAREA a
+     * port reads or writes. The target config's data.record_charset (here __RECORD_CHARSET__), unless the
+     * system property gitgalaxy.data.charset names another. A port never picks a charset itself.
+     */
+    public static Charset charset() {
+        return Charset.forName(System.getProperty("gitgalaxy.data.charset", RECORD_CHARSET));
     }
 
     public static byte[] blank(int length, Charset text) {
@@ -847,9 +857,10 @@ class RepositoryForge:
         (#3989 / #4039: a program to port -- its ticket reads numbers and fixed-width fields through it)."""
         if not self.stores and not needed:
             return None
-        from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
+        from gitgalaxy.tools.cobol_to_java.java_target import record_charset_java, zoned_sign_characters
 
         pos, neg = zoned_sign_characters(self.target.data.code_page)
+        charset = record_charset_java(self.target.data.record_charset)
 
         def escape(s: str) -> str:
             return "".join(c if 32 <= ord(c) <= 126 and c not in '\\"' else f"\\u{ord(c):04x}" for c in s)
@@ -858,6 +869,7 @@ class RepositoryForge:
             COBOL_RECORDS_JAVA.replace("__PACKAGE__", f"{self.package}.{ENTITY_SUBPACKAGE}")
             .replace("__POSITIVE__", escape(pos))
             .replace("__NEGATIVE__", escape(neg))
+            .replace("__RECORD_CHARSET__", charset)
         )
 
     def key_source(self, st: Store) -> str | None:

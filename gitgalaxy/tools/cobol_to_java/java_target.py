@@ -59,6 +59,17 @@ DATABASE_DRIVERS = {
 }  # fmt: skip
 
 
+def record_charset_java(name: str) -> str:
+    """#4060: the JDK name of data.record_charset (latin-1 -> ISO-8859-1, cp037 -> IBM037, utf-8 -> UTF-8);
+    an unknown charset is a config error."""
+    from gitgalaxy.core.ebcdic_codecs import java_charset_name
+
+    try:
+        return java_charset_name(name)
+    except LookupError as e:
+        raise ConfigError(f"data.record_charset {name!r}: not a known code page") from e
+
+
 def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
     """#3826: the zoned-decimal sign overpunch characters of an EBCDIC or ASCII code page.
     Under EBCDIC, these are bytes 0xC0-0xC9 (positive 0-9) and 0xD0-0xD9 (negative 0-9).
@@ -151,6 +162,10 @@ class Ui:
 class Data:
     code_page: str = "cp037"
     dbcs_code_page: str | None = None
+    # #4060: the code page the migrated system's record bytes are in -- the datasets, files and COMMAREAs the
+    # ported Java reads and writes. A deployment fact, never a port's guess: CobolRecords.charset() returns it.
+    # ISO-8859-1 (latin-1) is what an ASCII transfer of a single-byte estate gives, and what ran before.
+    record_charset: str = "latin-1"
 
 
 @dataclass
@@ -258,6 +273,7 @@ def _check(target: JavaTarget) -> None:
     if not _BOOT_VERSION.fullmatch(str(s.version)):
         raise ConfigError(f"spring_boot.version {s.version!r}: a Spring Boot 3.x.y version (jakarta namespace)")
     zoned_sign_characters(target.data.code_page)  # #3826: an unknown code page fails at load, not mid-generation
+    record_charset_java(target.data.record_charset)  # #4060: likewise an unknown record charset
     _check_culture(target.culture)
 
 
@@ -394,6 +410,8 @@ ui:
 
 data:
   code_page: cp037                      # the EBCDIC code page for zoned-decimal sign overpunch
+  record_charset: latin-1               # the code page the migrated record bytes are in (datasets, files,
+                                        #   COMMAREAs): latin-1 after an ASCII transfer, cp037 if kept EBCDIC
 
 # Cultural and regional assumptions (#3819). Every default is what the COBOL program does on its
 # mainframe; anything else is a business choice, listed under "Declared cultural deviations" in

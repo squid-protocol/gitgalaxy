@@ -37,6 +37,7 @@ import shlex
 import subprocess
 import sys
 import time
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -49,7 +50,7 @@ sys.path.insert(0, str(TOOLS))
 import equivalence as eq  # noqa: E402
 import porting_loop as pl  # noqa: E402
 
-KINDS = {"call": "calls", "cics": "scenarios"}  # the case's list of inputs, per kind (batch: not yet)
+KINDS = {"call": "calls", "cics": "scenarios"}  # the case's list of inputs, per kind (batch: records, run_batch)
 _JSON_BLOCK = re.compile(r"```(?:json)?\s*(\[.*?\])\s*```", re.S)
 
 
@@ -212,13 +213,13 @@ def as_entry(case: dict[str, Any], p: dict[str, Any]) -> dict[str, Any]:
 
 
 # ---- proving -------------------------------------------------------------------------------------------------
-def prove(case_name: str, case_obj: dict[str, Any], work: Path) -> dict[str, Any]:
+def prove(case_name: str, case_obj: dict[str, Any], work: Path, extra: tuple[str, ...] = ()) -> dict[str, Any]:
     """The case from `case_obj` proven by the harness; its report, or why the COBOL side refused."""
     work.mkdir(parents=True, exist_ok=True)
     cf = work.parent / f"{work.name}.case.json"
     cf.write_text(json.dumps({k: v for k, v in case_obj.items() if k != "name"}, indent=1) + "\n", encoding="utf-8")
     argv = [sys.executable, str(TOOLS / "equivalence.py"), "run", case_name, "--case-file", str(cf), "--keep",
-            str(work)]  # fmt: skip
+            str(work), *extra]  # fmt: skip
     proc = subprocess.run(argv, capture_output=True, text=True, check=False, cwd=REPO_ROOT)  # noqa: S603
     (work.parent / f"{work.name}.log").write_text(proc.stdout + proc.stderr, encoding="utf-8")
     report_file = work / "report.json"
@@ -246,6 +247,8 @@ def run(case_name: str, work: Path, rounds: int, model: str, command: str | None
     work.mkdir(parents=True, exist_ok=True)
     started = time.time()
     case = eq.load_case(case_name)
+    if case.get("kind", "batch") == "batch":
+        return run_batch(case_name, work, rounds, model, command, mutation_dir, jobs)
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
     src = source_lines(case, corpus)
@@ -413,6 +416,291 @@ def main(argv: list[str] | None = None) -> int:
                  not args.no_mutation)  # fmt: skip
     print(report_md(result))
     return 0
+
+
+# ---- batch cases: new records --------------------------------------------------------------------------------
+# A batch input is a fixed-width record. The model does not write one: it names an existing record of an input
+# dataset and the fields to change ({"dataset", "based_on", "set"}), and the record is encoded from the dataset's
+# layout -- found from the program itself: SELECT ... ASSIGN TO <DD> gives the file, READ <file> INTO <record> the
+# record, whose 01 is in a copybook of the case's copy directories or in the program.
+_SELECT = re.compile(r"SELECT\s+([A-Z0-9-]+)\s+ASSIGN\s+(?:TO\s+)?['\"]?([A-Z0-9-]+)", re.I)
+_READ_INTO = re.compile(r"\bREAD\s+([A-Z0-9-]+)(?:\s+NEXT)?(?:\s+RECORD)?\s+INTO\s+([A-Z0-9-]+)", re.I)
+_TEXT_USAGES = (None, "", "DISPLAY")
+
+
+def input_layout(case: dict[str, Any], corpus: Path, dd: str) -> list[dict[str, Any]] | None:
+    """The fields of input dataset `dd`'s record, or None when they cannot be found."""
+    import equivalence_common as common
+
+    spec = case["datasets"][dd]
+    if spec.get("copybook"):
+        return common.layout_fields(corpus, spec["copybook"], spec.get("record"))
+    src = (corpus / case["program_source"]).read_bytes().decode("latin-1")
+    files = {assign.upper(): f.upper() for f, assign in _SELECT.findall(src)}
+    fname = files.get(dd.upper())
+    record = next((r.upper() for f, r in _READ_INTO.findall(src) if f.upper() == fname), None) if fname else None
+    if record is None:
+        return None
+    level01 = re.compile(rf"^.{{6}}\s*01\s+{re.escape(record)}\s*\.", re.I | re.M)
+    candidates = [case["program_source"]] + [
+        str(p.relative_to(corpus)) for d in case.get("copy_dirs", []) for p in sorted((corpus / d).glob("*"))
+        if p.is_file()
+    ]  # fmt: skip
+    for rel in candidates:
+        if level01.search((corpus / rel).read_bytes().decode("latin-1")):
+            fields = common.layout_fields(corpus, rel, record)
+            if sum(f["bytes"] for f in fields) <= spec["reclen"]:
+                return fields
+    return None
+
+
+def records(case: dict[str, Any], corpus: Path, dd: str) -> list[bytes]:
+    import equivalence_common as common
+
+    spec = case["datasets"][dd]
+    data = common._fixed(common._input_path(case, corpus, spec["input"]), spec["reclen"], common.data_encoding(case))
+    return [data[i : i + spec["reclen"]] for i in range(0, len(data), spec["reclen"])]
+
+
+def batch_inputs(case: dict[str, Any], corpus: Path) -> dict[str, dict[str, Any]]:
+    """Per input dataset with a layout: its fields and its records."""
+    out = {}
+    for dd, spec in case["datasets"].items():
+        if "input" not in spec or str(spec["input"]).startswith("@generate"):
+            continue
+        fields = input_layout(case, corpus, dd)
+        if fields:
+            out[dd] = {"fields": fields, "records": records(case, corpus, dd), "spec": spec}
+    return out
+
+
+def build_record(case: dict[str, Any], inputs: dict[str, Any], p: dict[str, Any]) -> tuple[bytes | None, str | None]:
+    """The new record of proposal `p`, or why it cannot be built."""
+    import equivalence_cics as ec
+    import equivalence_common as common
+
+    dd = p.get("dataset")
+    if dd not in inputs:
+        return None, f"dataset {dd!r} is not an input with a known layout: {sorted(inputs)}"
+    recs = inputs[dd]["records"]
+    n = p.get("based_on")
+    if not isinstance(n, int) or not 1 <= n <= len(recs):
+        return None, f"based_on must be a record number 1..{len(recs)}"
+    by_name = {f["name"]: f for f in inputs[dd]["fields"]}
+    rec = bytearray(recs[n - 1])
+    enc = common.data_encoding(case)
+    for name, value in (p.get("set") or {}).items():
+        f = by_name.get(str(name).upper())
+        if f is None:
+            return None, f"{dd} has no field {name}"
+        if (f.get("usage") or "").upper() not in _TEXT_USAGES:
+            return None, f"{name} is {f['usage']}: only DISPLAY fields keep a text input file text"
+        num = common._pic_numeric(f["pic"]) if f["pic"] else None
+        if num is not None:
+            try:
+                exponent = Decimal(str(value)).as_tuple().exponent
+            except ArithmeticError:
+                return None, f"{name} = {value!r} is not a number"
+            if isinstance(exponent, int) and -exponent > num[2]:
+                return None, f"{name} = {value!r} has more decimals than its PICTURE {f['pic']} holds"
+        try:
+            rec[f["offset"] : f["offset"] + f["bytes"]] = ec.encode_field(value, f["pic"], f["usage"], f["bytes"], enc)
+        except (ValueError, ArithmeticError) as e:
+            return None, f"{name} = {value!r}: {e}"
+    keys = inputs[dd]["spec"].get("keys") or []
+    for k in keys:
+        key = bytes(rec[k["offset"] : k["offset"] + k["length"]])
+        taken = any(r[k["offset"] : k["offset"] + k["length"]] == key for r in recs)
+        if taken and inputs[dd]["spec"].get("organization") == "indexed":
+            return None, f"{dd}'s key {key.decode(enc)!r} is already a record's (a keyed file holds it once)"
+    return bytes(rec), None
+
+
+def with_records(case: dict[str, Any], corpus: Path, added: dict[str, list[bytes]], work: Path) -> dict[str, Any]:
+    """The case with `added` records appended to its input datasets, each as a text file under `work`."""
+    import equivalence_common as common
+
+    out = copy.deepcopy(case)
+    enc = common.data_encoding(case)
+    for dd, new in added.items():
+        if not new:
+            continue
+        lines = [r.decode(enc).rstrip(" ") for r in records(case, corpus, dd) + new]
+        path = work / "inputs" / f"{dd}.txt"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(("\n".join(lines) + "\n").encode(enc))
+        out["datasets"][dd]["input"] = str(path)
+    return out
+
+
+def batch_prompt(case: dict[str, Any], src: list[str], inputs: dict[str, Any], targets: list[dict[str, Any]],
+                 gaps: list[dict[str, Any]], feedback: list[str]) -> str:  # fmt: skip
+    import equivalence_cics as ec
+    import equivalence_common as common
+
+    enc = common.data_encoding(case)
+    shown = []
+    for dd, inp in inputs.items():
+        layout = ", ".join(f"{f['name']} {f.get('pic') or 'X'}@{f['offset']}" for f in inp["fields"])
+        sample = [json.dumps(ec.decode_record(r, inp["fields"], enc)) for r in inp["records"][:3]]
+        shown += [f"### {dd} ({len(inp['records'])} records; keyed: {bool(inp['spec'].get('keys'))})",
+                  f"Fields: {layout}", "First records:", *[f"{i + 1}. {s}" for i, s in enumerate(sample)], ""]  # fmt: skip
+    parts = [
+        f"You are extending the test data of the COBOL batch program {case['program']} so that its runs expose "
+        "mistakes they miss today. Propose NEW INPUT RECORDS ONLY. Never an expected result: the real COBOL "
+        "program runs on your records, and whatever it writes is the expected result.",
+        "",
+        "## Mistakes the current data does not expose",
+        "Each is a small change to the program's Java port that still gives the same output on today's data. A "
+        "record that makes the original and the changed code behave differently exposes it (a boundary value, an "
+        "equal date, a digit 9, a record that takes another path).",
+        *[f"- `{t['id']}` {t['file']}:{t['line']}: `{t['before']}` -> `{t['after']}`" for t in targets[:30]],
+    ]
+    if gaps:
+        parts += ["", "## COBOL branches no run reaches", *[f"- {branch_key(b)}" for b in gaps]]
+    parts += ["", "## The input datasets", *shown, "## The program", "```cobol",
+              "\n".join(f"{i + 1:5} {line}" for i, line in enumerate(src)), "```"]  # fmt: skip
+    if feedback:
+        parts += ["", "## What happened to your earlier proposals", *feedback]
+    parts += [
+        "",
+        "## Answer",
+        'Each proposal is one new record: {"name": "kebab-case-name", "dataset": DD, "based_on": the number '
+        'of an existing record of that dataset to copy, "set": {FIELD: new value, ...}, "targets": [mutant ids '
+        'or branches], "why": "one sentence"}. Change only DISPLAY fields; in a keyed dataset give the record a '
+        "key no other record has. Every record goes into the same run: a record that makes the program ABEND ends "
+        "the run for all the others and is rejected -- aim at paths the run continues through. At most 8 "
+        "proposals, in one JSON array in a ```json block, nothing else.",
+    ]
+    return "\n".join(parts) + "\n"
+
+
+def run_batch(case_name: str, work: Path, rounds: int, model: str, command: str | None, mutation_dir: Path | None,
+              jobs: int) -> dict[str, Any]:  # fmt: skip
+    """The loop for a batch case: driven by the surviving mutants (a batch proof's branches are mostly covered;
+    its survivors are boundaries), judged again after each round."""
+    import mainframe_corpus as mc
+
+    started = time.time()
+    case = eq.load_case(case_name)
+    (corpus_entry,) = mc.select([case["corpus"]])
+    corpus = mc.require_clone(corpus_entry)
+    src = source_lines(case, corpus)
+    inputs = batch_inputs(case, corpus)
+    if not inputs:
+        raise SystemExit(f"{case_name}: no input dataset with a layout found")
+    print(f"{case_name}: proving the case as committed (inputs with layouts: {sorted(inputs)})", flush=True)
+    base = prove(case_name, case, work / "baseline")
+    if not base.get("proven"):
+        raise SystemExit(f"{case_name}: the committed case is not proven; nothing to strengthen")
+    targets = survivors(mutation_dir)
+    survivors_before = len(targets)
+    added: dict[str, list[bytes]] = {}
+    accepted: list[dict[str, Any]] = []
+    log: list[dict[str, Any]] = []
+    feedback: list[str] = []
+    judged = None
+    killed_ids: list[str] = []
+    current = case
+    for rnd in range(1, rounds + 1):
+        if not targets:
+            break
+        rw = work / f"round{rnd}"
+        text = batch_prompt(case, src, inputs, targets, uncovered(base), feedback)
+        print(f"round {rnd}: {len(targets)} surviving mutants; asking {model}", flush=True)
+        response, secs = ask(text, rw, model, command)
+        feedback = []
+        round_new = []
+        for p in parse(response):
+            item: dict[str, Any] = {"round": rnd, "name": p.get("name"), "targets": p.get("targets") or [],
+                                    "why": p.get("why", "")}  # fmt: skip
+            rec, bad = build_record(case, inputs, p)
+            if bad:
+                item["verdict"], item["detail"] = "malformed", bad
+                feedback.append(f"- `{p.get('name')}`: malformed -- {bad}")
+                log.append(item)
+                continue
+            trial = {dd: list(v) for dd, v in added.items()}
+            trial.setdefault(p["dataset"], []).append(rec)
+            print(f"  {p.get('name')}: proving the case with it", flush=True)
+            r = prove(case_name, with_records(case, corpus, trial, rw / str(p.get("name"))), rw / str(p.get("name")),
+                      extra=("--faults", "none"))  # fmt: skip
+            ends = (r.get("abend") or {}).get("cobol")
+            if "refused" in r:
+                item["verdict"], item["detail"] = "refused by the COBOL side", r["refused"]
+                feedback.append(f"- `{p.get('name')}`: the COBOL side failed on it: {r['refused'][:200]}")
+            elif ends and ends != (base.get("abend") or {}).get("cobol"):
+                # Every record shares one input file and one run: a record that abends the step hides every record
+                # after it and every fault plan aimed past it. An error path is a fault plan's job, not a record's.
+                item["verdict"], item["detail"] = "ends the run early", f"the COBOL step abends {ends} on it"
+                feedback.append(f"- `{p.get('name')}`: rejected -- the step abends {ends} on it, which cuts the run "
+                                "short for every other record; propose records that keep the run going")  # fmt: skip
+            elif not r.get("proven"):
+                item["verdict"] = "port differs"
+                item["detail"] = (r.get("feedback") or "")[:300]
+                feedback.append(f"- `{p.get('name')}`: the port differs from the COBOL on it -- a port gap, kept")
+                added = trial
+                accepted.append({**p, "port_equal": False})
+                round_new.append(p.get("name"))
+            else:
+                item["verdict"] = "accepted"
+                added = trial
+                accepted.append({**p, "port_equal": True})
+                round_new.append(p.get("name"))
+                feedback.append(f"- `{p.get('name')}`: accepted (the COBOL ran it, the port is equal on it)")
+            log.append(item)
+        log.append({"round": rnd, "model_seconds": round(secs), "proposals": len(round_new)})
+        if not round_new:
+            continue
+        current = with_records(case, corpus, added, work / "current")
+        (work / "candidate_case.json").write_text(
+            json.dumps({k: v for k, v in current.items() if k != "name"}, indent=2) + "\n", encoding="utf-8"
+        )
+        if any(not a["port_equal"] for a in accepted):
+            continue  # a port gap: the mutants are judged against a proven case only
+        judged = rejudge(case_name, work / f"round{rnd}-judge", work / "candidate_case.json", targets, mutation_dir,
+                         jobs)  # fmt: skip
+        if judged:
+            killed = set(judged["killed_ids"])
+            killed_ids += sorted(killed)
+            targets = [t for t in targets if t["id"] not in killed]
+            feedback.append(f"- after this round, {len(killed)} of the mutants were killed; {len(targets)} survive")
+    print(f"{case_name}: proving the strengthened case with every fault run", flush=True)
+    after = prove(case_name, current, work / "strengthened") if accepted else base
+    result = {"case": case_name, "program": case["program"], "model": model, "seconds": round(time.time() - started),
+              "coverage_before": (base.get("coverage") or {}).get("branches", {}),
+              "coverage_after": (after.get("coverage") or {}).get("branches", {}),
+              "proven_after": bool(after.get("proven")), "differs_on": [] if after.get("proven") else ["(see report)"],
+              "accepted": [a["name"] for a in accepted], "proposals": log,
+              "unreached": [branch_key(b) for b in uncovered(after)], "survivors_before": survivors_before,
+              "survivors_after": len(targets),
+              "port_equal": [a["name"] for a in accepted if a["port_equal"]],
+              "mutants": {"judged": survivors_before, "killed": survivors_before - len(targets),
+                          "still_surviving": len(targets), "killed_ids": killed_ids} if judged else None,
+              "records": {dd: len(v) for dd, v in added.items()}}  # fmt: skip
+    (work / "strengthen.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    (work / "strengthen.md").write_text(report_md(result), encoding="utf-8")
+    return result
+
+
+def rejudge(case_name: str, work: Path, case_file: Path, targets: list[dict[str, Any]], mutation_dir: Path,
+            jobs: int) -> dict[str, Any] | None:  # fmt: skip
+    """`targets` (surviving mutants) judged again against `case_file`."""
+    data = json.loads((mutation_dir / "mutation.json").read_text(encoding="utf-8"))
+    ids = {t["id"] for t in targets}
+    data["results"] = [r for r in data["results"] if r["id"] in ids]
+    only = work / "survivors"
+    only.mkdir(parents=True, exist_ok=True)
+    (only / "mutation.json").write_text(json.dumps(data, indent=1) + "\n", encoding="utf-8")
+    argv = [sys.executable, str(TOOLS / "mutation.py"), "run", case_name, "--work", str(work / "m"), "--only",
+            str(only), "--case-file", str(case_file), "--jobs", str(jobs)]  # fmt: skip
+    print(f"  re-judging {len(ids)} surviving mutants", flush=True)
+    subprocess.run(argv, cwd=REPO_ROOT, check=False, capture_output=True, text=True)  # noqa: S603
+    out = work / "m" / "mutation.json"
+    if not out.is_file():
+        return None
+    res = json.loads(out.read_text(encoding="utf-8"))["results"]
+    return {"killed_ids": [r["id"] for r in res if r["verdict"] in ("killed", "timeout")]}
 
 
 if __name__ == "__main__":

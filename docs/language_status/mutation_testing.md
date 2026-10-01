@@ -123,3 +123,23 @@ First runs (2026-10-01, claude-sonnet-5-5, 2 rounds each):
 So on these two cases the survivors in the uncovered branches sit in code that no input reaches, given the
 program's own data or the oracle's limits. The raw mutation scores understate the proofs there. The batch cases'
 survivors are boundaries that input records can reach, which is the loop's next kind.
+
+**Batch cases** (2026-10-01). A batch input is a fixed-width record. The model never writes one: it names an
+existing record of an input dataset and the DISPLAY fields to change, and the record is encoded from the dataset's
+layout. The tool finds that layout from the program itself: `SELECT … ASSIGN TO` gives the file, `READ … INTO` the
+record, and the record's `01` is in a copybook or the program. Each round targets the surviving mutants, the
+boundaries a batch proof misses, and judges them again afterwards. Every record shares one run, so a record that
+makes the step abend (where the original data does not) is rejected: it would cut the run short for the rest.
+Error paths are a fault plan's job. Results, 2 rounds each:
+
+| program | branches | survivors killed | records added |
+|---|---|---|---|
+| CBTRN02C (POSTTRAN) | 94/96 -> **95/96** (the expired-account reject) | **2 of 7** (an expiry date equal to the transaction date, an off-by-one date slice) | 7 |
+| CBACT04C (INTCALC) | 82/86 -> **85/86** (a zero rate, a later account forcing a rewrite) | 0 of 5 | 11 |
+| CBTRN03C (TRNRPT) | 81/82 | 0 of 11 | 12 |
+
+The survivors left are mostly equivalent: a rounding mode on a value already at its scale, a width the report
+truncates anyway, and defensive file handling the COBOL has no counterpart for. Some sit in the status display of
+non-numeric 9x file statuses, which only a fault plan reaches. Two are open: TRNRPT's account-total add/subtract and
+its line counter. The strengthened cases are proven, and are `candidate_case.json` files for a person to review;
+they are not committed.

@@ -140,8 +140,11 @@ def _fixed(src: Path, reclen: int, enc: str = DEFAULT_DATA_ENCODING) -> bytes:
 
 
 def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
-    """A dataset's input: `@case/...` is a file of the case directory, else the corpus's."""
-    return CASES / case["name"] / rel[len("@case/") :] if rel.startswith("@case/") else corpus / rel
+    """A dataset's input: `@case/...` is a file of the case directory, an absolute path itself (#4049: the
+    strengthening loop's candidate inputs), else the corpus's."""
+    if rel.startswith("@case/"):
+        return CASES / case["name"] / rel[len("@case/") :]
+    return Path(rel) if Path(rel).is_absolute() else corpus / rel
 
 
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own

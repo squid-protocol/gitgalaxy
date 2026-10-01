@@ -1,0 +1,962 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COCRDUPC",
+ "program_source": "app/cbl/COCRDUPC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CCUP",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/carddata.txt",
+   "entity": "CardRecord",
+   "copybook": "app/cpy/CVACT02Y.cpy",
+   "record": "CARD-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/cbl/COCRDUPC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CCRDUPA": {
+   "copybook": "app/cpy-bms/COCRDUP.CPY",
+   "input": "CCRDUPAI",
+   "output": "CCRDUPAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "enter-from-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "from-card-list",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CDEMO-LAST-MAPSET": "COCRDLI"
+   }
+  },
+  {
+   "name": "search-card",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "search-card-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "9999999999999999"
+    }
+   }
+  },
+  {
+   "name": "search-both-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "",
+     "CARDSIDI": ""
+    }
+   }
+  },
+  {
+   "name": "search-account-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "search-card-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": ""
+    }
+   }
+  },
+  {
+   "name": "search-account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "ABC",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "search-card-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "05000244537657AB"
+    }
+   }
+  },
+  {
+   "name": "search-card-file-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: the file error message"
+    }
+   ]
+  },
+  {
+   "name": "edit-valid-changes",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-no-changes",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-only-case-differs",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "aniya von",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "UPPER-CASE on both sides: no change detected"
+  },
+  {
+   "name": "edit-name-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "",
+     "CRDSTCDI": "N",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-name-not-alphabetic",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA V0N",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-status-not-yes-no",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "X",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-status-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-month-out-of-range",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "13",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-month-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-year-out-of-range",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "1900",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "edit-year-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "pf5-confirms-and-rewrites",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "pf5-record-changed-meanwhile",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "SOMEONE ELSE",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "9300-CHECK-CHANGE-IN-REC: the file no longer holds what was shown -- no REWRITE, the details again"
+  },
+  {
+   "name": "pf5-could-not-lock",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ UPDATE -> COULD-NOT-LOCK-FOR-UPDATE, no REWRITE"
+    }
+   ]
+  },
+  {
+   "name": "pf5-rewrite-fails",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "N",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the REWRITE -> LOCKED-BUT-UPDATE-FAILED; the file is unchanged"
+    }
+   ]
+  },
+  {
+   "name": "pf5-before-changes-acts-as-enter",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VONN",
+     "CRDSTCDI": "N",
+     "EXPMONI": "04",
+     "EXPYEARI": "2024",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "done-returns-to-card-list",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "C",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y",
+    "CDEMO-LAST-MAPSET": "COCRDLI"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   },
+   "why": "changes done and the user came from the card list: SYNCPOINT, then XCTL back to it"
+  },
+  {
+   "name": "done-starts-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "C",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "failed-starts-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "F",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  },
+  {
+   "name": "pf12-from-card-list-rereads",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740",
+    "CCUP-CHANGE-ACTION": "S",
+    "CCUP-OLD-ACCTID": "00000000050",
+    "CCUP-OLD-CARDID": "0500024453765740",
+    "CCUP-OLD-CVV-CD": "747",
+    "CCUP-OLD-CRDNAME": "ANIYA VON",
+    "CCUP-OLD-EXPYEAR": "2023",
+    "CCUP-OLD-EXPMON": "03",
+    "CCUP-OLD-EXPDAY": "09",
+    "CCUP-OLD-CRDSTCD": "Y"
+   },
+   "receive": {
+    "CCRDUPA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740",
+     "CRDNAMEI": "ANIYA VON",
+     "CRDSTCDI": "Y",
+     "EXPMONI": "03",
+     "EXPYEARI": "2023",
+     "EXPDAYI": "09"
+    }
+   }
+  }
+ ],
+ "notes": "CardDemo's card update (transaction CCUP, program COCRDUPC), a conversation over several tasks whose state travels in the COMMAREA (CCUP-CHANGE-ACTION and the details last shown): a search reads the card; an edit validates the name (alphabetic), status (Y/N), expiry month (1-12) and year (1950-2099) and asks for PF5; PF5 reads the card FOR UPDATE, refuses if it changed since it was shown, and REWRITEs it; PF3 SYNCPOINTs and returns. Each scenario's card file is compared after the task. The scenarios that start mid-conversation set that state as the program itself leaves it. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own. A defect of the original the proof shows: the REWRITE record takes its CVV from CCUP-NEW-CVV-CD, which no input sets, so a confirmed update replaces the card's CVV (747) with blanks -- in a PIC 9(3) field, invalid numeric data whose bytes are GnuCOBOL's (IBM's MOVE may repair the sign nibble)."
+}

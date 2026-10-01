@@ -1763,7 +1763,15 @@ class GalaxyIR:
         for it in ef.data_items:
             if member not in nfc(it.copy_members or "").split(","):
                 continue
-            group = it if not _is_elementary(it) else by_ordinal.get(it.parent_ordinal)
+            # The COPY is recorded on the entry just before it. A 66 / 88 there (COUSR02C: `88 USR-MODIFIED-NO`
+            # right above `COPY COCOM01Y`) has no PIC but is no group: the record continues after the data item
+            # the condition belongs to, so climb to that item first.
+            climbed = False
+            while it is not None and it.level in (66, 88):
+                it, climbed = by_ordinal.get(it.parent_ordinal), True
+            if it is None:
+                continue
+            group = it if not (climbed or _is_elementary(it)) else by_ordinal.get(it.parent_ordinal)
             if group is None or not all(r.level <= group.level for r in roots):
                 continue
             if group is it:

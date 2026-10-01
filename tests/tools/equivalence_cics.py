@@ -1231,6 +1231,22 @@ def _generated_class(src: Path, pattern: str) -> str:
     raise RuntimeError(f"no generated class matches {pattern!r}")
 
 
+def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
+    """The COMMAREA DTO the task carries: the one the service's handleTransaction takes -- or, for a program that
+    receives none and only builds one (CardDemo's sign-on, COSGN00C: it tests EIBCALEN, then XCTLs with
+    CARDDEMO-COMMAREA), the generated DTO of the case's first COMMAREA record."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+
+    m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_file.read_text(encoding="utf-8"))
+    if m:
+        return m.group(1)
+    record = case["commarea"]["segments"][0]["record"]
+    name = java_class_base(record)
+    if not any(src.rglob(f"{name}.java")):
+        raise Unsupported(f"no generated COMMAREA class {name} for {record}")
+    return name
+
+
 def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str, Any]],
                           programs: Optional[list[str]] = None, tdqueues: Optional[list[str]] = None) -> str:  # fmt: skip
     """EquivalenceRunTest for a CICS case: the files loaded through their entities' codecs, then
@@ -1241,8 +1257,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     pkg = ej.PKG
     svc = ej._service_class(case["program"])
     var = svc[0].lower() + svc[1:]
-    ca = re.search(r"handleTransaction\(String transid, (\w+) request\)",
-                   next(src.rglob(f"{svc}.java")).read_text(encoding="utf-8")).group(1)  # fmt: skip
+    ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
@@ -1386,8 +1401,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     src = project / "src/main/java"
     svc = ej._service_class(case["program"])
     svc_file = next(src.rglob(f"{svc}.java"))
-    ca_cls = re.search(r"handleTransaction\(String transid, (\w+) request\)",
-                       svc_file.read_text(encoding="utf-8")).group(1)  # fmt: skip
+    ca_cls = commarea_class(case, src, svc_file)
     shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(

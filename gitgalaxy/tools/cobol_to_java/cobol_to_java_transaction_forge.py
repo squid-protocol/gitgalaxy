@@ -331,7 +331,7 @@ public class CicsTask {
         if (a == null) {
             throw new IllegalStateException("ASSIGN APPLID: no region configured (withRegion)");
         }
-        return String.format("%-8.8s", a);
+        return String.format(java.util.Locale.ROOT, "%-8.8s", a);
     }
 
     /** ASSIGN SYSID: the region's system id, 4 characters. */
@@ -340,7 +340,7 @@ public class CicsTask {
         if (s == null) {
             throw new IllegalStateException("ASSIGN SYSID: no region configured (withRegion)");
         }
-        return String.format("%-4.4s", s);
+        return String.format(java.util.Locale.ROOT, "%-4.4s", s);
     }
 
     /** The transient-data queues the CSD defines; null, every queue is defined. */

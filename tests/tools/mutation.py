@@ -352,7 +352,7 @@ def killers(report: dict[str, Any]) -> list[str]:
 
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
-        keep: bool, full: bool = False) -> dict[str, Any]:  # fmt: skip
+        keep: bool, full: bool = False, only: Path | None = None) -> dict[str, Any]:  # fmt: skip
     work.mkdir(parents=True, exist_ok=True)
     port = port_dir(case)
     started = time.time()
@@ -367,6 +367,10 @@ def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str
     fast = () if full else ("--reuse", str(work / "baseline"), "--first-difference")
     every = all_mutants(port, ops)
     chosen = sample(every, n, seed)
+    if only is not None:  # the mutants another run judged (e.g. a --full reference), to compare against it
+        judged = {r["id"] for r in json.loads((only / "mutation.json").read_text(encoding="utf-8"))["results"]
+                  if r["verdict"] != "pending"}  # fmt: skip
+        chosen = [m for m in every if m.id in judged]
     print(f"{case}: {len(every)} mutants, {len(chosen)} chosen; baseline {base['seconds']} s, limit {limit:.0f} s",
           flush=True)  # fmt: skip
     results: dict[str, dict[str, Any]] = {}
@@ -489,6 +493,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--ops", default=",".join(OPERATORS), help="operators: " + ", ".join(OPERATORS))
     r.add_argument("--timeout", type=float, help="seconds per mutant (default: 3x the baseline, at least 300)")
     r.add_argument("--keep", action="store_true", help="keep killed mutants' proof directories too")
+    r.add_argument("--only", type=Path, help="run exactly the mutants another run's DIR judged (its "
+                   "mutation.json), e.g. to check the fast mode against a --full reference")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
                    "estate regenerated, every run): slow, the reference the default fast mode must agree with")  # fmt: skip
     ls = sub.add_parser("list")
@@ -521,7 +527,7 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
-    s = run(args.case, args.work, args.jobs, args.sample, args.seed, ops, args.timeout, args.keep, args.full)
+    s = run(args.case, args.work, args.jobs, args.sample, args.seed, ops, args.timeout, args.keep, args.full, args.only)
     print(mutation_md(s))
     return 0
 

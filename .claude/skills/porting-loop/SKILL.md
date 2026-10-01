@@ -85,3 +85,16 @@ errors), not to smuggle in a specific answer.
 
 "Proven" is always "proven on these runs, covering X/Y paragraphs and A/B branches". A person still reviews the port
 (`port_runner review`) and approves; never approve on Joe's behalf.
+
+## How much does "proven" check? Mutation testing
+
+`tests/tools/mutation.py run <case> --work DIR [--sample N] [--jobs 3]` breaks the proven port one small change at
+a time and re-proves each mutant (fast mode: `--reuse` + `--first-difference`, validated 386/386 against
+`--full`). Read `docs/language_status/mutation_testing.md` first. Triage every survivor:
+
+- **case gap**: add data, a scenario or a fault (the COBOL decides the expected result);
+- **harness gap**: the comparison doesn't look there (screen attributes #4053, SYSOUT #4056);
+- **equivalent**: the change cannot alter behaviour; say why;
+- **dead code** in the port.
+
+Quote a mutation score with its case, sample and seed, never alone.

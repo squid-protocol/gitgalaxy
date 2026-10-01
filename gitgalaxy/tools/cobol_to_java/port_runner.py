@@ -289,7 +289,8 @@ def _run_agent(opts: argparse.Namespace, project: Path, ticket: dict[str, Any], 
     started = _now()
     print(f"{key}: agent porter in {port.parent.parent} (model {opts.model})")
     try:
-        run = agent_porter.run_agent(port.parent.parent, opts.model, service, opts.timeout)
+        run = agent_porter.run_agent(port.parent.parent, opts.model, service, opts.timeout,
+                                     work / "transcript.jsonl", opts.budget_usd)  # fmt: skip
     except subprocess.TimeoutExpired:
         run = {"returncode": None, "result": f"timed out after {opts.timeout} s"}
     port_dir = agent_porter.collect(port.parent.parent, work)
@@ -505,6 +506,7 @@ def main(argv: list[str] | None = None) -> int:
         x.add_argument("--ticket", required=True, help="the program key, e.g. CBACT04C")
     r.add_argument("--backend", choices=("openai", "anthropic", "command", "agent"), required=True)
     r.add_argument("--prove-command", help="agent backend: the proof it may run, with {port_dir} / {report_dir}")
+    r.add_argument("--budget-usd", type=float, default=25.0, help="agent backend: its spending cap per attempt")
     r.add_argument("--model")
     r.add_argument("--base-url", help="openai: the endpoint (required); anthropic: default https://api.anthropic.com")
     r.add_argument("--api-key-env", help="the NAME of the environment variable holding the key")

@@ -236,3 +236,23 @@ class TestZeroDependencyMode(unittest.TestCase):
         # The engine must either reject the bomb or safely parse it without OOMing the runner
         assert isinstance(config_file_data, dict), "YAML bomb crashed the parser context!"
         os.remove(temp_yaml_path)
+
+
+def test_an_installed_tiktoken_that_cannot_load_its_encoding_does_not_take_the_engine_down(tmp_path):
+    """#3791: offline, tiktoken.get_encoding raises a network error (not ImportError) when cl100k_base is not
+    cached. The engine still imports, token mass is None, and the run reports tiktoken as missing."""
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    fake = tmp_path / "tiktoken.py"  # an installed tiktoken whose encoding download is blocked
+    fake.write_text("def get_encoding(name):\n    raise ConnectionError('403 Forbidden (proxy)')\n", encoding="utf-8")
+    code = "import gitgalaxy.core.detector as d\nprint(d.HAS_TIKTOKEN, d.get_token_mass('x = 1'))\n"
+    root = Path(__file__).resolve().parents[2]
+    proc = subprocess.run(  # noqa: S603 -- a fresh interpreter: the module-level import is what is tested
+        [sys.executable, "-c", code], cwd=root, capture_output=True, text=True, check=False,
+        env={"PYTHONPATH": f"{tmp_path}{__import__('os').pathsep}{root}", "PATH": __import__("os").environ["PATH"]},
+    )  # fmt: skip
+    assert proc.returncode == 0, proc.stderr
+    assert proc.stdout.split() == ["False", "None"]
+    assert "cl100k_base encoding could not be loaded (ConnectionError" in proc.stderr

@@ -55,11 +55,21 @@ HAS_TIKTOKEN = False
 try:
     import tiktoken
 
-    HAS_TIKTOKEN = True
     # cl100k_base is the standard for GPT-4, o1, and a highly accurate proxy for Claude
     ENCODER = tiktoken.get_encoding("cl100k_base")
+    HAS_TIKTOKEN = True
 except ImportError:
     pass
+except Exception as _encoding_error:  # #3791: installed, but its encoding cannot be loaded
+    # get_encoding downloads cl100k_base on first use: offline (an air-gapped site, a proxy, a sandbox) it
+    # raises a network error, not an ImportError. That must not take the engine down: token mass is NULL and
+    # the run is labelled Zero-Dependency Mode, as when tiktoken is not installed (docs/zero_dependency_mode.md).
+    logging.getLogger(__name__).warning(
+        "tiktoken is installed but its cl100k_base encoding could not be loaded (%s: %s); token mass is not "
+        "computed (set TIKTOKEN_CACHE_DIR to a cache holding it to enable)",
+        type(_encoding_error).__name__,
+        _encoding_error,
+    )
 
 
 def get_token_mass(text: str) -> Optional[int]:

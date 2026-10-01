@@ -488,8 +488,10 @@ def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
 
 
 # ---- CLI -----------------------------------------------------------------------------
-def load_case(name: str) -> dict[str, Any]:
-    case = json.loads((CASES / name / "case.json").read_text(encoding="utf-8"))
+def load_case(name: str, case_file: Optional[Path] = None) -> dict[str, Any]:
+    """The case `name`, from its case.json -- or from `case_file` (#4049: a candidate the test-strengthening loop
+    wrote), with the case's own directory still the home of its inputs and its port."""
+    case = json.loads((case_file or CASES / name / "case.json").read_text(encoding="utf-8"))
     case["name"] = name
     return case
 
@@ -514,6 +516,8 @@ def main() -> int:
                    "the case's `data_encoding`, else latin-1)")  # fmt: skip
     r.add_argument("--faults", help="#4023 follow-up: the case's fault runs to run as well: all (default) | none | "
                    "NAME,NAME")  # fmt: skip
+    r.add_argument("--case-file", type=Path, help="#4049: prove this case.json instead of the case's own (its "
+                   "inputs and port still come from the case's directory)")  # fmt: skip
     r.add_argument("--reuse", type=Path, help="an earlier run's --keep directory of this case: its COBOL side "
                    "(each step whose run.sh is identical) and its generated project, re-overlaid with the port "
                    "(mutation testing: many ports of one case)")  # fmt: skip
@@ -529,7 +533,7 @@ def main() -> int:
         return 0
     import mainframe_corpus as mc
 
-    case = load_case(args.case)
+    case = load_case(args.case, args.case_file)
     for key in ("source_encoding", "data_encoding"):  # #3815: the CLI overrides the case
         if getattr(args, key):
             case[key] = getattr(args, key)

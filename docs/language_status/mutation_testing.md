@@ -98,3 +98,28 @@ The two harness gaps found earlier are closed: screen attributes (#4053) and DIS
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
+
+## The test-strengthening loop (#4049)
+
+`tests/tools/strengthen.py run <case> --work DIR --mutation MDIR` gives a model the case's uncovered COBOL
+branches, with the source around each one, and the surviving mutants as hints. It asks for new **inputs only**:
+CALL arguments, or CICS scenarios. Each proposal is proven on its own. The COBOL decides the expected result, an IBM
+service model may refuse it, and the port is equal on it or not. The useful proposals go into
+`DIR/candidate_case.json` for a person to review. The surviving mutants are then judged again, against the case
+plus the new inputs the port is equal on. Batch cases are not supported yet.
+
+First runs (2026-10-01, claude-sonnet-5-5, 2 rounds each):
+
+- **CSUTLDTC: 4/10 branches, unchanged.** The model concluded, correctly, that the 6 missing `EVALUATE` outcomes
+  cannot be reached. Five need CEEDAYS behaviour IBM does not document: eras, other pictures, month 13. Our model
+  refuses those, and it refused the proposals that tried. "Insufficient data" cannot happen either: the program
+  always passes 10-byte strings. The loop also found three blank-padded dates where the model-written port answers
+  2507 (insufficient data) and our CEEDAYS model 2520 (non-numeric). Either the port or the model is wrong, and only
+  a z/OS run settles it (#4050). Those inputs are not in the committed case.
+- **COMEN01C: 28/33 branches, unchanged.** The model concluded that the 5 gaps cannot be reached through CardDemo's
+  fixed menu table, and this was verified in `COMEN02Y`: all 11 options have user type `U`, none is a `DUMMY`
+  program, and the option count is a constant 11.
+
+So on these two cases the survivors in the uncovered branches sit in code that no input reaches, given the
+program's own data or the oracle's limits. The raw mutation scores understate the proofs there. The batch cases'
+survivors are boundaries that input records can reach, which is the loop's next kind.

@@ -352,19 +352,21 @@ def killers(report: dict[str, Any]) -> list[str]:
 
 # ---- the run -----------------------------------------------------------------------------------------------------
 def run(case: str, work: Path, jobs: int, n: int | None, seed: int, ops: set[str], timeout: float | None,
-        keep: bool, full: bool = False, only: Path | None = None) -> dict[str, Any]:  # fmt: skip
+        keep: bool, full: bool = False, only: Path | None = None,
+        case_file: Path | None = None) -> dict[str, Any]:  # fmt: skip
     work.mkdir(parents=True, exist_ok=True)
     port = port_dir(case)
     started = time.time()
     print(f"{case}: proving the port as committed (baseline)", flush=True)
-    base = prove(case, None, work / "baseline", timeout=3600)
+    case_arg = ("--case-file", str(case_file)) if case_file else ()  # #4049: a candidate case
+    base = prove(case, None, work / "baseline", timeout=3600, extra=case_arg)
     if base["verdict"] != "proven":  # the committed port must be proven
         raise SystemExit(f"{case}: the committed port is not proven ({base['verdict']}); nothing to measure")
     limit = timeout or max(300.0, 3 * base["seconds"])
     classpath = baseline_classpath(work / "baseline", work)
     # fast (the default): each mutant reuses the baseline's COBOL side and generated project, compiles only the
     # port, and stops at the first run that differs -- the same verdict as --full, which re-proves from scratch
-    fast = () if full else ("--reuse", str(work / "baseline"), "--first-difference")
+    fast = case_arg + (() if full else ("--reuse", str(work / "baseline"), "--first-difference"))
     every = all_mutants(port, ops)
     chosen = sample(every, n, seed)
     if only is not None:  # the mutants another run judged (e.g. a --full reference), to compare against it
@@ -492,6 +494,8 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--ops", default=",".join(OPERATORS), help="operators: " + ", ".join(OPERATORS))
     r.add_argument("--timeout", type=float, help="seconds per mutant (default: 3x the baseline, at least 300)")
     r.add_argument("--keep", action="store_true", help="keep killed mutants' proof directories too")
+    r.add_argument("--case-file", type=Path, help="#4049: judge the mutants against this case.json instead of the "
+                   "case's own (a candidate the test-strengthening loop wrote)")  # fmt: skip
     r.add_argument("--only", type=Path, help="run exactly the mutants another run's DIR judged (its "
                    "mutation.json), e.g. to check the fast mode against a --full reference")  # fmt: skip
     r.add_argument("--full", action="store_true", help="prove each mutant from scratch (the COBOL side, the whole "
@@ -526,7 +530,19 @@ def main(argv: list[str] | None = None) -> int:
             counts[m.op] = counts.get(m.op, 0) + 1
         print(f"{len(ms)} mutants: " + ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))
         return 0
-    s = run(args.case, args.work, args.jobs, args.sample, args.seed, ops, args.timeout, args.keep, args.full, args.only)
+    s = run(
+        args.case,
+        args.work,
+        args.jobs,
+        args.sample,
+        args.seed,
+        ops,
+        args.timeout,
+        args.keep,
+        args.full,
+        args.only,
+        args.case_file,
+    )
     print(mutation_md(s))
     return 0
 

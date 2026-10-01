@@ -218,3 +218,11 @@ def test_adopt_refuses_a_loop_that_did_not_prove(tmp_path):
     (tmp_path / "loop.json").write_text(json.dumps({"case": "carddemo-useradd", "proven": True, "attempts": []}))
     with pytest.raises(SystemExit, match="not a proven loop of carddemo-menu"):
         pl.adopt("carddemo-menu", tmp_path)
+
+
+def test_a_baseline_whose_java_did_not_build_is_not_reused(tmp_path):
+    assert not pl._baseline_built(tmp_path / "none")
+    (tmp_path / "report.json").write_text(json.dumps({"java_failed": True}))
+    assert not pl._baseline_built(tmp_path)
+    (tmp_path / "report.json").write_text(json.dumps({"java_failed": False, "proven": False}))
+    assert pl._baseline_built(tmp_path)  # it built and ran (the stub is not proven): reusable

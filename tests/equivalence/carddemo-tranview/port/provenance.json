@@ -1,0 +1,32 @@
+{
+ "format": "porting-loop-provenance/1",
+ "program": "COTRN01C",
+ "written_by": "model (the #4023 follow-up porting loop), not a person",
+ "model": "claude-sonnet-5-5",
+ "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt",
+ "proposed": "2026-10-01T13:26:26+00:00",
+ "attempt": 4,
+ "attempts": [
+  {
+   "n": 1,
+   "verdict": "not proven"
+  },
+  {
+   "n": 2,
+   "verdict": "not proven"
+  },
+  {
+   "n": 3,
+   "verdict": "not proven"
+  },
+  {
+   "n": 4,
+   "verdict": "proven"
+  }
+ ],
+ "ticket_sha256": "125532df3b15a45b333775fb59738d3e403df0ee46b4e65979cdd7fe811aa00d",
+ "prompt_tokens": 79421,
+ "proof": "tests/tools/equivalence.py run carddemo-tranview",
+ "edited_after": "none: the files are the model's answer as the loop stored it",
+ "licence": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates) -- see LICENSE and NOTICE in this case's directory"
+}

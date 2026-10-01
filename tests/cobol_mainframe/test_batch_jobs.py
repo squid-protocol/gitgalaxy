@@ -74,7 +74,11 @@ OTHER_JOBS = {
 def scanned(tmp_path_factory):
     base = tmp_path_factory.mktemp("batch_jobs")
     repo = base / "estate"
-    files = {"jcl/NIGHTLY.jcl": NIGHTLY, "proc/COPYP.prc": COPYP, "cbl/POSTIT.cbl": POSTIT, **OTHER_JOBS}
+    files = {"jcl/NIGHTLY.jcl": NIGHTLY, "proc/COPYP.prc": COPYP, "cbl/POSTIT.cbl": POSTIT, **OTHER_JOBS,
+             "cbl/ORPHAN.cbl": POSTIT.replace("POSTIT", "ORPHAN"),
+             "cbl/SUBPGM.cbl": POSTIT.replace("POSTIT", "SUBPGM").replace(
+                 "       PROCEDURE DIVISION.\n", "       LINKAGE SECTION.\n       01  LK-AREA PIC X(8).\n"
+                 "       PROCEDURE DIVISION USING LK-AREA.\n")}  # fmt: skip
     for rel, text in files.items():
         (repo / rel).parent.mkdir(parents=True, exist_ok=True)
         (repo / rel).write_text(text, encoding="utf-8")
@@ -128,6 +132,11 @@ def test_the_jobs_become_spring_batch_jobs(scanned, tmp_path):
     svc = (src / "service/PostitService.java").read_text(encoding="utf-8")
     assert "The batch entry (#3622): run by job NIGHTLY step RUN (jcl/NIGHTLY.jcl:10)." in svc
     assert "    public int runBatch(List<Dd> dds, String parm) {" in svc
+    # a main program with files that no JCL step names (CardDemo's CBTRN01C) is a batch step too; a CALLed
+    # subprogram (PROCEDURE DIVISION USING) is not
+    orphan = (src / "service/OrphanService.java").read_text(encoding="utf-8")
+    assert "run by no JCL step in this estate" in orphan and "public int runBatch(List<Dd> dds" in orphan
+    assert "runBatch" not in (src / "service/SubpgmService.java").read_text(encoding="utf-8")
     audit = (java / "java_migration_audit.txt").read_text(encoding="utf-8")
     assert "  • Batch jobs (#3622)       : 4 JCL jobs -- 1 application (generated: 4 steps, 1 utility steps to " \
            "port), 1 runner, 1 utility, 1 build" in audit  # fmt: skip

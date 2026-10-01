@@ -419,7 +419,7 @@ def lay_overlay(overlay: Path, project: Path) -> list[str]:
         dest = project / "src/main/java" / ej.PKG_DIR / f.relative_to(overlay)
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(f, dest)
-        laid.append(str(dest.relative_to(project)))
+        laid.append(dest.relative_to(project).as_posix())
     return laid
 
 

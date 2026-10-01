@@ -142,7 +142,8 @@ def _today() -> str:
 
 
 def _ts(text: str) -> _dt.datetime:
-    return _dt.datetime.fromisoformat(text)
+    # git and GitHub write UTC as a trailing Z, which fromisoformat accepts only from Python 3.11
+    return _dt.datetime.fromisoformat(text[:-1] + "+00:00" if text.endswith("Z") else text)
 
 
 # ---- eligibility: declared in code, applied at start ------------------------------------

@@ -53,7 +53,8 @@ def test_text_fields_keep_their_byte_width(tmp_path):
     source = COBOL_RECORDS_JAVA.replace("__PACKAGE__", "t")
     source = source.replace("__POSITIVE__", "{ABCDEFGHI").replace("__NEGATIVE__", "}JKLMNOPQR")
     (pkg / "CobolRecords.java").write_text(source, encoding="utf-8")
-    lines = "\n".join(f"        System.out.println({expr});" for expr, _ in CASES)
+    # UTF-8 whatever the console's code page: -Dstdout.encoding is JDK 19+, and a JDK 17 on Windows writes cp1252
+    lines = "\n".join(f"        out.println({expr});" for expr, _ in CASES)
     (pkg / "Probe.java").write_text(
         "package t;\n"
         "import java.nio.charset.Charset;\n"
@@ -72,7 +73,8 @@ def test_text_fields_keep_their_byte_width(tmp_path):
         '        for (byte x : b) s.append(String.format("%02X", x));\n'
         "        return s.toString();\n"
         "    }\n"
-        "    public static void main(String[] a) {\n"
+        "    public static void main(String[] a) throws Exception {\n"
+        '        java.io.PrintStream out = new java.io.PrintStream(new java.io.FileOutputStream(java.io.FileDescriptor.out), true, "UTF-8");\n'
         f"{lines}\n"
         "    }\n"
         "}\n",

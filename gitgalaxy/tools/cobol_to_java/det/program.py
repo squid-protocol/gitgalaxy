@@ -11,6 +11,7 @@ import base64
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -29,12 +30,20 @@ class Result:
     stats: dict
 
 
-def runtime_files(package: str) -> dict[str, str]:
-    """The runtime's sources, relative to the package directory (cobolrt/...), with the package filled in."""
+def has_batch(project: Path | None) -> bool:
+    """Whether the generated project has its batch package (CobolFiles, Sysout, ...): a CICS-only estate has none."""
+    return project is None or any(project.glob("src/main/java/**/batch/CobolFiles.java"))
+
+
+def runtime_files(package: str, batch: bool = True) -> dict[str, str]:
+    """The runtime's sources, relative to the package directory (cobolrt/...), with the package filled in: the
+    batch adapters for a project with a batch package, the standalone Sysout / CobolAbend for one without."""
     out = {}
     for f in sorted(RUNTIME.rglob("*.java")):
-        out["cobolrt/" + f.relative_to(RUNTIME).as_posix()] = f.read_text(encoding="utf-8").replace(
-            "__PACKAGE__", package)  # fmt: skip
+        rel = f.relative_to(RUNTIME).as_posix()
+        if rel.startswith("batch/" if not batch else "standalone/"):
+            continue
+        out["cobolrt/" + rel] = f.read_text(encoding="utf-8").replace("__PACKAGE__", package)
     return out
 
 
@@ -48,7 +57,7 @@ def file_control(lines: list[Line]) -> list[dict]:
     for entry in re.split(r"\bSELECT\b", m.group(1), flags=re.I)[1:]:
         e = " " + entry.strip().rstrip(".") + " "
         words = e.split()
-        d = {"select": words[0].upper().rstrip("."), "organization": "SEQUENTIAL", "access": "SEQUENTIAL",
+        d: dict[str, Any] = {"select": words[0].upper().rstrip("."), "organization": "SEQUENTIAL", "access": "SEQUENTIAL",
              "status": None, "record_key": None}  # fmt: skip
         a = re.search(r"\bASSIGN\s+(?:TO\s+)?(\S+)", e, re.I)
         d["assign"] = a.group(1).upper().strip("'\"").rstrip(".") if a else d["select"]
@@ -133,6 +142,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
+    batch = has_batch(project)
     if is_cics:
         records += eib_records()
     # RETURN-CODE: the special register, S9(4) BINARY
@@ -140,7 +150,10 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     L.layout(rc)
     records.append(rc)
     proc = S.parse(lines)
-    service = re.search(r"public class (\w+)", stub).group(1)
+    svc_m = re.search(r"public class (\w+)", stub)
+    if svc_m is None:
+        raise ValueError("the stub has no public class")
+    service = svc_m.group(1)
     prog = G.Program(program.stem.upper(), service, package, records, proc)
 
     # storages: each 01 / 77 that is not a REDEFINES of another; the FD's records share the first one's
@@ -160,6 +173,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         sizes[id(r)] = max(sizes.get(id(r), 0), rec.size * rec.occurs)
 
     gen = G.Gen(prog)
+    gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
             raise ValueError("a CICS program needs the generated project")
@@ -168,11 +182,26 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
     providers = []
+    inferred: list[str] = []
     for m in re.finditer(r"private final ObjectProvider<(\w+)Service> (\w+);", stub):
         if re.search(rf"\b{m.group(2)}\.getObject\(\)\.handleCall\(", stub):
             gen.callees[m.group(1).upper()] = m.group(2)
             providers.append((f"ObjectProvider<{m.group(1)}Service>", m.group(2)))
-    file_decls, file_inits, ctor_repos, inferred = [], [], [], []
+    # a CALLed program the stub does not wire (the CALL sits in a procedure copybook): its service in the estate,
+    # when it has the CALL entry
+    if project is not None:
+        called = {s.data["program"] for p in proc.paragraphs for s in S.walk(p.body) if s.kind == "CALL"}
+        for prog_name in sorted(called - set(gen.callees)):
+            from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+
+            cls = java_class_base(prog_name)
+            svc = next(project.glob(f"src/main/java/**/service/{cls}Service.java"), None)
+            if svc is not None and "public int handleCall(" in svc.read_text(encoding="utf-8"):
+                field = cls[0].lower() + cls[1:] + "Service"
+                gen.callees[prog_name] = field
+                providers.append((f"ObjectProvider<{cls}Service>", field))
+                inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
+    file_decls, file_inits, ctor_repos = [], [], []
     for fc in file_control(lines):
         fd = G.FileDef(fc["select"], fc["assign"], fc["organization"], fc["access"], fc["status"],
                        " ".join(fc["record_key"]) if fc["record_key"] else None)  # fmt: skip
@@ -195,6 +224,9 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
                 )
             except G.Untranslatable:
                 fd.key_item = None
+        if not batch:
+            fd.why = "the generated project has no batch package (CobolFiles) to run files through"
+            continue
         storage = _storage_name(roots[id(fd.record)])
         v = G.jname(fd.select)
         reclen = sizes[id(roots[id(fd.record)])]
@@ -287,16 +319,19 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     hc = re.search(r"public int handleCall\(([^)]*)\)", stub)
     if hc:
         params = [p.strip() for p in hc.group(1).split(",") if p.strip()]
-        body_in, body_out = [], []
+        body_in: list[str] | None = None
+        ins: list[str] = []
+        body_out: list[str] = []
         for k, prm in enumerate(params):
             typ, name = prm.rsplit(" ", 1)
             item = next((r for r in linkage if k < len(using) and r.name == using[k]), None)
             if typ != "CobolRef<String>" or item is None:
-                body_in = None
                 break
             f = gen.ids[id(item)]
-            body_in.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
+            ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
             body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
+        else:
+            body_in = ins
         if body_in is None:
             call_entry = [
                 f"    public int handleCall({hc.group(1)}) {{",
@@ -319,6 +354,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     cics_members: list[str] = []
     cics_entry: list[str] = []
     if is_cics:
+        if gen.cics is None:
+            raise ValueError("a CICS program has no CICS translator")
         cics_members, cics_entry = _cics_parts(gen, records, roots, proc, storages, inits, stub)
         inferred += gen.cics.gp.inferred
         ctor_repos += list(gen.cics.repos.items())
@@ -331,22 +368,32 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
                  {imports.get(f.entity, f"{package}.entity.vsam.{f.entity}")
                   for f in prog.files.values() if f.entity})  # fmt: skip
     chunks = [field_lines[i : i + 300] for i in range(0, len(field_lines), 300)] or [[]]
+    ctor_params = ", ".join(
+        [f"{c} {f}" for c, f in dict.fromkeys(ctor_repos)]
+        + (["DatasetResolver datasets", "CobolFiles files", "MainframeClock clock"] if batch else [])
+    )
     out = [
         f"package {pkg}.service;",
         "",
-        f"import {pkg}.batch.CobolAbend;",
-        f"import {pkg}.batch.CobolFiles;",
-        f"import {pkg}.batch.DatasetResolver;",
-        f"import {pkg}.batch.Dd;",
-        f"import {pkg}.batch.MainframeClock;",
-        f"import {pkg}.batch.Sysout;",
+        *(
+            [
+                f"import {pkg}.batch.CobolAbend;",
+                f"import {pkg}.batch.CobolFiles;",
+                f"import {pkg}.batch.DatasetResolver;",
+                f"import {pkg}.batch.Dd;",
+                f"import {pkg}.batch.MainframeClock;",
+                f"import {pkg}.batch.Sysout;",
+                f"import {pkg}.cobolrt.batch.DetFiles;",
+            ]
+            if batch
+            else [f"import {pkg}.cobolrt.standalone.CobolAbend;", f"import {pkg}.cobolrt.standalone.Sysout;"]
+        ),
         f"import {pkg}.cobolrt.Cobol;",
         f"import {pkg}.cobolrt.Field;",
         f"import {pkg}.cobolrt.Figurative;",
         f"import {pkg}.cobolrt.Funcs;",
         f"import {pkg}.cobolrt.Hole;",
         f"import {pkg}.cobolrt.Storage;",
-        f"import {pkg}.cobolrt.batch.DetFiles;",
         f"import {pkg}.entity.vsam.CobolRecords;",
         *(
             [
@@ -394,16 +441,23 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         *file_decls,
         "",
         *[f"    private final {c} {f};" for c, f in dict.fromkeys(ctor_repos)],
-        "    private final DatasetResolver datasets;",
-        "    private final CobolFiles files;",
-        "    private final MainframeClock clock;",
+        *(
+            [
+                "    private final DatasetResolver datasets;",
+                "    private final CobolFiles files;",
+                "    private final MainframeClock clock;",
+            ]
+            if batch
+            else []
+        ),
         "",
-        f"    public {service}({''.join(f'{c} {f}, ' for c, f in dict.fromkeys(ctor_repos))}DatasetResolver datasets, "
-        "CobolFiles files, MainframeClock clock) {",
+        f"    public {service}({ctor_params}) {{",
         *[f"        this.{f} = {f};" for _, f in dict.fromkeys(ctor_repos)],
-        "        this.datasets = datasets;",
-        "        this.files = files;",
-        "        this.clock = clock;",
+        *(
+            ["        this.datasets = datasets;", "        this.files = files;", "        this.clock = clock;"]
+            if batch
+            else []
+        ),
         *[f"        fields{k}();" for k in range(len(chunks))],
         # a CALLed program's WORKING-STORAGE is set once and keeps its values from call to call
         *(
@@ -418,7 +472,9 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         out += [f"    private void fields{k}() {{", *ch, "    }", ""]
     out += [
         f"    public void execute{service[: -len('Service')]}() {{",
-        "        runBatch(List.of(), null);",
+        "        runBatch(List.of(), null);"
+        if batch
+        else "        // a CICS / CALLed program: see runTask / handleCall",
         "    }",
         "",
         *call_entry,
@@ -433,24 +489,30 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         "        }",
         "    }",
         "",
-        "    private static Dd dd(List<Dd> dds, String name) {",
-        "        return dds.stream().filter(d -> name.equals(d.name())).findFirst().orElse(null);",
-        "    }",
-        "",
-        "    /** The batch entry. */",
-        "    public int runBatch(List<Dd> dds, String parm) {",
-        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
-        *inits,
-        *parm_code,
-        *file_inits,
-        "        try {",
-        f"            perform(0, {n_para - 1});",
-        "        } catch (Goback g) {",
-        "            // the program ended",
-        "        }",
-        f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
-        "    }",
-        "",
+        *(
+            [
+                "    private static Dd dd(List<Dd> dds, String name) {",
+                "        return dds.stream().filter(d -> name.equals(d.name())).findFirst().orElse(null);",
+                "    }",
+                "",
+                "    /** The batch entry. */",
+                "    public int runBatch(List<Dd> dds, String parm) {",
+                *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+                *inits,
+                *parm_code,
+                *file_inits,
+                "        try {",
+                f"            perform(0, {n_para - 1});",
+                "        } catch (Goback g) {",
+                "            // the program ended",
+                "        }",
+                f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
+                "    }",
+                "",
+            ]
+            if batch
+            else []
+        ),
         "    /** PERFORM from THRU thru: returns when control falls off the end of `thru`. */",
         "    private void perform(int from, int thru) {",
         "        int i = from;",
@@ -508,8 +570,10 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
     """A CICS program's members (task, handlers, file stores, COMMAREA codecs) and its entries: runTask, and the
     stub's handleTransaction / handleLink kept for their callers."""
     cx = gen.cics
+    if cx is None:
+        raise ValueError("a CICS program has no CICS translator")
     aid = next((r for r in records if r.name == "DFHAID"), None)
-    aid_cases = []
+    aid_cases: list[str] = []
     if aid is not None:
         aid_cases.extend(
             f'            case "{c.name[3:]}" -> Cobol.move({gen.ids[id(c)]}, {gen.eib("EIBAID")}, CS);'

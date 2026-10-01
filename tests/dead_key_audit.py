@@ -104,6 +104,29 @@ ALLOWLIST = {
     "PCBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
     "PROCOPT": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
     "PSBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    # --- COBOL-to-Java det port: keys written dynamically (cobol_to_java/det/) ---
+    # cics.parse_exec builds its `opts` dict from the option names it parses out of
+    # the EXEC CICS source text, so these are never written as literals.
+    "LENGTH": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "RIDFLD": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "MAP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "MAPSET": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "DATASET": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "FILE": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "ABSTIME": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "COMMAREA": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "CURSOR": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "DATESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "TIMESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "QUEUE": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "RESP2": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    # stmt.PHRASES maps source phrase text to these names; they become dict keys at runtime.
+    "NOT-SIZE-ERROR": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "SIZE-ERROR": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "AT-END": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "INVALID-KEY": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "NOT-AT-END": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
+    "NOT-INVALID-KEY": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",
     # --- External package manifests (package.json / composer.json / lockfiles) ---
     # manifest_parser.py and guidestar_lens.py json.load() a THIRD-PARTY file;
     # these keys are that file format's schema, not a dict this repo produces.

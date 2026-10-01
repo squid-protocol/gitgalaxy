@@ -62,7 +62,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path) -> dict[str, A
         return out
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
-    for rel, text in P.runtime_files(PKG).items():
+    for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
@@ -115,7 +115,7 @@ def main() -> int:
     (args.work / "summary.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     for x in results:
         st = x.get("statements")
-        what = "ERROR " + x["error"] if st is None else "%d/%d translated" % (x["translated_statements"], st)
+        what = "ERROR " + x["error"] if st is None else f"{x['translated_statements']}/{st} translated"
         verdict = "" if "proved" not in x else (
             "  PROVED" if x["proved"] else "  JAVA FAILED" if x["java_failed"] else "  DIFFERS")  # fmt: skip
         print(f"{x['case']:<28} {what}{verdict}")

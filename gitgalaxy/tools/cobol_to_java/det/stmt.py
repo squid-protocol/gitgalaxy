@@ -138,7 +138,7 @@ def parse(lines: list[Line]) -> Procedure:
             # ELSE IF ...: the else branch holds a new IF
             f = _pop_to_if(stack)
             f.has_else = True
-            f.target = f.node.orelse
+            f.target = _node(f).orelse
             s = Stmt("IF", origin(n), node_text(n), {"cond": _cond(re.sub(r"(?i)^\s*ELSE\s+IF", "", node_text(n)))})
             f.target.append(s)
             stack.append(_Frame("IF", s, s.body))
@@ -146,7 +146,7 @@ def parse(lines: list[Line]) -> Procedure:
         if t == "else_header":
             f = _pop_to_if(stack)
             f.has_else = True
-            f.target = f.node.orelse
+            f.target = _node(f).orelse
             continue
         if t == "END_IF":
             _pop_to(stack, "IF")  # the innermost open IF, with or without its ELSE
@@ -159,16 +159,17 @@ def parse(lines: list[Line]) -> Procedure:
             continue
         if t in ("when", "when_other"):
             f = _pop_to(stack, "EVALUATE")
+            ev = _node(f)
             body: list = []
             if t == "when_other":
-                f.node.whens.append((None, body))
+                ev.whens.append((None, body))
             else:
                 conds = _whens(node_text(n))
                 # stacked WHENs with no statements between share one body
-                if f.node.whens and not f.node.whens[-1][1] and f.node.whens[-1][0] is not None:
-                    prev = f.node.whens.pop()
+                if ev.whens and not ev.whens[-1][1] and ev.whens[-1][0] is not None:
+                    prev = ev.whens.pop()
                     conds = prev[0] + conds
-                f.node.whens.append((conds, body))
+                ev.whens.append((conds, body))
             f.target = body
             continue
         if t == "END_EVALUATE":
@@ -220,6 +221,12 @@ def _parser_cache(get_parser):
     if _PARSER is None:
         _PARSER = get_parser("cobol")
     return _PARSER
+
+
+def _node(f: _Frame) -> Stmt:
+    if f.node is None:
+        raise E.ExprError(f"{f.kind} frame has no statement")
+    return f.node
 
 
 def _pop_to_if(stack: list[_Frame]) -> _Frame:
@@ -380,7 +387,7 @@ def _add(p: E.Parser, text: str, line: int) -> Stmt:
     giving = None
     targets = []
     if p.accept("TO"):
-        tos = []
+        tos: list[Any] = []
         while not p.done() and p.up() != "GIVING":
             tos.append(p.operand())
             if p.accept("ROUNDED"):
@@ -478,7 +485,7 @@ def _perform(p: E.Parser, text: str, line: int) -> Stmt:
     d: dict[str, Any] = {"target": None, "thru": None, "times": None, "until": None, "varying": None,
                          "test_after": False, "inline": False}  # fmt: skip
     if not p.done() and p.up() not in ("UNTIL", "VARYING", "WITH", "TEST") and not (
-            E._is_number(p.peek()) and p.up(1) == "TIMES") and p.up(1) != "TIMES":  # fmt: skip
+            (tk := p.peek()) is not None and E._is_number(tk) and p.up(1) == "TIMES") and p.up(1) != "TIMES":  # fmt: skip
         # PERFORM procedure-name [THRU procedure-name]  (or an inline PERFORM n TIMES)
         d["target"] = p.take().upper()
         if p.accept("THRU", "THROUGH"):
@@ -526,7 +533,8 @@ def _call(p: E.Parser, text: str, line: int) -> Stmt:
     if tok[:1] not in "'\"":
         return Stmt("HOLE", line, text, {"why": "dynamic CALL"})
     prog = E._unquote(tok).upper()
-    args, mode = [], "REFERENCE"
+    args: list[tuple[str, Any]] = []
+    mode = "REFERENCE"
     if p.accept("USING"):
         while not p.done() and p.up() not in ("RETURNING", "ON", "EXCEPTION", "OVERFLOW", "NOT"):
             if p.accept("BY"):

@@ -9,10 +9,14 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import TYPE_CHECKING, Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import layout as L
 from gitgalaxy.tools.cobol_to_java.det import stmt as S
+
+if TYPE_CHECKING:
+    from gitgalaxy.tools.cobol_to_java.det.cics import Cics
 
 
 class Untranslatable(Exception):
@@ -74,7 +78,8 @@ class Gen:
     def __init__(self, prog: Program):
         self.p = prog
         self.lines: list[str] = []
-        self.stats = {"statements": 0, "translated": 0, "holes": []}
+        self.stats: dict[str, Any] = {"statements": 0, "translated": 0, "holes": []}
+        self.sentence: str | None = None  # the label of the NEXT SENTENCE block being generated
         self.items: dict[str, list[L.Item]] = {}
         self.ids: dict[int, str] = {}
         self.storage_of: dict[int, str] = {}
@@ -93,7 +98,8 @@ class Gen:
         self.consts: dict[str, str] = {}
         self.tmp = 0
         self.cur = 0
-        self.cics = None  # det.cics.Cics for a CICS program
+        self.cics: Cics | None = None  # det.cics.Cics for a CICS program
+        self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entities: set = set()
 
@@ -178,7 +184,7 @@ class Gen:
                                 self._written.update(w.upper() for w in re.findall(r"[A-Za-z0-9-]+", v))
                     elif s.kind in ("EXEC", "HOLE", "CALL"):
                         self._written.update(w.upper() for w in re.findall(r"[A-Za-z0-9-]+", s.text))
-        a = it
+        a: L.Item | None = it
         while a is not None:
             if a.name in self._written:
                 return False
@@ -236,8 +242,8 @@ class Gen:
         if name in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name == "CURRENT-DATE":
-            return "DetCics.currentDate(task.now())" if self.cics is not None else "clock.currentDate()"
-        if name in ("NUMVAL", "NUMVAL-C") and len(args) == 1:
+            return "DetCics.currentDate(task.now())" if self.cics is not None else self.clock
+        if name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name in ("INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "INTEGER-PART", "ABS") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.num(args[0])})"
@@ -272,7 +278,7 @@ class Gen:
         if isinstance(e, (E.Bin, E.Neg, E.LengthOf)):
             return True
         if isinstance(e, E.Func):
-            return e.name in ("NUMVAL", "NUMVAL-C", "INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "MOD",
+            return e.name in ("NUMVAL", "NUMVAL-C", "TEST-NUMVAL", "TEST-NUMVAL-C", "INTEGER-OF-DATE", "DATE-OF-INTEGER", "INTEGER", "MOD",
                               "REM", "ABS", "LENGTH", "MIN", "MAX", "INTEGER-PART")  # fmt: skip
         return False
 
@@ -336,7 +342,7 @@ class Gen:
             return f"Cobol.compare({fa}, {self.text(b)}, CS)"
         if isinstance(b, E.Fig):
             if b.kind == "ALL":
-                return f"Cobol.compareAll({fa}, {jstr(b.all_literal)}, CS)"
+                return f"Cobol.compareAll({fa}, {jstr(b.all_literal or '')}, CS)"
             return f"Cobol.compareFigurative({fa}, Figurative.{_fig(b.kind)}, CS)"
         if isinstance(b, E.Func):
             return f"Cobol.compareText(Cobol.text({fa}, CS), {self.text(b)})"
@@ -347,6 +353,8 @@ class Gen:
     def cond_field(self, cn: L.Item, subscripts=()) -> str:
         """The item an 88 tests, its subscripts applied (the 88's own, as written on the condition-name)."""
         parent = cn.parent
+        if parent is None:
+            raise Untranslatable(f"88 {cn.name}: no parent item")
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -391,7 +399,7 @@ class Gen:
             return f"Cobol.move({self.text(src)}, {ft}, CS);"
         if isinstance(src, E.Fig):
             if src.kind == "ALL":
-                return f"Cobol.moveAll({jstr(src.all_literal)}, {ft}, CS);"
+                return f"Cobol.moveAll({jstr(src.all_literal or '')}, {ft}, CS);"
             return f"Cobol.moveFigurative(Figurative.{_fig(src.kind)}, {ft}, CS);"
         if isinstance(src, E.Func):
             if self.is_numeric(src):
@@ -865,7 +873,7 @@ class Gen:
                 n = len(like.value) if isinstance(like, E.Lit) and isinstance(like.value, str) else 1
                 return jstr(ch * n)
             if isinstance(e, E.Fig):
-                return jstr(e.all_literal)
+                return jstr(e.all_literal or "")
             return self.text(e)
 
         clauses = []
@@ -1005,7 +1013,7 @@ def _ancestors(it: L.Item) -> list[str]:
 def _occurs_chain(it: L.Item) -> list[L.Item]:
     """The OCCURS items from the outermost to `it` (itself included when it OCCURS)."""
     chain = []
-    a = it
+    a: L.Item | None = it
     while a is not None:
         if a.occurs > 1 or a.depending:
             chain.append(a)

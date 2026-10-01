@@ -45,6 +45,13 @@ class CicsError(Exception):
 
 
 # ---- the EXEC text ----------------------------------------------------------------------------------------------
+def _arg(v: str | None) -> str:
+    """An EXEC CICS option's argument text; a bare option where one is needed is an error."""
+    if v is None:
+        raise CicsError("EXEC CICS option needs an argument")
+    return v
+
+
 def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
     """EXEC CICS VERB [VERB2] OPT(arg) OPT ... END-EXEC -> ([verb words], {option: arg text or None})."""
     body = re.sub(r"(?is)^\s*EXEC\s+CICS\s+|\s*END-EXEC\s*\.?\s*$", "", text).strip()
@@ -380,8 +387,8 @@ class Cics:
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)
         if verb == "SEND" or verb == "SEND TEXT":
-            f = self.field(opts["FROM"])
-            n = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else str(self.size(opts["FROM"]))
+            f = self.field(_arg(opts["FROM"]))
+            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             flags = [o for o in TEXT_OPTIONS if o in opts]
             t = g.tmpname("text")
             return [f"{ind}String {t} = Cobol.text({f}, CS);",
@@ -392,13 +399,13 @@ class Cics:
             return self.receive_map(opts, ind)
         if verb == "RETURN":
             if "TRANSID" in opts or "COMMAREA" in opts:
-                tid = self.name(opts["TRANSID"]) if opts.get("TRANSID") else "null"
+                tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
                 dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
                 return [f"{ind}task.returnTransid({tid}, {dto}, {length});", f"{ind}if (true) throw new Goback();"]
             return [f"{ind}task.returnTransid(null, null);", f"{ind}if (true) throw new Goback();"]
         if verb == "XCTL":
             prog_lit = _literal(opts["PROGRAM"])
-            prog = self.name(opts["PROGRAM"])
+            prog = self.name(_arg(opts["PROGRAM"]))
             if "COMMAREA" in opts:
                 dto, length = self.commarea_out(opts, prog_lit)
                 call = f"task.xctl({prog}, {dto}, {length})" if length != "null" else f"task.xctl({prog}, {dto})"
@@ -413,7 +420,7 @@ class Cics:
             return self.file_update(verb, opts, ind)
         if verb == "HANDLE ABEND":
             if "LABEL" in opts:
-                label = opts["LABEL"].upper()
+                label = _arg(opts["LABEL"]).upper()
                 if label not in g.para_index:
                     raise CicsError(f"HANDLE ABEND LABEL({label}): no such paragraph")
                 return [f"{ind}task.handleAbend({G_jstr(label)});"]
@@ -424,16 +431,16 @@ class Cics:
             raise CicsError("HANDLE ABEND PROGRAM")
         if verb == "HANDLE CONDITION":
             out = []
-            for cond, label in opts.items():
-                if label is None:
+            for cond, target in opts.items():
+                if target is None:
                     out.append(f"{ind}handlers.remove({G_jstr(cond)});")
                     continue
-                if label.upper() not in g.para_index:
-                    raise CicsError(f"HANDLE CONDITION {cond}({label}): no such paragraph")
-                out.append(f"{ind}handlers.put({G_jstr(cond)}, {g.para_index[label.upper()]});")
+                if target.upper() not in g.para_index:
+                    raise CicsError(f"HANDLE CONDITION {cond}({target}): no such paragraph")
+                out.append(f"{ind}handlers.put({G_jstr(cond)}, {g.para_index[target.upper()]});")
             return out
         if verb == "ABEND":
-            code = self.name(opts["ABCODE"]) if opts.get("ABCODE") else '""'
+            code = self.name(_arg(opts["ABCODE"])) if opts.get("ABCODE") else '""'
             fn = "abendCancel" if "CANCEL" in opts else "abend"
             lbl = g.tmpname("exit")
             return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw new Goback();",
@@ -444,36 +451,38 @@ class Cics:
                 src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()"}.get(k)
                 if src is None:
                     raise CicsError(f"ASSIGN {k}")
-                out.append(f"{ind}DetCics.putText({self.field(v)}, {src}, CS);")
+                out.append(f"{ind}DetCics.putText({self.field(_arg(v))}, {src}, CS);")
             return out
         if verb == "ASKTIME":
-            return [f"{ind}Cobol.store({self.field(opts['ABSTIME'])}, BigDecimal.valueOf(task.asktime()), false, CS);"]
+            return [
+                f"{ind}Cobol.store({self.field(_arg(opts['ABSTIME']))}, BigDecimal.valueOf(task.asktime()), false, CS);"
+            ]
         if verb == "FORMATTIME":
-            t = f"Cobol.num({self.field(opts['ABSTIME'])}, CS).longValue()"
+            t = f"Cobol.num({self.field(_arg(opts['ABSTIME']))}, CS).longValue()"
             out = []
             for form in ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY"):
                 if form in opts:
-                    sep = self.text(opts["DATESEP"]) if opts.get("DATESEP") else '""'
+                    sep = self.text(_arg(opts["DATESEP"])) if opts.get("DATESEP") else '""'
                     out.append(f"{ind}Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
-                               f"{self.field(opts[form])}, CS);")  # fmt: skip
+                               f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
             if "TIME" in opts:
-                sep = self.text(opts["TIMESEP"]) if opts.get("TIMESEP") else '""'
-                out.append(f"{ind}Cobol.move(CicsTask.formatTime({t}, {sep}), {self.field(opts['TIME'])}, CS);")
+                sep = self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP") else '""'
+                out.append(f"{ind}Cobol.move(CicsTask.formatTime({t}, {sep}), {self.field(_arg(opts['TIME']))}, CS);")
             if not out:
                 raise CicsError("FORMATTIME form")
             return out
         if verb == "INQUIRE" and "PROGRAM" in opts:
             r = g.tmpname("resp")
-            return [f"{ind}int {r} = task.inquireProgram({self.name(opts['PROGRAM'])});",
+            return [f"{ind}int {r} = task.inquireProgram({self.name(_arg(opts['PROGRAM']))});",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
-            f = self.field(opts["FROM"])
-            n = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else str(self.size(opts["FROM"]))
-            return [f"{ind}int {r} = task.writeqTd({self.name(opts['QUEUE'])}, "
+            f = self.field(_arg(opts["FROM"]))
+            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
+            return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
-        if verb == "SYNCPOINT":
+        if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
             return [f"{ind}task.{'rollback' if 'ROLLBACK' in opts else 'syncpoint'}();"]
         raise CicsError(f"EXEC CICS {verb} not modelled")
 
@@ -521,6 +530,8 @@ class Cics:
                              f'throw new Hole("MAP " + {self.name(opts["MAP"])} + ": not the map of {name}");')  # fmt: skip
         if ms is None and m is not None and opts.get("MAPSET"):
             cls = self.gp.screens.get(m)
+            if cls is None:
+                raise CicsError(f"no screen class for map {m}")
             ms_text = re.search(
                 r'String MAPSET = "([^"]+)"', self.gp._file("dto/screen", cls).read_text(encoding="utf-8")
             )
@@ -587,7 +598,7 @@ class Cics:
 
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
         st = self.store(opts)
-        file = self.name(opts.get("DATASET") or opts.get("FILE"))
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         into = self.field(opts["INTO"])
         rid = self.field(opts["RIDFLD"])
         g = self.g
@@ -613,7 +624,7 @@ class Cics:
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         st = self.store(opts)
-        file = self.name(opts.get("DATASET") or opts.get("FILE"))
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
         r = g.tmpname("resp")
         if verb == "WRITE":

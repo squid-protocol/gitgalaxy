@@ -82,7 +82,9 @@ class ClassCond:
 @dataclass
 class CondName:
     ref: Ref
-    abbrev: object = None  # (op, subject, negated): an abbreviated relation's object, if not a condition-name
+    abbrev: tuple[str, object, bool] | None = (
+        None  # (op, subject, negated): an abbreviated relation's object, if not a condition-name
+    )
 
 
 @dataclass
@@ -152,6 +154,8 @@ class Parser:
         if tok is None:
             raise ExprError("missing operand")
         u = self.up()
+        if u is None:
+            raise ExprError("missing operand")
         if tok[:1] in "'\"":
             self.i += 1
             return Lit(_unquote(tok))
@@ -172,7 +176,7 @@ class Parser:
         if _is_number(tok):
             self.i += 1
             return Lit(Decimal(tok.replace(",", ".") if tok.count(",") == 1 and "." not in tok else tok))
-        if u in ("+", "-") and self.peek(1) is not None and _is_number(self.peek(1)):
+        if u in ("+", "-") and (nxt1 := self.peek(1)) is not None and _is_number(nxt1):
             self.i += 2
             return Lit(Decimal(u + self.t[self.i - 1]))
         if u == "FUNCTION":
@@ -423,7 +427,7 @@ class Parser:
         return op, neg
 
 
-def _last_rel(c, negated: bool = False) -> tuple:
+def _last_rel(c, negated: bool = False) -> tuple[Rel | None, bool]:
     """The last relation of a condition and whether a NOT applies to it: (Rel | None, negated)."""
     if isinstance(c, Rel):
         return c, negated

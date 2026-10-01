@@ -354,6 +354,20 @@ public final class Cobol {
         return cmpBytes(a.raw(), b.raw(), cs);
     }
 
+    /** Two texts compared as nonnumeric operands (a function's result, a literal): the shorter padded with
+     *  spaces, character by character in their code (the record charset's byte order for a single-byte one). */
+    public static int compareText(String a, String b) {
+        int n = Math.max(a.length(), b.length());
+        for (int i = 0; i < n; i++) {
+            char x = i < a.length() ? a.charAt(i) : ' ';
+            char y = i < b.length() ? b.charAt(i) : ' ';
+            if (x != y) {
+                return x < y ? -1 : 1;
+            }
+        }
+        return 0;
+    }
+
     public static int compare(Field a, String nonnumericLiteral, Charset cs) {
         return cmpBytes(a.raw(), nonnumericLiteral.getBytes(cs), cs);
     }

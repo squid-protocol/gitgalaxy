@@ -138,9 +138,55 @@ _USAGE = {"COMP": "BINARY", "COMP_4": "BINARY", "BINARY": "BINARY", "COMPUTATION
           "DISPLAY": "DISPLAY"}  # fmt: skip
 
 
+def _data_only(lines: list[Line]) -> list[Line]:
+    """The lines the record parser needs, others blanked (kept, so each item keeps its line): the IDENTIFICATION
+    DIVISION's paragraphs after PROGRAM-ID (REMARKS, DATE-COMPILED ... -- obsolete, free text), EXEC SQL blocks
+    left in the DATA DIVISION (DECLARE CURSOR / TABLE: no storage; an INCLUDE was expanded as a COPY), and a
+    section header with nothing under it (an empty LINKAGE SECTION)."""
+    out = [Line(ln.text, ln.file, ln.line) for ln in lines]
+    in_id = False
+    want_name = False  # PROGRAM-ID. with its name on a later line
+    for ln in out:
+        t = ln.text.strip().upper()
+        if re.match(r"(IDENTIFICATION|ID)\s+DIVISION\b", t):
+            in_id = True
+            continue
+        if re.match(r"(ENVIRONMENT|DATA|PROCEDURE)\s+DIVISION\b", t):
+            in_id = False
+        if re.match(r"PROCEDURE\s+DIVISION\b", t):
+            break
+        if in_id and re.match(r"PROGRAM-ID\b", t):
+            want_name = not re.sub(r"^PROGRAM-ID\.?", "", t).strip()
+            continue
+        if in_id and want_name and t:
+            want_name = False
+            continue
+        if in_id:
+            ln.text = ""
+    k = 0
+    while k < len(out):
+        t = out[k].text.strip().upper()
+        if re.match(r"PROCEDURE\s+DIVISION\b", t):
+            break
+        if re.match(r"EXEC\s+SQL\b", t):
+            while k < len(out):
+                done = re.search(r"\bEND-EXEC\b", out[k].text, re.I)
+                out[k].text = ""
+                k += 1
+                if done:
+                    break
+            continue
+        if re.match(r"[A-Z0-9-]+\s+SECTION\s*\.$", t):
+            nxt = next((x.text.strip().upper() for x in out[k + 1 :] if x.text.strip()), "")
+            if re.match(r"([A-Z0-9-]+\s+SECTION|[A-Z]+\s+DIVISION)\b", nxt):
+                out[k].text = ""
+        k += 1
+    return out
+
+
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    text = as_fixed(lines)
+    text = as_fixed(_data_only(lines))
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
     head = text[: m.start()] if m else text
@@ -195,7 +241,7 @@ def parse(lines: list[Line]) -> list[Item]:
         _inherit_usage(r, None)
         layout(r)
     # an 01 REDEFINES another 01 of its section shares that record's storage
-    by_name = {}
+    by_name: dict[tuple[str, str], Item] = {}
     for r in records:
         if r.redefines and r.level == 1:
             target = by_name.get((r.section, r.redefines))
@@ -258,6 +304,8 @@ def _value(node, src: bytes):
 
 def _one(node, src: bytes):
     t, text = node.type, _txt(node, src)
+    if text[:1] not in "'\"":
+        text = text.rstrip(",;")  # `VALUES 0, 1`: the grammar hands the separator over with the value
     up = text.upper()
     if t in ("string",):
         q = text[0]
@@ -301,7 +349,7 @@ def layout(rec: Item) -> None:
             it.size = it.elementary_size() if (it.pic or it.usage != "DISPLAY") else 0
             return it.size * it.occurs
         cur = at
-        by_name = {}
+        by_name: dict[str, Item] = {}
         for c in it.children:
             if c.redefines:
                 target = by_name.get(c.redefines)

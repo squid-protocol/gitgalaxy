@@ -193,6 +193,13 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
         if port and port_dir.is_dir()
         else []
     )
+    # A program that CALLs another (COTRN02C -> CSUTLDTC) runs against that program's proven port, never its
+    # generated stub: `uses_ports` names the cases whose ports are laid first; the case's own port is laid last.
+    used = [(CASES / other / "port", rel) for other in case.get("uses_ports", [])
+            for rel in sorted(f.relative_to(CASES / other / "port").as_posix()
+                              for f in (CASES / other / "port").rglob("*.java"))]  # fmt: skip
+    # (merged before --reuse compares it with the earlier run's: both carry the borrowed files)
+    overlay = [rel for _, rel in used if rel not in overlay] + overlay
     earlier = common.reused(work)
     if earlier is not None:  # --reuse: the earlier run's project, built from the same estate by the same generator
         project = _reused_project(earlier, work, overlay)
@@ -201,12 +208,6 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
         # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
         config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
         project = jtm.generate(clean, "h2", config, work)
-    # A program that CALLs another (COTRN02C -> CSUTLDTC) runs against that program's proven port, never its
-    # generated stub: `uses_ports` names the cases whose ports are laid first; the case's own port is laid last.
-    used = [(CASES / other / "port", rel) for other in case.get("uses_ports", [])
-            for rel in sorted(f.relative_to(CASES / other / "port").as_posix()
-                              for f in (CASES / other / "port").rglob("*.java"))]  # fmt: skip
-    overlay = [rel for _, rel in used if rel not in overlay] + overlay
     (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
     for rel in overlay:
         dest = project / "src/main/java" / PKG_DIR / rel

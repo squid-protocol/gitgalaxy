@@ -8,6 +8,8 @@ attempts run out. What each attempt got wrong is the lesson: in the model, the t
     python tests/tools/porting_loop.py run <case> --work DIR [--attempts 3] [--model claude-sonnet-5-5]
                                        [--faults all|none|NAME,...] [--backend-command "..."]
     python tests/tools/porting_loop.py report DIR          # loop.md again from loop.json
+    python tests/tools/porting_loop.py run-many CASE... --work-root DIR [--jobs 6]   # many loops at once
+    python tests/tools/porting_loop.py adopt CASE DIR       # a proven port into the case, with its provenance
 
 `run` generates the case's Java project once (the same refract -> cobol-to-java path the harness proves in, target
 config h2), which writes the porting ticket, then per attempt:
@@ -30,6 +32,7 @@ import argparse
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -75,6 +78,30 @@ def generate_project(case_name: str, work: Path) -> Path:
     return project
 
 
+def _overlay_files(overlay: Path) -> list[str]:
+    return sorted(f.relative_to(overlay).as_posix() for f in overlay.rglob("*.java")) if overlay.is_dir() else []
+
+
+def start_baseline(
+    case_name: str, project: Path, program: str, work: Path
+) -> tuple[subprocess.Popen[bytes], list[str]]:
+    """A proof of the generated service itself (it fails: it is the stub), started while the model writes: its COBOL
+    side and its built project are what every attempt's proof then reuses (equivalence.py --reuse) -- 13 s instead
+    of 45 for CardDemo's sign-on, regenerating nothing. Its overlay is the generated service, so a port that
+    replaces the same file reuses it; one that replaces others is proven in full."""
+    import equivalence_java as ej
+
+    svc = ej._service_class(program)
+    rel = f"service/{svc}.java"
+    overlay = work / "baseline_overlay"
+    (overlay / "service").mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(project / "src/main/java" / ej.PKG_DIR / rel, overlay / rel)
+    log = (work / "baseline.log").open("wb")
+    argv = [_python(), str(TOOLS / "equivalence.py"), "run", case_name, "--port", str(overlay), "--keep",
+            str(work / "baseline")]  # fmt: skip
+    return subprocess.Popen(argv, stdout=log, stderr=subprocess.STDOUT, cwd=REPO_ROOT), [rel]  # noqa: S603
+
+
 def _events(project: Path) -> list[dict[str, Any]]:
     log = project / "ai_agent_jobs" / "ports" / "port_log.jsonl"
     return [json.loads(x) for x in log.read_text(encoding="utf-8").splitlines() if x.strip()] if log.is_file() else []
@@ -90,10 +117,12 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Opti
     log = work / "loop.log"
     t0 = time.time()
     project = generate_project(case_name, work)
+    baseline, baseline_files = start_baseline(case_name, project, key, work)
     command = backend_command or CLAUDE.replace("MODEL", model)
     prove = f"{_python()} {TOOLS / 'equivalence.py'} run {case_name} --port {{port_dir}} --keep {{report_dir}}"
     if faults:
         prove += f" --faults {faults}"
+    overlay = project / "ai_agent_jobs" / "ports" / key / "overlay"
     record: dict[str, Any] = {"case": case_name, "program": key, "model": model,
                               "backend": "command" if backend_command else "claude-code-headless",
                               "project": str(project), "attempts": [], "proven": False}  # fmt: skip
@@ -114,7 +143,11 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Opti
             record["attempts"].append(att)
             continue
         started = time.time()
-        proof = _run([*runner, "prove", str(project), "--ticket", key, "--command", prove], log)
+        baseline.wait()
+        reuse = (work / "baseline").is_dir() and _overlay_files(overlay) == baseline_files
+        att["reused"] = reuse
+        command_ = prove + (f" --reuse {work / 'baseline'}" if reuse else "")
+        proof = _run([*runner, "prove", str(project), "--ticket", key, "--command", command_], log)
         att["prove_seconds"] = round(time.time() - started)
         report = project / "ai_agent_jobs" / "ports" / key / "attempts" / f"{n:03d}_proof" / "report.json"
         r = json.loads(report.read_text(encoding="utf-8")) if report.is_file() else {}
@@ -160,6 +193,70 @@ def loop_md(r: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def adopt(case_name: str, work: Path) -> Path:
+    """A proven loop's port into the case: the model's files as the loop stored them -- never edited -- and
+    port/provenance.json from the loop's own records (model, attempt, ticket hash, prompt tokens). Refused unless the
+    loop proved it."""
+    import equivalence as eq
+
+    record = json.loads((work / "loop.json").read_text(encoding="utf-8"))
+    if not record.get("proven") or record.get("case") != case_name:
+        raise SystemExit(f"{work}: not a proven loop of {case_name}")
+    case = eq.load_case(case_name)
+    key = case["program"]
+    project = Path(record["project"])
+    overlay = project / "ai_agent_jobs" / "ports" / key / "overlay"
+    proposed = [e for e in _events(project) if e.get("event") == "proposed" and e.get("ticket") == key][-1]
+    dest = eq.CASES / case_name / "port"
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(overlay, dest)
+    provenance = {
+        "format": "porting-loop-provenance/1", "program": key,
+        "written_by": "model (the #4023 follow-up porting loop), not a person", "model": record["model"],
+        "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt", "proposed": proposed.get("at"),
+        "attempt": len(record["attempts"]), "attempts": [{"n": a["n"], "verdict": a["verdict"]} for a in record["attempts"]],
+        "ticket_sha256": proposed.get("ticket_sha256"), "prompt_tokens": proposed.get("prompt_tokens"),
+        "proof": f"tests/tools/equivalence.py run {case_name}",
+        "edited_after": "none: the files are the model's answer as the loop stored it",
+        "licence": case.get("port_licence", "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its "
+                                            "affiliates) -- see LICENSE and NOTICE in this case's directory"),
+    }  # fmt: skip
+    (dest / "provenance.json").write_text(json.dumps(provenance, indent=1) + "\n", encoding="utf-8")
+    return dest
+
+
+def run_many(cases: list[str], root: Path, jobs: int, attempts: int, model: str) -> dict[str, bool]:
+    """Many loops at once, each its own process and work directory (root/<case>); the model's time, not the
+    harness's, is what a loop mostly waits on. Starts are staggered so the generations do not all coincide."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    def one(i_case: tuple[int, str]) -> tuple[str, bool]:
+        i, name = i_case
+        time.sleep(min(i, jobs) * 15)
+        work = root / name
+        if work.exists():
+            shutil.rmtree(work)
+        argv = [_python(), str(Path(__file__).resolve()), "run", name, "--work", str(work), "--attempts",
+                str(attempts), "--model", model]  # fmt: skip
+        with (root / f"{name}.out").open("w", encoding="utf-8") as out:
+            proc = subprocess.run(argv, stdout=out, stderr=subprocess.STDOUT, check=False, cwd=REPO_ROOT)  # noqa: S603
+        return name, proc.returncode == 0
+
+    root.mkdir(parents=True, exist_ok=True)
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        results = dict(pool.map(one, enumerate(cases)))
+    for name in cases:
+        r = (
+            json.loads((root / name / "loop.json").read_text(encoding="utf-8"))
+            if (root / name / "loop.json").is_file()
+            else {}
+        )
+        verdict = f"proven on attempt {len(r['attempts'])}" if r.get("proven") else "not proven"
+        print(f"{name:<28} {verdict:<22} {r.get('seconds', '--')} s")
+    return results
+
+
 def main(argv: Optional[list[str]] = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -172,7 +269,23 @@ def main(argv: Optional[list[str]] = None) -> int:
     r.add_argument("--backend-command", help="another command backend ({prompt_file} / {prompt_dir})")
     p = sub.add_parser("report")
     p.add_argument("work", type=Path)
+    m = sub.add_parser("run-many")
+    m.add_argument("cases", nargs="+")
+    m.add_argument("--work-root", type=Path, required=True)
+    m.add_argument("--jobs", type=int, default=6)
+    m.add_argument("--attempts", type=int, default=4)
+    m.add_argument("--model", default="claude-sonnet-5-5")
+    a = sub.add_parser("adopt")
+    a.add_argument("case")
+    a.add_argument("work", type=Path)
     args = ap.parse_args(argv)
+    if args.cmd == "run-many":
+        os.environ.setdefault("PYTHONUTF8", "1")
+        results = run_many(args.cases, args.work_root.resolve(), args.jobs, args.attempts, args.model)
+        return 0 if all(results.values()) else 1
+    if args.cmd == "adopt":
+        print(adopt(args.case, args.work.resolve()))
+        return 0
     if args.cmd == "report":
         record = json.loads((args.work / "loop.json").read_text(encoding="utf-8"))
         (args.work / "loop.md").write_text(loop_md(record), encoding="utf-8")

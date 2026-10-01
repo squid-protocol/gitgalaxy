@@ -208,3 +208,13 @@ def test_the_ceedays_model_refuses_a_blank_padded_date(tmp_path, date):
                            "gcc -o t t.c ceedays.c && ./t"], capture_output=True, text=True, check=False)  # fmt: skip
     assert proc.returncode == 98 and "converted" not in proc.stdout
     assert "trailing blanks is not modelled" in proc.stderr
+
+
+def test_adopt_refuses_a_loop_that_did_not_prove(tmp_path):
+    """Only a proven loop's port is taken into a case: never a failed one, never another case's."""
+    (tmp_path / "loop.json").write_text(json.dumps({"case": "carddemo-menu", "proven": False, "attempts": []}))
+    with pytest.raises(SystemExit, match="not a proven loop"):
+        pl.adopt("carddemo-menu", tmp_path)
+    (tmp_path / "loop.json").write_text(json.dumps({"case": "carddemo-useradd", "proven": True, "attempts": []}))
+    with pytest.raises(SystemExit, match="not a proven loop of carddemo-menu"):
+        pl.adopt("carddemo-menu", tmp_path)

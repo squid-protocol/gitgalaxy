@@ -100,3 +100,23 @@ JAVA_HOME=<a JDK 17> GITGALAXY_MAINFRAME_CORPORA=<the corpora cache> \
 ```
 
 It writes `loop.md` / `loop.json` in the work directory, and port_runner's `port_log.jsonl` in the generated project.
+
+### At scale
+
+```sh
+python tests/tools/porting_loop.py run-many carddemo-userlist carddemo-billpay ... --work-root /tmp/loops --jobs 6
+python tests/tools/porting_loop.py adopt carddemo-userlist /tmp/loops/carddemo-userlist
+```
+
+- **run-many** runs the loops side by side, each in its own process and work directory. A loop mostly waits on the
+  model (about 140 s per attempt for CardDemo's online programs), so concurrency is the main lever.
+- **Each loop proves against a baseline.** While the model writes the first attempt, the loop proves the generated
+  service itself (it fails: it is the stub). Every attempt then reuses that run's COBOL side and built project
+  (`equivalence.py --reuse`): 13 s a proof instead of 45 for CardDemo's sign-on, regenerating nothing. A port that
+  replaces other files than the generated service is proven in full.
+- **adopt** copies a proven port into the case unchanged and writes `port/provenance.json` from the loop's own records
+  (model, attempts, ticket hash, prompt tokens). It refuses a loop that did not prove.
+
+Writing a case -- reading the program and choosing scenarios whose COMMAREA is the state the program itself leaves --
+is now the slow part. It parallelises the same way: one agent per program drafts the case from the finished cases as
+models and runs its COBOL side (`equivalence.py run <case> --cobol-only`); a person reviews it before it is committed.

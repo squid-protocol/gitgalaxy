@@ -301,6 +301,11 @@ What these numbers do not show:
   branches. The mutation scores are raw: mutants that cannot change behaviour are not
   removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
 - **19 of CardDemo's 44 programs** are ported so far.
+- **Not proven, on purpose:** COCRDUPC (card update). Its confirmed update writes blanks into the card's
+  `PIC 9(3)` CVV -- invalid numeric data a typed Java field cannot hold. The case keeps the scenario and the
+  port stays unproven rather than hide the defect.
+- **Pending:** COACTUPC (account update, 4,236 lines) -- its case is written (54 scenarios), but the program is
+  too large to port in one model answer.
 
 ------------------------------------------------------------------------
 

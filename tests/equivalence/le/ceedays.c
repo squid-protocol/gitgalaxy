@@ -20,7 +20,9 @@
  *   CEE2EH (2513)  the date is outside the supported range, 15 October 1582 to 31 December 9999
  *   CEE2EO (2520)  non-numeric data in a numeric position, or the date does not match the picture's separators
  * NOT modelled, and refused the same way: a numeric month outside 1-12 (2508 or 2517 -- IBM's documentation does
- * not settle it). Pictures modelled: YYYY-MM-DD exactly (any other one-character separator in the same places: YYYY/MM/DD,
+ * not settle it); a date with trailing blanks, all blanks included (#4049: whether CEEDAYS ignores them -- 2507,
+ * insufficient data, once the date is shorter than the picture -- or reads a blank in a numeric position as 2520
+ * is not documented either; the test-strengthening loop found a port and this model disagreeing on exactly that). Pictures modelled: YYYY-MM-DD exactly (any other one-character separator in the same places: YYYY/MM/DD,
  * YYYY.MM.DD). Any other picture -- YYYYMMDD in a longer field, Julian DDD, month names, eras -- is NOT modelled:
  * the call writes "CEEDAYS: picture not modelled" to stderr and ends the run (exit 98), so no proof ever rests
  * on a guess.
@@ -91,6 +93,11 @@ int CEEDAYS(unsigned char *date, unsigned char *pic, unsigned char *lilian, unsi
         exit(98);
     }
     put_lilian(lilian, 0);
+    if (dl > 0 && d[dl - 1] == ' ') {
+        fprintf(stderr, "CEEDAYS: a date with trailing blanks is not modelled (2507 or 2520?): '%.*s'\n", dl,
+                (const char *)d);
+        exit(98);
+    }
     if (dl < pl) {
         put_fc(fc, 2507);
         return 0;

@@ -170,3 +170,21 @@ def test_no_committed_port_or_case_lost_its_json_to_the_ignore_rule():
     assert cases and [p for p in cases if not (p / "case.json").is_file()] == []
     looped = [p for p in cases if (p / "port").is_dir() and (p / "port" / "provenance.json").exists()]
     assert {p.name for p in looped} >= {"carddemo-trnrpt", "carddemo-menu", "carddemo-dateutil"}
+
+
+@pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker"), reason="needs Docker")
+@pytest.mark.parametrize("date", ["2022-07-1 ", "2022-07   ", "          "])
+def test_the_ceedays_model_refuses_a_blank_padded_date(tmp_path, date):
+    """#4049: IBM does not document whether CEEDAYS ignores trailing blanks (2507 once the date is shorter than the
+    picture) or reads a blank in a numeric position (2520) -- so the model refuses, as for month 13."""
+    main = ['#include <stdio.h>', '#include <string.h>',
+            'int CEEDAYS(unsigned char*, unsigned char*, unsigned char*, unsigned char*);',
+            'static void vs(unsigned char *b, const char *s) { size_t n = strlen(s); b[0] = 0; b[1] = (unsigned char)n; memcpy(b + 2, s, n); }',
+            'int main(void) { unsigned char d[16], p[16], l[4], fc[12];',
+            f'vs(d, "{date}"); vs(p, "YYYY-MM-DD"); CEEDAYS(d, p, l, fc); puts("converted"); return 0; }}']  # fmt: skip
+    (tmp_path / "t.c").write_text("\n".join(main), encoding="ascii")
+    shutil.copy(ecall.LE / "ceedays.c", tmp_path / "ceedays.c")
+    proc = subprocess.run(["docker", "run", "--rm", "-v", f"{tmp_path}:/w", "-w", "/w", eq.IMAGE, "bash", "-c",  # noqa: S603, S607
+                           "gcc -o t t.c ceedays.c && ./t"], capture_output=True, text=True, check=False)  # fmt: skip
+    assert proc.returncode == 98 and "converted" not in proc.stdout
+    assert "trailing blanks is not modelled" in proc.stderr

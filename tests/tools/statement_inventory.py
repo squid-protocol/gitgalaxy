@@ -37,6 +37,9 @@ from typing import Any
 
 TOOLS = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOLS))
+sys.path.insert(0, str(TOOLS.parents[1]))
+
+from gitgalaxy.core.source_text import read_source  # noqa: E402
 
 VERBS = {
     "ACCEPT", "ADD", "ALTER", "CALL", "CANCEL", "CLOSE", "COMPUTE", "CONTINUE", "DELETE", "DISPLAY", "DIVIDE",
@@ -92,7 +95,7 @@ def expand(lines: list[tuple[int, str]], index: dict[str, Path], depth: int = 0)
         if member is None:
             out.append((n, f"*GG-UNRESOLVED-COPY {m.group(1)}"))
         else:
-            body = code_lines(member.read_text(encoding="latin-1", errors="replace"))
+            body = code_lines(read_source(member).text)
             for a, b in re.findall(r"==(.*?)==\s+BY\s+==(.*?)==", stmt, re.I | re.S):
                 body = [(k, t.replace(a.strip(), b.strip())) for k, t in body]
             out += [(n, t) for _, t in expand(body, index, depth + 1)]
@@ -249,7 +252,7 @@ def inventory(corpora: list[Path]) -> dict[str, Any]:
         estate = {p.stem.upper() for p in progs}
         rows = []
         for p in progs:
-            text = p.read_text(encoding="latin-1", errors="replace")
+            text = read_source(p).text  # #3813: decoded without losing a byte
             proc = procedure_division(expand(code_lines(text), index))
             sts = statements(tokens(proc))
             counts: Counter[str] = Counter()

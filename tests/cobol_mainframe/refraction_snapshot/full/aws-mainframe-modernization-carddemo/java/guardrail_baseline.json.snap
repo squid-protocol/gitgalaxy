@@ -1684,7 +1684,7 @@
       "kind": "data",
       "methods": [],
       "program": null,
-      "sha256": "d5b9ecab6285e3ca8149bb1faaac000aabe31c6238271ed9b101445cbb7f3f4b"
+      "sha256": "31cd2b0f9d4adcdbddbe5fce8e280f726b59f58cd6017cae7544514e22b1f534"
     },
     "src/main/java/com/gitgalaxy/modernized/entity/Cbtrn01cWsMiscVariables.java": {
       "calls": [],

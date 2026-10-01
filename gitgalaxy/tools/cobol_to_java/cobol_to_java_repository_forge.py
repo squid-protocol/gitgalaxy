@@ -36,7 +36,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import (
     parse_pic_precision,
     status_text,
 )
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, sql_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import _accessors, _declared_fields
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
@@ -724,7 +724,7 @@ class RepositoryForge:
         java.append(f" * Generated from GitGalaxy's verified skeleton; VSAM defines field testing: {self.status}.")
         java.append(" */")
         java.append(f'@Entity(name = "Vsam{st.entity}")')
-        java.append(f'@Table(name = "{st.table}")')
+        java.append(f'@Table(name = "{sql_name(st.table)}")')
         if t.lombok:
             java += ["@Data", "@NoArgsConstructor"]
         java.append(f"public class {st.entity} {{\n")
@@ -752,10 +752,10 @@ class RepositoryForge:
             column = f.cobol.upper().replace("-", "_")
             if f.occurs:
                 body.append("    @ElementCollection")
-                body.append(f'    @CollectionTable(name = "{st.table}_{column.lower()}")')
+                body.append(f'    @CollectionTable(name = "{sql_name(f"{st.table}_{column.lower()}")}")')
                 body.append(f"    private List<{f.jtype}> {f.java};\n")
                 continue
-            attrs = [f'name = "{column}"', *_decimal_attrs(f)]
+            attrs = [f'name = "{sql_name(column)}"', *_decimal_attrs(f)]  # #4037: a reserved word quoted
             if f.jtype == "String" and f.bytes is not None:  # a width not known: the JPA default
                 attrs.append(f"length = {max(f.bytes, 1)}")
             if f is st.key and f.jtype == "String":
@@ -887,7 +887,7 @@ class RepositoryForge:
         body: list[str] = []
         for f in st.composite:
             column = f.cobol.upper().replace("-", "_")
-            attrs = [f'name = "{column}"', *_decimal_attrs(f)] + (
+            attrs = [f'name = "{sql_name(column)}"', *_decimal_attrs(f)] + (
                 [f"length = {max(f.bytes, 1)}"] if f.jtype == "String" and f.bytes is not None else []
             )
             if f.jtype == "String":

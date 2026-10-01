@@ -251,7 +251,9 @@ def test_an_installed_tiktoken_that_cannot_load_its_encoding_does_not_take_the_e
     root = Path(__file__).resolve().parents[2]
     proc = subprocess.run(  # noqa: S603 -- a fresh interpreter: the module-level import is what is tested
         [sys.executable, "-c", code], cwd=root, capture_output=True, text=True, check=False,
-        env={"PYTHONPATH": f"{tmp_path}{__import__('os').pathsep}{root}", "PATH": __import__("os").environ["PATH"]},
+        # SYSTEMROOT: without it a Windows interpreter cannot even seed its hash ("failed to get random numbers")
+        env={"PYTHONPATH": f"{tmp_path}{__import__('os').pathsep}{root}", "PATH": __import__("os").environ["PATH"],
+             **{k: v for k, v in __import__("os").environ.items() if k == "SYSTEMROOT"}},
     )  # fmt: skip
     assert proc.returncode == 0, proc.stderr
     assert proc.stdout.split() == ["False", "None"]

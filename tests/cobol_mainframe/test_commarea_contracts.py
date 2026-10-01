@@ -261,3 +261,22 @@ def test_the_continuation_is_found_after_a_condition_name(tmp_path):
     contracts = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).commarea_contracts()
     (menu,) = [c for c in contracts if c["verb"] == "XCTL" and c["target"] == "MENUPGM"]
     assert (menu["caller_record"]["fields"], menu["caller_record"]["bytes"]) == (3, 8 + 8 + 10)
+
+
+def test_the_continuation_is_found_after_a_closing_nested_group(tmp_path):
+    """CardDemo's COTRN02C: the entry before `COPY COCOM01Y` is `10 CSUTLDTC-RESULT-MSG`, the last item of `05
+    CSUTLDTC-RESULT`; its `05 CDEMO-CT02-INFO` after the COPY continues the record one level up."""
+    repo = tmp_path / "cicsapp"
+    program = CALLER.replace(
+        "          05 WS-FLAG                   PIC X.\n",
+        "          05 WS-FLAG                   PIC X.\n          05 WS-NEST.\n             10 WS-INNER   PIC X.\n",
+    )
+    assert "WS-INNER" in program
+    for rel, text in {"src/CALLER.cbl": program, "src/MENUPGM.cbl": MENUPGM, "copy/APPCOMM.cpy": APPCOMM,
+                      "copy/CUSTCOMM.cpy": CUSTCOMM, "src/CUSTPGM.cbl": CUSTPGM, "src/UPDPGM.cbl": UPDPGM,
+                      "csd/APP.csd": APPCSD}.items():  # fmt: skip
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text, encoding="ascii")
+    contracts = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan")).commarea_contracts()
+    (menu,) = [c for c in contracts if c["verb"] == "XCTL" and c["target"] == "MENUPGM"]
+    assert (menu["caller_record"]["fields"], menu["caller_record"]["bytes"]) == (3, 8 + 8 + 10)

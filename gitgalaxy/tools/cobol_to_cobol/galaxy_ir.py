@@ -1776,8 +1776,17 @@ class GalaxyIR:
                 continue
             if group is it:
                 return [(ef, c) for c in it.children]
-            siblings = group.children
-            return [(ef, c) for c in siblings[siblings.index(it) + 1 :]] if it in siblings else []
+            # The entries after the COPY follow `it` -- or, when `it` closes its group (COTRN02C: `10
+            # CSUTLDTC-RESULT-MSG` is the last of `05 CSUTLDTC-RESULT`, then `COPY COCOM01Y` and its own `05
+            # CDEMO-CT02-INFO`), follow the nearest enclosing group that has entries after it.
+            node = it
+            while group is not None and all(r.level <= group.level for r in roots):
+                siblings = group.children
+                after = siblings[siblings.index(node) + 1 :] if node in siblings else []
+                if after:
+                    return [(ef, c) for c in after]
+                node, group = group, by_ordinal.get(group.parent_ordinal)
+            return []
         return []
 
     def _pli_fragment(self, ef: Optional[EngineFile], member: str) -> Optional[EngineFile]:

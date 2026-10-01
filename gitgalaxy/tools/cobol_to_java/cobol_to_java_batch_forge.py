@@ -382,6 +382,85 @@ class BatchForge:
 
 
 _RUNTIME = {
+    "Sysout": """package {pkg};
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+/**
+ * The job log (#4056): a COBOL `DISPLAY` is `Sysout.display(...)` -- one line, its operands' text concatenated
+ * exactly as IBM Enterprise COBOL writes them -- not a log line. SYSOUT is what operators read and scripts parse,
+ * and the equivalence harness compares it line by line (trailing blanks aside). Written to standard output, or
+ * appended to the file named by the system property gitgalaxy.sysout.
+ */
+public final class Sysout {
+
+    private static final Object LOCK = new Object();
+    private static final String POSITIVE = "{ABCDEFGHI";
+    private static final String NEGATIVE = "}JKLMNOPQR";
+
+    private Sysout() {
+    }
+
+    /** `DISPLAY a b c`: one line. */
+    public static void display(Object... operands) {
+        write(join(operands) + "\\n");
+    }
+
+    /** `DISPLAY a b c WITH NO ADVANCING`: the next DISPLAY continues the line. */
+    public static void displayNoAdvancing(Object... operands) {
+        write(join(operands));
+    }
+
+    /**
+     * The text DISPLAY writes for a numeric item that is not edited and has no SIGN SEPARATE: its PICTURE digits
+     * (`digits`, of which `scale` decimals), zero-padded, with no decimal point; when `signed`, the sign
+     * overpunched in the last digit ({ A-I positive, } J-R negative). The same for a COMP / COMP-3 item, which IBM
+     * converts to that external decimal first. PIC S9(3) holding -12 is "01K"; PIC S9(4) COMP holding -7 is "000P".
+     */
+    public static String number(BigDecimal value, int digits, int scale, boolean signed) {
+        BigDecimal v = value == null ? BigDecimal.ZERO : value;
+        String d = v.setScale(scale, RoundingMode.DOWN).unscaledValue().abs().toString();
+        d = d.length() >= digits ? d.substring(d.length() - digits) : "0".repeat(digits - d.length()) + d;
+        if (!signed || digits == 0) {
+            return d;
+        }
+        int last = d.charAt(digits - 1) - '0';
+        return d.substring(0, digits - 1) + (v.signum() < 0 ? NEGATIVE : POSITIVE).charAt(last);
+    }
+
+    private static String join(Object... operands) {
+        StringBuilder b = new StringBuilder();
+        for (Object o : operands) {
+            b.append(o);
+        }
+        return b.toString();
+    }
+
+    private static void write(String text) {
+        String target = System.getProperty("gitgalaxy.sysout");
+        synchronized (LOCK) {
+            if (target == null) {
+                System.out.print(text);
+                System.out.flush();
+                return;
+            }
+            try {
+                Files.writeString(Path.of(target), text, StandardCharsets.UTF_8, StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+}
+""",
     "CobolAbend": """package {pkg};
 
 import java.util.Locale;

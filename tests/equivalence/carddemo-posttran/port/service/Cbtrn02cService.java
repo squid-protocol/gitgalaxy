@@ -11,6 +11,7 @@ import com.gitgalaxy.modernized.batch.CobolAbend;
 import com.gitgalaxy.modernized.batch.CobolFiles;
 import com.gitgalaxy.modernized.batch.DatasetResolver;
 import com.gitgalaxy.modernized.batch.Dd;
+import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.entity.vsam.AccountRecord;
 import com.gitgalaxy.modernized.entity.vsam.CardXrefRecord;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
@@ -111,7 +112,7 @@ public class Cbtrn02cService {
     /** The batch entry: job POSTTRAN step STEP15 (app/jcl/POSTTRAN.jcl:23). */
     @Transactional
     public int runBatch(List<Dd> dds, String parm) {
-        log.info("START OF EXECUTION OF PROGRAM CBTRN02C");
+        Sysout.display("START OF EXECUTION OF PROGRAM CBTRN02C");
         Path dalytran = datasets.path(dd(dds, "DALYTRAN"));
         Path rejects = datasets.path(dd(dds, "DALYREJS"));
         check(files.open("DALYTRAN", dalytran, true), "ERROR OPENING DALYTRAN");       // 0000-DALYTRAN-OPEN
@@ -151,8 +152,12 @@ public class Cbtrn02cService {
             }
             check(files.close("DALYTRAN"), "ERROR CLOSING DALYTRAN FILE");          // 9000-DALYTRAN-CLOSE
             check(files.close("TRANFILE"), "ERROR CLOSING TRANSACTION FILE");        // 9100-TRANFILE-CLOSE
-            check(files.close("XREFFILE"), "ERROR CLOSING CROSS REF FILE");          // 9200-XREFFILE-CLOSE
-            check(files.close("DALYREJS", rejs::close), "ERROR CLOSING DAILY REJECTS FILE");  // 9300-DALYREJS-CLOSE
+            String xrefStatus = files.close("XREFFILE");                              // 9200-XREFFILE-CLOSE
+            check(xrefStatus, "ERROR CLOSING CROSS REF FILE");
+            // 9300-DALYREJS-CLOSE. DEFECT KEPT (found by the #4056 SYSOUT comparison): on an error it MOVEs
+            // XREFFILE-STATUS, not DALYREJS-STATUS, to IO-STATUS, so the job log shows the cross reference file's
+            // status. One-line fix in the COBOL: MOVE DALYREJS-STATUS TO IO-STATUS.
+            check(files.close("DALYREJS", rejs::close), "ERROR CLOSING DAILY REJECTS FILE", xrefStatus);
             check(files.close("ACCTFILE"), "ERROR CLOSING ACCOUNT FILE");            // 9400-ACCTFILE-CLOSE
             check(files.close("TCATBALF"), "ERROR CLOSING TRANSACTION BALANCE FILE"); // 9500-TCATBALF-CLOSE
         } finally {
@@ -162,9 +167,9 @@ public class Cbtrn02cService {
                 log.warn("closing DALYREJS: {}", e.toString());
             }
         }
-        log.info("TRANSACTIONS PROCESSED :{}", String.format(Locale.ROOT, "%09d", w.transactions));
-        log.info("TRANSACTIONS REJECTED  :{}", String.format(Locale.ROOT, "%09d", w.rejects));
-        log.info("END OF EXECUTION OF PROGRAM CBTRN02C");
+        Sysout.display("TRANSACTIONS PROCESSED :", String.format(Locale.ROOT, "%09d", w.transactions));  // 9(09)
+        Sysout.display("TRANSACTIONS REJECTED  :", String.format(Locale.ROOT, "%09d", w.rejects));
+        Sysout.display("END OF EXECUTION OF PROGRAM CBTRN02C");
         return w.rejects > 0 ? 4 : 0;                                                // MOVE 4 TO RETURN-CODE
     }
 
@@ -234,7 +239,9 @@ public class Cbtrn02cService {
                 () -> fdTranCatBalRecordRepository.findById(key).map(this::copy));
         boolean create = "23".equals(r.status());                                    // INVALID KEY
         if (create) {
-            log.info("TCATBAL record not found for key : {}.. Creating.", key);
+            Sysout.display("TCATBAL record not found for key : ",                    // FD-TRAN-CAT-KEY
+                    String.format(Locale.ROOT, "%011d", key.getFdTrancatAcctId()), key.getFdTrancatTypeCd(),
+                    String.format(Locale.ROOT, "%04d", key.getFdTrancatCd()), ".. Creating.");
         } else {
             check(r.status(), "ERROR READING TRANSACTION BALANCE FILE");            // '00' OR '23' is APPL-AOK
         }
@@ -359,13 +366,28 @@ public class Cbtrn02cService {
     /** A FILE STATUS the program treats as an error: the DISPLAYs, 9910-DISPLAY-IO-STATUS and
      *  9999-ABEND-PROGRAM (CALL 'CEE3ABD' with ABCODE 999). */
     private static void check(String status, String what) {
+        check(status, what, status);
+    }
+
+    /** As above, with `shown` the status 9910-DISPLAY-IO-STATUS displays (IO-STATUS, as the paragraph moved it). */
+    private static void check(String status, String what, String shown) {
         if ("00".equals(status)) {
             return;
         }
-        log.error(what);
-        boolean numeric = status.chars().allMatch(Character::isDigit);
-        log.error("FILE STATUS IS: NNNN{}", numeric && status.charAt(0) != '9' ? "00" + status : status);
-        log.error("ABENDING PROGRAM");
+        Sysout.display(what);
+        Sysout.display("FILE STATUS IS: NNNN", ioStatus04(shown));      // 9910-DISPLAY-IO-STATUS
+        Sysout.display("ABENDING PROGRAM");                             // 9999-ABEND-PROGRAM
         throw CobolAbend.user(999, what + " (FILE STATUS " + status + ")");
+    }
+
+    /** 9910-DISPLAY-IO-STATUS's IO-STATUS-04: '00' and the status when it is numeric and not 9x; else IO-STAT1 and
+     *  IO-STAT2's byte as the low byte of TWO-BYTES-BINARY (PIC 9(4) BINARY), moved to IO-STATUS-0403 (3 digits). */
+    private static String ioStatus04(String status) {
+        boolean numeric = status.chars().allMatch(Character::isDigit);
+        if (numeric && status.charAt(0) != '9') {
+            return "00" + status;
+        }
+        int low = status.getBytes(TEXT)[1] & 0xFF;
+        return status.charAt(0) + String.format(Locale.ROOT, "%03d", low % 1000);
     }
 }

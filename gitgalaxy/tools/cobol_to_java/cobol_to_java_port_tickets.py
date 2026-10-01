@@ -84,8 +84,17 @@ PORTING_RULES = [
     ),
     (
         "An abend is `throw CobolAbend.user(abcode, why)` (the generated batch runtime; CALL 'CEE3ABD' USING "
-        "ABCODE: the step ends ABEND Unnnn) -- never another exception; a DISPLAY becomes a log line; the "
-        "step's RETURN-CODE is runBatch's return value."
+        "ABCODE: the step ends ABEND Unnnn) -- never another exception; the step's RETURN-CODE is runBatch's "
+        "return value."
+    ),
+    (
+        "A DISPLAY is `Sysout.display(...)` (DISPLAY ... WITH NO ADVANCING: `Sysout.displayNoAdvancing`), never a "
+        "log line: SYSOUT is compared line by line with the COBOL's. Its text is exactly what IBM COBOL writes, the "
+        "operands concatenated: a literal as written; an alphanumeric or group item as all its bytes, trailing "
+        "spaces included (a group's numeric fields as stored: zoned digits, the sign overpunched); a numeric item "
+        "-- DISPLAY, COMP or COMP-3, not edited, no SIGN SEPARATE -- as `Sysout.number(value, digits, scale, "
+        "signed)`: its PICTURE digits zero-padded, no decimal point, the sign overpunched in the last digit when "
+        "signed (PIC S9(3) holding -12 is `01K`); an edited item as its edited text."
     ),
     (
         "Every file I/O statement of a batch program (OPEN, CLOSE, READ, READ NEXT, WRITE, REWRITE, DELETE, "

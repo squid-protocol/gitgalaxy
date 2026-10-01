@@ -406,11 +406,15 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
     for dd, spec in case["datasets"].items():  # a sequential input is a file the program opens itself
         if "input" in spec and not spec.get("entity"):
             shutil.copy(inputs / f"{dd}.in", datasets / dd)
-    out = run_maven(project, area, inputs, env, props)
+    sysout = area / "out" / "SYSOUT"  # #4056: what the port DISPLAYs (the generated Sysout appends to it)
+    sysout.parent.mkdir(parents=True, exist_ok=True)
+    sysout.unlink(missing_ok=True)
+    out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
         outs[extra] = out / extra
     read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
+    read["SYSOUT"] = sysout.read_bytes() if sysout.is_file() else b""
     for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
         if extra in read:
             read[extra] = read[extra].strip()

@@ -11,6 +11,7 @@ import com.gitgalaxy.modernized.batch.CobolAbend;
 import com.gitgalaxy.modernized.batch.CobolFiles;
 import com.gitgalaxy.modernized.batch.DatasetResolver;
 import com.gitgalaxy.modernized.batch.Dd;
+import com.gitgalaxy.modernized.batch.Sysout;
 import com.gitgalaxy.modernized.entity.vsam.AccountRecord;
 import com.gitgalaxy.modernized.entity.vsam.CardXrefRecord;
 import com.gitgalaxy.modernized.entity.vsam.CobolRecords;
@@ -110,11 +111,12 @@ public class Cbact04cService {
     /** The batch entry: job INTCALC step STEP15 (app/jcl/INTCALC.jcl:22), PARM='2022071800'. */
     @Transactional
     public int runBatch(List<Dd> dds, String parm) {
-        log.info("START OF EXECUTION OF PROGRAM CBACT04C");
+        Sysout.display("START OF EXECUTION OF PROGRAM CBACT04C");
         String parmDate = String.format(Locale.ROOT, "%-10s", parm == null ? "" : parm).substring(0, 10);
         Path transact = datasets.path(dds.stream().filter(d -> "TRANSACT".equals(d.name())).findFirst().orElseThrow());
         check(files.open("TCATBALF"), "ERROR OPENING TRANSACTION CATEGORY BALANCE");   // 0000-TCATBALF-OPEN
-        check(files.open("XREFFILE"), "ERROR OPENING CROSS REF FILE");                  // 0100-XREFFILE-OPEN
+        String xrefOpen = files.open("XREFFILE");                                       // 0100-XREFFILE-OPEN
+        check(xrefOpen, "ERROR OPENING CROSS REF FILE", xrefOpen);  // DISPLAY '...'   XREFFILE-STATUS
         check(files.open("DISCGRP"), "ERROR OPENING DALY REJECTS FILE");                // 0200-DISCGRP-OPEN
         check(files.open("ACCTFILE"), "ERROR OPENING ACCOUNT MASTER FILE");             // 0300-ACCTFILE-OPEN
         check(files.open("TRANSACT", transact, false), "ERROR OPENING TRANSACTION FILE");  // 0400-TRANFILE-OPEN
@@ -141,7 +143,7 @@ public class Cbact04cService {
                 log.warn("closing TRANSACT: {}", e.toString());
             }
         }
-        log.info("END OF EXECUTION OF PROGRAM CBACT04C");
+        Sysout.display("END OF EXECUTION OF PROGRAM CBACT04C");
         return 0;
     }
 
@@ -159,6 +161,7 @@ public class Cbact04cService {
             }
             check(next.status(), "ERROR READING TRANSACTION CATEGORY FILE");
             FdTranCatBalRecord tcat = next.record();
+            Sysout.display(new String(tcat.toRecord(TEXT), TEXT));  // DISPLAY TRAN-CAT-BAL-RECORD
             long acctId = tcat.getId().getFdTrancatAcctId();
             String typeCd = tcat.getId().getFdTrancatTypeCd();
             int catCd = tcat.getId().getFdTrancatCd();
@@ -174,7 +177,7 @@ public class Cbact04cService {
                 CobolFiles.Read<AccountRecord> acct = files.read("ACCTFILE",   // 1100-GET-ACCT-DATA
                         () -> accountRecordRepository.findById(acctId));
                 if ("23".equals(acct.status())) {        // INVALID KEY
-                    log.info("ACCOUNT NOT FOUND: {}", String.format(Locale.ROOT, "%011d", acctId));
+                    Sysout.display("ACCOUNT NOT FOUND: ", String.format(Locale.ROOT, "%011d", acctId));
                 }
                 check(acct.status(), "ERROR READING ACCOUNT FILE");
                 account = acct.record();
@@ -182,7 +185,7 @@ public class Cbact04cService {
                         () -> cardXrefRecordRepository.findByXrefAcctId(acctId).stream()
                                 .min(Comparator.comparing(CardXrefRecord::getXrefCardNum)));
                 if ("23".equals(x.status())) {           // INVALID KEY
-                    log.info("ACCOUNT NOT FOUND: {}", String.format(Locale.ROOT, "%011d", acctId));
+                    Sysout.display("ACCOUNT NOT FOUND: ", String.format(Locale.ROOT, "%011d", acctId));
                 }
                 check(x.status(), "ERROR READING XREF FILE");
                 xref = x.record();
@@ -220,8 +223,8 @@ public class Cbact04cService {
         CobolFiles.Read<FdDiscgrpRec> group = files.read("DISCGRP",
                 () -> fdDiscgrpRecRepository.findById(discKey(groupId, typeCd, catCd)));
         if ("23".equals(group.status())) {               // INVALID KEY
-            log.info("DISCLOSURE GROUP RECORD MISSING");
-            log.info("TRY WITH DEFAULT GROUP CODE");
+            Sysout.display("DISCLOSURE GROUP RECORD MISSING");
+            Sysout.display("TRY WITH DEFAULT GROUP CODE");
         } else {
             check(group.status(), "ERROR READING DISCLOSURE GROUP FILE");  // '00' OR '23' is APPL-AOK
         }
@@ -282,13 +285,28 @@ public class Cbact04cService {
     /** A FILE STATUS the program treats as an error ("00" is APPL-AOK): the DISPLAYs, 9910-DISPLAY-IO-STATUS
      *  and 9999-ABEND-PROGRAM (CALL 'CEE3ABD' with ABCODE 999). */
     private static void check(String status, String what) {
+        check(status, what, "");
+    }
+
+    /** As above, the DISPLAY of `what` followed by `more` (DISPLAY 'ERROR OPENING CROSS REF FILE' XREFFILE-STATUS). */
+    private static void check(String status, String what, String more) {
         if ("00".equals(status)) {
             return;
         }
-        log.error(what);
-        boolean numeric = status.chars().allMatch(Character::isDigit);
-        log.error("FILE STATUS IS: NNNN{}", numeric && status.charAt(0) != '9' ? "00" + status : status);
-        log.error("ABENDING PROGRAM");
+        Sysout.display(what, more);
+        Sysout.display("FILE STATUS IS: NNNN", ioStatus04(status));     // 9910-DISPLAY-IO-STATUS
+        Sysout.display("ABENDING PROGRAM");                             // 9999-ABEND-PROGRAM
         throw CobolAbend.user(999, what + " (FILE STATUS " + status + ")");
+    }
+
+    /** 9910-DISPLAY-IO-STATUS's IO-STATUS-04: '00' and the status when it is numeric and not 9x; else IO-STAT1 and
+     *  IO-STAT2's byte as the low byte of TWO-BYTES-BINARY (PIC 9(4) BINARY), moved to IO-STATUS-0403 (3 digits). */
+    private static String ioStatus04(String status) {
+        boolean numeric = status.chars().allMatch(Character::isDigit);
+        if (numeric && status.charAt(0) != '9') {
+            return "00" + status;
+        }
+        int low = status.getBytes(TEXT)[1] & 0xFF;
+        return status.charAt(0) + String.format(Locale.ROOT, "%03d", low % 1000);
     }
 }

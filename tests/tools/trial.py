@@ -64,6 +64,7 @@ HARNESS_PATHS = ("tests/tools/equivalence.py", "tests/tools/equivalence_common.p
                  "tests/tools/equivalence_inputs.py", "tests/tools/equivalence_cics.py",
                  "tests/tools/cobol_coverage.py",  # #4023: every COBOL run is traced through it
                  "tests/equivalence/faults/ggfault.c", "tests/equivalence/faults/ggabend.c",  # fault runs, CEE3ABD
+                 "tests/equivalence/faults/ggdisplay.c",  # #4056: DISPLAY as IBM writes it
                  "tests/tools/equivalence_call.py", "tests/equivalence/le/ceedays.c",  # CALL cases, LE services
                  "tests/equivalence/gnucobol.Dockerfile")  # fmt: skip
 # `Trial-Cause: generator CBACT04C` -- bounded, one trailer per line

@@ -227,15 +227,17 @@ def run_cobol(
         elif "input" in spec:
             script.append(f"cp /work/{dd}.in /work/{dd}.idx")
     (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
-    for stub in ("ggabend.c", "ggfault.c"):
+    for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
     script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c")
-    inject = ""
+    # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
+    script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
+    inject = "LD_PRELOAD=/work/ggdisplay.so "
     if fault is not None:
         (work / "fault.plan").write_text(fault_plan(fault), encoding="ascii")
         script.append("gcc -shared -fPIC -O2 -o /work/ggfault.so src/ggfault.c -ldl")
-        inject = "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD=/work/ggfault.so "
+        inject = "GGFAULT_PLAN=/work/fault.plan GGFAULT_LOG=/work/FAULTS LD_PRELOAD='/work/ggfault.so /work/ggdisplay.so' "
     env = " ".join(f"{dd}=/work/{dd}.idx" for dd in case["datasets"])
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
@@ -254,6 +256,7 @@ def run_cobol(
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
             if spec.get("compare") and (work / f"{dd}.out").is_file()}  # fmt: skip
+    outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()
@@ -352,6 +355,12 @@ def _run_feedback(title: str, run: dict[str, Any], limit: int = 5) -> list[str]:
             for fd in x.get("fields", [])[:8]:
                 out.append(f"- record {x['record']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`")
         out.append("")
+    s = run.get("sysout") or {}
+    if s.get("compared") and s.get("diffs"):  # #4056: what the program DISPLAYs, line by line
+        out.append(f"SYSOUT (DISPLAY output): {s['equal']}/{s['lines']} lines equal. First differences:")
+        for x in s["diffs"][:limit]:
+            out.append(f"- line {x['line']}: COBOL `{x['cobol']}`, Java `{x['java']}`")
+        out.append("")
     return out
 
 
@@ -359,7 +368,7 @@ def feedback_md(report: dict[str, Any]) -> str:
     """#4023 follow-up: the proof's findings as port_runner's `--feedback` hands them to the next attempt --
     every run that is not equal (the normal run, each JVM environment, each fault run with its plan and why)."""
     out: list[str] = []
-    first = {"summary": None, "outputs": report.get("outputs", {})}
+    first = {"summary": None, "outputs": report.get("outputs", {}), "sysout": report.get("sysout")}
     rc, ab = report.get("return_code") or {}, report.get("abend") or {}
     why = []
     if ab.get("cobol") or ab.get("java"):
@@ -368,6 +377,9 @@ def feedback_md(report: dict[str, Any]) -> str:
     elif rc.get("cobol") != rc.get("java"):
         why.append(f"RETURN-CODE: COBOL {rc.get('cobol')}, Java {rc.get('java')}")
     why += [f"{dd}: {d['equal']}/{d['records']} records equal" for dd, d in first["outputs"].items() if d["diffs"]]
+    s = report.get("sysout") or {}
+    if s.get("compared") and s.get("diffs"):
+        why.append(f"SYSOUT: {s['equal']}/{s['lines']} lines equal")
     if why:
         first["summary"] = "; ".join(why)
         out += _run_feedback("The normal run (the case's own inputs)", first)
@@ -433,11 +445,44 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             run["outputs"][dd] = d
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
+    if case.get("sysout", True):  # #4056: the job log too, after an abend as well (its messages say why)
+        s = compare_sysout(cobol.get("SYSOUT", b""), java.get("SYSOUT", b""), data_encoding(case))
+        run["sysout"] = s
+        if s["compared"] and s["diffs"]:
+            why.append(f"SYSOUT: {s['equal']}/{s['lines']} lines equal")
     run["ok"] = not why
     ends = (f"both ABEND {abend['cobol']}" if abend["cobol"] and abend["cobol"] == abend["java"]
             else f"both end RETURN-CODE {rc['cobol']}" if not why else "")  # fmt: skip
     run["summary"] = "; ".join(why) if why else ends
     return run
+
+
+NOT_MODELLED = "GGDISPLAY-NOT-MODELLED"  # faults/ggdisplay.c: an operand IBM's text is not modelled for
+
+
+def sysout_lines(data: bytes, enc: str) -> list[str]:
+    """The job log's lines as compared: trailing blanks dropped (a SYSOUT record is blank-padded to its length,
+    so they are not text) and libcob's own runtime messages left out (they are GnuCOBOL's, not the program's)."""
+    lines = [x.rstrip(" \r") for x in data.decode(enc).split("\n") if not x.startswith("libcob: ")]
+    while lines and not lines[-1]:
+        lines.pop()
+    return lines
+
+
+def compare_sysout(cobol: bytes, java: bytes, enc: str) -> dict[str, Any]:
+    """#4056: what each side DISPLAYed, line by line. Not compared (and said so) when the COBOL side DISPLAYed an
+    operand ggdisplay.c does not model: GnuCOBOL's text for it is not IBM's."""
+    c, j = sysout_lines(cobol, enc), java.decode("utf-8").split("\n") if java else []
+    j = [x.rstrip(" \r") for x in j]
+    while j and not j[-1]:
+        j.pop()
+    if NOT_MODELLED in c:
+        return {"compared": False, "why": "a DISPLAY operand IBM's text is not modelled for (faults/ggdisplay.c)",
+                "lines": len(c), "equal": 0, "diffs": []}  # fmt: skip
+    diffs = [{"line": i + 1, "cobol": c[i] if i < len(c) else None, "java": j[i] if i < len(j) else None}
+             for i in range(max(len(c), len(j))) if (c[i] if i < len(c) else None) != (j[i] if i < len(j) else None)]  # fmt: skip
+    return {"compared": True, "lines": len(c), "equal": max(len(c), len(j)) - len(diffs), "diffs": diffs[:20],
+            "differing": len(diffs)}  # fmt: skip
 
 
 # ---- CLI -----------------------------------------------------------------------------
@@ -545,6 +590,7 @@ def main() -> int:
         run = compare_run(case, corpus, cobol, runs[env["name"]])
         if i == 0:  # the first environment's outputs are the report's, as before #3821
             report["return_code"], report["outputs"], report["abend"] = run["return_code"], run["outputs"], run["abend"]
+            report["sysout"] = run.get("sysout")
         report.setdefault("environments", []).append({**env, "ok": run["ok"], "return_code": run["return_code"],
                                                       "outputs": run["outputs"], "abend": run["abend"]})  # fmt: skip
         ok &= run["ok"]
@@ -573,6 +619,12 @@ def main() -> int:
         print(f"{case['program']} {dd}: {d['equal']}/{d['records']} records equal")
         for x in d["diffs"][:10]:
             print(f"   record {x['record']}: {(x.get('missing') and 'missing on ' + x['missing']) or x['fields'][:4]}")
+    s = report.get("sysout")
+    if s:
+        print(f"{case['program']} SYSOUT: " + (f"{s['equal']}/{s['lines']} lines equal" if s["compared"]
+                                               else f"not compared -- {s['why']}"))  # fmt: skip
+        for x in s.get("diffs", [])[:5]:
+            print(f"   line {x['line']}: COBOL {x['cobol']!r}, Java {x['java']!r}")
     if len(envs) > 1:
         for e in report["environments"]:
             print(f"{case['program']} under {e['name']} ({e['locale']}, {e['tz']}): "

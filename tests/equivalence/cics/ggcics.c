@@ -53,6 +53,15 @@
 #ifdef _WIN32
 #include <direct.h>
 #define MKDIR(p) _mkdir(p) /* MinGW / MSVC: no mode argument */
+/* nor timegm / gmtime_r: the C runtime's UTC equivalents */
+#define timegm _mkgmtime
+static struct tm *gg_gmtime_r(const time_t *when, struct tm *out) {
+    struct tm *t = gmtime(when); /* one task, one thread: the shared buffer is copied out at once */
+    if (!t) return NULL;
+    *out = *t;
+    return out;
+}
+#define gmtime_r gg_gmtime_r
 #else
 #define MKDIR(p) mkdir((p), 0777)
 #endif

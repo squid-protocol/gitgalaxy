@@ -1,0 +1,73 @@
+      * #3754: stand-in for the BMS attribute, color and highlight
+      * constants. #4001: each holds its EBCDIC byte (DFHBMPRO is
+      * X'60', not the ASCII '-'), so a DFHBMSCA name, a hex literal
+      * and bit arithmetic on them give the byte a mainframe holds;
+      * the harness compares attribute bytes as those EBCDIC bytes.
+       01  DFHBMSCA.
+           02 DFHBMPEM PIC X VALUE X'19'.
+           02 DFHBMPNL PIC X VALUE X'15'.
+           02 DFHBMPFF PIC X VALUE X'0C'.
+           02 DFHBMPCR PIC X VALUE X'0D'.
+           02 DFHBMASK PIC X VALUE X'F0'.
+           02 DFHBMUNP PIC X VALUE X'40'.
+           02 DFHBMUNN PIC X VALUE X'50'.
+           02 DFHBMPRO PIC X VALUE X'60'.
+           02 DFHBMBRY PIC X VALUE X'C8'.
+           02 DFHBMDAR PIC X VALUE X'4C'.
+           02 DFHBMFSE PIC X VALUE X'C1'.
+           02 DFHBMPRF PIC X VALUE X'61'.
+           02 DFHBMASF PIC X VALUE X'F1'.
+           02 DFHBMASB PIC X VALUE X'F8'.
+           02 DFHBMEOF PIC X VALUE X'80'.
+           02 DFHBMCUR PIC X VALUE X'02'.
+           02 DFHBMEC  PIC X VALUE X'82'.
+           02 DFHBMFLG PIC X VALUE X'00'.
+           02 DFHBMDET PIC X VALUE X'FF'.
+           02 DFHSA    PIC X VALUE X'28'.
+           02 DFHCOLOR PIC X VALUE X'42'.
+           02 DFHPS    PIC X VALUE X'43'.
+           02 DFHHLT   PIC X VALUE X'41'.
+           02 DFH3270  PIC X VALUE X'C0'.
+           02 DFHVAL   PIC X VALUE X'C1'.
+           02 DFHOUTLN PIC X VALUE X'C2'.
+           02 DFHBKTRN PIC X VALUE X'46'.
+           02 DFHALL   PIC X VALUE X'00'.
+           02 DFHERROR PIC X VALUE X'3F'.
+           02 DFHDFT   PIC X VALUE X'FF'.
+           02 DFHDFCOL PIC X VALUE X'00'.
+           02 DFHBLUE  PIC X VALUE X'F1'.
+           02 DFHRED   PIC X VALUE X'F2'.
+           02 DFHPINK  PIC X VALUE X'F3'.
+           02 DFHGREEN PIC X VALUE X'F4'.
+           02 DFHTURQ  PIC X VALUE X'F5'.
+           02 DFHYELLO PIC X VALUE X'F6'.
+           02 DFHNEUTR PIC X VALUE X'F7'.
+           02 DFHBASE  PIC X VALUE X'00'.
+           02 DFHDFHI  PIC X VALUE X'00'.
+           02 DFHBLINK PIC X VALUE X'F1'.
+           02 DFHREVRS PIC X VALUE X'F2'.
+           02 DFHUNDLN PIC X VALUE X'F4'.
+           02 DFHMFIL  PIC X VALUE X'04'.
+           02 DFHMENT  PIC X VALUE X'02'.
+           02 DFHMFE   PIC X VALUE X'06'.
+           02 DFHUNNOD PIC X VALUE X'4D'.
+           02 DFHUNIMD PIC X VALUE X'C9'.
+           02 DFHUNNUM PIC X VALUE X'D1'.
+           02 DFHUNNUB PIC X VALUE X'D8'.
+           02 DFHUNINT PIC X VALUE X'D9'.
+           02 DFHUNNON PIC X VALUE X'5D'.
+           02 DFHPROTI PIC X VALUE X'E8'.
+           02 DFHPROTN PIC X VALUE X'6C'.
+           02 DFHMT    PIC X VALUE X'01'.
+           02 DFHMFT   PIC X VALUE X'05'.
+           02 DFHMET   PIC X VALUE X'03'.
+           02 DFHMFET  PIC X VALUE X'07'.
+           02 DFHDFFR  PIC X VALUE X'00'.
+           02 DFHUNDER PIC X VALUE X'01'.
+           02 DFHRIGHT PIC X VALUE X'02'.
+           02 DFHOVER  PIC X VALUE X'04'.
+           02 DFHLEFT  PIC X VALUE X'08'.
+           02 DFHBOX   PIC X VALUE X'0F'.
+           02 DFHSOSI  PIC X VALUE X'01'.
+           02 DFHTRANS PIC X VALUE X'F0'.
+           02 DFHOPAQ  PIC X VALUE X'FF'.

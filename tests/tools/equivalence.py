@@ -259,6 +259,13 @@ def run_cobol(
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
             if spec.get("compare") and (work / f"{dd}.out").is_file()}  # fmt: skip
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
+    # A CALL to a routine nothing here provides (CBACT01C's assembler COBDATFT) ends the run in libcob's own
+    # "module not found": that is GnuCOBOL's failure, never the program's behaviour -- refused, not recorded as the
+    # oracle (SYSOUT leaves libcob's lines out, so a port imitating the crash would otherwise prove).
+    missing = re.search(rb"libcob: [^\n]*module '([^']+)' not found", outs["SYSOUT"])
+    if missing:
+        raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
+                           "(GnuCOBOL: module not found) -- not runnable faithfully")  # fmt: skip
     abend = work / "ABEND"
     if abend.is_file():
         outs["ABEND"] = abend.read_bytes().strip()

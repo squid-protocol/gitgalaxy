@@ -269,11 +269,13 @@ DEFINITION: dict[str, Any] = {
             # spaces, so a real structural fix needs file-level fixed/free-
             # format detection -- out of scope for this narrow token exclusion.
             r"CEE3DMP|CEEMOUT|CEEDUMP|"
-            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Z"
-            + NATIONAL
-            + WIDE_DIGITS
-            + WIDE_HYPHENS
-            + r"a-z0-9_-]+)(?=[ \t\n.]))"
+            # #4031: only the RESERVED END- words are scope terminators, not every `END-...` name: a paragraph
+            # may be named END-PROGRAM (cics-genapp lgipdb01.cbl:312, PERFORMed and fallen into) or END-IPROC1
+            # (opensourcecobol4j jp-compat 033). The list is the one #4028 gave the graveyard finder: the COBOL
+            # 2014 / IBM Enterprise COBOL / GnuCOBOL reserved END- words.
+            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-(?:ACCEPT|ADD|CALL|CHAIN|COLOR|COMPUTE|DELETE|DISPLAY|DIVIDE|"
+            r"EVALUATE|EXEC|FREE|IF|INVOKE|JSON|MULTIPLY|OF-PAGE|PERFORM|READ|RECEIVE|RETURN|REWRITE|SEARCH|SEND|"
+            r"START|STRING|SUBTRACT|UNSTRING|WAIT|WRITE|XML))(?=[ \t\n.]))"
             # 4. THE DIVISION/SECTION HEADER SHIELD
             # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
             # Upgraded to `[ \t\n]+` to prevent vertical ghosting.

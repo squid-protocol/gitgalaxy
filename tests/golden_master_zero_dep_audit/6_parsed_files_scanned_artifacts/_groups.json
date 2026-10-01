@@ -1754,27 +1754,26 @@
     "cobol/che-che4z_nist_ccvs85": {
       "Average Risk Exposures": {
         "API Exposure": "0.64%",
-        "Cognitive Load Exposure": "67.25%",
+        "Cognitive Load Exposure": "65.92%",
         "Commented Logic Exposure": "3.05%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "49.34%",
-        "Error & Exception Exposure": "89.1%",
+        "Error & Exception Exposure": "89.04%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "49.67%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "82.78%",
-        "Tech Debt Exposure": "96.27%",
+        "Tech Debt Exposure": "96.56%",
         "Testing Exposure": "57.37%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 47279.86,
+      "Directory Group Magnitude": 47447.16,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "0.7%",
         "file_cluster_11": "21.9%",
-        "file_cluster_12": "33.8%",
+        "file_cluster_12": "32.5%",
         "file_cluster_2": "1.3%",
-        "file_cluster_4": "0.7%",
-        "file_cluster_7": "41.7%"
+        "file_cluster_7": "43.7%"
       },
       "File Count": 151,
       "Files": [
@@ -2038,11 +2037,11 @@
         "Instability Exposure": "48.89%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "66.98%",
-        "Tech Debt Exposure": "24.3%",
+        "Tech Debt Exposure": "25.24%",
         "Testing Exposure": "5.48%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 3250.46,
+      "Directory Group Magnitude": 3255.36,
       "Ecosystem Fingerprint (Archetypes)": {
         "Static: Literature & Documentation": "2.2%",
         "file_cluster_11": "46.7%",
@@ -2103,7 +2102,7 @@
     "cobol/cics-java-jcics-samples": {
       "Average Risk Exposures": {
         "API Exposure": "1.45%",
-        "Cognitive Load Exposure": "53.28%",
+        "Cognitive Load Exposure": "65.26%",
         "Commented Logic Exposure": "3.86%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "100.0%",
@@ -2116,7 +2115,7 @@
         "Testing Exposure": "2.36%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 49.88,
+      "Directory Group Magnitude": 50.68,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_11": "100.0%"
       },

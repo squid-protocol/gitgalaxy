@@ -45,6 +45,7 @@ COBOL_RULES = LANGUAGE_DEFINITIONS["cobol"]["rules"]
 # ==============================================================================
 FUNCTION_CASES: dict[str, Any] = {
     "valid": [
+        ("       END-TargetFunc.", "END-TargetFunc"),  # #4031: a paragraph named END-... (not a reserved terminator)
         ("       0000.", "0000"),  # #3533: an all-digit procedure name (navikt/DSF R001BYDL)
         ("       9999.", "9999"),
         ("       TargetFunc.", "TargetFunc"),  # carried-forward: fixed-format paragraph
@@ -63,7 +64,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "      01680012.",
         "       01 TargetFunc.",  # carried-forward: data-division level number
         "           PERFORM TargetFunc.",  # carried-forward: PERFORM invocation, same line
-        "       END-TargetFunc.",  # carried-forward: scope-terminator lookalike
+        "       END-PERFORM.",  # a reserved scope terminator (#4031: END-TargetFunc. IS a paragraph)
         "       PROCEDURE DIVISION.",  # division header
         "       01 WS-RECORD.",  # level 01
         "       77 WS-COUNTER.",  # level 77

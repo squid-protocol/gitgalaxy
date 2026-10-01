@@ -146,6 +146,10 @@ _COBOL_SIMPLE_CASES = [
     ("func_start", "       SOME-PARA.", "       PROCEDURE DIVISION."),
     ("func_start", "000100 VALID-FUNC-WITH-MARGIN.", "000100 WORKING-STORAGE SECTION."),
     ("func_start", "      -VALID-WITH-DASH.", "      *COMMENT-SHOULD-NOT-MATCH."),
+    # #4031: a paragraph may be named END-...; only the reserved END- words are scope terminators
+    ("func_start", "       END-PROGRAM.", "           END-IF."),
+    ("func_start", "       END-IPROC1.", "           END-PERFORM."),
+    ("func_start", "       End-Program.", "           END-EXEC."),
     # class_start: trailing clauses, optional names
     ("class_start", "       PROGRAM-ID. MYPROG IS INITIAL.", "       100-PROCESS-RECORDS SECTION."),
     ("class_start", "       CLASS-ID. FOO INHERITS BASE.", "       01 WS-DATA."),

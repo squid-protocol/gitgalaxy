@@ -8,7 +8,7 @@
   "parm": null,
   "clock": "2022/07/18 10:30:15.00",
   "datasets": {
-    "DALYTRAN": {"input": "app/data/ASCII/dailytran.txt", "organization": "sequential", "reclen": 350},
+    "DALYTRAN": {"input": "@case/dailytran.txt", "organization": "sequential", "reclen": 350},
     "XREFFILE": {"input": "app/data/ASCII/cardxref.txt", "organization": "indexed", "reclen": 50,
                  "keys": [{"offset": 0, "length": 16}], "entity": "CardXrefRecord"},
     "ACCTFILE": {"input": "app/data/ASCII/acctdata.txt", "organization": "indexed", "reclen": 300,
@@ -22,7 +22,7 @@
     "DALYREJS": {"organization": "sequential", "reclen": 430, "compare": true,
                  "copybook": "app/cbl/CBTRN02C.cbl", "record": "FD-REJS-RECORD"}
   },
-  "notes": "Job POSTTRAN step STEP15: CardDemo's own daily transactions posted against its accounts, cross references and category balances. Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+  "notes": "Job POSTTRAN step STEP15: CardDemo's own daily transactions posted against its accounts, cross references and category balances. Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own. #4049 (the test-strengthening loop, tests/tools/strengthen.py, claude-sonnet-5-5; the expected results are the COBOL's own): records appended to DALYTRAN (dailytran.txt) -- expired-one-day-before-orig: Account 2 expires 2024-08-11, so this is the first record to take the 103 expired branch; the shifted-offset comparison would not reject it.; orig-date-equals-expiry: The date equals the account expiry date, so the original posts the record while a comparison that also rejects equal dates would reject it.; orig-year-1999-shifted-offset: The shifted slice starts with '9', which is greater than the expiry's leading '2', so the mutant wrongly rejects this valid record and the original posts it.; orig-ts-far-after-expiry-valid-card: A valid card and a tiny amount reach the expiry comparison, with an origination date far past any account expiry so the false branch (reason 103) is taken.; expiry-fail-second-account-small-amt: A second account with a minimal amount and a far-future origination date reaches the expired-account rejection without tripping the overlimit check..",
   "faults": [
     {"name": "open-dalytran", "plan": [{"dd": "DALYTRAN", "op": "OPEN", "nth": 1, "status": "35"}], "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): its 0x00 OPEN paragraph -> ABEND U0999"},
     {"name": "open-tranfile", "plan": [{"dd": "TRANFILE", "op": "OPEN", "nth": 1, "status": "37"}], "why": "37: OPEN of an OPEN mode the file does not permit (IBM Enterprise COBOL for z/OS Language Reference, File status key values): its 0x00 OPEN paragraph -> ABEND U0999"},

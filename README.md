@@ -264,8 +264,8 @@ A port that is not proven is not done, and a person approves every port.
 
 | program | kind | ported by | proven on | COBOL branches covered | mutants caught |
 |---|---|---|---|---|---|
-| CBACT04C (interest) | batch | a person | 20 runs, 19 with faults | 82/86 | 30/35 (40 sampled) |
-| CBTRN02C (posting) | batch | a person | 29 runs, 28 with faults | 94/96 | 25/32 (40 sampled) |
+| CBACT04C (interest) | batch | a person | 20 runs, 19 with faults | 85/86 | 30/35 (40 sampled) |
+| CBTRN02C (posting) | batch | a person | 29 runs, 28 with faults | 95/96 | 27/32 (40 sampled) |
 | CBTRN03C (report) | batch | Claude Sonnet 5.5, attempt 2 | 25 runs, 24 with faults | 81/82 | 26/37 (40 sampled) |
 | COMEN01C (menu) | CICS | Claude Sonnet 5.5, attempt 1 | 11 scenarios | 28/33 | 77/135 (150 sampled) |
 | COACTVWC (account view) | CICS | a person | 11 scenarios | 47/71 | not measured |

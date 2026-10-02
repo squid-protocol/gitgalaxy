@@ -12,6 +12,10 @@ COACTUPC is CardDemo's account update. It is the largest CICS program in CardDem
 
 **Final proof.** The refined port was proven from scratch, without reusing the build of any step: `equivalence.py run carddemo-acctupdate --port … --faults all`. All 54 scenarios pass, with **156 of 156 events equal**, covering 89 of 95 paragraphs and 256 of 397 branches.
 
+**Held-out proof.** The case later gained 83 generated scenarios (field by field: blank, wrong kind, zero phone parts,
+two errors at once) that the refinement never saw. The refined port, unchanged, passes all **137 scenarios: 405 of
+405 events equal**, covering 310 of 397 branches. None of the model's 109 rewrites changed behaviour on these paths.
+
 ## What the model does, and does not do
 
 Example: paragraph 3100-SCREEN-INIT, before and after.

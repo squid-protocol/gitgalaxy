@@ -6,11 +6,12 @@ and branch points in the det port's service class. Across the 49 programs ported
 fixed overhead plus a slope (Theil-Sen fits below), so a port is compared with what its COBOL predicts:
 
     methods   batch 11.4 + 1.12 x paragraphs    CICS 20.8 + 1.13 x paragraphs   (proven ports: 0.88 .. 1.21 of it)
-    branches  batch 15.0 + 1.62 x branches      CICS 70.8 + 2.77 x branches     (proven ports: 0.70 .. 1.76 of it)
+    branches  batch 12.6 + 1.30 x branches      CICS 51.8 + 2.33 x branches     (proven ports: 0.73 .. 1.58 of it)
 
 A ratio outside BANDS (wider than any proven port reached) is a warning: a translation that dropped or duplicated
 paragraphs, or expanded a construct far more than usual, is worth a look before GnuCOBOL and Db2 spend their time.
-The fit is the 2026-10-02 estate's; refit (docs/language_status/det_port_design.md) when the emitter's shape moves.
+The fit is the 2026-10-02 estate's; refit (docs/language_status/det_port_design.md) when the emitter's shape moves
+or the scanner's counting does (branches refit after Java stopped counting `?`/`:` inside literals and a ternary twice).
 """
 
 from __future__ import annotations
@@ -22,8 +23,8 @@ from typing import Any
 
 # kind -> metric -> (overhead, slope)
 MODEL = {
-    "batch": {"methods": (11.4, 1.12), "branches": (15.0, 1.62)},
-    "cics": {"methods": (20.8, 1.13), "branches": (70.8, 2.77)},
+    "batch": {"methods": (11.4, 1.12), "branches": (12.6, 1.30)},
+    "cics": {"methods": (20.8, 1.13), "branches": (51.8, 2.33)},
 }
 # metric -> (low, high): port / prediction outside this band warns
 BANDS = {"methods": (0.6, 1.6), "branches": (0.5, 2.5)}

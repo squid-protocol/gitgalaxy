@@ -42,6 +42,10 @@ DEFINITION: dict[str, Any] = {
     # inside `rules` (#2806).
     "identifier_case": "insensitive",
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         "_calls_out_ignore": frozenset({"throw"}),  # #3645: `throw` is a keyword here
@@ -52,7 +56,7 @@ DEFINITION: dict[str, Any] = {
         # count it either). Already tracked under `structural_boundaries` below, so this is
         # a pure de-duplication. Corpus impact: apex branch 19 (planted 3, +280%) -> exact.
         "branch": re.compile(
-            r"\b(if|else|switch\s+on|when|for|while|do|break|continue)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch\s+on|when|for|while|do|break|continue)\b|&&|\|\||\?\?|\?",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.

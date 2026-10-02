@@ -48,6 +48,10 @@ DEFINITION: dict[str, Any] = {
     # same name repeats across a monorepo's packages.
     "imports_resolve_from_importer_dir": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
         # #3359 (contract C2): keywords and special forms, never calls
@@ -68,7 +72,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?\?|\?",
             re.I,
         ),
         # 2. args (Parameters / Coupling)

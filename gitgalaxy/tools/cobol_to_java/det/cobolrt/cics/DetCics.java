@@ -19,6 +19,26 @@ import java.util.function.Supplier;
 /** The CICS boundary of a deterministic port: file stores over the generated entities, a symbolic map's
  *  subfields, RECEIVE's input fields, and RESP condition names. */
 public final class DetCics {
+
+    /** A POINTER in a COMMAREA DTO into the port's storage: NULL (null / blank / "NULL") is all zero bytes. An address
+     *  is not portable -- it names storage the port does not have -- so it stops the run by name. */
+    public static void pointerIn(String value, __PACKAGE__.cobolrt.Storage s, int at, int len) {
+        if (value != null && !value.isBlank() && !"NULL".equals(value.strip())) {
+            throw new UnsupportedOperationException("a POINTER that is not NULL in a COMMAREA is not modelled");
+        }
+        Arrays.fill(s.bytes, at, at + len, (byte) 0);
+    }
+
+    /** A POINTER from the port's storage into a COMMAREA DTO: null for NULL (all zero bytes); an address, not
+     *  portable, stops the run by name. */
+    public static String pointerOut(__PACKAGE__.cobolrt.Storage s, int at, int len) {
+        for (int i = at; i < at + len; i++) {
+            if (s.bytes[i] != 0) {
+                throw new UnsupportedOperationException("a POINTER that is not NULL in a COMMAREA is not modelled");
+            }
+        }
+        return null;
+    }
     private DetCics() {
     }
 

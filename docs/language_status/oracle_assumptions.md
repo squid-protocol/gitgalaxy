@@ -39,6 +39,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C6 | compiler | COMP-1 / COMP-2: IEEE vs IBM hexadecimal floating point | DIFFERS | no (CBSA uses them) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
+| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -48,7 +49,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run | — | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
-| X3 | CICS | Every file is recoverable on SYNCPOINT ROLLBACK and abend | ASSUMED | yes (UOW scenarios) |
+| X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
 | X4 | CICS | A task takes no time (ASKTIME = dispatch time) | ASSUMED | yes |
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
 | X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | REFUSED | — |
@@ -132,6 +133,12 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reached.** The harness's SQLCA declares its binary fields COMP-5, as IBM's does, and programs read them only as
   numbers. In the corpora, only CardDemo's IMSFUNCS.cpy declares COMP-5.
 
+### C9. POINTER size — DIFFERS
+- **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
+- **Reach.** CBSA passes IMS-era PCB pointers at the end of its COMMAREAs, always NULL. The port carries a POINTER in a
+  COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an address) and refuses a DTO with data
+  after a POINTER.
+
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
   decimal form with the sign overpunched (`01K`, `000P`). `ggdisplay.c` (LD_PRELOAD) rewrites each such operand as
@@ -204,11 +211,16 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not modelled.** What a 3270 shows after BMS merges the physical map, MAPONLY, DATAONLY, ERASE and FRSET. Two
   ports with equal symbolic maps could differ on a terminal only if BMS itself differed.
 
-### X3. Recoverable files — ASSUMED
-- **What.** SYNCPOINT ROLLBACK and an abend's backout restore every file the task changed, and the Db2 unit of work
-  ends with it.
-- **Not modelled.** CICS restores only files defined RECOVERY(BACKOUTONLY|ALL); the CSD's RECOVERY attribute is not
-  read. Temporary storage is not backed out.
+### X3. Backout and recoverable files — MATCHED
+- **What.** SYNCPOINT ROLLBACK, or an abend that terminates the task, backs out the unit of work: the recoverable files'
+  changes and the task's Db2 changes. A file the CSD defines RECOVERY(NONE) keeps its changes (CBSA's ABNDFILE: the
+  abend log a backout must not undo).
+- **How.** A case states a dataset's RECOVERY(NONE) (`"recovery": "NONE"`, with a `recovery_why` citing the CSD: the
+  engine's facts do not carry the attribute). The COBOL model does not save such a file for backout; the Java side
+  makes its changes outside the task's transaction (REQUIRES_NEW).
+- **Fixed 2026-10-02.** Until then the COBOL model backed out every file, and the Java side backed out nothing on an
+  abend that terminated the task (only on SYNCPOINT ROLLBACK). No proven scenario had changed a file and then abended.
+- **Not modelled.** Temporary storage is not backed out (CICS backs out recoverable TS queues).
 
 ### X4. Time — ASSUMED
 - **What.** EIBDATE and EIBTIME are the case's clock at dispatch. ASKTIME leaves them unchanged (a task takes no time),

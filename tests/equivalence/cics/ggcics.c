@@ -22,7 +22,7 @@
  * Temporary storage (#4002) lives in $GGCICS_TS (else $GGCICS_DIR/ts), shared by every
  * task of a scenario: one directory per queue, named by the queue name's hex, holding
  * its items as 000001.bin, 000002.bin, ... and `next`, the READQ NEXT position.
- *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN --
+ *   files.cfg             one CICS file per line: NAME PATH RECLEN KEYOFF KEYLEN [NONE: RECOVERY(NONE)] --
  *                         generated from the engine's facts (CSD FILE -> DSNAME ->
  *                         IDCAMS KEYS, a PATH through its AIX)
  *   faults.cfg            #4023 follow-up: injected conditions, one per line: CMD FILE NTH
@@ -206,8 +206,23 @@ static void copy_file(const char *from, const char *to) {
     if (b) fclose(b);
 }
 
+/* Whether the CSD defines the file at `path` RECOVERY(NONE) (files.cfg's sixth column): its changes are not backed out. */
+static int non_recoverable(const char *path) {
+    char line[4096], name[64], p[3000], rec[16];
+    int a, b, c, none = 0;
+    snprintf(line, sizeof line, "%s/files.cfg", dir_in());
+    FILE *cfg = fopen(line, "r");
+    while (cfg && !none && fgets(line, sizeof line, cfg)) {
+        if (sscanf(line, "%63s %2999s %d %d %d %15s", name, p, &a, &b, &c, rec) == 6 && strcmp(p, path) == 0)
+            none = strcmp(rec, "NONE") == 0;
+    }
+    if (cfg) fclose(cfg);
+    return none;
+}
+
 static void uow_save(const char *path) {
     char aside[3100];
+    if (non_recoverable(path)) return;  /* CICS backs out recoverable files only */
     for (int i = 0; i < MAX_FILES; i++) {
         if (strcmp(uow_saved[i], path) == 0) return;
         if (uow_saved[i][0] == 0) {

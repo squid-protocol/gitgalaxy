@@ -13,7 +13,9 @@
    "input": "@case/abndfile.bin",
    "entity": "WsAbndArea",
    "copybook": "src/base/cobol_src/ABNDPROC.cbl",
-   "record": "WS-ABND-AREA"
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
   }
  },
  "commarea": {

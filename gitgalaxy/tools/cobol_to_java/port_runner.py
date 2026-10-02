@@ -4,6 +4,8 @@
 # the equivalence harness proves.
 #
 #   python -m gitgalaxy.tools.cobol_to_java.port_runner run    <java project> --ticket KEY --backend ...
+#   python -m gitgalaxy.tools.cobol_to_java.port_runner run    <java project> --ticket KEY --backend det --source-root DIR
+#   python -m gitgalaxy.tools.cobol_to_java.port_runner refine <java project> --ticket KEY --backend ... --prove-command "..."
 #   python -m gitgalaxy.tools.cobol_to_java.port_runner submit <java project> --ticket KEY --file PORT.java --by NAME
 #   python -m gitgalaxy.tools.cobol_to_java.port_runner prove  <java project> --ticket KEY --command "..."
 #   python -m gitgalaxy.tools.cobol_to_java.port_runner review <java project> --ticket KEY --approve|--reject --by NAME
@@ -19,7 +21,12 @@
 #   anthropic  the Anthropic Messages API: --model, --api-key-env
 #   command    any CLI that reads the prompt file and prints the answer: --command, with {prompt_file}
 #              and {prompt_dir} placeholders (an in-house model, `agy -p`, `ollama run` ...)
-# or a person writes the port and `submit`s it. The Java the answer carries is stored as a PROPOSED
+#   det        no model: the deterministic translator (cobol_to_java/det) writes the port from the COBOL
+#              source (--source-root, the estate the project was generated from) -- faithful by construction,
+#              the same port every time; --style structured / --typed make it readable without a model
+# or a person writes the port and `submit`s it. `refine` takes the latest PROVEN port and has a model rewrite it
+# one method at a time for a reader, every rewrite proven with the operator's proof command and kept only if it
+# proves (else retried, else reverted); each step is logged, and the result is a new attempt, proven again. The Java the answer carries is stored as a PROPOSED
 # port, ai_agent_jobs/ports/<KEY>/overlay/service/<Service>.java -- an overlay; the generated sources are
 # never edited. `prove` runs a proof command on it (the equivalence harness: the original COBOL and
 # the port on the same inputs, every output record compared) and records its verdict; `review`
@@ -257,14 +264,20 @@ def load_ticket(project: Path, key: str) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _store(project: Path, ticket: dict[str, Any], java: str, attempt: int) -> Path:
+def _store(project: Path, ticket: dict[str, Any], java: str, attempt: int,
+           extra: dict[str, str] | None = None) -> Path:  # fmt: skip
     """The proposed port as an overlay: ports/<KEY>/overlay/service/<Service>.java -- the tree a proof lays over
-    the generated project, nothing else in it -- and a copy per attempt under ports/<KEY>/attempts/."""
+    the generated project, nothing else in it but `extra` (a deterministic port's runtime, {relative path: text})
+    -- and a copy per attempt under ports/<KEY>/attempts/. The overlay holds only the latest attempt."""
     base = project / PORTS / ticket["program"]["key"]
-    dest = base / "overlay" / "service" / f"{ticket['target']['service']}.java"
-    dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(java, encoding="utf-8")
-    (base / "attempts").mkdir(exist_ok=True)
+    overlay = base / "overlay"
+    if overlay.exists():
+        shutil.rmtree(overlay)
+    dest = overlay / "service" / f"{ticket['target']['service']}.java"
+    for rel, text in {**(extra or {}), str(dest.relative_to(overlay)): java}.items():
+        (overlay / rel).parent.mkdir(parents=True, exist_ok=True)
+        (overlay / rel).write_text(text, encoding="utf-8")
+    (base / "attempts").mkdir(parents=True, exist_ok=True)
     (base / "attempts" / f"{attempt:03d}_{ticket['target']['service']}.java").write_text(java, encoding="utf-8")
     return dest
 
@@ -274,10 +287,72 @@ def _attempt(project: Path, key: str) -> int:
 
 
 # ---- the commands --------------------------------------------------------------------
+def _service_file(project: Path, ticket: dict[str, Any]) -> Path:
+    svc = ticket["target"]["service"]
+    found = sorted((project / "src" / "main" / "java").rglob(f"service/{svc}.java"))
+    if not found:
+        raise SystemExit(f"the generated project has no service {svc}.java")
+    return found[0]
+
+
+def _translator_version() -> str:
+    """The translator's commit when it runs from a checkout (the port is a function of the source and this)."""
+    here = Path(__file__).resolve().parent
+    proc = subprocess.run(["git", "-C", str(here), "rev-parse", "--short=12", "HEAD"],  # noqa: S603, S607
+                          capture_output=True, text=True, check=False)  # fmt: skip
+    return f"det-port@{proc.stdout.strip()}" if proc.returncode == 0 and proc.stdout.strip() else "det-port"
+
+
+def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Path, style: str,
+             typed: bool) -> tuple[str, dict[str, str], dict[str, Any]]:  # fmt: skip
+    """The deterministic translator's port of the ticket's program: (service Java, runtime files, stats). The
+    copybook directories are the ticket's copybooks' own, then symbolic maps generated from the estate's BMS."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    src = ticket.get("source") or {}
+    program = source_root / (src.get("program", {}).get("file") or ticket["program"]["file"])
+    if not program.is_file():
+        raise SystemExit(f"no COBOL source {program} (--source-root is the estate the project was generated from)")
+    dirs: list[Path] = []
+    for cb in src.get("copybooks") or []:
+        d = (source_root / cb["file"]).parent
+        if d not in dirs:
+            dirs.append(d)
+    bms = work / "bms"
+    bms_copybooks([p for p in source_root.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
+                   and ".git" not in p.parts], bms)  # fmt: skip
+    dirs.append(bms)
+    stub_file = _service_file(project, ticket)
+    stub = stub_file.read_text(encoding="utf-8")
+    m = re.search(r"^package\s+([\w.]+)\.service\s*;", stub, re.M)
+    if not m:
+        raise SystemExit(f"{stub_file}: no `package ....service;` line")
+    r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed)
+    stats = {"statements": r.stats["statements"], "translated": r.stats["translated"],
+             "holes": len(r.stats["holes"]), "style": style, "typed": typed}  # fmt: skip
+    return r.java, P.runtime_files(m.group(1), P.has_batch(project)), stats
+
+
 def cmd_run(opts: argparse.Namespace) -> int:
     project = opts.project.resolve()
     ticket = load_ticket(project, opts.ticket)
     attempt = _attempt(project, opts.ticket)
+    if opts.backend == "det":
+        if not opts.source_root:
+            raise SystemExit("--backend det needs --source-root: the COBOL estate the project was generated from")
+        work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
+        work.mkdir(parents=True, exist_ok=True)
+        started = _now()
+        port_java, runtime, stats = det_port(project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed)
+        dest = _store(project, ticket, port_java, attempt, runtime)
+        log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": "det",
+                            "model": _translator_version(), "started": started, "port": str(dest.relative_to(project)),
+                            "notes": "", "translation": stats})  # fmt: skip
+        holes = f", {stats['holes']} statement(s) left as holes" if stats["holes"] else ""
+        print(f"{opts.ticket}: deterministic port {dest.relative_to(project)} (attempt {attempt}): "
+              f"{stats['translated']}/{stats['statements']} statements{holes}; prove it, then review it")  # fmt: skip
+        return 0
     work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
     work.mkdir(parents=True, exist_ok=True)
     system, user = build_prompt(project, ticket)
@@ -378,6 +453,72 @@ def cmd_prove(opts: argparse.Namespace) -> int:
     return 0 if proven else 1
 
 
+def _latest_state(project: Path, key: str) -> tuple[int, str | None]:
+    """(the latest attempt, its latest event: proposed / proven / proof-failed / approved / rejected)."""
+    attempt = _attempt(project, key) - 1
+    state = None
+    for e in events(project):
+        if e.get("ticket") == key and e.get("attempt") == attempt and e.get("event") in (
+                "proposed", "proven", "proof-failed", "approved", "rejected"):  # fmt: skip
+            state = e["event"]
+    return attempt, state
+
+
+def cmd_refine(opts: argparse.Namespace) -> int:
+    """A model refactors the latest proven port, one method at a time, every rewrite proven with the operator's
+    proof command (det.refine). Each method's outcome is a `refine-step` event; the result is a new attempt,
+    `proposed` by the refining model, then proven again from scratch as `prove` would."""
+    from gitgalaxy.tools.cobol_to_java.det import refine as R
+
+    project = opts.project.resolve()
+    ticket = load_ticket(project, opts.ticket)
+    base, state = _latest_state(project, opts.ticket)
+    if state not in ("proven", "approved"):
+        raise SystemExit(f"{opts.ticket}: refine a proven port only (attempt {base} is {state or 'absent'})")
+    attempt = base + 1
+    port_dir = project / PORTS / opts.ticket
+    work = port_dir / "attempts" / f"{attempt:03d}_refine"
+    if work.exists():
+        shutil.rmtree(work)
+    port = work / "port"
+    shutil.copytree(port_dir / "overlay", port)
+    service = port / "service" / f"{ticket['target']['service']}.java"
+    model = opts.model or (shlex.split(opts.command)[0] if opts.command else None)
+    n = iter(range(1, 1_000_000))
+
+    def ask(system: str, user: str, pdir: Path) -> str:
+        return globals()["ask"](opts.backend, system, user, opts, pdir)
+
+    def prove() -> tuple[bool, str]:
+        report_dir = work / "steps" / f"{next(n):03d}"
+        argv = [a.format(port_dir=port, report_dir=report_dir) for a in shlex.split(opts.prove_command)]
+        proc = subprocess.run(argv, capture_output=True, text=True, check=False)  # noqa: S603 -- the operator's command
+        report = report_dir / "report.json"
+        fb = json.loads(report.read_text(encoding="utf-8")).get("feedback") if report.is_file() else None
+        return proc.returncode == 0, fb or (proc.stdout[-3000:] + proc.stderr[-2000:])
+
+    def on_step(step: dict[str, Any]) -> None:
+        log_event(project, {"event": "refine-step", "ticket": opts.ticket, "attempt": attempt, "base": base,
+                            "backend": opts.backend, "model": model, **step})  # fmt: skip
+        print(f"{opts.ticket} {step['method']}: {step.get('verdict')} ({step['attempts']} attempt(s))", flush=True)
+
+    started = _now()
+    record = R.refine(service, ask, prove, work, only=opts.only.split(",") if opts.only else None,
+                      skip=opts.skip.split(",") if opts.skip else None, largest=opts.largest, retries=opts.retries,
+                      on_step=on_step)  # fmt: skip
+    extra = {str(p.relative_to(port)): p.read_text(encoding="utf-8") for p in sorted(port.rglob("*.java"))
+             if p != service}  # fmt: skip
+    dest = _store(project, ticket, service.read_text(encoding="utf-8"), attempt, extra)
+    kept = sum(1 for s in record["steps"] if s.get("verdict") == "kept")
+    log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": opts.backend,
+                        "model": model, "started": started, "port": str(dest.relative_to(project)), "notes": "",
+                        "refined_from": base, "refinement": {"kept": kept, "steps": len(record["steps"]),
+                        "before": record["before"], "after": record["after"], "seconds": record["seconds"]}})  # fmt: skip
+    print(f"{opts.ticket}: {kept}/{len(record['steps'])} methods refactored and proven; Cobol.* calls "
+          f"{record['before']['cobol_calls']} -> {record['after']['cobol_calls']}; proving attempt {attempt} again")  # fmt: skip
+    return cmd_prove(argparse.Namespace(project=opts.project, ticket=opts.ticket, command=opts.prove_command))
+
+
 def cmd_review(opts: argparse.Namespace) -> int:
     project = opts.project.resolve()
     load_ticket(project, opts.ticket)
@@ -452,17 +593,33 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("prove", help="run the proof command on the latest proposed port")
     v = sub.add_parser("review", help="record a person's decision on the latest proposed port")
     st = sub.add_parser("status", help="per ticket and per model: proposed / proven / approved / rejected")
-    for x in (r, s, p, v, st):
+    f = sub.add_parser("refine", help="a model refactors the latest proven port, every rewrite proven")
+    for x in (r, s, p, v, st, f):
         x.add_argument("project", type=Path, help="the generated Java project")
-    for x in (r, s, p, v):
+    for x in (r, s, p, v, f):
         x.add_argument("--ticket", required=True, help="the program key, e.g. CBACT04C")
-    r.add_argument("--backend", choices=("openai", "anthropic", "command"), required=True)
-    r.add_argument("--model")
-    r.add_argument("--base-url", help="openai: the endpoint (required); anthropic: default https://api.anthropic.com")
-    r.add_argument("--api-key-env", help="the NAME of the environment variable holding the key")
-    r.add_argument("--command", help="command backend: argv with {prompt_file} / {prompt_dir}")
-    r.add_argument("--timeout", type=int, default=3600)
-    r.add_argument("--max-tokens", type=int, default=32000)
+    r.add_argument("--backend", choices=("openai", "anthropic", "command", "det"), required=True)
+    f.add_argument("--backend", choices=("openai", "anthropic", "command"), required=True)
+    for x in (r, f):
+        x.add_argument("--model")
+        x.add_argument(
+            "--base-url", help="openai: the endpoint (required); anthropic: default https://api.anthropic.com"
+        )
+        x.add_argument("--api-key-env", help="the NAME of the environment variable holding the key")
+        x.add_argument("--command", help="command backend: argv with {prompt_file} / {prompt_dir}")
+        x.add_argument("--timeout", type=int, default=3600)
+        x.add_argument("--max-tokens", type=int, default=32000)
+    r.add_argument("--source-root", type=Path, help="det: the COBOL estate the project was generated from")
+    r.add_argument("--style", choices=("dispatch", "structured"), default="structured",
+                   help="det: paragraphs as named methods where the program allows (structured), or a dispatcher")  # fmt: skip
+    r.add_argument(
+        "--typed", action="store_true", help="det: WORKING-STORAGE items as typed Java fields where every use allows"
+    )
+    f.add_argument("--prove-command", required=True, help="the proof command, with {port_dir} / {report_dir}")
+    f.add_argument("--only", help="only these methods (comma-separated)")
+    f.add_argument("--skip", help="not these methods (comma-separated)")
+    f.add_argument("--largest", type=int, help="only the N largest methods")
+    f.add_argument("--retries", type=int, default=1)
     r.add_argument("--feedback", action="store_true",
                    help="give the backend the latest failed proof of this ticket: what it found and that attempt's port")  # fmt: skip
     s.add_argument("--file", type=Path, required=True)
@@ -475,8 +632,8 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--by", required=True)
     v.add_argument("--note")
     opts = ap.parse_args(argv)
-    return {"run": cmd_run, "submit": cmd_submit, "prove": cmd_prove, "review": cmd_review, "status": cmd_status}[
-        opts.cmd](opts)  # fmt: skip
+    return {"run": cmd_run, "submit": cmd_submit, "prove": cmd_prove, "review": cmd_review, "status": cmd_status,
+            "refine": cmd_refine}[opts.cmd](opts)  # fmt: skip
 
 
 if __name__ == "__main__":

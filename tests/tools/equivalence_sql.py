@@ -245,6 +245,14 @@ class Precompiler:
                 raise Unsupported("EXEC SQL DECLARE ... SCROLL CURSOR")
             self.cursors[cur.group(1).upper()] = cur.group(2)
             return None
+        if verb == "SET" and re.match(r"SET\s*\(?\s*:", text, re.I):  # SET :H = expr: one row of VALUES into :H
+            targets, exprs = _assignments(text)
+            _, out_refs = self._bind(", ".join(targets), args)
+            outputs = self._vars(out_refs, args)
+            sql, refs = self._bind(f"VALUES ({', '.join(exprs)})", args)
+            st = Statement(sid, "SELECT1", _norm(sql), "-", self._vars(refs, args), outputs)
+            self.statements.append(st)
+            return st, args
         if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
             raise Unsupported(f"EXEC SQL {verb}")
         if re.search(r"\bWHERE\s+CURRENT\s+OF\b", u):
@@ -297,11 +305,44 @@ class Precompiler:
         return "\n".join(out) + "\n"
 
 
+def _commas(text: str) -> list[str]:
+    """`text` split at commas outside parentheses and quotes (this harness's own reading: the oracle shares no
+    parser with the translator it checks)."""
+    parts, depth, quote, start = [], 0, "", 0
+    for i, ch in enumerate(text):
+        if quote:
+            quote = "" if ch == quote else quote
+        elif ch in "'\"":
+            quote = ch
+        elif ch in "()":
+            depth += 1 if ch == "(" else -1
+        elif ch == "," and depth == 0:
+            parts.append(text[start:i].strip())
+            start = i + 1
+    return parts + [text[start:].strip()]
+
+
+def _assignments(text: str) -> tuple[list[str], list[str]]:
+    """SET's targets and values (Db2 SQL Reference, SET assignment-statement): `SET :A = e1, :B = e2` or
+    `SET (:A, :B) = (e1, e2)`."""
+    m = re.fullmatch(r"SET\s*\(([^)]*)\)\s*=\s*\((.*)\)", text.strip(), re.I | re.S)
+    if m:
+        targets, values = _commas(m.group(1)), _commas(m.group(2))
+    else:
+        pairs = [re.fullmatch(r"(:[^=]+?)\s*=\s*(.+)", p, re.S) for p in _commas(text.strip()[3:])]
+        if not all(pairs):
+            raise Unsupported(f"EXEC SQL {text[:60]}")
+        targets, values = [p.group(1) for p in pairs if p], [p.group(2) for p in pairs if p]
+    if len(targets) != len(values):
+        raise Unsupported(f"EXEC SQL {text[:60]}: not as many values as host variables")
+    return targets, values
+
+
 def precompile(source: str, dirs: list[Path], path: Path) -> tuple[str, str]:
     """(the program with its EXEC SQL replaced, the statement table)."""
     lines = expand_includes(source.split("\n"), dirs)
     # the reader takes code areas (columns 8-72): a sequence number in columns 1-6 (COTRTLIC's) is no level number
-    pre = Precompiler(Program(_items([_area(ln) for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
+    pre = Precompiler(Program(_items([_area(ln).upper() for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
                                      path)))  # fmt: skip
     out: list[str] = []
     in_procedure = False
@@ -340,7 +381,7 @@ def precompile(source: str, dirs: list[Path], path: Path) -> tuple[str, str]:
             out.append("           MOVE RETURN-CODE TO GG-SQL-RC")
             out += [f"           CALL 'GGSQL' USING GG-SQL-ID SQLCA"] + [f"                {a}" for a in args]
             out.append("           MOVE GG-SQL-RC TO RETURN-CODE" + period)
-        after = text[m.end():].strip()
+        after = text[m.end() :].strip()
         if after:
             out.append("           " + after)
         i = j + 1

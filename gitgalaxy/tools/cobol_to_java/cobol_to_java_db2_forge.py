@@ -73,9 +73,53 @@ def sql_java_type(sql_type: str) -> str:
     return "String"
 
 
+def set_as_values(statement: str) -> str | None:
+    """`SET :A = e1, :B = e2` or `SET (:A, :B) = (e1, e2)` as the query `VALUES (e1, e2)` (DB2 SQL Reference,
+    SET assignment statement: the host variables take the values in order), or None for another form."""
+    s = " ".join(statement.split())
+    m = re.fullmatch(r"SET\s*\(([^)]*)\)\s*=\s*\((.*)\)", s, re.I)
+    if m:
+        return f"VALUES ({m.group(2).strip()})"
+    exprs = []
+    for part in _split_top(s[3:].strip() if s.upper().startswith("SET") else ""):
+        a = re.fullmatch(r":[^\s=]+(?:\s*(?:INDICATOR\s*)?:[^\s=]+)?\s*=\s*(.+)", part.strip(), re.I)
+        if not a:
+            return None
+        exprs.append(a.group(1).strip())
+    return f"VALUES ({', '.join(exprs)})" if exprs else None
+
+
+def _split_top(text: str) -> list[str]:
+    """`text` split at the commas outside parentheses and quotes."""
+    out: list[str] = []
+    cur: list[str] = []
+    depth, quote = 0, ""
+    for ch in text:
+        if quote:
+            quote = "" if ch == quote else quote
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+        elif ch == "," and depth == 0:
+            out.append("".join(cur))
+            cur = []
+            continue
+        cur.append(ch)
+    out.append("".join(cur))
+    return out
+
+
 def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list[str]]:
     """(SQL for NamedParameterJdbcTemplate, [(host variable, parameter)], notes) of one statement."""
     sql, notes = statement, []
+    if verb == "SET":
+        values = set_as_values(statement)
+        if values is not None:
+            sql = values
+            notes.append("the SET's host variables are the columns of the returned row, in order")
     if verb == "DECLARE CURSOR":
         sql = _CURSOR_FOR.sub("", sql, count=1)
     if verb.split()[0] == "SELECT" or verb == "DECLARE CURSOR":
@@ -357,6 +401,17 @@ class Db2Forge:
                 mine += [{**s, "program_file": p} for p in owners]
             if mine:
                 self.tables.append(self._plan({**raw, "statements": mine}))
+        # SET :H = expr: the statements that name no table, one repository of their own
+        values = (estate.get("sections") or {}).get("db2_values") or {}
+        mine = []
+        for s in values.get("facts", []):
+            owners = [s["file"]] if s.get("file") in self.key_of else [p for p in s.get("included_by", [])
+                                                                        if p in self.key_of]  # fmt: skip
+            mine += [{**s, "program_file": p} for p in owners if s.get("statement")]
+        if mine:
+            raw = {"table": "DB2_VALUES", "names": ["(no table: SET host-variable = expression)"], "columns": [],
+                   "declared_in": None, "line": None, "statements": mine}  # fmt: skip
+            self.tables.append(self._plan(raw))
         self.dates = self._claim("Db2Dates") if self.tables else ""  # #3828
 
     def _claim(self, name: str) -> str:
@@ -416,7 +471,7 @@ class Db2Forge:
             doc.append(f"     *  DB2 table access field testing: {self.status}. */")
             if verb == "DECLARE CURSOR":
                 sig, call = "List<Map<String, Object>>", "queryForList"
-            elif verb.split()[0] == "SELECT":
+            elif verb.split()[0] in ("SELECT", "SET"):
                 sig, call = "Map<String, Object>", "queryForMap"  # SQLCODE +100 -> EmptyResultDataAccessException
             else:
                 sig, call = "int", "update"

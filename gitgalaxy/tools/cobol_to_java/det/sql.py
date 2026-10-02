@@ -73,6 +73,26 @@ _HOST = re.compile(r":\s*([A-Z0-9][A-Z0-9-]*(?:\s+(?:OF|IN)\s+[A-Z0-9][A-Z0-9-]*
                    r"(?:\s*(?:INDICATOR\s*)?:\s*([A-Z0-9][A-Z0-9-]*))?", re.I)  # fmt: skip
 
 
+def _set_parts(sql: str) -> tuple[list[str], list[str]]:
+    """SET's host variables and expressions, in order: `SET :A = e1, :B = e2` or `SET (:A, :B) = (e1, e2)`."""
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_db2_forge import _split_top
+
+    m = re.fullmatch(r"SET\s*\(([^)]*)\)\s*=\s*\((.*)\)", sql.strip(), re.I | re.S)
+    if m:
+        targets, exprs = _split_top(m.group(1)), _split_top(m.group(2))
+    else:
+        targets, exprs = [], []
+        for part in _split_top(sql.strip()[3:]):
+            a = re.fullmatch(r"\s*(:[^=]+?)\s*=\s*(.+)", part, re.S)
+            if not a:
+                raise SqlError(f"EXEC SQL SET {part.strip()[:40]}")
+            targets.append(a.group(1))
+            exprs.append(a.group(2))
+    if len(targets) != len(exprs):
+        raise SqlError("EXEC SQL SET: as many host variables as values")
+    return [t.strip() for t in targets], [e.strip() for e in exprs]
+
+
 def _norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
@@ -189,7 +209,8 @@ class Sql:
         verb = u.split()[0] if u else ""
         if verb in ("INCLUDE", "DECLARE"):
             return []
-        if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL"):
+        assigns = verb == "SET" and re.match(r"SET\s*\(?\s*:", sql, re.I)  # SET :H = expr (not SET CURRENT ...)
+        if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL") and not assigns:
             raise SqlError(f"EXEC SQL {verb}")
         if verb == "COMMIT":
             return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // each statement committed as it ran (the repositories')"]
@@ -218,6 +239,12 @@ class Sql:
             return [*self._params(m.group(1) + " FROM " + m.group(3), meth, n, ind),
                     f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, () -> {call}({n}), CS);",
                     *self._into(m.group(2), row, ind)]  # fmt: skip
+        if assigns:  # the generated method runs VALUES (the expressions); its row goes into the host variables
+            targets, exprs = _set_parts(sql)
+            row = self.g.tmpname("sqlRow")
+            return [*self._params(", ".join(exprs), meth, n, ind),
+                    f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, () -> {call}({n}), CS);",
+                    *self._into(", ".join(targets), row, ind)]  # fmt: skip
         if verb == "OPEN" and meth.verb == "CURSOR":
             cursor = u.split()[1]
             return [

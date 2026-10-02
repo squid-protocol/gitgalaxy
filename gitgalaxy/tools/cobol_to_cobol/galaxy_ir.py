@@ -2680,6 +2680,36 @@ class GalaxyIR:
             out.append(e)
         return out
 
+    def db2_values(self) -> list:
+        """Every embedded statement that sets host variables from an expression and names no table -- `SET :H =
+        expr` (GenApp's `SET :DB2-CUSTOMERNUM-INT = IDENTITY_VAL_LOCAL()`) -- which db2_tables, being per table,
+        leaves out. One row per statement, the keys of a db2_tables statement (`file`, `line`, `verb`,
+        `host_variables`, `statement`, `included_by` for a statement in an included member). Facts only."""
+        includers: dict[str, set] = {}
+        for f in self.files.values():
+            if not f.program_ids:
+                continue
+            todo, seen_members = list(f.copy_deps), set()
+            while todo:
+                m = todo.pop()
+                if m in seen_members:
+                    continue
+                seen_members.add(m)
+                includers.setdefault(m, set()).add(f.file_path)
+                if m in self.files:
+                    todo += self.files[m].copy_deps
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for st in f.sql_statements:
+                if st.table or st.verb != "SET" or not re.match(r"\s*SET\s*\(?\s*:", st.statement or "", re.I):
+                    continue  # SET CURRENT ... (a special register) sets no host variable
+                row = {"file": f.file_path, "line": st.line, "verb": st.verb, "access": None, "cursor": None,
+                       "host_variables": list(st.host_variables), "statement": st.statement}  # fmt: skip
+                if not f.program_ids and includers.get(f.file_path):
+                    row["included_by"] = sorted(includers[f.file_path])
+                out.append(row)
+        return out
+
     def queue_flows(self) -> list:
         """Program -> program data flow through a CICS TS/TD queue (#3353).
 

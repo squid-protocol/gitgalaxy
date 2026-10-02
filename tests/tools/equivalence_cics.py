@@ -596,7 +596,8 @@ def translate(source: str) -> tuple[str, bool]:
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
         raise Unsupported("no WORKING-STORAGE SECTION to hold the EIB")
-    if has_commarea:
+    already = re.search(r"^.{6} +PROCEDURE\s+DIVISION\s+USING\s+DFHCOMMAREA\s*\.", text, re.M | re.I)
+    if has_commarea and not already:  # (CBSA's ABNDPROC codes USING DFHCOMMAREA itself, as CICS allows)
         text, n = re.subn(r"^(.{6} +PROCEDURE\s+DIVISION)\s*\.", r"\1 USING DFHCOMMAREA.", text, count=1,
                           flags=re.M | re.I)  # fmt: skip
         if n != 1:
@@ -697,19 +698,24 @@ def task_dispatcher(programs: dict[str, bool]) -> str:
     for prog, takes in sorted(programs.items()):
         lines += [f"          WHEN '{prog}'", f"            CALL '{prog}'" + (" USING LK-X" if takes else ""),
                   f"            CANCEL '{prog}'"]  # fmt: skip
-    lines += ["          WHEN OTHER", "            CALL 'GGCNOPG' USING GG-CICS", "        END-EVALUATE",
-              "        CALL 'GGCPEND' USING GG-CICS", "        MOVE 1 TO GG-ITEM", "      END-IF",
+    if programs:
+        lines += ["          WHEN OTHER", "            CALL 'GGCNOPG' USING GG-CICS", "        END-EVALUATE"]
+    else:  # no program to run (the equivalence harness's one-program case): GnuCOBOL wants a WHEN before OTHER
+        lines[-1] = "        CALL 'GGCNOPG' USING GG-CICS"
+    lines += ["        CALL 'GGCPEND' USING GG-CICS", "        MOVE 1 TO GG-ITEM", "      END-IF",
               "    END-PERFORM", "    MOVE LS-CALEN TO EIBCALEN", "    GOBACK."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
 
 
 # ---- the stub's files, from the engine's facts ----------------------------------------
-def stub_files(ir: Any, program_file: str) -> list[dict[str, Any]]:
+def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
     """Each CICS file the program uses: {file, dsname, base (the cluster whose records it
     reads), key_offset, key_length, reclen, via}, from the engine's facts -- the CSD
     DEFINE FILE's DSNAME, then the IDCAMS DEFINE that keys it: a CLUSTER's KEYS, or a
-    PATH -> its AIX's KEYS over the AIX's base cluster."""
+    PATH -> its AIX's KEYS over the AIX's base cluster. Where the facts lack the KEYS or the
+    RECORDSIZE (GenApp's adef121.jcl gives both inside the DATA(...) component), the case's
+    dataset may state them ("vsam": {"key_offset", "key_length", "reclen"}); the facts win."""
     defines: dict[str, Any] = {}
     for f in ir.files.values():
         for d in f.vsam_defines:
@@ -727,26 +733,39 @@ def stub_files(ir: Any, program_file: str) -> list[dict[str, Any]]:
         if d is not None and d.kind == "PATH":
             via.append(f"PATH {d.name}")
             d = defines.get((d.related or "").upper())
-        if d is None:
-            raise Unsupported(f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}")
+        if d is None:  # #3656: the engine's candidate join of an IDCAMS name written with installation symbols
+            st = next((x for x in ir.vsam_stores() if (x.get("dataset") or "").upper() == dsn and x.get("defined")
+                       and (x.get("defined_by") or {}).get("match") == "symbolic"), None)  # fmt: skip
+            if st is None or None in (st["key_offset"], st["key_length"], st["record_max"]):
+                raise Unsupported(f"CICS file {e['name']}: no IDCAMS DEFINE for {dsn}")
+            out.append({"file": e["name"], "dsname": dsn, "base": dsn, "key_offset": st["key_offset"],
+                        "key_length": st["key_length"], "reclen": st["record_max"],
+                        "via": [f"symbolic {st['defined_by'].get('pattern')}"]})  # fmt: skip
+            continue
         key = d
         if d.kind == "AIX":
             via.append(f"AIX {d.name}")
             d = defines.get((d.related or "").upper())
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
-        if key.key_offset is None or key.key_length is None or d.record_max is None:
+        stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
+        klen = key.key_length if key.key_length is not None else stated.get("key_length")
+        reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+        if koff is None or klen is None or reclen is None:
             raise Unsupported(f"CICS file {e['name']}: {key.name}'s KEYS or {d.name}'s RECORDSIZE is not in the facts")
-        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": key.key_offset,
-                    "key_length": key.key_length, "reclen": d.record_max, "via": via})  # fmt: skip
+        out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": koff,
+                    "key_length": klen, "reclen": reclen, "via": via})  # fmt: skip
     return sorted(out, key=lambda f: f["file"])
 
 
 # ---- field values <-> bytes -----------------------------------------------------------
 def encode_field(
-    value: Any, pic: str | None, usage: str | None, nbytes: int, enc: str = common.DEFAULT_DATA_ENCODING
+    value: Any, pic: str | None, usage: str | None, nbytes: int, enc: str = common.DEFAULT_DATA_ENCODING,
+    sign_separate: bool = False, sign_leading: bool = True,
 ) -> bytes:
-    """A value as the field stores it (the inverse of equivalence.decode_field); #3815: text in `enc`."""
+    """A value as the field stores it (the inverse of equivalence.decode_field); #3815: text in `enc`.
+    SIGN LEADING / TRAILING SEPARATE: the digits and a `+` / `-` byte of its own at that end."""
     num = common._pic_numeric(pic) if pic else None
     if num is None:
         return common.text_bytes(str(value), nbytes, enc)
@@ -759,6 +778,9 @@ def encode_field(
     if u in ("COMP", "COMP-4", "COMP-5", "BINARY", "COMPUTATIONAL", "COMPUTATIONAL-4", "COMPUTATIONAL-5"):
         return n.to_bytes(nbytes, "big", signed=signed)
     text = f"{abs(n):0{digits}d}"[-digits:]
+    if sign_separate:
+        mark = "-" if n < 0 else "+"
+        return (mark + text if sign_leading else text + mark).encode(enc)
     if signed:
         last = int(text[-1])
         pos, neg = common.zoned_sign_characters(common.sign_page(enc))  # cp037: `{ABCDEFGHI` / `}JKLMNOPQR`
@@ -782,10 +804,12 @@ def encode_record(
         if isinstance(values.get(f["name"]), bytes):  # already the field's bytes
             rec[sl] = values[f["name"]][: f["bytes"]].ljust(f["bytes"], " ".encode(enc))
         elif f["name"] in values:
-            rec[sl] = encode_field(values[f["name"]], f["pic"], f["usage"], f["bytes"], enc)
+            rec[sl] = encode_field(values[f["name"]], f["pic"], f["usage"], f["bytes"], enc,
+                                   f.get("sign_separate", False), f.get("sign_leading", True))  # fmt: skip
         elif fill == b"init":
             num = common._pic_numeric(f["pic"]) if f["pic"] else None
-            rec[sl] = encode_field(0 if num else "", f["pic"], f["usage"], f["bytes"], enc)
+            rec[sl] = encode_field(0 if num else "", f["pic"], f["usage"], f["bytes"], enc,
+                                   f.get("sign_separate", False), f.get("sign_leading", True))  # fmt: skip
         else:
             rec[sl] = fill * f["bytes"]
     return bytes(rec)
@@ -975,6 +999,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for model in sorted(LE_MODELS.glob("*.c")) if subs else []:
         shutil.copy(model, src / model.name)
         subs.append(f"src/{model.name}")
+    if "CALL 'GGCRUN'" in text:  # a LINK: the level's dispatcher, with no program to run -- the case runs one
+        (src / "GGCRUN.cbl").write_text(task_dispatcher({}), encoding="ascii")  # program; a LINK the case
+        subs.append("src/GGCRUN.cbl")  # reaches is refused after the run (NOPROGRAM, below)
     compile_task = (
         f"cobc -x -std=ibm -fsign=EBCDIC -fstatic-call {cov.TRACE_FLAG} {''.join(f + ' ' for f in option_flags)}"
         f"-I /work/src -o task src/EQCICSDR.cbl src/PROGRAM.cbl {''.join(s + ' ' for s in subs)}src/ggcics.c"
@@ -1021,6 +1048,12 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     proc = common.run_cobol_step(work)
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
+    for sc in case["scenarios"]:  # a LINK reached: the program it names is not run here (no port of it)
+        log = work / "scenarios" / sc["name"] / "out" / "events.txt"
+        hit = re.search(r"\bNOPROGRAM\b.*?\btarget=(\S*)", log.read_text(encoding="latin-1")) if log.is_file() else None
+        if hit:
+            raise Unsupported(f"scenario {sc['name']}: LINK PROGRAM({hit.group(1)}) -- the case runs one program",
+                              ["LINK"])  # fmt: skip
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
                            compiled=text, traces=[work / "scenarios" / sc["name"] / cov.TRACE_NAME for sc in case["scenarios"]],
@@ -1239,7 +1272,9 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
     CARDDEMO-COMMAREA), the generated DTO of the case's first COMMAREA record."""
     from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 
-    m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_file.read_text(encoding="utf-8"))
+    svc_text = svc_file.read_text(encoding="utf-8")
+    m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_text) or re.search(
+        r"handleLink\((\w+) request\)", svc_text)  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m:
         return m.group(1)
     record = case["commarea"]["segments"][0]["record"]
@@ -1608,7 +1643,7 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
 
     ir = load_galaxy_ir(scan_to_db(corpus, work / "scan"))
-    files = stub_files(ir, case["program_source"])
+    files = stub_files(ir, case["program_source"], case.get("datasets"))
     cobol = run_cobol_cics(case, corpus, work / "cobol", files)
     if cobol_only:
         for name, res in cobol.items():

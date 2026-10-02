@@ -1,0 +1,192 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "ABNDPROC",
+ "program_source": "src/base/cobol_src/ABNDPROC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUPD",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "write-new-record",
+   "commarea": {
+    "COMM-UTIME-KEY": 345678901234567,
+    "COMM-TASKNO-KEY": 7,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "why": "a new key: WRITE NORMAL, then GET-ME-OUT-OF-HERE's RETURN; the record is the 681-byte COMMAREA"
+  },
+  {
+   "name": "same-utime-other-task",
+   "commarea": {
+    "COMM-UTIME-KEY": 123456789012345,
+    "COMM-TASKNO-KEY": 1236,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "why": "the UTIME part of an existing key with another task number: a different key, NORMAL"
+  },
+  {
+   "name": "duplicate-key",
+   "commarea": {
+    "COMM-UTIME-KEY": 123456789012345,
+    "COMM-TASKNO-KEY": 1234,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "a second abend in the same task and microsecond"
+   },
+   "why": "the key exists: WRITE DUPREC (RESP 14) -> the DISPLAYs and RETURN; the file is unchanged"
+  },
+  {
+   "name": "negative-codes",
+   "commarea": {
+    "COMM-UTIME-KEY": 456789012345678,
+    "COMM-TASKNO-KEY": 9999,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "AEIM",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": -1,
+    "COMM-RESP2CODE": -12345678,
+    "COMM-SQLCODE": -99999999,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "why": "SIGN LEADING SEPARATE fields negative, at their 8-digit limit; task number 9999 (PIC 9(4) maximum)"
+  },
+  {
+   "name": "key-zero",
+   "commarea": {
+    "COMM-UTIME-KEY": 0,
+    "COMM-TASKNO-KEY": 0,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "why": "boundary: UTIME 0 and task 0, the lowest key"
+  },
+  {
+   "name": "key-max",
+   "commarea": {
+    "COMM-UTIME-KEY": 999999999999999,
+    "COMM-TASKNO-KEY": 9999,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+   },
+   "why": "boundary: UTIME 999999999999999 (S9(15) COMP-3 maximum), task 9999, the free-form text filled to 600 bytes"
+  },
+  {
+   "name": "write-nospace",
+   "commarea": {
+    "COMM-UTIME-KEY": 567890123456789,
+    "COMM-TASKNO-KEY": 1,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "ABNDFILE",
+     "resp": "NOSPACE",
+     "why": "18 on the WRITE -> the 'Unable to write' DISPLAYs and RETURN"
+    }
+   ],
+   "why": "injected NOSPACE: the error path, nothing written"
+  },
+  {
+   "name": "write-notopen",
+   "commarea": {
+    "COMM-UTIME-KEY": 567890123456789,
+    "COMM-TASKNO-KEY": 2,
+    "COMM-APPLID": "CBSAAPPL",
+    "COMM-TRANID": "OUPD",
+    "COMM-DATE": "01.10.2026",
+    "COMM-TIME": "10:30:15",
+    "COMM-CODE": "HROL",
+    "COMM-PROGRAM": "UPDCUST",
+    "COMM-RESPCODE": 17,
+    "COMM-RESP2CODE": 0,
+    "COMM-SQLCODE": 0,
+    "COMM-FREEFORM": "READ UPDATE failed"
+   },
+   "faults": [
+    {
+     "cmd": "WRITE",
+     "file": "ABNDFILE",
+     "resp": "NOTOPEN",
+     "resp2": 0,
+     "why": "19 on the WRITE"
+    }
+   ],
+   "why": "injected NOTOPEN"
+  }
+ ],
+ "notes": "CBSA's abend recorder (ABNDPROC, LINKed by the other CBSA programs with an ABNDINFO-shaped COMMAREA): MOVE DFHCOMMAREA TO WS-ABND-AREA, EXEC CICS WRITE FILE('ABNDFILE') FROM(WS-ABND-AREA) RIDFLD(ABND-VSAM-KEY) RESP RESP2; on a non-NORMAL RESP it DISPLAYs 'Unable to write to the file ABNDFILE' with the RESP / RESP2 and RETURNs, else RETURNs through GET-ME-OUT-OF-HERE. DUPREC is exercised naturally (an existing key), NOSPACE / NOTOPEN by fault injection. The DISPLAY lines go to the COBOL task's stdout, which the CICS harness does not compare: only the events (RETURN) and the file are compared. Each scenario's ABNDFILE is compared after the task. Keys: ABND-VSAM-KEY is ABND-UTIME-KEY PIC S9(15) COMP-3 (8 bytes) + ABND-TASKNO-KEY PIC 9(4): binary packed bytes then digits, no letters possible from the COMMAREA's numeric fields; no browse, so no key order is exercised. ABND-RESPCODE / RESP2CODE / SQLCODE are SIGN LEADING SEPARATE (9 bytes each). The CICS file's DSNAME CBSA.CICSBSA.ABNDFILE is joined to the IDCAMS define @BANK_PREFIX@.ABNDFILE (KEYS(12 0), RECORDSIZE 681) by the engine's symbolic candidate join (#3656). Data: abndfile.bin is SYNTHETIC (three abend records, the corpus ships none), fixed 681-byte ABNDINFO records one per line, with packed keys chosen so that no byte is a line end. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

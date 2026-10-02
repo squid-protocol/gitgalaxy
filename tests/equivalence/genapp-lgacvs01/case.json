@@ -1,0 +1,73 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGACVS01",
+ "program_source": "base/src/lgacvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgacvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "add-new-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 11,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "WRITE of a new key after the last record: NORMAL; the record is the 225 bytes from CA-CUSTOMER-NUM"
+  },
+  {
+   "name": "add-key-zero",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "Zero      Lowest              2000-01-01                                000"
+   },
+   "why": "boundary: the lowest key 0000000000, before every existing record"
+  },
+  {
+   "name": "add-key-max",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 9999999999,
+    "CA-REQUEST-SPECIFIC": "Ninefirst Highest-Possible-Key1999-12-31HHHHHHHHHHHHHHHHHHHH9999ZZ999ZZZ999MMMMMMMMMMMMMMMMMMMMPPPPPPPPPPPPPPPPPPPPeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+   },
+   "why": "boundary: the highest key and every customer field filled to its full width"
+  },
+  {
+   "name": "add-blank-details",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": 12,
+    "CA-REQUEST-SPECIFIC": "                                                                        000"
+   },
+   "why": "the key alone: the record is the key and 215 blanks (the INITIALIZE'd COMMAREA)"
+  }
+ ],
+ "notes": "GenApp's VSAM 'add customer' (LGACVS01, LINKed by LGACDB01 with the 32500-byte LGCMAREA COMMAREA): EXEC CICS WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(225) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10); on NORMAL the program GOBACKs (no RETURN command, CA-RETURN-CODE untouched). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger, defined in the CSD); the equivalence harness runs one program and has no port of LGSTSQ, so a scenario that reaches it is refused (Unsupported: LINK PROGRAM(LGSTSQ)). The error paths -- DUPREC on an existing customer, NOSPACE / NOTOPEN / IOERR, CA-RETURN-CODE '80' and ABEND LGV0 -- are therefore NOT exercised here; they need LGSTSQ modelled (or ported) first. Keys: CA-CUSTOMER-NUM is PIC 9(10) in the COMMAREA, so a key mixing letters and digits cannot be passed; no browse, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdscust.txt is GenApp's own ten sample customers (base/cntl/db2cre.jcl's customer INSERTs), laid out as LGACVS01 writes them (CA-CUSTOMER-NUM + CA-CUSTOMER-REQUEST's first 215 bytes); CA-NUM-POLICIES is the count of that customer's rows in db2cre.jcl's policy INSERTs. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

@@ -140,6 +140,10 @@ class Generated:
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
             self.contract = m.group(1)
+        else:  # a program only ever LINKed to (CBSA's): its COMMAREA is handleLink's
+            m = re.search(r"public \w+ handleLink\((\w+) request\)", stub)
+            if m:
+                self.contract = m.group(1)
         # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
         self.links = {mm.group(1).upper(): mm.group(2)
                       for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)}  # fmt: skip
@@ -307,7 +311,7 @@ class Cics:
             return out
         out.append(f"{ind}if ({resp} != 0) {{")
         out.append(f"{ind}    int to = condition(DetCics.condition({resp}));")
-        out.append(f"{ind}    if (to >= 0) return GOTO | to;")
+        out.append(f"{ind}    if (to >= 0) {self.g.jump('to')}")
         out.append(f"{ind}}}")
         return out
 
@@ -458,7 +462,7 @@ class Cics:
                 out.append(f"{ind}String {r} = task.link({prog});")
             ex = g.tmpname("exit")
             out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
-                    f"{ind}if ({ex} != null) return GOTO | paragraph({ex});",
+                    f"{ind}if ({ex} != null) {g.jump(f'paragraph({ex})')}",
                     f"{ind}if (task.ended()) throw new Goback();"]  # fmt: skip
             return out + self.outcome(opts, f"DetCics.resp({r})", "0", ind)
         if verb == "RETURN":
@@ -514,7 +518,7 @@ class Cics:
             fn = "abendCancel" if "CANCEL" in opts else "abend"
             lbl = g.tmpname("exit")
             return [f"{ind}String {lbl} = task.{fn}({code});", f"{ind}if ({lbl} == null) throw new Goback();",
-                    f"{ind}if (true) return GOTO | paragraph({lbl});"]  # fmt: skip
+                    f"{ind}if (true) {g.jump(f'paragraph({lbl})')}"]  # fmt: skip
         if verb == "ASSIGN":
             out = []
             for k, v in opts.items():

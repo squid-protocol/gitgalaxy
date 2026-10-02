@@ -1,0 +1,286 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "UPDCUST",
+ "program_source": "src/base/cobol_src/UPDCUST.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUPD",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/UPDCUST.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-name-and-address",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan B Smythe",
+    "COMM-ADDR": "99 New Road, Winchester, SO22 5AA"
+   },
+   "why": "title Mr: READ UPDATE NORMAL, both given -> both moved, REWRITE, the COMMAREA refilled from the record, 'Y'"
+  },
+  {
+   "name": "update-address-only",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-ADDR": "1 Abbey Walk, Romsey, SO51 8EL"
+   },
+   "why": "blank name (title '' is valid): only the address replaced"
+  },
+  {
+   "name": "update-name-only",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-NAME": "Dr Edward F Greene"
+   },
+   "why": "blank address: only the name replaced"
+  },
+  {
+   "name": "name-and-address-blank",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001"
+   },
+   "why": "both blank: READ UPDATE then '4', no REWRITE; the file is unchanged"
+  },
+  {
+   "name": "name-leading-space",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": " Mrs Carol Jones",
+    "COMM-ADDR": "5 Mill Lane, Romsey"
+   },
+   "why": "COMM-NAME(1:1) = ' ': the title UNSTRINGs to '' (valid) and the name counts as blank: only the address replaced"
+  },
+  {
+   "name": "address-leading-space",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-NAME": "Dr Edward Green",
+    "COMM-ADDR": " 8 Church Lane"
+   },
+   "why": "COMM-ADDR(1:1) = ' ': the address counts as blank: only the name replaced"
+  },
+  {
+   "name": "title-professor-exact",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000004",
+    "COMM-NAME": "Professor Gail Brown-Hill",
+    "COMM-ADDR": "2 University Road"
+   },
+   "why": "the 9-letter title Professor fills WS-UNSTR-TITLE exactly"
+  },
+  {
+   "name": "title-truncated-to-professor",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000004",
+    "COMM-NAME": "Professorial Gail Brown",
+    "COMM-ADDR": "3 University Road"
+   },
+   "why": "boundary: 'Professorial' UNSTRINGs into the 9-byte title as 'Professor' -- valid"
+  },
+  {
+   "name": "title-miss",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Miss Carol Jones"
+   },
+   "why": "WHEN 'Miss'"
+  },
+  {
+   "name": "title-ms",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Ms Carol Jones"
+   },
+   "why": "WHEN 'Ms'"
+  },
+  {
+   "name": "title-mrs",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Mrs Carol Jones-Smith"
+   },
+   "why": "WHEN 'Mrs'"
+  },
+  {
+   "name": "title-drs",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000003",
+    "COMM-NAME": "Drs Edward Green"
+   },
+   "why": "WHEN 'Drs'"
+  },
+  {
+   "name": "title-lord",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Lord Alan Smith"
+   },
+   "why": "WHEN 'Lord'"
+  },
+  {
+   "name": "title-sir",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Sir Alan Smith"
+   },
+   "why": "WHEN 'Sir'"
+  },
+  {
+   "name": "title-lady",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Lady Carol Jones"
+   },
+   "why": "WHEN 'Lady'"
+  },
+  {
+   "name": "title-invalid",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Captain Alan Smith",
+    "COMM-ADDR": "1 Harbour Road"
+   },
+   "why": "WHEN OTHER: 'N' / 'T' and GOBACK before any file command (no RETURN command)"
+  },
+  {
+   "name": "title-with-period",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr. Alan Smith"
+   },
+   "why": "'Mr.' is not 'Mr': 'T'"
+  },
+  {
+   "name": "title-lowercase",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "mr alan smith"
+   },
+   "why": "titles compare case-sensitively: 'T'"
+  },
+  {
+   "name": "customer-not-found",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000005",
+    "COMM-NAME": "Mr Nobody",
+    "COMM-ADDR": "Nowhere"
+   },
+   "why": "READ UPDATE NOTFND: 'N' / '1', no REWRITE"
+  },
+  {
+   "name": "other-sortcode-ignored",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "123456",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan Smith"
+   },
+   "why": "COMM-SCODE 123456 is overwritten by the program's SORTCODE 987654: customer 987654/1 is updated, 123456/1 untouched"
+  },
+  {
+   "name": "highest-customer-number",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "9999999999",
+    "COMM-NAME": "Ms Highest Number-Two",
+    "COMM-ADDR": "Last Street, Flat 2"
+   },
+   "why": "boundary: the highest key on file"
+  },
+  {
+   "name": "read-io-error",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000001",
+    "COMM-NAME": "Mr Alan Smith",
+    "COMM-ADDR": "1 Road"
+   },
+   "why": "READ UPDATE fails with IOERR: 'N' / '2'",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "why": "17 on the READ UPDATE -> fail code 2"
+    }
+   ]
+  },
+  {
+   "name": "rewrite-fails",
+   "commarea": {
+    "COMM-EYE": "CUST",
+    "COMM-SCODE": "987654",
+    "COMM-CUSTNO": "0000000002",
+    "COMM-NAME": "Mrs Carol Jones",
+    "COMM-ADDR": "1 Road"
+   },
+   "why": "REWRITE fails with IOERR: 'N' / '3', the record not changed",
+   "faults": [
+    {
+     "cmd": "REWRITE",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "why": "17 on the REWRITE -> fail code 3"
+    }
+   ]
+  }
+ ],
+ "notes": "CBSA's update-customer service (UPDCUST, LINKed with the UPDCUST copybook's COMMAREA by the web / BMS front ends): the title (COMM-NAME's first word, UNSTRINGed into 9 bytes) must be one of Professor / Mr / Mrs / Miss / Ms / Dr / Drs / Lord / Sir / Lady / blank, else 'N' / 'T' and GOBACK; then READ FILE('CUSTOMER') UPDATE by the program's own sort code (SORTCODE copybook, 987654 -- COMM-SCODE is overwritten) and COMM-CUSTNO (NOTFND -> '1', any other condition -> '2'); name and address both blank (or starting with a space) -> '4' with no REWRITE; otherwise the non-blank one(s) replace the record's, REWRITE (failure -> '3'), the COMMAREA is refilled from the record and COMM-UPD-SUCCESS = 'Y'; RETURN. Every condition the program tests is exercised (NOTFND naturally, IOERR on the READ and on the REWRITE by fault injection), and every title WHEN. Each scenario's CUSTOMER file is compared after the task. Keys: DESIRED-CUST-KEY is PIC 9(6) + PIC 9(10); COMM-CUSTNO is PIC X(10), so letters could only reach the key through an alphanumeric-to-numeric MOVE of non-digits, which GnuCOBOL (the oracle) and Enterprise COBOL do not treat alike (GnuCOBOL turned '00000ABC12' into 0000000000 and '1' + 9 spaces into 0000000001, where z/OS keeps the bytes): those two scenarios were tried and dropped, so no key here mixes letters and digits. No browse, so no key order is exercised. The CICS file's DSNAME (CBSA.CICSBSA.CUSTOMER) is joined to the IDCAMS define @BANK_PREFIX@.CUSTOMER (KEYS(16 4), RECORDSIZE 259) by the engine's symbolic candidate join (#3656), the one the generated estate uses too. Data: customer.txt is SYNTHETIC (CBSA generates its customers at random with BANKDATA; the corpus ships none): five customers of sort code 987654 (numbers 1-4 and 9999999999) and one of another sort code (123456/1), laid out as the CUSTOMER copybook. Derived from the CICS Bank Sample Application (CBSA, github.com/cicsdev/cics-banking-sample-application-cbsa; Copyright IBM Corp. 2023), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own; NOTICE says what is derived."
+}

@@ -126,3 +126,12 @@ def test_statements_keep_their_source_lines_past_a_multi_line_exec_block(tmp_pat
     p1, p2 = proc.paragraphs
     assert [(s.kind, s.line) for s in p1.body] == [("EXEC", 8), ("MOVE", 12)]
     assert [(s.kind, s.line) for s in p2.body] == [("EXEC", 14), ("MOVE", 16)]
+
+
+def test_a_when_condition_keeps_its_leading_not():
+    """EVALUATE TRUE WHEN NOT A AND B = C: NOT is the condition's own -- (NOT A) AND B = C. Only a value or a range
+    takes WHEN NOT as its negation (COTRTUPC's NOT CDEMO-PGM-REENTER AND CDEMO-FROM-PROGRAM = LIT-ADMINPGM)."""
+    obj = S._when_object("NOT A-FLAG AND B = C")
+    assert obj == ("COND", E.And(E.Not(E.CondName(R("A-FLAG"))), E.Rel("=", R("B"), R("C"))), False)
+    assert S._when_object("NOT 5") == ("VALUE", E.Lit(Decimal(5)), True)
+    assert S._when_object("NOT 1 THRU 9")[0] == "RANGE" and S._when_object("NOT 1 THRU 9")[3] is True

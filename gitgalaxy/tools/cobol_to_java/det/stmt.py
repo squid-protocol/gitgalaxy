@@ -295,7 +295,9 @@ def _when_object(p: str):
         return ("ANY",)
     if up in ("TRUE", "FALSE"):
         return (up,)
-    neg = False
+    # WHEN NOT negates a value or a range (an identifier, a literal, an arithmetic expression); a condition keeps a
+    # leading NOT as its own -- `WHEN NOT A-FLAG AND B = C` is (NOT A-FLAG) AND B = C, not NOT (A-FLAG AND B = C)
+    whole, neg = p, False
     if up.startswith("NOT "):
         neg, p = True, p[4:]
     m = re.match(r"(.+?)\s+(?:THRU|THROUGH)\s+(.+)$", p, re.I)
@@ -305,10 +307,10 @@ def _when_object(p: str):
         try:
             return ("VALUE", E.parse_arith(p), neg)
         except E.ExprError:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), False)
     except E.ExprError:
         try:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), False)
         except E.ExprError as e:
             return ("UNPARSED", p, str(e))
 

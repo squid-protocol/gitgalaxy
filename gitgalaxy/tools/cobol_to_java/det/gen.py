@@ -99,6 +99,7 @@ class Program:
 
 class Gen:
     def __init__(self, prog: Program, structured: bool = False):
+        self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -814,6 +815,10 @@ class Gen:
                 return
             if x.name == "FILLER" and x is not it:
                 return
+            if x.usage == "POINTER":  # never read (write_only_pointers): whatever INITIALIZE leaves in it, unseen
+                if x.name.upper() not in self.write_only_pointers:
+                    raise Untranslatable(f"INITIALIZE {it.name}: POINTER")
+                return
             out.append(self._init_one(x, base, it))
 
         def walk_occ(c: L.Item, k: int) -> None:
@@ -943,6 +948,10 @@ class Gen:
             return [c, *self.store_all(s, s.data["targets"], self.num(s.data["expr"]), ind)]
         if k == "ARITH":
             return [c, *self.arith(s, ind)]
+        if k == "SET-POINTER":
+            if s.data["target"] not in self.write_only_pointers:
+                raise Untranslatable("SET ADDRESS OF (pointers)")
+            return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:

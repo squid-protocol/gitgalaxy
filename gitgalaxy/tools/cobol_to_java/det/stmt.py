@@ -473,6 +473,9 @@ def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
 
 
 def _set(p: E.Parser, text: str, line: int) -> Stmt:
+    m = re.fullmatch(r"(?is)\s*SET\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
+    if m:  # a pointer set to an item's address: translated only where the pointer is never read (write_only_pointers)
+        return Stmt("SET-POINTER", line, text, {"target": m.group(1).upper(), "of": m.group(2).upper()})
     if p.up() == "ADDRESS" or "ADDRESS" in [x.upper() for x in p.t]:
         return Stmt("HOLE", line, text, {"why": "SET ADDRESS OF (pointers)"})
     targets = []

@@ -6,7 +6,12 @@ A case declares it under "db2":
     "db2": {"ddl": ["app/.../ddl/TRNTYPE.ddl"],        the tables, created as the corpus's DDL says
             "seed": "@case/seed.sql",                 INSERTs: the tables' content before every run
             "compare": ["CARDDEMO.TRANSACTION_TYPE"], what each run leaves there, compared row by row
-            "qualifier": "IBMUSER"}                   the bind's QUALIFIER: the schema unqualified names resolve to
+            "qualifier": "IBMUSER",                   the bind's QUALIFIER: the schema unqualified names resolve to
+            "symbols": {"<DB2DBID>": "GENASA1"}}      install symbols in the DDL and seed, as the installer sets them
+
+A seed may be a z/OS job too (GenApp's db2cre.jcl creates its tables and INSERTs their rows): its INSERTs are the
+seed. Every reset also restarts each compared table's identity column at its START WITH value, so both sides
+generate the same keys.
 
 A DDL member may be SQL, or a z/OS job that runs it (a `.jcl` member: its in-stream SQL, from the first statement to
 `/*`). Db2 for z/OS clauses that place or audit a table but do not change what a query returns are removed, as Db2
@@ -111,14 +116,19 @@ _ZOS_ONLY = [
     re.compile(r"\bUSING\s+STOGROUP\s+[A-Z0-9_#@$]+", re.I),
     re.compile(r"\bAUDIT\s+(NONE|CHANGES|ALL)\b", re.I),
     re.compile(r"\b(NOT\s+)?VOLATILE(\s+CARDINALITY)?\b", re.I),
+    re.compile(r"\bCCSID\s+(EBCDIC|ASCII|UNICODE)\b", re.I),  # (the table's text then sorts as Unicode: register Q7)
+    re.compile(r"\bCOPY\s+(YES|NO)\b", re.I),
 ]
-_ZOS_STATEMENTS = re.compile(r"^\s*(SET\s+CURRENT\s+SQLID|CREATE\s+(DATABASE|STOGROUP|TABLESPACE)|COMMIT)\b", re.I)
+_ZOS_STATEMENTS = re.compile(r"^\s*(SET\s+CURRENT\s+SQLID|CREATE\s+(DATABASE|STOGROUP|TABLESPACE)|COMMIT"
+                             r"|GRANT\s+DBADM|GRANT\s+USE\s+OF)\b", re.I)  # fmt: skip
 
 
-def ddl_text(path: Path) -> str:
-    """A DDL member as Db2 for Linux runs it (see the module's docstring): a job's in-stream SQL, z/OS-only clauses
-    and statements removed. Anything else is kept as written."""
+def ddl_text(path: Path, symbols: dict[str, str] | None = None) -> str:
+    """A DDL member as Db2 for Linux runs it (see the module's docstring): a job's in-stream SQL, install symbols
+    set, z/OS-only clauses and statements removed. Anything else is kept as written."""
     text = path.read_text(encoding="latin-1")
+    for k, v in (symbols or {}).items():
+        text = text.replace(k, v)
     if path.suffix.lower() == ".jcl":
         body, on = [], False
         for ln in text.splitlines():
@@ -144,8 +154,12 @@ def create(case: dict[str, Any], corpus: Path) -> None:
     ensure()
     for t in _tables(case):
         _clp(f"DROP TABLE {t};", check=False)
+    # a row longer than a 4K page (GenApp's ENDOWMENT VARCHAR(32606)): Db2 for Linux places such a table in a
+    # table space whose pages hold it -- created once (z/OS sizes its pages per table space in the DDL itself)
+    _clp("CREATE BUFFERPOOL GGBP32K SIZE 1000 PAGESIZE 32K; CREATE TABLESPACE GGTS32K PAGESIZE 32K BUFFERPOOL GGBP32K;",
+         check=False)  # fmt: skip
     for ddl in case["db2"].get("ddl", []):
-        _clp(ddl_text(corpus / ddl))
+        _clp(ddl_text(corpus / ddl, case["db2"].get("symbols")))
 
 
 def reset(case: dict[str, Any], corpus: Path) -> None:
@@ -180,9 +194,24 @@ def dump(case: dict[str, Any], table: str) -> bytes:
 def reset_script(case: dict[str, Any], corpus: Path) -> str:
     """The SQL that resets the tables to the seed (ggsqlrun -f, and the Java side's EquivalenceRunTest)."""
     script = "".join(f"DELETE FROM {t};\n" for t in _tables(case))
+    for t in _tables(case):
+        schema, _, name = t.upper().rpartition(".")
+        _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
+                       f"AND TABNAME = '{name}' AND IDENTITY = 'Y';")  # fmt: skip
+        for c in [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]:
+            script += f"ALTER TABLE {t} ALTER COLUMN {c} RESTART;\n"
     seed = case["db2"].get("seed")
     if seed:
-        script += common._input_path(case, corpus, seed).read_text(encoding="latin-1")
+        path = common._input_path(case, corpus, seed)
+        symbols = case["db2"].get("symbols")
+        if path.suffix.lower() == ".jcl":  # a job's INSERTs
+            stmts = [st.strip() for st in ddl_text(path, symbols).split(";")]
+            script += "".join(st + ";\n" for st in stmts if re.match(r"INSERT\b", st, re.I))
+        else:
+            text = path.read_text(encoding="latin-1")
+            for k, v in (symbols or {}).items():
+                text = text.replace(k, v)
+            script += text
     return script
 
 

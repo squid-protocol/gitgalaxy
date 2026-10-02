@@ -22,6 +22,10 @@ above the floor. Measured 2026-10-02 with the scanner after #4163 and #4164:
 | `arch_io` | `io` | 0.871 | 0.75 | 0.958 | 0.80 |
 | `arch_ipc` | `ipc_rpc_bridges` | 0.835 | 0.70 | 0.757 | 0.60 |
 
+The `struct_branch` row is provisional: Java's branch rule counts every `?` and `:`, including ones inside
+string literals (JDBC `?` placeholders, SQL `:host` variables), and counts a ternary twice. A fix is in progress,
+and the row is re-measured when it lands.
+
 Each floor is the measurement less a margin of 0.08 to 0.15. On 12 pairs one pair changing places moves ρ by
 about 0.05 to 0.1. Every fixture floor is above 0.50, the one-sided p < 0.05 critical value for 12 pairs, so a
 passing fixture still shows a positive rank agreement that chance would rarely produce.

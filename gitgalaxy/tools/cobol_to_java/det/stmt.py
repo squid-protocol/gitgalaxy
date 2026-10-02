@@ -289,13 +289,16 @@ def _whens(text: str) -> list:
     return out
 
 
-def _when_object(p: str):
+def _when_object(p: str) -> tuple[Any, Any, Any, bool]:
+    """(kind, a, b, negated): ANY / TRUE / FALSE; VALUE v; RANGE lo hi; COND condition; UNPARSED text why."""
     up = p.upper()
     if up == "ANY":
-        return ("ANY",)
+        return ("ANY", None, None, False)
     if up in ("TRUE", "FALSE"):
-        return (up,)
-    neg = False
+        return (up, None, None, False)
+    # WHEN NOT negates a value or a range (an identifier, a literal, an arithmetic expression); a condition keeps a
+    # leading NOT as its own -- `WHEN NOT A-FLAG AND B = C` is (NOT A-FLAG) AND B = C, not NOT (A-FLAG AND B = C)
+    whole, neg = p, False
     if up.startswith("NOT "):
         neg, p = True, p[4:]
     m = re.match(r"(.+?)\s+(?:THRU|THROUGH)\s+(.+)$", p, re.I)
@@ -303,14 +306,14 @@ def _when_object(p: str):
         if m:
             return ("RANGE", E.parse_arith(m.group(1)), E.parse_arith(m.group(2)), neg)
         try:
-            return ("VALUE", E.parse_arith(p), neg)
+            return ("VALUE", E.parse_arith(p), None, neg)
         except E.ExprError:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), None, False)
     except E.ExprError:
         try:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), None, False)
         except E.ExprError as e:
-            return ("UNPARSED", p, str(e))
+            return ("UNPARSED", p, str(e), False)
 
 
 # ---- one statement ---------------------------------------------------------------------------------------------

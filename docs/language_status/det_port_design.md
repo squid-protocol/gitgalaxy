@@ -384,15 +384,32 @@ NULL is distinct.
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
   and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
   +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
-- **Proven:** CardDemo's COBTUPDT (batch, `carddemo-cobtupdt`). All three outputs match: RETURN-CODE 4, the table
-  9/9 rows and SYSOUT 32/32 lines. The case covers a duplicate key (-803), +100 updates and deletes, and a
-  50-character description. A `PIC X(50)` host variable keeps its trailing blanks in the VARCHAR(50) column, as Db2
-  stores it.
+- **Proven: all three of CardDemo's Db2 programs**, translated with no model.
+
+  | case | program | scenarios | paragraphs | branches | translated |
+  |---|---|---|---|---|---|
+  | `carddemo-cobtupdt` | COBTUPDT, batch add / update / delete | 1 run | 9/9 | 14/20 | 58/58 |
+  | `carddemo-cotrtupc` | COTRTUPC, CICS update screen | 34 | 62/63 | 124/166 | 436/436 |
+  | `carddemo-cotrtlic` | COTRTLIC, CICS list screen with cursors | 27 | 56/59 | 165/230 | 631/632 |
+
+  - COBTUPDT matches on RETURN-CODE 4, the table's 9/9 rows and SYSOUT's 32/32 lines. Its case covers a duplicate
+    key (-803), +100 updates and deletes, and a 50-character description: a `PIC X(50)` host variable keeps its
+    trailing blanks in the VARCHAR(50) column, as Db2 stores it.
+  - The CICS cases cover SELECT INTO, INSERT after an UPDATE of no row, a delete refused by the foreign key (-532,
+    shown with SQLERRMC's tokens), +100, SYNCPOINT, and cursors forward and backward with paging, filters (LIKE)
+    and a look-ahead FETCH.
+  - COTRTLIC's one untranslated statement is a dynamic CALL of IBM's DSNTIAC, on the Db2-error path, which no
+    scenario reaches; the COBOL side cannot run DSNTIAC either.
+- **CICS.** The COBOL side runs every scenario in one container, so a small CLI tool (`tests/equivalence/db2/ggsqlrun.c`)
+  resets the tables before each task and dumps them after it. The Java side's test does the same over JDBC.
+  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it. Db2 cases
+  run one at a time: they share the database, and the harness takes a lock.
 - **Declared, not measured:**
   - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
   - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.
   - A run that ends normally commits.
-  - The Java side commits each statement as the repositories run it, so ROLLBACK is a hole.
+  - The Java side commits each statement as the repositories run it, so ROLLBACK is a hole. A CICS path that
+    backs out after a Db2 change would show as a difference, never as a proof; no scenario here reaches one.
 
 ## In port_runner
 

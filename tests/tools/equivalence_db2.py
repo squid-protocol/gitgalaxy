@@ -35,6 +35,21 @@ STUB = common.CASES / "db2" / "ggsql.c"
 RUNNER = common.CASES / "db2" / "ggsqlrun.c"
 
 
+_LOCK = None
+
+
+def hold_lock() -> None:
+    """The Db2 to this process until it ends (an exclusive lock; another Db2 case waits for it)."""
+    global _LOCK
+    import fcntl
+
+    if _LOCK is None:
+        path = Path.home() / ".cache" / "gitgalaxy-db2.lock"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _LOCK = path.open("w")
+        fcntl.flock(_LOCK, fcntl.LOCK_EX)
+
+
 def _docker(*args: str, check: bool = True, timeout: int = 600, inp: str | None = None) -> str:
     proc = subprocess.run(["docker", *args], capture_output=True, text=True, check=False, timeout=timeout,  # noqa: S603, S607
                           input=inp)  # fmt: skip

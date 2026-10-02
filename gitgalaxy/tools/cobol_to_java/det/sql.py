@@ -237,4 +237,4 @@ class Sql:
 
     def _cursor_sql(self, meth: Method) -> str:
         """The host variables a cursor's query takes (its parameters): as `:NAME` references for _params."""
-        return " ".join(f":{h}" for h in meth.params)
+        return ", ".join(f":{h}" for h in meth.params)  # (commas: `:A :B` would be A with indicator B)

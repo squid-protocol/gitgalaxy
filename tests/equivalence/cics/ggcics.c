@@ -327,8 +327,12 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     return 0;
 }
 
+/* A Db2 case's SQL stub (tests/equivalence/db2/ggsql.c), when linked: its Db2 work belongs to the same unit of work. */
+extern void ggsql_uow_end(int rollback) __attribute__((weak));
+
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
+    if (ggsql_uow_end) ggsql_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
         if (!uow_saved[i][0]) continue;

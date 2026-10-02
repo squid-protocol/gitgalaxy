@@ -300,7 +300,8 @@ class Precompiler:
 def precompile(source: str, dirs: list[Path], path: Path) -> tuple[str, str]:
     """(the program with its EXEC SQL replaced, the statement table)."""
     lines = expand_includes(source.split("\n"), dirs)
-    pre = Precompiler(Program(_items([ln for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
+    # the reader takes code areas (columns 8-72): a sequence number in columns 1-6 (COTRTLIC's) is no level number
+    pre = Precompiler(Program(_items([_area(ln) for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
                                      path)))  # fmt: skip
     out: list[str] = []
     in_procedure = False

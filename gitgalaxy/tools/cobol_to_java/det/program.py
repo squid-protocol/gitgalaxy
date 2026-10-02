@@ -154,16 +154,19 @@ def structurable(proc: S.Procedure) -> bool:
 
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
-              style: str = "dispatch", typed: bool = False) -> Result:  # fmt: skip
+              style: str = "dispatch", typed: bool = False, groups: bool = False) -> Result:  # fmt: skip
     """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
     as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
     `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
     its length, a binary integer a long -- where every use of the item has a typed form; an item used any other way
     (a reference modification, a STRING target, arithmetic, a file status ...) stays byte storage: translation
-    stops at that use (LiftViolation) and is repeated without the item, so a lift never changes behaviour."""
+    stops at that use (LiftViolation) and is repeated without the item, so a lift never changes behaviour.    `groups` (with `typed`): items inside a group the program also uses whole (a COMMAREA, a record READ INTO) are
+    typed too -- the group's bytes stay for those uses, packed from the typed fields before one and unpacked after
+    a write; a typed number in a written group, or a write that can transfer control first, keeps byte storage.
+    """
     excluded: set[str] = set()
     while True:
-        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded)
+        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups)
         if isinstance(out, Result):
             return out
         if out.names <= excluded:
@@ -222,7 +225,8 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
 
 
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
-               project: Path | None, style: str, typed: bool, excluded: set[str]) -> Result:  # fmt: skip
+               project: Path | None, style: str, typed: bool, excluded: set[str],
+               groups: bool = False) -> Result:  # fmt: skip
     lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
@@ -259,6 +263,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
     if typed:
+        gen.sync_groups = groups
         gen.lifted = liftable(records, excluded, rc)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.java_root = (project / "src/main/java") if project is not None else None
@@ -381,6 +386,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         storages.append((_storage_name(r), base64.b64encode(img).decode("ascii")))
     field_lines, inits = [], []
     lifted_decls: list[str] = []
+    sync_methods = sync_code(gen, records, roots)
     for rec in records:
         if not any(id(it) in gen.lifted for it in rec.walk()):
             continue
@@ -627,6 +633,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "",
         *[f"    private Field {d};" for d in declared],
         *lifted_decls,
+        *sync_methods,
         "",
         *[ln for code in gen.id_methods.values() if code for ln in code],
         *cics_members,
@@ -752,6 +759,37 @@ def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
             if s.kind == "HOLE" and re.match(rf"(?i)\s*DELETE\s+{re.escape(fd.select)}\b", s.text):
                 return True
     return False
+
+
+def sync_code(gen: G.Gen, records: list, roots: dict) -> list[str]:
+    """pack_<group>() / unpack_<group>() for every group whose bytes a statement uses while items in it are typed:
+    pack writes the typed fields into the bytes (and returns the group's field), unpack reads them back."""
+    owner = {id(x): rec for rec in records for x in rec.walk()}
+    out: list[str] = []
+    for gid, g in gen.synced.items():
+        inside = [x for x in g.walk() if id(x) in gen.lifted]
+        if not inside:
+            continue
+        fid = gen.ids[gid]
+        st = _storage_name(roots[id(owner[gid])])
+        pack, unpack = [], []
+        for x in inside:
+            name, f = gen.ids[id(x)], gen.factory(x, st, str(x.offset))
+            kind = gen.lifted[id(x)]
+            if kind == "X":
+                pack.append(f"        Cobol.putText({f}, {name}, CS);")
+                unpack.append(f"        {name} = Cobol.text({f}, CS);")
+            elif kind == "BIN":
+                pack.append(f"        Cobol.store({f}, BigDecimal.valueOf({name}), false, CS);")
+                unpack.append(f"        {name} = Cobol.num({f}, CS).longValue();")
+            else:  # NUM: packed for a read; never unpacked (a written group's numbers stay byte storage)
+                pack.append(f"        Cobol.store({f}, {name}, false, CS);")
+        out += [f"    /** {g.name}'s bytes, its typed fields written into them first. */",
+                f"    private Field pack_{fid}() {{", *pack, f"        return {fid};", "    }", ""]  # fmt: skip
+        if unpack:
+            out += [f"    /** {g.name}'s typed fields, read back from its bytes (after a statement wrote them). */",
+                    f"    private void unpack_{fid}() {{", *unpack, "    }", ""]  # fmt: skip
+    return out
 
 
 def _storage_name(rec: L.Item) -> str:

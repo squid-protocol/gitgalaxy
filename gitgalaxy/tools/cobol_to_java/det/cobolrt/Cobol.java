@@ -312,6 +312,13 @@ public final class Cobol {
         return new String(f.st.bytes, f.off, f.len, cs);
     }
 
+    /** A typed alphanumeric item's text back into its bytes (det-port typed groups): exactly its length, which a
+     *  lifted String always has. */
+    public static void putText(Field f, String s, Charset cs) {
+        byte[] b = s.getBytes(cs);
+        System.arraycopy(b, 0, f.st.bytes, f.off, Math.min(b.length, f.len));
+    }
+
     // -------------------------------------------------------------------------------------- arithmetic store
 
     /** No ON SIZE ERROR: low-order digits beyond the scale dropped (or rounded half away from zero), high-order

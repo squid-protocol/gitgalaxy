@@ -304,7 +304,7 @@ def _translator_version() -> str:
 
 
 def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Path, style: str,
-             typed: bool) -> tuple[str, dict[str, str], dict[str, Any]]:  # fmt: skip
+             typed: bool, groups: bool = False) -> tuple[str, dict[str, str], dict[str, Any]]:  # fmt: skip
     """The deterministic translator's port of the ticket's program: (service Java, runtime files, stats). The
     copybook directories are the ticket's copybooks' own, then symbolic maps generated from the estate's BMS."""
     from gitgalaxy.tools.cobol_to_java.det import program as P
@@ -328,9 +328,9 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
     m = re.search(r"^package\s+([\w.]+)\.service\s*;", stub, re.M)
     if not m:
         raise SystemExit(f"{stub_file}: no `package ....service;` line")
-    r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed)
+    r = P.translate(program, dirs, stub, m.group(1), P.estate_files(project), project, style, typed, groups)
     stats = {"statements": r.stats["statements"], "translated": r.stats["translated"],
-             "holes": len(r.stats["holes"]), "style": style, "typed": typed}  # fmt: skip
+             "holes": len(r.stats["holes"]), "style": style, "typed": typed, "groups": groups}  # fmt: skip
     return r.java, P.runtime_files(m.group(1), P.has_batch(project)), stats
 
 
@@ -344,7 +344,9 @@ def cmd_run(opts: argparse.Namespace) -> int:
         work = project / PORTS / opts.ticket / "attempts" / f"{attempt:03d}_work"
         work.mkdir(parents=True, exist_ok=True)
         started = _now()
-        port_java, runtime, stats = det_port(project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed)
+        port_java, runtime, stats = det_port(
+            project, ticket, opts.source_root.resolve(), work, opts.style, opts.typed, opts.groups
+        )
         dest = _store(project, ticket, port_java, attempt, runtime)
         log_event(project, {"event": "proposed", "ticket": opts.ticket, "attempt": attempt, "backend": "det",
                             "model": _translator_version(), "started": started, "port": str(dest.relative_to(project)),
@@ -614,6 +616,11 @@ def main(argv: list[str] | None = None) -> int:
                    help="det: paragraphs as named methods where the program allows (structured), or a dispatcher")  # fmt: skip
     r.add_argument(
         "--typed", action="store_true", help="det: WORKING-STORAGE items as typed Java fields where every use allows"
+    )
+    r.add_argument(
+        "--groups",
+        action="store_true",
+        help="det, with --typed: items in groups used whole too (COMMAREAs, records), the group's bytes synced",
     )
     f.add_argument("--prove-command", required=True, help="the proof command, with {port_dir} / {report_dir}")
     f.add_argument("--only", help="only these methods (comma-separated)")

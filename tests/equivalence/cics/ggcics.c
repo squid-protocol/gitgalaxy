@@ -925,6 +925,8 @@ enum { RUNNING = 0, DONE = 1, XCTLED = 2 };
 
 typedef struct {
     char prog[9];
+    char invoker[9];         /* the program that LINKed / XCTLed to this one (ASSIGN INVOKINGPROG); "" at the first */
+    char next_invoker[9];    /* the invoker of the program pending at this level */
     handlers h;
     handlers pushed[MAX_PUSH];
     int npushed;
@@ -1137,6 +1139,11 @@ int GGCASGN(gg_cics *c) {
     memset(c->name1, ' ', 8);
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strcmp(want, "INVOKINGPROG") == 0) { /* the program that LINKed / XCTLed to this one; blanks at the first */
+        const char *p = levels[lvl].invoker;
+        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+        return 0;
+    }
     if (strcmp(want, "PROGRAM") == 0) { /* ASSIGN PROGRAM: the program running at this level */
         const char *p = current_program();
         memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
@@ -1202,6 +1209,7 @@ static void return_event(const char *transid, char *commarea, int len) {
 
 static void xctl_next(const char *program, char *commarea, int len) {
     level *L = &levels[lvl];
+    snprintf(L->next_invoker, sizeof L->next_invoker, "%s", L->prog);  /* the XCTLing program */
     L->state = XCTLED;
     snprintf(L->next, sizeof L->next, "%s", program);
     L->next_len = commarea && len > 0 ? len : 0;
@@ -1250,6 +1258,8 @@ int GGCNEXT(gg_cics *c, char **area) {
     if (L->next_area_set) *area = L->next_area;
     else if (L->next_len <= 0) *area = NULL; /* level 1 with EIBCALEN 0: no COMMAREA */
     memcpy(L->prog, L->next, sizeof L->prog);
+    memcpy(L->invoker, L->next_invoker, sizeof L->invoker);
+    L->next_invoker[0] = 0;
     L->state = RUNNING;
     c->item = 1;
     return 0;
@@ -1293,10 +1303,14 @@ int GGCLINK(gg_cics *c, char *area) {
     snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
     event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
     if (c->resp != NORMAL) return 0;
+    const char *linker = current_program();
+    char by[9];
+    snprintf(by, sizeof by, "%s", linker);
     lvl++;
     memset(&levels[lvl], 0, sizeof levels[lvl]);
     level *L = &levels[lvl];
     snprintf(L->next, sizeof L->next, "%s", program);
+    snprintf(L->next_invoker, sizeof L->next_invoker, "%s", by);
     L->next_len = len;
     L->next_area = has ? area : NULL;
     L->next_area_set = 1;

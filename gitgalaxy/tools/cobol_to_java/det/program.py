@@ -152,6 +152,14 @@ def structurable(proc: S.Procedure) -> bool:
     return True
 
 
+def _dto_size(gp, cls: str) -> int:
+    """A generated DTO's record length, or 0 when the class has no DTO layout (its own record's size stands)."""
+    try:
+        return gp.dto(cls).size
+    except Exception:
+        return 0
+
+
 def write_only_pointers(records: list, proc) -> set[str]:
     """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
     named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
@@ -413,6 +421,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if gen.violations:  # a lifted item used through its bytes: translate again without lifting it
         raise G.LiftViolation(gen.violations)
 
+    # a LINKed program's COMMAREA storage is its caller's: as long as the longest record a caller may pass (GenApp's
+    # LGSTSQ declares 90 bytes, its callers pass their 99-byte error message, and the DTO fills all 99)
+    if gen.cics is not None:
+        dfh = next((r for r in records if r.section == "LINKAGE" and r.name == "DFHCOMMAREA"), None)
+        if dfh is not None:
+            classes = [x for x in dict.fromkeys([gen.cics.gp.contract, *gen.cics.gp.records.values()]) if x]
+            longest = max([_dto_size(gen.cics.gp, c) for c in classes], default=0)
+            sizes[id(roots[id(dfh)])] = max(sizes.get(id(roots[id(dfh)]), 0), longest)
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages = []
     seen = set()

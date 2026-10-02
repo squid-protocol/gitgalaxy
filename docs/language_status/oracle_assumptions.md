@@ -51,8 +51,10 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X3 | CICS | Every file is recoverable on SYNCPOINT ROLLBACK and abend | ASSUMED | yes (UOW scenarios) |
 | X4 | CICS | A task takes no time (ASKTIME = dispatch time) | ASSUMED | yes |
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
-| X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | not run | no |
+| X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | REFUSED | — |
 | X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
+| X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | not run | no |
+| X9 | CICS | Named counters (GET COUNTER) | MATCHED | yes (GenApp LGACDB01) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
@@ -221,14 +223,15 @@ Refused by name (`equivalence_cics.Unsupported`):
 
 The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not set.
 
-### X6. A WRITEQ LENGTH past its FROM item — not run
+### X6. A WRITEQ LENGTH past its FROM item — REFUSED
 - **What.** GenApp's LGSTSQ (the error logger every GenApp program LINKs on its error paths) writes
   `LENGTH(WS-RECV-LEN)`, the caller's COMMAREA length + 5. That is more than `FROM(WRITE-MSG)` holds (95 bytes), so
   CICS copies the bytes that follow WRITE-MSG in storage.
 - **Why it is not judged.** Those bytes depend on how the compiler lays out WORKING-STORAGE; GnuCOBOL's layout is not
   IBM's, so no oracle here can say what z/OS writes.
-- **Effect.** A scenario that reaches LGSTSQ is left out of its case (GenApp LGUPDB01's not-found paths). It should
-  become a refusal by name on both sides.
+- **Refused.** The translated WRITEQ TD / TS checks its LENGTH against the FROM item and stops the run (98,
+  "WRITEQ TD LENGTH > FROM: not modelled"); the case is refused by name, never reported as a difference. GenApp's
+  error paths (every GenApp program LINKs LGSTSQ on them) stay out of their cases until z/OS settles it.
 
 ### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
 - ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
@@ -236,6 +239,18 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - A case's `"programs"` run in the same task on both sides: the COBOL side's dispatcher (as the cics-crucible's) and
   the Java side's `CicsTask.Programs`, each a port. A LINK is compared by its target; what the target did is compared
   through its files, tables, queue writes and the COMMAREA it leaves.
+
+### X8. A reference modification past its item — not run
+- **What.** GenApp's LGAPDB01 MOVEs into `WS-VARY-CHAR(1:WS-VARY-LEN)`, the COMMAREA's length less the request's:
+  with the 32500 bytes its caller LGAPOL01 passes, about 28K past WS-VARY-CHAR's 3900. Compiled without SSRANGE (IBM's
+  default) that overwrites whatever follows in storage; GnuCOBOL's layout is not IBM's.
+- **Effect.** The det port stops (an index error), so such a scenario can never be proven by accident; the case leaves
+  it out and says so. A COBOL-side check (GnuCOBOL's EC-BOUND-REF-MOD) would turn it into a refusal by name.
+
+### X9. Named counters — MATCHED
+- GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not
+  have is NOTFND. A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
+  read the same. Other counter options (INCREMENT, WRAP, MINIMUM / MAXIMUM, RESP2 ...) are refused by name.
 
 ## Language Environment
 

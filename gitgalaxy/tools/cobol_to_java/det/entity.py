@@ -34,6 +34,13 @@ def _item(pic: str, usage: str | None) -> L.Item:
     return it
 
 
+def _sized(f: re.Match) -> L.Item | None:
+    """The comment's item, when its PICTURE and USAGE give exactly the bytes the comment says (else the comment is
+    not one the key bytes can be decoded by: None, and the scan stays)."""
+    it = _item(f.group(2), f.group(3))
+    return it if it.size == int(f.group(5)) else None
+
+
 def _value(jtype: str, field: str) -> str | None:
     if jtype == "String":
         return f"Cobol.text({field}, CS)"
@@ -57,9 +64,10 @@ def id_method(java_root: Path, entity: str, factory) -> IdMethod | None:
     lines = [f"    private static {jtype} id_{entity}(byte[] rec) {{", "        Storage s = Storage.of(rec);"]
     if kind == "Id":
         f = next((x for x in _FIELD.finditer(text) if x.group(7) == var), None)
-        if f is None:
+        it = _sized(f) if f is not None else None
+        if f is None or it is None:
             return None
-        value = _value(jtype, factory(_item(f.group(2), f.group(3)), "s", f.group(4)))
+        value = _value(jtype, factory(it, "s", f.group(4)))
         if value is None:
             return None
         lines.append(f"        return {value};")
@@ -72,7 +80,10 @@ def id_method(java_root: Path, entity: str, factory) -> IdMethod | None:
         if not fields:
             return None
         for f in fields:
-            value = _value(f.group(6), factory(_item(f.group(2), f.group(3)), "s", f.group(4)))
+            it = _sized(f)
+            if it is None:
+                return None
+            value = _value(f.group(6), factory(it, "s", f.group(4)))
             if value is None:
                 return None
             name = f.group(7)

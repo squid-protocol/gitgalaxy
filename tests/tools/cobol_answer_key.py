@@ -3923,11 +3923,15 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         ]
         own = cmd[kind.end() :]
         # The object's own parameter block ends before DATA( / INDEX(.
-        own = re.split(r"\)\s*(?:DATA|INDEX)\s*\(", own)[0]
+        parts = re.split(r"\)\s*(DATA|INDEX)\s*\(", own)
+        own = parts[0]
+        # the DATA component's block (KEYS and RECORDSIZE may be given there instead: IDCAMS takes them as the
+        # object's -- GenApp's adef121.jcl; never on INDEX)
+        data = next((parts[j + 1] for j in range(1, len(parts) - 1, 2) if parts[j] == "DATA"), "")
 
-        def one(*names: str) -> Optional[str]:
+        def one(*names: str, block: Optional[str] = None) -> Optional[str]:
             for n in names:
-                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own)
+                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own if block is None else block)
                 if m2:
                     return m2.group(1)
             return None
@@ -3935,7 +3939,8 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         def nums(v: Optional[str]) -> list[int]:
             return [int(x) for x in re.findall(r"\d+", v or "")]
 
-        keys, rec = nums(one("KEYS")), nums(one("RECORDSIZE", "RECSZ"))
+        keys = nums(one("KEYS") or one("KEYS", block=data))
+        rec = nums(one("RECORDSIZE", "RECSZ") or one("RECORDSIZE", "RECSZ", block=data))
         org = next((w for w in ("NONINDEXED", "NUMBERED", "LINEAR", "INDEXED") if re.search(rf"\b{w}\b", own)), None)
         uniq = (
             "NONUNIQUE"

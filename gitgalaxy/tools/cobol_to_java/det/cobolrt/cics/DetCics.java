@@ -145,6 +145,12 @@ public final class DetCics {
         return Arrays.copyOfRange(f.storage().bytes, f.offset(), f.offset() + f.length());
     }
 
+    /** `n` bytes of storage from a field's first byte -- a command's FROM(area) LENGTH(n), which may run past the
+     *  area into what follows it in its record (as CICS reads it: from the area's address, n bytes). */
+    public static byte[] bytes(Field f, int n) {
+        return Arrays.copyOfRange(f.storage().bytes, f.offset(), f.offset() + n);
+    }
+
     /** Bytes into a field's area, at most its length (a record READ INTO it; the rest is left as it was). */
     public static void put(Field f, byte[] data) {
         System.arraycopy(data, 0, f.storage().bytes, f.offset(), Math.min(data.length, f.length()));

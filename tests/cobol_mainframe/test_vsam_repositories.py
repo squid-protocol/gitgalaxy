@@ -422,3 +422,81 @@ def test_the_name_pattern_alone_does_not_merge(tmp_path):
     stores = _symbolic_estate(tmp_path, "8 0", "38 40", ridfld=False)  # no key, no exact size
     (concrete,) = [s for s in stores if s["dataset"] == "PROD.APP.ACCT.KSDS"]
     assert concrete["symbolic_candidate_rejected"]["why"] == "no key or exact record size corroborates the name pattern"
+
+
+def test_a_write_from_a_field_with_a_length_is_the_window_it_writes(tmp_path):
+    """GenApp LGACVS01: `WRITE FILE('KSDSCUST') FROM(CA-CUSTOMER-NUM) LENGTH(CUSTOMER-RECORD-SIZE)` writes the
+    225 bytes AT the 10-byte field; the window's end falls inside CA-REQUEST-SPECIFIC, which the first
+    REDEFINES ending exactly there (CA-CUSTOMER-REQUEST) lays out. KEYS / RECORDSIZE sit on DATA(...)."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    repo = tmp_path / "repo"
+    for d in ("jcl", "cbl", "csd"):
+        (repo / d).mkdir(parents=True)
+    (repo / "jcl" / "DEF.jcl").write_text(
+        "//DEF JOB\n//STEP1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+        " DEFINE CLUSTER(NAME(APP.CUST) INDEXED) -\n"
+        "        DATA(NAME(APP.CUST.DATA) KEYS(10 0) RECORDSIZE(40 40)) -\n"
+        "        INDEX(NAME(APP.CUST.INDEX))\n/*\n"
+    )
+    (repo / "csd" / "APP.csd").write_text("  DEFINE FILE(CUSTF) GROUP(APP)\n         DSNAME(APP.CUST)\n")
+    (repo / "cbl" / "PROG.cbl").write_text(
+        "       ID DIVISION.\n       PROGRAM-ID. PROG.\n       DATA DIVISION.\n       WORKING-STORAGE SECTION.\n"
+        "       01 REC-SIZE PIC S9(4) BINARY VALUE 0040.\n"
+        "       LINKAGE SECTION.\n"
+        "       01 DFHCOMMAREA.\n"
+        "          03 CA-REQ-ID PIC X(6).\n"
+        "          03 CA-CUST-NUM PIC 9(10).\n"
+        "          03 CA-SPECIFIC PIC X(500).\n"
+        "          03 CA-SECR REDEFINES CA-SPECIFIC.\n"
+        "             05 CA-PASS PIC X(32).\n"
+        "             05 CA-REST PIC X(468).\n"
+        "          03 CA-CUST REDEFINES CA-SPECIFIC.\n"
+        "             05 CA-FIRST PIC X(10).\n"
+        "             05 CA-LAST PIC X(20).\n"
+        "             05 CA-POLICY PIC X(470).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS WRITE FILE('CUSTF') FROM(CA-CUST-NUM)\n"
+        "                LENGTH(REC-SIZE) RIDFLD(CA-CUST-NUM) END-EXEC.\n"
+        "           EXEC CICS RETURN END-EXEC.\n"
+    )
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    (store,) = ir.vsam_stores()
+    assert (store["key_offset"], store["key_length"], store["record_max"]) == (0, 10, 40)
+    (user,) = store["users"]
+    (rec,) = user["records"]
+    assert (rec["record"], rec["length"], rec["window_of"], rec["window_offset"], rec["overlay"]) == (
+        "CA-CUST-NUM",
+        40,
+        "DFHCOMMAREA",
+        6,
+        "CA-CUST",
+    )
+    assert [(f["name"], f["offset"], f["bytes"]) for f in rec["layout"]["fields"]] == [
+        ("CA-CUST-NUM", 0, 10),
+        ("CA-FIRST", 10, 10),
+        ("CA-LAST", 20, 20),
+    ]
+    assert rec["layout"]["bytes"] == 40
+    assert user["ridflds"] == [{"ridfld": "CA-CUST-NUM", "offset": 0, "length": 10}]
+
+    # the entity carries the whole record, keyed by IDCAMS KEYS
+    from gitgalaxy.tools.cobol_to_java.cobol_to_java_repository_forge import RepositoryForge
+
+    forge = RepositoryForge({"sections": {"vsam_stores": {"facts": [store]}}}, {"PROG": {"program": {"file": "cbl/PROG.cbl"}}},
+                            "com.acme")  # fmt: skip
+    (st,) = forge.stores
+    assert [(f.cobol, f.offset, f.bytes) for f in st.fields] == [
+        ("CA-CUST-NUM", 0, 10), ("CA-FIRST", 10, 10), ("CA-LAST", 20, 20)]  # fmt: skip
+    assert st.key is not None and st.key.cobol == "CA-CUST-NUM"
+    assert "from offset 6 of DFHCOMMAREA, laid out by REDEFINES CA-CUST" in forge.entity_source(st)
+
+
+def test_a_cics_write_is_duprec_on_a_key_already_on_file(scanned, tmp_path):
+    """A CICS WRITE adds a record: the service checks the key first, as CICS raises DUPREC (save would replace)."""
+    _, src = _java(scanned, tmp_path)
+    cics = (src / "service/AcctcicsService.java").read_text(encoding="utf-8")
+    assert "Optional<AcctRec> onFile = acctRecRepository.findById(record.getAcctId());" in cics
+    assert "throw new org.springframework.dao.DuplicateKeyException(" in cics
+    bat = (src / "service/TcatbatService.java").read_text(encoding="utf-8")
+    assert "DuplicateKeyException" not in bat  # a REWRITE replaces the record it read

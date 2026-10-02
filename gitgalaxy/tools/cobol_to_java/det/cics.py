@@ -580,7 +580,7 @@ class Cics:
         if verb == "WRITEQ":
             f = self.field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
-            data = f"java.util.Arrays.copyOf(DetCics.bytes({f}), {n})"
+            data = f"DetCics.bytes({f}, {n})"
             if "REWRITE" in opts:
                 out.append(
                     f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"
@@ -750,18 +750,24 @@ class Cics:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", "0", ind)
 
+    def record_from(self, opts: dict) -> str:
+        """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
+        frm = self.field(opts["FROM"])
+        if opts.get("LENGTH"):
+            return f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
+        return f"DetCics.bytes({frm})"
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
         r = g.tmpname("resp")
         if verb == "WRITE":
-            frm, rid = self.field(opts["FROM"]), self.field(opts["RIDFLD"])
+            rid = self.field(opts["RIDFLD"])
             out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
-                   f"() -> {st}.store(DetCics.bytes({frm})));"]  # fmt: skip
+                   f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
         elif verb == "REWRITE":
-            frm = self.field(opts["FROM"])
-            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store(DetCics.bytes({frm})));"]
+            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({self.record_from(opts)}));"]
         elif verb == "DELETE":
             if opts.get("RIDFLD"):
                 rid = self.field(opts["RIDFLD"])

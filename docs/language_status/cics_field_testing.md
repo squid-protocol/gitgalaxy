@@ -76,7 +76,7 @@ counted in it (their fact counts are not recorded here).
 | 1 | zopeneditor-sample | public | 967 | 3 | 1 | 1 | 1 |
 | 2 | cics-banking-sample-application-cbsa | public | 3,674 | 43 | 1 | 1 | 0 |
 | 3 | aws-mainframe-modernization-carddemo | public | 4,880 | 26 | 7 | 4 | 1 |
-| 4 | cics-genapp | public | 2,294 | 10 | 4 | 1 | 0 |
+| 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
 

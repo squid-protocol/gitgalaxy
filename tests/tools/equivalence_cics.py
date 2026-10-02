@@ -354,7 +354,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         return ([name(file, "GG-NAME1")]
                 + _call("GGCWRIT", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {frm}",
-                                    f"BY VALUE LENGTH OF {frm}"])
+                                    f"BY VALUE {opts.get('LENGTH') or f'LENGTH OF {frm}'}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "REWRITE" and ({"FILE", "DATASET"} & set(opts)):
         for bad in ("SYSID", "TOKEN"):
@@ -363,7 +363,8 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         file, frm = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM")
         if not (file and frm):
             raise Unsupported("REWRITE without FILE / FROM")
-        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE LENGTH OF {frm}"])
+        length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
+        return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys
         for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "XRBA", "DEBKEY", "DEBREC"):
@@ -1227,6 +1228,17 @@ def to_java(values: dict[str, Any], shape: dict[str, Any], text: frozenset[str] 
     return out
 
 
+def shape_names(shape: dict[str, Any]) -> set[str]:
+    """The COBOL names a DTO shape carries (its nested groups' too)."""
+    out: set[str] = set()
+    for spec in shape.values():
+        if isinstance(spec, tuple):
+            out |= shape_names(spec[1])
+        else:
+            out.add(spec)
+    return out
+
+
 def alphanumeric(fields: list[dict[str, Any]]) -> frozenset[str]:
     """The fields whose PICTURE holds text (X / A), not a number."""
     # the PICTURE's symbols only: X(09) is text -- the 9 in its repetition count is not a digit position
@@ -1456,6 +1468,12 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
             values = decode_record(encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc)
+            # a value the DTO has no field for would reach the port as nothing at all: the case must name the
+            # COMMAREA as the contract DTO's record does
+            lost = sorted(set(sc["commarea"]) - shape_names(shape))
+            if lost:
+                raise Unsupported(f"scenario {sc['name']}: the COMMAREA DTO {ca_cls} has no field for {lost} -- "
+                                  f"describe the COMMAREA with the record the DTO is generated from")  # fmt: skip
             ca = to_java(values, shape, alphanumeric(ca_fields))
         # A typed field is named as the symbolic map names its input (ACCTSIDI); a screen view model
         # keys it by the BMS field (ACCTSID), as screenValues() / fromValues() do.
@@ -1498,7 +1516,11 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
         if left == right:
             continue
         spec = case["datasets"].get(base, {})
-        fields = common.layout_fields(corpus, spec["copybook"], spec.get("record")) if spec.get("copybook") else []
+        fields = []
+        if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
+            src = corpus / spec["copybook"]
+            dirs = [src.parent, *(corpus / d for d in case.get("copy_dirs", [])), corpus]
+            fields = common.layout_fields(corpus, spec["copybook"], spec.get("record"), dirs)
         out[base] = common.diff_records(left, right, reclen, fields, case.get("code_page", "cp037"), enc)
     return out
 

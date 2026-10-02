@@ -37181,8 +37181,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.GENAPP.KSDSCUST",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            10,
+            0
+          ],
+          "rec": [
+            225,
+            225
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -37193,8 +37199,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.GENAPP.KSDSPOLY",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            21,
+            0
+          ],
+          "rec": [
+            64,
+            64
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -37253,8 +37265,14 @@
           "kind": "CLUSTER",
           "name": "<USRHLQ>.<WUIAPPL>.EYUWREP",
           "org": "INDEXED",
-          "keys": null,
-          "rec": null,
+          "keys": [
+            20,
+            20
+          ],
+          "rec": [
+            8192,
+            32000
+          ],
           "related": null,
           "unique": null,
           "upgrade": null,
@@ -43625,6 +43643,11 @@
         "A:base/src/lgtestp4.cbl::NO-UPD": {
           "verdict": "key_fixed",
           "why": "NO-ADD (the paragraph before NO-UPD) is one EVALUATE CA-RETURN-CODE whose branches WHEN 70 and WHEN OTHER both end in Go To ERROR-OUT, so it never falls through; nothing PERFORMs or GO TOs NO-UPD. The key's reader treated any EVALUATE as possibly falling through; _evaluate_is_terminal now recognises an exhaustive (WHEN OTHER) EVALUATE whose every branch transfers, and the key marks NO-UPD dead. Re-running the reader over all four keys changes only this unit."
+        },
+        "vsam:base/cntl/adef121.jcl,base/cntl/defwrep.jcl": {
+          "verdict": "key_fixed",
+          "at": "2026-10-02",
+          "why": "KSDSCUST, KSDSPOLY and EYUWREP code KEYS and RECORDSIZE on the DATA component (DATA(NAME(...) KEYS(10 0) RECORDSIZE(225 225))), which IDCAMS takes as the cluster's; the key's reader (and the census, which agreed with it) read the cluster's own block only and recorded none. vsam_define_rows now falls back to DATA(...) (never INDEX(...): IDCAMS accepts neither there), as the engine does (file_control._define_row). Re-running the reader over all six keys' IDCAMS members changes only these three defines."
         }
       },
       "programs": [

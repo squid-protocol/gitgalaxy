@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
@@ -28,6 +29,9 @@ class Result:
     java: str
     service: str  # the class name
     stats: dict
+
+
+IMAGE_PIECE = 400  # base64 characters per line of a storage image
 
 
 def has_batch(project: Path | None) -> bool:
@@ -690,6 +694,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "",
     ]
     out = [
+        # a comment only: it declares the file a deterministic port, which GitGalaxy's aperture admits to a scan
+        f"{DET_PORT_MARKER} COBOL {prog.name} ({program.name}), translated by rule, statement for statement",
         f"package {pkg}.service;",
         "",
         *(
@@ -744,10 +750,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    private static final int GOTO = 1 << 20;",
         *consts,
         "",
-        # (a string constant holds at most 65535 bytes: a large image is joined from pieces at class load)
+        # (a string constant holds at most 65535 bytes: a large image is joined from pieces at class load; the
+        # pieces sit one per line so no line outgrows a reader's or a scanner's line limit)
         *[
-            f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode(String.join("", '
-            + ", ".join(f'"{b[i : i + 30000]}"' for i in range(0, max(len(b), 1), 30000))
+            f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode(String.join("",\n            '
+            + ",\n            ".join(f'"{b[i : i + IMAGE_PIECE]}"' for i in range(0, max(len(b), 1), IMAGE_PIECE))
             + "));"
             for n, b in storages
         ],

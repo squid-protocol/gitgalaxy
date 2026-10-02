@@ -650,3 +650,73 @@ def test_aperture_sql_ddl_exempt_from_micro_mass_quota(tmp_path):
     assert ".dml" in scope.MICRO_MASS_EXEMPT_EXTENSIONS
     # The pre-existing mainframe exemption must still hold (no regression).
     assert {".cpy", ".cbl", ".cob", ".jcl"} <= scope.MICRO_MASS_EXEMPT_EXTENSIONS
+
+
+# ==============================================================================
+# DECLARED PORTS: a deterministic COBOL-to-Java port admitted past the noise gates
+# ==============================================================================
+PORT_HEADER = "// gitgalaxy-det-port: COBOL COACTUPC (COACTUPC.cbl), translated by rule, statement for statement\n"
+
+
+@pytest.fixture
+def port_engine(tmp_path):
+    """The mock aperture with Java registered (the default mock has no .java)."""
+    registry = {**MOCK_REGISTRY, "java": {"extensions": [".java"], "exact_matches": []}}
+    return ApertureFilter(root_dir=tmp_path, language_definitions=registry, aperture_config=MOCK_CONFIG)
+
+
+def _port_body(long_line: int = 0) -> str:
+    body = "package p;\npublic class S {\n" + "        f1_A.set(Cobol.num(f2_B, CS));\n" * 2500
+    if long_line:
+        body = body.replace(
+            "public class S {\n", "public class S {\n    boolean x = " + "a && " * (long_line // 5) + "b;\n"
+        )
+    return body + "}\n"
+
+
+def test_declared_port_parses_only_a_java_first_line():
+    from gitgalaxy.core.aperture import declared_port
+
+    assert declared_port(PORT_HEADER + "package p;", "src/S.java") == "COACTUPC"
+    assert declared_port(PORT_HEADER + "x = 1", "src/s.py") is None
+    assert declared_port("package p;\n" + PORT_HEADER, "src/S.java") is None
+    assert declared_port("// gitgalaxy-det-port: COBOL  \n", "src/S.java") is None
+
+
+def test_declared_port_passes_monotony_saturation_and_generator_gates(port_engine, tmp_path):
+    f = tmp_path / "CoactupcService.java"
+    for content in (
+        PORT_HEADER + _port_body(),
+        PORT_HEADER + _port_body(long_line=3000),
+        PORT_HEADER + "// this file is generated, do not edit\n" + _port_body(),
+    ):
+        f.write_text(content, encoding="utf-8")
+        result = port_engine.is_in_scope(f, content=content)
+        assert result["is_in_scope"] is True, result["reason"]
+
+
+def test_without_the_header_the_same_port_is_still_blocked(port_engine, tmp_path):
+    f = tmp_path / "CoactupcService.java"
+    content = _port_body()
+    f.write_text(content, encoding="utf-8")
+    assert "Lexical Monotony" in port_engine.is_in_scope(f, content=content)["reason"]
+    content = _port_body(long_line=3000)
+    f.write_text(content, encoding="utf-8")
+    assert "Saturation" in port_engine.is_in_scope(f, content=content)["reason"]
+
+
+def test_the_header_lifts_no_other_gate(port_engine, tmp_path):
+    f = tmp_path / "S.java"
+    cases = {
+        "Saturation": PORT_HEADER + _port_body(long_line=6000),  # past DECLARED_PORT_MAX_LINE_LENGTH
+        "Binary Format": PORT_HEADER + "\x00" * 400 + _port_body(),
+        "Embedded Hex Payload": PORT_HEADER + "int[] a = {" + "0x00, " * 3000 + "};\n" + _port_body(),
+        "Monolithic Amalgamation": PORT_HEADER + "int a;\n" * 30001,
+    }
+    for reason, content in cases.items():
+        f.write_text(content, encoding="utf-8")
+        result = port_engine.is_in_scope(f, content=content)
+        assert result["is_in_scope"] is False and reason in result["reason"], (reason, result["reason"])
+    key = tmp_path / "id_rsa"
+    key.write_text(PORT_HEADER, encoding="utf-8")
+    assert "CRITICAL LEAK" in port_engine.evaluate_path_integrity(key)[2]

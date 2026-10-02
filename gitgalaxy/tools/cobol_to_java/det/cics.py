@@ -140,6 +140,10 @@ class Generated:
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
             self.contract = m.group(1)
+        else:  # a program only ever LINKed to (CBSA's): its COMMAREA is handleLink's
+            m = re.search(r"public \w+ handleLink\((\w+) request\)", stub)
+            if m:
+                self.contract = m.group(1)
         # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
         self.links = {mm.group(1).upper(): mm.group(2)
                       for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)}  # fmt: skip

@@ -187,3 +187,43 @@ A base cluster's keyed READ / WRITE / REWRITE / DELETE goes through the reposito
 from the key bytes by `det/entity.py` from the entity's `@Id` / `@EmbeddedId` comments; the record found must have
 exactly the key bytes asked for (a loosely decoded key -- non-digits in a numeric key -- finds nothing, as VSAM).
 Alternate indexes and browses keep the ordered scan.
+
+## Beyond CardDemo (A5)
+
+Equivalence cases for programs of two more estates, the COBOL run by GnuCOBOL as the oracle
+(`tests/equivalence/genapp-*`, `tests/equivalence/cbsa-*`):
+
+| case | program | det port |
+|---|---|---|
+| genapp-lgapvs01 | GenApp: WRITE a policy (KSDSPOLY), every policy type | **proven** |
+| genapp-lgdpvs01 | GenApp: DELETE a policy | **proven** |
+| genapp-lgupvs01 | GenApp: READ UPDATE / REWRITE a policy | **proven** |
+| cbsa-updcust | CBSA: update a customer (READ UPDATE / REWRITE, title validation, I/O faults) -- 23 scenarios | **proven** |
+| genapp-lgacvs01, genapp-lgucvs01 | GenApp: WRITE / REWRITE a customer (KSDSCUST) | differs: the generated KSDSCUST entity holds only the 10-byte key of the 225-byte record (the generator does not read KEYS / RECORDSIZE given inside IDCAMS DATA(...)) -- a generator gap |
+| cbsa-abndproc | CBSA: WRITE an abend record (ABNDFILE) | fails: the generated project maps no store for ABNDFILE -- a generator gap |
+
+GenApp's error paths (DUPREC, NOTFND, injected faults) all LINK to LGSTSQ first, which the one-program cases do
+not run: they are not exercised (the harness refuses a scenario that reaches such a LINK). The CBSA cases cover
+their error paths. No case here browses, so EBCDIC vs ASCII key order is still not exercised.
+
+## The combined method (B): deterministic first, a model refactors under proof
+
+**B1 -- structured style** (`det_port.py --style structured`, no model). A program with no GO TO, no EXEC CICS HANDLE
+and no SECTION has paragraphs as named methods called directly (`p1000CardfileGetNext()`), fields by their COBOL
+names (`endOfFile`), constants by value (`D16`): PERFORM a THRU b is a, ..., b in turn and the entry calls every
+paragraph in order -- COBOL's flow exactly, no dispatcher. 18 of the 24 CardDemo programs; all 24 prove in this style
+(the other 6 keep the dispatcher).
+
+**B2 -- a model refactors, every step proven** (`tests/tools/det_refine.py`). The customer's model (port_runner's
+backends) rewrites one paragraph method at a time for a reader, under fixed rules; the case is proven again and
+the rewrite kept only if it proves, retried once with the proof's feedback, else reverted -- the port is proven after
+every step.
+
+| program | methods | kept | time | Cobol.* calls | lines |
+|---|---|---|---|---|---|
+| CBACT02C (structured) | 7 | 7 (2 on the retry) | 259 s | 47 → 45 | 302 → 353 (Javadoc, helpers) |
+| COACTUPC (dispatcher, 66 GO TOs), its 10 largest paragraphs | 10 | 10 (1 on the retry) | 585 s | 3,614 → 2,419 | 6,816 → 6,104 |
+
+The model adds a Javadoc per paragraph, else-if chains, the 88-level conditions as named predicates, extracted
+helpers. The data is still COBOL's byte storage: lifting it into typed Java state is the next step (B3), under the
+same proof. Example: `docs/benchmarks/det-refine-cbact02c/`.

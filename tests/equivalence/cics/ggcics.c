@@ -1472,6 +1472,8 @@ int GGCCNCL(gg_cics *c) {
 /* The program returned to the driver without a RETURN / XCTL / ABEND. */
 int GGCEND(gg_cics *c) {
     (void)c;
-    if (!ended) event("END", NULL, 0);
+    /* the task's program GOBACKed with no RETURN / XCTL / ABEND: at the highest level that GOBACK is the
+     * RETURN (no TRANSID, no COMMAREA), as GGCPEND has it for a task run through GGCRUN */
+    if (!ended) return_event("", NULL, 0);
     return 0;
 }

@@ -1,0 +1,82 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGDPVS01",
+ "program_source": "base/src/lgdpvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGDP",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgdpvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgdpvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "delete-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                              0000000000          000000             00000000"
+   },
+   "why": "DELETE RIDFLD(E + 0000000003 + 0000000005): NORMAL, the record is gone"
+  },
+  {
+   "name": "delete-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01DHOU",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                              0000000000          000000               00000000000"
+   },
+   "why": "an H record"
+  },
+  {
+   "name": "delete-motor-last",
+   "commarea": {
+    "CA-REQUEST-ID": "01DMOT",
+    "CA-CUSTOMER-NUM": 10,
+    "CA-REQUEST-SPECIFIC": "0000000002                                              0000000000          000000                              000000               0000          000000000000"
+   },
+   "why": "the M record with the highest key (the file's last)"
+  },
+  {
+   "name": "delete-commercial-first",
+   "commarea": {
+    "CA-REQUEST-ID": "01DCOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                              0000000000          000000                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           0000000000000000000000000000000000000000000000000000"
+   },
+   "why": "the file's first record"
+  },
+  {
+   "name": "delete-type-from-request-only",
+   "commarea": {
+    "CA-REQUEST-ID": "01DEND",
+    "CA-CUSTOMER-NUM": 8,
+    "CA-REQUEST-SPECIFIC": "0000000004                                              0000000000          000000Z            00000000"
+   },
+   "why": "the policy details in the COMMAREA play no part: only the key fields are moved"
+  }
+ ],
+ "notes": "GenApp's VSAM 'delete policy' (LGDPVS01, LINKed by LGDPDB01): WF-POLICY-KEY = CA-REQUEST-ID(4:1) + CA-CUSTOMER-NUM + CA-POLICY-NUM, then EXEC CICS DELETE FILE('KSDSPOLY') RIDFLD(WF-Policy-Key) KEYLENGTH(21); on NORMAL it GOBACKs. Each scenario's KSDSPOLY is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger, defined in the CSD); the equivalence harness runs one program and has no port of LGSTSQ, so a scenario that reaches it is refused (Unsupported: LINK PROGRAM(LGSTSQ)). The error paths -- NOTFND for a key not on file, NOTOPEN / IOERR / DISABLED, CA-RETURN-CODE '81' -- are therefore NOT exercised here; they need LGSTSQ modelled (or ported) first. Keys: WF-POLICY-KEY is the request-type byte followed by 20 digits, so every key mixes a letter and digits; No browse is issued, so no key order is exercised (the comparison sorts each side's records by key bytes). Data: ksdspoly.txt is built from GenApp's own sample policies (base/cntl/db2cre.jcl's policy rows joined with their endowment / house / motor / commercial rows), laid out as WF-POLICY-INFO (request-type letter + customer + policy number, then the type's 43 bytes) -- the record LGAPVS01 writes; policy 7 (type C, no commercial row) is left out. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

@@ -166,6 +166,7 @@ _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # 
 _DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([^\s;]+)")
 # `SIGN IS LEADING SEPARATE CHARACTER` / `TRAILING SEPARATE`: the sign takes its own byte (census #3649, CBSA ABNDINFO).
 _DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
+_DD_SIGN_LEADING_SEPARATE = re.compile(r"\bLEADING\s+SEPARATE\b")  # which end the sign byte is at
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
     r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
@@ -731,6 +732,7 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
                 "redefines": redef_m.group(1).upper() if redef_m else None,
                 "value": value,
                 "sign_separate": bool(_DD_SIGN_SEPARATE.search(window)),
+                "sign_leading": bool(_DD_SIGN_LEADING_SEPARATE.search(window)),
                 "line": src.line_of(m.start()),
             }
         )

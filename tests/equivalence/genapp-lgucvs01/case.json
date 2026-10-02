@@ -1,0 +1,82 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUCVS01",
+ "program_source": "base/src/lgucvs01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUC",
+ "clock": "2026/10/01 10:30:15.00",
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgucvs01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-middle-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00201101 499787        0208 344344         g.cuthbert@new.example"
+   },
+   "why": "READ UPDATE of customer 5 (NORMAL), REWRITE from CA-CUSTOMER-NUM: the email changes"
+  },
+  {
+   "name": "update-first-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700 900123        01483 222111        ada@analytical.example"
+   },
+   "why": "customer 1 (the first record) replaced wholesale by other details"
+  },
+  {
+   "name": "update-last-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": 10,
+    "CA-REQUEST-SPECIFIC": "Susan     Stranks             1938-12-02                    68  W1A4WW  001                    0207 845845         eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+   },
+   "why": "customer 10 (the last record); the email filled to its full 100 bytes"
+  },
+  {
+   "name": "update-blanks-details",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "                                                                        000"
+   },
+   "why": "only the key given: the REWRITE blanks every detail of customer 3"
+  },
+  {
+   "name": "update-unchanged",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "Troy      Tempest             1964-10-04The Ray             48  ST106RY 000                                        TROYT@BUSCOMM.COM"
+   },
+   "why": "the record rewritten with exactly what it holds: the file is unchanged"
+  }
+ ],
+ "notes": "GenApp's VSAM 'update customer' (LGUCVS01, LINKed by LGUCDB01): EXEC CICS READ FILE('KSDSCUST') INTO(WS-Customer-Area) LENGTH(WS-Commarea-Len = EIBCALEN) RIDFLD(CA-CUSTOMER-NUM) KEYLENGTH(10) UPDATE, then REWRITE FROM(CA-CUSTOMER-NUM) LENGTH(225). Each scenario's KSDSCUST is compared after the task. Every non-NORMAL RESP in this program goes to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ') (GenApp's TS/TD error logger, defined in the CSD); the equivalence harness runs one program and has no port of LGSTSQ, so a scenario that reaches it is refused (Unsupported: LINK PROGRAM(LGSTSQ)). The error paths -- NOTFND on the READ (CA-RETURN-CODE '81', ABEND LGV1) and a failing REWRITE ('82', ABEND LGV2) -- are therefore NOT exercised here; they need LGSTSQ modelled (or ported) first. The READ's LENGTH (EIBCALEN, 32500 here) is not modelled by the stub (it reads LENGTH OF INTO); with a 225-byte record and a 1024-byte INTO area no LENGERR could arise either way. Keys: PIC 9(10), digits only; no browse. Data: ksdscust.txt as in genapp-lgacvs01 (GenApp's db2cre.jcl sample customers). Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

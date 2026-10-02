@@ -369,7 +369,8 @@ def layout_fields(
         if it.get("pic"):
             out.append(
                 {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),
-                 "sign_separate": bool(it.get("sign_separate"))}
+                 "sign_separate": bool(it.get("sign_separate")),
+                 **({"sign_leading": bool(it.get("sign_leading"))} if it.get("sign_separate") else {})}
             )  # fmt: skip
             return
         cur = at

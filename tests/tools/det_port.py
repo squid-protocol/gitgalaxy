@@ -54,6 +54,14 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     svc = ej._service_class(case["program"])
     stub = (project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java").read_text(encoding="utf-8")
     dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
+    # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    bms = work / f"bms-{case['corpus']}"
+    if not bms.is_dir():
+        bms_copybooks([p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
+                       and ".git" not in p.parts], bms)  # fmt: skip
+    dirs.append(bms)
     out: dict[str, Any] = {"case": name, "program": case["program"]}
     port = work / name / "port"
     try:
@@ -109,11 +117,19 @@ def main() -> int:
     names = list(args.cases)
     if args.all_proven:
         names += sorted(p.parent.name for p in eq.CASES.glob("carddemo-*/case.json") if (p.parent / "port").is_dir())
-    (entry,) = mc.select(["aws-mainframe-modernization-carddemo"])
-    corpus = mc.require_clone(entry)
     args.work.mkdir(parents=True, exist_ok=True)
-    project = estate(corpus, args.work)
-    results = [port_case(n, args.work, project, corpus, args.style) for n in names]
+    results = []
+    estates: dict[str, tuple[Path, Path]] = {}  # corpus name -> (clone, generated project)
+    for n in names:
+        cname = eq.load_case(n)["corpus"]
+        if cname not in estates:
+            (entry,) = mc.select([cname])
+            corpus = mc.require_clone(entry)
+            # CardDemo's estate in DIR/estate (as before); another corpus's in DIR/estate-<corpus>
+            where = args.work if cname == "aws-mainframe-modernization-carddemo" else args.work / f"estate-{cname}"
+            estates[cname] = (corpus, estate(corpus, where))
+        corpus, project = estates[cname]
+        results.append(port_case(n, args.work, project, corpus, args.style))
     if not args.translate_only:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]

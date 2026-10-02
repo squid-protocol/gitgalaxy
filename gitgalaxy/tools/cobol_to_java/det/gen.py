@@ -24,6 +24,15 @@ class Untranslatable(Exception):
     pass
 
 
+class LiftViolation(Exception):
+    """Lifted items (det-port B3: typed Java fields instead of byte storage) used where only their bytes will do:
+    the caller lifts them no more and translates again."""
+
+    def __init__(self, names):
+        super().__init__(", ".join(sorted(names)))
+        self.names = set(names)
+
+
 # Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
 LIBRARY = {"CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4)}
 
@@ -114,6 +123,8 @@ class Gen:
         self.cur = 0
         self.cics: Cics | None = None
         self.copy_dirs: list = []
+        self.lifted: dict[int, str] = {}  # id(item) -> "X" (a String of its length) | "BIN" (a long) -- B3
+        self.violations: set[str] = set()  # lifted items used through their bytes: this translation is discarded
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
@@ -151,6 +162,7 @@ class Gen:
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
+        self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
             raise Untranslatable(f"{ref.name}: FILLER")
@@ -251,6 +263,133 @@ class Gen:
             return f"return GOTO | {target};"
         return 'throw new IllegalStateException("a HANDLE exit in a program without HANDLE");'
 
+    # ---- B3: lifted (typed) items -------------------------------------------------------------------------------
+    def check_lift(self, it: L.Item) -> None:
+        """An item used through its bytes: a LiftViolation when it is lifted, or a group holding a lifted item (its
+        bytes no longer hold that item's value)."""
+        if not self.lifted:
+            return
+        for x in it.walk():  # the item itself, or a lifted item within the group
+            if id(x) in self.lifted:
+                self.violate(x)
+
+    def violate(self, it: L.Item) -> str:
+        """Record a lifted item used through its bytes (the translation is repeated without lifting it)."""
+        self.violations.add(it.name)
+        return "/* lift violation */"
+
+    def lift(self, e):
+        """(kind, Java name, item) of a lifted item named plainly (no subscript, no reference modification)."""
+        if isinstance(e, E.Ref) and not e.subscripts and e.refmod is None:
+            try:
+                it = self.resolve(e)
+            except Untranslatable:
+                return None
+            k = self.lifted.get(id(it))
+            if k:
+                return k, self.ids[id(it)], it
+        return None
+
+    def lift_text(self, e, n: int) -> str | None:
+        """A literal / figurative as the n bytes an alphanumeric MOVE leaves (computed now), as a Java literal."""
+        if isinstance(e, E.Lit) and isinstance(e.value, str):
+            return jstr(e.value[:n].ljust(n))
+        if isinstance(e, E.Lit) and isinstance(e.value, bytes):
+            return jstr(e.value.decode("latin-1")[:n].ljust(n))
+        if isinstance(e, E.Fig):
+            if e.kind == "ALL":
+                pat = e.all_literal or " "
+                return jstr((pat * (n // len(pat) + 1))[:n])
+            return jstr(FIG_CHAR[e.kind] * n)
+        return None
+
+    def bin_value(self, it: L.Item, v: Decimal) -> int:
+        """A numeric literal stored in a binary item and read back (TRUNC(BIN), as the runtime: the integer part,
+        the sign dropped for an unsigned item, wrapped to the item's 2 / 4 / 8 bytes)."""
+        n = int(v)  # toward zero
+        if not it.signed:
+            n = abs(n)
+        bits = 8 * it.size
+        n &= (1 << bits) - 1
+        if it.signed and n >= 1 << (bits - 1):
+            n -= 1 << bits
+        return n
+
+    def move_lifted(self, src, lt) -> str:
+        kind, name, it = lt
+        if kind == "X":
+            t = self.lift_text(src, it.size)
+            if t is not None:
+                return f"{name} = {t};"
+            ls = self.lift(src)
+            if ls and ls[0] == "X":
+                return f"{name} = {ls[1]};" if ls[2].size == it.size else f"{name} = Cobol.fit({ls[1]}, {it.size});"
+            if isinstance(src, E.Ref):
+                return f"{name} = Cobol.moveText({self.field_expr(src)}, {it.size}, CS);"
+            return self.violate(it)
+        if kind == "NUM":  # a numeric sender's value, stored as the item stores it; any other sender: its bytes
+            if isinstance(src, E.Fig) and src.kind == "ZEROS":
+                return f"{name} = BigDecimal.ZERO;"
+            if self.is_numeric(src) and not (isinstance(src, E.Ref) and self.resolve(src).category != "NUMERIC"):
+                return self.store_into(E.Ref(it.name), self.num(src), False)
+            return self.violate(it)
+        if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
+            return f"{name} = {self.bin_value(it, src.value)}L;"
+        if isinstance(src, E.Fig) and src.kind == "ZEROS":
+            return f"{name} = 0L;"
+        ls = self.lift(src)
+        if ls and ls[0] == "BIN" and ls[2].size == it.size and ls[2].signed == it.signed:
+            return f"{name} = {ls[1]};"
+        return self.violate(it)
+
+    def rel_lifted(self, jop: str, a, b) -> str | None:
+        """A relation with a lifted item on either side, or None (not one)."""
+        la, lb = self.lift(a), self.lift(b)
+        if not la and not lb:
+            return None
+        if not la:
+            flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
+            return self.rel_lifted(flipped, b, a)
+        kind, name, it = la
+        if kind == "NUM":
+            if isinstance(b, E.Fig) and b.kind == "ZEROS":
+                return f"{name}.signum() {jop} 0"
+            if self.is_numeric(b):
+                return f"{name}.compareTo({self.num(b)}) {jop} 0"
+            return self.violate(it)
+        if kind == "BIN":
+            if isinstance(b, E.Lit) and isinstance(b.value, Decimal):
+                if b.value == b.value.to_integral_value():
+                    return f"{name} {jop} {int(b.value)}L"
+                return f"BigDecimal.valueOf({name}).compareTo({self.const(b.value)}) {jop} 0"
+            if isinstance(b, E.Fig) and b.kind == "ZEROS":
+                return f"{name} {jop} 0L"
+            if lb and lb[0] == "BIN":
+                return f"{name} {jop} {lb[1]}"
+            if self.is_numeric(b):
+                return f"BigDecimal.valueOf({name}).compareTo({self.num(b)}) {jop} 0"
+            return self.violate(it)
+        # an alphanumeric item: COBOL's comparison of nonnumeric operands
+        t = self.lift_text(b, it.size) if not (isinstance(b, E.Lit) and isinstance(b.value, Decimal)) else None
+        if (
+            t is not None
+            and isinstance(b, (E.Lit, E.Fig))
+            and (not isinstance(b, E.Lit) or len(str(b.value)) <= it.size)
+        ):
+            if jop == "==":
+                return f"{name}.equals({t})"
+            return f"Cobol.compareText({name}, {t}, CS) {jop} 0"
+        if lb and lb[0] == "X":
+            return f"Cobol.compareText({name}, {lb[1]}, CS) {jop} 0"
+        if isinstance(b, E.Ref):
+            flipped = {"==": "==", ">": "<", "<": ">", ">=": "<=", "<=": ">="}[jop]
+            return f"Cobol.compare({self.field_expr(b)}, {name}, CS) {flipped} 0"
+        if isinstance(b, E.Lit) and isinstance(b.value, str):  # a literal longer than the item
+            return f"Cobol.compareText({name}, {jstr(b.value)}, CS) {jop} 0"
+        if isinstance(b, E.Func):
+            return f"Cobol.compareText({name}, {self.text(b)}, CS) {jop} 0"
+        return self.violate(it)
+
     def eib(self, name: str) -> str:
         return self.field_expr(E.Ref(name, ["DFHEIBLK"]))
 
@@ -271,6 +410,11 @@ class Gen:
             if isinstance(e.value, Decimal):
                 return self.const(e.value)
             raise Untranslatable("a nonnumeric literal in arithmetic")
+        lo = self.lift(e)
+        if lo and lo[0] == "BIN":
+            return f"BigDecimal.valueOf({lo[1]})"
+        if lo and lo[0] == "NUM":
+            return lo[1]
         if isinstance(e, E.Ref):
             it = self.resolve(e)
             if it.category not in ("NUMERIC", "NUMERIC-EDITED"):
@@ -327,6 +471,9 @@ class Gen:
             if isinstance(e.value, bytes):
                 return jstr(e.value.decode("latin-1"))
             return jstr(e.value)
+        lo = self.lift(e)
+        if lo and lo[0] == "X":
+            return lo[1]
         if isinstance(e, E.Ref):
             return f"Cobol.text({self.field_expr(e)}, CS)"
         if isinstance(e, E.Func):
@@ -384,6 +531,9 @@ class Gen:
 
     def rel(self, op: str, a, b) -> str:
         jop = {"=": "==", ">": ">", "<": "<", ">=": ">=", "<=": "<="}[op]
+        lifted = self.rel_lifted(jop, a, b)
+        if lifted is not None:
+            return lifted
         # numeric comparison when both sides are numeric (or one is ZERO against a number)
         if (self.is_numeric(a) and self.is_numeric(b)) or (
             self.is_numeric(a) and isinstance(b, E.Fig) and b.kind == "ZEROS") or (
@@ -421,6 +571,7 @@ class Gen:
         parent = cn.parent
         if parent is None:
             raise Untranslatable(f"88 {cn.name}: no parent item")
+        self.check_lift(parent)  # an 88 on a group holding a lifted item
         f = self.ids.get(id(parent))
         if f is None:
             raise Untranslatable(f"88 {cn.name}: no item")
@@ -431,7 +582,31 @@ class Gen:
             f += f".at({self.int_expr(sub)}, {lvl.size})"
         return f
 
+    @staticmethod
+    def value_node(v):
+        """An 88 / VALUE entry as an expression node."""
+        kind = v[0]
+        if kind == "num":
+            return E.Lit(v[1])
+        if kind == "lit":
+            return E.Lit(v[1])
+        if kind == "hex":
+            return E.Lit(v[1])
+        if kind == "fig":
+            return E.Fig(v[1])
+        raise Untranslatable(f"88 value {kind}")
+
     def cond_test(self, cn: L.Item, subscripts=()) -> str:
+        if cn.parent is not None and id(cn.parent) in self.lifted and not subscripts:
+            item = E.Ref(cn.parent.name)
+            tests = []
+            for v in cn.values:
+                if v[0] == "range":
+                    tests.append(f"({self.rel('>=', item, self.value_node(v[1]))} && "
+                                 f"{self.rel('<=', item, self.value_node(v[2]))})")  # fmt: skip
+                else:
+                    tests.append(self.rel("=", item, self.value_node(v)))
+            return "(" + " || ".join(tests) + ")" if len(tests) > 1 else tests[0]
         f = self.cond_field(cn, subscripts)
         tests = []
         for v in cn.values:
@@ -456,6 +631,17 @@ class Gen:
 
     # ---- moves --------------------------------------------------------------------------------------------------
     def move(self, src, target: E.Ref) -> str:
+        lt = self.lift(target)
+        if lt:
+            return self.move_lifted(src, lt)
+        ls = self.lift(src)
+        if ls and ls[0] == "X":  # a String sender: as an alphanumeric item of its length
+            return f"Cobol.move({ls[1]}, {self.field_expr(target)}, CS);"
+        if ls and self.resolve(target).category in ("NUMERIC", "NUMERIC-EDITED"):  # a number into a numeric item
+            return f"Cobol.move({self.num(src)}, {self.field_expr(target)}, CS);"
+        return self._move(src, target)
+
+    def _move(self, src, target: E.Ref) -> str:
         ft = self.field_expr(target)
         if isinstance(src, E.Ref):
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
@@ -477,6 +663,9 @@ class Gen:
 
     def initialize(self, ref: E.Ref) -> list[str]:
         """INITIALIZE: every elementary item of the group (not FILLER, not under a REDEFINES) to spaces or zero."""
+        lo = self.lift(ref)
+        if lo:
+            return [self.move(E.Fig("SPACES" if lo[0] == "X" else "ZEROS"), ref)]
         it = self.resolve(ref)
         base = self.field_expr(ref)
         out = []
@@ -635,6 +824,9 @@ class Gen:
                 v = cn.values[0]
                 if v[0] == "range":
                     v = v[1]
+                if cn.parent is not None and id(cn.parent) in self.lifted and not r.subscripts:
+                    out.append(ind + self.move(self.value_node(v), E.Ref(cn.parent.name)))
+                    continue
                 f = self.cond_field(cn, r.subscripts)
                 out.append(ind + self._move_value(v, f))
             return out
@@ -690,6 +882,9 @@ class Gen:
         raise Untranslatable(f"value {kind}")
 
     def display_operand(self, o) -> str:
+        lo = self.lift(o)
+        if lo and lo[0] == "X":
+            return lo[1]
         if isinstance(o, E.Ref):
             return f"Cobol.displayText({self.field_expr(o)}, CS)"
         if isinstance(o, E.Lit):
@@ -712,7 +907,7 @@ class Gen:
             v = self.tmpname("v")
             out.append(f"{ind}BigDecimal {v} = {value};")
             for t, rounded in targets:
-                out.append(f"{ind}Cobol.store({self.field_expr(t)}, {v}, {_b(rounded)}, CS);")
+                out.append(ind + self.store_into(t, v, rounded))
             return out
         v, err = self.tmpname("v"), self.tmpname("sizeError")
         out.append(f"{ind}BigDecimal {v} = {value};")
@@ -724,6 +919,18 @@ class Gen:
         if "NOT-SIZE-ERROR" in s.phrases:
             out += [f"{ind}if (!{err}) {{", *self.block(s.phrases["NOT-SIZE-ERROR"], ind + "    "), f"{ind}}}"]
         return out
+
+    def store_into(self, t: E.Ref, value: str, rounded: bool) -> str:
+        """An arithmetic result (no ON SIZE ERROR) stored in a target: a lifted binary item through Cobol.binary."""
+        lt = self.lift(t)
+        if lt and lt[0] == "BIN":
+            it = lt[2]
+            return f"{lt[1]} = Cobol.binary({value}, {it.digits}, {_b(it.signed)}, {_b(rounded)}, CS);"
+        if lt and lt[0] == "NUM":
+            it = lt[2]
+            fn = "packed" if it.usage == "PACKED" else "zoned"
+            return f"{lt[1]} = Cobol.{fn}({value}, {it.digits}, {it.scale}, {_b(it.signed)}, {_b(rounded)}, CS);"
+        return f"Cobol.store({self.field_expr(t)}, {value}, {_b(rounded)}, CS);"
 
     def arith(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
@@ -755,6 +962,13 @@ class Gen:
         for tgt, rounded in d["targets"]:
             if not isinstance(tgt, E.Ref):
                 raise Untranslatable("arithmetic target is not a data item")
+            lt = self.lift(tgt)
+            if lt and lt[0] in ("BIN", "NUM") and not checked:  # a lifted target: its value, the store as above
+                cur = f"BigDecimal.valueOf({lt[1]})" if lt[0] == "BIN" else lt[1]
+                val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",
+                       "/=": f"Cobol.divide({cur}, {tsum})"}[op]  # fmt: skip
+                out.append(ind + self.store_into(tgt, val, rounded))
+                continue
             f = self.field_expr(tgt)
             cur = f"Cobol.num({f}, CS)"
             val = {"+=": f"{cur}.add({tsum})", "-=": f"{cur}.subtract({tsum})", "*=": f"{tsum}.multiply({cur})",

@@ -482,6 +482,39 @@ def encode_number(it: Item, value: Decimal) -> bytes:
     return (s[:-1] + over[int(s[-1])]).encode("latin-1")
 
 
+def decode_number(it: Item, data: bytes) -> Decimal | None:
+    """A zoned (sign overpunched, not separate) or packed item's value from its bytes; None when they are not a
+    valid number of the item (VALUE SPACES on a numeric item, low-values)."""
+    scale = Decimal(10) ** it.scale
+    if it.usage == "PACKED":
+        h = data.hex().upper()
+        digits, sign = h[:-1], h[-1:]
+        if not digits.isdigit() or sign not in "CDF":
+            return None
+        v = Decimal(int(digits)) / scale
+        return -v if sign == "D" else v
+    if it.usage != "DISPLAY" or it.sign_separate:
+        return None
+    s = data.decode("latin-1")
+    if not s:
+        return None
+    negative = False
+    at = 0 if it.sign_leading else len(s) - 1
+    ch = s[at]
+    if it.signed and not ch.isdigit():
+        if ch in POSITIVE:
+            s = s[:at] + str(POSITIVE.index(ch)) + s[at + 1 :]
+        elif ch in NEGATIVE:
+            s = s[:at] + str(NEGATIVE.index(ch)) + s[at + 1 :]
+            negative = True
+        else:
+            return None
+    if not s.isdigit():
+        return None
+    v = Decimal(int(s)) / scale
+    return -v if negative else v
+
+
 def records(program: Path, dirs: list[Path]) -> list[Item]:
     from gitgalaxy.tools.cobol_to_java.det.source import program_lines
 

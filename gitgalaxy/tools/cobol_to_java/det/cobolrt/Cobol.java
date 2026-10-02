@@ -354,6 +354,67 @@ public final class Cobol {
         return cmpBytes(a.raw(), b.raw(), cs);
     }
 
+    // ------------------------------------------------------------------------------- typed (lifted) items
+    /** An alphanumeric item held as a Java String of its length (det-port B3): `s` moved into it -- truncated on
+     *  the right, or padded with spaces (COBOL's alphanumeric MOVE). */
+    public static String fit(String s, int length) {
+        if (s.length() >= length) {
+            return s.substring(0, length);
+        }
+        return s + " ".repeat(length - s.length());
+    }
+
+    /** An arithmetic result stored in a binary item of `digits` (signed or not) and read back -- exactly what
+     *  `store` leaves in such an item (truncation, ROUNDED, the byte width's wrap-around), through a scratch item. */
+    public static long binary(BigDecimal value, int digits, boolean signed, boolean rounded, Charset cs) {
+        int bytes = digits <= 4 ? 2 : digits <= 9 ? 4 : 8;
+        Field t = Field.binary(new Storage(bytes), 0, digits, 0, signed, false);
+        store(t, value, rounded, cs);
+        return num(t, cs).longValue();
+    }
+
+    /** A numeric value stored in a zoned DISPLAY item (PIC S9(digits)V9(scale), sign overpunched) and read back:
+     *  what `store` leaves there (high-order truncation, the scale, ROUNDED, an unsigned item's sign dropped). */
+    public static BigDecimal zoned(BigDecimal value, int digits, int scale, boolean signed, boolean rounded,
+                                   Charset cs) {
+        Field t = Field.zoned(new Storage(digits), 0, digits, scale, signed, false, false);
+        store(t, value, rounded, cs);
+        return num(t, cs);
+    }
+
+    /** As zoned, for a packed-decimal (COMP-3) item. */
+    public static BigDecimal packed(BigDecimal value, int digits, int scale, boolean signed, boolean rounded,
+                                    Charset cs) {
+        Field t = Field.packed(new Storage(digits / 2 + 1), 0, digits, scale, signed);
+        store(t, value, rounded, cs);
+        return num(t, cs);
+    }
+
+    /** The text a MOVE of `from` into an alphanumeric item of `length` bytes leaves there (any sender: COBOL's MOVE
+     *  rules, through a scratch item). */
+    public static String moveText(Field from, int length, Charset cs) {
+        Field t = Field.alphanumeric(new Storage(length), 0, length, false);
+        move(from, t, cs);
+        return text(t, cs);
+    }
+
+    /** Two alphanumeric values compared as COBOL compares them: the shorter padded with spaces, byte by byte in the
+     *  record charset (its collating sequence -- not Java's char order when the charset is EBCDIC). */
+    public static int compareText(String a, String b, Charset cs) {
+        byte[] x = a.getBytes(cs);
+        byte[] y = b.getBytes(cs);
+        byte sp = " ".getBytes(cs)[0];
+        int n = Math.max(x.length, y.length);
+        for (int i = 0; i < n; i++) {
+            int u = (i < x.length ? x[i] : sp) & 0xFF;
+            int v = (i < y.length ? y[i] : sp) & 0xFF;
+            if (u != v) {
+                return u < v ? -1 : 1;
+            }
+        }
+        return 0;
+    }
+
     /** Two texts compared as nonnumeric operands (a function's result, a literal): the shorter padded with
      *  spaces, character by character in their code (the record charset's byte order for a single-byte one). */
     public static int compareText(String a, String b) {

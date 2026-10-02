@@ -154,9 +154,75 @@ def structurable(proc: S.Procedure) -> bool:
 
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
-              style: str = "dispatch") -> Result:  # fmt: skip
+              style: str = "dispatch", typed: bool = False) -> Result:  # fmt: skip
     """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
-    as named methods called directly, fields by their COBOL names) -- structured only where `structurable`."""
+    as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
+    `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
+    its length, a binary integer a long -- where every use of the item has a typed form; an item used any other way
+    (a reference modification, a STRING target, arithmetic, a file status ...) stays byte storage: translation
+    stops at that use (LiftViolation) and is repeated without the item, so a lift never changes behaviour."""
+    excluded: set[str] = set()
+    while True:
+        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded)
+        if isinstance(out, Result):
+            return out
+        if out.names <= excluded:
+            raise out
+        excluded |= out.names
+
+
+def _attempt(*args) -> Result | G.LiftViolation:
+    """One translation, or the lift that stopped it."""
+    try:
+        return _translate(*args)
+    except G.LiftViolation as v:
+        return v
+
+
+def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
+    """The WORKING-STORAGE items a typed field can hold: elementary, named, its name its own, no OCCURS above or at
+    it, no REDEFINES at, above or overlapping it, not JUSTIFIED -- PIC X (a String) or a binary integer (a long).
+    An item inside a group qualifies too: any use of the group as a whole is a LiftViolation (gen.field_expr)."""
+    from collections import Counter
+
+    names = Counter(it.name for r in records for it in r.walk())
+    out: dict[int, str] = {}
+    images: dict[int, bytes] = {}
+    for rec in records:
+        if rec is rc or rec.section != "WORKING-STORAGE" or rec.name in ("DFHAID", "DFHBMSCA", "DFHEIBLK"):
+            continue
+        if rec.redefines or any(r.redefines == rec.name for r in records):
+            continue  # a whole record shared with another
+        spans = [(x.offset, x.offset + x.size * x.occurs) for x in rec.walk() if x.redefines]
+        for it in rec.walk():
+            if it.children or not it.pic or it.name == "FILLER" or it.justified or names[it.name] > 1:
+                continue
+            if it.name in excluded or it.depending:
+                continue
+            a, chain = it, []
+            while a is not None:
+                chain.append(a)
+                a = a.parent
+            if any(x.occurs > 1 or x.redefines for x in chain):
+                continue
+            lo, hi = it.offset, it.offset + it.size
+            if any(s < hi and lo < e for s, e in spans):  # overlapped by (or overlapping) a REDEFINES
+                continue
+            if it.category == "ALPHANUMERIC" and it.usage == "DISPLAY":
+                out[id(it)] = "X"
+            elif it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.scale == 0:
+                out[id(it)] = "BIN"
+            elif it.category == "NUMERIC" and (
+                it.usage == "PACKED" or (it.usage == "DISPLAY" and not it.sign_separate)
+            ):
+                image = images.setdefault(id(rec), L.image(rec))
+                if L.decode_number(it, image[it.offset : it.offset + it.size]) is not None:
+                    out[id(it)] = "NUM"  # (initial bytes that are no number of it: not lifted)
+    return out
+
+
+def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
+               project: Path | None, style: str, typed: bool, excluded: set[str]) -> Result:  # fmt: skip
     lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
@@ -192,6 +258,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    if typed:
+        gen.lifted = liftable(records, excluded, rc)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -297,23 +365,50 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             para_code.append(f"    /** {p.name}. */\n    private int p{i}() {{\n" + "\n".join(body) +
                              f"\n        return {i + 1};\n    }}\n")  # fmt: skip
 
+    if gen.violations:  # a lifted item used through its bytes: translate again without lifting it
+        raise G.LiftViolation(gen.violations)
+
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages = []
     seen = set()
     for rec in records:
         r = roots[id(rec)]
-        if id(r) in seen:
+        if id(r) in seen or id(r) in gen.lifted:  # a lifted item is a typed field, not storage
             continue
         seen.add(id(r))
         img = L.image(r) if r.section != "FILE" else b" " * sizes[id(r)]
         img = img.ljust(sizes[id(r)], b"\x00" if r.section != "FILE" else b" ")
         storages.append((_storage_name(r), base64.b64encode(img).decode("ascii")))
     field_lines, inits = [], []
+    lifted_decls: list[str] = []
     for rec in records:
+        if not any(id(it) in gen.lifted for it in rec.walk()):
+            continue
+        image = L.image(rec)
+        for it in rec.walk():
+            kind = gen.lifted.get(id(it))
+            if kind is None:
+                continue
+            name = gen.ids[id(it)]
+            img = image[it.offset : it.offset + it.size]
+            if kind == "X":
+                lifted_decls.append(f"    private String {name};  // {it.name} PIC {it.pic}")
+                inits.append(f"        {name} = {G.jstr(img.decode('latin-1'))};")
+            elif kind == "NUM":  # the VALUE's number (a numeric item lifted holds numbers only)
+                value = L.decode_number(it, img)
+                lifted_decls.append(f"    private BigDecimal {name};  // {it.name} PIC {it.pic} {it.usage}")
+                inits.append(f'        {name} = new BigDecimal("{value}");')
+            else:
+                ivalue = int.from_bytes(img, "little" if it.usage == "COMP-5" else "big", signed=it.signed)
+                lifted_decls.append(f"    private long {name};  // {it.name} PIC {it.pic} {it.usage}")
+                inits.append(f"        {name} = {ivalue}L;")
+    for rec in records:
+        if id(rec) in gen.lifted:
+            continue
         st = _storage_name(roots[id(rec)])
         for it in rec.walk():
             fid = gen.ids.get(id(it))
-            if fid is None or it.category == "FLOAT" or it.usage in ("POINTER", "INDEX"):
+            if fid is None or it.category == "FLOAT" or it.usage in ("POINTER", "INDEX") or id(it) in gen.lifted:
                 continue
             try:
                 field_lines.append(f"        {fid} = {gen.factory(it, st, str(it.offset))};")
@@ -531,6 +626,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         *[f"    private final Storage {n} = new Storage(IMAGE_{n}.length);" for n, _ in storages],
         "",
         *[f"    private Field {d};" for d in declared],
+        *lifted_decls,
         "",
         *[ln for code in gen.id_methods.values() if code for ln in code],
         *cics_members,

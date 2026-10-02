@@ -163,6 +163,9 @@ Only generator output, never a test case:
   would not.
 - Indexed records are found by scanning the repository (`findAll`) and comparing key bytes: exact for any key
   (alternate ones included), slow for large files. A production port would use the generated finders.
+- An unsigned binary item taken below zero by ADD / SUBTRACT: GnuCOBOL (`-std=ibm`) wraps it (`PIC 9(4) COMP`, 0 - 3
+  is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
+  reaches it; test_det_programs.py keeps its unsigned item above zero.
 
 ### What the proofs found in the translator and runtime
 
@@ -225,5 +228,31 @@ every step.
 | COACTUPC (dispatcher, 66 GO TOs), its 10 largest paragraphs | 10 | 10 (1 on the retry) | 585 s | 3,614 → 2,419 | 6,816 → 6,104 |
 
 The model adds a Javadoc per paragraph, else-if chains, the 88-level conditions as named predicates, extracted
-helpers. The data is still COBOL's byte storage: lifting it into typed Java state is the next step (B3), under the
-same proof. Example: `docs/benchmarks/det-refine-cbact02c/`.
+helpers. Example: `docs/benchmarks/det-refine-cbact02c/`.
+
+**B3 -- typed state** (`det_port.py --typed`, no model). WORKING-STORAGE items become Java fields of their own type
+instead of views on byte storage: PIC X(n) a `String` of n characters, a binary integer a `long`, a zoned or packed
+number a `BigDecimal`. Candidates are named elementary items under no OCCURS, no REDEFINES at, above or over them,
+not JUSTIFIED, their name unique. Every use then has a typed form or none:
+
+- typed forms: MOVE (a literal or figurative is computed at generation, padded or truncated; any other sender through
+  the runtime's own MOVE: `Cobol.moveText`), comparisons (`name.equals("Y  ")`, `Cobol.compareText` -- space-padded,
+  in the record charset's order), 88-level tests and SET TRUE, arithmetic stored through the item's own rules
+  (`Cobol.binary` / `zoned` / `packed`: truncation, ROUNDED, the byte width's wrap), INITIALIZE, DISPLAY of a String,
+  RESP / RESP2;
+- no typed form: a reference modification, a subscript, a use of the group holding the item (a group MOVE, a file
+  record, a commarea), STRING / UNSTRING / INSPECT, DISPLAY of a number (its external form), arithmetic ON SIZE ERROR.
+
+A use with no typed form is a lift violation: translation is repeated without lifting that item (a fixpoint, at most
+one pass per violating item), so typing an item never changes what the program does -- the item is either typed
+everywhere or byte storage everywhere. Without `--typed` the output is byte for byte what it was.
+
+| | typed fields | Cobol.* calls |
+|---|---|---|
+| 24 CardDemo programs (structured style), all proven typed | 532 | 10,298 → 9,490 |
+| batch (CBTRN01C, CBACT04C, CBTRN02C, CBTRN03C, CBACT02C/03C, CBCUS01C) | 82 | 990 → 636 |
+
+The batch programs' state is flags, counters and amounts: a third of the runtime calls go. The CICS programs' state
+is mostly the screen map, the commarea and file records -- groups, which stay byte storage (their typed form is a
+DTO, not a lifted field; next). test_det_programs.py runs every program both ways against GnuCOBOL, TYPED among them
+(each kind and each fallback).

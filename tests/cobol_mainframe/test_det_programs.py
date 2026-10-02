@@ -271,6 +271,7 @@ def test_typed_lifts_only_what_every_use_allows(tmp_path):
     """TYPED's lifts, without running anything: NAME is read by reference modification, G1 / G2 sit in a group that
     is moved whole and OUTN is DISPLAYed (a numeric item's external form), so they stay byte storage; the rest are
     typed fields."""
+    pytest.importorskip("tree_sitter_language_pack")  # the translator's parser (not in every CI job)
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (tmp_path / "TYPED.cbl").write_text(PROGRAMS["TYPED"])

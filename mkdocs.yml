@@ -358,6 +358,7 @@ nav:
         - 'Cloud Schema Forge': "05-15-cloud-schema-forge.md"
         - 'Anomaly Agent Task Forge': "05-16-anomaly-agent-task-forge.md"
         - 'System Limits Reporter': "05-17-system-limits-reporter.md"
+        - 'COBOL ↔ Java Scan Parity': "05-18-cobol-java-scan-parity.md"
     - '6. Configurations & Standards':
         - 'GitGalaxy Config': "06-01-gitgalaxy-config.md"
         - 'Language Standards': "06-02-language-standards.md"

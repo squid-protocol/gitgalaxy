@@ -247,20 +247,38 @@ A port that is not proven is not done, and a person approves every port.
    endpoints for CICS transactions, BMS screens as view models, and a runtime for FILE
    STATUS, abends and DISPLAY. Where a fact is missing it writes a worklist item, not a
    guess. The kind of Java is [configurable](gitgalaxy/tools/cobol_to_java/README.md#choosing-the-java-you-get-the-target-config).
-3. **Port.** Each program with business logic gets a porting ticket. A person, or a model
-   the customer chooses, writes the logic from it
-   ([`port_runner`](gitgalaxy/tools/cobol_to_java/port_runner.py)).
+3. **Port.** Each program with business logic gets a porting ticket. Either the
+   deterministic translator ports it with no model
+   ([det-port](docs/language_status/det_port_design.md): each statement becomes a call into a
+   runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a
+   named `Hole`), or a person or a model the customer chooses writes the logic
+   ([`port_runner`](gitgalaxy/tools/cobol_to_java/port_runner.py)). A model may also make a
+   det port readable one method at a time, each rewrite proven or reverted.
 4. **Prove.** [`tests/tools/equivalence.py`](tests/tools/equivalence.py) runs the COBOL
    under GnuCOBOL and the port on the JVM. Every output record, the return code or abend,
-   every DISPLAY line, every CICS screen (text, attributes, cursor), every COMMAREA, and
-   every injected file-status or CICS-response fault run must match. A failed proof's
+   every DISPLAY line, every CICS screen (text, attributes, cursor), every COMMAREA, every
+   Db2 table the program changes (both sides on one IBM Db2 Community Edition), and every
+   injected file-status or CICS-response fault run must match. A failed proof's
    findings go back to the porter: [the porting loop](docs/language_status/porting_loop.md).
 5. **Measure the proof.** The COBOL's paragraph and branch coverage across the runs says
    what was exercised. [Mutation testing](docs/language_status/mutation_testing.md) breaks
    the port on purpose and counts how many broken ports the proof still catches.
 
-**Proven so far,** on [CardDemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo)
-([cases](tests/equivalence)):
+**Proven so far, deterministic ports** (2026-10-02, [cases](tests/equivalence); all of them, and the model-written ports, are re-proven in one
+command by [`tests/tools/proof_sweep.py`](tests/tools/proof_sweep.py)):
+
+| estate | programs proven | of them on Db2 | runs / scenarios | COBOL paragraphs covered | COBOL branches covered |
+|---|---|---|---|---|---|
+| [CardDemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo) | 27 | 3 | 615 | 557/570 | 1,748/2,100 |
+| [CBSA](https://github.com/cicsdev/cics-banking-sample-application-cbsa) | 8 | 6 | 116 | 109/119 | 127/195 |
+| [GenApp](https://github.com/cicsdev/cics-genapp) | 13 | 8 | 102 | 47/61 | 107/231 |
+
+They include COACTUPC (account update, 4,236 lines), proven on 137 scenarios, which no model ported in one answer;
+CICS programs that LINK to others in the same task (the task's programs proven together); named counters, SYNCPOINT
+ROLLBACK and abend backout across files and Db2. The design, the runtime contract and every result are in
+[det_port_design.md](docs/language_status/det_port_design.md).
+
+**Proven so far, model-written ports,** on CardDemo:
 
 | program | kind | ported by | proven on | COBOL branches covered | mutants caught |
 |---|---|---|---|---|---|
@@ -295,24 +313,29 @@ The scenarios cover every live paragraph and branch. The ports were written by C
 
 What these numbers do not show:
 
-- **The oracle is not a mainframe.** It is GnuCOBOL, a stub CICS runtime, and IBM services
-  modelled only where IBM documents them. Anything else is refused, never guessed. Proving
-  against captured z/OS output is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
+- **The oracle is not a mainframe.** It is GnuCOBOL, a model of CICS, Db2 for Linux, and IBM
+  services modelled only where IBM documents them. Anything else is refused, never guessed. Every
+  known or suspected difference from z/OS, and whether a proven program reaches it, is in the
+  [oracle-assumptions register](docs/language_status/oracle_assumptions.md): for example a POINTER
+  is 8 bytes here and 4 on z/OS (C9, which blocks three CBSA programs), and text compares in
+  ASCII order, not EBCDIC (D1). Proving against captured z/OS output is
+  [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
 - **This is development data.** CardDemo and the crucible are public, and the porting rules
   were built on them, so a model's attempt counts on them are not first-try rates. No
   fresh-estate trial has run yet ([trial protocol](docs/language_status/fresh_estate_trials.md)).
 - **"Proven" covers the paths the runs take.** The date check's runs reach 4 of 10 COBOL
   branches. The mutation scores are raw: mutants that cannot change behaviour are not
   removed. A surviving mutant is a case to extend ([#4049](https://github.com/squid-protocol/gitgalaxy/issues/4049)).
-- **23 of CardDemo's 44 programs** are ported so far.
-- **Not proven, on purpose:** COCRDUPC (card update). Its confirmed update writes blanks into the card's
+- **28 of CardDemo's 44 programs** have a det port (27 proven); 23 have a model-written port.
+- **Not proven, on purpose** (listed with their reasons in `proof_sweep.py`): a second case of CBACT04C whose
+  generated keys mix letters and digits, so ASCII and EBCDIC order pick different records (D1); and COCRDUPC (card update). Its confirmed update writes blanks into the card's
   `PIC 9(3)` CVV -- invalid numeric data a typed Java field cannot hold. The case keeps the scenario and the
   port stays unproven rather than hide the defect.
 - **Blocked, with no faithful run possible yet:** CBACT01C and COBSWAIT CALL assembler routines nothing models
   (COBDATFT, MVSWAIT); CBSTM03A reads z/OS control blocks (PSA / TCB / TIOT) through a null pointer; CBEXPORT and
   CBIMPORT do not compile (their RECORD KEY is outside the file's record).
-- **Pending:** COACTUPC (account update, 4,236 lines) -- its case is written (54 scenarios), but the program is
-  too large to port in one model answer.
+- **No model-written port:** COACTUPC (account update, 4,236 lines) is too large to port in one model answer; its
+  det port is proven.
 
 ------------------------------------------------------------------------
 

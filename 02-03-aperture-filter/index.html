@@ -8929,6 +8929,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#declared-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declared ports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pipeline-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12170,14 +12181,31 @@
 - Directory blacklisting (<code>.gitignore</code> integration and <code>BLACK_HOLES</code> registry).
 - Stateful caching to preserve whitelist locks for explicitly referenced configurations.
 Secondary content gates include shebang processing, binary header inspection (X-Ray gate reading 8KB chunks), and minified code detection (line length density).</p>
+<h2 id="declared-ports">Declared ports</h2>
+<p>A deterministic COBOL-to-Java port (<code>gitgalaxy/tools/cobol_to_java/det</code>) is machine-translated by design. Its
+indentation is uniform and its compound conditions are spelled out in full, so three generated-noise gates would
+otherwise drop it: line saturation (4.1), the generator-signature header check (4.3) and lexical monotony (5.1).
+Before this exemption, a default scan excluded 45 of 49 det ports.</p>
+<p>Each det port's first line declares it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// gitgalaxy-det-port: COBOL COACTUPC (COACTUPC.cbl), translated by rule, statement for statement</span>
+</code></pre></div>
+<p><code>declared_port()</code> reads that line, only in a <code>.java</code> file and only on the first line. A declared port passes 4.3 and
+5.1, and 4.1 up to <code>DECLARED_PORT_MAX_LINE_LENGTH</code> (5000 characters) instead of <code>MAX_LINE_LENGTH</code>. The emitter keeps
+its own long literals (storage images) to one 400-character piece per line, so only conditions run long. A
+condition-name test over a long VALUE list can reach tens of thousands of characters (CardDemo's COACTUPC tests 400+
+phone area codes on one line), but such tests sit far below line 100, past what Gate 4.1 reads.</p>
+<p><strong>Why a comment is trusted.</strong> Anyone can write the line, so it only lifts noise filters. The binary, embedded-payload,
+amalgamation, size and secrets gates all still apply. A forged header can only admit a file to the scan, where every
+sensor reads it; it cannot hide anything. The remaining cost is performance, bounded by the 5000-character cap and
+the per-file execution timeout.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p>Inputs: Unfiltered filesystem or Git index file paths.
 Outputs: Filtered list of analyzable source files, flagged security risks, and excluded path lists.
 Dependencies: Relies on project manifests and <code>.gitignore</code> from upstream; feeds into <code>language_lens.py</code> and lexical parsers.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    A[Raw Filesystem Paths] --&gt; B[Aperture Filter]
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    B --&gt; C[Analyzable Files]
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    B --&gt; D[Excluded/Flagged Files]
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[Raw Filesystem Paths] --&gt; B[Aperture Filter]
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[Analyzable Files]
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    B --&gt; D[Excluded/Flagged Files]
 </code></pre></div>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>

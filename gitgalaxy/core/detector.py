@@ -1417,6 +1417,7 @@ def _java_receiver_types(
     """
     local = _java_declared_types(text)
     out: dict[str, str] = {}
+    scopes: tuple[dict[str, Optional[str]], ...]
     for r in receivers:
         if r.startswith("this."):
             name, scopes = r[5:], (file_types or {},)

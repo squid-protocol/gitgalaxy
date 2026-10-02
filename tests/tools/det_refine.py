@@ -52,6 +52,9 @@ What you may do: give the method a Javadoc saying what the paragraph does; restr
 early returns where control flow is unchanged, switch on a value); extract well-named private helper methods \
 (e.g. `boolean isApplAok()`) placed after the method; introduce local variables; drop `if (true)` around a final \
 throw; keep or shorten the COBOL comments (keep the paragraph's COBOL name in the Javadoc).
+A method returning `int` belongs to a program with GO TO: it returns the index of the paragraph to run next \
+(`return GOTO | n` is a GO TO, the final `return n` falls through). Keep every return -- its value and the \
+conditions under which it happens -- exactly.
 What you must not do: change the method's name or signature; touch fields, storage or other methods; replace a \
 Cobol.* call with plain Java unless it is exactly equivalent for every value (an alphanumeric compare is \
 space-padded; a numeric MOVE truncates); reorder statements with effects; add I/O, logging or state.
@@ -62,7 +65,7 @@ Answer with ONE ```java code block holding the method and any helpers you added 
 def methods(java: str) -> list[tuple[str, int, int]]:
     """The paragraph methods: (name, start, end) of `    /** NAME. */ private void name() { ... }` in the source."""
     out = []
-    for m in re.finditer(r"    /\*\* [^\n]*\*/\n    private void (\w+)\(\) \{\n", java):
+    for m in re.finditer(r"    /\*\* [^\n]*\*/\n    private (?:void|int) (\w+)\(\) \{\n", java):
         end = java.index("\n    }\n", m.end()) + len("\n    }\n")
         out.append((m.group(1), m.start(), end))
     return out
@@ -96,7 +99,7 @@ def extract(answer: str, name: str) -> str | None:
     if not m:
         return None
     code = m.group(1).rstrip() + "\n"
-    if not re.search(rf"\bprivate void {re.escape(name)}\(\) \{{", code):
+    if not re.search(rf"\bprivate (?:void|int) {re.escape(name)}\(\) \{{", code):
         return None
     # four-space class indentation, as the port's
     if not code.startswith("    "):
@@ -132,6 +135,11 @@ def run(opts: argparse.Namespace) -> dict[str, Any]:
     names = [n for n, _, _ in methods(service.read_text(encoding="utf-8"))]
     if opts.methods:
         names = [n for n in names if n in opts.methods.split(",")]
+    if opts.largest:
+        src = service.read_text(encoding="utf-8")
+        size = {n: metrics(src[s:e])["lines"] for n, s, e in methods(src)}
+        keep = set(sorted(names, key=lambda n: -size[n])[: opts.largest])
+        names = [n for n in names if n in keep]
     for name in names:
         java = service.read_text(encoding="utf-8")
         span = next(((s, e) for n, s, e in methods(java) if n == name), None)
@@ -191,6 +199,7 @@ def main() -> int:
     r.add_argument("--base-url", help="the openai backend's endpoint")
     r.add_argument("--api-key-env", help="the environment variable holding the API key")
     r.add_argument("--methods", help="only these methods (comma-separated)")
+    r.add_argument("--largest", type=int, help="only the N largest methods")
     r.add_argument("--retries", type=int, default=1)
     r.add_argument("--faults", default="all")
     r.add_argument("--timeout", type=int, default=600)

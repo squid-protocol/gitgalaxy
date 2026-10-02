@@ -23,6 +23,8 @@ from typing import Any, Optional
 from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards.config_resolver import resolve_config
 
+_MIXED_GAP = float(analysis_lens.ENGINE_CONSTANTS["MIXED_RESPONSIBILITY_GAP"])
+
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution
@@ -193,7 +195,7 @@ class GPURecorder:
                 file_a_dists.append(int(round(prim_dist * 1000)))  # Quantize to save bytes
 
                 # Identify architectural drift (Anti-Patterns)
-                if (sec_dist - prim_dist) <= 0.9:
+                if (sec_dist - prim_dist) <= _MIXED_GAP * prim_dist:  # #4106
                     file_a_ids.append(self._intern(sec_name, self.archetype_lookup))
                     file_a_dists.append(int(round(sec_dist * 1000)))
             else:

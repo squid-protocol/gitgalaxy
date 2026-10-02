@@ -1,0 +1,13 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, base/src/lgacdb02.cbl, its
+copybooks and the Db2 DDL (base/cntl/db2cre.jcl) are GenApp's, used
+unmodified from the corpus.
+
+seed.sql in this directory is derived from GenApp's sample data: every INSERT
+of base/cntl/db2cre.jcl, copied as written, followed by one CUSTOMER row
+(customer 11) added for this case, so that LGACDB02's CUSTOMER_SECURE INSERT
+has a customer without a password row to succeed on.

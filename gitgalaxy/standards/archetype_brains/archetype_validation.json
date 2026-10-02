@@ -84,7 +84,7 @@
     "engine_commit": "aaf0f7cb",
     "measured_at": "2026-10-02"
   },
-  "retrain_issue": null,
+  "retrain_issue": 4111,
   "schema": 1,
   "thresholds": {
     "degraded": 0.95,

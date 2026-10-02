@@ -815,9 +815,13 @@ class Gen:
                 return
             if x.name == "FILLER" and x is not it:
                 return
-            if x.usage == "POINTER":  # never read (write_only_pointers): whatever INITIALIZE leaves in it, unseen
+            if x.usage == "POINTER":  # INITIALIZE sets a pointer NULL (GnuCOBOL, measured; oracle_assumptions.md C9):
+                # all zero bytes. A port's pointer only ever holds NULL (an address is not modelled), so this is also
+                # "unchanged"; a write-only pointer is skipped as before
                 if x.name.upper() not in self.write_only_pointers:
-                    raise Untranslatable(f"INITIALIZE {it.name}: POINTER")
+                    rel = x.offset - it.offset
+                    out.append(f"Cobol.moveFigurative(Figurative.LOW_VALUES, Field.group({base}.storage(), "
+                               f"{base}.offset() + {rel}, {x.size}), CS);")  # fmt: skip
                 return
             out.append(self._init_one(x, base, it))
 

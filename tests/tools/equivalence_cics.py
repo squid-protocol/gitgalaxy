@@ -441,6 +441,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb in ("ENQ", "DEQ", "DELAY"):
+        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time, a
+        # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
+        allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
+                   "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
+                   "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb]  # fmt: skip
+        bad = [o for o in opts if o not in allowed | {verb, "RESP", "RESP2", "NOHANDLE"}]
+        if bad:
+            raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {bad[0]}"])
+        return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
         bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
         if bad or not opts.get("VALUE"):

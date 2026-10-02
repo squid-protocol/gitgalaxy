@@ -476,6 +476,15 @@ class Cics:
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         verb = " ".join(words)
+        if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
+            # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
+            allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
+                       "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
+                       "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb.split()[0]]  # fmt: skip
+            bad = [o for o in opts if o not in allowed | {*words, "RESP", "RESP2", "NOHANDLE"}]
+            if bad:
+                raise CicsError(f"{verb} {' '.join(bad)}")
+            return self.outcome(opts, "0", "0", ind)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
             bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
             if bad or not opts.get("VALUE"):

@@ -426,6 +426,60 @@ def _as_text(raw: bytes, enc: str) -> Any:
         return raw
 
 
+def split_varseq(data: bytes) -> list[bytes]:
+    """A variable-length sequential file (RECORDING MODE V / RECORD VARYING) as GnuCOBOL writes it
+    (COB_VARSEQ_FORMAT 0, its default): per record a 4-byte header -- the data length as a big-endian halfword,
+    then two zero bytes -- and the data. Unlike a z/OS RDW, the length does not count the header. Both sides of
+    a comparison are framed this way; a framing error is a difference, never skipped."""
+    recs, i = [], 0
+    while i < len(data):
+        if i + 4 > len(data) or data[i + 2 : i + 4] != b"\0\0":
+            raise ValueError(f"not a GnuCOBOL variable-length record header at byte {i}: {data[i : i + 4]!r}")
+        n = int.from_bytes(data[i : i + 2], "big")
+        if i + 4 + n > len(data):
+            raise ValueError(f"record at byte {i} claims {n} bytes; {len(data) - i - 4} remain")
+        recs.append(data[i + 4 : i + 4 + n])
+        i += 4 + n
+    return recs
+
+
+def diff_varseq(
+    left: bytes,
+    right: bytes,
+    layouts: dict[int, list[dict[str, Any]]],
+    code_page: str = "cp037",
+    data_encoding: str = DEFAULT_DATA_ENCODING,
+) -> dict[str, Any]:
+    """diff_records for a variable-length file: records paired in order, each compared field by field against the
+    layout its length selects (`layouts`: length -> fields; a length with no layout is compared byte for byte). A
+    record of another length, a missing record, or a framing error is a difference."""
+    out: dict[str, Any] = {"records": 0, "equal": 0, "diffs": [], "filler_differs": 0, "layout_bytes": 0}
+    try:
+        lrecs, rrecs = split_varseq(left), split_varseq(right)
+    except ValueError as e:
+        out["diffs"].append({"record": 0, "framing": str(e)})
+        return out
+    out["records"] = max(len(lrecs), len(rrecs))
+    out["layout_bytes"] = max(layouts, default=0)
+    for n in range(out["records"]):
+        a = lrecs[n] if n < len(lrecs) else None
+        b = rrecs[n] if n < len(rrecs) else None
+        if a is None or b is None:
+            out["diffs"].append({"record": n + 1, "missing": "cobol" if a is None else "java"})
+            continue
+        if len(a) != len(b):
+            out["diffs"].append({"record": n + 1, "fields": [{"field": "(record length)", "cobol": str(len(a)),
+                                                              "java": str(len(b))}]})  # fmt: skip
+            continue
+        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding)
+        out["filler_differs"] += d["filler_differs"]
+        if d["diffs"]:
+            out["diffs"].append({"record": n + 1, "fields": d["diffs"][0]["fields"]})
+        else:
+            out["equal"] += 1
+    return out
+
+
 def diff_records(
     left: bytes,
     right: bytes,

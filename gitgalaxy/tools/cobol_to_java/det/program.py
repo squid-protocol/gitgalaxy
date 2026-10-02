@@ -84,6 +84,29 @@ def file_control(lines: list[Line]) -> list[dict]:
     return out
 
 
+def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
+    """FD name -> its variable-length clauses: `varying` (RECORD IS VARYING [IN SIZE] [FROM m] [TO n]
+    [DEPENDING ON item]) as {min, max, depending}, and `mode_v` (RECORDING MODE IS V)."""
+    text = " ".join(ln.text for ln in lines)
+    m = re.search(r"\bFILE\s+SECTION\s*\.(.*?)(?:\bWORKING-STORAGE\s+SECTION\b|\bLOCAL-STORAGE\s+SECTION\b|"
+                  r"\bLINKAGE\s+SECTION\b|\bPROCEDURE\s+DIVISION\b|\Z)", text, re.I | re.S)  # fmt: skip
+    out: dict[str, dict[str, Any]] = {}
+    if not m:
+        return out
+    for fd in re.finditer(r"\b[FS]D\s+([A-Z0-9-]+)(.*?)(?=\s0?1\s+[A-Z0-9-]+|\s[FS]D\s|\Z)", m.group(1), re.I | re.S):
+        e = fd.group(2)
+        d: dict[str, Any] = {"varying": None, "mode_v": bool(re.search(r"\bRECORDING\s+(?:MODE\s+)?(?:IS\s+)?V\b", e, re.I))}
+        v = re.search(r"\bRECORD\s+(?:IS\s+)?VARYING\b(.*?)(?:\.\s*$|$)", e, re.I | re.S)
+        if v:
+            lo = re.search(r"\bFROM\s+(\d+)", v.group(1), re.I)
+            hi = re.search(r"\bTO\s+(\d+)", v.group(1), re.I)
+            dep = re.search(r"\bDEPENDING\s+(?:ON\s+)?([A-Z0-9-]+)", v.group(1), re.I)
+            d["varying"] = {"min": int(lo.group(1)) if lo else None, "max": int(hi.group(1)) if hi else None,
+                            "depending": dep.group(1).upper().rstrip(".") if dep else None}  # fmt: skip
+        out[fd.group(1).upper()] = d
+    return out
+
+
 def stub_files(stub: str) -> dict[str, str]:
     """SELECT name -> the repository field the generated stub uses for it."""
     out = {}
@@ -411,6 +434,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 providers.append((f"ObjectProvider<{cls}Service>", field))
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
     file_decls, file_inits, ctor_repos = [], [], []
+    fds = fd_entries(lines)
     for fc in file_control(lines):
         fd = G.FileDef(fc["select"], fc["assign"], fc["organization"], fc["access"], fc["status"],
                        " ".join(fc["record_key"]) if fc["record_key"] else None)  # fmt: skip
@@ -439,6 +463,20 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         storage = _storage_name(roots[id(fd.record)])
         v = G.jname(fd.select)
         reclen = sizes[id(roots[id(fd.record)])]
+        clauses = fds.get((fd.fd or fd.select).upper(), {})
+        varying = clauses.get("varying")
+        if varying is not None or clauses.get("mode_v"):
+            # variable-length records: written at the DEPENDING ON item's length, framed as GnuCOBOL frames them
+            if fd.organization != "SEQUENTIAL" or varying is None or varying["depending"] is None:
+                fd.why = ("variable-length records without RECORD VARYING ... DEPENDING ON" if fd.organization ==
+                          "SEQUENTIAL" else f"variable-length records, ORGANIZATION {fd.organization}")  # fmt: skip
+                continue
+            fd.varying = varying
+            file_decls.append(f"    private DetFiles.DetFile {v};")
+            fd.handle = (f"new DetFiles.VarSequential(files, {G.jstr(fd.dd)}, () -> datasets.path(dd(dds, "
+                         f"{G.jstr(fd.dd)})), {storage}, 0, {varying['min'] or 1}, {varying['max'] or reclen})")  # fmt: skip
+            file_inits.append(f"        {v} = {fd.handle};")
+            continue
         file_decls.append(f"    private DetFiles.DetFile {v};")
         if fd.organization in ("SEQUENTIAL", "LINE"):
             fd.handle = (f"new DetFiles.Sequential(files, {G.jstr(fd.dd)}, () -> datasets.path(dd(dds, {G.jstr(fd.dd)})), "

@@ -137,12 +137,10 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
     if verb == "DECLARE CURSOR" and re.search(r"\bFOR\s+UPDATE\b", sql, re.I):
         # a cursor a positioned statement may use: each row also carries its row id, which that statement names
         at = _top_from(sql)
-        if at is not None:
-            tm = re.match(r"\s*FROM\s+([A-Z0-9_.$#@]+)(?:\s+(?:AS\s+)?(?!WHERE\b|ORDER\b|FOR\b|GROUP\b)([A-Z0-9_]+))?",
-                          sql[at:], re.I)  # fmt: skip
-            if tm:
-                sql = f"{sql[:at].rstrip()}, RID_BIT({tm.group(2) or tm.group(1)}) AS GG_RID {sql[at:]}"
-                notes.append("each row also returns GG_RID, its row id, for a positioned UPDATE / DELETE")
+        exposed = _exposed_name(sql[at:]) if at is not None else None
+        if at is not None and exposed:
+            sql = f"{sql[:at].rstrip()}, RID_BIT({exposed}) AS GG_RID {sql[at:]}"
+            notes.append("each row also returns GG_RID, its row id, for a positioned UPDATE / DELETE")
     pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+[A-Z0-9_-]+", sql, re.I)
     if pos:
         tm = re.match(r"\s*(?:UPDATE|DELETE\s+FROM)\s+([A-Z0-9_.$#@]+)", sql, re.I)
@@ -153,6 +151,23 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
         else:
             notes.append("TODO: a positioned statement (WHERE CURRENT OF): rewrite it to the row's key")
     return " ".join(sql.split()), sorted(params.items()), notes
+
+
+_CLAUSE_WORDS = {"WHERE", "ORDER", "FOR", "GROUP", "HAVING", "FETCH", "WITH", "UNION", "OPTIMIZE"}
+
+
+def _exposed_name(from_clause: str) -> str | None:
+    """The name a FROM clause exposes its one table by: the correlation name (`FROM POLICY P`, `FROM POLICY AS P`),
+    else the table's; None for a join or a nested query."""
+    words = from_clause.replace(",", " , ").split()
+    if len(words) < 2 or words[0].upper() != "FROM" or words[1].startswith("("):
+        return None
+    rest = [w for w in words[2:4] if w.upper() != "AS"]
+    if rest and rest[0] == ",":
+        return None  # more than one table
+    if rest and rest[0].upper() not in _CLAUSE_WORDS and rest[0].replace("_", "").isalnum():
+        return rest[0]
+    return words[1]
 
 
 def _top_from(sql: str) -> int | None:

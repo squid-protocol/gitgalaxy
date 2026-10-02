@@ -31,7 +31,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
-| C1 | compiler | Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` (#4102) | **DIFFERS** | not yet measured |
+| C1 | compiler | Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` (#4102) | **DIFFERS** | reachable (GenApp LGICDB01); no proven scenario |
 | C2 | compiler | Arithmetic intermediates: exact decimal vs IBM's precision rules | ASSUMED | yes (INTCALC, POSTTRAN …) |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
@@ -51,6 +51,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X3 | CICS | Every file is recoverable on SYNCPOINT ROLLBACK and abend | ASSUMED | yes (UOW scenarios) |
 | X4 | CICS | A task takes no time (ASKTIME = dispatch time) | ASSUMED | yes |
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
+| X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | not run | no |
+| X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
@@ -58,11 +60,15 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q3 | Db2 | The Java side commits each statement | DIFFERS | no |
 | Q4 | Db2 | WHENEVER, dynamic SQL, positioned UPDATE/DELETE | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
-| Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA) |
+| Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
+| Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
+| Q8 | Db2 | Positioned UPDATE / DELETE: the Java side by row id | MATCHED | yes (GenApp LGUPDB01) |
+| Q9 | Db2 | More host variables than columns: SQLWARN3, the rest untouched | MATCHED | yes (GenApp LGUPDB01) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
 | M2 | method | A Db2 error after a successful statement cannot be injected yet | — | yes (UPDACC 5/6 branches) |
 | M3 | method | A LINKed program's COMMAREA result was not compared before 2026-10-02 | fixed | 7 cases re-proven |
+| M4 | method | Clock fields: a value the run takes from the system clock | declared | yes (GenApp LGUPDB01) |
 
 ## Compiler: GnuCOBOL 3.1.2 `-std=ibm` vs IBM Enterprise COBOL
 
@@ -215,6 +221,22 @@ Refused by name (`equivalence_cics.Unsupported`):
 
 The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not set.
 
+### X6. A WRITEQ LENGTH past its FROM item — not run
+- **What.** GenApp's LGSTSQ (the error logger every GenApp program LINKs on its error paths) writes
+  `LENGTH(WS-RECV-LEN)`, the caller's COMMAREA length + 5. That is more than `FROM(WRITE-MSG)` holds (95 bytes), so
+  CICS copies the bytes that follow WRITE-MSG in storage.
+- **Why it is not judged.** Those bytes depend on how the compiler lays out WORKING-STORAGE; GnuCOBOL's layout is not
+  IBM's, so no oracle here can say what z/OS writes.
+- **Effect.** A scenario that reaches LGSTSQ is left out of its case (GenApp LGUPDB01's not-found paths). It should
+  become a refusal by name on both sides.
+
+### X7. ASSIGN INVOKINGPROG / PROGRAM, and several programs in one task — MATCHED
+- ASSIGN PROGRAM is the running program, INVOKINGPROG the program that LINKed or XCTLed to it (blanks for a task's
+  first program), as IBM's ASSIGN documents.
+- A case's `"programs"` run in the same task on both sides: the COBOL side's dispatcher (as the cics-crucible's) and
+  the Java side's `CicsTask.Programs`, each a port. A LINK is compared by its target; what the target did is compared
+  through its files, tables, queue writes and the COMMAREA it leaves.
+
 ## Language Environment
 
 ### L1. CEEDAYS — MATCHED where documented, REFUSED otherwise
@@ -264,6 +286,24 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   DATABASE / STOGROUP / TABLESPACE). None changes what a query returns. The bind's `QUALIFIER` is each side's
   current schema.
 
+### Q7. `CCSID EBCDIC` tables — DIFFERS
+- **What.** GenApp's DDL creates its tables `CCSID EBCDIC`; Db2 for Linux has no such clause, and the harness
+  database is Unicode. A table's text then sorts in Unicode order, not EBCDIC order, so `ORDER BY` on text and text
+  ranges (`BETWEEN`, `>`) can differ from z/OS for mixed letters and digits (as D1 for the programs).
+- **Reached.** No proven statement orders or ranges on text that mixes letters and digits.
+
+### Q8. Positioned UPDATE / DELETE — MATCHED
+- **COBOL side.** The statement runs as written: the CLI names each cursor at OPEN (`SQLSetCursorName`).
+- **Java side.** A generated repository has no live cursor, so a `FOR UPDATE` cursor's query also returns each row's
+  `RID_BIT` (as `GG_RID`, never assigned to a host variable), and the positioned statement updates `WHERE
+  RID_BIT(table) = :ggRid` for the row FETCH last returned; no current row is -508, as Db2 gives.
+- `RID_BIT` is Db2 for Linux's; a production target on Db2 for z/OS would use `RID()` or the table's key.
+
+### Q9. More host variables than columns — MATCHED
+- GenApp's LGUPDB01 FETCHes six host variables from a five-column cursor (a GenApp defect). Db2 sets SQLWARN3 and
+  leaves the sixth as it was; both sides now do the same (the COBOL stub had reported an error, the Java side a
+  NULL).
+
 ## The Java side
 
 ### J1. Files on H2 — ASSUMED
@@ -293,6 +333,15 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   CA-RETURN-CODE) went unchecked.
 - A case marked `"linked": true` now compares it after every task that does not abend. All 7 earlier LINKed cases
   re-proved with it.
+
+### M4. Clock fields — declared
+- **What.** A value the program takes from the system clock (Db2's `CURRENT TIMESTAMP`: GenApp LGUPDB01 sets
+  `POLICY.LASTCHANGED` and reads it back into its COMMAREA) cannot be equal across two runs made at different times.
+- **The rule.** A case names its clock fields (`"clock_fields"`: table columns, COMMAREA fields or slices of them).
+  Such a value is compared as what it is -- a well-formed timestamp the run wrote, within the last day -- not by its
+  digits. A value from the seed or the scenario is still compared exactly. Every masked value is counted in the
+  report (`clock_masked`).
+- This is the first declared difference (#4051) of its kind: narrow, named in the case, and reported where used.
 
 ## What would settle most of this
 

@@ -1,0 +1,152 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGACDB02",
+ "program_source": "base/src/lgacdb02.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgacdb02.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "add-password",
+   "commarea": {
+    "D2-REQUEST-ID": "02ACUS",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "5732fec825535eeafb8fac50fee3a8aa",
+    "D2-CUSTSECR-COUNT": "0000",
+    "D2-CUSTSECR-STATE": "N",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "'02ACUS': INSERT INTO CUSTOMER_SECURE for customer 11 (in CUSTOMER, no password row yet) is SQLCODE 0; D2-RETURN-CODE '00'; GenApp's own default password, state 'N', 0 changes"
+  },
+  {
+   "name": "add-password-count-max",
+   "commarea": {
+    "D2-REQUEST-ID": "02ACUS",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "PPPPPPPPPPPPPPPPqqqqqqqqqqqqqqqZ",
+    "D2-CUSTSECR-COUNT": "9999",
+    "D2-CUSTSECR-STATE": "Y",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "D2-CUSTSECR-COUNT PIC X(4) '9999' MOVEd to the S9(9) COMP host variable (an alphanumeric sender read as an unsigned integer): pass_changes 9999; the password filled to its 32 bytes"
+  },
+  {
+   "name": "add-password-count-leading-zeros",
+   "commarea": {
+    "D2-REQUEST-ID": "02ACUS",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "abc",
+    "D2-CUSTSECR-COUNT": "0042",
+    "D2-CUSTSECR-STATE": "L",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "count '0042' -> 42; a short password: CHAR(32) keeps its trailing blanks"
+  },
+  {
+   "name": "add-password-blanks",
+   "commarea": {
+    "D2-REQUEST-ID": "02ACUS",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "",
+    "D2-CUSTSECR-COUNT": "0001",
+    "D2-CUSTSECR-STATE": "",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "password and state all spaces: the row holds 32 blanks and one blank, not NULL"
+  },
+  {
+   "name": "add-password-return-code-reset",
+   "commarea": {
+    "D2-REQUEST-ID": "02ACUS",
+    "D2-RETURN-CODE": "55",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "5732fec825535eeafb8fac50fee3a8aa",
+    "D2-CUSTSECR-COUNT": "0003",
+    "D2-CUSTSECR-STATE": "N",
+    "D2-CUSTSECR-DATA": "trailing data the program never reads"
+   },
+   "why": "a non-zero D2-RETURN-CODE on entry is reset to '00'; D2-CUSTSECR-DATA is left as passed"
+  },
+  {
+   "name": "request-add-customer-id",
+   "commarea": {
+    "D2-REQUEST-ID": "01ACUS",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "5732fec825535eeafb8fac50fee3a8aa",
+    "D2-CUSTSECR-COUNT": "0000",
+    "D2-CUSTSECR-STATE": "N",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "WHEN OTHER: '01ACUS' (LGACDB01's own request id) is not '02ACUS': '99', RETURN, no INSERT"
+  },
+  {
+   "name": "request-lowercase",
+   "commarea": {
+    "D2-REQUEST-ID": "02acus",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "5732fec825535eeafb8fac50fee3a8aa",
+    "D2-CUSTSECR-COUNT": "0000",
+    "D2-CUSTSECR-STATE": "N",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "WHEN OTHER: the comparison is byte for byte, '02acus' is not '02ACUS': '99'"
+  },
+  {
+   "name": "request-blank",
+   "commarea": {
+    "D2-REQUEST-ID": "",
+    "D2-RETURN-CODE": "00",
+    "D2-CUSTOMER-NUM": 11,
+    "D2-CUSTSECR-PASS": "5732fec825535eeafb8fac50fee3a8aa",
+    "D2-CUSTSECR-COUNT": "0000",
+    "D2-CUSTSECR-STATE": "N",
+    "D2-CUSTSECR-DATA": ""
+   },
+   "why": "WHEN OTHER: a blank request id: '99'"
+  }
+ ],
+ "notes": "GenApp's Db2 'add customer password' (LGACDB02, LINKed by LGACDB01 after its INSERT INTO CUSTOMER, with D2-CUSTOMER-NUM the new customer): '02ACUS' INSERTs one CUSTOMER_SECURE row from D2-CUSTOMER-NUM (9(10) -> S9(9) COMP), D2-CUSTSECR-PASS, D2-CUSTSECR-STATE and D2-CUSTSECR-COUNT (X(4) -> S9(9) COMP); any other request id sets D2-RETURN-CODE '99' and RETURNs. The COMMAREA (32500 bytes, LGACDB02's own DFHCOMMAREA) and the CUSTOMER / CUSTOMER_SECURE tables are compared after each task. Seed: every INSERT of GenApp's base/cntl/db2cre.jcl, plus one CUSTOMER row (11) this case adds -- GenApp's ten customers each already have a CUSTOMER_SECURE row, so with GenApp's rows alone the INSERT could only fail; customer 11 stands for the row LGACDB01 has just inserted. NOT exercised: an INSERT that fails (SQLCODE -803 for customers 1-10, -530 for a customer not in CUSTOMER) and a zero-length COMMAREA both go to WRITE-ERROR-MESSAGE, whose first act is EXEC CICS LINK PROGRAM('LGSTSQ'); the harness runs one program and has no port of LGSTSQ, so such a scenario is refused (Unsupported: LINK PROGRAM(LGSTSQ)) and with it the whole case. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2020), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

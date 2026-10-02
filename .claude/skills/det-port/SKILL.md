@@ -35,7 +35,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 |---|---|
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
-| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`) |
+| **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 
@@ -95,6 +95,15 @@ A translator fix is never a hand edit of a port.
 - [ ] Scenarios written by a model or a subagent are reviewed, then checked by the proof itself.
 - [ ] Db2: a `"db2"` section with `ddl`, `seed`, `compare` and `include_dirs` (DCLGEN). The seed is the corpus's
       own INSERTs where it ships them.
+      - A DDL or seed may be a z/OS job (`.jcl`): its in-stream SQL, z/OS-only clauses removed (CBSA, GenApp).
+      - `"qualifier"`: the bind's QUALIFIER (the schema unqualified names resolve to). `"symbols"`: install symbols
+        (`<DB2DBID>`).
+      - `"clock_fields"`: values from `CURRENT TIMESTAMP` (register M4). Declare only what the program really takes
+        from the clock.
+- [ ] A LINKed program (CBSA, GenApp services): `"linked": true` compares the COMMAREA it leaves. When the generated
+      DTO is the caller's record, describe the COMMAREA with the caller's record (the harness says so).
+- [ ] A program that LINKs to others: `"programs": [{"program", "program_source"}]` runs them in the same task on both
+      sides (no EXEC SQL in those yet). A LINK the case does not run is refused by name.
 
 **Before the PR:**
 - [ ] `pr_gates.py`, or at least the ruff audit, mypy, the dead-key audit and the full suite.

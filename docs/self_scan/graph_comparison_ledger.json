@@ -4008,13 +4008,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T17:52:23Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T15:31:51Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "java",
       "last_reconciled_at": "2026-10-02T16:55:30Z",
       "last_seen_count": 35,
@@ -4061,10 +4063,10 @@
         }
       ],
       "metric": "object_creation_expression/generic_type+generic",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "call",
-      "verdict": null
+      "verdict": "GitGalaxy missed them. All 35 are generic constructor calls, which are calls by C3: `new HashMap<String, Object>()`, the diamond `new ArrayList<>(xs)`, and anonymous subclasses `new Action<Project>() {` (gradle DefaultProject/DefaultPluginManager.java, springboot SpringApplication/AutoConfigurationImportSelector/Binder.java, spock SpecRewriter.java). Java's `(?<!@)\\b(name)\\s*\\(` stops at the `<..>`. Engine defect #4124, fixed in the same PR: java, kotlin and groovy now use CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION, and java goes to FN 0. A Level-2 harness bug surfaced too: scip_callgraph mapped a class reference to its LAST constructor, so the engine's right `new TypeToken<X>() {}` -> `TypeToken()` links on gson scored as a wrong overload (137). Fixed in the harness: the constructor is now picked by argument count."
     },
     "javascript/call/call_expression/assignment_expression/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -4894,13 +4896,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T15:31:51Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
       "last_reconciled_at": "2026-10-02T16:58:08Z",
       "last_seen_count": 1,
@@ -4915,10 +4919,10 @@
         }
       ],
       "metric": "truth-names-several-files",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy missed it. kotlinpoet TestProcessor.kt:47 `import com.squareup.kotlinpoet.ksp.toKModifier` names a top-level extension function overloaded in two files of that package: `Modifier.toKModifier()` (Modifiers.kt:55) and `Visibility.toKModifier()` (Visibilities.kt:27). A Kotlin import brings in every overload, and TestProcessor uses both (lines 86 and 87). The truth set of two files is right. The engine's _resolve_declaration (#3596) keeps a declaration only when exactly one file declares it, so it draws no edge. Engine defect #4125."
     },
     "lua/import/capture-missed/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

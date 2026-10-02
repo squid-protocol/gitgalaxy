@@ -87764,6 +87764,7 @@
         ],
         "getBuildPath@343": [],
         "getCustomOperationTraceSerializableModel@353": [
+          "HashMap",
           "put",
           "getPluginId",
           "getPluginClass",
@@ -87821,6 +87822,7 @@
           "setResult"
         ],
         "withPlugin@256": [
+          "Action",
           "pluginsForId",
           "all"
         ]
@@ -87995,6 +87997,7 @@
         ],
         "defaultTasks@815": [
           "InvalidUserDataException",
+          "ArrayList",
           "add"
         ],
         "delete@1043": [
@@ -88044,6 +88047,7 @@
           "getOwner",
           "ensureTasksDiscovered",
           "put",
+          "TreeSet",
           "getTasks"
         ],
         "execute@924": [
@@ -88104,6 +88108,8 @@
           "fire"
         ],
         "getAllTasks@897": [
+          "TreeMap",
+          "Action",
           "execute",
           "allprojects"
         ],
@@ -88273,6 +88279,8 @@
         "getTasksByName@917": [
           "isNullOrEmpty",
           "InvalidUserDataException",
+          "HashSet",
+          "Action",
           "execute",
           "allprojects"
         ],
@@ -88314,7 +88322,9 @@
           "detachedFrom",
           "LocalDetachedResolver"
         ],
-        "newProjectEvaluationListenerBroadcast@325": [],
+        "newProjectEvaluationListenerBroadcast@325": [
+          "ListenerBroadcast"
+        ],
         "nodeInitializerRegistry@306": [
           "DefaultNodeInitializerRegistry"
         ],
@@ -90351,6 +90361,7 @@
           "ConstantExpression"
         ],
         "createCleanupTryCatch@614": [
+          "ArrayList",
           "getAst",
           "TryCatchStatement",
           "BlockStatement",
@@ -90617,6 +90628,7 @@
         ],
         "rewriteWhenBlockForExceptionCondition@770": [
           "getAst",
+          "ArrayList",
           "setAst",
           "add",
           "ExpressionStatement",
@@ -90691,6 +90703,7 @@
           "VariableExpression",
           "add",
           "createVariableDeclarationStatement",
+          "ArrayList",
           "addAll",
           "createThrowableAssignmentAndRethrowCatchStatement",
           "asList",
@@ -93124,7 +93137,10 @@
           "emptyList",
           "emptySet"
         ],
-        "AutoConfigurationEntry@558": [],
+        "AutoConfigurationEntry@558": [
+          "ArrayList",
+          "HashSet"
+        ],
         "AutoConfigurationImportSelector@109": [],
         "AutoConfigurationImportSelector@113": [],
         "ConfigurationClassFilter@394": [
@@ -93134,6 +93150,7 @@
           "getStringArray"
         ],
         "checkExcludedClasses@212": [
+          "ArrayList",
           "size",
           "getClass",
           "getClassLoader",
@@ -93147,6 +93164,7 @@
           "nanoTime",
           "toStringArray",
           "match",
+          "ArrayList",
           "add",
           "isTraceEnabled",
           "size",
@@ -93229,6 +93247,7 @@
         ],
         "getExclusionFilter@127": [],
         "getExclusions@247": [
+          "LinkedHashSet",
           "addAll",
           "asList",
           "getExcludeAutoConfigurationsProperty",
@@ -93273,7 +93292,10 @@
           "getConfigurations",
           "putIfAbsent"
         ],
-        "removeDuplicates@305": [],
+        "removeDuplicates@305": [
+          "ArrayList",
+          "LinkedHashSet"
+        ],
         "selectImports@118": [
           "isEnabled",
           "getAutoConfigurationEntry",
@@ -93329,6 +93351,7 @@
           "notNull",
           "get",
           "ValueObjectBinder",
+          "HashMap",
           "put",
           "of",
           "unmodifiableMap"
@@ -93534,6 +93557,7 @@
         "getCandidates@117": [
           "getAllAnnotationAttributes",
           "getName",
+          "ArrayList",
           "addAll",
           "get"
         ],
@@ -93686,9 +93710,11 @@
         "SpringApplication@259": [],
         "SpringApplication@273": [
           "notNull",
+          "LinkedHashSet",
           "asList",
           "setWebApplicationType",
           "deduce",
+          "ArrayList",
           "getSpringFactoriesInstances",
           "setInitializers",
           "setListeners",
@@ -93701,6 +93727,7 @@
         ],
         "addAotGeneratedInitializerIfNecessary@421": [
           "useGeneratedArtifacts",
+          "ArrayList",
           "stream",
           "filter",
           "toList",
@@ -93743,7 +93770,9 @@
           "initialize"
         ],
         "asUnmodifiableOrderedSet@1478": [
-          "sort"
+          "ArrayList",
+          "sort",
+          "LinkedHashSet"
         ],
         "bindToSpringApplication@550": [
           "get",
@@ -93764,6 +93793,7 @@
         "callRunners@767": [
           "getBeanFactory",
           "getBeanNamesForType",
+          "IdentityHashMap",
           "put",
           "getBean",
           "getOrderComparator",
@@ -93858,6 +93888,7 @@
         ],
         "getAdditionalProfiles@1114": [],
         "getAllSources@1189": [
+          "LinkedHashSet",
           "isEmpty",
           "addAll",
           "getSources",
@@ -93948,6 +93979,7 @@
           "getSpringFactoriesInstances",
           "get",
           "getRunListener",
+          "ArrayList",
           "add",
           "SpringApplicationRunListeners"
         ],
@@ -94177,6 +94209,7 @@
         "setAddConversionService@1066": [],
         "setAdditionalProfiles@1106": [
           "unmodifiableSet",
+          "LinkedHashSet",
           "asList"
         ],
         "setAllowBeanDefinitionOverriding@979": [],
@@ -94188,6 +94221,7 @@
         "setBeanNameGenerator@1122": [],
         "setDefaultProperties@1086": [],
         "setDefaultProperties@1094": [
+          "HashMap",
           "list",
           "propertyNames",
           "put",
@@ -94196,10 +94230,14 @@
         "setEnvironment@1131": [],
         "setEnvironmentPrefix@1225": [],
         "setHeadless@1009": [],
-        "setInitializers@1247": [],
+        "setInitializers@1247": [
+          "ArrayList"
+        ],
         "setKeepAlive@1332": [],
         "setLazyInitialization@1000": [],
-        "setListeners@1274": [],
+        "setListeners@1274": [
+          "ArrayList"
+        ],
         "setLogStartupInfo@1047": [],
         "setMainApplicationClass@948": [],
         "setRegisterShutdownHook@1020": [],
@@ -94243,11 +94281,13 @@
           "state"
         ],
         "with@1510": [
+          "LinkedHashSet",
           "addAll",
           "asList",
           "Augmented"
         ],
         "withAdditionalProfiles@1523": [
+          "LinkedHashSet",
           "addAll",
           "asList",
           "Augmented"
@@ -100914,6 +100954,7 @@
           "isEmpty",
           "toList",
           "clear",
+          "mutableListOf",
           "iterator",
           "hasNext",
           "next",

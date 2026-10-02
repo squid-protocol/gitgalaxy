@@ -363,9 +363,11 @@ def test_carddemo_account_view_is_equivalent_end_to_end(tmp_path):
     assert proc.returncode == 0, proc.stdout[-3000:] + proc.stderr[-3000:]
     report = json.loads((tmp_path / "report.json").read_text())
     # #4009: a scenario that types into the screen also compares its RECEIVE MAP (CicsTask records it)
-    assert {n: (o["equal"], o["records"]) for n, o in report["outputs"].items()} == {
-        "enter-from-menu": (2, 2), "view-account": (3, 3), "account-not-on-file": (3, 3),
-        "account-not-numeric": (3, 3), "pf3-back-to-menu": (1, 1)}  # fmt: skip
+    # (the case's fault-injected scenarios -- an I/O error, a disabled file -- are compared too: all of them equal)
+    got = {n: (o["equal"], o["records"]) for n, o in report["outputs"].items()}
+    assert all(e == r for e, r in got.values()), got
+    assert {"enter-from-menu": (2, 2), "view-account": (3, 3), "account-not-on-file": (3, 3),
+            "account-not-numeric": (3, 3), "pf3-back-to-menu": (1, 1)}.items() <= got.items()  # fmt: skip
 
 
 # ---- file updates: WRITE, REWRITE, READ UPDATE, SYNCPOINT (CardDemo's update programs) -----------------------

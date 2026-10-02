@@ -30,6 +30,39 @@ def program(name: str, data: list[str], proc: list[str]) -> str:
 
 
 PROGRAMS = {
+    # GO TO the end of an outer PERFORM's range from inside an inner one: the outer PERFORM returns
+    "GOTOOUT": "\n".join(
+        [
+            "       IDENTIFICATION DIVISION.",
+            "       PROGRAM-ID. GOTOOUT.",
+            "       DATA DIVISION.",
+            "       WORKING-STORAGE SECTION.",
+            "       01 N PIC 9(3) VALUE 0.",
+            "       PROCEDURE DIVISION.",
+            "       MAIN-PARA.",
+            "           PERFORM A THRU A-EXIT",
+            "           DISPLAY 'BACK IN MAIN N=' N",
+            "           GOBACK.",
+            "       A.",
+            "           DISPLAY 'IN A'",
+            "           PERFORM B THRU B-EXIT",
+            "           DISPLAY 'AFTER B'.",
+            "       A-EXIT.",
+            "           DISPLAY 'IN A-EXIT'",
+            "           EXIT.",
+            "       B.",
+            "           ADD 1 TO N",
+            "           DISPLAY 'IN B N=' N",
+            "           IF N > 3",
+            "              DISPLAY 'LOOPED'",
+            "              GOBACK",
+            "           END-IF",
+            "           GO TO A-EXIT.",
+            "       B-EXIT.",
+            "           EXIT.",
+            "",
+        ]
+    ),  # fmt: skip
     "UNSTR1": program(
         "UNSTR1",
         [

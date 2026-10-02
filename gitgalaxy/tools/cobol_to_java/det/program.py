@@ -174,6 +174,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
 
     gen = G.Gen(prog)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
@@ -257,7 +258,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             ctor_repos.append((repo_cls, repo))
             fd.handle = (f"new DetFiles.Indexed<{entity}>(files, {G.jstr(fd.dd)}, {storage}, 0, {reclen}, "
                          f"{fd.key_item.offset}, {fd.key_item.size}, {repo}::findAll, e -> e.toRecord(CS), "
-                         f"b -> {entity}.fromRecord(b, CS), {repo}::save, CS)")  # fmt: skip
+                         f"b -> {entity}.fromRecord(b, CS), {repo}::save, CS)"
+                + gen.find_by_id(entity, repo))  # fmt: skip
         else:
             fd.why = f"ORGANIZATION {fd.organization}"
             continue
@@ -352,6 +354,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     if providers:
         ctor_repos += providers
         extra_imports += ["org.springframework.beans.factory.ObjectProvider", f"{package}.call.CobolRef"]
+    if not is_cics and any(gen.id_methods.values()):
+        extra_imports.append(f"{package}.entity.vsam.*")  # an entity's composite id class, for findById
     cics_members: list[str] = []
     cics_entry: list[str] = []
     if is_cics:
@@ -438,6 +442,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         *[f"    private final Storage {n} = new Storage(IMAGE_{n}.length);" for n, _ in storages],
         "",
         *[f"    private Field {d};" for d in declared],
+        "",
+        *[ln for code in gen.id_methods.values() if code for ln in code],
         *cics_members,
         *file_decls,
         "",
@@ -477,6 +483,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         "    public int runProgram() {",
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
         *inits,
+        "        performDepth = 0;",
         "        try {",
         f"            perform(0, {n_para - 1});",
         "        } catch (Goback g) {",
@@ -527,20 +534,57 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             if batch
             else []
         ),
-        "    /** PERFORM from THRU thru: returns when control falls off the end of `thru`. */",
+        "    /** The active PERFORMs' last paragraphs, outermost first. */",
+        "    private int[] performThru = new int[64];",
+        "    private int performDepth = 0;",
+        "",
+        "    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */",
+        "    private static final class PerformExit extends RuntimeException {",
+        "        private static final long serialVersionUID = 1L;",
+        "        final int depth;",
+        "",
+        "        PerformExit(int depth) {",
+        "            super(null, null, false, false);",
+        "            this.depth = depth;",
+        "        }",
+        "    }",
+        "",
+        "    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM",
+        "     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning",
+        "     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */",
         "    private void perform(int from, int thru) {",
-        "        int i = from;",
-        "        while (true) {",
-        "            int next = run(i);",
-        "            boolean jumped = (next & GOTO) != 0;",
-        "            next &= ~GOTO;",
-        "            if (i == thru && !jumped) {",
-        "                return;",
+        "        int mine = performDepth;",
+        "        if (mine == performThru.length) {",
+        "            performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+        "        }",
+        "        performThru[performDepth++] = thru;",
+        "        try {",
+        "            int i = from;",
+        "            while (true) {",
+        "                int next = run(i);",
+        "                boolean jumped = (next & GOTO) != 0;",
+        "                next &= ~GOTO;",
+        "                if (!jumped) {",
+        "                    if (i == thru) {",
+        "                        return;",
+        "                    }",
+        "                    for (int d = mine - 1; d >= 0; d--) {",
+        "                        if (performThru[d] == i) {",
+        "                            throw new PerformExit(d);",
+        "                        }",
+        "                    }",
+        "                }",
+        f"                if (next >= {n_para}) {{",
+        "                    throw new Goback();",
+        "                }",
+        "                i = next;",
         "            }",
-        f"            if (next >= {n_para}) {{",
-        "                throw new Goback();",
+        "        } catch (PerformExit e) {",
+        "            if (e.depth != mine) {",
+        "                throw e;",
         "            }",
-        "            i = next;",
+        "        } finally {",
+        "            performDepth = mine;",
         "        }",
         "    }",
         "",

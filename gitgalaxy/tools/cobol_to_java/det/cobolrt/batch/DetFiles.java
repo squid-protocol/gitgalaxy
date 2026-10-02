@@ -197,6 +197,13 @@ public final class DetFiles {
         private final java.util.function.Consumer<E> save;
         private final Charset cs;
         private Iterator<byte[]> cursor;
+        private Function<byte[], Optional<E>> byId;  // the repository's findById on the key's id, when it has one
+
+        /** A primary-key READ / WRITE / REWRITE through findById (verified against the key bytes). */
+        public Indexed<E> withFindById(Function<byte[], Optional<E>> byId) {
+            this.byId = byId;
+            return this;
+        }
 
         public Indexed(CobolFiles files, String dd, Storage rec, int offset, int reclen, int keyOffset, int keyLength,
                        Supplier<List<E>> all, Function<E, byte[]> toRecord, Function<byte[], E> fromRecord,
@@ -227,6 +234,18 @@ public final class DetFiles {
         }
 
         private Optional<byte[]> find(int off, int len, byte[] key) {
+            if (byId != null && off == keyOffset && len == keyLength) {
+                byte[] rec = new byte[keyOffset + keyLength];
+                System.arraycopy(key, 0, rec, keyOffset, Math.min(key.length, keyLength));
+                Optional<E> e;
+                try {
+                    e = byId.apply(rec);
+                } catch (RuntimeException notAnId) {
+                    return Optional.empty();
+                }
+                return e.map(x -> Arrays.copyOf(toRecord.apply(x), reclen))
+                        .filter(b -> Arrays.equals(b, off, off + len, key, 0, len));
+            }
             for (byte[] b : records()) {
                 if (Arrays.equals(b, off, off + len, key, 0, len)) {
                     return Optional.of(b);

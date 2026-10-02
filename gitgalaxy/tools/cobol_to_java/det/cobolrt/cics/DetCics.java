@@ -35,6 +35,7 @@ public final class DetCics {
         private final int keyOffset;
         private final int keyLength;
         private final Charset cs;
+        private Function<byte[], Optional<E>> byId;  // the repository's findById on the key's id, when it has one
 
         public Store(Supplier<List<E>> all, Function<E, byte[]> toRecord, Function<byte[], E> fromRecord,
                      Consumer<E> save, Consumer<E> delete, int keyOffset, int keyLength, Charset cs) {
@@ -46,6 +47,26 @@ public final class DetCics {
             this.keyOffset = keyOffset;
             this.keyLength = keyLength;
             this.cs = cs;
+        }
+
+        /** A keyed read through the repository's findById: `byId` gets a buffer with the key in its record place. */
+        public Store<E> withFindById(Function<byte[], Optional<E>> byId) {
+            this.byId = byId;
+            return this;
+        }
+
+        private Optional<Object[]> findById(byte[] key) {
+            byte[] rec = new byte[keyOffset + keyLength];
+            System.arraycopy(key, 0, rec, keyOffset, Math.min(key.length, keyLength));
+            Optional<E> e;
+            try {
+                e = byId.apply(rec);
+            } catch (RuntimeException notAnId) {  // key bytes no stored key has (non-digits in a numeric key)
+                return Optional.empty();
+            }
+            byte[] k = Arrays.copyOf(key, keyLength);
+            // exactly the key bytes asked for, as VSAM compares them -- a loosely decoded id matches nothing
+            return e.map(x -> new Object[] {x, toRecord.apply(x)}).filter(r -> Arrays.equals(key((byte[]) r[1]), k));
         }
 
         private byte[] key(byte[] rec) {
@@ -69,6 +90,9 @@ public final class DetCics {
 
         /** The first record (in key order) whose key equals `key` (its first keyLength bytes). */
         public Optional<byte[]> find(byte[] key) {
+            if (byId != null) {
+                return findById(key).map(r -> (byte[]) r[1]);
+            }
             byte[] k = Arrays.copyOf(key, keyLength);
             for (Object[] r : rows()) {
                 if (Arrays.equals(key((byte[]) r[1]), k)) {
@@ -98,6 +122,10 @@ public final class DetCics {
 
         @SuppressWarnings("unchecked")
         public void remove(byte[] key) {
+            if (byId != null) {
+                findById(key).ifPresent(r -> delete.accept((E) r[0]));
+                return;
+            }
             byte[] k = Arrays.copyOf(key, keyLength);
             for (Object[] r : rows()) {
                 if (Arrays.equals(key((byte[]) r[1]), k)) {

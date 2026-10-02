@@ -408,6 +408,8 @@ class Cics:
             self.stores[name] = (
                 f"new DetCics.Store<{entity}>({repo}::findAll, e -> e.toRecord(CS), "
                 f"b -> {entity}.fromRecord(b, CS), {repo}::save, {repo}::delete, {off}, {length}, CS)"
+                # the base cluster's key: findById; an alternate index keeps the ordered scan
+                + (self.g.find_by_id(entity, repo) if prop is None else "")
             )
             self.g.entities.add(entity)
         return f"store({self.name(arg)})"

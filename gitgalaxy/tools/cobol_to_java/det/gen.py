@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from gitgalaxy.tools.cobol_to_java.det import expr as E
@@ -99,7 +100,9 @@ class Gen:
         self.tmp = 0
         self.cur = 0
         self.cics: Cics | None = None
-        self.copy_dirs: list = []  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
+        self.copy_dirs: list = []
+        self.java_root: Path | None = None  # the generated project's src/main/java
+        self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entities: set = set()
@@ -191,6 +194,19 @@ class Gen:
                 return False
             a = a.parent
         return True
+
+    def find_by_id(self, entity: str, repo: str) -> str:
+        """`.withFindById(...)` for a store of the entity's primary key, or "" when its id is not the key's."""
+        if self.java_root is None:
+            return ""
+        from gitgalaxy.tools.cobol_to_java.det.entity import id_method
+
+        if entity not in self.id_methods:
+            m = id_method(self.java_root, entity, self.factory)
+            self.id_methods[entity] = m.code if m else None
+        if self.id_methods[entity] is None:
+            return ""
+        return f".withFindById(rec -> {repo}.findById(id_{entity}(rec)))"
 
     def eib(self, name: str) -> str:
         return self.field_expr(E.Ref(name, ["DFHEIBLK"]))

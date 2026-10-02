@@ -23,6 +23,7 @@ from typing import Any, Optional
 
 from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS
+from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier, archetype_parity
 from gitgalaxy.standards import analysis_lens as config
 
@@ -1513,7 +1514,7 @@ class LLMRecorder:
         all_functions = []
         for s in parsed_files:
             file_path = s.get("path", "Unknown")
-            for func in s.get("functions", []):
+            for func in population_functions(s.get("functions")):  # #4110
                 all_functions.append((func, file_path))
 
         top_impact = heapq.nlargest(10, all_functions, key=lambda x: x[0].get("impact", 0))
@@ -1816,7 +1817,7 @@ class LLMRecorder:
                     elif key in defense_keys:
                         def_hits.append(hit_string)
 
-            sats = sorted(s.get("functions", []), key=lambda x: x.get("impact", 0), reverse=True)[:5]
+            sats = sorted(population_functions(s.get("functions")), key=lambda x: x.get("impact", 0), reverse=True)[:5]
             if sats:
                 lines.append("**Top Internal Functions/Classes:**")
                 for sat in sats:

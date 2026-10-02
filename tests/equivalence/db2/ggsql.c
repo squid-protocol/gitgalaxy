@@ -363,8 +363,14 @@ static void bind_inputs(stmt *s, unsigned char **a) {
 static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
     char buf[4096];
     SQLLEN got;
+    SQLSMALLINT ncols = 0;
+    SQLNumResultCols(s->h, &ncols);
     for (int i = 0; i < s->nout; i++) {
         hv *v = &s->out[i];
+        if (i >= ncols) {  /* more host variables than columns: those left as they are, SQLWARN3 (Db2: a warning) */
+            c->sqlwarn[0] = 'W', c->sqlwarn[3] = 'W';
+            break;
+        }
         unsigned char *p = a[v->arg];
         SQLRETURN rc = SQLGetData(s->h, (SQLUSMALLINT)(i + 1), SQL_C_CHAR, buf, sizeof buf, &got);
         if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
@@ -464,6 +470,8 @@ int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char
         }
     }
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &s->h);
+    /* a cursor has the program's name, so its positioned UPDATE / DELETE (WHERE CURRENT OF name) finds it */
+    if (!strcmp(s->kind, "OPEN")) SQLSetCursorName(s->h, (SQLCHAR *)s->cursor, SQL_NTS);
     rc = SQLPrepare(s->h, (SQLCHAR *)s->sql, SQL_NTS);
     if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
         diag(c, SQL_HANDLE_STMT, s->h, rc);

@@ -243,7 +243,7 @@ public final class CobolRecords {
     }
 
     /** #3985: the bytes `value` takes in the record -- a PIC X field's width, which String.length() is not
-     *  under a multi-byte page: `AB日本C` is 5 characters and, in IBM939, 9 bytes (Shift-Out and Shift-In
+     *  under a multi-byte page: `AB\\u65e5\\u672cC` is 5 characters and, in IBM939, 9 bytes (Shift-Out and Shift-In
      *  count). */
     public static int width(String value, Charset text) {
         return value == null ? 0 : value.getBytes(text).length;

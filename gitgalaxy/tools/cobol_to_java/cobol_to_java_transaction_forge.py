@@ -148,6 +148,7 @@ public class CicsTask {
     private final Object linkCommarea;
     private Integer linkLength;                             // #3989: the LENGTH of the LINK that started this level
     private String program;
+    private String invoker = "";                                            // ASSIGN INVOKINGPROG: who LINKed / XCTLed here
     private Programs programs;
     private UnaryOperator<Object> snapshot = o -> o;
     private String xctlTarget;
@@ -275,12 +276,15 @@ public class CicsTask {
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
+        callee.invoker = this.program;
         callee.linkLength = len;
         for (int hop = 0; callee != null && hop < 32; hop++) {
             programs.run(callee.program, callee);
             if (callee.xctlTarget != null) {
+                String by = callee.program;
                 callee = new CicsTask(this, level + 1, callee.xctlTarget, callee.xctlCommarea, callee.xctlLength,
                         commarea);
+                callee.invoker = by;
                 callee.linkLength = len;
             } else {
                 if (!callee.ended) {
@@ -299,8 +303,12 @@ public class CicsTask {
         CicsTask current = this;
         for (int hop = 0; current != null && hop < 32; hop++) {
             programs.run(current.program, current);
-            current = current.xctlTarget == null ? null
+            CicsTask next = current.xctlTarget == null ? null
                     : new CicsTask(this, 1, current.xctlTarget, current.xctlCommarea, current.xctlLength, null);
+            if (next != null) {
+                next.invoker = current.program;
+            }
+            current = next;
         }
     }
 
@@ -515,6 +523,32 @@ public class CicsTask {
         return link(program, null, 0);
     }
 
+    private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
+
+    /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
+    public CicsTask withCounters(java.util.Map<String, Long> counters) {
+        this.counters = counters;
+        return this;
+    }
+
+    /** GET COUNTER (IBM CICS TS): the named counter's current value, after which it is one more; null (NOTFND)
+     *  for a counter the region does not have. */
+    public Long getCounter(String pool, String name) {
+        java.util.Map<String, Long> all = root().counters;
+        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
+        Long v = all.get(key);
+        if (v != null) {
+            all.put(key, v + 1);
+        }
+        return v;
+    }
+
+    /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
+     *  blanks for a task's first program. */
+    public String invokingProgram() {
+        return String.format(java.util.Locale.ROOT, "%-8s", invoker == null ? "" : invoker);
+    }
+
     public String transid() {
         return transid;
     }
@@ -693,7 +727,7 @@ public class CicsTask {
     }
 
     private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00ff');
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
     }
 
     /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`

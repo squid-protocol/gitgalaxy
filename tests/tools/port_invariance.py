@@ -39,13 +39,13 @@ FIXTURE_DIR = REPO_ROOT / "tests" / "cobol_mainframe" / "port_invariance"
 CASES = REPO_ROOT / "tests" / "equivalence"
 
 # reading -> (file_data column, extraction key, 49-pair floor, fixture floor); measured 2026-10-02 (49 / 12 pairs):
-#   function_count 0.937 / 0.912   struct_branch 0.826 / 0.745   state_flux 0.762 / 0.708
+#   function_count 0.937 / 0.912   struct_branch 0.855 / 0.784   state_flux 0.762 / 0.708
 #   arch_io        0.871 / 0.958   arch_ipc      0.835 / 0.757
-# struct_branch is provisional: Java's branch rule counts every `?` and `:`, string literals included (JDBC `?`
-# placeholders, SQL `:host` variables) and a ternary twice; its floors are re-measured when that fix lands.
+# struct_branch re-measured after Java stopped counting a `?`/`:` inside a literal and a ternary twice (#4170):
+# it was 0.826 / 0.745 before.
 CONTRACT: dict[str, tuple[str, float, float]] = {
     "function_count": ("functions", 0.85, 0.80),
-    "struct_branch": ("branch", 0.70, 0.60),
+    "struct_branch": ("branch", 0.75, 0.65),
     "state_flux": ("state_mutation", 0.65, 0.55),
     "arch_io": ("io", 0.75, 0.80),
     "arch_ipc": ("ipc_rpc_bridges", 0.70, 0.60),

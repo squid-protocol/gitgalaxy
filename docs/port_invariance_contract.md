@@ -17,14 +17,15 @@ above the floor. Measured 2026-10-02 with the scanner after #4163 and #4164:
 | Reading (file_data) | Extraction key | ρ, 49 pairs | Floor | ρ, 12 committed pairs | Floor |
 |---|---|---|---|---|---|
 | `function_count` (paragraphs, methods) | `functions` | 0.937 | 0.85 | 0.912 | 0.80 |
-| `struct_branch` | `branch` | 0.826 | 0.70 | 0.745 | 0.60 |
+| `struct_branch` | `branch` | 0.855 | 0.75 | 0.784 | 0.65 |
 | `state_flux` | `state_mutation` | 0.762 | 0.65 | 0.708 | 0.55 |
 | `arch_io` | `io` | 0.871 | 0.75 | 0.958 | 0.80 |
 | `arch_ipc` | `ipc_rpc_bridges` | 0.835 | 0.70 | 0.757 | 0.60 |
 
-The `struct_branch` row is provisional: Java's branch rule counts every `?` and `:`, including ones inside
-string literals (JDBC `?` placeholders, SQL `:host` variables), and counts a ternary twice. A fix is in progress,
-and the row is re-measured when it lands.
+The `struct_branch` row was re-measured after Java's branch rule stopped counting a `?` or `:` inside a string
+literal (JDBC `?` placeholders, SQL `:host` variables) and a ternary twice (#4170; branch_rule_contract.md,
+"Literals"). Before that fix it read 0.826 on the 49 pairs and 0.745 on the 12; the other four readings did not
+move.
 
 Each floor is the measurement less a margin of 0.08 to 0.15. On 12 pairs one pair changing places moves ρ by
 about 0.05 to 0.1. Every fixture floor is above 0.50, the one-sided p < 0.05 critical value for 12 pairs, so a

@@ -191,10 +191,15 @@ CardDemo, CBSA and GenApp (2026-10-02) the port keeps a fixed overhead plus a sl
 | | batch | CICS | proven ports, port / prediction | warning band |
 |---|---|---|---|---|
 | methods | 11.4 + 1.12 × paragraphs | 20.8 + 1.13 × paragraphs | 0.88 .. 1.21 | outside 0.6 .. 1.6 |
-| branch points | 15.0 + 1.62 × branches | 70.8 + 2.77 × branches | 0.70 .. 1.76 | outside 0.5 .. 2.5 |
+| branch points | 12.6 + 1.30 × branches | 51.8 + 2.33 × branches | 0.73 .. 1.58 | outside 0.5 .. 2.5 |
 
-The fixed overhead is why a small program reads as a huge ratio of raw counts (ABNDPROC: 1 branch in COBOL, 73 in
-Java): response checks, abend paths and storage setup every port carries. Against the fit it sits at ×0.99.
+The fixed overhead is why a small program reads as a huge ratio of raw counts (ABNDPROC: 1 branch in COBOL, 47 in
+Java): response checks, abend paths and storage setup every port carries. Against the fit it sits at ×0.87.
+
+The branch row was refit when Java's `branch` rule stopped counting a `?` or `:` inside a string literal and a
+ternary twice (branch_rule_contract.md, "Literals"; issue #4170). Same 49 programs, same Theil-Sen method: the
+det ports' median branch count fell from 159 to 127, CICS's overhead from 70.8 to 51.8 and its slope from 2.77 to
+2.33, batch's from 15.0 + 1.62 to 12.6 + 1.30. The methods row did not move.
 None of the 49 warns. A warning (`det_port.py run` and `check` print it; `summary.json` / `check.json` carry
 `parity_warnings`) says a translation dropped or duplicated paragraphs or expanded a construct far beyond the
 estate's norm. It is a place to look, never a failed proof or an exit code. When the emitter's shape moves on

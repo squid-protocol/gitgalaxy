@@ -1,0 +1,108 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGACDB01",
+ "program_source": "base/src/lgacdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGACVS01",
+   "program_source": "base/src/lgacvs01.cbl"
+  },
+  {
+   "program": "LGACDB02",
+   "program_source": "base/src/lgacdb02.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER",
+   "GENASA1.CUSTOMER_SECURE"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgacus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "add-with-counter",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000011
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Ada       Lovelace            1815-12-10Ockham Park         12  KT246HP 00007700900123         01483222111         ada@analytical.example                                                                              "
+   },
+   "why": "GET COUNTER GENA/GENACUSTNUM: NORMAL, 1000011 (the counter is then 1000012); INSERT CUSTOMER with that number; LINK LGACVS01 writes the VSAM copy; LINK LGACDB02 adds the CUSTOMER_SECURE row; CA-CUSTOMER-NUM 1000011, '00'"
+  },
+  {
+   "name": "add-without-counter",
+   "counters": {},
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Charles   Babbage             1791-12-26Dorset Street       1   W1U6QN  000                                        cb@engine.example                                                                                   "
+   },
+   "why": "no named counter (NOTFND): INSERT with DEFAULT, the identity gives 1000001 (START WITH, restarted each run), SET :H = IDENTITY_VAL_LOCAL() reads it back on the INSERT's own connection"
+  },
+  {
+   "name": "add-blank-optional-fields",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000020
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Grace     Hopper              1906-12-09                                000                                                                                                                                            "
+   },
+   "why": "blank house name / number / phones / email stored as blanks (CHAR), not NULL"
+  },
+  {
+   "name": "add-long-email",
+   "counters": {
+    "GENA/GENACUSTNUM": 1000030
+   },
+   "commarea": {
+    "CA-REQUEST-ID": "01ACUS",
+    "CA-CUSTOMER-NUM": "0",
+    "CA-REQUEST-SPECIFIC": "Alan      Turing              1912-06-23Hollymeade          43  SK94AQ  00007000000000         01625000000         aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+   },
+   "why": "a 100-byte email fills EMAILADDRESS CHAR(100)"
+  }
+ ],
+ "notes": "GenApp's add-customer service (LGACDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGACUS01's record): the customer number is the named counter GENACUSTNUM in pool GENA (GET COUNTER), else Db2's identity (INSERT ... DEFAULT, then SET :H = IDENTITY_VAL_LOCAL()); the CUSTOMER row is INSERTed, LGACVS01 is LINKed to write the VSAM copy and LGACDB02 to add the CUSTOMER_SECURE row (default password). The case runs LGACVS01 and LGACDB02 in the same task; each scenario says which named counters the region has. Its error paths LINK LGSTSQ (oracle_assumptions.md X6): not here."
+}

@@ -192,8 +192,9 @@ def _norm(sql: str) -> str:
 
 
 class Precompiler:
-    def __init__(self, program: Program):
+    def __init__(self, program: Program, first_id: int = 1):
         self.p = program
+        self.first_id = first_id  # several programs in one task share one table: each its own range of ids
         self.statements: list[Statement] = []
         self.cursors: dict[str, str] = {}  # name -> its SELECT (host variables still named)
 
@@ -235,7 +236,7 @@ class Precompiler:
         u = text.upper()
         verb = u.split()[0] if u else ""
         args: list[str] = []
-        sid = len(self.statements) + 1
+        sid = self.first_id + len(self.statements)
         if re.match(r"DECLARE\s+\S+\s+TABLE\b", u):
             return None
         cur = re.match(r"DECLARE\s+([A-Z0-9_-]+)\s+(?:(?:SENSITIVE|INSENSITIVE|ASENSITIVE)\s+)?(?:SCROLL\s+)?CURSOR\s+"
@@ -340,12 +341,12 @@ def _assignments(text: str) -> tuple[list[str], list[str]]:
     return targets, values
 
 
-def precompile(source: str, dirs: list[Path], path: Path) -> tuple[str, str]:
-    """(the program with its EXEC SQL replaced, the statement table)."""
+def precompile(source: str, dirs: list[Path], path: Path, first_id: int = 1) -> tuple[str, str]:
+    """(the program with its EXEC SQL replaced, the statement table); its statements numbered from `first_id`."""
     lines = expand_includes(source.split("\n"), dirs)
     # the reader takes code areas (columns 8-72): a sequence number in columns 1-6 (COTRTLIC's) is no level number
     pre = Precompiler(Program(_items([_area(ln).upper() for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
-                                     path)))  # fmt: skip
+                                     path)), first_id)  # fmt: skip
     out: list[str] = []
     in_procedure = False
     i = 0

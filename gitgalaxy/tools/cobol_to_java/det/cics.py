@@ -457,8 +457,19 @@ class Cics:
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         verb = " ".join(words)
+        if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
+            bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
+            if bad or not opts.get("VALUE"):
+                raise CicsError(f"GET COUNTER {' '.join(bad) or 'without VALUE'}")
+            v = self.g.tmpname("counter")
+            pool = self.name(_arg(opts["POOL"])) if opts.get("POOL") else '""'
+            return [f"{ind}Long {v} = task.getCounter({pool}, {self.name(_arg(opts['COUNTER']))});",
+                    f"{ind}if ({v} != null) {{",
+                    ind + "    " + self.g.store_into(self.ref(_arg(opts["VALUE"])), f"BigDecimal.valueOf({v})", False),
+                    f"{ind}}}",
+                    *self.outcome(opts, f"({v} == null ? 13 : 0)", "0", ind)]  # fmt: skip
         if "COUNTER" in opts or "DCOUNTER" in opts:
-            # named counters (DEFINE / GET / UPDATE / DELETE COUNTER): neither this runtime nor the harness models them
+            # the other named-counter commands (DEFINE / UPDATE / DELETE COUNTER, DCOUNTER): not modelled
             raise CicsError(f"{verb} COUNTER: named counters are not modelled")
         g = self.g
         if verb == "SEND" and "MAP" in opts:

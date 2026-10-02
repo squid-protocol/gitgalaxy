@@ -523,6 +523,26 @@ public class CicsTask {
         return link(program, null, 0);
     }
 
+    private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)
+
+    /** The region's named counters, "POOL/NAME" -> the value the next GET COUNTER returns. */
+    public CicsTask withCounters(java.util.Map<String, Long> counters) {
+        this.counters = counters;
+        return this;
+    }
+
+    /** GET COUNTER (IBM CICS TS): the named counter's current value, after which it is one more; null (NOTFND)
+     *  for a counter the region does not have. */
+    public Long getCounter(String pool, String name) {
+        java.util.Map<String, Long> all = root().counters;
+        String key = (pool == null ? "" : pool.strip()) + "/" + (name == null ? "" : name.strip());
+        Long v = all.get(key);
+        if (v != null) {
+            all.put(key, v + 1);
+        }
+        return v;
+    }
+
     /** ASSIGN INVOKINGPROG: the program that LINKed or XCTLed to this one (IBM CICS TS, ASSIGN), 8 characters;
      *  blanks for a task's first program. */
     public String invokingProgram() {
@@ -707,7 +727,7 @@ public class CicsTask {
     }
 
     private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00ff');
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
     }
 
     /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`

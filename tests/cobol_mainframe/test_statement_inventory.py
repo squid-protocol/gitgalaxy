@@ -1,6 +1,8 @@
 """statement_inventory: statements split at verbs (literals and EXEC blocks whole, conditional phrases not statements,
 procedure copybooks expanded) and bucketed by what translating them needs."""
 
+from __future__ import annotations  # `dict | None` in a signature, on Python 3.9
+
 import sys
 from pathlib import Path
 

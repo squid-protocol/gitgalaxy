@@ -384,7 +384,7 @@ NULL is distinct.
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
   and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
   +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
-- **Proven: all three of CardDemo's Db2 programs, two of CBSA's and five of GenApp's**, translated with no model.
+- **Proven: all three of CardDemo's Db2 programs, two of CBSA's and all eight of GenApp's**, translated with no model.
 
   | case | program | scenarios | paragraphs | branches | translated |
   |---|---|---|---|---|---|
@@ -398,6 +398,9 @@ NULL is distinct.
   | `genapp-lgacdb02` | GenApp LGACDB02, add customer password | 8 | 2/3 | 4/10 | 39/39 |
   | `genapp-lgdpdb01` | GenApp LGDPDB01 + LGDPVS01, delete policy (cascade) | 8 | 2/3 | 5/12 | 73/73 |
   | `genapp-lgupdb01` | GenApp LGUPDB01 + LGUPVS01, update policy (positioned UPDATE) | 5 | 8/9 | 17/38 | 171/171 |
+  | `genapp-lgacdb01` | GenApp LGACDB01 + LGACVS01 + LGACDB02, add customer (named counter or identity) | 4 | 3/4 | 6/14 | 125/125 |
+  | `genapp-lgapdb01` | GenApp LGAPDB01 + LGAPVS01, add policy (identity, clock fields) | 4 | 5/7 | 13/31 | 171/171 |
+  | `genapp-lgucdb01` | GenApp LGUCDB01 + LGUCVS01, update customer | 4 | 3/4 | 2/10 | 71/71 |
 
   - COBTUPDT matches on RETURN-CODE 4, the table's 9/9 rows and SYSOUT's 32/32 lines. Its case covers a duplicate
     key (-803), +100 updates and deletes, and a 50-character description: a `PIC X(50)` host variable keeps its

@@ -12,31 +12,31 @@
         <meta name="author" content="Joseph Michael Esquibel">
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/agents/cpm65_agents/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/05-18-cobol-java-scan-parity/">
       
       
-        <link rel="prev" href="../cosmopolitan_agents/">
+        <link rel="prev" href="../05-17-system-limits-reporter/">
       
       
-        <link rel="next" href="../darwin-xnu_agents/">
+        <link rel="next" href="../06-01-gitgalaxy-config/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>cpm65 - GitGalaxy</title>
+        <title>COBOL ↔ Java Scan Parity - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +55,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentsmd-cpm65-architectural-context-engagement-rules" class="md-skip">
+        <a href="#cobol-java-scan-parity" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              cpm65
+              COBOL ↔ Java Scan Parity
             
           </span>
         </div>
@@ -218,7 +218,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -239,7 +239,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../cookbook/continuous-delta-monitoring/" class="md-tabs__link">
+        <a href="../cookbook/continuous-delta-monitoring/" class="md-tabs__link">
           
   
   
@@ -261,7 +261,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../museum-of-code/" class="md-tabs__link">
+        <a href="../museum-of-code/" class="md-tabs__link">
           
   
   
@@ -279,13 +279,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../agents/" class="md-tabs__link">
           
   
   
@@ -303,6 +301,8 @@
   
   
   
+    
+  
   
     
     
@@ -310,11 +310,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../01-01-project-overview/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-01-project-overview/" class="md-tabs__link">
           
   
   
@@ -355,7 +357,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -412,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -547,7 +549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/continuous-delta-monitoring/" class="md-nav__link">
+      <a href="../cookbook/continuous-delta-monitoring/" class="md-nav__link">
         
   
   
@@ -575,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/generate-llm-architecture-briefs/" class="md-nav__link">
+      <a href="../cookbook/generate-llm-architecture-briefs/" class="md-nav__link">
         
   
   
@@ -603,7 +605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/generate-zero-trust-sbom/" class="md-nav__link">
+      <a href="../cookbook/generate-zero-trust-sbom/" class="md-nav__link">
         
   
   
@@ -631,7 +633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/prevent-agentic-rce/" class="md-nav__link">
+      <a href="../cookbook/prevent-agentic-rce/" class="md-nav__link">
         
   
   
@@ -659,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/sandbox-autonomous-agents/" class="md-nav__link">
+      <a href="../cookbook/sandbox-autonomous-agents/" class="md-nav__link">
         
   
   
@@ -687,7 +689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/hunt-pii-leaks/" class="md-nav__link">
+      <a href="../cookbook/hunt-pii-leaks/" class="md-nav__link">
         
   
   
@@ -715,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/prove-dead-code-logs/" class="md-nav__link">
+      <a href="../cookbook/prove-dead-code-logs/" class="md-nav__link">
         
   
   
@@ -743,7 +745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/hunt-shadow-apis/" class="md-nav__link">
+      <a href="../cookbook/hunt-shadow-apis/" class="md-nav__link">
         
   
   
@@ -771,7 +773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/deploy-vault-sentinel/" class="md-nav__link">
+      <a href="../cookbook/deploy-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -799,7 +801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -827,7 +829,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/detect-binary-anomalies/" class="md-nav__link">
+      <a href="../cookbook/detect-binary-anomalies/" class="md-nav__link">
         
   
   
@@ -855,7 +857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/audit-local-ai-models/" class="md-nav__link">
+      <a href="../cookbook/audit-local-ai-models/" class="md-nav__link">
         
   
   
@@ -883,7 +885,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/detect-architectural-drift/" class="md-nav__link">
+      <a href="../cookbook/detect-architectural-drift/" class="md-nav__link">
         
   
   
@@ -911,7 +913,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/map-cobol-monoliths/" class="md-nav__link">
+      <a href="../cookbook/map-cobol-monoliths/" class="md-nav__link">
         
   
   
@@ -939,7 +941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/scaffold-spring-boot/" class="md-nav__link">
+      <a href="../cookbook/scaffold-spring-boot/" class="md-nav__link">
         
   
   
@@ -967,7 +969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/Cross-Cultural-M%26A-Technical-Due-Diligence/" class="md-nav__link">
+      <a href="../cookbook/Cross-Cultural-M%26A-Technical-Due-Diligence/" class="md-nav__link">
         
   
   
@@ -995,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-microservice-slicing/" class="md-nav__link">
+      <a href="../cookbook/cobol-microservice-slicing/" class="md-nav__link">
         
   
   
@@ -1023,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-automated-spring-boot-build-system/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-automated-spring-boot-build-system/" class="md-nav__link">
         
   
   
@@ -1051,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-mainframe-data-serialization-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-mainframe-data-serialization-forge/" class="md-nav__link">
         
   
   
@@ -1079,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-REST-API-generation/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-REST-API-generation/" class="md-nav__link">
         
   
   
@@ -1107,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-spring-boot-entity-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-spring-boot-entity-forge/" class="md-nav__link">
         
   
   
@@ -1135,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-spring-boot-service-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-spring-boot-service-forge/" class="md-nav__link">
         
   
   
@@ -1163,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-dag-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-dag-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1191,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-jcl-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-jcl-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1219,7 +1221,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-schema-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-schema-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1247,7 +1249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/identifying-dead-code-in-cobol/" class="md-nav__link">
+      <a href="../cookbook/identifying-dead-code-in-cobol/" class="md-nav__link">
         
   
   
@@ -1275,7 +1277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/unpacking-etl-from-cbl-files/" class="md-nav__link">
+      <a href="../cookbook/unpacking-etl-from-cbl-files/" class="md-nav__link">
         
   
   
@@ -1333,7 +1335,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../museum-of-code/" class="md-nav__link ">
+            <a href="../museum-of-code/" class="md-nav__link ">
               
   
   
@@ -1376,8 +1378,6 @@
       
   
   
-    
-  
   
   
     
@@ -1417,23 +1417,20 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../agents/" class="md-nav__link ">
               
   
   
@@ -1451,13 +1448,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1505,20 +1502,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
             
   
   
@@ -1554,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../django_agents/" class="md-nav__link">
+      <a href="../agents/django_agents/" class="md-nav__link">
         
   
   
@@ -1582,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../flask_agents/" class="md-nav__link">
+      <a href="../agents/flask_agents/" class="md-nav__link">
         
   
   
@@ -1610,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kubernetes_agents/" class="md-nav__link">
+      <a href="../agents/kubernetes_agents/" class="md-nav__link">
         
   
   
@@ -1638,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../linux_agents/" class="md-nav__link">
+      <a href="../agents/linux_agents/" class="md-nav__link">
         
   
   
@@ -1666,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Python_agents/" class="md-nav__link">
+      <a href="../agents/Python_agents/" class="md-nav__link">
         
   
   
@@ -1694,7 +1688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../react_agents/" class="md-nav__link">
+      <a href="../agents/react_agents/" class="md-nav__link">
         
   
   
@@ -1722,7 +1716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rust_agents/" class="md-nav__link">
+      <a href="../agents/rust_agents/" class="md-nav__link">
         
   
   
@@ -1750,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tensorflow_agents/" class="md-nav__link">
+      <a href="../agents/tensorflow_agents/" class="md-nav__link">
         
   
   
@@ -1778,7 +1772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../TypeScript_agents/" class="md-nav__link">
+      <a href="../agents/TypeScript_agents/" class="md-nav__link">
         
   
   
@@ -1806,7 +1800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vscode_agents/" class="md-nav__link">
+      <a href="../agents/vscode_agents/" class="md-nav__link">
         
   
   
@@ -1839,10 +1833,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -1869,21 +1861,18 @@
     
       
       
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
             
   
   
@@ -1901,7 +1890,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1919,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BareMetal-OS_agents/" class="md-nav__link">
+      <a href="../agents/BareMetal-OS_agents/" class="md-nav__link">
         
   
   
@@ -1947,7 +1936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootloader_agents/" class="md-nav__link">
+      <a href="../agents/bootloader_agents/" class="md-nav__link">
         
   
   
@@ -1975,7 +1964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootOS_agents/" class="md-nav__link">
+      <a href="../agents/bootOS_agents/" class="md-nav__link">
         
   
   
@@ -2003,7 +1992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ChrysaLisp_agents/" class="md-nav__link">
+      <a href="../agents/ChrysaLisp_agents/" class="md-nav__link">
         
   
   
@@ -2031,7 +2020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cosmopolitan_agents/" class="md-nav__link">
+      <a href="../agents/cosmopolitan_agents/" class="md-nav__link">
         
   
   
@@ -2056,37 +2045,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    cpm65
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../agents/cpm65_agents/" class="md-nav__link">
         
   
   
@@ -2102,81 +2064,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-system-context-paradigm" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. System Context &amp; Paradigm
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-architectural-guardrails-dos-and-donts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Architectural Guardrails (Do's and Don'ts)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-restricted-zones-the-god-nodes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Restricted Zones (The God Nodes)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-threat-security-boundaries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Threat &amp; Security Boundaries
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-environmental-tooling-the-oracle" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Environmental Tooling (The Oracle)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2189,7 +2076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../darwin-xnu_agents/" class="md-nav__link">
+      <a href="../agents/darwin-xnu_agents/" class="md-nav__link">
         
   
   
@@ -2217,7 +2104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../freebsd-src_agents/" class="md-nav__link">
+      <a href="../agents/freebsd-src_agents/" class="md-nav__link">
         
   
   
@@ -2245,7 +2132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../x86-bare-metal-examples_agents/" class="md-nav__link">
+      <a href="../agents/x86-bare-metal-examples_agents/" class="md-nav__link">
         
   
   
@@ -2323,20 +2210,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
             
   
   
@@ -2372,7 +2256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../asm_agents/" class="md-nav__link">
+      <a href="../agents/asm_agents/" class="md-nav__link">
         
   
   
@@ -2400,7 +2284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../assemblyscript_agents/" class="md-nav__link">
+      <a href="../agents/assemblyscript_agents/" class="md-nav__link">
         
   
   
@@ -2428,7 +2312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../berry_agents/" class="md-nav__link">
+      <a href="../agents/berry_agents/" class="md-nav__link">
         
   
   
@@ -2456,7 +2340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bog_agents/" class="md-nav__link">
+      <a href="../agents/bog_agents/" class="md-nav__link">
         
   
   
@@ -2484,7 +2368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bun_agents/" class="md-nav__link">
+      <a href="../agents/bun_agents/" class="md-nav__link">
         
   
   
@@ -2512,7 +2396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../capy_agents/" class="md-nav__link">
+      <a href="../agents/capy_agents/" class="md-nav__link">
         
   
   
@@ -2540,7 +2424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Carbon_agents/" class="md-nav__link">
+      <a href="../agents/Carbon_agents/" class="md-nav__link">
         
   
   
@@ -2568,7 +2452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cpython_agents/" class="md-nav__link">
+      <a href="../agents/cpython_agents/" class="md-nav__link">
         
   
   
@@ -2596,7 +2480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cyber_agents/" class="md-nav__link">
+      <a href="../agents/cyber_agents/" class="md-nav__link">
         
   
   
@@ -2624,7 +2508,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cython_agents/" class="md-nav__link">
+      <a href="../agents/cython_agents/" class="md-nav__link">
         
   
   
@@ -2652,7 +2536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deno_agents/" class="md-nav__link">
+      <a href="../agents/deno_agents/" class="md-nav__link">
         
   
   
@@ -2680,7 +2564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../go_agents/" class="md-nav__link">
+      <a href="../agents/go_agents/" class="md-nav__link">
         
   
   
@@ -2708,7 +2592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../kotlin_agents/" class="md-nav__link">
+      <a href="../agents/kotlin_agents/" class="md-nav__link">
         
   
   
@@ -2736,7 +2620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../livecode_agents/" class="md-nav__link">
+      <a href="../agents/livecode_agents/" class="md-nav__link">
         
   
   
@@ -2764,7 +2648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../roslyn_agents/" class="md-nav__link">
+      <a href="../agents/roslyn_agents/" class="md-nav__link">
         
   
   
@@ -2792,7 +2676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../wasmtime_agents/" class="md-nav__link">
+      <a href="../agents/wasmtime_agents/" class="md-nav__link">
         
   
   
@@ -2820,7 +2704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../zig_agents/" class="md-nav__link">
+      <a href="../agents/zig_agents/" class="md-nav__link">
         
   
   
@@ -2890,20 +2774,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
             
   
   
@@ -2939,7 +2820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../actix-web_agents/" class="md-nav__link">
+      <a href="../agents/actix-web_agents/" class="md-nav__link">
         
   
   
@@ -2967,7 +2848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../angular_agents/" class="md-nav__link">
+      <a href="../agents/angular_agents/" class="md-nav__link">
         
   
   
@@ -2995,7 +2876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ant-design_agents/" class="md-nav__link">
+      <a href="../agents/ant-design_agents/" class="md-nav__link">
         
   
   
@@ -3023,7 +2904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootstrap_agents/" class="md-nav__link">
+      <a href="../agents/bootstrap_agents/" class="md-nav__link">
         
   
   
@@ -3051,7 +2932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cakephp_agents/" class="md-nav__link">
+      <a href="../agents/cakephp_agents/" class="md-nav__link">
         
   
   
@@ -3079,7 +2960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CodeIgniter_agents/" class="md-nav__link">
+      <a href="../agents/CodeIgniter_agents/" class="md-nav__link">
         
   
   
@@ -3107,7 +2988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Dancer2_agents/" class="md-nav__link">
+      <a href="../agents/Dancer2_agents/" class="md-nav__link">
         
   
   
@@ -3135,7 +3016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fastapi_agents/" class="md-nav__link">
+      <a href="../agents/fastapi_agents/" class="md-nav__link">
         
   
   
@@ -3163,7 +3044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../laravel_agents/" class="md-nav__link">
+      <a href="../agents/laravel_agents/" class="md-nav__link">
         
   
   
@@ -3191,7 +3072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rails_agents/" class="md-nav__link">
+      <a href="../agents/rails_agents/" class="md-nav__link">
         
   
   
@@ -3219,7 +3100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../symfony_agents/" class="md-nav__link">
+      <a href="../agents/symfony_agents/" class="md-nav__link">
         
   
   
@@ -3247,7 +3128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../tailwindcss_agents/" class="md-nav__link">
+      <a href="../agents/tailwindcss_agents/" class="md-nav__link">
         
   
   
@@ -3275,7 +3156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../trpc_agents/" class="md-nav__link">
+      <a href="../agents/trpc_agents/" class="md-nav__link">
         
   
   
@@ -3335,20 +3216,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
         
           
-          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
             
   
   
@@ -3384,7 +3262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airflow_agents/" class="md-nav__link">
+      <a href="../agents/airflow_agents/" class="md-nav__link">
         
   
   
@@ -3412,7 +3290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../alphafold_2018_agents/" class="md-nav__link">
+      <a href="../agents/alphafold_2018_agents/" class="md-nav__link">
         
   
   
@@ -3440,7 +3318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../biopython_agents/" class="md-nav__link">
+      <a href="../agents/biopython_agents/" class="md-nav__link">
         
   
   
@@ -3468,7 +3346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../blast_agents/" class="md-nav__link">
+      <a href="../agents/blast_agents/" class="md-nav__link">
         
   
   
@@ -3496,7 +3374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Chart.js_agents/" class="md-nav__link">
+      <a href="../agents/Chart.js_agents/" class="md-nav__link">
         
   
   
@@ -3524,7 +3402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cytoscape.js_agents/" class="md-nav__link">
+      <a href="../agents/cytoscape.js_agents/" class="md-nav__link">
         
   
   
@@ -3552,7 +3430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../d3_agents/" class="md-nav__link">
+      <a href="../agents/d3_agents/" class="md-nav__link">
         
   
   
@@ -3580,7 +3458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../eeglab_agents/" class="md-nav__link">
+      <a href="../agents/eeglab_agents/" class="md-nav__link">
         
   
   
@@ -3644,20 +3522,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" >
         
           
-          <label class="md-nav__link" for="__nav_5_7" id="__nav_5_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
             
   
   
@@ -3693,7 +3568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abap2xlsx_agents/" class="md-nav__link">
+      <a href="../agents/abap2xlsx_agents/" class="md-nav__link">
         
   
   
@@ -3721,7 +3596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abap-cleaner_agents/" class="md-nav__link">
+      <a href="../agents/abap-cleaner_agents/" class="md-nav__link">
         
   
   
@@ -3749,7 +3624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abapGit_agents/" class="md-nav__link">
+      <a href="../agents/abapGit_agents/" class="md-nav__link">
         
   
   
@@ -3777,7 +3652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../awesome-cobol_agents/" class="md-nav__link">
+      <a href="../agents/awesome-cobol_agents/" class="md-nav__link">
         
   
   
@@ -3805,7 +3680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cash-account-cobol_agents/" class="md-nav__link">
+      <a href="../agents/cash-account-cobol_agents/" class="md-nav__link">
         
   
   
@@ -3833,7 +3708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cics-banking-sample-application-cbsa_agents/" class="md-nav__link">
+      <a href="../agents/cics-banking-sample-application-cbsa_agents/" class="md-nav__link">
         
   
   
@@ -3861,7 +3736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cobrix_agents/" class="md-nav__link">
+      <a href="../agents/cobrix_agents/" class="md-nav__link">
         
   
   
@@ -3889,7 +3764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fineract_agents/" class="md-nav__link">
+      <a href="../agents/fineract_agents/" class="md-nav__link">
         
   
   
@@ -3917,7 +3792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../gnucobol_agents/" class="md-nav__link">
+      <a href="../agents/gnucobol_agents/" class="md-nav__link">
         
   
   
@@ -3945,7 +3820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../vscode_cobol_agents/" class="md-nav__link">
+      <a href="../agents/vscode_cobol_agents/" class="md-nav__link">
         
   
   
@@ -4023,20 +3898,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
         
           
-          <label class="md-nav__link" for="__nav_5_8" id="__nav_5_8_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
             
   
   
@@ -4072,7 +3944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ack3_agents/" class="md-nav__link">
+      <a href="../agents/ack3_agents/" class="md-nav__link">
         
   
   
@@ -4100,7 +3972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../alacritty_agents/" class="md-nav__link">
+      <a href="../agents/alacritty_agents/" class="md-nav__link">
         
   
   
@@ -4128,7 +4000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ansible_agents/" class="md-nav__link">
+      <a href="../agents/ansible_agents/" class="md-nav__link">
         
   
   
@@ -4156,7 +4028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../black_agents/" class="md-nav__link">
+      <a href="../agents/black_agents/" class="md-nav__link">
         
   
   
@@ -4184,7 +4056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../brew_agents/" class="md-nav__link">
+      <a href="../agents/brew_agents/" class="md-nav__link">
         
   
   
@@ -4212,7 +4084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cargo_agents/" class="md-nav__link">
+      <a href="../agents/cargo_agents/" class="md-nav__link">
         
   
   
@@ -4240,7 +4112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../curl_agents/" class="md-nav__link">
+      <a href="../agents/curl_agents/" class="md-nav__link">
         
   
   
@@ -4268,7 +4140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cypress_agents/" class="md-nav__link">
+      <a href="../agents/cypress_agents/" class="md-nav__link">
         
   
   
@@ -4296,7 +4168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../desktop_agents/" class="md-nav__link">
+      <a href="../agents/desktop_agents/" class="md-nav__link">
         
   
   
@@ -4324,7 +4196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../diff-so-fancy_agents/" class="md-nav__link">
+      <a href="../agents/diff-so-fancy_agents/" class="md-nav__link">
         
   
   
@@ -4352,7 +4224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker-py_agents/" class="md-nav__link">
+      <a href="../agents/docker-py_agents/" class="md-nav__link">
         
   
   
@@ -4380,7 +4252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../elasticsearch_agents/" class="md-nav__link">
+      <a href="../agents/elasticsearch_agents/" class="md-nav__link">
         
   
   
@@ -4408,7 +4280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../exiftool_agents/" class="md-nav__link">
+      <a href="../agents/exiftool_agents/" class="md-nav__link">
         
   
   
@@ -4436,7 +4308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ghostty_agents/" class="md-nav__link">
+      <a href="../agents/ghostty_agents/" class="md-nav__link">
         
   
   
@@ -4464,7 +4336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../gradle_agents/" class="md-nav__link">
+      <a href="../agents/gradle_agents/" class="md-nav__link">
         
   
   
@@ -4492,7 +4364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../jenkins_agents/" class="md-nav__link">
+      <a href="../agents/jenkins_agents/" class="md-nav__link">
         
   
   
@@ -4520,7 +4392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../sqlite_agents/" class="md-nav__link">
+      <a href="../agents/sqlite_agents/" class="md-nav__link">
         
   
   
@@ -4576,20 +4448,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
         
           
-          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
             
   
   
@@ -4625,7 +4494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Babylon.js_agents/" class="md-nav__link">
+      <a href="../agents/Babylon.js_agents/" class="md-nav__link">
         
   
   
@@ -4653,7 +4522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bevy_agents/" class="md-nav__link">
+      <a href="../agents/bevy_agents/" class="md-nav__link">
         
   
   
@@ -4681,7 +4550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cesium_agents/" class="md-nav__link">
+      <a href="../agents/cesium_agents/" class="md-nav__link">
         
   
   
@@ -4709,7 +4578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../DOOM_agents/" class="md-nav__link">
+      <a href="../agents/DOOM_agents/" class="md-nav__link">
         
   
   
@@ -4737,7 +4606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../godot_agents/" class="md-nav__link">
+      <a href="../agents/godot_agents/" class="md-nav__link">
         
   
   
@@ -4765,7 +4634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../three.js_agents/" class="md-nav__link">
+      <a href="../agents/three.js_agents/" class="md-nav__link">
         
   
   
@@ -4823,20 +4692,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10" >
         
           
-          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
             
   
   
@@ -4872,7 +4738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Adafruit_CircuitPython_Bundle_agents/" class="md-nav__link">
+      <a href="../agents/Adafruit_CircuitPython_Bundle_agents/" class="md-nav__link">
         
   
   
@@ -4900,7 +4766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AFNetworking_agents/" class="md-nav__link">
+      <a href="../agents/AFNetworking_agents/" class="md-nav__link">
         
   
   
@@ -4928,7 +4794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Alamofire_agents/" class="md-nav__link">
+      <a href="../agents/Alamofire_agents/" class="md-nav__link">
         
   
   
@@ -4956,7 +4822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../catalyst-runtime_agents/" class="md-nav__link">
+      <a href="../agents/catalyst-runtime_agents/" class="md-nav__link">
         
   
   
@@ -4984,7 +4850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../circuitpython_agents/" class="md-nav__link">
+      <a href="../agents/circuitpython_agents/" class="md-nav__link">
         
   
   
@@ -5012,7 +4878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../flutter_agents/" class="md-nav__link">
+      <a href="../agents/flutter_agents/" class="md-nav__link">
         
   
   
@@ -5040,7 +4906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../micropython_agents/" class="md-nav__link">
+      <a href="../agents/micropython_agents/" class="md-nav__link">
         
   
   
@@ -5100,20 +4966,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
         
           
-          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
             
   
   
@@ -5149,7 +5012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../apex-recipes_agents/" class="md-nav__link">
+      <a href="../agents/apex-recipes_agents/" class="md-nav__link">
         
   
   
@@ -5177,7 +5040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AppFlowy_agents/" class="md-nav__link">
+      <a href="../agents/AppFlowy_agents/" class="md-nav__link">
         
   
   
@@ -5205,7 +5068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bugzilla_agents/" class="md-nav__link">
+      <a href="../agents/bugzilla_agents/" class="md-nav__link">
         
   
   
@@ -5233,7 +5096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../canvas-lms_agents/" class="md-nav__link">
+      <a href="../agents/canvas-lms_agents/" class="md-nav__link">
         
   
   
@@ -5261,7 +5124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../discourse_agents/" class="md-nav__link">
+      <a href="../agents/discourse_agents/" class="md-nav__link">
         
   
   
@@ -5289,7 +5152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../jellyfin_agents/" class="md-nav__link">
+      <a href="../agents/jellyfin_agents/" class="md-nav__link">
         
   
   
@@ -5317,7 +5180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../mediawiki_agents/" class="md-nav__link">
+      <a href="../agents/mediawiki_agents/" class="md-nav__link">
         
   
   
@@ -5345,7 +5208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../WordPress_agents/" class="md-nav__link">
+      <a href="../agents/WordPress_agents/" class="md-nav__link">
         
   
   
@@ -5403,20 +5266,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
         
           
-          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
             
   
   
@@ -5452,7 +5312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../angr_agents/" class="md-nav__link">
+      <a href="../agents/angr_agents/" class="md-nav__link">
         
   
   
@@ -5480,7 +5340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bitcoin-0.1.0_agents/" class="md-nav__link">
+      <a href="../agents/bitcoin-0.1.0_agents/" class="md-nav__link">
         
   
   
@@ -5508,7 +5368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../blst_agents/" class="md-nav__link">
+      <a href="../agents/blst_agents/" class="md-nav__link">
         
   
   
@@ -5536,7 +5396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../capstone_agents/" class="md-nav__link">
+      <a href="../agents/capstone_agents/" class="md-nav__link">
         
   
   
@@ -5564,7 +5424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../curve25519-dalek_agents/" class="md-nav__link">
+      <a href="../agents/curve25519-dalek_agents/" class="md-nav__link">
         
   
   
@@ -5592,7 +5452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../gnupg_agents/" class="md-nav__link">
+      <a href="../agents/gnupg_agents/" class="md-nav__link">
         
   
   
@@ -5620,7 +5480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../solana_agents/" class="md-nav__link">
+      <a href="../agents/solana_agents/" class="md-nav__link">
         
   
   
@@ -5676,20 +5536,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" >
         
           
-          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
             
   
   
@@ -5725,7 +5582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Apollo-11_agents/" class="md-nav__link">
+      <a href="../agents/Apollo-11_agents/" class="md-nav__link">
         
   
   
@@ -5753,7 +5610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../arktype_agents/" class="md-nav__link">
+      <a href="../agents/arktype_agents/" class="md-nav__link">
         
   
   
@@ -5781,7 +5638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../content_agents/" class="md-nav__link">
+      <a href="../agents/content_agents/" class="md-nav__link">
         
   
   
@@ -5809,7 +5666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../core_agents/" class="md-nav__link">
+      <a href="../agents/core_agents/" class="md-nav__link">
         
   
   
@@ -5837,7 +5694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../iwubi_agents/" class="md-nav__link">
+      <a href="../agents/iwubi_agents/" class="md-nav__link">
         
   
   
@@ -5865,7 +5722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../nvda_agents/" class="md-nav__link">
+      <a href="../agents/nvda_agents/" class="md-nav__link">
         
   
   
@@ -5937,13 +5794,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -5951,7 +5805,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../LLM-reports/" class="md-nav__link ">
+            <a href="../LLM-reports/" class="md-nav__link ">
               
   
   
@@ -5969,7 +5823,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_14" id="__nav_5_14_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -6053,7 +5907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/django_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/django_llm_report/" class="md-nav__link">
         
   
   
@@ -6081,7 +5935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/flask_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/flask_llm_report/" class="md-nav__link">
         
   
   
@@ -6181,7 +6035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/BareMetal-OS_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/BareMetal-OS_llm_report/" class="md-nav__link">
         
   
   
@@ -6209,7 +6063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cosmopolitan_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cosmopolitan_llm_report/" class="md-nav__link">
         
   
   
@@ -6237,7 +6091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cpm65_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cpm65_llm_report/" class="md-nav__link">
         
   
   
@@ -6265,7 +6119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/darwin-xnu_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/darwin-xnu_llm_report/" class="md-nav__link">
         
   
   
@@ -6293,7 +6147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/freebsd-src_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/freebsd-src_llm_report/" class="md-nav__link">
         
   
   
@@ -6399,7 +6253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/Carbon_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Carbon_llm_report/" class="md-nav__link">
         
   
   
@@ -6427,7 +6281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/assemblyscript_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/assemblyscript_llm_report/" class="md-nav__link">
         
   
   
@@ -6455,7 +6309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/berry_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/berry_llm_report/" class="md-nav__link">
         
   
   
@@ -6483,7 +6337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/bun_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bun_llm_report/" class="md-nav__link">
         
   
   
@@ -6511,7 +6365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cpython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cpython_llm_report/" class="md-nav__link">
         
   
   
@@ -6539,7 +6393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cyber_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cyber_llm_report/" class="md-nav__link">
         
   
   
@@ -6567,7 +6421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cython_llm_report/" class="md-nav__link">
         
   
   
@@ -6595,7 +6449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/fp-ts_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fp-ts_llm_report/" class="md-nav__link">
         
   
   
@@ -6693,7 +6547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/CodeIgniter_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/CodeIgniter_llm_report/" class="md-nav__link">
         
   
   
@@ -6721,7 +6575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/angular_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/angular_llm_report/" class="md-nav__link">
         
   
   
@@ -6749,7 +6603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/bootstrap_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bootstrap_llm_report/" class="md-nav__link">
         
   
   
@@ -6777,7 +6631,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/fastapi_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fastapi_llm_report/" class="md-nav__link">
         
   
   
@@ -6879,7 +6733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/Chart.js_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Chart.js_llm_report/" class="md-nav__link">
         
   
   
@@ -6907,7 +6761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/airflow_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/airflow_llm_report/" class="md-nav__link">
         
   
   
@@ -6935,7 +6789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/alphafold_2018_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/alphafold_2018_llm_report/" class="md-nav__link">
         
   
   
@@ -6963,7 +6817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/biopython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/biopython_llm_report/" class="md-nav__link">
         
   
   
@@ -6991,7 +6845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/blast_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/blast_llm_report/" class="md-nav__link">
         
   
   
@@ -7019,7 +6873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/fieldtrip_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fieldtrip_llm_report/" class="md-nav__link">
         
   
   
@@ -7119,7 +6973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/CICS-Cobol_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/CICS-Cobol_llm_report/" class="md-nav__link">
         
   
   
@@ -7147,7 +7001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/abap-cleaner_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/abap-cleaner_llm_report/" class="md-nav__link">
         
   
   
@@ -7175,7 +7029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/abap2xlsx_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/abap2xlsx_llm_report/" class="md-nav__link">
         
   
   
@@ -7203,7 +7057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cobrix_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cobrix_llm_report/" class="md-nav__link">
         
   
   
@@ -7231,7 +7085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/fineract_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fineract_llm_report/" class="md-nav__link">
         
   
   
@@ -7343,7 +7197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/ansible_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/ansible_llm_report/" class="md-nav__link">
         
   
   
@@ -7371,7 +7225,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/black_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/black_llm_report/" class="md-nav__link">
         
   
   
@@ -7399,7 +7253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/brew_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/brew_llm_report/" class="md-nav__link">
         
   
   
@@ -7427,7 +7281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cargo_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cargo_llm_report/" class="md-nav__link">
         
   
   
@@ -7455,7 +7309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cli_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cli_llm_report/" class="md-nav__link">
         
   
   
@@ -7483,7 +7337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/curl_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/curl_llm_report/" class="md-nav__link">
         
   
   
@@ -7511,7 +7365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cypress_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cypress_llm_report/" class="md-nav__link">
         
   
   
@@ -7539,7 +7393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/docker-py_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/docker-py_llm_report/" class="md-nav__link">
         
   
   
@@ -7567,7 +7421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/elasticsearch_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/elasticsearch_llm_report/" class="md-nav__link">
         
   
   
@@ -7595,7 +7449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/exiftool_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/exiftool_llm_report/" class="md-nav__link">
         
   
   
@@ -7623,7 +7477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/ghostty_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/ghostty_llm_report/" class="md-nav__link">
         
   
   
@@ -7719,7 +7573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/DOOM_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/DOOM_llm_report/" class="md-nav__link">
         
   
   
@@ -7747,7 +7601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/bevy_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bevy_llm_report/" class="md-nav__link">
         
   
   
@@ -7775,7 +7629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/cesium_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cesium_llm_report/" class="md-nav__link">
         
   
   
@@ -7877,7 +7731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/AFNetworking_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/AFNetworking_llm_report/" class="md-nav__link">
         
   
   
@@ -7905,7 +7759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/Adafruit_CircuitPython_Bundle_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Adafruit_CircuitPython_Bundle_llm_report/" class="md-nav__link">
         
   
   
@@ -7933,7 +7787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/Alamofire_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Alamofire_llm_report/" class="md-nav__link">
         
   
   
@@ -7961,7 +7815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/catalyst-runtime_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/catalyst-runtime_llm_report/" class="md-nav__link">
         
   
   
@@ -7989,7 +7843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/circuitpython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/circuitpython_llm_report/" class="md-nav__link">
         
   
   
@@ -8017,7 +7871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/flutter_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/flutter_llm_report/" class="md-nav__link">
         
   
   
@@ -8113,7 +7967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/AppFlowy_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/AppFlowy_llm_report/" class="md-nav__link">
         
   
   
@@ -8141,7 +7995,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/discourse_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/discourse_llm_report/" class="md-nav__link">
         
   
   
@@ -8169,7 +8023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/freeCodeCamp_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/freeCodeCamp_llm_report/" class="md-nav__link">
         
   
   
@@ -8263,7 +8117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/angr_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/angr_llm_report/" class="md-nav__link">
         
   
   
@@ -8291,7 +8145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/bitcoin-0.1.0_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bitcoin-0.1.0_llm_report/" class="md-nav__link">
         
   
   
@@ -8383,7 +8237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../LLM-reports/Apollo-11_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Apollo-11_llm_report/" class="md-nav__link">
         
   
   
@@ -8431,8 +8285,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -8456,19 +8312,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -8486,7 +8345,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -8528,17 +8387,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="">
             
   
   
@@ -8574,7 +8436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-01-project-overview/" class="md-nav__link">
+      <a href="../01-01-project-overview/" class="md-nav__link">
         
   
   
@@ -8602,7 +8464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-02-galaxyscope-cli-reference/" class="md-nav__link">
+      <a href="../01-02-galaxyscope-cli-reference/" class="md-nav__link">
         
   
   
@@ -8630,7 +8492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-03-the-blast-paradigm/" class="md-nav__link">
+      <a href="../01-03-the-blast-paradigm/" class="md-nav__link">
         
   
   
@@ -8658,7 +8520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-04-the-legacy-bridge/" class="md-nav__link">
+      <a href="../01-04-the-legacy-bridge/" class="md-nav__link">
         
   
   
@@ -8686,7 +8548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-06-the-structural-rag-graph/" class="md-nav__link">
+      <a href="../01-06-the-structural-rag-graph/" class="md-nav__link">
         
   
   
@@ -8714,7 +8576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-07-the-shbom-standard/" class="md-nav__link">
+      <a href="../01-07-the-shbom-standard/" class="md-nav__link">
         
   
   
@@ -8742,7 +8604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-08-autonomous-ai-guardrails/" class="md-nav__link">
+      <a href="../01-08-autonomous-ai-guardrails/" class="md-nav__link">
         
   
   
@@ -8770,7 +8632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-09-the-continuous-delta-paradigm/" class="md-nav__link">
+      <a href="../01-09-the-continuous-delta-paradigm/" class="md-nav__link">
         
   
   
@@ -8856,17 +8718,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="">
             
   
   
@@ -8902,7 +8767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-01-pipeline-overview/" class="md-nav__link">
+      <a href="../02-01-pipeline-overview/" class="md-nav__link">
         
   
   
@@ -8930,7 +8795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-02-optical-orchestration/" class="md-nav__link">
+      <a href="../02-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -8958,7 +8823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-03-aperture-filter/" class="md-nav__link">
+      <a href="../02-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -8986,7 +8851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../02-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -9014,7 +8879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-05-language-lens/" class="md-nav__link">
+      <a href="../02-05-language-lens/" class="md-nav__link">
         
   
   
@@ -9042,7 +8907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-06-security-lens/" class="md-nav__link">
+      <a href="../02-06-security-lens/" class="md-nav__link">
         
   
   
@@ -9070,7 +8935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-07-the-prism/" class="md-nav__link">
+      <a href="../02-07-the-prism/" class="md-nav__link">
         
   
   
@@ -9098,7 +8963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-08-the-detector/" class="md-nav__link">
+      <a href="../02-08-the-detector/" class="md-nav__link">
         
   
   
@@ -9126,7 +8991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-09-signal-processing/" class="md-nav__link">
+      <a href="../02-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -9154,7 +9019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-11-spectral-audit/" class="md-nav__link">
+      <a href="../02-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -9182,7 +9047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-12-audit-recorder/" class="md-nav__link">
+      <a href="../02-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -9210,7 +9075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-13-gpu-recorder/" class="md-nav__link">
+      <a href="../02-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -9238,7 +9103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-14-llm-recorder/" class="md-nav__link">
+      <a href="../02-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -9266,7 +9131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-15-chronometer/" class="md-nav__link">
+      <a href="../02-15-chronometer/" class="md-nav__link">
         
   
   
@@ -9294,7 +9159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-16-network-risk-sensor/" class="md-nav__link">
+      <a href="../02-16-network-risk-sensor/" class="md-nav__link">
         
   
   
@@ -9322,7 +9187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-17-ai-appsec-sensor/" class="md-nav__link">
+      <a href="../02-17-ai-appsec-sensor/" class="md-nav__link">
         
   
   
@@ -9350,7 +9215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-18-dev-agent-firewall/" class="md-nav__link">
+      <a href="../02-18-dev-agent-firewall/" class="md-nav__link">
         
   
   
@@ -9378,7 +9243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-19-neural-auditor/" class="md-nav__link">
+      <a href="../02-19-neural-auditor/" class="md-nav__link">
         
   
   
@@ -9406,7 +9271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-20-security-auditor/" class="md-nav__link">
+      <a href="../02-20-security-auditor/" class="md-nav__link">
         
   
   
@@ -9434,7 +9299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-21-record-keeper/" class="md-nav__link">
+      <a href="../02-21-record-keeper/" class="md-nav__link">
         
   
   
@@ -9462,7 +9327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-22-state-rehydrator/" class="md-nav__link">
+      <a href="../02-22-state-rehydrator/" class="md-nav__link">
         
   
   
@@ -9530,17 +9395,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="">
             
   
   
@@ -9576,7 +9444,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../03-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -9604,7 +9472,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../03-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -9632,7 +9500,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../03-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -9660,7 +9528,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../03-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -9688,7 +9556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../03-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -9716,7 +9584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -9744,7 +9612,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../03-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -9772,7 +9640,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-08-claim-8-empirical-validation-of-ast-free-parsing/" class="md-nav__link">
+      <a href="../03-08-claim-8-empirical-validation-of-ast-free-parsing/" class="md-nav__link">
         
   
   
@@ -9800,7 +9668,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-09-claim-9-universal-logic-extraction/" class="md-nav__link">
+      <a href="../03-09-claim-9-universal-logic-extraction/" class="md-nav__link">
         
   
   
@@ -9828,7 +9696,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-10-claim-10-ast-vs-heuristic-parsing/" class="md-nav__link">
+      <a href="../03-10-claim-10-ast-vs-heuristic-parsing/" class="md-nav__link">
         
   
   
@@ -9856,7 +9724,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-11-claim-11-multi-signal-detection/" class="md-nav__link">
+      <a href="../03-11-claim-11-multi-signal-detection/" class="md-nav__link">
         
   
   
@@ -9884,7 +9752,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-20-future-outlooks/" class="md-nav__link">
+      <a href="../03-20-future-outlooks/" class="md-nav__link">
         
   
   
@@ -9944,17 +9812,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="">
             
   
   
@@ -9990,7 +9861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-00-security_landscape/" class="md-nav__link">
+      <a href="../04-00-security_landscape/" class="md-nav__link">
         
   
   
@@ -10018,7 +9889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-01-full-api-network-map/" class="md-nav__link">
+      <a href="../04-01-full-api-network-map/" class="md-nav__link">
         
   
   
@@ -10046,7 +9917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-02-sbom-generator/" class="md-nav__link">
+      <a href="../04-02-sbom-generator/" class="md-nav__link">
         
   
   
@@ -10074,7 +9945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../04-03-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -10102,7 +9973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-04-vault-sentinel/" class="md-nav__link">
+      <a href="../04-04-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -10130,7 +10001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-05-binary-anomaly-detector/" class="md-nav__link">
+      <a href="../04-05-binary-anomaly-detector/" class="md-nav__link">
         
   
   
@@ -10158,7 +10029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-06-pii-leak-hunter/" class="md-nav__link">
+      <a href="../04-06-pii-leak-hunter/" class="md-nav__link">
         
   
   
@@ -10186,7 +10057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-07-terabyte-log-scanner/" class="md-nav__link">
+      <a href="../04-07-terabyte-log-scanner/" class="md-nav__link">
         
   
   
@@ -10219,8 +10090,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -10265,18 +10138,21 @@
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="">
             
   
   
@@ -10294,7 +10170,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -10312,7 +10188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-01-legacy-refraction-controller/" class="md-nav__link">
+      <a href="../05-01-legacy-refraction-controller/" class="md-nav__link">
         
   
   
@@ -10340,7 +10216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-02-spring-boot-scaffolding/" class="md-nav__link">
+      <a href="../05-02-spring-boot-scaffolding/" class="md-nav__link">
         
   
   
@@ -10368,7 +10244,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-03-entity-and-memory-mapping/" class="md-nav__link">
+      <a href="../05-03-entity-and-memory-mapping/" class="md-nav__link">
         
   
   
@@ -10396,7 +10272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-04-api-and-service-contracts/" class="md-nav__link">
+      <a href="../05-04-api-and-service-contracts/" class="md-nav__link">
         
   
   
@@ -10424,7 +10300,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-05-autonomous-agent-tickets/" class="md-nav__link">
+      <a href="../05-05-autonomous-agent-tickets/" class="md-nav__link">
         
   
   
@@ -10452,7 +10328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-06-batch-test-harness/" class="md-nav__link">
+      <a href="../05-06-batch-test-harness/" class="md-nav__link">
         
   
   
@@ -10480,7 +10356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-07-mainframe-compiler-forge/" class="md-nav__link">
+      <a href="../05-07-mainframe-compiler-forge/" class="md-nav__link">
         
   
   
@@ -10508,7 +10384,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-08-dag-architect/" class="md-nav__link">
+      <a href="../05-08-dag-architect/" class="md-nav__link">
         
   
   
@@ -10536,7 +10412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-09-etl-unpacker/" class="md-nav__link">
+      <a href="../05-09-etl-unpacker/" class="md-nav__link">
         
   
   
@@ -10564,7 +10440,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-10-graveyard-reaper/" class="md-nav__link">
+      <a href="../05-10-graveyard-reaper/" class="md-nav__link">
         
   
   
@@ -10592,7 +10468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-11-jcl-meta-auditor/" class="md-nav__link">
+      <a href="../05-11-jcl-meta-auditor/" class="md-nav__link">
         
   
   
@@ -10620,7 +10496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-12-zero-trust-jcl-forge/" class="md-nav__link">
+      <a href="../05-12-zero-trust-jcl-forge/" class="md-nav__link">
         
   
   
@@ -10648,7 +10524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-13-lexical-patcher/" class="md-nav__link">
+      <a href="../05-13-lexical-patcher/" class="md-nav__link">
         
   
   
@@ -10676,7 +10552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-14-microservice-slicer/" class="md-nav__link">
+      <a href="../05-14-microservice-slicer/" class="md-nav__link">
         
   
   
@@ -10704,7 +10580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-15-cloud-schema-forge/" class="md-nav__link">
+      <a href="../05-15-cloud-schema-forge/" class="md-nav__link">
         
   
   
@@ -10732,7 +10608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-16-anomaly-agent-task-forge/" class="md-nav__link">
+      <a href="../05-16-anomaly-agent-task-forge/" class="md-nav__link">
         
   
   
@@ -10760,7 +10636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-17-system-limits-reporter/" class="md-nav__link">
+      <a href="../05-17-system-limits-reporter/" class="md-nav__link">
         
   
   
@@ -10785,10 +10661,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../05-18-cobol-java-scan-parity/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -10804,6 +10707,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-stays-the-same" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What stays the same
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes, and why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scanner-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scanner lessons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#translation-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Translation lessons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#follow-ups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Follow-ups
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -10838,17 +10849,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6" >
         
           
-          <label class="md-nav__link" for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6" id="__nav_6_6_label" tabindex="">
             
   
   
@@ -10884,7 +10898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-01-gitgalaxy-config/" class="md-nav__link">
+      <a href="../06-01-gitgalaxy-config/" class="md-nav__link">
         
   
   
@@ -10912,7 +10926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-02-language-standards/" class="md-nav__link">
+      <a href="../06-02-language-standards/" class="md-nav__link">
         
   
   
@@ -10940,7 +10954,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-03-analysis-lens/" class="md-nav__link">
+      <a href="../06-03-analysis-lens/" class="md-nav__link">
         
   
   
@@ -11008,17 +11022,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
         
           
-          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="">
             
   
   
@@ -11054,7 +11071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-01-code-complexity/" class="md-nav__link">
+      <a href="../07-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -11082,7 +11099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-02-stars-size/" class="md-nav__link">
+      <a href="../07-02-stars-size/" class="md-nav__link">
         
   
   
@@ -11110,7 +11127,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../07-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -11138,7 +11155,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-04-stars-shape/" class="md-nav__link">
+      <a href="../07-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -11166,7 +11183,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-05-satellite-unit/" class="md-nav__link">
+      <a href="../07-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -11194,7 +11211,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../07-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -11222,7 +11239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-07-number-of-satellites/" class="md-nav__link">
+      <a href="../07-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -11250,7 +11267,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-08-relative-positioning/" class="md-nav__link">
+      <a href="../07-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -11278,7 +11295,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-09-node-size/" class="md-nav__link">
+      <a href="../07-09-node-size/" class="md-nav__link">
         
   
   
@@ -11306,7 +11323,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-10-planetary-rings/" class="md-nav__link">
+      <a href="../07-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -11334,7 +11351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-11-sequence-affinity/" class="md-nav__link">
+      <a href="../07-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -11362,7 +11379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-12-misc-equations/" class="md-nav__link">
+      <a href="../07-12-misc-equations/" class="md-nav__link">
         
   
   
@@ -11448,17 +11465,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
         
           
-          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="">
             
   
   
@@ -11494,7 +11514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-01-methodology/" class="md-nav__link">
+      <a href="../08-01-methodology/" class="md-nav__link">
         
   
   
@@ -11522,7 +11542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-02-sub-equations/" class="md-nav__link">
+      <a href="../08-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -11550,7 +11570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-03-transforming-regex-counts/" class="md-nav__link">
+      <a href="../08-03-transforming-regex-counts/" class="md-nav__link">
         
   
   
@@ -11578,7 +11598,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-04-ownership-entropy/" class="md-nav__link">
+      <a href="../08-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -11606,7 +11626,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-05-cognitive-load/" class="md-nav__link">
+      <a href="../08-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -11634,7 +11654,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-06-deep-churn/" class="md-nav__link">
+      <a href="../08-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -11662,7 +11682,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-07-structural-fortification/" class="md-nav__link">
+      <a href="../08-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -11690,7 +11710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-08-technical-debt/" class="md-nav__link">
+      <a href="../08-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -11718,7 +11738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-09-documentation-risk/" class="md-nav__link">
+      <a href="../08-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -11746,7 +11766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-10-file-stability/" class="md-nav__link">
+      <a href="../08-10-file-stability/" class="md-nav__link">
         
   
   
@@ -11774,7 +11794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-11-test-coverage/" class="md-nav__link">
+      <a href="../08-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -11802,7 +11822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-12-civil-war/" class="md-nav__link">
+      <a href="../08-12-civil-war/" class="md-nav__link">
         
   
   
@@ -11830,7 +11850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-13-graveyard-detector/" class="md-nav__link">
+      <a href="../08-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -11858,7 +11878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-14-api-exposure/" class="md-nav__link">
+      <a href="../08-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -11886,7 +11906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../08-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -11914,7 +11934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../08-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -11942,7 +11962,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-18-specification-alignment/" class="md-nav__link">
+      <a href="../08-18-specification-alignment/" class="md-nav__link">
         
   
   
@@ -11970,7 +11990,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-19-obscured-payload-exposure/" class="md-nav__link">
+      <a href="../08-19-obscured-payload-exposure/" class="md-nav__link">
         
   
   
@@ -11998,7 +12018,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-21-injection-surface-exposure/" class="md-nav__link">
+      <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
   
@@ -12026,7 +12046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-22-memory-corruption-exposure/" class="md-nav__link">
+      <a href="../08-22-memory-corruption-exposure/" class="md-nav__link">
         
   
   
@@ -12054,7 +12074,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
+      <a href="../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
         
   
   
@@ -12110,37 +12130,525 @@
   
 
 
-<h1 id="agentsmd-cpm65-architectural-context-engagement-rules">AGENTS.md: cpm65 Architectural Context &amp; Engagement Rules</h1>
-<h2 id="1-system-context-paradigm">1. System Context &amp; Paradigm</h2>
-<p>You are operating within <code>cpm65</code>, an operating system implementation of CP/M designed specifically for 6502 microprocessors. The codebase is heavily dominated by 6502 Assembly (54.5%) and C (16.2%), complemented by Python build and configuration scripts.
-* <strong>Architectural Paradigm:</strong> This repository functions as a "Cluster 4" macro-species with a high Architectural Drift Z-Score of 7.766. The network topology demonstrates a highly modular (0.7643) and positively assortative (0.2243) core. This indicates a resilient, well-segmented architecture where individual hardware architectures (e.g., <code>arch/apple2e</code>, <code>arch/atari800</code>, <code>arch/kim-1</code>) are kept strictly isolated but rely on a strong, central core of shared includes and emulators. 
-* <strong>Core Rule:</strong> Do NOT attempt to abstract away hardware-specific boundaries or introduce high-level design patterns (like OOP or dynamic dispatch) into the Assembly or C components. The system operates under severe memory and CPU constraints inherent to the 6502 architecture.</p>
-<h2 id="2-architectural-guardrails-dos-and-donts">2. Architectural Guardrails (Do's and Don'ts)</h2>
+<h1 id="cobol-java-scan-parity">COBOL ↔ Java Scan Parity</h1>
+<blockquote>
+<p><strong>Related:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/det_port.py"><code>tests/tools/det_port.py</code></a> · <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/tests/tools/proof_sweep.py"><code>tests/tools/proof_sweep.py</code></a> · <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/oracle_assumptions.md"><code>docs/language_status/oracle_assumptions.md</code></a> · <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/core/aperture.py"><code>gitgalaxy/core/aperture.py</code></a></p>
+</blockquote>
+<h2 id="summary">Summary</h2>
+<p>We scanned the same programs three ways with GitGalaxy: the original COBOL, the deterministic Java port (the "det port", proven equivalent to the COBOL under GnuCOBOL, the CICS model and Db2), and, where one exists, the model-written Java port. That gives 49 programs from three estates (CardDemo, CBSA, GenApp) where both sides are known to behave the same. Any difference between their scans therefore comes from the language and the translation, not from a change in behaviour.</p>
+<p>The short version:</p>
 <ul>
-<li><strong>Algorithmic Complexity Limit:</strong> Core parsing and hardware polling routines (<code>consumeExpressionNode</code> in <code>apps/asm.c</code>, <code>disk_status</code> in <code>format.S</code>, <code>banner_wait</code> in <code>nano6502.S</code>) operate at O(2^N) recursive time complexities in static analysis. You MUST NOT introduce additional nested loops or deep recursion in the assembler, terminal emulators, or BIOS/BDOS logic.</li>
-<li><strong>Orchestrator Fragility:</strong> Central orchestrators like <code>tools/cpmemu/biosbdos.c</code> (12 outbound dependencies) and <code>tools/cpmemu/fileio.c</code> act as the primary emulation layers for the host environment. Modifying file I/O or BDOS syscall mapping here requires comprehensive verification against the hardware test suites (<code>mame-test.lua</code> scripts).</li>
-<li><strong>Avoid Dead Code Pruning:</strong> Disassemblers and architecture-specific routines (e.g., <code>apps/objdump.c</code>, <code>src/arch/kim-1/boot/bootsd.S</code>) contain functions flagged as "orphaned." DO NOT autonomously attempt to prune or clean up these files. This logic relies on jump tables, hardware interrupts, or conditional compilation (<code>#ifdef</code>) that static analysis misinterprets as dead code.</li>
+<li><strong>Structure keeps its rank.</strong> The programs that have the most paragraphs, branches and state changes in COBOL also have the most in Java. Paragraph count → method count has Spearman ρ = 0.94.</li>
+<li><strong>Size does not.</strong> The det port is about five times the code lines and nine times the token mass of the COBOL. The model port is about the same size as the COBOL.</li>
+<li><strong>I/O moves out of the program.</strong> In the det port, file, queue, CICS and SQL operations are calls into the <code>cobolrt</code> runtime, which the scanner did not recognise as I/O. The scanner recognises them since #4163.</li>
+<li><strong>Risk scores do not compare across languages.</strong> They are normalised within each scan, so they rank files inside one language only.</li>
+<li><strong>Debt is written differently.</strong> The model ports carry 46 TODO/FIXME lines; the det ports carry none and instead throw named <code>Hole</code>s for anything not translated.</li>
 </ul>
-<h2 id="3-restricted-zones-the-god-nodes">3. Restricted Zones (The God Nodes)</h2>
-<p>The following files are load-bearing "God Nodes." They possess extreme cumulative risk, massive structural mass, volatile churn, or 100% isolated human ownership (Key Person Silos). </p>
-<p><strong>MANDATORY RULE:</strong> You require explicit human permission and downstream emulator testing (e.g., MAME) before modifying the structural signatures, hardware registers, or public APIs of these files:
-* <code>apps/asm.c</code> (Massive Structural Mass: 2218.88, Key Person Silo - 100% isolated ownership by David Given. The core assembler logic).
-* <code>include/cpm65.inc</code> (Severe Blind Bottleneck - Highest Blast Radius with 100% Documentation Risk. Core OS definitions).
-* <code>config.py</code> (Severe Blind Bottleneck - 12 inbound connections orchestrating the build environment).
-* <code>apps/drivers.inc</code> (House of Cards - High Error Risk and deep coupling).
-* <code>src/ccp.S</code> and <code>src/bdos/filesystem.S</code> (Key Person Silos - 100% isolated ownership by David Given. Core OS subsystems).</p>
-<h2 id="4-threat-security-boundaries">4. Threat &amp; Security Boundaries</h2>
-<p><strong>Status: SECURE PERIMETER.</strong> Structural XGBoost Threat Intelligence audits have flagged 0 malicious artifacts and 0 Agentic RCE funnels. </p>
-<p><strong>CRITICAL WARNINGS:</strong>
-1. <strong>Raw Memory Manipulation:</strong> Files in the emulator layer (<code>tools/cpmemu/biosbdos.c</code>) and low-level tools (<code>tools/mkimd.c</code>, <code>apps/sys.c</code>) handle raw memory manipulation. Ensure any modifications to buffer parsing, disk image creation, or emulator state strictly check boundaries to prevent segmentation faults on the host system.
-2. <strong>Build and Fuzzing Tools:</strong> Scripts like <code>scripts/get-roms.sh</code> and various <code>mame-test.lua</code> harnesses execute external dependencies and emulators. Do not modify these to fetch unverified third-party binaries or alter the deterministic nature of the build pipeline.</p>
-<h2 id="5-environmental-tooling-the-oracle">5. Environmental Tooling (The Oracle)</h2>
-<p>Do not guess 6502 opcodes, hallucinate BDOS call numbers, or rely on generalized C/Assembly knowledge to determine blast radius within this highly specialized OS architecture. </p>
-<p>You have access to a deterministic GitGalaxy SQLite database that maps the absolute syntactic physics of this repository. Before modifying any file listed in the <strong>Restricted Zones</strong>, you MUST query the database for dependency mapping. 
-* To map inbound dependencies (Blast Radius), query the <code>function_edges</code> or <code>file_edges</code> tables for all callers targeting your target file.
-* Do not proceed with structural modifications until the specific blast radius has been statically confirmed via the database.</p>
-<hr />
-<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
+<h2 id="scope">Scope</h2>
+<table>
+<thead>
+<tr>
+<th>Estate</th>
+<th style="text-align: right;">Programs</th>
+<th style="text-align: right;">COBOL code lines</th>
+<th style="text-align: right;">Det-port code lines</th>
+<th style="text-align: right;">Ratio</th>
+<th style="text-align: right;">COBOL paragraphs → Java methods</th>
+<th style="text-align: right;">Model ports</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CardDemo (AWS)</td>
+<td style="text-align: right;">28</td>
+<td style="text-align: right;">17,279</td>
+<td style="text-align: right;">64,899</td>
+<td style="text-align: right;">×3.76</td>
+<td style="text-align: right;">613 → 1,231</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr>
+<td>CBSA (IBM CICS Bank Sample)</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">3,501</td>
+<td style="text-align: right;">10,250</td>
+<td style="text-align: right;">×2.93</td>
+<td style="text-align: right;">144 → 313</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td>GenApp (IBM CICS General Insurance)</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">2,818</td>
+<td style="text-align: right;">21,892</td>
+<td style="text-align: right;">×7.77</td>
+<td style="text-align: right;">69 → 365</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>48 of the 49 det ports translate every statement; COTRTLIC leaves 1 of its 632 statements, a dynamic <code>CALL</code>, as a hole. 48 of the 50 equivalence cases behind them prove (the exceptions are listed in <code>proof_sweep.py</code>'s <code>KNOWN_UNPROVEN</code>; of the programs in this table only COCRDUPC is affected). All 23 model ports prove.</p>
+<h2 id="method">Method</h2>
+<ol>
+<li>For each estate and each form, build a separate git repository: the COBOL programs with their copybooks; the det-port service classes from a full sweep (the <code>cobolrt</code> runtime excluded); the committed model ports from <code>tests/equivalence/&lt;case&gt;/port/service/</code>. Where a program appears in several equivalence cases, the first case is used.</li>
+<li>Commit each tree (the scanner reads committed files) and run <code>galaxyscope</code> on it.</li>
+<li>Read per-file metrics from each scan's <code>&lt;repo&gt;_galaxy_master.db</code>, table <code>file_data</code>.</li>
+<li>Pair each COBOL program with its Java file(s). For each metric report:</li>
+<li><strong>Spearman ρ</strong> between the COBOL values and the Java values across the programs, with tied values given their average rank (1.0 means both forms rank the programs in the same order; "–" means one side is constant, so no ranking exists);</li>
+<li>the <strong>median</strong> in each form;</li>
+<li>the <strong>median per-program ratio</strong> Java ÷ COBOL.</li>
+</ol>
+<p>Two adjustments were needed for the det trees, because the default scan excludes almost all of them (see <a href="#scanner-lessons">Scanner lessons</a>):</p>
+<ul>
+<li>long lines were rewrapped (formatting only: long string literals split into chunks, long conditions broken at <code>&amp;&amp;</code>, <code>||</code> and <code>,</code>);</li>
+<li>the Lexical Monotony gate was lifted through a wrapper script. Every other gate and every measurement is the scanner's own.</li>
+</ul>
+<p>The rewrapping adds lines: the median det file gains 19% more non-blank lines (maximum ×2.1). Read the det-port line counts and line ratios below with that in mind; the as-emitted line ratio is closer to ×4.2 than ×5.</p>
+<h2 id="what-stays-the-same">What stays the same</h2>
+<p>Rank agreement, COBOL vs det port, all 49 programs:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">ρ det</th>
+<th style="text-align: right;">COBOL median</th>
+<th style="text-align: right;">Det median</th>
+<th style="text-align: right;">Det ÷ COBOL</th>
+<th style="text-align: right;">ρ model (23)</th>
+<th style="text-align: right;">Model ÷ COBOL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functions / paragraphs</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">×3.00</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">×2.44</td>
+</tr>
+<tr>
+<td>Branch points</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">×5.14</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">×1.62</td>
+</tr>
+<tr>
+<td>State mutations</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">62</td>
+<td style="text-align: right;">333</td>
+<td style="text-align: right;">×5.25</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">×0.90</td>
+</tr>
+<tr>
+<td>Code lines</td>
+<td style="text-align: right;">0.71</td>
+<td style="text-align: right;">251</td>
+<td style="text-align: right;">1,792</td>
+<td style="text-align: right;">×4.96</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">×1.09</td>
+</tr>
+<tr>
+<td>Linear statements</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: right;">126</td>
+<td style="text-align: right;">×3.91</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">×1.93</td>
+</tr>
+<tr>
+<td>Guards / safety checks</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">×3.50</td>
+<td style="text-align: right;">−0.18</td>
+<td style="text-align: right;">×0.00</td>
+</tr>
+<tr>
+<td>Imports / copybooks</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">26</td>
+<td style="text-align: right;">×4.58</td>
+<td style="text-align: right;">0.29</td>
+<td style="text-align: right;">×3.05</td>
+</tr>
+<tr>
+<td>Largest function complexity</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">44</td>
+<td style="text-align: right;">×3.60</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">×1.25</td>
+</tr>
+<tr>
+<td>Token mass</td>
+<td style="text-align: right;">0.62</td>
+<td style="text-align: right;">3,606</td>
+<td style="text-align: right;">50,688</td>
+<td style="text-align: right;">×9.15</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">×1.18</td>
+</tr>
+<tr>
+<td>Mean function complexity</td>
+<td style="text-align: right;">0.57</td>
+<td style="text-align: right;">3.2</td>
+<td style="text-align: right;">4.3</td>
+<td style="text-align: right;">×1.78</td>
+<td style="text-align: right;">0.34</td>
+<td style="text-align: right;">×0.86</td>
+</tr>
+</tbody>
+</table>
+<p>The same structural metrics hold their rank within each estate:</p>
+<table>
+<thead>
+<tr>
+<th>Metric (ρ, COBOL vs det)</th>
+<th style="text-align: right;">CardDemo (28)</th>
+<th style="text-align: right;">CBSA (8)</th>
+<th style="text-align: right;">GenApp (13)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functions / paragraphs</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">0.94</td>
+</tr>
+<tr>
+<td>Branch points</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.86</td>
+</tr>
+<tr>
+<td>State mutations</td>
+<td style="text-align: right;">0.84</td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: right;">0.80</td>
+</tr>
+<tr>
+<td>Code lines</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.87</td>
+</tr>
+<tr>
+<td>Linear statements</td>
+<td style="text-align: right;">0.76</td>
+<td style="text-align: right;">0.86</td>
+<td style="text-align: right;">0.94</td>
+</tr>
+<tr>
+<td>Guards / safety checks</td>
+<td style="text-align: right;">0.82</td>
+<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">0.24</td>
+</tr>
+<tr>
+<td>Largest function complexity</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0.66</td>
+<td style="text-align: right;">0.73</td>
+</tr>
+<tr>
+<td>Imports / copybooks</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.90</td>
+</tr>
+<tr>
+<td>Risk: cognitive load</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: right;">−0.33</td>
+<td style="text-align: right;">0.25</td>
+</tr>
+<tr>
+<td>Risk: safety</td>
+<td style="text-align: right;">0.65</td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr>
+<td>Risk: tech debt</td>
+<td style="text-align: right;">0.22</td>
+<td style="text-align: right;">0.44</td>
+<td style="text-align: right;">0.75</td>
+</tr>
+</tbody>
+</table>
+<p>The det port keeps the COBOL's shape because it translates paragraph by paragraph and statement by statement. Each COBOL paragraph becomes about three Java methods: the paragraph itself plus methods the emitter generates around it. The model port restructures more freely, so its rank agreement is lower on structure (ρ 0.60 for functions) even though its size is much closer to the COBOL.</p>
+<h2 id="what-changes-and-why">What changes, and why</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th style="text-align: right;">ρ det</th>
+<th style="text-align: right;">COBOL median</th>
+<th style="text-align: right;">Det median</th>
+<th style="text-align: right;">Det ÷ COBOL</th>
+<th style="text-align: right;">ρ model</th>
+<th style="text-align: right;">Model ÷ COBOL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I/O signals</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">×0.00</td>
+<td style="text-align: right;">0.74</td>
+<td style="text-align: right;">×0.00</td>
+</tr>
+<tr>
+<td>API-surface signals</td>
+<td style="text-align: right;">0.35</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">×8.00</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">×11.00</td>
+</tr>
+<tr>
+<td>Doc markers</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">×28.50</td>
+<td style="text-align: right;">0.42</td>
+<td style="text-align: right;">×11.50</td>
+</tr>
+<tr>
+<td>Risk: cognitive load</td>
+<td style="text-align: right;">0.49</td>
+<td style="text-align: right;">81.2</td>
+<td style="text-align: right;">39.0</td>
+<td style="text-align: right;">×0.47</td>
+<td style="text-align: right;">0.42</td>
+<td style="text-align: right;">×0.59</td>
+</tr>
+<tr>
+<td>Risk: safety</td>
+<td style="text-align: right;">0.25</td>
+<td style="text-align: right;">90.5</td>
+<td style="text-align: right;">82.8</td>
+<td style="text-align: right;">×0.91</td>
+<td style="text-align: right;">0.51</td>
+<td style="text-align: right;">×1.01</td>
+</tr>
+<tr>
+<td>Risk: tech debt</td>
+<td style="text-align: right;">0.24</td>
+<td style="text-align: right;">13.0</td>
+<td style="text-align: right;">9.6</td>
+<td style="text-align: right;">×0.66</td>
+<td style="text-align: right;">0.48</td>
+<td style="text-align: right;">×4.13</td>
+</tr>
+<tr>
+<td>Risk: documentation</td>
+<td style="text-align: right;">–</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">42.6</td>
+<td style="text-align: right;">×0.43</td>
+<td style="text-align: right;">–</td>
+<td style="text-align: right;">×0.38</td>
+</tr>
+<tr>
+<td>Risk: verification</td>
+<td style="text-align: right;">–</td>
+<td style="text-align: right;">2.5</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">×32.55</td>
+<td style="text-align: right;">0.32</td>
+<td style="text-align: right;">×1.00</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Size.</strong> The det port spells out what the COBOL compiler does implicitly: byte-level storage, explicit truncation (<code>TRUNC(STD)</code>), sign and packed-decimal handling, <code>Field</code> accessors, CICS response checks. That is where the ×5 code lines and ×9 token mass come from. The model port is ×1.09 code lines and ×1.18 token mass.</p>
+<p><strong>I/O.</strong> <code>READ</code>, <code>WRITE</code>, <code>EXEC CICS</code> and <code>EXEC SQL</code> are I/O signals in COBOL. In the det port they become calls such as <code>DetCics</code> and <code>DetSql</code> methods in the <code>cobolrt</code> runtime. The scanner does not know those calls, and the runtime itself was not part of the scan, so the det-port I/O reading falls to zero in most files (ρ 0.24) and the API reading rises instead. Since #4163 the scanner counts these runtime calls as I/O and IPC; a rescan of the same 49 pairs gives I/O ρ 0.87 and IPC ρ 0.84. The model ports gained readings from the same change (13 of 23 now show I/O, 15 of 23 IPC).</p>
+<p><strong>Risk scores.</strong> The risk vectors are percentile-style and normalised within each scan. A COBOL cognitive-load score of 81 and a Java score of 39 are not on the same scale, and even the ranking only partly carries over (ρ 0.49 overall, −0.33 in CBSA). Use risk scores to rank files within one language.</p>
+<p><strong>Archetype.</strong> Only 9 of the 49 programs keep exactly the same composition archetype:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Programs</th>
+<th>COBOL archetype</th>
+<th>Det-port archetype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">15</td>
+<td>Large Core Modules</td>
+<td>Large Core Modules (3)</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td>Interface Declarations Files</td>
+<td>Encapsulated Accessors Files</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>Large Core Modules</td>
+<td>Large Core Modules</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>Large Core Modules</td>
+<td>Encapsulated Accessors Files</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Large Core Modules (3)</td>
+<td>Encapsulated Accessors Files</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td>Interface Declarations Files</td>
+<td>Large Core Modules (3)</td>
+</tr>
+</tbody>
+</table>
+<p>Copybook-heavy COBOL reads as "Interface Declarations"; the same records in the det port become typed <code>Field</code> accessors and read as "Encapsulated Accessors". This is a change of representation, not of behaviour.</p>
+<p><strong>Debt.</strong> In the CardDemo model ports, 46 lines across 12 files carry TODO/FIXME markers; tech-debt risk is ×4.13 the COBOL's. The det ports have no TODO/FIXME lines. Anything the det port does not translate becomes a named <code>Hole</code> that throws when reached (51 <code>new Hole(</code> sites in 40 of the 49 files; 40 of them guard CICS files the generated project has no store for, 10 guard BMS maps and mapsets, and 1 is an untranslated dynamic <code>CALL</code>). The scanner counts the TODOs but not the holes, so the det ports' debt reads lower than it is.</p>
+<p><strong>Branch growth in small programs.</strong> The median program gains ×5.1 branch points in the det port. The programs furthest from that median are all small:</p>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th>Estate</th>
+<th style="text-align: right;">COBOL code lines</th>
+<th style="text-align: right;">COBOL branches</th>
+<th style="text-align: right;">Det branches</th>
+<th style="text-align: right;">Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ABNDPROC</td>
+<td>CBSA</td>
+<td style="text-align: right;">114</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">73</td>
+<td style="text-align: right;">×73.0</td>
+</tr>
+<tr>
+<td>UPDACC</td>
+<td>CBSA</td>
+<td style="text-align: right;">208</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">89</td>
+<td style="text-align: right;">×29.7</td>
+</tr>
+<tr>
+<td>DELACC</td>
+<td>CBSA</td>
+<td style="text-align: right;">437</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">159</td>
+<td style="text-align: right;">×22.7</td>
+</tr>
+<tr>
+<td>CUSTCTRL</td>
+<td>CBSA</td>
+<td style="text-align: right;">146</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">79</td>
+<td style="text-align: right;">×19.8</td>
+</tr>
+<tr>
+<td>LGACVS01</td>
+<td>GenApp</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">74</td>
+<td style="text-align: right;">×18.5</td>
+</tr>
+<tr>
+<td>LGDPVS01</td>
+<td>GenApp</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">72</td>
+<td style="text-align: right;">×18.0</td>
+</tr>
+</tbody>
+</table>
+<p>Every det port carries a fixed amount of code (response checks, abend paths, storage setup, resource dispatch). In a program with a handful of COBOL branches that overhead dominates. At the other end, the large batch programs grow least (CBTRN02C ×1.77, CBACT04C ×1.83, CBTRN01C ×1.84).</p>
+<p><strong>Largest functions.</strong> The most complex det-port functions come from long compound conditions translated literally:</p>
+<table>
+<thead>
+<tr>
+<th>Program</th>
+<th style="text-align: right;">COBOL max function complexity</th>
+<th style="text-align: right;">Det max function complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COACTUPC</td>
+<td style="text-align: right;">97</td>
+<td style="text-align: right;">205</td>
+</tr>
+<tr>
+<td>COTRTUPC</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">133</td>
+</tr>
+<tr>
+<td>COTRTLIC</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">129</td>
+</tr>
+<tr>
+<td>COCRDUPC</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">97</td>
+</tr>
+<tr>
+<td>XFRFUN</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">92</td>
+</tr>
+</tbody>
+</table>
+<h2 id="scanner-lessons">Scanner lessons</h2>
+<ol>
+<li><strong>The default scan skips det ports.</strong> On the first scan 45 of the 49 det-port files were excluded: lines over 500 characters (<code>MAX_LINE_LENGTH</code>, packed literals and deeply nested conditions) and the Lexical Monotony gate (aperture Gate 5.1), which classifies repetitive indentation as generated noise. The classification is correct, since the files are generated, but a ported estate would look nearly empty. A det port needs a way to declare itself as intended code without lifting those gates for everyone. That is pending in #4164.</li>
+<li><strong>Runtime calls were not recognised.</strong> The scanner knew JDBC and common Java I/O, not <code>cobolrt</code>, so I/O could not be compared before and after a det port. #4163 fixed this (I/O ρ 0.24 → 0.87).</li>
+<li><strong>Holes were not counted as debt.</strong> The det port's named <code>Hole</code>s are its explicit list of untranslated work. Since #4163 the scanner counts an untranslated <code>throw new Hole</code> as planned debt, the way it counts TODO markers.</li>
+<li><strong>Risk scores need a cross-language mode to answer "did the migration make this riskier?".</strong> Today they only rank files within one scan.</li>
+<li><strong>The pairs are a test corpus for the scanner.</strong> Because each pair behaves identically, metrics that should be invariant (function, branch and mutation rank) can be checked across all 49 pairs. A change to the scanner that makes those rankings depend on the language would show up there.</li>
+</ol>
+<h2 id="translation-lessons">Translation lessons</h2>
+<ol>
+<li><strong>Structural parity is a cheap pre-proof check.</strong> Function and branch counts track the COBOL closely. A det port whose ratios fall far outside its estate's norm, after allowing for the fixed per-program overhead, is worth a look before running GnuCOBOL or Db2.</li>
+<li><strong>Readability layers have measurable targets.</strong> Today's det port is ×5 the code lines, its largest functions are ×3.6 as complex, it has lines over 500 characters and it fails the monotony gate. The model port shows what ordinary Java of the same programs looks like (×1.09 lines). A det port that passes the default aperture gates without help is a concrete milestone.</li>
+<li><strong>Refactor the biggest conditions first.</strong> The largest det functions (COACTUPC, COTRTUPC, COTRTLIC) are long <code>IF</code> conditions translated literally; the scan ranks them, so the readability work can start there.</li>
+<li><strong>Report proof and debt together for model ports.</strong> The proof shows a model port behaves like the COBOL; the TODO count shows what it still leaves unfinished.</li>
+</ol>
+<h2 id="follow-ups">Follow-ups</h2>
+<ul>
+<li><strong>Merged, #4163:</strong> the Java scanner counts <code>cobolrt</code> calls as I/O (CICS file, queue and counter operations on the task, <code>DetSql</code> statements, batch file operations) and <code>task.link</code> / <code>xctl</code> / <code>returnTransid</code> as IPC, and counts an untranslated <code>throw new Hole</code> as planned debt.</li>
+<li><strong>Merged, #4162:</strong> <code>tests/tools/det_parity.py</code> adds a structural parity warning (never a failure) to <code>det_port.py run</code> and <code>check</code>. It fits a fixed overhead and a slope separately for batch and CICS programs; none of the 49 pairs warn.</li>
+<li><strong>Pending, #4164:</strong> det ports carry a provenance header, and the aperture admits a declared port past the generated-noise gates, so a det-ported estate scans without the adjustments described in <a href="#method">Method</a>.</li>
+<li><strong>In progress:</strong> a scanner test over the 49 pairs checking that structural rankings stay invariant.</li>
+</ul>
 
 
 
@@ -12221,12 +12729,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="../../javascripts/mathjax.js"></script>
+        <script src="../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

@@ -1,6 +1,6 @@
 # Deterministic port (det-port): design and the runtime contract
 
-**Status: measured on the 23 proven CardDemo programs: all 23 translate with no hole and all 23 prove.** Question it answers: of the 23 CardDemo programs already proven with
+**Status: 24 CardDemo programs translate with no hole and prove -- the 23 with model-written ports, and COACTUPC.** Question it answers: of the 23 CardDemo programs already proven with
 model-written ports, how much can a deterministic translator port -- and does its port prove?
 
 ## Shape
@@ -129,7 +129,10 @@ proves the result with the same harness as the model-written ports (every case's
 | batch (runBatch) | 7 | 1,355 | 1,355 | 0 | 7 |
 | CALL (handleCall) | 1 | 27 | 27 | 0 | 1 |
 | CICS (runTask) | 15 | 3,024 | 3,024 | 0 | 15 |
-| **all** | **23** | **4,406** | **4,406** | **0** | **23** |
+| CICS: COACTUPC (no model-written port: too large for one) | 1 | 1,415 | 1,415 | 0 | 1 |
+| **all** | **24** | **5,821** | **5,821** | **0** | **24** |
+
+COACTUPC, the 4,200-line account update a model could not port in one pass, is proven on all 54 of its scenarios.
 
 No model is involved anywhere: the port is a function of the COBOL source and the generated project.
 
@@ -169,3 +172,18 @@ Only generator output, never a test case:
 - A numeric DISPLAY item MOVEd to an alphanumeric one is its digit bytes as they are -- invalid data included, the
   sign de-punched (GnuCOBOL, checked): the runtime had decoded `ABC` as `123`.
 - DIVIDE's intermediate follows GnuCOBOL's cob_decimal_div (the dividend shifted 38 digits, truncated).
+- PERFORM: when control falls off a paragraph, the innermost active PERFORM whose range ends there returns,
+  abandoning those inside it. COACTUPC GOes TO the end of its caller's range from inside a nested PERFORM; the port
+  looped where COBOL returned (GOTOOUT in test_det_programs.py).
+- FUNCTION TRIM of an all-space argument is zero-length, and TRIM removes spaces only (COACTUPC's alphabetic-field
+  check); SYNCPOINT ROLLBACK was emitted as a SYNCPOINT.
+- The harness itself: `equivalence_cics.alphanumeric` read the 9 of `PIC X(09)` as a digit position, so COACTUPC's
+  ACUP-OLD-CUST-SSN-X `017590544` reached the Java side as 17590544 -- another record than COBOL's. Fixed; the 15
+  model-written CICS ports re-prove with the fix.
+
+### Keyed reads
+
+A base cluster's keyed READ / WRITE / REWRITE / DELETE goes through the repository's `findById`, the id decoded
+from the key bytes by `det/entity.py` from the entity's `@Id` / `@EmbeddedId` comments; the record found must have
+exactly the key bytes asked for (a loosely decoded key -- non-digits in a numeric key -- finds nothing, as VSAM).
+Alternate indexes and browses keep the ordered scan.

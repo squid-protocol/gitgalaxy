@@ -141,7 +141,8 @@ class FunctionNode(TypedDict, total=False):
 
     name: str
     parent_class_name: str
-    # typescript/javascript only (#3757): 'binding' | 'member' | 'signature'
+    # typescript/javascript (#3757): 'binding' | 'member' | 'signature';
+    # java (#3836): 'signature' for a bodyless method, else unset
     def_shape: str
     usage_status: int
 
@@ -1666,6 +1667,11 @@ def _ts_js_def_shape(code: str, match: "re.Match[str]", bodyless: bool) -> str:
     # only the statement the name belongs to: `const o = { f() {` is a member
     segment = decl[max(decl.rfind(c) for c in "{;,(") + 1 :]
     return "binding" if _TS_JS_BINDING_KEYWORD.search(segment) else "member"
+
+
+# #3836: a java method ending in `;` with no body is an interface or `abstract`
+# declaration -- a `signature`, never a call target -- unless it is `native`.
+_JAVA_NATIVE_MODIFIER = re.compile(r"\bnative\b")
 
 
 # #2547: satellite names the structural slicer synthesizes for languages/modes with
@@ -5779,6 +5785,7 @@ class StructuralExtractor:
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
             ts_bodyless = False  # #3757: set by the typescript/javascript terminator scan
+            java_bodyless = False  # #3836: set by the java terminator scan
 
             # #2933: scheme's func_start leads with `^[ \t\n]*` under re.M, whose
             # newline-inclusive class swallows the blank/blanked-comment lines
@@ -6745,6 +6752,11 @@ class StructuralExtractor:
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
+                    # #3836: an interface or `abstract` method runs no code, so no
+                    # call lands on it (#3757's `signature`). A `native` method has
+                    # no java body either, but it does run: it stays a target.
+                    decl = code[code.rfind("\n", 0, start_idx) + 1 : match.end()]
+                    java_bodyless = not _JAVA_NATIVE_MODIFIER.search(decl)
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             # #1756: Go allows BODYLESS function declarations -- assembly-backed
@@ -6984,6 +6996,8 @@ class StructuralExtractor:
             )
             if lang_id in ("typescript", "javascript"):
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
+            elif java_bodyless:
+                sat["def_shape"] = "signature"
             satellites.append(sat)
             sum_fxn_impact += mag
 

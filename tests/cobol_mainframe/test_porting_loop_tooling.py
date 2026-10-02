@@ -63,6 +63,43 @@ def test_batch_feedback_names_the_differing_records_and_the_failing_fault_runs()
     assert "`dup` injects F WRITE 1 22" in fb and "ABEND: COBOL U0999, Java None" in fb
 
 
+def test_cics_feedback_names_a_file_a_scenario_left_different_when_its_events_are_equal():
+    """A LINKed program's write, or the port's own, can differ while every event is equal: the model must hear of it
+    (an empty feedback left three model ports nothing to act on)."""
+    case = {"scenarios": [{"name": "abend-path", "commarea": {"ACCNO": "4"}}, {"name": "fine"}]}
+    files = {
+        "ABNDFILE": {"records": 1, "equal": 0, "diffs": [{"record": 1, "missing": "java"}]},
+        "DB2 ACCOUNT": {
+            "records": 2,
+            "equal": 1,
+            "diffs": [{"record": 2, "fields": [{"field": "BAL", "cobol": "1.00", "java": "2.00"}]}],
+        },
+    }
+    report = {"outputs": {"abend-path": {"equal": 3, "records": 3, "diffs": [], "files": files},
+                          "fine": {"equal": 2, "records": 2, "diffs": [], "files": {}}}}  # fmt: skip
+    fb = ec.feedback_md(case, report)
+    assert "### Scenario abend-path: 3/3 events equal" in fb and "fine" not in fb
+    assert "- ABNDFILE: 0/1 records equal" in fb and "record 1: missing on the java side" in fb
+    assert "record 2 BAL: COBOL `1.00`, Java `2.00`" in fb
+
+
+def test_the_ticket_key_is_the_member_name_the_generator_wrote(tmp_path):
+    """GenApp's members are lower case (lgicdb01.cbl), so are its tickets; the case names the program upper case."""
+    jobs = tmp_path / "ai_agent_jobs"
+    jobs.mkdir()
+    for key in ("lgicdb01", "INQACC"):
+        (jobs / f"{key}_port_ticket.json").write_text("{}", encoding="utf-8")
+    assert pl.ticket_key(tmp_path, "LGICDB01") == "lgicdb01" and pl.ticket_key(tmp_path, "INQACC") == "INQACC"
+    with pytest.raises(SystemExit):
+        pl.ticket_key(tmp_path, "LGUPDB01")
+
+
+def test_an_adopted_port_carries_its_own_estates_licence():
+    for corpus, words in (("cics-genapp", "EPL-2.0"), ("cics-banking-sample-application-cbsa", "EPL-2.0"),
+                          ("aws-mainframe-modernization-carddemo", "Apache-2.0")):  # fmt: skip
+        assert words in pl.PORT_LICENCE[corpus]
+
+
 CALL_CASE = {"name": "c", "program": "SUBP", "using": [{"name": "LS-A", "size": 4}, {"name": "LS-B", "size": 6}],
              "calls": [{"name": "one", "args": ["AB", ""]}, {"name": "two", "args": ["it's", "X"]}]}  # fmt: skip
 
@@ -170,6 +207,9 @@ def test_a_call_cases_file_is_well_formed():
         "carddemo-readxref",
         "carddemo-readcust",
         "carddemo-dailyval",
+        "cbsa-updacc",
+        "genapp-lgicdb01",
+        "genapp-lgapvs01",
     ],
 )
 def test_the_loops_committed_ports_are_proven(case, tmp_path):

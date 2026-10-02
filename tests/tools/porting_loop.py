@@ -52,6 +52,17 @@ CLAUDE = (
 )
 
 
+# A model port is derived from its program: the corpus's licence, as the case's LICENSE / NOTICE state it.
+PORT_LICENCE = {
+    "aws-mainframe-modernization-carddemo": "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its "
+    "affiliates) -- see LICENSE and NOTICE in this case's directory",
+    "cics-banking-sample-application-cbsa": "derived from the CICS Bank Sample Application (EPL-2.0; Copyright IBM "
+    "Corp.) -- see LICENSE and NOTICE in this case's directory",
+    "cics-genapp": "derived from the CICS General Insurance Application (EPL-2.0; Copyright IBM Corp.) -- see LICENSE "
+    "and NOTICE in this case's directory",
+}
+
+
 def _python() -> str:
     return sys.executable
 
@@ -73,9 +84,18 @@ def generate_project(case_name: str, work: Path) -> Path:
     (entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(entry)
     project = ej.prepare_project(case, corpus, work / "generate", "", port=False)
-    if not (project / "ai_agent_jobs" / f"{case['program']}_port_ticket.json").is_file():
-        raise SystemExit(f"no porting ticket for {case['program']} in {project / 'ai_agent_jobs'}")
+    ticket_key(project, case["program"])
     return project
+
+
+def ticket_key(project: Path, program: str) -> str:
+    """The program's porting-ticket key as the generator wrote it: the source member's name, so `lgicdb01` for
+    GenApp's lower-case members, `INQACC` for CBSA's."""
+    for p in sorted((project / "ai_agent_jobs").glob("*_port_ticket.json")):
+        key = p.name[: -len("_port_ticket.json")]
+        if key.upper() == program.upper():
+            return key
+    raise SystemExit(f"no porting ticket for {program} in {project / 'ai_agent_jobs'}")
 
 
 def _overlay_files(overlay: Path) -> list[str]:
@@ -121,11 +141,11 @@ def run_loop(case_name: str, work: Path, attempts: int, model: str, faults: Opti
     import equivalence as eq
 
     case = eq.load_case(case_name)
-    key = case["program"]
     work.mkdir(parents=True, exist_ok=True)
     log = work / "loop.log"
     t0 = time.time()
     project = generate_project(case_name, work)
+    key = ticket_key(project, case["program"])
     baseline, baseline_files = start_baseline(case_name, project, key, work)
     command = backend_command or CLAUDE.replace("MODEL", model)
     prove = f"{_python()} {TOOLS / 'equivalence.py'} run {case_name} --port {{port_dir}} --keep {{report_dir}}"
@@ -215,8 +235,8 @@ def adopt(case_name: str, work: Path) -> Path:
     if not record.get("proven") or record.get("case") != case_name:
         raise SystemExit(f"{work}: not a proven loop of {case_name}")
     case = eq.load_case(case_name)
-    key = case["program"]
     project = Path(record["project"])
+    key = ticket_key(project, case["program"])
     overlay = project / "ai_agent_jobs" / "ports" / key / "overlay"
     proposed = [e for e in _events(project) if e.get("event") == "proposed" and e.get("ticket") == key][-1]
     dest = eq.CASES / case_name / "port"
@@ -224,15 +244,14 @@ def adopt(case_name: str, work: Path) -> Path:
         shutil.rmtree(dest)
     shutil.copytree(overlay, dest)
     provenance = {
-        "format": "porting-loop-provenance/1", "program": key,
+        "format": "porting-loop-provenance/1", "program": case["program"],
         "written_by": "model (the #4023 follow-up porting loop), not a person", "model": record["model"],
         "backend": "claude-code-headless: claude -p, no tools, only the ticket's prompt", "proposed": proposed.get("at"),
         "attempt": len(record["attempts"]), "attempts": [{"n": a["n"], "verdict": a["verdict"]} for a in record["attempts"]],
         "ticket_sha256": proposed.get("ticket_sha256"), "prompt_tokens": proposed.get("prompt_tokens"),
         "proof": f"tests/tools/equivalence.py run {case_name}",
         "edited_after": "none: the files are the model's answer as the loop stored it",
-        "licence": case.get("port_licence", "derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its "
-                                            "affiliates) -- see LICENSE and NOTICE in this case's directory"),
+        "licence": case.get("port_licence") or PORT_LICENCE[case["corpus"]],
     }  # fmt: skip
     (dest / "provenance.json").write_text(json.dumps(provenance, indent=1) + "\n", encoding="utf-8")
     return dest

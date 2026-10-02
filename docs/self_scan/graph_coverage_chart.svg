@@ -169,27 +169,27 @@
 <text class="n" x="324" y="325">n=1,085 imports</text>
 <text class="n" x="324" y="337">repos 1 · files 264</text>
 </g>
-<g><title>java callee names: precision 100.0% of 1,911, recall 98.2% of 1,946 (raw 100.0% / 98.2%; 1 shapes without a verdict)</title>
+<g><title>java callee names: precision 100.0% of 1,946, recall 100.0% of 1,946</title>
 <text class="pr" x="426" y="324.5">Precision</text>
 <rect class="track" x="472" y="317" width="110" height="8" rx="2"/>
 <rect x="472" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="587" y="325">100.0%</text>
 <text class="pr" x="426" y="336.5">Recall</text>
 <rect class="track" x="472" y="329" width="110" height="8" rx="2"/>
-<rect x="472" y="329" width="108.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="337">98.2%*</text>
+<rect x="472" y="329" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="337">100.0%</text>
 <text class="n" x="630" y="325">n=1,946 calls</text>
 <text class="n" x="630" y="337">functions 735</text>
 </g>
-<g><title>java call resolution: precision 99.4% of 4,747, recall 60.0% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.4% of 5,000, recall 63.3% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
 <rect x="778" y="317" width="109.3" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="325">99.4%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
-<rect x="778" y="329" width="66.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="337">60.0%</text>
+<rect x="778" y="329" width="69.6" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">63.3%</text>
 <text class="n" x="936" y="325">n=7,858 edges</text>
 <text class="n" x="936" y="337">vs scip-java 0.12.3</text>
 </g>
@@ -221,7 +221,7 @@
 <text class="none" x="732" y="364.0">not measured</text>
 <rect class="stripe" x="16" y="378" width="1022" height="34"/>
 <text class="lang" x="22" y="399.0">kotlin</text>
-<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus square/kotlinpoet</title>
+<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>
 <text class="pr" x="120" y="392.5">Precision</text>
 <rect class="track" x="166" y="385" width="110" height="8" rx="2"/>
 <rect x="166" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -229,7 +229,7 @@
 <text class="pr" x="120" y="404.5">Recall</text>
 <rect class="track" x="166" y="397" width="110" height="8" rx="2"/>
 <rect x="166" y="397" width="109.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="405">99.2%*</text>
+<text class="val" x="281" y="405">99.2%</text>
 <text class="n" x="324" y="393">n=377 imports</text>
 <text class="n" x="324" y="405">repos 1 · files 131</text>
 </g>

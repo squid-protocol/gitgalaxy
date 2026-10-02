@@ -371,3 +371,76 @@ def test_audit_recorder_carries_mainframe_facts_only_when_present(recorder, tmp_
 
     # A non-mainframe file carries no such block.
     assert "10. Mainframe System Facts" not in files["src"]["Files"]["src/app.py"]
+
+
+def test_function_analysis_lists_the_db_population(recorder, tmp_path):
+    """#4110: "5. Function Analysis" lists exactly the units the scan DB's
+    function_data holds -- slicer-synthesized units (a top-level bucket, an
+    Anonymous_Block, Mode E statement slices) are not functions, whichever flag
+    marks them."""
+    output_file = tmp_path / "pop_audit.json"
+    units = [
+        {"name": "real_fn", "loc": 5},
+        {"name": "__global_context__", "is_synthetic_slice": True, "calls_only": True},
+        {"name": "__global_context__", "is_synthetic_slice": True},
+        {"name": "Anonymous_Block", "is_synthetic_slice": True},
+        {"name": "CREATE_Statement", "is_synthetic_slice": True},
+    ]
+    recorder.generate_report(
+        [
+            {
+                "path": "src/run.sh",
+                "name": "run.sh",
+                "lang_id": "shell",
+                "directory_group": "src",
+                "total_loc": 20,
+                "telemetry": {},
+                "functions": units,
+            }
+        ],
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(output_file),
+    )
+    with open(output_file, encoding="utf-8") as f:
+        payload = json.load(f)
+    listed = payload["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["src/run.sh"]["5. Function Analysis"]
+    assert [fn["Function Name"] for fn in listed] == ["real_fn"]
+
+
+def test_file_archetype_profile_reports_distance_not_retired_fields(recorder, tmp_path):
+    """#4106: the per-language File Archetype / File Drift / File Fingerprint
+    placeholders are gone, and the general file archetype's distance is labelled
+    as a centroid distance rather than a z-score."""
+    output_file = tmp_path / "arch_audit.json"
+    recorder.generate_report(
+        [
+            {
+                "path": "src/a.py",
+                "name": "a.py",
+                "lang_id": "python",
+                "directory_group": "src",
+                "total_loc": 10,
+                "telemetry": {
+                    "archetype": "file_cluster_3",
+                    "global_drift": 1.25,
+                    "archetype_fingerprint": {"file_cluster_3": 1.25, "file_cluster_4": 2.5},
+                },
+            }
+        ],
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(output_file),
+    )
+    with open(output_file, encoding="utf-8") as f:
+        prof = json.load(f)["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["src/a.py"][
+            "3. Architectural Profile"
+        ]
+    assert prof["Repository Drift (Centroid Distance)"] == 1.25
+    assert prof["Repository Fingerprint"] == {"file_cluster_3": 1.25, "file_cluster_4": 2.5}
+    for retired in ("File Archetype", "File Drift (Z-Score)", "File Fingerprint", "Repository Drift (Z-Score)"):
+        assert retired not in prof

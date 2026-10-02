@@ -1,0 +1,106 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGAPDB01",
+ "program_source": "base/src/lgapdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGAP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGAPVS01",
+   "program_source": "base/src/lgapvs01.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgapvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL"
+  ]
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED",
+   "GENASA1.COMMERCIAL.REQUESTDATE"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgapol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "add-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01AHOU",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO211AA "
+   },
+   "why": "the house path: INSERT HOUSE"
+  },
+  {
+   "name": "add-motor",
+   "commarea": {
+    "CA-REQUEST-ID": "01AMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "the motor path: INSERT MOTOR"
+  },
+  {
+   "name": "add-commercial",
+   "commarea": {
+    "CA-REQUEST-ID": "01ACOM",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF00000010012341 High Street, Winchester                                                                                                                                                                                                                                      SO231AA 51.0632N   1.3080W    Acme Ltd                                                                                                                                                                                                                                                       WAREHOUSE                                                                                                                                                                                                                                                      0002000015000001000008000003000022000001000003000000                                                                                                                                                                                                                                                               "
+   },
+   "why": "the commercial path: INSERT COMMERCIAL (perils and premiums)"
+  },
+  {
+   "name": "unknown-request",
+   "commarea": {
+    "CA-REQUEST-ID": "01AXXX",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000002026-01-012027-01-01                          0000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "no WHEN for the request id: '99', RETURN before any INSERT or LINK"
+  }
+ ],
+ "notes": "GenApp's add-policy service (LGAPDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGAPOL01's record): the POLICY row is INSERTed with Db2's identity number and LASTCHANGED = CURRENT TIMESTAMP, the number read back with SET :H = IDENTITY_VAL_LOCAL() and LASTCHANGED with a SELECT, then the type's row (ENDOWMENT / HOUSE / MOTOR / COMMERCIAL), and LGAPVS01 (run in the same task) writes the VSAM copy. POLICY.LASTCHANGED and CA-LASTCHANGED (CA-REQUEST-SPECIFIC(31:26)) are clock fields, as is COMMERCIAL.REQUESTDATE (CURRENT TIMESTAMP too). A customer that does not exist is -530 ('70'), which LINKs LGSTSQ (oracle_assumptions.md X6): not here. Not here either: the endowment path MOVEs CA-E-PADDING-DATA into WS-VARY-CHAR(1:EIBCALEN - the required length), which with the 32500-byte COMMAREA its caller passes runs far past WS-VARY-CHAR's 3900 bytes -- a storage overlay (no SSRANGE) no oracle here can judge (oracle_assumptions.md X8)."
+}

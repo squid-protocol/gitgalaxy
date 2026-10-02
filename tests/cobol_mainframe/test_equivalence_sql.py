@@ -90,7 +90,7 @@ def test_return_code_is_kept_around_the_stub_call():
     ("proc", "why"),
     [
         (["EXEC SQL WHENEVER SQLERROR GO TO X END-EXEC"], "WHENEVER"),
-        (["EXEC SQL UPDATE T SET A = 1 WHERE CURRENT OF C1 END-EXEC"], "CURRENT OF"),
+        (["EXEC SQL UPDATE T SET A = 1 WHERE CURRENT OF C1 END-EXEC"], "not a declared cursor"),
         (["EXEC SQL PREPARE S1 FROM :HV-DESC END-EXEC"], "PREPARE"),
         (["EXEC SQL INSERT INTO T VALUES (:NOT-DECLARED) END-EXEC"], "not declared"),
     ],
@@ -113,3 +113,15 @@ def test_set_assigns_a_values_row_to_host_variables():
 def test_set_of_a_special_register_is_refused():
     with pytest.raises(Q.Unsupported, match="SET"):
         precompile(["EXEC SQL SET CURRENT SQLID = 'X' END-EXEC"])
+
+
+def test_a_positioned_update_runs_as_written_on_its_named_cursor():
+    _, table = precompile(["EXEC SQL DECLARE C1 CURSOR FOR SELECT A FROM T", "  FOR UPDATE OF A END-EXEC",
+                           "EXEC SQL OPEN C1 END-EXEC", "EXEC SQL FETCH C1 INTO :HV-TYPE END-EXEC",
+                           "EXEC SQL UPDATE T SET A = :HV-TYPE WHERE CURRENT OF C1", "END-EXEC"])  # fmt: skip
+    lines = table.splitlines()
+    assert (
+        lines[0] == "S 1 OPEN 0 0 C1"
+        and "S 3 EXEC 1 0 -" in lines
+        and "Q UPDATE T SET A = ? WHERE CURRENT OF C1" in lines
+    )

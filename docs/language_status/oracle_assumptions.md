@@ -58,8 +58,11 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | Q3 | Db2 | The Java side commits each statement | DIFFERS | no |
 | Q4 | Db2 | WHENEVER, dynamic SQL, positioned UPDATE/DELETE | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
+| Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA) |
 | J1 | Java | VSAM files on H2, not the target database | ASSUMED | — |
 | M1 | method | The scenarios are ours, not production traffic | — | — |
+| M2 | method | A Db2 error after a successful statement cannot be injected yet | — | yes (UPDACC 5/6 branches) |
+| M3 | method | A LINKed program's COMMAREA result was not compared before 2026-10-02 | fixed | 7 cases re-proven |
 
 ## Compiler: GnuCOBOL 3.1.2 `-std=ibm` vs IBM Enterprise COBOL
 
@@ -248,6 +251,19 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   untranslated statement.
 - **Reached.** No scenario reaches it.
 
+### Q6. Date text and DDL from z/OS jobs — ASSUMED
+- **Date text.** A DATE column read into a character host variable comes back as `YYYY-MM-DD` on both sides: Db2's
+  CLI and IBM's JDBC driver convert dates to ISO text. On z/OS the form is the bind's `DATE` option, else the
+  installation default (ISO as IBM ships it). CBSA's bind names none; a site with `DATE(EUR)` or `DATE(USA)` would
+  hand CBSA's `YYYY-MM-DD` slicing other text.
+- **In SQL text, not ISO.** The harness database's own default is USA: `CHAR(date)` inside a statement gives
+  `10/01/2026`. No proven statement formats a date in SQL.
+- **Input.** `DD.MM.YYYY` (CBSA's PROCTRAN dates) is accepted on input by both, whatever the option.
+- **DDL from a job.** `equivalence_db2.ddl_text` runs a z/OS job's in-stream SQL with the placement and audit clauses
+  removed (`IN db.ts`, `USING STOGROUP`, `AUDIT`, `[NOT] VOLATILE CARDINALITY`, `SET CURRENT SQLID`, CREATE
+  DATABASE / STOGROUP / TABLESPACE). None changes what a query returns. The bind's `QUALIFIER` is each side's
+  current schema.
+
 ## The Java side
 
 ### J1. Files on H2 — ASSUMED
@@ -263,6 +279,20 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
   mutation survivors (`tests/tools/strengthen.py`).
 - **What a proof covers.** The paths its coverage figure reports, and nothing else. CardDemo, CBSA and GenApp are
   public development estates; a fresh estate is measured through `tests/tools/trial.py`.
+
+### M2. Db2 errors after a successful statement — not injectable yet
+- File statuses and CICS conditions can be injected (F2). A Db2 error cannot: a scenario reaches an SQLCODE only
+  through data that makes Db2 return it (+100, -803, -305, -532 ...).
+- An error that no data can cause on demand stays uncovered, e.g. UPDACC's UPDATE failing after its SELECT succeeded,
+  or DBCRFUN's PROCTRAN INSERT failing (its SYNCPOINT ROLLBACK path).
+- **To settle.** An SQL fault plan for both sides (ggsql.c and DetSql), as ggfault.c does for files.
+
+### M3. A LINKed program's COMMAREA — fixed 2026-10-02
+- A LINKed program answers through the COMMAREA it leaves in its caller's storage. Until 2026-10-02 the harness
+  compared such a program's files and tables but not that COMMAREA, so CBSA's and GenApp's result codes (COMM-SUCCESS,
+  CA-RETURN-CODE) went unchecked.
+- A case marked `"linked": true` now compares it after every task that does not abend. All 7 earlier LINKed cases
+  re-proved with it.
 
 ## What would settle most of this
 

@@ -384,13 +384,14 @@ NULL is distinct.
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
   and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
   +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
-- **Proven: all three of CardDemo's Db2 programs**, translated with no model.
+- **Proven: all three of CardDemo's Db2 programs, and CBSA's first**, translated with no model.
 
   | case | program | scenarios | paragraphs | branches | translated |
   |---|---|---|---|---|---|
   | `carddemo-cobtupdt` | COBTUPDT, batch add / update / delete | 1 run | 9/9 | 14/20 | 58/58 |
   | `carddemo-cotrtupc` | COTRTUPC, CICS update screen | 34 | 62/63 | 124/166 | 436/436 |
   | `carddemo-cotrtlic` | COTRTLIC, CICS list screen with cursors | 27 | 56/59 | 165/230 | 631/632 |
+  | `cbsa-updacc` | CBSA UPDACC, LINKed account update (CBSA's own DDL) | 10 | 7/7 | 5/6 | 58/58 |
 
   - COBTUPDT matches on RETURN-CODE 4, the table's 9/9 rows and SYSOUT's 32/32 lines. Its case covers a duplicate
     key (-803), +100 updates and deletes, and a 50-character description: a `PIC X(50)` host variable keeps its

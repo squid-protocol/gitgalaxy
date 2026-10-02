@@ -23,6 +23,12 @@ on:
     branches: [main]
     paths:
       - "gitgalaxy/**"
+      # The record this workflow writes: its own record PR must
+      # not trigger a run. Excluding it here, not only via the loop guard below,
+      # matters: a run that is queued and then skipped by the guard still
+      # displaces -- cancels -- the PENDING run of the real engine change ahead
+      # of it in the concurrency group (seen on #4113's merge).
+      - "!gitgalaxy/standards/archetype_brains/archetype_validation.json"
       - "tests/archetype_trained_baseline.json"
       - "tests/tools/archetype_drift.py"
       - "tests/_crucible_pin.py"

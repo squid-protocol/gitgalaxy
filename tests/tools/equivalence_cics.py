@@ -885,6 +885,8 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     with spaces: COTRTLIC's unfetched rows are LOW-VALUES, and the program protects exactly those."""
     out = {}
     for f in fields:
+        if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
+            continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
             continue

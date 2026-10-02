@@ -1,0 +1,16 @@
+CICS Bank Sample Application (CBSA)
+https://github.com/cicsdev/cics-banking-sample-application-cbsa
+Copyright IBM Corp. 2023
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The program under test, src/base/cobol_src/XFRFUN.cbl, the
+abend recorder it LINKs, src/base/cobol_src/ABNDPROC.cbl, the COMMAREA record
+of its caller src/base/cobol_src/BNK1TFN.cbl, their copybooks (XFRFUN,
+ACCOUNT, ACCDB2, PROCTRAN, PROCDB2, SORTCODE, ABNDINFO) and the tables' DDL
+(etc/install/base/db2jcl/CRETB01.jcl, CREI101.jcl, CRETB02.jcl) are CBSA's,
+used unmodified from the corpus.
+
+seed.sql in this directory is synthetic test data written for this case in
+the layout of CBSA's ACCOUNT and PROCTRAN tables; it is not CBSA data.
+abndfile.bin is an empty file. The scenarios in case.json are written for
+this case.

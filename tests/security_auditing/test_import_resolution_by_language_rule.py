@@ -395,3 +395,63 @@ def test_scala_declarations_members_and_package_objects():
     )
     src = "app/src/main/scala/todo/Todo.scala"
     assert edges == {(src, base + "Error.scala"), (src, base + "syntax/package.scala"), (src, base + "Json.scala")}
+
+
+def test_scala_named_package_object_imports_nested_owners_and_relative_owners():
+    """#4128, circe: a NAMED import of a package object or its member is its package.scala;
+    a nested object's owner may be declared in a file not named after it; an import may be
+    relative to the enclosing package; and a resource that mirrors the package path is never
+    a Scala import's target."""
+    base = "core/src/main/scala/io/circe/"
+    src = "tests/src/test/scala/io/circe/Suite.scala"
+    parsed = [
+        {
+            "path": src,
+            "lang_id": "scala",
+            "raw_imports": [
+                "io.circe.jawn",  # the package object itself
+                "io.circe.jawn.parse",  # a member it inherits: package.scala, not JawnParser.scala
+                "io.circe.syntax.EncoderOps",  # a class inside the package object
+                "io.circe.DecodingFailure.Reason.MissingField",  # owner DecodingFailure: Error.scala
+                "Decoder.state._",  # relative to package io.circe
+                "io.circe.tests.examples.glossary",  # a val, not resources/.../glossary.json
+                "io.circe.parser",  # a package directory: not io/circe/package.scala
+                "io.circe.pointer._",  # no package object: no edge
+            ],
+            "classes": [],
+            "functions": [],
+        },
+        {"path": base + "package.scala", "lang_id": "scala", "raw_imports": [], "classes": [{"name": "circe"}]},
+        {"path": base + "jawn/package.scala", "lang_id": "scala", "raw_imports": [], "classes": [{"name": "jawn"}]},
+        {
+            "path": base + "jawn/JawnParser.scala",
+            "lang_id": "scala",
+            "raw_imports": [],
+            "classes": [{"name": "JawnParser"}],
+            "functions": [{"name": "parse"}],
+        },
+        {"path": base + "syntax/package.scala", "lang_id": "scala", "raw_imports": [], "classes": [{"name": "syntax"}]},
+        {
+            "path": base + "Error.scala",
+            "lang_id": "scala",
+            "raw_imports": [],
+            "classes": [{"name": "Error"}, {"name": "DecodingFailure"}],
+        },
+        {"path": base + "Decoder.scala", "lang_id": "scala", "raw_imports": [], "classes": [{"name": "Decoder"}]},
+        {"path": base + "parser/Parser.scala", "lang_id": "scala", "raw_imports": [], "classes": []},
+        {"path": base + "pointer/Pointer.scala", "lang_id": "scala", "raw_imports": [], "classes": []},
+        {"path": "tests/src/main/scala/io/circe/tests/examples/package.scala", "lang_id": "scala", "raw_imports": []},
+        {
+            "path": "tests/src/main/resources/io/circe/tests/examples/glossary.json",
+            "lang_id": "json",
+            "raw_imports": [],
+        },
+    ]
+    edges = set(NetworkRiskSensor().resolve_import_edges(parsed))
+    assert edges == {
+        (src, base + "jawn/package.scala"),
+        (src, base + "syntax/package.scala"),
+        (src, base + "Error.scala"),
+        (src, base + "Decoder.scala"),
+        (src, "tests/src/main/scala/io/circe/tests/examples/package.scala"),
+    }

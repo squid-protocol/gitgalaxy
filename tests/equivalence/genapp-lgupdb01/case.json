@@ -1,0 +1,113 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUPDB01",
+ "program_source": "base/src/lgupdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUP",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUPVS01",
+   "program_source": "base/src/lgupvs01.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSPOLY": {
+   "input": "@case/ksdspoly.txt",
+   "entity": "WfPolicyInfo",
+   "copybook": "base/src/lgupvs01.cbl",
+   "record": "WF-POLICY-INFO",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 21,
+    "reclen": 64,
+    "why": "base/cntl/adef121.jcl DEFINE2: DATA(... KEYS(21 0) RECORDSIZE(64 64)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR"
+  ]
+ },
+ "clock_fields": {
+  "db2": [
+   "GENASA1.POLICY.LASTCHANGED"
+  ],
+  "commarea": [
+   "CA-REQUEST-SPECIFIC(31:26)"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgupol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "LASTCHANGED matches: UPDATE ENDOWMENT, the positioned UPDATE POLICY (LASTCHANGED = CURRENT TIMESTAMP), its SELECT back into CA-LASTCHANGED, LINK LGUPVS01 rewrites the VSAM record; '00'"
+  },
+  {
+   "name": "update-house",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "4",
+    "CA-REQUEST-SPECIFIC": "00000000062026-01-012027-01-012011-09-01-22.32.42.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "the house path"
+  },
+  {
+   "name": "update-motor",
+   "commarea": {
+    "CA-REQUEST-ID": "01UMOT",
+    "CA-CUSTOMER-NUM": "2",
+    "CA-REQUEST-SPECIFIC": "00000000012026-01-012027-01-012011-05-11-17.12.17.0000000000000007REF0000001001234FORD           FIESTA         009500AB12CDEBLUE    12002019-05-01000450000001"
+   },
+   "why": "the motor path"
+  },
+  {
+   "name": "stale-lastchanged",
+   "commarea": {
+    "CA-REQUEST-ID": "01UEND",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.18.0000000000000007REF0000001001234YNYGROWTH    25250000A. N. OTHER                    "
+   },
+   "why": "CA-LASTCHANGED differs from the row's (another update came first): '02', nothing changed"
+  },
+  {
+   "name": "house-request-for-endowment",
+   "commarea": {
+    "CA-REQUEST-ID": "01UHOU",
+    "CA-CUSTOMER-NUM": "8",
+    "CA-REQUEST-SPECIFIC": "00000000042026-01-012027-01-012011-08-05-10.45.19.0000000000000007REF0000001001234COTTAGE        00300425000ROSE                12  SO21 1AA"
+   },
+   "why": "a house update of an endowment policy: UPDATE HOUSE finds no row (+100)"
+  }
+ ],
+ "notes": "GenApp's update-policy service (LGUPDB01, LINKed with the LGCMAREA COMMAREA): a cursor FOR UPDATE reads the customer's policy; if its LASTCHANGED is the one the request carries (optimistic locking), the type's table (ENDOWMENT / HOUSE / MOTOR) is UPDATEd, then the POLICY row through the cursor (WHERE CURRENT OF, LASTCHANGED = CURRENT TIMESTAMP), its new LASTCHANGED is read back into the COMMAREA, and LGUPVS01 is LINKed to rewrite the VSAM copy of the policy. The case runs LGUPVS01 in the same task. Not here: the paths on which LGUPVS01 fails (no such policy, a customer that does not own it, an unknown request id) LINK LGSTSQ, whose WRITEQ LENGTH runs past its FROM area -- bytes from whatever storage follows, which GnuCOBOL lays out unlike IBM's compiler (oracle_assumptions.md X6). POLICY.LASTCHANGED and CA-LASTCHANGED (CA-REQUEST-SPECIFIC(31:26): the COMMAREA is compared through its REDEFINESd area) are clock fields: a value the run wrote is compared as a timestamp, not by its digits. The COMMAREA is described by its caller LGUPOL01's record (COPY LGCMAREA): LGUPDB01's own comes through EXEC SQL INCLUDE."
+}

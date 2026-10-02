@@ -3,16 +3,24 @@
 
     python tests/tools/det_port.py run CASE [CASE ...] --work DIR [--faults all|none] [--jobs N]
     python tests/tools/det_port.py run --all-proven --work DIR
+    python tests/tools/det_port.py run --all-cases --translate-only --work DIR
+    python tests/tools/det_port.py check --work DIR [--base-ref origin/main | --base DIR]
 
 For each case: the program is translated (gitgalaxy/tools/cobol_to_java/det) onto the generated project's service
 -- the estate is generated once, under DIR/estate, for the stubs -- the port is written to DIR/<case>/port (the
 service and the cobolrt runtime), and `equivalence.py run CASE --port DIR/<case>/port` proves it. DIR/summary.json:
-per case, statements / translated / holes, and the proof's verdict."""
+per case, statements / translated / holes, and the proof's verdict.
+
+`check` answers "which ports does my change move?": every case translated with the current code (DIR/new) and with
+the base -- a git ref translated in a throwaway worktree (DIR/base), or an earlier work directory -- and each port
+compared file by file. A changed port is one to re-prove (`run CASE ...`); exit 1 when any changed."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
 import shutil
 import subprocess
 import sys
@@ -55,6 +63,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     svc = ej._service_class(case["program"])
     stub = (project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java").read_text(encoding="utf-8")
     dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
+    dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]  # DCLGEN members
     # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 
@@ -73,6 +82,19 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         return out
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for extra in case.get("programs", []):  # the programs the task LINKs to: translated the same way
+        x_svc = ej._service_class(extra["program"])
+        x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
+        try:
+            x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
+                            style, typed, groups)  # fmt: skip
+        except Exception as e:
+            out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
+            return out
+        (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        r.stats["statements"] += x.stats["statements"]
+        r.stats["translated"] += x.stats["translated"]
+        r.stats["holes"] += x.stats["holes"]
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
@@ -99,30 +121,136 @@ def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
             "java_failed": bool(rep.get("java_failed")), "log": str(log)}  # fmt: skip
 
 
+def all_cases() -> list[str]:
+    """Every equivalence case (the det port needs no model-written port)."""
+    import equivalence as eq
+
+    return sorted(p.parent.name for p in eq.CASES.glob("*/case.json"))
+
+
+def _ports(work: Path) -> dict[str, dict[str, str]]:
+    """{case: {file under its port: text}} of a translate-only work directory."""
+    out: dict[str, dict[str, str]] = {}
+    for port in sorted(work.glob("*/port")):
+        out[port.parent.name] = {f.relative_to(port).as_posix(): f.read_text(encoding="utf-8")
+                                 for f in sorted(port.rglob("*.java"))}  # fmt: skip
+    return out
+
+
+def compare(base: Path, new: Path) -> list[dict[str, Any]]:
+    """Each case's port in `new` against `base`: unchanged, changed (the files and changed lines), new or gone.
+    A runtime class (cobolrt/...) every port carries counts against a port only when its own code names that class
+    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it."""
+    import difflib
+
+    a, b = _ports(base), _ports(new)
+    rows = []
+    for case in sorted(set(a) | set(b)):
+        if case not in a or case not in b:
+            rows.append({"case": case, "status": "new" if case not in a else "gone"})
+            continue
+        own = " ".join(t for rel, t in b[case].items() if not rel.startswith("cobolrt/"))
+        files = []
+        for rel in sorted(set(a[case]) | set(b[case])):
+            x, y = a[case].get(rel, ""), b[case].get(rel, "")
+            if x == y:
+                continue
+            if rel.startswith("cobolrt/") and not re.search(rf"\b{re.escape(Path(rel).stem)}\b", own):
+                continue  # a runtime class this port never names
+            n = sum(1 for ln in difflib.unified_diff(x.splitlines(), y.splitlines(), lineterm="", n=0)
+                    if ln[:1] in "+-" and ln[:3] not in ("+++", "---"))  # fmt: skip
+            files.append({"file": rel, "lines": n})
+        rows.append({"case": case, "status": "changed" if files else "unchanged", "files": files})
+    return rows
+
+
+def check(args: argparse.Namespace) -> int:
+    """Translate every case with the current code and with the base, and list the ports that changed."""
+    work: Path = args.work
+    work.mkdir(parents=True, exist_ok=True)
+    flags = ["--style", args.style] + (["--typed"] if args.typed else []) + (["--groups"] if args.groups else [])
+    cases = args.cases or all_cases()
+
+    def translate(repo: Path, out: Path) -> None:
+        shutil.rmtree(out, ignore_errors=True)
+        here = [c for c in cases if (repo / "tests" / "equivalence" / c / "case.json").is_file()]  # (new on one side)
+        argv = [sys.executable, str(repo / "tests" / "tools" / "det_port.py"), "run", *here, "--translate-only",
+                "--work", str(out), *flags]  # fmt: skip
+        env = dict(os.environ)
+        env.setdefault("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")  # (no licence delay per estate scan)
+        subprocess.run(argv, cwd=repo, check=True, stdout=subprocess.DEVNULL, env=env)  # noqa: S603
+
+    base = args.base
+    if base is None:
+        tree = work / "base-tree"
+        subprocess.run(["git", "-C", str(REPO_ROOT), "worktree", "remove", "--force", str(tree)],  # noqa: S603, S607
+                       check=False, capture_output=True)  # fmt: skip
+        subprocess.run(["git", "-C", str(REPO_ROOT), "worktree", "add", "--detach", str(tree), args.base_ref],  # noqa: S603, S607
+                       check=True, capture_output=True)  # fmt: skip
+        try:
+            base = work / "base"
+            translate(tree, base)
+        finally:
+            subprocess.run(["git", "-C", str(REPO_ROOT), "worktree", "remove", "--force", str(tree)],  # noqa: S603, S607
+                           check=False, capture_output=True)  # fmt: skip
+    translate(REPO_ROOT, work / "new")
+    rows = compare(base, work / "new")
+    (work / "check.json").write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8")
+    changed = [r for r in rows if r["status"] != "unchanged"]
+    for r in rows:
+        detail = ", ".join(f"{f['file'].rsplit('/', 1)[-1]} {f['lines']} lines" for f in r.get("files", []))
+        print(f"{r['case']:<28} {r['status'].upper() if r['status'] != 'unchanged' else 'unchanged'}"
+              f"{'  ' + detail if detail else ''}")  # fmt: skip
+    print(
+        f"{len(rows) - len(changed)}/{len(rows)} ports unchanged"
+        + (f"; re-prove: det_port.py run {' '.join(r['case'] for r in changed)} --work DIR" if changed else "")
+    )
+    return 1 if changed else 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run")
     r.add_argument("cases", nargs="*")
     r.add_argument("--all-proven", action="store_true", help="every carddemo case with a proven port")
+    r.add_argument("--all-cases", action="store_true", help="every equivalence case")
     r.add_argument("--work", type=Path, required=True)
     r.add_argument("--faults", default="all")
     r.add_argument("--jobs", type=int, default=2)
     r.add_argument("--translate-only", action="store_true")
-    r.add_argument("--groups", action="store_true",
-                   help="with --typed: items in groups used whole too, the group's bytes synced (typed groups)")
-    r.add_argument("--typed", action="store_true",
-                   help="standalone WORKING-STORAGE items as typed Java fields where every use allows (B3)")
+    r.add_argument(
+        "--groups",
+        action="store_true",
+        help="with --typed: items in groups used whole too, the group's bytes synced (typed groups)",
+    )
+    r.add_argument(
+        "--typed",
+        action="store_true",
+        help="standalone WORKING-STORAGE items as typed Java fields where every use allows (B3)",
+    )
     r.add_argument("--style", choices=("dispatch", "structured"), default="dispatch",
                    help="structured: paragraphs as named methods called directly where the program has no GO TO / "
                         "HANDLE (else dispatch)")  # fmt: skip
+    c = sub.add_parser("check", help="which ports change against a base (a git ref, or an earlier work directory)")
+    c.add_argument("cases", nargs="*", help="default: every case")
+    c.add_argument("--work", type=Path, required=True)
+    c.add_argument("--base-ref", default="origin/main", help="the git ref translated as the base (default origin/main)")
+    c.add_argument("--base", type=Path, help="an earlier translate-only work directory, instead of --base-ref")
+    c.add_argument("--style", choices=("dispatch", "structured"), default="dispatch")
+    c.add_argument("--typed", action="store_true")
+    c.add_argument("--groups", action="store_true")
     args = ap.parse_args()
+    if args.cmd == "check":
+        return check(args)
     import equivalence as eq
     import mainframe_corpus as mc
 
     names = list(args.cases)
     if args.all_proven:
         names += sorted(p.parent.name for p in eq.CASES.glob("carddemo-*/case.json") if (p.parent / "port").is_dir())
+    if args.all_cases:
+        names += [n for n in all_cases() if n not in names]
     args.work.mkdir(parents=True, exist_ok=True)
     results = []
     estates: dict[str, tuple[Path, Path]] = {}  # corpus name -> (clone, generated project)

@@ -695,6 +695,8 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
         if level in (66, 88):
             parent = last_item
         else:
+            if level == 77:  # a 77 is a root like an 01 (it never sits under the group before it)
+                stack.clear()
             while stack and stack[-1][0] >= level:
                 stack.pop()
             parent = stack[-1][1] if stack else None

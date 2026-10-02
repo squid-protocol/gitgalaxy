@@ -82,6 +82,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
+import equivalence_db2
+import equivalence_sql
 from equivalence_common import (
     CASES,
     DEFAULT_DATA_ENCODING,
@@ -97,6 +99,7 @@ from equivalence_common import (
     read_program,
     require_ascii_runtime,
     reuse,
+    reused,
     run_cobol_step,
 )
 
@@ -203,6 +206,15 @@ def run_cobol(
     # #3815: read by the engine's ladder (or the declared page), staged in the encoding it was read in
     source, staged = read_program(case, corpus / case["program_source"])
     program, option_flags = compile_options(case, source)
+    db2 = case.get("db2")
+    if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub (equivalence_sql.py)
+        dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
+        try:
+            program, table = equivalence_sql.precompile(program, dirs, corpus / case["program_source"])
+        except equivalence_sql.Unsupported as e:
+            raise RuntimeError(f"not runnable faithfully: {e}") from e
+        (work / "stmts.txt").write_text(table, encoding="latin-1")
+        shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
     for cpy in case.get("copy_dirs", []):
         for p in (corpus / cpy).iterdir():
@@ -230,7 +242,8 @@ def run_cobol(
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
-    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c")
+    sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
+    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{sql}")
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
     inject = "LD_PRELOAD=/work/ggdisplay.so "
@@ -244,8 +257,9 @@ def run_cobol(
     clock = f"COB_CURRENT_DATE='{case['clock']}' " if case.get("clock") else ""
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
+    sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND {inject}{tz}{clock}{env} "
-                  "./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
+                  f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
         if spec.get("compare") and spec.get("organization") == "indexed":
@@ -253,11 +267,23 @@ def run_cobol(
         elif spec.get("compare"):
             script.append(f"[ ! -e /work/{dd}.idx ] || cp /work/{dd}.idx /work/{dd}.out")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = run_cobol_step(work)
+    if db2 and reused(work) is None:
+        equivalence_db2.reset(case, corpus)
+    proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
+            else run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
     outs = {dd: (work / f"{dd}.out").read_bytes() for dd, spec in case["datasets"].items()
             if spec.get("compare") and (work / f"{dd}.out").is_file()}  # fmt: skip
+    if db2:  # what the run left in the tables (kept with the run, for --reuse)
+        saved = work / "db2"
+        if not proc.args or proc.args[0] != "reuse":
+            saved.mkdir(exist_ok=True)
+            for key, data in equivalence_db2.outputs(case).items():
+                (saved / key.replace(" ", "_")).write_bytes(data)
+        for t in db2.get("compare", []):
+            f = saved / f"DB2_{t}"
+            outs[f"DB2 {t}"] = f.read_bytes() if f.is_file() else b""
     outs["SYSOUT"] = (work / "stdout.txt").read_bytes() if (work / "stdout.txt").is_file() else b""  # #4056
     # A CALL to a routine nothing here provides (CBACT01C's assembler COBDATFT) ends the run in libcob's own
     # "module not found": that is GnuCOBOL's failure, never the program's behaviour -- refused, not recorded as the
@@ -281,6 +307,9 @@ def cobol_coverage(case: dict[str, Any], corpus: Path, traces: list[Path], out: 
     """#4023: how much of the program the runs execute together (the normal run and every fault run)."""
     source, staged = read_program(case, corpus / case["program_source"])
     program, _flags = compile_options(case, source)
+    staged_file = traces[0].parent / "src" / "PROGRAM.cbl" if traces else None
+    if case.get("db2") and staged_file is not None and staged_file.is_file():  # what ran: the precompiled text
+        program = staged_file.read_text(encoding=staged)
     return cov.write_run_coverage(out, source=corpus / case["program_source"], original=source, compiled=program,
                                   traces=[t for t in traces if t.is_file()], compiled_name="PROGRAM.cbl",
                                   copybooks=corpus, encoding=staged)  # fmt: skip
@@ -454,6 +483,12 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             run["outputs"][dd] = d
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
+        for t in (case.get("db2") or {}).get("compare", []):  # a Db2 table: its rows, as text, line by line
+            d = equivalence_db2.diff_dump(cobol.get(f"DB2 {t}", b""), java.get(f"DB2 {t}", b""))
+            run["outputs"][f"DB2 {t}"] = d
+            diffs, rows = d["diffs"], d["records"]
+            if diffs:
+                why.append(f"DB2 {t}: {rows - len(diffs)}/{rows} rows equal")
     if case.get("sysout", True):  # #4056: the job log too, after an abend as well (its messages say why)
         s = compare_sysout(cobol.get("SYSOUT", b""), java.get("SYSOUT", b""), data_encoding(case))
         run["sysout"] = s
@@ -547,6 +582,8 @@ def main() -> int:
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
+    if case.get("db2"):  # one Db2 holds every case's tables: a Db2 case runs alone (parallel runs wait their turn)
+        equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     if args.reuse:
         reuse(work, args.reuse)
@@ -563,6 +600,8 @@ def main() -> int:
         return ec.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
                            cobol_only=args.cobol_only)  # fmt: skip
     faults = selected_faults(case, args.faults)
+    if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
+        equivalence_db2.create(case, corpus)
     cobol = run_cobol(case, corpus, work / "cobol")
     cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
     if args.cobol_only:

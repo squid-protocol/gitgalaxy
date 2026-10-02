@@ -1,0 +1,6 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): seed.sql is the INSERT of app/app-transaction-type-db2/ctl/DB2LTTYP.ctl, unchanged; input.txt is
+written for this case.

@@ -184,7 +184,10 @@ def test_ts_commands_pass_length_item_and_numitems_in_and_out():
     assert ec.translate_command("READQ TS QNAME(Q) INTO(X) RESP(R)")[1] == "MOVE LENGTH OF X TO GG-LEN"
     w = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(WS-ONE) LENGTH(1) ITEM(WS-I)")
     assert w[:4] == ["MOVE 'Q' TO GG-QNAME", "MOVE 1 TO GG-LEN", "MOVE 0 TO GG-ITEM", "MOVE SPACES TO GG-FLAGS"]
-    assert ["IF GG-RESP = 0", "    MOVE GG-ITEM TO WS-I", "END-IF"] == w[6:9]
+    # a LENGTH past the FROM item stops the run, refused by name (oracle_assumptions.md X6)
+    assert w[4:9] == ["IF GG-LEN > LENGTH OF WS-ONE", "    DISPLAY 'WRITEQ TS LENGTH > FROM: not modelled'",
+                      "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
+    assert ["IF GG-RESP = 0", "    MOVE GG-ITEM TO WS-I", "END-IF"] == w[11:14]
     r = ec.translate_command("WRITEQ TS QUEUE('Q') FROM(A) ITEM(WS-I) REWRITE")
     assert r[2:4] == ["MOVE WS-I TO GG-ITEM", "MOVE 'REWRITE' TO GG-FLAGS"] and "    MOVE GG-ITEM TO WS-I" not in r
 

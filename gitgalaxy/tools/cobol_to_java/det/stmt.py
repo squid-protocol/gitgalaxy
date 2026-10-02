@@ -78,14 +78,19 @@ def parse(lines: list[Line]) -> Procedure:
 
     def ph(mm):
         execs[len(execs) + 1] = mm.group(0)
-        return f"CALL 'GGEXEC{len(execs):04d}'"
+        # as many lines as the block: every later statement keeps its own line (a multi-line EXEC SQL / CICS block
+        # had shifted them -- the Db2 repositories' methods are found by the statement's line)
+        return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
 
     proc_text = re.sub(r"\bEXEC(?:UTE)?\s+(CICS|SQL|DLI)\b.*?\bEND-EXEC\b", ph, text[m.start() :], flags=re.S | re.I)
+    # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
+    proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
     pre = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. GGDET.\n"
     src = (pre + "       PROCEDURE DIVISION.\n" + proc_text[len(header) :].lstrip("\n")).encode("latin-1")
     # line numbers: map back to the expanded program's lines
-    base_line = text[: m.start()].count("\n") + 1 + header.count("\n") - 2
+    # (src row 3 is the text line after the header's last; it had been two lines early)
+    base_line = text[: m.end()].count("\n") + 1
     root = _parser_cache(get_parser).parse(src).root_node
     prog = next((c for c in root.children if c.type == "program_definition"), root)
     pd = next((c for c in prog.children if c.type == "procedure_division"), None)
@@ -284,13 +289,16 @@ def _whens(text: str) -> list:
     return out
 
 
-def _when_object(p: str):
+def _when_object(p: str) -> tuple[Any, Any, Any, bool]:
+    """(kind, a, b, negated): ANY / TRUE / FALSE; VALUE v; RANGE lo hi; COND condition; UNPARSED text why."""
     up = p.upper()
     if up == "ANY":
-        return ("ANY",)
+        return ("ANY", None, None, False)
     if up in ("TRUE", "FALSE"):
-        return (up,)
-    neg = False
+        return (up, None, None, False)
+    # WHEN NOT negates a value or a range (an identifier, a literal, an arithmetic expression); a condition keeps a
+    # leading NOT as its own -- `WHEN NOT A-FLAG AND B = C` is (NOT A-FLAG) AND B = C, not NOT (A-FLAG AND B = C)
+    whole, neg = p, False
     if up.startswith("NOT "):
         neg, p = True, p[4:]
     m = re.match(r"(.+?)\s+(?:THRU|THROUGH)\s+(.+)$", p, re.I)
@@ -298,14 +306,14 @@ def _when_object(p: str):
         if m:
             return ("RANGE", E.parse_arith(m.group(1)), E.parse_arith(m.group(2)), neg)
         try:
-            return ("VALUE", E.parse_arith(p), neg)
+            return ("VALUE", E.parse_arith(p), None, neg)
         except E.ExprError:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), None, False)
     except E.ExprError:
         try:
-            return ("COND", E.parse_condition(p), neg)
+            return ("COND", E.parse_condition(whole), None, False)
         except E.ExprError as e:
-            return ("UNPARSED", p, str(e))
+            return ("UNPARSED", p, str(e), False)
 
 
 # ---- one statement ---------------------------------------------------------------------------------------------
@@ -465,6 +473,9 @@ def _initialize(p: E.Parser, text: str, line: int) -> Stmt:
 
 
 def _set(p: E.Parser, text: str, line: int) -> Stmt:
+    m = re.fullmatch(r"(?is)\s*SET\s+([A-Z0-9][A-Z0-9-]*)\s+TO\s+ADDRESS\s+OF\s+([A-Z0-9][A-Z0-9-]*)\s*\.?\s*", text)
+    if m:  # a pointer set to an item's address: translated only where the pointer is never read (write_only_pointers)
+        return Stmt("SET-POINTER", line, text, {"target": m.group(1).upper(), "of": m.group(2).upper()})
     if p.up() == "ADDRESS" or "ADDRESS" in [x.upper() for x in p.t]:
         return Stmt("HOLE", line, text, {"why": "SET ADDRESS OF (pointers)"})
     targets = []

@@ -327,8 +327,14 @@ int GGCREWR(gg_cics *c, char *from, int fromlen) {
     return 0;
 }
 
+/* A Db2 case's SQL stub (tests/equivalence/db2/ggsql.c), when linked: its Db2 work belongs to the same unit of work.
+ * A weak no-op DEFINITION, which ggsql.c's strong one overrides at link time. (A weak undefined REFERENCE checked
+ * against NULL links on ELF but not on macOS, whose linker still requires it to resolve.) */
+__attribute__((weak)) void ggsql_uow_end(int rollback) { (void)rollback; }
+
 /* The unit of work ends: committed (the saved copies dropped) or backed out (put back). */
 static void uow_end(int rollback) {
+    ggsql_uow_end(rollback);
     char aside[3100];
     for (int i = 0; i < MAX_FILES; i++) {
         if (!uow_saved[i][0]) continue;
@@ -921,6 +927,8 @@ enum { RUNNING = 0, DONE = 1, XCTLED = 2 };
 
 typedef struct {
     char prog[9];
+    char invoker[9];         /* the program that LINKed / XCTLed to this one (ASSIGN INVOKINGPROG); "" at the first */
+    char next_invoker[9];    /* the invoker of the program pending at this level */
     handlers h;
     handlers pushed[MAX_PUSH];
     int npushed;
@@ -1133,6 +1141,16 @@ int GGCASGN(gg_cics *c) {
     memset(c->name1, ' ', 8);
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strcmp(want, "INVOKING") == 0) { /* INVOKINGPROG (GG-NAME2 holds 8): who LINKed / XCTLed here; blanks at first */
+        const char *p = levels[lvl].invoker;
+        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+        return 0;
+    }
+    if (strcmp(want, "PROGRAM") == 0) { /* ASSIGN PROGRAM: the program running at this level */
+        const char *p = current_program();
+        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+        return 0;
+    }
     if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
         memcpy(c->name1, task_abcode, 4);
         return 0;
@@ -1193,6 +1211,7 @@ static void return_event(const char *transid, char *commarea, int len) {
 
 static void xctl_next(const char *program, char *commarea, int len) {
     level *L = &levels[lvl];
+    snprintf(L->next_invoker, sizeof L->next_invoker, "%s", L->prog);  /* the XCTLing program */
     L->state = XCTLED;
     snprintf(L->next, sizeof L->next, "%s", program);
     L->next_len = commarea && len > 0 ? len : 0;
@@ -1241,6 +1260,8 @@ int GGCNEXT(gg_cics *c, char **area) {
     if (L->next_area_set) *area = L->next_area;
     else if (L->next_len <= 0) *area = NULL; /* level 1 with EIBCALEN 0: no COMMAREA */
     memcpy(L->prog, L->next, sizeof L->prog);
+    memcpy(L->invoker, L->next_invoker, sizeof L->invoker);
+    L->next_invoker[0] = 0;
     L->state = RUNNING;
     c->item = 1;
     return 0;
@@ -1284,10 +1305,14 @@ int GGCLINK(gg_cics *c, char *area) {
     snprintf(ev, sizeof ev, "LINK target=%s len=%d area=%d resp=%d resp2=%d", program, len, has, c->resp, c->resp2);
     event(ev, has ? area : NULL, has && len > 0 && len <= 32763 ? len : 0);
     if (c->resp != NORMAL) return 0;
+    const char *linker = current_program();
+    char by[9];
+    snprintf(by, sizeof by, "%s", linker);
     lvl++;
     memset(&levels[lvl], 0, sizeof levels[lvl]);
     level *L = &levels[lvl];
     snprintf(L->next, sizeof L->next, "%s", program);
+    snprintf(L->next_invoker, sizeof L->next_invoker, "%s", by);
     L->next_len = len;
     L->next_area = has ? area : NULL;
     L->next_area_set = 1;
@@ -1465,6 +1490,55 @@ int GGCCNCL(gg_cics *c) {
     c->resp = found ? NORMAL : NOTFND;
     c->resp2 = 0;
     snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);
+    event(ev, NULL, 0);
+    return 0;
+}
+
+/* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
+ * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
+int GGCAOUT(const char *ca, int len) {
+    char path[3000];
+    snprintf(path, sizeof path, "%s/commarea.out", dir_out());
+    FILE *f = fopen(path, "wb");
+    if (!f) return 0;
+    if (len > 0) fwrite(ca, 1, (size_t)len, f);
+    fclose(f);
+    return 0;
+}
+
+/* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
+ * counter is one more. The region's counters are $GGCICS_DIR/counters.cfg ("POOL NAME VALUE", POOL "-" for none),
+ * rewritten after each GET, so a later task of the scenario sees the next value; a counter not there is NOTFND. */
+int GGCGCNT(gg_cics *c) {
+    char want[17], pool[9], path[4096], line[256], p[64], n[64], ev[128];
+    long v, got = -1;
+    char lines[64][128];
+    int nl = 0;
+    trim(c->qname, 16, want);
+    trim(c->name1, 8, pool);
+    if (!pool[0]) strcpy(pool, "-");
+    snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    while (f && nl < 64 && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s %63s %ld", p, n, &v) != 3) continue;
+        if (got < 0 && strcmp(p, pool) == 0 && strcmp(n, want) == 0) {
+            got = v;
+            v++;
+        }
+        snprintf(lines[nl++], sizeof lines[0], "%s %s %ld\n", p, n, v);
+    }
+    if (f) fclose(f);
+    c->resp2 = 0;
+    if (got < 0) {
+        c->resp = NOTFND;
+    } else {
+        c->resp = NORMAL;
+        c->num = (int)got;
+        f = fopen(path, "w");
+        for (int i = 0; f && i < nl; i++) fputs(lines[i], f);
+        if (f) fclose(f);
+    }
+    snprintf(ev, sizeof ev, "GET-COUNTER pool=%s counter=%s resp=%d", pool, want, c->resp);
     event(ev, NULL, 0);
     return 0;
 }

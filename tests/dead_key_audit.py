@@ -69,6 +69,7 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
     # command it just parsed (cics_resources._options), so "CHANNEL" is written
@@ -80,6 +81,11 @@ ALLOWLIST = {
     "KEYS": "IDCAMS DEFINE parameter parsed from JCL in-stream data (file_control.py, #3455)",
     "NSYMBOL": "CBL / PROCESS compiler option parsed from source (compiler_options.py; read by mainframe_boundary, #3816)",
     # --- Written by an external producer ---
+    # archetype_validation.json (#4100) is written by tests/tools/archetype_drift.py,
+    # outside gitgalaxy/, and read back by archetype_parity.validation_status.
+    "inherits": "archetype_validation.json level key, written by tests/tools/archetype_drift.py (#4100)",
+    "brain_fingerprints": "archetype_validation.json key, written by tests/tools/archetype_drift.py (#4100)",
+    "engine_version": "archetype_validation.json trained.* key, written by tests/tools/archetype_drift.py (#4100)",
     # The AI agent a Java service ticket goes to returns {"diagnosis", "java_code"}
     # (cobol_to_java_agent_forge's system prompt); the guardrail (#3652) reads it.
     "java_code": "AI agent ticket result, written by the agent (cobol_to_java_guardrail.py, #3652)",

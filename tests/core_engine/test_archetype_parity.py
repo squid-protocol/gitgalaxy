@@ -124,16 +124,17 @@ def _synthetic_code_file():
 
 
 def test_unknown_aux_feature_degrades_not_crashes(monkeypatch, caplog):
-    """A brain declaring an aux feature the engine can't compute must degrade to
-    unclassified with a named warning -- never a KeyError crash mid-scan, never a
-    silent 0.0 column."""
+    """A brain declaring an aux feature the engine can't compute must be withheld
+    with a named warning -- never a KeyError crash mid-scan, never a silent 0.0
+    column. Since #4100 the level is structurally INVALID, so its label is the
+    explicit WITHHELD_LABEL rather than a bare None."""
     b = json.loads(json.dumps(analysis_lens.FILE_ARCHETYPE_BRAIN))  # deep copy
     b["aux_features"] = list(b["aux_features"]) + ["nonexistent_feature_xyz"]
     monkeypatch.setattr(analysis_lens, "FILE_ARCHETYPE_BRAIN", b)
     ac._logged_parity_warnings.clear()
     with caplog.at_level(logging.WARNING):
         result = ac.classify_file(_synthetic_code_file())
-    assert result == (None, None)
+    assert result == (ap.WITHHELD_LABEL, 0.0)
     assert any("cannot compute" in r.getMessage() for r in caplog.records), (
         "expected a named parity warning naming the uncomputable feature"
     )

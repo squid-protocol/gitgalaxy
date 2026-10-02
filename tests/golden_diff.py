@@ -40,6 +40,11 @@ def sanitize(data: Dict[str, Any]) -> Dict[str, Any]:
         # Absolute path is machine/runner-specific (e.g. /home/joe/... locally
         # vs /home/runner/work/... in CI) -- never structurally meaningful.
         context.pop("Absolute Project Path", None)
+        # #4100: the archetype validation record is refreshed by automation on main
+        # (archetype-validation.yml) independently of engine output; a golden
+        # master must not go stale when it is. Withheld LABELS still diff -- they
+        # depend only on the brains.
+        data["1. Forensic Trail (Traceability)"].pop("Archetype Validation", None)
 
         git_footprint = data["1. Forensic Trail (Traceability)"].get("Source Control Footprint (Immutable Anchor)", {})
         git_footprint.pop("Commit Hash (SHA-1)", None)

@@ -23,6 +23,9 @@ from pathlib import Path
 from typing import Any, Optional, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
+from gitgalaxy.core.function_population import population_functions
+from gitgalaxy.metrics import archetype_classifier
+from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
     GENERAL_FILE_INFERENCE_MODEL,
@@ -418,6 +421,14 @@ class RecordKeeper:
         """Nearest-centroid file archetype from the assembled metrics, mirroring the
         offline apply_file_clusters. Returns the archetype name, or None if the brain
         is unavailable/degenerate (caller keeps its fallback label)."""
+        detail = self._classify_file_archetype_detail(ctx, hv)
+        return detail[0] if detail else None
+
+    def _classify_file_archetype_detail(self, ctx: dict, hv: list) -> Optional[tuple[str, float, dict[str, float]]]:
+        """``(name, distance, fingerprint)``: the nearest archetype, the Euclidean
+        distance to its centroid in the brain's scaled+weighted space, and the
+        distance to every centroid (#4106 -- these were placeholders since #3061
+        moved classification here). None when the brain is unavailable."""
         if not hasattr(self, "_file_brain"):
             self._prep_file_brain()
         fb = self._file_brain
@@ -458,14 +469,18 @@ class RecordKeeper:
             q = iqr[i] if iqr[i] > 0 else 1.0
             vec.append(((v - med[i]) / q) * wts[i])
         best_i, best_d = -1, None
+        fingerprint: dict[str, float] = {}
         for ci, cen in enumerate(fb["centroids"]):
             d = 0.0
             for j in range(len(vec)):
                 diff = vec[j] - cen[j]
                 d += diff * diff
+            fingerprint[fb["names"][ci]] = round(math.sqrt(d), 3)
             if best_d is None or d < best_d:
                 best_d, best_i = d, ci
-        return fb["names"][best_i] if 0 <= best_i < len(fb["names"]) else None
+        if not 0 <= best_i < len(fb["names"]) or best_d is None:
+            return None
+        return fb["names"][best_i], round(math.sqrt(best_d), 3), fingerprint
 
     def _heal_column(self, cursor: sqlite3.Cursor, table: str, column: str, sql_type: str) -> None:
         """Add `column` to a database that predates it; a no-op when it exists."""
@@ -2123,9 +2138,9 @@ class RecordKeeper:
             # corpus reads as `functions_found`, and it reported 16 against 13
             # planted for livecode/lua/matlab/ruby/shell -- every per-function
             # average below was then taken over three things that are not
-            # functions. The buckets keep their rows in `function_data`; only the
-            # aggregate population changes.
-            functions = [f for f in file_data.get("functions", []) if not f.get("is_synthetic_slice")]
+            # functions. The buckets are not in `function_data` either: they are
+            # recorded in `synthetic_unit_data` (#4110 corrected this comment).
+            functions = population_functions(file_data.get("functions"))
 
             # Function Mathematics
             func_count = len(functions)
@@ -2240,7 +2255,10 @@ class RecordKeeper:
             # Classify any file with code (matching the trainer's coding_loc>=10
             # population); a func-less code file just has all-zero z-score/composition
             # features, exactly as it did during training. No functions is fine.
-            if self._file_brain and float(file_data.get("coding_loc", 0) or 0) > 0:
+            if "file" in archetype_classifier.withheld_levels():
+                # #4100: the file brain is structurally INVALID for this engine.
+                file_archetype = WITHHELD_LABEL
+            elif self._file_brain and float(file_data.get("coding_loc", 0) or 0) > 0:
                 _mix: dict[int, int] = {}
                 for _f in file_data.get("functions", []) or []:
                     _idx = self._func_name_to_idx.get(_f.get("archetype"))
@@ -2248,7 +2266,7 @@ class RecordKeeper:
                         _mix[_idx] = _mix.get(_idx, 0) + 1
                 _tot = sum(_mix.values())
                 _micro = {k: (v / _tot) * 100.0 for k, v in _mix.items()} if _tot else {}
-                _res = self._classify_file_archetype(
+                _res = self._classify_file_archetype_detail(
                     {
                         "coding_loc": float(file_data.get("coding_loc", 0) or 0),
                         "func_z_max": func_z_max,
@@ -2272,7 +2290,7 @@ class RecordKeeper:
                     hv,
                 )
                 if _res:
-                    file_archetype = _res
+                    file_archetype, tel["global_drift"], tel["archetype_fingerprint"] = _res
             # Propagate the authoritative file archetype back into the shared
             # telemetry dict so the audit/LLM recorders (which run AFTER this DB
             # recorder, see galaxyscope recorder order) report the same value the
@@ -2653,7 +2671,7 @@ class RecordKeeper:
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
-                        (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
+                        (int(_tm) if (_tm := func.get("token_mass")) is not None else None),
                         int(bool(func.get("is_public", False))),
                         int(bool(func.get("is_documented", False))),
                         *func_hits,
@@ -3895,7 +3913,8 @@ class RecordKeeper:
             loc = file_data.get("total_loc", 0)
             coding_loc = file_data.get("coding_loc", 0)
             mass = file_data.get("file_impact", 0.0)
-            func_count = len([u for u in file_data.get("functions", []) if not u.get("calls_only")])
+            # #4110: agree with file_data.function_count.
+            func_count = len(population_functions(file_data.get("functions")))
             class_count = len(file_data.get("classes", []))
 
             tel = file_data.get("telemetry", {})

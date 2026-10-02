@@ -543,13 +543,13 @@ def reused(work: Path) -> Path | None:
     return earlier / work.resolve().relative_to(root)
 
 
-def run_cobol_step(work: Path) -> subprocess.CompletedProcess[str]:
-    """Run work/run.sh in the GnuCOBOL image -- or, with --reuse, copy in what the earlier run's identical step
-    wrote."""
+def run_cobol_step(work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()) -> subprocess.CompletedProcess[str]:
+    """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
+    copy in what the earlier run's identical step wrote."""
     earlier = reused(work)
     if earlier is None:
-        return subprocess.run(["docker", "run", "--rm", "-v", f"{work}:/work", IMAGE, "bash", "/work/run.sh"],  # noqa: S603, S607
-                              capture_output=True, text=True, check=False)  # fmt: skip
+        return subprocess.run(["docker", "run", "--rm", *docker_args, "-v", f"{work}:/work", image, "bash",  # noqa: S603, S607
+                               "/work/run.sh"], capture_output=True, text=True, check=False)  # fmt: skip
     script = earlier / "run.sh"
     if not script.is_file() or script.read_bytes() != (work / "run.sh").read_bytes():
         raise RuntimeError(f"--reuse: {earlier} did not run this COBOL step (its run.sh differs or is missing)")

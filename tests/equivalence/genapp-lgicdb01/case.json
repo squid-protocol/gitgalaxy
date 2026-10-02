@@ -1,0 +1,145 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGICDB01",
+ "program_source": "base/src/lgicdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgicus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "customer-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 1
+   },
+   "why": "SELECT INTO +0: '00'; HOUSENAME ' ' comes back as 20 blanks, DATEOFBIRTH as ISO text 1950-07-11"
+  },
+  {
+   "name": "customer-2-mobile-blank",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 2
+   },
+   "why": "every column filled except PHONEMOBILE ' ' (CHAR blanks, not NULL); the host variables are in COMMAREA order, not the SELECT's (PHONEMOBILE before PHONEHOME)"
+  },
+  {
+   "name": "customer-4-no-email",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 4
+   },
+   "why": "PHONEMOBILE and EMAILADDRESS blank, a house name 'Picnic Basket'"
+  },
+  {
+   "name": "customer-7-no-phones",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 7
+   },
+   "why": "both phone numbers blank, a 100-byte email column"
+  },
+  {
+   "name": "customer-9-sparse",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 9
+   },
+   "why": "the sparsest row: phones and email all blank"
+  },
+  {
+   "name": "customer-10-last",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 10
+   },
+   "why": "the highest seeded key; a pre-1940 date of birth"
+  },
+  {
+   "name": "prefilled-commarea-overwritten",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "CA-CUSTOMER-REQUEST arrives full of junk: the nine SELECTed fields are replaced, CA-NUM-POLICIES ('123') and CA-POLICY-DATA are left as they came"
+  },
+  {
+   "name": "request-id-ignored",
+   "commarea": {
+    "CA-REQUEST-ID": "",
+    "CA-CUSTOMER-NUM": 6
+   },
+   "why": "LGICDB01 never tests CA-REQUEST-ID: a request id of spaces still inquires"
+  },
+  {
+   "name": "customer-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 11
+   },
+   "why": "SQLCODE +100 (no customer 11): CA-RETURN-CODE '01', the customer fields untouched"
+  },
+  {
+   "name": "customer-zero",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 0
+   },
+   "why": "boundary: customer 0, below the seeded keys: +100, '01'"
+  },
+  {
+   "name": "customer-max-int",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 999999999
+   },
+   "why": "boundary: the largest value S9(9) COMP holds by its PICTURE: +100, '01'"
+  },
+  {
+   "name": "not-found-keeps-prefill",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 12,
+    "CA-REQUEST-SPECIFIC": "XXXXXXXXXXYYYYYYYYYYYYYYYYYYYY1999-99-99ZZZZZZZZZZZZZZZZZZZZ9999QQ99QQQ 123MMMMMMMMMMMMMMMMMMMMHHHHHHHHHHHHHHHHHHHHeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeePOLICYDATA"
+   },
+   "why": "+100 with a filled COMMAREA: '01' and every customer byte unchanged"
+  }
+ ],
+ "notes": "GenApp's Db2 'inquire customer' (LGICDB01, LINKed by LGICUS01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGICUS01's DFHCOMMAREA (COPY LGCMAREA), since LGICDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): EIBCALEN is checked against 72+18 bytes, CA-CUSTOMER-NUM is moved to an S9(9) COMP host variable, and a SELECT INTO from CUSTOMER (unqualified: the bind's QUALIFIER, GENASA1) fills the nine customer fields of CA-CUSTOMER-REQUEST directly. SQLCODE 0 gives CA-RETURN-CODE '00', +100 (or -913) '01', anything else '90' and WRITE-ERROR-MESSAGE. The table is GenApp's own (base/cntl/db2cre.jcl: DDL and its ten customer INSERTs, <DB2DBID> = GENASA1) and is compared after every scenario. Not reachable here: EIBCALEN 0 (ABEND LGCA, l.119-123) and EIBCALEN < 90 ('98', l.140-143) -- the harness passes the whole 32500-byte COMMAREA, with no per-scenario length; SQLCODE -913 (l.197) and any other negative SQLCODE (l.199-202) -- no data in GenApp's seed causes one (every CUSTOMER column is nullable and read without an indicator, but no seeded value is NULL; Db2 errors are not injectable, M2), and the '90' path LINKs to LGSTSQ, GenApp's TS/TD logger, which the harness does not run. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

@@ -1,0 +1,155 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "UPDACC",
+ "program_source": "src/base/cobol_src/UPDACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/UPDACC.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-type-overdraft-rate",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "SAVING",
+    "COMM-OVERDRAFT": "750",
+    "COMM-INT-RATE": "1.25"
+   },
+   "why": "SELECT +0, valid type: UPDATE sets type, overdraft and rate; the COMMAREA refilled from the host variables, the dates reformatted from Db2's ISO text; 'Y'"
+  },
+  {
+   "name": "update-negative-balance-account",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "3",
+    "COMM-ACC-TYPE": "LOAN",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "18.5"
+   },
+   "why": "a negative DECIMAL(12,2) balance into COMM-AVAIL-BAL / COMM-ACTUAL-BAL (S9(10)V99)"
+  },
+  {
+   "name": "update-max-values",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "6",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "99999999",
+    "COMM-INT-RATE": "9999.99"
+   },
+   "why": "COMM-OVERDRAFT 99999999 into INTEGER, COMM-INT-RATE 9999.99 into DECIMAL(6,2) (the largest each PICTURE holds); balance 9999999999.99"
+  },
+  {
+   "name": "leap-day-opened",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "6",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "2500",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "an account opened 2024-02-29: the date's parts moved by position"
+  },
+  {
+   "name": "account-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "99",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "SELECT INTO no row: SQLCODE +100, 'N', no UPDATE"
+  },
+  {
+   "name": "other-sort-code-not-found",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "123456",
+    "COMM-ACCNO": "1",
+    "COMM-ACC-TYPE": "CURRENT",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "COMM-SCODE is overwritten by the program's own SORTCODE (987654): account 123456/00000001 is never read, 987654/00000001 is"
+  },
+  {
+   "name": "blank-account-type",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": "",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "type all spaces: 'N' after the SELECT, no UPDATE"
+  },
+  {
+   "name": "type-starts-with-space",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "2",
+    "COMM-ACC-TYPE": " SAVING",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "0"
+   },
+   "why": "type's first byte a space: 'N', no UPDATE"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "4",
+    "COMM-ACC-TYPE": "ISA",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "3.1"
+   },
+   "why": "ACCOUNT_LAST_STATEMENT is NULL and its host variable has no indicator: SELECT INTO is SQLCODE -305, 'N', no UPDATE"
+  },
+  {
+   "name": "mortgage-update",
+   "commarea": {
+    "COMM-EYE": "ACCT",
+    "COMM-SCODE": "987654",
+    "COMM-ACCNO": "5",
+    "COMM-ACC-TYPE": "MORTGAGE",
+    "COMM-OVERDRAFT": "0",
+    "COMM-INT-RATE": "3.99"
+   },
+   "why": "a second successful update, a large negative balance"
+  }
+ ],
+ "notes": "CBSA's update-account service (UPDACC, LINKed with the UPDACC copybook's COMMAREA): the account is read by the program's own sort code (987654) and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT (+100, -305 ...) or an account type that is blank or starts with a space gives COMM-SUCCESS 'N' and no UPDATE; otherwise ACCOUNT_TYPE, ACCOUNT_INTEREST_RATE and ACCOUNT_OVERDRAFT_LIMIT are UPDATEd, and the COMMAREA is refilled from the host variables, each date reformatted from Db2's character form (YYYY-MM-DD) to DDMMYYYY. The table is compared after every scenario."
+}

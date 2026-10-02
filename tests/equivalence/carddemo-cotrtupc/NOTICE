@@ -1,0 +1,8 @@
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This case is derived from the AWS Mainframe Modernization CardDemo application
+(https://github.com/aws-samples/aws-mainframe-modernization-carddemo), licensed under the Apache License, Version 2.0
+(LICENSE here): seed.sql's first INSERT is that of app/app-transaction-type-db2/ctl/DB2LTTYP.ctl and its third that
+of app/app-transaction-type-db2/ctl/DB2LTCAT.ctl, unchanged (each statement ended with ';' in place of the member's
+COMMIT); its second INSERT (types 08-12, without category rows) is written for this case and carddemo-cotrtlic.
+The scenarios in case.json are written for this case.

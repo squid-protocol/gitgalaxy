@@ -70,6 +70,11 @@ by `tests/tools/cics_crucible.py`. It measures the CICS pipeline against
 case and scenario: engine facts, whether the generated project compiles, the COBOL on the stub
 runtime, and the generated Java. It also lists the harness work each unsupported cell waits on.
 
+**COBOL-to-Java proofs: [`oracle_assumptions.md`](oracle_assumptions.md)** (added 2026-10-02). A proof compares the
+Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE models, not by IBM z/OS. That page lists
+every known or suspected difference between the two, its status (matched, refused, differs, assumed), whether a
+proven program reaches it, and what would settle it.
+
 ## Signature-bearing languages (47)
 
 `LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`

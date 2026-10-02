@@ -31,7 +31,7 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
 faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 310 of 397
 branches, from 256 before generated per-field scenarios; the rest sit mostly behind CEEDAYS, below). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
-difference is declared below.
+difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](oracle_assumptions.md).
 
 **Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
 as in style. Here a model never decides behaviour. The translator fixes it, and the model's only freedom is
@@ -364,6 +364,63 @@ calls of their own: in total, runtime call sites rise about 5%. It is a readabil
 every screen field overlaps another, and overlapping items are never typed. Typing them needs aliasing (one Java
 field for `TRNAMTI` and `TRNAMTO`). That is the next step.
 
+## Db2 (embedded SQL)
+
+**Proven on real Db2.** Both sides of a Db2 case run their SQL on one IBM Db2 (Db2 Community Edition, in a container,
+`tests/tools/equivalence_db2.py`). The tables are created from the corpus's DDL, reset to the case's seed before every
+run, and compared row by row after it. Each value is compared in its character form, trailing blanks included, and
+NULL is distinct.
+
+- **COBOL side (the oracle).** GnuCOBOL has no Db2 precompiler, so the harness has one (`tests/tools/equivalence_sql.py`):
+  - each `EXEC SQL` becomes a `CALL 'GGSQL'`, and the stub (`tests/equivalence/db2/ggsql.c`) runs the statement on Db2
+    through IBM's CLI driver;
+  - host variables are bound as the Db2 precompiler declares them for COBOL: `PIC X(n)` CHAR(n) with all its bytes,
+    a 49-level pair VARCHAR, zoned and packed DECIMAL(p,s), binary SMALLINT / INTEGER / BIGINT;
+  - SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2 itself;
+  - forms it does not model are refused by name: WHENEVER, positioned UPDATE / DELETE, dynamic SQL, host-variable
+    arrays, a program that shows SQLERRMC.
+- **Java side (the det port).** Each statement calls the generated Db2 repository's method for it. The generator writes
+  one method per statement, with the SQL as written and its Javadoc naming the source line and each parameter's host
+  variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
+  and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
+  +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
+- **Proven: all three of CardDemo's Db2 programs, two of CBSA's and all eight of GenApp's**, translated with no model.
+
+  | case | program | scenarios | paragraphs | branches | translated |
+  |---|---|---|---|---|---|
+  | `carddemo-cobtupdt` | COBTUPDT, batch add / update / delete | 1 run | 9/9 | 14/20 | 58/58 |
+  | `carddemo-cotrtupc` | COTRTUPC, CICS update screen | 34 | 62/63 | 124/166 | 436/436 |
+  | `carddemo-cotrtlic` | COTRTLIC, CICS list screen with cursors | 27 | 56/59 | 165/230 | 631/632 |
+  | `cbsa-updacc` | CBSA UPDACC, LINKed account update (CBSA's own DDL) | 10 | 7/7 | 5/6 | 58/58 |
+  | `cbsa-dbcrfun` | CBSA DBCRFUN, debit / credit + PROCTRAN | 22 | 16/22 | 22/35 | 148/148 |
+  | `genapp-lgicdb01` | GenApp LGICDB01, inquire customer | 12 | 3/4 | 4/12 | 44/44 |
+  | `genapp-lgipdb01` | GenApp LGIPDB01, inquire policy (cursors) | 29 | 11/12 | 46/74 | 238/238 |
+  | `genapp-lgacdb02` | GenApp LGACDB02, add customer password | 8 | 2/3 | 4/10 | 39/39 |
+  | `genapp-lgdpdb01` | GenApp LGDPDB01 + LGDPVS01, delete policy (cascade) | 8 | 2/3 | 5/12 | 73/73 |
+  | `genapp-lgupdb01` | GenApp LGUPDB01 + LGUPVS01, update policy (positioned UPDATE) | 5 | 8/9 | 17/38 | 171/171 |
+  | `genapp-lgacdb01` | GenApp LGACDB01 + LGACVS01 + LGACDB02, add customer (named counter or identity) | 4 | 3/4 | 6/14 | 125/125 |
+  | `genapp-lgapdb01` | GenApp LGAPDB01 + LGAPVS01, add policy (identity, clock fields) | 4 | 5/7 | 13/31 | 171/171 |
+  | `genapp-lgucdb01` | GenApp LGUCDB01 + LGUCVS01, update customer | 4 | 3/4 | 2/10 | 71/71 |
+
+  - COBTUPDT matches on RETURN-CODE 4, the table's 9/9 rows and SYSOUT's 32/32 lines. Its case covers a duplicate
+    key (-803), +100 updates and deletes, and a 50-character description: a `PIC X(50)` host variable keeps its
+    trailing blanks in the VARCHAR(50) column, as Db2 stores it.
+  - The CICS cases cover SELECT INTO, INSERT after an UPDATE of no row, a delete refused by the foreign key (-532,
+    shown with SQLERRMC's tokens), +100, SYNCPOINT, and cursors forward and backward with paging, filters (LIKE)
+    and a look-ahead FETCH.
+  - COTRTLIC's one untranslated statement is a dynamic CALL of IBM's DSNTIAC, on the Db2-error path, which no
+    scenario reaches; the COBOL side cannot run DSNTIAC either.
+- **CICS.** The COBOL side runs every scenario in one container, so a small CLI tool (`tests/equivalence/db2/ggsqlrun.c`)
+  resets the tables before each task and dumps them after it. The Java side's test does the same over JDBC.
+  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it. Db2 cases
+  run one at a time: they share the database, and the harness takes a lock.
+- **Declared, not measured:**
+  - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
+  - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.
+  - A run that ends normally commits.
+  - The Java side commits each statement as the repositories run it, so ROLLBACK is a hole. A CICS path that
+    backs out after a Db2 change would show as a difference, never as a proof; no scenario here reaches one.
+
 ## In port_runner
 
 The combined method runs in the porting loop like any other backend, and every event lands in
@@ -383,8 +440,8 @@ The combined method runs in the porting loop like any other backend, and every e
 
 - **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
   input and output maps overlap (`REDEFINES`), which typing does not do yet.
-- **The oracle is GnuCOBOL.** The declared differences above are the known ones; IBM-compiler runs would close the
-  question.
+- **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
+  from z/OS (C1: IBM's default TRUNC(STD) has been running as TRUNC(BIN) on both sides); a z/OS session would settle most.
 - **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for
   this translator: such statements stay named holes.
 

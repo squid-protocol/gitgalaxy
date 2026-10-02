@@ -10,7 +10,7 @@ from pathlib import Path
 from gitgalaxy.core.source_text import read_source
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
-COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY")
+COPYBOOK_EXTS = ("", ".cpy", ".CPY", ".copy", ".COPY", ".dcl", ".DCL")  # (.dcl: a DCLGEN member)
 PROGRAM_EXTS = (".cbl", ".CBL", ".cob", ".COB")
 COPY_EXTS = COPYBOOK_EXTS + PROGRAM_EXTS
 

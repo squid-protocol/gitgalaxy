@@ -260,7 +260,10 @@ def branch_points(text: str) -> tuple[list[Branch], Counter[tuple[int, str]]]:
 
 
 def program_id(text: str) -> Optional[str]:
-    m = _PROGRAM_ID.search(text)
+    """The PROGRAM-ID's name, read in the code area (columns 8-72): a name on the line after `PROGRAM-ID.` must not
+    be the sequence number in columns 73-80 / 1-6 (COTRTUPC's `002200 PROGRAM-ID. ... 00220000`)."""
+    area = "\n".join("" if len(ln) > 6 and ln[6] in "*/" else ln[7:72] for ln in text.split("\n"))
+    m = _PROGRAM_ID.search(area)
     return m.group(1).upper() if m else None
 
 

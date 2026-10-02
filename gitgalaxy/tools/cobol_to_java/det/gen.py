@@ -99,6 +99,7 @@ class Program:
 
 class Gen:
     def __init__(self, prog: Program, structured: bool = False):
+        self.write_only_pointers: set[str] = set()  # program.write_only_pointers
         self.p = prog
         # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
         self.structured = structured
@@ -146,6 +147,7 @@ class Gen:
         self._reading = 0  # > 0 while an operand is only read
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
+        self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entities: set = set()
@@ -813,6 +815,10 @@ class Gen:
                 return
             if x.name == "FILLER" and x is not it:
                 return
+            if x.usage == "POINTER":  # never read (write_only_pointers): whatever INITIALIZE leaves in it, unseen
+                if x.name.upper() not in self.write_only_pointers:
+                    raise Untranslatable(f"INITIALIZE {it.name}: POINTER")
+                return
             out.append(self._init_one(x, base, it))
 
         def walk_occ(c: L.Item, k: int) -> None:
@@ -942,6 +948,10 @@ class Gen:
             return [c, *self.store_all(s, s.data["targets"], self.num(s.data["expr"]), ind)]
         if k == "ARITH":
             return [c, *self.arith(s, ind)]
+        if k == "SET-POINTER":
+            if s.data["target"] not in self.write_only_pointers:
+                raise Untranslatable("SET ADDRESS OF (pointers)")
+            return [c, f"{ind}// the pointer is never read (write_only_pointers): no effect any output can show"]
         if k == "INITIALIZE":
             out = [c]
             for r in s.data["refs"]:
@@ -991,6 +1001,11 @@ class Gen:
             return [c, *self.io(s, ind)]
         if k == "EXEC":
             words = s.text.split()
+            if len(words) > 1 and words[1].upper() == "SQL" and self.sql is not None:
+                try:  # (the translator's own error class, by its instance: no import of det.sql here)
+                    return [c, *self.sql.command(s.text, s.line, ind)]
+                except (self.sql.Error, E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC SQL: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError
@@ -1162,7 +1177,7 @@ class Gen:
             return t if subject == "TRUE" else f"!({t})"
         if kind == "VALUE":
             t = self.rel("=", subject, obj[1])
-            return f"!({t})" if obj[2] else t
+            return f"!({t})" if obj[3] else t
         if kind == "RANGE":
             t = f"({self.rel('>=', subject, obj[1])} && {self.rel('<=', subject, obj[2])})"
             return f"!{t}" if obj[3] else t

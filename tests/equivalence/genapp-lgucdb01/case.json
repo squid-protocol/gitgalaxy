@@ -1,0 +1,93 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGUCDB01",
+ "program_source": "base/src/lgucdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGUC",
+ "clock": "2026/10/01 10:30:15.00",
+ "programs": [
+  {
+   "program": "LGUCVS01",
+   "program_source": "base/src/lgucvs01.cbl"
+  }
+ ],
+ "datasets": {
+  "<USRHLQ>.GENAPP.KSDSCUST": {
+   "input": "@case/ksdscust.txt",
+   "entity": "CaCustomerNum",
+   "copybook": "base/src/lgcmarea.cpy",
+   "record": "CA-CUSTOMER-NUM",
+   "vsam": {
+    "key_offset": 0,
+    "key_length": 10,
+    "reclen": 225,
+    "why": "base/cntl/adef121.jcl DEFINE1: DATA(... KEYS(10 0) RECORDSIZE(225 225)); the engine's facts do not read KEYS / RECORDSIZE inside the DATA component, so the case states them"
+   }
+  }
+ },
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgucus01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "update-customer-5",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "5",
+    "CA-REQUEST-SPECIFIC": "Graham    Cuthbert            1967-01-03                    55  TR68BK  00007700100100         02083443444         g.cuthbert@new.example                                                                              "
+   },
+   "why": "UPDATE CUSTOMER +0 (every column from the COMMAREA), LINK LGUCVS01 rewrites the VSAM copy; '00'"
+  },
+  {
+   "name": "update-customer-1-all-fields",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "1",
+    "CA-REQUEST-SPECIFIC": "Andrew    Pandy               1950-07-11The Grange          34  PI101O  00007799123456         01962811234         a.pandy@example.com                                                                                 "
+   },
+   "why": "all nine columns replaced, house name set"
+  },
+  {
+   "name": "update-blank-fields",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "10",
+    "CA-REQUEST-SPECIFIC": "Zed       Last                1980-02-29                                000                                                                                                                                            "
+   },
+   "why": "blank optional columns stored as blanks; a leap-day birth date"
+  },
+  {
+   "name": "update-long-email",
+   "commarea": {
+    "CA-REQUEST-ID": "01UCUS",
+    "CA-CUSTOMER-NUM": "3",
+    "CA-REQUEST-SPECIFIC": "Long      Email               1970-01-01                    1   AB12CD  000                                        xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "why": "a 100-byte email fills EMAILADDRESS CHAR(100)"
+  }
+ ],
+ "notes": "GenApp's update-customer service (LGUCDB01, LINKed with the LGCMAREA COMMAREA, described by its caller LGUCUS01's record): UPDATE CUSTOMER sets every column from the COMMAREA by customer number, then LGUCVS01 (run in the same task) rewrites the VSAM copy. A customer that does not exist (+100, '01') leads LGUCVS01 to LINK LGSTSQ (oracle_assumptions.md X6): not here."
+}

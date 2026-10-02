@@ -152,6 +152,48 @@ def structurable(proc: S.Procedure) -> bool:
     return True
 
 
+def _dto_size(gp, cls: str) -> int:
+    """A generated DTO's record length, or 0 when the class has no DTO layout (its own record's size stands)."""
+    try:
+        return gp.dto(cls).size
+    except Exception:
+        return 0
+
+
+def write_only_pointers(records: list, proc) -> set[str]:
+    """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
+    named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
+    the pointer or its groups. Such a pointer's value cannot reach an output, so its SET and its INITIALIZE need no
+    model of addresses. Any other mention -- a read, a group MOVE, a CALL / LINK of its record -- leaves it out."""
+    items = [x for r in records for x in r.walk()]
+    redefined = {x.redefines.upper() for x in items if x.redefines}
+    out = set()
+    for x in items:
+        if x.usage != "POINTER" or x.occurs > 1:
+            continue
+        chain, p = [x], x.parent
+        while p is not None:
+            chain.append(p)
+            p = p.parent
+        names = {c.name.upper() for c in chain}
+        if names & redefined or any(c.redefines for c in chain):
+            continue
+        ok = True
+        for para in proc.paragraphs:
+            for s in S.walk(para.body):
+                words = set(re.findall(r"[A-Z0-9][A-Z0-9-]*", s.text.upper()))
+                if not words & names:
+                    continue
+                if s.kind == "SET-POINTER" and s.data["target"] == x.name.upper():
+                    continue
+                if s.kind == "INITIALIZE" and {r.name.upper() for r in s.data["refs"]} <= names - {x.name.upper()}:
+                    continue
+                ok = False
+        if ok:
+            out.add(x.name.upper())
+    return out
+
+
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False) -> Result:  # fmt: skip
@@ -262,6 +304,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    gen.write_only_pointers = write_only_pointers(records, proc)
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded, rc)
@@ -272,6 +315,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+    if any(re.match(r"(?is)\s*EXEC\s+SQL\b", s.text) for p in proc.paragraphs for s in S.walk(p.body)
+           if s.kind == "EXEC"):  # fmt: skip
+        from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+        gen.sql = Sql(gen, prog.name, gen.java_root)
     repos = stub_files(stub)
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
@@ -373,6 +421,14 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if gen.violations:  # a lifted item used through its bytes: translate again without lifting it
         raise G.LiftViolation(gen.violations)
 
+    # a LINKed program's COMMAREA storage is its caller's: as long as the longest record a caller may pass (GenApp's
+    # LGSTSQ declares 90 bytes, its callers pass their 99-byte error message, and the DTO fills all 99)
+    if gen.cics is not None:
+        dfh = next((r for r in records if r.section == "LINKAGE" and r.name == "DFHCOMMAREA"), None)
+        if dfh is not None:
+            classes = [x for x in dict.fromkeys([gen.cics.gp.contract, *gen.cics.gp.records.values()]) if x]
+            longest = max([_dto_size(gen.cics.gp, c) for c in classes], default=0)
+            sizes[id(roots[id(dfh)])] = max(sizes.get(id(roots[id(dfh)]), 0), longest)
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages = []
     seen = set()
@@ -493,6 +549,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
+    if gen.sql is not None:  # the generated Db2 repositories the statements run on
+        ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
+        extra_imports.append(f"{package}.cobolrt.sql.DetSql")
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
     n_para = len(proc.paragraphs)
     pkg = package
@@ -710,6 +769,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "",
                 "    /** The batch entry. */",
                 "    public int runBatch(List<Dd> dds, String parm) {",
+                *(["        DetSql.closeAll();  // a step's cursors are its own"] if gen.sql is not None else []),
                 *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
                 *inits,
                 *parm_code,
@@ -895,6 +955,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */",
         "    public void runTask(CicsTask task) {",
         "        this.task = task;",
+        *(["        DetSql.closeAll();  // a task's cursors are its own"] if gen.sql is not None else []),
         "        caBack = () -> { };",
         "        handlers.clear();",
         "        heldKey.clear();",

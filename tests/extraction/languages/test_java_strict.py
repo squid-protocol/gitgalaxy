@@ -416,3 +416,46 @@ def test_java_api_contract_2730():
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+# The det port's runtime (cobolrt) as Java's I/O, program-control and debt boundary: each positive is a
+# line det/gen.py, det/cics.py or det/sql.py writes; each negative is its nearest neighbour that is not
+# an operation (a store's wiring, a cleanup call, a runtime guard) or ordinary Java that shares the name.
+_JAVA_DET_PORT_CASES = [
+    ("io", "CicsTask.FileRead<byte[]> read8 = task.read(n, () -> store(n).find(rec9));", "task.ended();"),
+    ("io", "int resp16 = task.startbr(n, key, false, () -> store(n).keys());", "task.eibcalen();"),
+    (
+        "io",
+        'int resp1 = task.write("ABNDFILE".strip(), store("ABNDFILE".strip()).exists(k), () -> s);',
+        'e -> task.write("USRSEC", () -> secUserDataRepository.save(e))',
+    ),
+    ("io", "int resp3 = task.writeqTd(q, data);", "task.aid();"),
+    ("io", 'int sc = DetSql.selectOne(SQLCA_AREA, "SELECT 1", () -> q(), CS);', "DetSql.closeAll();"),
+    ("io", 'DetSql.open(SQLCA_AREA, "C1", () -> c1(n), CS);', 'DetSql.close(SQLCA_AREA, "C1", CS);'),
+    ("io", 'ACCOUNT_FILE.open("I-O");', "ACCOUNT_FILE.close();"),
+    ("io", "String st = XREF_FILE.readKey(0, 16);", "VALUE_SCHEMA.write(buffer, struct);"),
+    ("io", "String st = TRANSACT_FILE.write(350);", 'int fd = LIBC.open(getFile("as").getAbsolutePath());'),
+    ("ipc_rpc_bridges", 'task.link("LGICDB01", commarea);', "task.start(taskConfig);"),
+    ("ipc_rpc_bridges", 'task.xctl("COMEN01C", commarea);', "task.transid();"),
+    ("ipc_rpc_bridges", "task.returnTransid(WS_TRANID, commarea);", "task.ended();"),
+    (
+        "planned_debt",
+        'if (true) throw new Hole("line 412: ALTER not modelled");',
+        'default -> throw new Hole("CICS file " + n + ": no store in the generated project");',
+    ),
+    ("planned_debt", 'if (true) throw new Hole("why");', 'if (!ok) throw new Hole("MAPSET " + m + ": not COSGN00");'),
+]
+
+
+@pytest.mark.parametrize("signature,positive,negative", _JAVA_DET_PORT_CASES)
+def test_java_det_port_runtime_signals(signature, positive, negative):
+    pattern = JAVA_RULES[signature]
+    assert pattern.search(positive), f"java {signature!r} missed a det-port operation: {positive!r}"
+    assert not pattern.search(negative), f"java {signature!r} matched a non-operation: {negative!r}"
+
+
+def test_java_det_port_patterns_redos_immune():
+    for signature in ("io", "ipc_rpc_bridges", "planned_debt"):
+        pattern = JAVA_RULES[signature]
+        assert_redos_immune(pattern, 'task.write("' + "x" * 40000, timeout_sec=3.0)
+        assert_redos_immune(pattern, "A" * 40000 + ".open(", timeout_sec=3.0)

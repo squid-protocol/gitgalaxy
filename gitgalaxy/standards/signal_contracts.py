@@ -70,6 +70,9 @@ there is no shielding mechanism). Corollaries:
    same shape for markdown: `prism.py`'s Prose Bypass routes the whole file into the comment
    stream and `detector.comment_analysis` runs the four rules there (#691) -- probed on the
    code stream they read 0 on every file.
+   A comment-stream rule's pattern also runs on the code stream, so a rule may own a code shape
+   that no comment can hold: java's `planned_debt` counts a det port's untranslated statement,
+   `if (true) throw new Hole("...")`, as the open work a TODO would otherwise name.
 3. The recorded count is the raw hit count, for every signal (gitgalaxy#2813). The
    proximity pairs in `core/spatial_correlation.py` (the x3 cascading flux on
    `state_mutation`, the silencer dampener on `high_risk_execution`, the race and

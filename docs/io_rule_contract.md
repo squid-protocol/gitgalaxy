@@ -103,6 +103,30 @@ SPEC's three io constructs like every other language.
   line are not counted (the lookahead spans one continuation); no crucible DD
   does this today.
 
+## Translated programs: the det port's runtime
+
+A COBOL program translated by the deterministic porter (`gitgalaxy/tools/cobol_to_java/det/`) names no
+`File`, `Connection` or `Repository` in its own body: every READ, WRITE, EXEC CICS and EXEC SQL becomes a
+call into its runtime (cobolrt). Without a rule for that surface a scan reads the port as having no I/O
+at all (median 0 against the COBOL's 4 on the 49 programs of the scan-parity study). Java's io rule
+therefore also counts, in the shapes the emitter writes:
+
+- the CICS file, browse, queue and counter operations on the task (`task.read(`, `task.readForUpdate(`,
+  `task.rewrite(`, `task.delete(`, `task.startbr(`, `task.readnext(`, `task.endbr(`, `task.writeqTs(`,
+  `task.writeqTd(`, `task.getCounter(` ...) and `task.write(` except a file store's wiring
+  (`task.write("F", () -> repo.save(e))`, a declaration as COBOL's FILE-CONTROL is, not an operation);
+- the SQL statements DetSql runs (`selectOne`, `update`, `updateCurrent`, `fetch`, `open`);
+  `close` / `closeAll` / `reset` are cleanup, as COBOL's CLOSE is (C2);
+- a batch FD's operations on its constant-named handle: `open("INPUT" | "OUTPUT" | "I-O" | "EXTEND")`,
+  `readNext()`, `readKey(`, `write(<length>)`, `rewrite(<length>)`. The open mode and the numeric record
+  length are the C1 anchor: `VALUE_SCHEMA.write(buffer, struct)` and `LIBC.open(path)` do not count.
+
+Measured: 0 hits on 47,701 ordinary Java files (gradle, jenkins, kafka, elasticsearch, spock); on the
+49 det ports the COBOL-vs-Java Spearman for io rises from 0.24 to 0.87. The same task API carries
+program control into `ipc_rpc_bridges` (`task.link(`, `task.xctl(`, `task.returnTransid(`, cobol.py's
+LINK / XCTL / RETURN; not `task.start(`, which kafka and elasticsearch use for their own worker tasks),
+and an untranslated statement (`if (true) throw new Hole("...")`) into `planned_debt`.
+
 ## The 46-language audit
 
 `rule_probe.py io all --samples 8` before → after. crucible = hits across the

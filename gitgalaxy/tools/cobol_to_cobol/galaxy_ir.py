@@ -2614,9 +2614,25 @@ class GalaxyIR:
         several). `statements`: one per embedded statement that names the table --
         `file`, `line`, `verb`, `access`, `cursor`, `host_variables`, `statement`
         (the text, #3618) -- plus, for a DECLARE CURSOR, `cursor_use`: the OPEN /
-        FETCH / CLOSE lines of that cursor in the same file. Facts only.
+        FETCH / CLOSE lines of that cursor in the same file, and, for a statement in a
+        member a program COPYs or EXEC SQL INCLUDEs (CardDemo's CSDB2RPY: a priming
+        query), `included_by`: the programs that include it, directly or through other
+        members (presence-keyed). Facts only.
         """
         tables: dict[str, dict] = {}
+        includers: dict[str, set] = {}  # a member's path -> the programs (files with PROGRAM-IDs) that include it
+        for f in self.files.values():
+            if not f.program_ids:
+                continue
+            todo, seen_members = list(f.copy_deps), set()
+            while todo:
+                m = todo.pop()
+                if m in seen_members:
+                    continue
+                seen_members.add(m)
+                includers.setdefault(m, set()).add(f.file_path)
+                if m in self.files:
+                    todo += self.files[m].copy_deps
 
         def entry(name: str) -> dict:
             key = name.upper().split(".")[-1]
@@ -2654,6 +2670,8 @@ class GalaxyIR:
                 }
                 if st.verb == "DECLARE CURSOR" and st.cursor:
                     row["cursor_use"] = uses.get(st.cursor, [])
+                if not f.program_ids and includers.get(f.file_path):
+                    row["included_by"] = sorted(includers[f.file_path])
                 entry(st.table)["statements"].append(row)
         out = []
         for key in sorted(tables):

@@ -137,7 +137,9 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
 - **Reach.** CBSA passes IMS-era PCB pointers at the end of its COMMAREAs, always NULL. The port carries a POINTER in a
   COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an address) and refuses a DTO with data
-  after a POINTER.
+  after a POINTER: the task stops by name when it gets one.
+- **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
+  side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
@@ -225,6 +227,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 ### X4. Time — ASSUMED
 - **What.** EIBDATE and EIBTIME are the case's clock at dispatch. ASKTIME leaves them unchanged (a task takes no time),
   and FORMATTIME formats from that clock.
+- A DELAY takes no time either (CBSA's INQCUST and credit agencies retry after one); ENQ and DEQ are NORMAL, one
+  task being the region's only one.
 
 ### X5. What IBM leaves open — REFUSED
 Refused by name (`equivalence_cics.Unsupported`):

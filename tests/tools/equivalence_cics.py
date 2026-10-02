@@ -1989,7 +1989,8 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
         o = report["outputs"].get(sc["name"])
         fired = (o or {}).get("fired")
         bad_fired = bool(sc.get("faults")) and (not fired or not fired["cobol"] or fired["cobol"] != fired["java"])
-        if o is None or (o["equal"] == o["records"] and not bad_fired):
+        files = {n: f for n, f in (o or {}).get("files", {}).items() if f["equal"] != f["records"]}
+        if o is None or (o["equal"] == o["records"] and not bad_fired and not files):
             continue
         out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
                 f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
@@ -1997,6 +1998,14 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                 + (f"; injected {json.dumps(sc['faults'])}" if sc.get("faults") else ""), ""]  # fmt: skip
         if bad_fired:
             out += [f"Injected conditions fired: COBOL {fired and fired['cobol']}, Java {fired and fired['java']}", ""]
+        # a file or Db2 table the scenario left different (a LINKed program's writes too), not only its events
+        for name, f in files.items():
+            out.append(f"- {name}: {f['equal']}/{f['records']} records equal")
+            for d in f.get("diffs", [])[:limit]:
+                if "missing" in d:
+                    out.append(f"  - record {d['record']}: missing on the {d['missing']} side")
+                for fd in d.get("fields", [])[:10]:
+                    out.append(f"  - record {d['record']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`")
         for x in o["diffs"][:limit]:
             if "fields" not in x:
                 out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")

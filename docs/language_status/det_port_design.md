@@ -199,6 +199,10 @@ Only generator output, never a test case:
   would not.
 - Indexed records are found by scanning the repository (`findAll`) and comparing key bytes: exact for any key
   (alternate ones included), slow for large files. A production port would use the generated finders.
+- An integer literal (no decimal point) MOVEd to a zoned item with no decimal places, truncated to zero: GnuCOBOL
+  folds it at compile time to +0 (`MOVE -1000 TO S9(3)` is `00{`), while every other truncating MOVE keeps the sign
+  (`-1000.0`, `-0.05`, a scaled or COMP-3 target, a field sender: `00}`). The translator matches GnuCOBOL
+  (`gen.literal_moved`; probed in `NEGZERO`); IBM's behaviour is not measured. No proven program reaches it.
 - An unsigned binary item taken below zero by ADD / SUBTRACT: GnuCOBOL (`-std=ibm`) wraps it (`PIC 9(4) COMP`, 0 - 3
   is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
   reaches it; test_det_programs.py keeps its unsigned item above zero.
@@ -302,7 +306,15 @@ not JUSTIFIED, their name unique. Every use then has a typed form or none:
   (`Cobol.binary` / `zoned` / `packed`: truncation, ROUNDED, the byte width's wrap), INITIALIZE, DISPLAY of a String,
   RESP / RESP2;
 - no typed form: a reference modification, a subscript, a use of the group holding the item (a group MOVE, a file
-  record, a commarea), STRING / UNSTRING / INSPECT, DISPLAY of a number (its external form), arithmetic ON SIZE ERROR.
+  record, a commarea), STRING / UNSTRING / INSPECT, DISPLAY of a number (its external form), arithmetic ON SIZE ERROR;
+- **negative zero:** a MOVE into a signed number when the MOVE could leave negative zero.
+  - A MOVE keeps the sending sign through truncation (`MOVE -0.05` or `-1000.0` into `S9(3)` gives `00}`), and a
+    `BigDecimal` cannot hold negative zero.
+  - So the MOVE is a typed form only from a literal that doesn't truncate to negative zero, or from a typed
+    sender whose digits all fit.
+  - An arithmetic result is +0 (GnuCOBOL), so it is always a typed form.
+  - Found by `NEGZERO` in `test_det_programs.py`, after B3 shipped. No CardDemo item was exposed: all 24 typed
+    ports keep the same typed fields.
 
 A use with no typed form is a lift violation: translation is repeated without lifting that item (a fixpoint, at most
 one pass per violating item), so typing an item never changes what the program does -- the item is either typed
@@ -317,6 +329,35 @@ The batch programs' state is flags, counters and amounts: a third of the runtime
 is mostly the screen map, the commarea and file records -- groups, which stay byte storage (their typed form is a
 DTO, not a lifted field; next). test_det_programs.py runs every program both ways against GnuCOBOL, TYPED among them
 (each kind and each fallback).
+
+**Typed groups** (`--typed --groups`, no model). B3 types only items whose groups are never used whole, so a
+COMMAREA or a record read INTO stayed byte storage. With `--groups` the items inside such a group are typed too,
+and the group's bytes stay for its whole-group uses:
+
+- **Before a statement uses the group whole,** the typed fields are packed into its bytes, once, before the
+  statement. A second pack inside it would undo its own writes (INITIALIZE's element moves).
+- **In a condition** (IF, EVALUATE, PERFORM UNTIL), the pack happens where the condition is evaluated, every time,
+  because a loop body may change the typed fields between evaluations.
+- **After a statement may have written the group,** the typed fields are unpacked: `String` and `long` round-trip
+  exactly.
+- **What stays byte storage** (violations, by the same fixpoint as B3):
+  - a typed number in a group that is written whole (the bytes may be no number, such as `MOVE SPACES`);
+  - a write by a statement that can transfer control before the unpack;
+  - a write by a statement with phrases of its own (`READ ... INVALID KEY`, `ON OVERFLOW`, ...). Those phrases run
+    before the statement ends, so they would read stale typed fields. The first proof run caught this on CBTRN02C,
+    and TGROUPS in `test_det_programs.py` now fails without the rule.
+
+| 24 CardDemo programs (structured), all proven | typed fields | business-logic `Cobol.*` call sites | sync methods' call sites |
+|---|---|---|---|
+| `--typed` | 532 | 9,490 | 0 |
+| `--typed --groups` | **1,346** | **8,204** (−13.6%) | 1,769 |
+
+The business logic gets more typed fields and 14% fewer runtime calls, but the generated pack / unpack methods add
+calls of their own: in total, runtime call sites rise about 5%. It is a readability trade, so it is opt-in.
+
+**Screens are not covered.** A BMS symbolic map declares its output map as a `REDEFINES` of its input map, so
+every screen field overlaps another, and overlapping items are never typed. Typing them needs aliasing (one Java
+field for `TRNAMTI` and `TRNAMTO`). That is the next step.
 
 ## In port_runner
 
@@ -335,9 +376,8 @@ The combined method runs in the porting loop like any other backend, and every e
 
 ## Limits and next steps
 
-- **Screens, COMMAREAs and file records stay byte storage.** These are groups, and typing (B3) lifts elementary
-  items only. This is why CICS programs gain 1-11% from B3 and batch programs 32-41%. Next: a group whose every use
-  is whole, or field by field, becomes its generated DTO or entity.
+- **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
+  input and output maps overlap (`REDEFINES`), which typing does not do yet.
 - **The oracle is GnuCOBOL.** The declared differences above are the known ones; IBM-compiler runs would close the
   question.
 - **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for

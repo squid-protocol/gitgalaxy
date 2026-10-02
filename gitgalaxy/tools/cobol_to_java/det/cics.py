@@ -291,6 +291,11 @@ class Cics:
     def field(self, text: str) -> str:
         return self.g.field_expr(self.ref(text))
 
+    def read_field(self, text: str) -> str:
+        """An operand the command only reads (FROM): a typed group's bytes need no unpack after it."""
+        with self.g.reading():
+            return self.field(text)
+
     def size(self, text: str) -> int:
         r = self.ref(text)
         it = self.g.resolve(r)
@@ -391,7 +396,8 @@ class Cics:
         r = self.ref(opts["COMMAREA"])
         size = self.size(opts["COMMAREA"])
         cls = self.dto_for(r, size, program)
-        f = self.g.field_expr(r)
+        with self.g.reading():  # RETURN / XCTL only read it (a LINK's write-back is the caller's own code)
+            f = self.g.field_expr(r)
         dto = f"out_{cls}({f}.storage(), {f}.offset())"
         length = self.int_(opts["LENGTH"]) if opts.get("LENGTH") else "null"
         return dto, length
@@ -431,7 +437,7 @@ class Cics:
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)
         if verb == "SEND" or verb == "SEND TEXT":
-            f = self.field(_arg(opts["FROM"]))
+            f = self.read_field(_arg(opts["FROM"]))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             flags = [o for o in TEXT_OPTIONS if o in opts]
             t = g.tmpname("text")
@@ -555,7 +561,7 @@ class Cics:
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
         if verb == "WRITEQ TD":
             r = g.tmpname("resp")
-            f = self.field(_arg(opts["FROM"]))
+            f = self.read_field(_arg(opts["FROM"]))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["FROM"])))
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
@@ -578,7 +584,7 @@ class Cics:
         r = g.tmpname("ts")
         out: list[str] = []
         if verb == "WRITEQ":
-            f = self.field(_arg(opts.get("FROM")))
+            f = self.read_field(_arg(opts.get("FROM")))
             n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
             data = f"DetCics.bytes({f}, {n})"
             if "REWRITE" in opts:
@@ -752,7 +758,7 @@ class Cics:
 
     def record_from(self, opts: dict) -> str:
         """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
-        frm = self.field(opts["FROM"])
+        frm = self.read_field(opts["FROM"])
         if opts.get("LENGTH"):
             return f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
         return f"DetCics.bytes({frm})"

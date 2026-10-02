@@ -208,6 +208,101 @@ PROGRAMS = {
             "DISPLAY '[' GCOPY ']'",
         ],
     ),
+    # negative zero: a signed item can hold -0 (a MOVE keeps the sending sign through truncation), which a typed
+    # BigDecimal cannot -- such an item must stay byte storage
+    "NEGZERO": program(
+        "NEGZERO",
+        [
+            "01 SRC PIC S9V99 VALUE -0.05.",
+            "01 A PIC S9(3) VALUE 0.",
+            "01 B PIC S9(3) VALUE 0.",
+            "01 C PIC S9(3) VALUE 0.",
+            "01 OUTA PIC X(3) VALUE SPACES.",
+            "01 OUTB PIC X(3) VALUE SPACES.",
+            "01 OUTC PIC X(3) VALUE SPACES.",
+            "01 GA.",
+            "   05 DA PIC S9(3) VALUE 0.",
+            "01 GB.",
+            "   05 DB PIC S9(3) VALUE 0.",
+            "01 GC.",
+            "   05 DC PIC S9(3) VALUE 0.",
+            "01 E PIC S9(3) VALUE 5.",
+            "01 GE.",
+            "   05 XE PIC S9(3) VALUE 0.",
+            "01 OUTE PIC X(3) VALUE SPACES.",
+            "01 WIDE PIC S9(5)V99 VALUE 0.",
+            "01 GW.",
+            "   05 DW PIC S9(5)V99 VALUE 0.",
+            "01 OUTW PIC X(7) VALUE SPACES.",
+        ],
+        [
+            "MOVE SRC TO A",
+            "COMPUTE B = SRC",
+            "SUBTRACT 0.05 FROM C",
+            "MOVE A TO DA",
+            "MOVE B TO DB",
+            "MOVE C TO DC",
+            "MOVE GA TO OUTA",
+            "MOVE GB TO OUTB",
+            "MOVE GC TO OUTC",
+            "DISPLAY '[' OUTA '][' OUTB '][' OUTC ']'",
+            "IF A = 0 DISPLAY 'A ZERO' END-IF",
+            "MOVE -1000 TO E",
+            "MOVE E TO XE",
+            "MOVE GE TO OUTE",
+            "MOVE C TO WIDE",
+            "SUBTRACT 1.25 FROM WIDE",
+            "MOVE WIDE TO DW",
+            "MOVE GW TO OUTW",
+            "DISPLAY '[' OUTE '][' OUTW ']'",
+        ],
+    ),
+    # typed groups: items inside groups used whole -- read whole (SRCG), written whole (DSTG, by MOVE and
+    # INITIALIZE), and through a reference modification of the group
+    "TGROUPS": program(
+        "TGROUPS",
+        [
+            "01 SRCG.",
+            "   05 S-NAME PIC X(6) VALUE 'ALPHA'.",
+            "   05 S-CNT PIC S9(4) COMP VALUE 7.",
+            "   05 S-AMT PIC S9(5)V99 VALUE 12.5.",
+            "01 DSTG.",
+            "   05 D-NAME PIC X(6) VALUE SPACES.",
+            "   05 D-CNT PIC S9(4) COMP VALUE 0.",
+            "   05 D-AMT PIC S9(5)V99 VALUE 0.",
+            "01 RAW PIC X(15) VALUE SPACES.",
+            "01 NSTG.",
+            "   05 N-NAME PIC X(4) VALUE 'OLD '.",
+            "   05 N-REST PIC X(4) VALUE SPACES.",
+            "01 OUTN PIC 9(7)V99 VALUE 0.",
+            "01 OUTC PIC 9(4) VALUE 0.",
+        ],
+        [
+            "MOVE 'BETA' TO S-NAME",
+            "ADD 5 TO S-CNT",
+            "ADD 1.25 TO S-AMT",
+            "MOVE SRCG TO RAW",
+            "MOVE SRCG TO DSTG",
+            "IF D-NAME = 'BETA' DISPLAY 'NAME ' D-NAME END-IF",
+            "MOVE D-CNT TO OUTC",
+            "MOVE D-AMT TO OUTN",
+            "DISPLAY OUTC ' ' OUTN",
+            "MOVE 'GAMMA!' TO D-NAME",
+            "MOVE DSTG(1:3) TO RAW",
+            "DISPLAY '[' RAW ']'",
+            "INITIALIZE DSTG",
+            "MOVE D-CNT TO OUTC",
+            "DISPLAY '[' D-NAME '] ' OUTC",
+            "MOVE SPACES TO DSTG",
+            "MOVE 'Z' TO D-NAME",
+            "DISPLAY '[' D-NAME ']'",
+            "STRING 'NESTED' DELIMITED BY SIZE INTO NSTG",
+            "    ON OVERFLOW DISPLAY 'OVF [' N-NAME ']'",
+            "    NOT ON OVERFLOW DISPLAY 'OK [' N-NAME ']'",
+            "END-STRING",
+            "DISPLAY '[' N-NAME ']'",
+        ],
+    ),
 }
 
 
@@ -225,14 +320,14 @@ def _cobol(src: str, work: Path) -> str:
     return run.stdout
 
 
-def _java_run(name: str, src: str, work: Path, typed: bool = False) -> str:
+def _java_run(name: str, src: str, work: Path, typed: bool = False, groups: bool = False) -> str:
     from gitgalaxy.tools.cobol_to_java.det import program as P
 
     (work / f"{name}.cbl").write_text(src)
     project = work / "project"  # no generated project: the standalone runtime
     project.mkdir()
     r = P.translate(work / f"{name}.cbl", [], f"public class {name.title()}Service {{\n}}\n", PKG, None, project,
-                    typed=typed)  # fmt: skip
+                    typed=typed, groups=groups)  # fmt: skip
     assert not r.stats["holes"], r.stats["holes"]
     srcdir = work / "java"
     java = r.java.replace("import org.springframework.stereotype.Service;\n", "").replace("@Service\n", "")
@@ -257,13 +352,13 @@ def _java_run(name: str, src: str, work: Path, typed: bool = False) -> str:
 
 @pytest.mark.skipif(os.environ.get("EQUIVALENCE_E2E") != "1" or not shutil.which("docker") or _java() is None,
                     reason="needs Docker and a JDK 17 (JAVA_HOME / JDK_17)")  # fmt: skip
-@pytest.mark.parametrize("typed", [False, True], ids=["bytes", "typed"])
+@pytest.mark.parametrize("mode", ["bytes", "typed", "groups"])
 @pytest.mark.parametrize("name", sorted(PROGRAMS))
-def test_program_output_is_gnucobols(name, typed, tmp_path):
+def test_program_output_is_gnucobols(name, mode, tmp_path):
     cob = tmp_path / "cobol"
     cob.mkdir()
     want = _cobol(PROGRAMS[name], cob)
-    got = _java_run(name, PROGRAMS[name], tmp_path, typed)
+    got = _java_run(name, PROGRAMS[name], tmp_path, mode != "bytes", mode == "groups")
     assert got == want, f"java {got!r} != cobol {want!r}"
 
 
@@ -283,3 +378,42 @@ def test_typed_lifts_only_what_every_use_allows(tmp_path):
         assert decl in r.java, decl
     for decl in ("private Field name;", "private Field g2;", "private Field g1;", "private Field outn;"):
         assert decl in r.java, decl
+
+
+def test_a_move_that_can_leave_negative_zero_keeps_the_item_bytes(tmp_path):
+    """NEGZERO's lifts: A (MOVEd -0.05) and E (MOVEd -1000) can hold negative zero, so they stay byte storage;
+    B and C (arithmetic: +0) and WIDE (MOVEd C, whose digits all fit) are typed."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "NEGZERO.cbl").write_text(PROGRAMS["NEGZERO"])
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "NEGZERO.cbl", [], "public class NegzeroService {\n}\n", PKG, None,
+                    tmp_path / "project", style="structured", typed=True)  # fmt: skip
+    for decl in ("private Field a;", "private Field e;"):
+        assert decl in r.java, decl
+    for decl in ("private BigDecimal b;", "private BigDecimal c;", "private BigDecimal wide;"):
+        assert decl in r.java, decl
+
+
+def test_typed_groups_sync_a_groups_bytes_around_its_whole_uses(tmp_path):
+    """TGROUPS with groups synced: the items in SRCG and DSTG are typed although both groups are used whole. A
+    typed number stays only where its group is never written whole (S-AMT, not D-AMT: bytes MOVEd into DSTG may be
+    no number). A simple statement packs once, before itself -- INITIALIZE's own element moves must not be undone by
+    a second pack -- and a write is followed by the unpack."""
+    pytest.importorskip("tree_sitter_language_pack")
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    (tmp_path / "TGROUPS.cbl").write_text(PROGRAMS["TGROUPS"])
+    (tmp_path / "project").mkdir()
+    r = P.translate(tmp_path / "TGROUPS.cbl", [], "public class TgroupsService {\n}\n", PKG, None,
+                    tmp_path / "project", style="structured", typed=True, groups=True)  # fmt: skip
+    for decl in ("private String sName;", "private long sCnt;", "private BigDecimal sAmt;", "private String dName;",
+                 "private long dCnt;", "private Field dAmt;"):  # fmt: skip
+        assert decl in r.java, decl
+    init = r.java[r.java.index("// INITIALIZE DSTG") :].split("// MOVE D-CNT", 1)[0]
+    lines = [ln.strip() for ln in init.splitlines()]
+    assert lines.count("pack_dstg();") == 1 and lines.count("unpack_dstg();") == 1
+    assert "pack_dstg()." not in init  # inside the statement: the plain field, no second pack
+    unpack_src = r.java[r.java.index("private void unpack_srcg()") :].split("    }", 1)[0]
+    assert "sAmt" not in unpack_src  # a read-only group's number is never read back from bytes

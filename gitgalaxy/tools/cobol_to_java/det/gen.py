@@ -6,6 +6,7 @@ EXEC CICS commands are holes until the CICS boundary is written."""
 
 from __future__ import annotations
 
+import contextlib
 import re
 from dataclasses import dataclass, field
 from decimal import Decimal
@@ -22,6 +23,18 @@ if TYPE_CHECKING:
 
 class Untranslatable(Exception):
     pass
+
+
+def _reads(method):
+    """The operands a method names are only read (gen.reading)."""
+
+    def wrapper(self, *args, **kwargs):
+        with self.reading():
+            return method(self, *args, **kwargs)
+
+    wrapper.__name__ = method.__name__
+    wrapper.__doc__ = method.__doc__
+    return wrapper
 
 
 class LiftViolation(Exception):
@@ -125,6 +138,12 @@ class Gen:
         self.copy_dirs: list = []
         self.lifted: dict[int, str] = {}  # id(item) -> "X" (a String of its length) | "BIN" (a long) -- B3
         self.violations: set[str] = set()  # lifted items used through their bytes: this translation is discarded
+        # typed groups: a group holding lifted items keeps its bytes for whole-group uses -- packed from the typed
+        # fields before one, unpacked into them after a write (gen.statement) -- instead of being a violation
+        self.sync_groups = False
+        self.synced: dict[int, L.Item] = {}  # every group so used: its pack_ / unpack_ methods are emitted
+        self.touched: dict[int, bool] = {}  # this statement's synced groups -> written (else only read)
+        self._reading = 0  # > 0 while an operand is only read
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
@@ -162,11 +181,11 @@ class Gen:
 
     def field_expr(self, ref: E.Ref) -> str:
         it = self.resolve(ref)
-        self.check_lift(it)
+        packed = self.check_lift(it)
         base = self.ids.get(id(it))
         if base is None:
             raise Untranslatable(f"{ref.name}: FILLER")
-        out = base
+        out = f"\x00PACK:{base}\x00" if packed else base  # resolved by after_statement
         if ref.subscripts:
             levels = list(_occurs_chain(it))
             if len(levels) != len(ref.subscripts):
@@ -264,14 +283,76 @@ class Gen:
         return 'throw new IllegalStateException("a HANDLE exit in a program without HANDLE");'
 
     # ---- B3: lifted (typed) items -------------------------------------------------------------------------------
-    def check_lift(self, it: L.Item) -> None:
-        """An item used through its bytes: a LiftViolation when it is lifted, or a group holding a lifted item (its
-        bytes no longer hold that item's value)."""
+    def check_lift(self, it: L.Item) -> bool:
+        """An item used through its bytes: a lifted item is a violation. A group holding lifted items is one too,
+        unless groups are synced: then True -- its expression packs them into its bytes first, and the statement
+        unpacks them after a write."""
         if not self.lifted:
-            return
-        for x in it.walk():  # the item itself, or a lifted item within the group
-            if id(x) in self.lifted:
+            return False
+        if id(it) in self.lifted:
+            self.violate(it)
+            return False
+        inside = [x for x in it.walk() if id(x) in self.lifted]
+        if not inside:
+            return False
+        if not self.sync_groups:
+            for x in inside:
                 self.violate(x)
+            return False
+        self.synced[id(it)] = it
+        self.touched[id(it)] = self.touched.get(id(it), False) or self._reading == 0
+        return True
+
+    @contextlib.contextmanager
+    def reading(self):
+        """Operands named inside are only read (a group so named needs no unpack after the statement)."""
+        self._reading += 1
+        try:
+            yield
+        finally:
+            self._reading -= 1
+
+    COMPOUND = frozenset({"IF", "EVALUATE", "PERFORM", "SEARCH"})
+
+    def after_statement(self, s: S.Stmt, lines: list[str], ind: str) -> list[str]:
+        """A synced group's bytes around this statement's own uses of it (nested statements did theirs):
+        - a simple statement: its typed fields packed into them ONCE, before it -- a second pack inside it would
+          overwrite what it had just written (INITIALIZE's elements) -- and unpacked after it when it may write;
+        - a condition (IF, EVALUATE, PERFORM UNTIL, SEARCH): packed where it is evaluated, every time (a loop body
+          may change the typed fields between evaluations); a condition only reads.
+        A written group's typed numbers cannot be unpacked exactly (the bytes may be no number: MOVE SPACES), and a
+        write that can transfer control before the unpack leaves the typed fields stale: both are violations --
+        those items stay byte storage."""
+        if not self.touched:
+            return lines
+        compound = s.kind in self.COMPOUND
+        out, before = [], []
+        for ln in lines:
+            for g in self.touched:
+                fid = self.ids[g]
+                token = f"\x00PACK:{fid}\x00"
+                if token in ln:
+                    ln = ln.replace(token, f"pack_{fid}()" if compound else fid)
+                    if not compound and fid not in before:
+                        before.append(fid)
+            out.append(ln)
+        at = 1 if out and out[0].lstrip().startswith("//") else 0  # after the statement's own COBOL comment
+        out[at:at] = [f"{ind}pack_{fid}();" for fid in before]
+        written = [self.synced[t] for t, w in self.touched.items() if w and not compound]
+        if not written:
+            return out
+        code = [ln for ln in lines if not ln.lstrip().startswith("//")]  # (the COBOL comments say RETURN)
+        transfers = any(re.search(r"\b(?:return|throw)\b|\bjump\(", ln) for ln in code)
+        # A statement with phrases of its own (READ ... INVALID KEY / AT END, ON SIZE ERROR, ON OVERFLOW ...) runs
+        # them before its end -- before the unpack: they would read stale typed fields, and the unpack would undo
+        # their own typed writes. Its written groups keep byte storage.
+        nested = bool(s.body or s.orelse or any(s.phrases.values()))
+        for grp in written:
+            for x in grp.walk():
+                if id(x) in self.lifted and (transfers or nested or self.lifted[id(x)] == "NUM"):
+                    self.violate(x)
+            out.append(f"{ind}unpack_{self.ids[id(grp)]}();")
+        return out
 
     def violate(self, it: L.Item) -> str:
         """Record a lifted item used through its bytes (the translation is repeated without lifting it)."""
@@ -325,11 +406,18 @@ class Gen:
             if ls and ls[0] == "X":
                 return f"{name} = {ls[1]};" if ls[2].size == it.size else f"{name} = Cobol.fit({ls[1]}, {it.size});"
             if isinstance(src, E.Ref):
-                return f"{name} = Cobol.moveText({self.field_expr(src)}, {it.size}, CS);"
+                with self.reading():
+                    return f"{name} = Cobol.moveText({self.field_expr(src)}, {it.size}, CS);"
             return self.violate(it)
         if kind == "NUM":  # a numeric sender's value, stored as the item stores it; any other sender: its bytes
             if isinstance(src, E.Fig) and src.kind == "ZEROS":
                 return f"{name} = BigDecimal.ZERO;"
+            # A MOVE keeps the sending sign through truncation, so a signed item can receive negative zero --
+            # -0.05 or -1000 into S9(3) is 00} -- which a BigDecimal cannot hold (an arithmetic store gives +0:
+            # NEGZERO in test_det_programs). Typed only when no negative zero can arrive: a literal that does not
+            # truncate to one, a typed sender whose digits all fit (it is never -0 itself); never an item's bytes.
+            if it.signed and not self.fits_without_negative_zero(src, it):
+                return self.violate(it)
             if self.is_numeric(src) and not (isinstance(src, E.Ref) and self.resolve(src).category != "NUMERIC"):
                 return self.store_into(E.Ref(it.name), self.num(src), False)
             return self.violate(it)
@@ -341,6 +429,40 @@ class Gen:
         if ls and ls[0] == "BIN" and ls[2].size == it.size and ls[2].signed == it.signed:
             return f"{name} = {ls[1]};"
         return self.violate(it)
+
+    def literal_moved(self, v: Decimal, target: E.Ref) -> Decimal:
+        """The literal a MOVE stores. GnuCOBOL (-std=ibm) folds an integer literal MOVEd to a zoned item of scale 0
+        at compile time: truncated to zero, it is +0 (MOVE -1000 TO S9(3) is 00{), where every other MOVE keeps
+        the sign (-1000.0, -0.05, a scaled or COMP-3 target, a field sender: 00}). The probe:
+        test_det_programs.py NEGZERO; a declared difference -- IBM's behaviour is not measured."""
+        exponent = v.as_tuple().exponent
+        if not v.is_signed() or not isinstance(exponent, int) or exponent < 0:
+            return v
+        try:
+            it = self.resolve(target)
+        except Untranslatable:
+            return v
+        if target.refmod is not None or it.category != "NUMERIC" or it.usage != "DISPLAY" or it.scale != 0:
+            return v
+        if it.sign_separate:
+            return v
+        return v if abs(v) % (Decimal(10) ** it.digits) else Decimal(0)
+
+    def fits_without_negative_zero(self, src, it: L.Item) -> bool:
+        """Whether a MOVE of `src` into the signed numeric item `it` cannot leave negative zero there."""
+        whole, scale = it.digits - it.scale, it.scale
+        if isinstance(src, E.Lit) and isinstance(src.value, Decimal):
+            v = src.value
+            kept = abs(v) % (Decimal(10) ** whole)  # high-order digits beyond the PICTURE go
+            kept = kept.quantize(Decimal(1).scaleb(-scale), rounding="ROUND_DOWN")  # so do low-order ones
+            return not (v.is_signed() and kept == 0)
+        ls = self.lift(src)
+        if ls is None:
+            return False  # an item's bytes may be negative zero, or truncate to it
+        _kind, _name, s = ls
+        if ls[0] == "BIN":  # a long holds what its bytes hold, past its PICTURE's digits
+            return {2: 5, 4: 10, 8: 19}[s.size] <= whole and scale >= 0
+        return s.digits - s.scale <= whole and s.scale <= scale
 
     def rel_lifted(self, jop: str, a, b) -> str | None:
         """A relation with a lifted item on either side, or None (not one)."""
@@ -404,6 +526,7 @@ class Gen:
             self.consts[key] = name
         return self.consts[key]
 
+    @_reads
     def num(self, e) -> str:
         """A Java BigDecimal expression for an arithmetic expression."""
         if isinstance(e, E.Lit):
@@ -463,6 +586,7 @@ class Gen:
             return f"BigDecimal.valueOf({self.text(args[0])}.length())"
         raise Untranslatable(f"FUNCTION {name}")
 
+    @_reads
     def text(self, e) -> str:
         """A Java String for an operand's text."""
         if isinstance(e, E.Lit):
@@ -496,6 +620,7 @@ class Gen:
         return False
 
     # ---- conditions ---------------------------------------------------------------------------------------------
+    @_reads
     def cond(self, c) -> str:
         if isinstance(c, tuple) and c and c[0] == "UNPARSED":
             raise Untranslatable(f"condition: {c[2]}")
@@ -643,11 +768,15 @@ class Gen:
 
     def _move(self, src, target: E.Ref) -> str:
         ft = self.field_expr(target)
+        with self.reading():
+            return self._move_from(src, ft, target)
+
+    def _move_from(self, src, ft: str, target: E.Ref) -> str:
         if isinstance(src, E.Ref):
             return f"Cobol.move({self.field_expr(src)}, {ft}, CS);"
         if isinstance(src, E.Lit):
             if isinstance(src.value, Decimal):
-                return f"Cobol.move({self.const(src.value)}, {ft}, CS);"
+                return f"Cobol.move({self.const(self.literal_moved(src.value, target))}, {ft}, CS);"
             return f"Cobol.move({self.text(src)}, {ft}, CS);"
         if isinstance(src, E.Fig):
             if src.kind == "ALL":
@@ -750,14 +879,17 @@ class Gen:
 
     def statement(self, s: S.Stmt, ind: str) -> list[str]:
         self.stats["statements"] += 1
+        outer, self.touched = self.touched, {}
         try:
-            code = self._statement(s, ind)
+            code = self.after_statement(s, self._statement(s, ind), ind)
             self.stats["translated"] += 1
             return code
         except Untranslatable as e:
             why = f"line {s.line}: {s.kind} {e}"
             self.stats["holes"].append(why)
             return [f"{ind}// {_comment(s.text)}", f"{ind}if (true) throw new Hole({jstr(why)});"]
+        finally:
+            self.touched = outer
 
     def _statement(self, s: S.Stmt, ind: str) -> list[str]:
         k = s.kind
@@ -881,6 +1013,7 @@ class Gen:
             return f"Cobol.move({jstr(v[1].decode('latin-1'))}, {f}, CS);"
         raise Untranslatable(f"value {kind}")
 
+    @_reads
     def display_operand(self, o) -> str:
         lo = self.lift(o)
         if lo and lo[0] == "X":

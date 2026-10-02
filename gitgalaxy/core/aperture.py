@@ -23,6 +23,26 @@ from gitgalaxy.core.source_text import open_source
 # Architecture: Path Evaluation -> Intent Resolution -> Content Validation
 # ==============================================================================
 
+# --- DECLARED PORTS ---
+# A deterministic COBOL-to-Java port (gitgalaxy/tools/cobol_to_java/det) opens with this line. Its
+# output is machine-translated by design -- uniform indentation, long compound conditions -- so the
+# generated-noise classifiers (Gates 4.1, 4.3, 5.1) would drop the very files a migrated estate is
+# made of. The line is a self-declaration anyone can write; it is trusted because what it lifts are
+# noise filters, never the binary, payload, size or secrets gates: a forged header only admits code
+# to the scan (where every sensor reads it), it cannot hide any. Long lines stay bounded
+# (DECLARED_PORT_MAX_LINE_LENGTH) for the regex engines downstream.
+DET_PORT_MARKER = "// gitgalaxy-det-port:"
+_DET_PORT_LINE = re.compile(r"// gitgalaxy-det-port: COBOL ([A-Z0-9#@$-]{1,30}) ")
+
+
+def declared_port(content: Optional[str], rel_path: str) -> Optional[str]:
+    """The COBOL program a .java file declares itself a deterministic port of (its first line), or None."""
+    if not content or not rel_path.lower().endswith(".java"):
+        return None
+    m = _DET_PORT_LINE.match(content[:200])
+    return m.group(1) if m else None
+
+
 # --- CUSTOM EXCEPTION HIERARCHY ---
 
 
@@ -306,7 +326,9 @@ class ApertureFilter:
                 result["reason"] = "Protocol Violation: Missing content buffer"
                 return result
 
-            integrity = self._check_artifact_integrity(content, relative_path, has_intent=active_intent)
+            integrity = self._check_artifact_integrity(
+                content, relative_path, has_intent=active_intent, port=declared_port(content, relative_path) is not None
+            )
             result["total_loc"] = integrity["loc"]
 
             if not integrity["valid"]:
@@ -322,10 +344,15 @@ class ApertureFilter:
             result["reason"] = f"Internal Exception: {e!s}"
             return result
 
-    def _check_artifact_integrity(self, content: str, rel_path: str, has_intent: bool = False) -> dict[str, Any]:
+    def _check_artifact_integrity(
+        self, content: str, rel_path: str, has_intent: bool = False, port: bool = False
+    ) -> dict[str, Any]:
         """
         Deep-scans the content buffer for corruption, binary data, arrays,
         or documentation generator signatures.
+
+        `port`: the file declares itself a deterministic port (declared_port): the generated-noise
+        gates (4.1 up to DECLARED_PORT_MAX_LINE_LENGTH, 4.3, 5.1) admit it; every other gate stands.
         """
         report = {
             "valid": True,
@@ -440,6 +467,8 @@ class ApertureFilter:
         # DEFENSIVE DESIGN: Code minifiers remove newlines, creating ultra-long strings
         # that cause regex engines to hang (ReDoS). We check the first 100 lines for length.
         max_line = self.config.get("MAX_LINE_LENGTH", 500)
+        if port:
+            max_line = self.config.get("DECLARED_PORT_MAX_LINE_LENGTH", 5000)
         is_prose = low_path.endswith((".md", ".markdown", ".txt", ".json", ".csv", ".rst", ".sql", ".svg"))
 
         for i, line in enumerate(lines_list[:100]):
@@ -482,6 +511,7 @@ class ApertureFilter:
             not low_path.endswith(tuple(self._SQL_DDL_EXTENSIONS))
             and self.machine_gen_pattern.search(head_sample)
             and (not has_intent or loc > 1000)
+            and not port
         ):
             report.update(
                 {
@@ -502,7 +532,12 @@ class ApertureFilter:
         # --- Gate 5.1: Lexical Monotony Sensor ---
         # Fixed-format mainframe source (COBOL, PL/I #2502) is uniformly indented by
         # construction, which this indentation-frequency sensor reads as machine output.
-        if loc > 2000 and not has_intent and not low_path.endswith((".cpy", ".cbl", ".cob", ".pli", ".pl1")):
+        if (
+            loc > 2000
+            and not has_intent
+            and not port
+            and not low_path.endswith((".cpy", ".cbl", ".cob", ".pli", ".pl1"))
+        ):
             sample_lines = lines_list[:500]
             meaningful_lines = [l for l in sample_lines if l.strip()]
 

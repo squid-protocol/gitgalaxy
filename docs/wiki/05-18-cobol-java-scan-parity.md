@@ -33,7 +33,7 @@ The short version:
    - the **median** in each form;
    - the **median per-program ratio** Java ÷ COBOL.
 
-Two adjustments were needed for the det trees, because the default scan excludes almost all of them (see [Scanner lessons](#scanner-lessons)):
+Two adjustments were needed for the det trees, because at the time the default scan excluded almost all of them (see [Scanner lessons](#scanner-lessons)). Since #4164 a plain scan admits det ports that carry the provenance header, so new scans need neither:
 
 - long lines were rewrapped (formatting only: long string literals split into chunks, long conditions broken at `&&`, `||` and `,`);
 - the Lexical Monotony gate was lifted through a wrapper script. Every other gate and every measurement is the scanner's own.
@@ -134,7 +134,7 @@ Every det port carries a fixed amount of code (response checks, abend paths, sto
 
 ## Scanner lessons
 
-1. **The default scan skips det ports.** On the first scan 45 of the 49 det-port files were excluded: lines over 500 characters (`MAX_LINE_LENGTH`, packed literals and deeply nested conditions) and the Lexical Monotony gate (aperture Gate 5.1), which classifies repetitive indentation as generated noise. The classification is correct, since the files are generated, but a ported estate would look nearly empty. A det port needs a way to declare itself as intended code without lifting those gates for everyone. That is pending in #4164.
+1. **The default scan skips det ports.** On the first scan 45 of the 49 det-port files were excluded: lines over 500 characters (`MAX_LINE_LENGTH`, packed literals and deeply nested conditions) and the Lexical Monotony gate (aperture Gate 5.1), which classifies repetitive indentation as generated noise. The classification is correct, since the files are generated, but a ported estate would look nearly empty. A det port needs a way to declare itself as intended code without lifting those gates for everyone. #4164 added that: det ports now carry a provenance header, and a plain scan admits all 49.
 2. **Runtime calls were not recognised.** The scanner knew JDBC and common Java I/O, not `cobolrt`, so I/O could not be compared before and after a det port. #4163 fixed this (I/O ρ 0.24 → 0.87).
 3. **Holes were not counted as debt.** The det port's named `Hole`s are its explicit list of untranslated work. Since #4163 the scanner counts an untranslated `throw new Hole` as planned debt, the way it counts TODO markers.
 4. **Risk scores need a cross-language mode to answer "did the migration make this riskier?".** Today they only rank files within one scan.
@@ -143,7 +143,7 @@ Every det port carries a fixed amount of code (response checks, abend paths, sto
 ## Translation lessons
 
 1. **Structural parity is a cheap pre-proof check.** Function and branch counts track the COBOL closely. A det port whose ratios fall far outside its estate's norm, after allowing for the fixed per-program overhead, is worth a look before running GnuCOBOL or Db2.
-2. **Readability layers have measurable targets.** Today's det port is ×5 the code lines, its largest functions are ×3.6 as complex, it has lines over 500 characters and it fails the monotony gate. The model port shows what ordinary Java of the same programs looks like (×1.09 lines). A det port that passes the default aperture gates without help is a concrete milestone.
+2. **Readability layers have measurable targets.** Today's det port is ×5 the code lines, its largest functions are ×3.6 as complex, it has lines over 500 characters and it fails the monotony gate. The model port shows what ordinary Java of the same programs looks like (×1.09 lines). A det port that would pass the default aperture gates without its provenance header is a concrete milestone.
 3. **Refactor the biggest conditions first.** The largest det functions (COACTUPC, COTRTUPC, COTRTLIC) are long `IF` conditions translated literally; the scan ranks them, so the readability work can start there.
 4. **Report proof and debt together for model ports.** The proof shows a model port behaves like the COBOL; the TODO count shows what it still leaves unfinished.
 
@@ -151,5 +151,5 @@ Every det port carries a fixed amount of code (response checks, abend paths, sto
 
 - **Merged, #4163:** the Java scanner counts `cobolrt` calls as I/O (CICS file, queue and counter operations on the task, `DetSql` statements, batch file operations) and `task.link` / `xctl` / `returnTransid` as IPC, and counts an untranslated `throw new Hole` as planned debt.
 - **Merged, #4162:** `tests/tools/det_parity.py` adds a structural parity warning (never a failure) to `det_port.py run` and `check`. It fits a fixed overhead and a slope separately for batch and CICS programs; none of the 49 pairs warn.
-- **Pending, #4164:** det ports carry a provenance header, and the aperture admits a declared port past the generated-noise gates, so a det-ported estate scans without the adjustments described in [Method](#method).
+- **Merged, #4164:** det ports carry a provenance header (`// gitgalaxy-det-port: COBOL <PROGRAM> (<source>), translated by rule, statement for statement`), and the aperture admits a file that declares it past aperture gates 4.1 (saturation, now up to 5,000 characters a line), 4.3 and 5.1 (Lexical Monotony), for those files only. A plain `galaxyscope` now scans all 49 det ports, so the rewrap and the relaxed gate described in [Method](#method) are no longer needed for new scans. The design is in [02-03](02-03-aperture-filter.md) under "Declared ports".
 - **In progress:** a scanner test over the 49 pairs checking that structural rankings stay invariant.

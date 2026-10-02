@@ -193,6 +193,10 @@ class NetworkRiskSensor:
         self._by_norm_path: dict[str, str] = {}
         # #3596: declared name -> the files declaring it (DECLARATION_IMPORT_LANGS).
         self._declared_in: dict[str, list[str]] = defaultdict(list)
+        # #4128: every trailing run of directory names (`circe/pointer`, `pointer`)
+        # of the scanned files, built on first use -- does a dotted name spell a
+        # package directory of this repo?
+        self._dir_tails: Optional[set[str]] = None
         # #3665: the scanned directory, when the caller has one (galaxyscope sets
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
@@ -209,6 +213,7 @@ class NetworkRiskSensor:
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
         self._declared_in = defaultdict(list)
+        self._dir_tails = None
         for f in files:
             path = f.get("path", "")
             if not path:
@@ -381,7 +386,8 @@ class NetworkRiskSensor:
         # that package's package.scala; of an object, the object's file (the
         # name search below, on the token without its wildcard).
         package_object = src_def.get("package_object_file")
-        if package_object and target_token.endswith(("._", ".*")):
+        wildcard = bool(package_object) and target_token.endswith(("._", ".*"))
+        if wildcard:
             target_token = target_token[:-2]
             owned = self._resolve_path_tail(
                 f"{target_token.replace('.', '/')}/{package_object}", resolution_map, curr_path
@@ -414,30 +420,95 @@ class NetworkRiskSensor:
         if src_def.get("include_names_file_literally") and not posixpath.splitext(target_token)[1]:
             return self._resolve_literal_file(target_token, resolution_map)
 
-        resolved = self._resolve_by_name(
-            target_token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
-        )
+        # #4128: an import here names source of these languages only. A resource
+        # that mirrors the package path (circe's resources/io/circe/tests/examples/
+        # glossary.json for `import io.circe.tests.examples.glossary`, a val) is not
+        # its target, however well its path matches.
+        target_langs = src_def.get("import_target_langs")
+
+        def by_name(token: str) -> Optional[str]:
+            hit = self._resolve_by_name(token, resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts)
+            if (
+                hit is not None
+                and target_langs
+                and file_facts
+                and (file_facts.get(hit) or ("", False))[0] not in target_langs
+            ):
+                return None
+            return hit
+
+        resolved = by_name(target_token)
         # #3554: a Java `import static a.b.C.member` / nested `a.b.Outer.Inner`
         # names something INSIDE a class file; when the full name resolves to
         # nothing, the class it belongs to is the file.
         if resolved is None and src_def.get("imports_may_name_member"):
             parts = target_token.split(".")
-            for cut in range(1, min(3, len(parts) - 2) + 1):
+            # #4128: a Scala import may be RELATIVE to the enclosing package
+            # (`import Decoder.state._` inside package io.circe), so its owner
+            # can be one bare class name.
+            min_owner = 1 if package_object else 2
+            for cut in range(1, min(3, len(parts) - min_owner) + 1):
                 # The owner of a member or nested class is a CLASS: `java.util.X`
                 # failing never makes `java.util` (a lone util.kt) its file.
                 if not parts[-cut - 1][:1].isupper():
                     continue
-                resolved = self._resolve_by_name(
-                    ".".join(parts[:-cut]), resolution_map, curr_path, folded_maps, fold_lang, src_lang, file_facts
-                )
+                owner = ".".join(parts[:-cut])
+                resolved = by_name(owner)
+                # #4128: an owner declared in a file not named after it
+                # (`io.circe.DecodingFailure.Reason.X` -> DecodingFailure, in Error.scala).
+                if resolved is None and src_def.get("imports_may_name_declaration"):
+                    resolved = self._resolve_declaration(owner, curr_path, file_facts, src_lang)
                 if resolved is not None:
                     break
+        # #4128: a NAMED Scala import of a package object (`import io.circe.jawn`) or of
+        # one of its members (`io.circe.jawn.decode`, `io.circe.syntax.EncoderOps`) is
+        # that package's package.scala, as a wildcard of it is (#3595). A lower-case
+        # member (a def or val, which Scala 2 only allows inside an object) tries it
+        # before the declaration search, whose same-named class METHOD in the
+        # package's directory (`JawnParser.parse`) is not what the import names; an
+        # upper-case one after it, since `io.circe.DecodingFailure` is Error.scala's
+        # class, not a member of io/circe/package.scala.
+        # A wildcard was tried above, and a name that is itself a package directory
+        # (`import io.circe.parser`, `io.circe.pointer._`) is never a member of its
+        # parent's package object.
+        segments = target_token.split(".")
+        member = (
+            bool(package_object)
+            and resolved is None
+            and len(segments) >= 3
+            and not wildcard
+            and not self._names_package_dir(segments)
+        )
+        lower_member = member and segments[-1][:1].islower()
+
+        def package_object_of(names: list[str]) -> Optional[str]:
+            if not package_object or wildcard or len(names) < 2:
+                return None
+            return self._resolve_path_tail(f"{'/'.join(names)}/{package_object}", resolution_map, curr_path)
+
+        if resolved is None:
+            resolved = package_object_of(segments)
+        if resolved is None and lower_member:
+            resolved = package_object_of(segments[:-1])
         # #3596: a Kotlin top-level function/property (`a.b.asName`) lives in a
         # file not named after it: the one file that declares it under a
         # directory mirroring its package.
         if resolved is None and src_def.get("imports_may_name_declaration"):
             resolved = self._resolve_declaration(target_token, curr_path, file_facts, src_lang)
+        if resolved is None and member and not lower_member:
+            resolved = package_object_of(segments[:-1])
         return resolved
+
+    def _names_package_dir(self, names: list[str]) -> bool:
+        """#4128: whether `a.b.c` spells a directory some scanned file sits in."""
+        if self._dir_tails is None:
+            tails: set[str] = set()
+            for path in self._by_norm_path:
+                dirs = path.split("/")[:-1]
+                for i in range(len(dirs)):
+                    tails.add("/".join(dirs[i:]))
+            self._dir_tails = tails
+        return "/".join(names) in self._dir_tails
 
     def _resolve_by_name(
         self,

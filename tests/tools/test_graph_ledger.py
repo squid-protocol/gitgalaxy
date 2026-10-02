@@ -112,3 +112,51 @@ def test_scala_member_imports_never_cut_into_the_package(tmp_path):
     files = {f: "scala" for f in ("circe.scala", "syntax.scala", "Use.scala")}
     group = iga.Group(files, tmp_path)
     assert iga.scala_imports(src, "Use.scala", group) == [set(), set(), {"syntax.scala"}]
+
+
+@needs_ts
+def test_scala_packaging_block_and_scala3_package_file_are_indexed(tmp_path):
+    """#3799, circe: `package examples { case class Wub }` after `package object examples`
+    declares Wub in package io.circe.tests.examples (it was appended to the FILE's package and
+    its body never indexed); a Scala 3 package.scala of top-level defs is its package's own
+    file (import contract C7), as a package object is."""
+    (tmp_path / "package.scala").write_text(
+        "package io.circe.tests\npackage object examples { val glossary = 1 }\npackage examples {\n  case class Wub(x: Long)\n}\n"
+    )
+    (tmp_path / "d").mkdir()
+    (tmp_path / "d" / "package.scala").write_text("package io.circe.derivation\ninline def summonLabels: Int = 1\n")
+    src = b"package io.circe\nimport io.circe.tests.examples.{ Wub, glossary }\nimport io.circe.derivation.*\n"
+    (tmp_path / "Use.scala").write_bytes(src)
+    files = {f: "scala" for f in ("package.scala", "d/package.scala", "Use.scala")}
+    group = iga.Group(files, tmp_path)
+    assert iga.scala_imports(src, "Use.scala", group) == [{"package.scala"}, {"package.scala"}, {"d/package.scala"}]
+
+
+@needs_ts
+def test_scala_self_import_nested_wildcard_and_backquotes(tmp_path):
+    """#3799: `import Suite._` beside `object Suite` names the importer's own declaration, never
+    its build variant's copy (C8); a wildcard over a NESTED object is its owner's file; a
+    backquoted segment is the plain name."""
+    for variant in ("scala-0", "scala-2"):
+        (tmp_path / variant).mkdir()
+        (tmp_path / variant / "Suite.scala").write_text("package io.circe\nobject Suite\nclass Suite\n")
+    (tmp_path / "Error.scala").write_text("package io.circe\nobject DecodingFailure { object Reason }\n")
+    (tmp_path / "Exported.scala").write_text("package io.circe.`export`\nclass Exported\n")
+    src = b"package io.circe\nimport Suite._\nimport io.circe.DecodingFailure.Reason._\nimport io.circe.`export`.Exported\n"
+    (tmp_path / "scala-0" / "Suite.scala").write_bytes(src + b"object Suite\n")
+    files = {f: "scala" for f in ("scala-0/Suite.scala", "scala-2/Suite.scala", "Error.scala", "Exported.scala")}
+    group = iga.Group(files, tmp_path)
+    got = iga.scala_imports(src + b"object Suite\n", "scala-0/Suite.scala", group)
+    assert got == [set(), {"Error.scala"}, {"Exported.scala"}]
+
+
+def test_a_captured_member_or_package_token_is_not_a_capture_miss():
+    """#3799: `io.circe.DecodingFailure.Reason.X` (owner in io/circe/Error.scala) and
+    `io.circe.jawn` (its own file io/circe/jawn/package.scala) were captured, not missed."""
+    union = {"m/io/circe/Error.scala"}
+    token = ["io.circe.DecodingFailure.Reason.WrongTypeExpectation"]
+    assert iga.import_cause("fn", {"m/io/circe/Error.scala"}, union, token, True) == "fn:declaration-unresolved"
+    pkg = {"m/io/circe/jawn/package.scala"}
+    assert iga.import_cause("fn", pkg, union, ["io.circe.jawn"], True) == "fn:declaration-unresolved"
+    # a lower-case segment is a package, not an owner to cut away
+    assert iga.import_cause("fn", {"m/io/x.scala"}, union, ["io.circe.jawn.decode"], True) == "fn:capture-missed"

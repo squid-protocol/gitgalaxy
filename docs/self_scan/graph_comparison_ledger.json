@@ -8108,13 +8108,15 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 10,
@@ -8161,22 +8163,24 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy missed them, but capture was not the layer: every token was captured. The label was a harness mislabel, fixed here: `_names_declaration_in` now accepts a nested owner and a package token. 9 of the 10 import a member of a nested object, `io.circe.DecodingFailure.Reason.X`. `DecodingFailure` and its `object Reason` are declared in Error.scala (Error.scala:64,120,194), and the member fallback (#3554) only ran the name search for that owner. The 10th, `import io.circe.jawn` (NumberParsingBenchmark.scala:20), names the package object `jawn` (jawn/package.scala:19), and only a wildcard reached package.scala. Engine defect #4128, fixed in the same PR; all 10 resolve."
     },
     "scala/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 8,
@@ -8223,22 +8227,24 @@
         }
       ],
       "metric": "declaration-unresolved",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Two causes. 4 were a harness bug, tree-sitter's side wrong. `import AutoDerivedSuite._` (or SemiautoDerivedSuite) sits beside that file's own `object AutoDerivedSuite`, in scala-0/ and scala-2/ copies. The harness dropped the importer from the truth set and scored the OTHER variant; by import contract C8 the import means the importer's own copy, a self-import. Fixed in the harness, so those leave the shape. The other 4 are real GitGalaxy misses: named imports of a package object's members. `io.circe.jawn.decode` and `io.circe.jawn.parse` should reach jawn/package.scala, `io.circe.testing.instances.arbitraryJson` instances/package.scala, and `io.circe.syntax.EncoderOps` syntax/package.scala. Only a wildcard reached package.scala (#3595). Credit stands for what remains after the harness fix. Engine defect #4128, fixed in the same PR."
     },
     "scala/import/same-name-other-path/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 2,
@@ -8261,10 +8267,10 @@
         }
       ],
       "metric": "same-name-other-path",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy right. ConfiguredDerivesSuite.scala:28 and ConfiguredEnumDerivesSuites.scala:27 do `import io.circe.derivation.*`, and the engine links scala-3/io/circe/derivation/package.scala. That file is Scala 3's package file: `package io.circe.derivation` plus top-level `inline def summonLabels`/`summonEncoders`..., the successor of a package object, so it is the package's own file under import contract C7. The harness's C7 recognised only a `package object`. Fixed here: a package.scala holding top-level definitions is the package's own file."
     },
     "scala/import/target-is-test-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -8275,8 +8281,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 2,
@@ -8299,10 +8305,10 @@
         }
       ],
       "metric": "target-is-test-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Two causes. CodecSuites.scala:37 `import io.circe.tests.examples.{ Foo, Wub }` -> tests/examples/package.scala: GitGalaxy right. That file declares `Foo` and `Wub` in a packaging block `package examples { ... }` (package.scala:53-140) after its `package object examples`. The harness appended the block's name to the whole file's package and never indexed its body; fixed here, so that occurrence leaves the shape. JawnParserSuite.scala:23 `import io.circe.tests.examples.glossary` -> src/main/resources/io/circe/tests/examples/glossary.json: GitGalaxy wrong. `glossary` is a `val` of `package object examples` (package.scala:27), but the JSON resource mirrors the package path and was the only file named glossary. No credit; that is what remains after the harness fix. Engine defect #4128, fixed in the same PR: a Scala import now only targets Scala or Java source, and lands on the package object."
     },
     "scala/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -8313,8 +8319,8 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 1,
@@ -8329,10 +8335,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. JsonInterpolatorSuite.scala:21 `import io.circe.jawn.parse` names a member of `package object jawn extends JawnParser` (jawn/package.scala:19), and the import's target is that package object. The engine's #3596 declaration search instead matched the CLASS METHOD `JawnParser.parse` (JawnParser.scala:90) in the package's directory. That is where the inherited body lives, but not what the import names, and the search cannot tell a method from a top-level declaration. Engine defect #4128, fixed in the same PR: a lower-case member tries the package object before the declaration search."
     },
     "scala/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8402,13 +8408,15 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:40:28Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
       "last_reconciled_at": "2026-10-01T10:01:21Z",
       "last_seen_count": 1,
@@ -8423,10 +8431,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
+      "status": "validated",
       "still_reproduces": true,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy right. Derivation.scala:21 `import io.circe.derivation.*` -> scala-3/io/circe/derivation/package.scala. That file is the package's Scala 3 top-level-definitions file (`summonLabels`, `summonEncoders`, ...), its own file under import contract C7. The harness recognised only a `package object`, so it saw no import in the file; fixed here, the same cause as the same-name-other-path shape."
     },
     "solidity/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [

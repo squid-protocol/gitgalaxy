@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.metrics import archetype_classifier, archetype_parity
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -67,6 +68,26 @@ class AuditRecorder:
         # PERFORMANCE OPTIMIZATION: Pre-cache all labels to avoid regex overhead on the hot path
         self._label_cache = {}
         self._friendly_map = schemas.get("FRIENDLY_MAP", {})
+
+    @staticmethod
+    def _archetype_validation() -> dict[str, Any]:
+        status = archetype_classifier.validation_status()
+        return {
+            "Trained": archetype_parity.trained_line(status),
+            **{
+                lvl: {
+                    "State": v["state"],
+                    "Agreement With Trained State": (
+                        f"{v['agreement']:.1%}" if v["agreement"] is not None else "not measured"
+                    ),
+                    "Labels Withheld": v["withheld"],
+                    "Reasons": v["reasons"],
+                    "Notes": v["notes"],
+                }
+                for lvl, v in status["levels"].items()
+            },
+            "Retrain Issue": status["retrain_issue"],
+        }
 
     def format_label(self, key: str) -> str:
         """Translates raw dictionary keys into descriptive human-readable labels."""
@@ -582,6 +603,10 @@ class AuditRecorder:
                 "Remote Origin URL": git_audit.get("remote_url", "Local/Disconnected"),
                 "Last Code Integration Date": git_audit.get("latest_commit_date", "Unknown"),
             },
+            # #4100: how far each archetype level can be trusted on this engine.
+            # Read from the shipped validation record, which automation refreshes
+            # on main -- tests/golden_diff.py strips it, like a timestamp.
+            "Archetype Validation": self._archetype_validation(),
         }
 
         # --- DYNAMIC TRANSLATION FETCH ---

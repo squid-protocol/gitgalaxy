@@ -44,7 +44,7 @@ def _zero_dependency_mode() -> bool:
     return not (HAS_TIKTOKEN and ML_AVAILABLE and HAS_PYYAML)
 
 
-@pytest.mark.skipif(
+_requires_crucible = pytest.mark.skipif(
     not CRUCIBLE_DATA_PATH.exists(),
     reason=(
         f"language-crucible corpus not found at {CRUCIBLE_DATA_PATH} -- clone "
@@ -52,19 +52,19 @@ def _zero_dependency_mode() -> bool:
         "or set LANGUAGE_CRUCIBLE_PATH, to run this test."
     ),
 )
-def test_golden_crucible_matches_baseline(tmp_path):
+
+
+@pytest.fixture(scope="module")
+def crucible_audit(tmp_path_factory):
+    """One galaxyscope run over the crucible, shared by every test here: the
+    golden-master diff and the archetype drift report read the same audit."""
     # Fail fast, before a multi-minute scan, on the corpus drift that otherwise shows up
     # as thousands of phantom diffs (#3386).
     mismatch = pin_mismatch(CRUCIBLE_DATA_PATH.parent)
     if mismatch:
         pytest.fail(mismatch, pytrace=False)
 
-    zero_dep = _zero_dependency_mode()
-    golden_master_path = REPO_ROOT / (golden_store.ZERO_DEPENDENCY if zero_dep else golden_store.FULL_PRECISION)
-
-    output_dir = tmp_path / "telemetry_out"
-    output_dir.mkdir()
-
+    output_dir = tmp_path_factory.mktemp("telemetry_out")
     subprocess.run(
         [
             "galaxyscope",
@@ -89,9 +89,16 @@ def test_golden_crucible_matches_baseline(tmp_path):
 
     actual_path = output_dir / "data_galaxy_audit.json"
     assert actual_path.exists(), f"galaxyscope did not produce the expected artifact at {actual_path}"
+    return actual_path
+
+
+@_requires_crucible
+def test_golden_crucible_matches_baseline(crucible_audit):
+    zero_dep = _zero_dependency_mode()
+    golden_master_path = REPO_ROOT / (golden_store.ZERO_DEPENDENCY if zero_dep else golden_store.FULL_PRECISION)
 
     golden_data = golden_diff.load_and_sanitize(str(golden_master_path))
-    actual_data = golden_diff.load_and_sanitize(str(actual_path))
+    actual_data = golden_diff.load_and_sanitize(str(crucible_audit))
 
     if golden_diff.generate_deterministic_hash(golden_data) == golden_diff.generate_deterministic_hash(actual_data):
         return
@@ -111,3 +118,21 @@ def test_golden_crucible_matches_baseline(tmp_path):
         message += f"\n... and {len(diffs) - 50} more."
     message += "\n\nIf this change is intentional (e.g. you improved a parser), regenerate the golden master."
     pytest.fail(message, pytrace=False)
+
+
+@_requires_crucible
+def test_archetype_drift_report(crucible_audit):
+    """Report-only (#4100): how far this change moves the archetype labels from
+    the brains' trained state, against what main last recorded. Writes the
+    report to the CI job summary; never fails on drift -- the push-to-main
+    archetype-validation workflow records it and opens a retrain issue. It does
+    fail when the harness itself cannot measure (missing baseline, wrong corpus),
+    so a broken harness cannot pass silently."""
+    sys.path.insert(0, str(Path(__file__).parent / "tools"))
+    import archetype_drift
+
+    args = ["measure", "--audit", str(crucible_audit)]
+    # Archetype labels are identical in both modes; one leg's summary is enough.
+    if os.environ.get("GITHUB_STEP_SUMMARY") and not _zero_dependency_mode():
+        args += ["--summary-md", os.environ["GITHUB_STEP_SUMMARY"]]
+    assert archetype_drift.main(args) == 0

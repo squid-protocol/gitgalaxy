@@ -1,0 +1,159 @@
+name: Archetype Validation
+
+# #4100: the archetype brains are retrained offline (gitgalaxy-population-analyses)
+# far less often than the engine changes, so engine improvements are allowed to
+# move the archetype labels ahead of a retrain. What they must not do is move
+# them unseen. After each push to main this re-measures, on language-crucible,
+# how many labels the engine still assigns the way the engine the brains were
+# trained against did, and:
+#
+#   * refreshes gitgalaxy/standards/archetype_brains/archetype_validation.json
+#     (per-level agreement + state, shipped with the package so every scan can
+#     say how far to trust its archetypes) through a PR for review -- only when a
+#     number actually moved, so a push that relabels nothing opens no PR;
+#   * opens (or updates) one "Retrain archetype brains" issue when any level is
+#     DEGRADED or INVALID, and closes it once every level is back to VALIDATED
+#     or DRIFTING.
+#
+# Nothing here gates a PR. The PR-side view is the report-only drift table the
+# Golden Crucible job writes to its summary (tests/test_golden_crucible.py).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/**"
+      - "tests/archetype_trained_baseline.json"
+      - "tests/tools/archetype_drift.py"
+      - "tests/_crucible_pin.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  RETRAIN_LABEL: archetype-retrain
+  RETRAIN_TITLE: "Retrain archetype brains: labels have drifted from their trained state"
+
+jobs:
+  archetype-validation:
+    # Loop guard: this job's own bot commit must not re-trigger it.
+    if: |
+      !startsWith(github.event.head_commit.message, 'docs: auto-update archetype validation')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install GitGalaxy (full precision, as the golden crucible job)
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip setuptools wheel
+          pip install PyYAML tiktoken "pandas>=2.0.0" xgboost
+          pip install -e .
+
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: |
+          # Same pin resolution as golden-crucible.yml (see its comments).
+          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
+          if [ -z "$ref" ]; then
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::No LANGUAGE_CRUCIBLE_REF and no PINNED_TAG in tests/_crucible_pin.py."
+            exit 1
+          fi
+          echo "CRUCIBLE_REF=$ref" >> "$GITHUB_ENV"
+          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Scan the crucible (golden-master flags)
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+          GITGALAXY_DISABLE_GIT_HISTORY: "1"
+        run: galaxyscope language-crucible/data --output scan/ --file-speed --splicing-speed
+
+      - name: Find the open retrain issue
+        id: issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          n=$(gh issue list --repo ${{ github.repository }} --state open --label "$RETRAIN_LABEL" \
+                --json number -q '.[0].number')
+          echo "number=${n}" >> "$GITHUB_OUTPUT"
+
+      - name: Measure drift and refresh the record
+        id: measure
+        run: |
+          cd gitgalaxy
+          python tests/tools/archetype_drift.py set-issue "${{ steps.issue.outputs.number || 'none' }}"
+          python tests/tools/archetype_drift.py measure --audit ../scan/data_galaxy_audit.json \
+            --write-record --corpus "language-crucible@${CRUCIBLE_REF}" \
+            --engine-commit "${GITHUB_SHA::8}" \
+            --summary-md "$GITHUB_STEP_SUMMARY" --github-output "$GITHUB_OUTPUT"
+
+      - name: Open or update the retrain issue
+        if: steps.measure.outputs.needs_retrain == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd gitgalaxy
+          n="${{ steps.issue.outputs.number }}"
+          if [ -z "$n" ]; then
+            gh label create "$RETRAIN_LABEL" --repo ${{ github.repository }} --color D93F0B \
+              --description "Archetype brains have drifted from their trained state (#4100)" --force
+            python tests/tools/archetype_drift.py issue-body --out ../issue.md
+            url=$(gh issue create --repo ${{ github.repository }} --title "$RETRAIN_TITLE" \
+                    --label "$RETRAIN_LABEL" --label data-integrity --body-file ../issue.md)
+            n="${url##*/}"
+            python tests/tools/archetype_drift.py set-issue "$n"
+          fi
+          # Re-render with the issue number recorded, then keep the issue body current.
+          python tests/tools/archetype_drift.py issue-body --out ../issue.md
+          gh issue edit "$n" --repo ${{ github.repository }} --body-file ../issue.md
+
+      - name: Close the retrain issue once every level recovers
+        if: steps.measure.outputs.needs_retrain == 'false' && steps.issue.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd gitgalaxy
+          gh issue close "${{ steps.issue.outputs.number }}" --repo ${{ github.repository }} \
+            --comment "Every archetype level is back to VALIDATED or DRIFTING as of ${GITHUB_SHA::8} -- closing (archetype-validation.yml, #4100)."
+          python tests/tools/archetype_drift.py set-issue none
+
+      - name: Open PR with the refreshed record
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update archetype validation"
+          title: "docs: auto-update archetype validation"
+          body: |
+            Automated archetype drift measurement on `main` (#4100).
+
+            Refreshes `gitgalaxy/standards/archetype_brains/archetype_validation.json`: per-level
+            agreement with the brains' trained state, each level's state, and the open retrain
+            issue. Agreement is stability with respect to the trained state, not accuracy.
+            No archetype label a scan emits depends on this file.
+          branch: auto/archetype-validation
+          delete-branch: true
+          add-paths: |
+            gitgalaxy/standards/archetype_brains/archetype_validation.json

@@ -126,6 +126,9 @@ museum_2/
 # ...and the mixed CJK EBCDIC code-page tables (#3816 part 3a): package data the decoder
 # loads at run time, generated once from the JDK by tests/tools/gen_ebcdic_dbcs.py.
 !gitgalaxy/core/ebcdic_dbcs/*.json
+# ...and the archetype brains + their validation record (#4100): package data the
+# classifier loads at run time; archetype-validation.yml refreshes the record on main.
+!gitgalaxy/standards/archetype_brains/*.json
 # ...and the pinned mainframe corpus manifest (#3213) and the refraction tools'
 # ReDoS baseline (#3214): committed source, same reason.
 !tests/cobol_mainframe/corpora.json

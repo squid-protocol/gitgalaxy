@@ -113,8 +113,8 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
   judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
   `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
-  scip-java (javac-resolved SCIP) on gson: 92.7% confident precision over 3,474 judged
-  links, and 41.0% recall. A call to an overloaded method links to the overload with that
+  scip-java (javac-resolved SCIP) on gson: 93.2% confident precision over 3,727 judged
+  links, and 44.2% recall. A call to an overloaded method links to the overload with that
   many parameters (#3835). When several overloads take that many, the call is ambiguous:
   a row, not an edge (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP").
   Other languages run the same machinery unmeasured.

@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, TypedDict, Union
 
+from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import open_source
 
 # ==============================================================================
@@ -172,21 +173,18 @@ class ApertureFilter:
             return False, size_bytes, reason
 
         # --- Gate 1.2: Model Weight Shunt ---
-        AI_MODEL_EXTS = {
-            ".safetensors",
-            ".gguf",
-            ".onnx",
-            ".pt",
-            ".pth",
-            ".bin",
-            ".tflite",
-            ".pb",
-            ".h5",
-        }
-        if ext.lower() in AI_MODEL_EXTS:
-            reason = f"AI MODEL WEIGHTS (Bypassing Standard Logic: '{ext}')"
-            self.logger.info(f"NEURAL SHUNT: Routing {path_obj.name} away from standard regex engines.")
-            return False, size_bytes, reason
+        # #4138: the extension only nominates a candidate; the header has to prove
+        # the format (model_magic.py: one bounded head read, never the whole file).
+        # A `.pb`/`.bin`/`.onnx` that is ordinary protobuf or binary data falls
+        # through to the gates below instead of becoming a "local model" -- and an
+        # `llm_local_compute` hit -- on its name alone.
+        if ext.lower() in MODEL_EXTENSIONS:
+            model_format = sniff_model_format(path_obj, size_bytes)
+            if model_format:
+                reason = f"AI MODEL WEIGHTS (Bypassing Standard Logic: '{ext}', {model_format} header)"
+                self.logger.info(f"NEURAL SHUNT: Routing {path_obj.name} away from standard regex engines.")
+                return False, size_bytes, reason
+            self.logger.debug(f"NEURAL SHUNT: {path_obj.name} has a model extension but no model header.")
 
         # --- Gate 1.2.5: Absolute Mass Ceiling (Zero-I/O Memory Backstop) ---
         # DEFENSIVE DESIGN: Checked here, before the file is ever opened for

@@ -36,13 +36,13 @@
     "tp": 6575
   },
   "java": {
-    "fn": 35,
+    "fn": 0,
     "fp": 0,
     "matched_functions": 735,
     "parse_failures": 0,
     "precision_pct": 100.0,
-    "recall_pct": 98.2,
-    "tp": 1911
+    "recall_pct": 100.0,
+    "tp": 1946
   },
   "javascript": {
     "fn": 59,

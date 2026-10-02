@@ -173,3 +173,47 @@ def test_compare_reports_agreement_on_each_side():
     text = sc.compare(a, b)
     assert "| in both | 1 | 1 |" in text and "| only here | 1 | 1 |" in text
     assert "x.ts:f -> x.ts:h" in text and "x.ts:g -> x.ts:h" in text
+
+
+TT = (
+    "class T<X> {\n"  # 0
+    "  protected T() { }\n"  # 1
+    "  private T(Map<String, X> m) { }\n"  # 2: a comma inside the parameter's type
+    "  void use() { new T<String>() { }; new T<String>(m) { }; }\n"  # 3: anonymous subclasses
+    "}\n"
+)
+
+
+def test_anonymous_class_reference_picks_the_constructor_by_argument_count(tmp_path):
+    # #4124: `new T<X>() { }` references the CLASS `T#`, not a constructor. With two
+    # constructors, a one-entry map sent every such reference to the last one; scip-java's
+    # side then called the engine's right `T()` link a wrong overload (137 on gson).
+    (tmp_path / "T.java").write_text(TT)
+    lines = TT.splitlines()
+
+    def at(line: int, text: str, nth: int = 0) -> list[int]:
+        start = -1
+        for _ in range(nth + 1):
+            start = lines[line].index(text, start + 1)
+        return [line, start, start + len(text)]
+
+    whole = lambda n: [n, 2, n, len(lines[n])]  # noqa: E731
+    cls, c0, c1, use = P + "T#", P + "T#`<init>`().", P + "T#`<init>`(+1).", P + "T#use()."
+    occ = [
+        _occ(at(1, "T"), c0, True, whole(1)),
+        _occ(at(2, "T"), c1, True, whole(2)),
+        _occ(at(3, "use"), use, True, whole(3)),
+        _occ(at(3, "T", 0), cls),
+        _occ(at(3, "T", 1), cls),
+    ]
+    syms = [_sym(c0, 9, "<init>"), _sym(c1, 9, "<init>"), _sym(use, 26), _sym(cls, 7)]
+    c = sc.contract_from_index(_index("T.java", occ, syms), tmp_path, "java")
+    assert c["edges"] == [[["T.java", "use", 4], ["T.java", "T", 2], 4], [["T.java", "use", 4], ["T.java", "T", 3], 4]]
+
+
+def test_arg_count_skips_type_arguments_literals_and_nesting():
+    assert sc._arg_count(["<String>() { }"], 0, 0) == 0
+    assert sc._arg_count(["(a, f(b, c), \"x,y\", ',')"], 0, 0) == 4
+    assert sc._arg_count(["(Map<String, X> m, int n)"], 0, 0, declaration=True) == 2
+    assert sc._arg_count(["(", "  a,", "  b)"], 0, 0) == 2  # across lines
+    assert sc._arg_count([" = 1;"], 0, 0) is None

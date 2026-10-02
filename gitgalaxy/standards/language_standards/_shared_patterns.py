@@ -173,6 +173,17 @@ CALLS_OUT_C_STYLE_GENERIC = re.compile(
     r"\s*\("
 )
 
+# #4124 (contract C3): the generic-aware pattern for the JVM languages (java, kotlin, groovy).
+# It adds the C1 `@Name(` annotation guard and accepts an empty list, the Java diamond
+# `new ArrayList<>(`. Without it, `new HashMap<K, V>()`, `ArrayDeque<T>()` and
+# `register<Copy>("x")` were missed. The list rules are CALLS_OUT_C_STYLE_GENERIC's.
+# detector.py treats it exactly like CALLS_OUT_C_STYLE.
+CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){0,200}>[ \t]*)?"
+    r"\s*\("
+)
+
 # #3377: Ruby calls without parentheses. `name(` alone found a third of Ruby's
 # calls: idiomatic Ruby writes `obj.to_s`, `xs.each do`, `puts x`, and method
 # names end in `?`/`!` (`key?(k)`, `command! "brew"`). Group 1 is the callee,
@@ -290,6 +301,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE,
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
+    CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_RUBY,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,

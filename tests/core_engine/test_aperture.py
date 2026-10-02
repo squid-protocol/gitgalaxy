@@ -56,12 +56,22 @@ def test_aperture_lead_shield(filter_engine, tmp_path):
     assert "CRITICAL LEAK" in reason
 
     # 2. Massive Neural Weights (Should drop out before reading the file)
+    # #4138: the header must prove the format -- a real safetensors head (8-byte LE
+    # JSON length, then the JSON object) -- not just the extension.
     weights_file = tmp_path / "model.safetensors"
-    weights_file.write_bytes(b"\x00" * 10)  # Mock binary
+    header = b'{"__metadata__":{}}'
+    weights_file.write_bytes(len(header).to_bytes(8, "little") + header + b"\x00" * 16)
 
     is_valid, _, reason = filter_engine.evaluate_path_integrity(weights_file)
     assert is_valid is False
     assert "AI MODEL WEIGHTS" in reason
+
+    # 3. A model extension on a non-model payload is not shunted as weights.
+    fake_weights = tmp_path / "fake.safetensors"
+    fake_weights.write_bytes(b"\x00" * 10)
+
+    _, _, reason = filter_engine.evaluate_path_integrity(fake_weights)
+    assert "AI MODEL WEIGHTS" not in reason
 
 
 # ==============================================================================

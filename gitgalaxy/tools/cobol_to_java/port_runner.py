@@ -486,8 +486,8 @@ def cmd_refine(opts: argparse.Namespace) -> int:
     model = opts.model or (shlex.split(opts.command)[0] if opts.command else None)
     n = iter(range(1, 1_000_000))
 
-    def ask(system: str, user: str, pdir: Path) -> str:
-        return globals()["ask"](opts.backend, system, user, opts, pdir)
+    def ask_model(system: str, user: str, pdir: Path) -> str:
+        return ask(opts.backend, system, user, opts, pdir)
 
     def prove() -> tuple[bool, str]:
         report_dir = work / "steps" / f"{next(n):03d}"
@@ -503,7 +503,7 @@ def cmd_refine(opts: argparse.Namespace) -> int:
         print(f"{opts.ticket} {step['method']}: {step.get('verdict')} ({step['attempts']} attempt(s))", flush=True)
 
     started = _now()
-    record = R.refine(service, ask, prove, work, only=opts.only.split(",") if opts.only else None,
+    record = R.refine(service, ask_model, prove, work, only=opts.only.split(",") if opts.only else None,
                       skip=opts.skip.split(",") if opts.skip else None, largest=opts.largest, retries=opts.retries,
                       on_step=on_step)  # fmt: skip
     extra = {str(p.relative_to(port)): p.read_text(encoding="utf-8") for p in sorted(port.rglob("*.java"))

@@ -851,6 +851,27 @@ public class CicsTask {
         event("SYNCPOINT-ROLLBACK");
     }
 
+    private java.util.Set<String> nonRecoverable = java.util.Set.of();  // CSD RECOVERY(NONE) files (the root's)
+    private java.util.function.Consumer<Runnable> outsideUnitOfWork = Runnable::run;
+
+    /** The files the CSD defines RECOVERY(NONE), and how a change to one is made outside the task's unit of work
+     *  (e.g. a REQUIRES_NEW transaction): such a change survives a rollback, as in CICS. */
+    public CicsTask withNonRecoverable(java.util.Set<String> files, java.util.function.Consumer<Runnable> outside) {
+        this.nonRecoverable = files;
+        this.outsideUnitOfWork = outside;
+        return this;
+    }
+
+    /** A file change: in the task's unit of work, or outside it for a non-recoverable file. */
+    public void write(String file, Runnable change) {
+        CicsTask r = root();
+        if (r.nonRecoverable.contains(file == null ? "" : file.strip())) {
+            r.outsideUnitOfWork.accept(change);
+        } else {
+            change.run();
+        }
+    }
+
     /** Who runs the task says how a rollback undoes its changes (e.g. a TransactionStatus's setRollbackOnly). */
     public CicsTask onRollback(Runnable hook) {
         this.rollbackHook = hook;
@@ -1209,6 +1230,10 @@ public class CicsTask {
             record(code, cause, condition, null, null);
             for (CicsTask t = this; t != null; t = t.parent) {
                 t.ended = true;
+            }
+            // the task terminates abnormally: CICS backs out its unit of work (recoverable resources)
+            if (!root().syncpointed && root().rollbackHook != null) {
+                root().rollbackHook.run();
             }
             return null;
         }

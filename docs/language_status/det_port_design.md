@@ -384,7 +384,7 @@ NULL is distinct.
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
   and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
   +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
-- **Proven: all three of CardDemo's Db2 programs, two of CBSA's and all eight of GenApp's**, translated with no model.
+- **Proven: all three of CardDemo's Db2 programs, six of CBSA's and all eight of GenApp's**, translated with no model.
 
   | case | program | scenarios | paragraphs | branches | translated |
   |---|---|---|---|---|---|
@@ -393,6 +393,10 @@ NULL is distinct.
   | `carddemo-cotrtlic` | COTRTLIC, CICS list screen with cursors | 27 | 56/59 | 165/230 | 631/632 |
   | `cbsa-updacc` | CBSA UPDACC, LINKed account update (CBSA's own DDL) | 10 | 7/7 | 5/6 | 58/58 |
   | `cbsa-dbcrfun` | CBSA DBCRFUN, debit / credit + PROCTRAN | 22 | 16/22 | 22/35 | 148/148 |
+  | `cbsa-inqacc` | CBSA INQACC, inquire account (cursor; ABNDPROC in the task) | 14 | 22/25 | 13/25 | 240/240 |
+  | `cbsa-delacc` | CBSA DELACC, delete account + PROCTRAN | 11 | 19/19 | 10/14 | 134/134 |
+  | `cbsa-xfrfun` | CBSA XFRFUN, transfer funds (four SYNCPOINT ROLLBACK paths) | 22 | 27/28 | 44/81 | 439/439 |
+  | `cbsa-custctrl` | CBSA CUSTCTRL, customer control record | 6 | 7/7 | 3/4 | 21/21 |
   | `genapp-lgicdb01` | GenApp LGICDB01, inquire customer | 12 | 3/4 | 4/12 | 44/44 |
   | `genapp-lgipdb01` | GenApp LGIPDB01, inquire policy (cursors) | 29 | 11/12 | 46/74 | 238/238 |
   | `genapp-lgacdb02` | GenApp LGACDB02, add customer password | 8 | 2/3 | 4/10 | 39/39 |

@@ -439,6 +439,15 @@ def test_an_alphanumeric_commarea_field_reaches_the_port_as_text():
     assert got == {"sel": "0000000000683580", "page": 2, "amt": 12.5}
 
 
+def test_a_repeat_count_with_a_nine_is_not_a_digit_position():
+    """COACTUPC's ACUP-OLD-CUST-SSN-X (PIC X(09)) '017590544' reached the port as the number 17590544: the 9 of the
+    repetition count read as a numeric PICTURE symbol -- the port then saw another record than COBOL's."""
+    fields = [{"name": "SSN", "pic": "X(09)"}, {"name": "ID", "pic": "X(19)"}, {"name": "N", "pic": "9(09)"}]
+    assert ec.alphanumeric(fields) == frozenset({"SSN", "ID"})
+    got = ec.to_java({"SSN": "017590544", "N": "000000042"}, {"ssn": "SSN", "n": "N"}, ec.alphanumeric(fields))
+    assert got == {"ssn": "017590544", "n": 42}
+
+
 def test_assign_applid_sysid_and_writeq_td_translate():
     got = ec.translate_command("ASSIGN APPLID(A) SYSID(S)")
     assert got[:3] == ["MOVE 'APPLID' TO GG-NAME2", "CALL 'GGCASGN' USING GG-CICS", "MOVE GG-NAME1(1:8) TO A"]

@@ -655,6 +655,44 @@ def _string(p: E.Parser, text: str, line: int) -> Stmt:
     return Stmt("STRING", line, text, {"parts": parts, "into": into, "pointer": pointer})
 
 
+def _unstring(p: E.Parser, text: str, line: int) -> Stmt:
+    """UNSTRING src [DELIMITED BY [ALL] d [OR [ALL] d ...]] INTO t [DELIMITER IN x] [COUNT IN y] [, t ...]
+    [WITH POINTER p] [TALLYING IN t]."""
+    src = p.ref()
+    delims: list = []  # (operand, all)
+    if p.accept("DELIMITED"):
+        p.accept("BY")
+        while True:
+            every = p.accept("ALL")
+            delims.append((p.operand(), every))
+            if not p.accept("OR"):
+                break
+    if not p.accept("INTO"):
+        raise E.ExprError("UNSTRING without INTO")
+    intos: list = []  # (target, delimiter-in, count-in)
+    while not p.done() and p.up() not in ("WITH", "POINTER", "TALLYING"):
+        target = p.ref()
+        dl = cnt = None
+        if p.accept("DELIMITER"):
+            p.accept("IN")
+            dl = p.ref()
+        if p.accept("COUNT"):
+            p.accept("IN")
+            cnt = p.ref()
+        intos.append((target, dl, cnt))
+    pointer = tallying = None
+    p.accept("WITH")
+    if p.accept("POINTER"):
+        pointer = p.ref()
+    if p.accept("TALLYING"):
+        p.accept("IN")
+        tallying = p.ref()
+    if not p.done() or not intos:
+        raise E.ExprError(f"UNSTRING: left over {' '.join(p.t[p.i :])}")
+    return Stmt("UNSTRING", line, text, {"src": src, "delims": delims, "intos": intos, "pointer": pointer,
+                                          "tallying": tallying})  # fmt: skip
+
+
 def _inspect(p: E.Parser, text: str, line: int) -> Stmt:
     """INSPECT target TALLYING ... REPLACING ... | CONVERTING ...: clauses in order, each
     ("tally", counter, mode, pattern | None, bounds) / ("replace", mode, pattern | None, by, bounds) /
@@ -721,7 +759,7 @@ _PARSERS = {
     "MULTIPLY": _multiply, "DIVIDE": _divide, "INITIALIZE": _initialize, "SET": _set, "PERFORM": _perform,
     "GO": _goto, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),
     "CONTINUE": _simple("CONTINUE"), "NEXT": _simple("NEXT-SENTENCE"), "OPEN": _open, "CLOSE": _close,
-    "READ": _read, "WRITE": _write, "REWRITE": _rewrite, "START": _start, "ACCEPT": _accept, "STRING": _string,
+    "READ": _read, "WRITE": _write, "REWRITE": _rewrite, "START": _start, "ACCEPT": _accept, "STRING": _string, "UNSTRING": _unstring,
     "INSPECT": _inspect,
 }  # fmt: skip
 

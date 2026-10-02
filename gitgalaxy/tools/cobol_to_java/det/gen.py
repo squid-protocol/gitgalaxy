@@ -98,7 +98,8 @@ class Gen:
         self.consts: dict[str, str] = {}
         self.tmp = 0
         self.cur = 0
-        self.cics: Cics | None = None  # det.cics.Cics for a CICS program
+        self.cics: Cics | None = None
+        self.copy_dirs: list = []  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entities: set = set()
@@ -593,6 +594,8 @@ class Gen:
             return [c, f"{ind}Cobol.move({src}, {self.field_expr(s.data['target'])}, CS);"]
         if k == "STRING":
             return [c, *self.string(s, ind)]
+        if k == "UNSTRING":
+            return [c, *self.unstring(s, ind)]
         if k == "INSPECT":
             return [c, *self.inspect(s, ind)]
         if k in ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "START"):
@@ -832,8 +835,6 @@ class Gen:
 
     def string(self, s: S.Stmt, ind: str) -> list[str]:
         d = s.data
-        if d.get("pointer") is not None or s.phrases:
-            raise Untranslatable("STRING WITH POINTER / ON OVERFLOW")
         parts = []
         for sources, delim in d["parts"]:
             for src in sources:
@@ -846,7 +847,42 @@ class Gen:
                     b = self.str_arg(delim)
                     tail = "" if a.startswith("f") and b.startswith("f") else ", CS"
                     parts.append(f"Cobol.StringPart.delimited({a}, {b}{tail})")
-        return [f"{ind}Cobol.string({self.field_expr(d['into'])}, null, CS, {', '.join(parts)});"]
+        pointer = self.field_expr(d["pointer"]) if d.get("pointer") is not None else "null"
+        call = f"Cobol.string({self.field_expr(d['into'])}, {pointer}, CS, {', '.join(parts)})"
+        return self.overflow(s, call, ind)
+
+    def overflow(self, s: S.Stmt, call: str, ind: str) -> list[str]:
+        """A STRING / UNSTRING call (true: OVERFLOW) and its ON OVERFLOW / NOT ON OVERFLOW phrases."""
+        if not ("OVERFLOW" in s.phrases or "NOT-OVERFLOW" in s.phrases):
+            return [f"{ind}{call};"]
+        v = self.tmpname("overflow")
+        out = [f"{ind}boolean {v} = {call};"]
+        if "OVERFLOW" in s.phrases:
+            out += [f"{ind}if ({v}) {{", *self.block(s.phrases["OVERFLOW"], ind + "    "), f"{ind}}}"]
+        if "NOT-OVERFLOW" in s.phrases:
+            out += [f"{ind}if (!{v}) {{", *self.block(s.phrases["NOT-OVERFLOW"], ind + "    "), f"{ind}}}"]
+        return out
+
+    def unstring(self, s: S.Stmt, ind: str) -> list[str]:
+        d = s.data
+        delims = []
+        for operand, every in d["delims"]:
+            a = self.str_arg(operand)
+            delims.append(f"Cobol.Delim.of({a}, {_b(every)})" if a.startswith("f")
+                          else f"Cobol.Delim.of({a}, {_b(every)}, CS)")  # fmt: skip
+        intos = []
+        for target, dl, cnt in d["intos"]:
+            x = f"Cobol.Into.of({self.field_expr(target)})"
+            if dl is not None:
+                x += f".delimiterIn({self.field_expr(dl)})"
+            if cnt is not None:
+                x += f".countIn({self.field_expr(cnt)})"
+            intos.append(x)
+        ptr = self.field_expr(d["pointer"]) if d.get("pointer") is not None else "null"
+        tal = self.field_expr(d["tallying"]) if d.get("tallying") is not None else "null"
+        call = (f"Cobol.unstring({self.field_expr(d['src'])}, {ptr}, {tal}, java.util.List.of({', '.join(delims)}), "
+                f"CS, {', '.join(intos)})")  # fmt: skip
+        return self.overflow(s, call, ind)
 
     def str_arg(self, e) -> str:
         """A STRING / INSPECT operand: a Field (an expression starting `f`) or a Java String."""

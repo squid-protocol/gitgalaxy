@@ -173,6 +173,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         sizes[id(r)] = max(sizes.get(id(r), 0), rec.size * rec.occurs)
 
     gen = G.Gen(prog)
+    gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
@@ -471,6 +472,19 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     for k, ch in enumerate(chunks):
         out += [f"    private void fields{k}() {{", *ch, "    }", ""]
     out += [
+        "    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its",
+        "     *  initial storage; RETURN-CODE. */",
+        "    public int runProgram() {",
+        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+        *inits,
+        "        try {",
+        f"            perform(0, {n_para - 1});",
+        "        } catch (Goback g) {",
+        "            // the program ended",
+        "        }",
+        f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
+        "    }",
+        "",
         f"    public void execute{service[: -len('Service')]}() {{",
         "        runBatch(List.of(), null);"
         if batch
@@ -594,6 +608,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
                 continue
             kw = "if" if not ca_in else "} else if"
             ca_in += [f"        {kw} (ca instanceof {cls} x) {{", f"            in_{cls}(x, {st}, 0);",
+                      f"            caBack = () -> fill_{cls}(x, {st}, 0);",
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
@@ -603,6 +618,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
         "    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();",
         "    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();",
+        "    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */",
+        "    private Runnable caBack = () -> { };",
         "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
@@ -661,6 +678,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */",
         "    public void runTask(CicsTask task) {",
         "        this.task = task;",
+        "        caBack = () -> { };",
         "        handlers.clear();",
         "        heldKey.clear();",
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
@@ -683,6 +701,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "            // RETURN / XCTL / an abend ended the program",
         "        }",
         "        if (!task.ended()) {",
+        "            caBack.run();",
         "            task.returnTransid(null, null);  // a GOBACK is a RETURN",
         "        }",
         "    }",

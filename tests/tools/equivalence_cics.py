@@ -1196,7 +1196,9 @@ def to_java(values: dict[str, Any], shape: dict[str, Any], text: frozenset[str] 
 
 def alphanumeric(fields: list[dict[str, Any]]) -> frozenset[str]:
     """The fields whose PICTURE holds text (X / A), not a number."""
-    return frozenset(f["name"] for f in fields if f.get("pic") and not re.search(r"[9SVP]", f["pic"].upper()))
+    # the PICTURE's symbols only: X(09) is text -- the 9 in its repetition count is not a digit position
+    return frozenset(f["name"] for f in fields
+                     if f.get("pic") and not re.search(r"[9SVP]", re.sub(r"\(\d+\)", "", f["pic"].upper())))  # fmt: skip
 
 
 def _leaves(shape: dict[str, Any]) -> dict[str, str]:

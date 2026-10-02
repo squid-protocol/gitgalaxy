@@ -199,14 +199,21 @@ public final class DetCics {
         };
     }
 
+    /** The RESP value of a condition the runtime names (IBM CICS TS, RESP values). */
     public static int resp(String condition) {
         return switch (condition) {
             case "NORMAL" -> 0;
-            case "LENGERR" -> 22;
-            case "PGMIDERR" -> 27;
+            case "NOTFND" -> 13;
             case "INVREQ" -> 16;
+            case "LENGERR" -> 22;
+            case "ITEMERR" -> 26;
+            case "PGMIDERR" -> 27;
+            case "QIDERR" -> 44;
             case "NOTAUTH" -> 70;
-            default -> -1;
+            case "SYSIDERR" -> 53;
+            case "TERMERR" -> 81;
+            case "ROLLEDBACK" -> 82;
+            default -> throw new IllegalArgumentException("no RESP value known for condition " + condition);
         };
     }
 }

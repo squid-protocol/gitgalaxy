@@ -1245,11 +1245,11 @@
       "c/cpython/dictobject.c": {
         "Compute Cores": 22,
         "Defensive Guards": 18,
-        "Encapsulated Accessors": 51,
+        "Encapsulated Accessors": 52,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 50,
         "Parameter Forwarders": 33,
-        "Stateful Encapsulated Methods": 107
+        "Stateful Encapsulated Methods": 106
       },
       "c/cpython/frameobject.c": {
         "Compute Cores": 4,
@@ -1275,12 +1275,12 @@
       "c/cpython/object.c": {
         "Compute Cores": 34,
         "Defensive Guards": 10,
-        "Encapsulated Accessors": 12,
+        "Encapsulated Accessors": 14,
         "I/O & Config Routines": 1,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 14,
         "Parameter Forwarders": 58,
-        "Stateful Encapsulated Methods": 15,
+        "Stateful Encapsulated Methods": 13,
         "Type Conversions": 2
       },
       "c/cpython/typeobject.c": {
@@ -1309,9 +1309,9 @@
       "c/doom/doomdef.h": {},
       "c/doom/i_system.c": {
         "C Struct Operations": 1,
-        "Compute Cores": 2,
+        "Compute Cores": 1,
         "Interface Declarations": 6,
-        "Parameter Forwarders": 3
+        "Parameter Forwarders": 4
       },
       "c/doom/m_fixed.c": {
         "Compute Cores": 1,
@@ -1356,18 +1356,20 @@
       "c/micropython/emitnative.c": {
         "Compute Cores": 3,
         "Defensive Guards": 1,
-        "Encapsulated Accessors": 44,
+        "Encapsulated Accessors": 46,
         "Many-Argument Workhorses": 7,
-        "Stateful Encapsulated Methods": 60
+        "Stateful Encapsulated Methods": 58
       },
       "c/micropython/gc.c": {
-        "Compute Cores": 5,
+        "Compute Cores": 3,
         "Defensive Guards": 5,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 3,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 4,
-        "Stateful Encapsulated Methods": 4
+        "Parameter Forwarders": 1,
+        "Stateful Encapsulated Methods": 4,
+        "Type Conversions": 1
       },
       "c/micropython/gc.h": {},
       "c/micropython/modmachine.c": {
@@ -1378,11 +1380,11 @@
       },
       "c/micropython/modmachine.h": {},
       "c/micropython/objtype.c": {
-        "C Struct Operations": 3,
+        "C Struct Operations": 4,
         "Compute Cores": 3,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 5,
-        "Many-Argument Workhorses": 9,
+        "Many-Argument Workhorses": 8,
         "Parameter Forwarders": 2,
         "Stateful Encapsulated Methods": 12
       },
@@ -3246,30 +3248,30 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": {},
       "cobol/gnucobol_internals/codegen.c": {
-        "C Struct Operations": 41,
+        "C Struct Operations": 42,
         "Compute Cores": 25,
         "Encapsulated Accessors": 23,
         "I/O & Config Routines": 9,
-        "Many-Argument Workhorses": 37,
+        "Many-Argument Workhorses": 36,
         "Stateful Encapsulated Methods": 67
       },
       "cobol/gnucobol_internals/fileio.c": {
-        "C Struct Operations": 8,
-        "Compute Cores": 27,
+        "C Struct Operations": 9,
+        "Compute Cores": 24,
         "Defensive Guards": 3,
         "Encapsulated Accessors": 5,
-        "I/O & Config Routines": 1,
+        "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 55,
         "Parameter Forwarders": 6,
         "Stateful Encapsulated Methods": 23,
         "Type Conversions": 1
       },
       "cobol/gnucobol_internals/numeric.c": {
-        "Compute Cores": 17,
+        "Compute Cores": 16,
         "Encapsulated Accessors": 1,
         "I/O & Config Routines": 1,
         "Many-Argument Workhorses": 18,
-        "Parameter Forwarders": 10,
+        "Parameter Forwarders": 11,
         "Stateful Encapsulated Methods": 16,
         "Type Conversions": 7
       },
@@ -3422,10 +3424,10 @@
         "Many-Argument Workhorses": 3
       },
       "cpp/godot/main.cpp": {
-        "Compute Cores": 5,
+        "Compute Cores": 4,
         "I/O & Config Routines": 7,
         "Interface Declarations": 9,
-        "Many-Argument Workhorses": 4,
+        "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 5,
         "State Mutators": 1
       },
@@ -3612,14 +3614,14 @@
         "Callbacks & Closures": 2,
         "Compute Cores": 7,
         "Defensive Guards": 19,
-        "Encapsulated Accessors": 71,
+        "Encapsulated Accessors": 72,
         "Generic / Templated Code": 17,
         "I/O & Config Routines": 4,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 16,
         "Parameter Forwarders": 7,
         "State Mutators": 5,
-        "Stateful Encapsulated Methods": 74,
+        "Stateful Encapsulated Methods": 73,
         "Type Conversions": 7
       },
       "csharp/roslyn/CSharpSyntaxTree.cs": {
@@ -3763,14 +3765,14 @@
         "Annotated & Test Methods": 19,
         "Callbacks & Closures": 14,
         "Compute Cores": 10,
-        "Defensive Guards": 62,
-        "Encapsulated Accessors": 38,
+        "Defensive Guards": 61,
+        "Encapsulated Accessors": 41,
         "Generic / Templated Code": 2,
         "I/O & Config Routines": 18,
         "Interface Declarations": 6,
         "Many-Argument Workhorses": 8,
         "State Mutators": 20,
-        "Stateful Encapsulated Methods": 47
+        "Stateful Encapsulated Methods": 45
       },
       "dart/flutter/events.dart": {
         "Annotated & Test Methods": 37,
@@ -3799,32 +3801,32 @@
         "Type Conversions": 2
       },
       "dart/flutter/navigator.dart": {
-        "Annotated & Test Methods": 13,
-        "Callbacks & Closures": 18,
+        "Annotated & Test Methods": 15,
+        "Callbacks & Closures": 16,
         "Defensive Guards": 120,
-        "Encapsulated Accessors": 29,
+        "Encapsulated Accessors": 30,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 5,
         "Interface Declarations": 7,
         "Many-Argument Workhorses": 4,
         "Parameter Forwarders": 4,
         "State Mutators": 31,
-        "Stateful Encapsulated Methods": 28,
+        "Stateful Encapsulated Methods": 27,
         "Type Conversions": 1
       },
       "dart/flutter/object.dart": {
-        "Annotated & Test Methods": 13,
+        "Annotated & Test Methods": 14,
         "Callbacks & Closures": 25,
         "Compute Cores": 1,
-        "Defensive Guards": 99,
-        "Encapsulated Accessors": 50,
+        "Defensive Guards": 97,
+        "Encapsulated Accessors": 55,
         "Generic / Templated Code": 7,
-        "I/O & Config Routines": 18,
+        "I/O & Config Routines": 19,
         "Interface Declarations": 3,
         "Many-Argument Workhorses": 9,
         "Parameter Forwarders": 7,
         "State Mutators": 31,
-        "Stateful Encapsulated Methods": 35,
+        "Stateful Encapsulated Methods": 30,
         "Type Conversions": 1
       },
       "dart/flutter/semantics.dart": {
@@ -3844,10 +3846,10 @@
         "Annotated & Test Methods": 5,
         "Callbacks & Closures": 6,
         "Compute Cores": 2,
-        "Defensive Guards": 21,
+        "Defensive Guards": 20,
         "Encapsulated Accessors": 3,
         "Generic / Templated Code": 1,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 5,
         "Parameter Forwarders": 2,
@@ -3927,9 +3929,9 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": {
         "Annotated & Test Methods": 1,
         "Callbacks & Closures": 3,
-        "Compute Cores": 10,
+        "Compute Cores": 9,
         "I/O & Config Routines": 13,
-        "Parameter Forwarders": 7,
+        "Parameter Forwarders": 8,
         "State Mutators": 3,
         "Stateful Encapsulated Methods": 1
       },
@@ -3940,11 +3942,10 @@
         "Compute Cores": 1
       },
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": {
-        "Many-Argument Workhorses": 1,
-        "Stateful Encapsulated Methods": 2
+        "Stateful Encapsulated Methods": 3
       },
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": {
-        "Compute Cores": 1
+        "I/O & Config Routines": 1
       },
       "dockerfile/moby/builder/dockerfile/evaluator.go": {
         "Encapsulated Accessors": 7,
@@ -4392,8 +4393,8 @@
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": {
         "Callbacks & Closures": 8,
-        "Compute Cores": 3,
-        "Defensive Guards": 10,
+        "Compute Cores": 2,
+        "Defensive Guards": 11,
         "Encapsulated Accessors": 2,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 4,
@@ -4984,10 +4985,10 @@
       "groovy/spock/SpecParser.java": {
         "Annotated & Test Methods": 4,
         "Compute Cores": 1,
-        "Encapsulated Accessors": 5,
+        "Encapsulated Accessors": 6,
         "Parameter Forwarders": 1,
         "State Mutators": 1,
-        "Stateful Encapsulated Methods": 7
+        "Stateful Encapsulated Methods": 6
       },
       "groovy/spock/SpecRewriter.java": {
         "Annotated & Test Methods": 10,
@@ -5584,23 +5585,21 @@
       "java/springboot/AutoConfigurationImportSelector.java": {
         "Annotated & Test Methods": 10,
         "Callbacks & Closures": 1,
-        "Compute Cores": 1,
-        "Defensive Guards": 1,
-        "Encapsulated Accessors": 19,
-        "Generic / Templated Code": 5,
+        "Encapsulated Accessors": 20,
+        "Generic / Templated Code": 6,
         "State Mutators": 1,
-        "Stateful Encapsulated Methods": 8,
-        "Type Conversions": 1
+        "Stateful Encapsulated Methods": 7,
+        "Type Conversions": 2
       },
       "java/springboot/Binder.java": {
         "Annotated & Test Methods": 4,
-        "Encapsulated Accessors": 6,
+        "Encapsulated Accessors": 7,
         "Generic / Templated Code": 18,
         "Interface Declarations": 5,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 2,
         "State Mutators": 1,
-        "Stateful Encapsulated Methods": 14
+        "Stateful Encapsulated Methods": 13
       },
       "java/springboot/JarLauncher.java": {
         "Encapsulated Accessors": 1,
@@ -5609,8 +5608,7 @@
       },
       "java/springboot/LICENSE.txt": {},
       "java/springboot/OnClassCondition.java": {
-        "Annotated & Test Methods": 2,
-        "Defensive Guards": 1,
+        "Annotated & Test Methods": 3,
         "Encapsulated Accessors": 2,
         "Generic / Templated Code": 1,
         "Stateful Encapsulated Methods": 8
@@ -5619,22 +5617,21 @@
         "Annotated & Test Methods": 5,
         "Callbacks & Closures": 1,
         "Defensive Guards": 1,
-        "Encapsulated Accessors": 6,
+        "Encapsulated Accessors": 7,
         "State Mutators": 3,
-        "Stateful Encapsulated Methods": 2
+        "Stateful Encapsulated Methods": 1
       },
       "java/springboot/SpringApplication.java": {
         "Annotated & Test Methods": 7,
         "Callbacks & Closures": 2,
-        "Compute Cores": 2,
         "Defensive Guards": 3,
-        "Encapsulated Accessors": 36,
+        "Encapsulated Accessors": 38,
         "Generic / Templated Code": 24,
         "Interface Declarations": 12,
         "Many-Argument Workhorses": 1,
-        "Parameter Forwarders": 18,
+        "Parameter Forwarders": 20,
         "State Mutators": 5,
-        "Stateful Encapsulated Methods": 23,
+        "Stateful Encapsulated Methods": 21,
         "Type Conversions": 2
       },
       "java/springboot/WebMvcAutoConfiguration.java": {
@@ -5642,8 +5639,7 @@
         "Callbacks & Closures": 5,
         "Defensive Guards": 1,
         "Encapsulated Accessors": 10,
-        "Generic / Templated Code": 2,
-        "Many-Argument Workhorses": 1,
+        "Generic / Templated Code": 3,
         "Parameter Forwarders": 1,
         "State Mutators": 2,
         "Stateful Encapsulated Methods": 7
@@ -7720,12 +7716,12 @@
       "php/symfony/Application.php": {
         "Compute Cores": 6,
         "Defensive Guards": 12,
-        "Encapsulated Accessors": 6,
+        "Encapsulated Accessors": 7,
         "I/O & Config Routines": 1,
         "Interface Declarations": 10,
         "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 14,
-        "Stateful Encapsulated Methods": 7
+        "Stateful Encapsulated Methods": 6
       },
       "php/symfony/ContainerBuilder.php": {
         "Compute Cores": 6,
@@ -7752,10 +7748,10 @@
       "php/symfony/Parser.php": {
         "Compute Cores": 2,
         "Defensive Guards": 1,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 1,
         "Parameter Forwarders": 2,
-        "Stateful Encapsulated Methods": 4
+        "Stateful Encapsulated Methods": 3
       },
       "php/symfony/Request.php": {
         "Callbacks & Closures": 1,
@@ -7794,22 +7790,22 @@
       "php/wordpress/formatting.php": {
         "Annotated & Test Methods": 1,
         "Callbacks & Closures": 2,
-        "Compute Cores": 48,
-        "Defensive Guards": 6,
-        "I/O & Config Routines": 10,
+        "Compute Cores": 40,
+        "Defensive Guards": 8,
+        "I/O & Config Routines": 14,
         "Interface Declarations": 2,
-        "Many-Argument Workhorses": 25,
-        "Parameter Forwarders": 20,
+        "Many-Argument Workhorses": 24,
+        "Parameter Forwarders": 23,
         "Type Conversions": 6
       },
       "php/wordpress/functions.php": {
         "Annotated & Test Methods": 1,
-        "Compute Cores": 53,
+        "Compute Cores": 49,
         "Defensive Guards": 26,
-        "I/O & Config Routines": 45,
+        "I/O & Config Routines": 47,
         "Interface Declarations": 18,
         "Many-Argument Workhorses": 50,
-        "Parameter Forwarders": 10,
+        "Parameter Forwarders": 12,
         "Stateful Encapsulated Methods": 1,
         "Type Conversions": 10
       },
@@ -9902,8 +9898,8 @@
       "rust/tokio/fuzz.rs": {},
       "rust/tokio/interval.rs": {
         "Annotated & Test Methods": 3,
-        "Generic / Templated Code": 1,
-        "Many-Argument Workhorses": 2,
+        "Generic / Templated Code": 2,
+        "Many-Argument Workhorses": 1,
         "Parameter Forwarders": 5,
         "State Mutators": 3
       },
@@ -10001,16 +9997,16 @@
       },
       "scala/kafka/LogManager.scala": {
         "Callbacks & Closures": 16,
-        "Compute Cores": 3,
+        "Compute Cores": 2,
         "Encapsulated Accessors": 10,
         "Generic / Templated Code": 10,
         "I/O & Config Routines": 3,
         "Many-Argument Workhorses": 8,
-        "State Mutators": 11,
+        "State Mutators": 12,
         "Stateful Encapsulated Methods": 14
       },
       "scala/kafka/Partition.scala": {
-        "Callbacks & Closures": 37,
+        "Callbacks & Closures": 38,
         "Compute Cores": 3,
         "Encapsulated Accessors": 7,
         "Generic / Templated Code": 10,
@@ -10018,7 +10014,7 @@
         "Interface Declarations": 2,
         "Many-Argument Workhorses": 9,
         "State Mutators": 15,
-        "Stateful Encapsulated Methods": 18
+        "Stateful Encapsulated Methods": 17
       },
       "scala/kafka/ReplicaManager.scala": {
         "Callbacks & Closures": 24,
@@ -10033,14 +10029,14 @@
       },
       "scala/kafka/SocketServer.scala": {
         "Callbacks & Closures": 15,
-        "Compute Cores": 4,
+        "Compute Cores": 3,
         "Encapsulated Accessors": 33,
         "Generic / Templated Code": 11,
-        "I/O & Config Routines": 2,
+        "I/O & Config Routines": 3,
         "Interface Declarations": 1,
         "Many-Argument Workhorses": 2,
-        "State Mutators": 18,
-        "Stateful Encapsulated Methods": 20
+        "State Mutators": 19,
+        "Stateful Encapsulated Methods": 19
       }
     },
     "scheme": {
@@ -10055,20 +10051,20 @@
         "Many-Argument Workhorses": 7
       },
       "scheme/racket/eval.c": {
-        "Compute Cores": 13,
-        "Encapsulated Accessors": 16,
-        "I/O & Config Routines": 5,
+        "Compute Cores": 10,
+        "Encapsulated Accessors": 18,
+        "I/O & Config Routines": 6,
         "Interface Declarations": 4,
         "Many-Argument Workhorses": 14,
-        "Parameter Forwarders": 39,
+        "Parameter Forwarders": 41,
         "State Mutators": 4,
-        "Stateful Encapsulated Methods": 15,
+        "Stateful Encapsulated Methods": 13,
         "Type Conversions": 3
       },
       "scheme/racket/fun.c": {
-        "Compute Cores": 32,
+        "Compute Cores": 31,
         "Encapsulated Accessors": 69,
-        "I/O & Config Routines": 4,
+        "I/O & Config Routines": 5,
         "Interface Declarations": 13,
         "Many-Argument Workhorses": 58,
         "Parameter Forwarders": 56,
@@ -10901,9 +10897,9 @@
       },
       "swift/alamofire/Request.swift": {
         "Annotated & Test Methods": 7,
-        "Callbacks & Closures": 6,
+        "Callbacks & Closures": 7,
         "Compute Cores": 5,
-        "Defensive Guards": 14,
+        "Defensive Guards": 13,
         "Encapsulated Accessors": 1,
         "Generic / Templated Code": 1,
         "I/O & Config Routines": 1,
@@ -10920,8 +10916,8 @@
       "swift/alamofire/Session.swift": {
         "Annotated & Test Methods": 3,
         "Compute Cores": 7,
-        "Defensive Guards": 10,
-        "Generic / Templated Code": 12,
+        "Defensive Guards": 9,
+        "Generic / Templated Code": 13,
         "Interface Declarations": 5,
         "Many-Argument Workhorses": 14,
         "Parameter Forwarders": 5,
@@ -11319,9 +11315,9 @@
       },
       "typescript/vscode/eslint.config.js": {},
       "typescript/vscode/extHost.api.impl.ts": {
-        "Callbacks & Closures": 75,
+        "Callbacks & Closures": 76,
         "Compute Cores": 70,
-        "Defensive Guards": 14,
+        "Defensive Guards": 13,
         "Generic / Templated Code": 13,
         "I/O & Config Routines": 2,
         "Interface Declarations": 89,

@@ -269,6 +269,14 @@
     "scheme/racket": {
       "scheme/racket/fun.c": [
         {
+          "Call Sites": 6,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "ASSERT_SUSPEND_BREAK_ZERO",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        },
+        {
           "Call Sites": 2,
           "Calling Files": 1,
           "Kind": "function",

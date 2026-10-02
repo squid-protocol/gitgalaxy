@@ -31,7 +31,7 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
 faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 310 of 397
 branches, from 256 before generated per-field scenarios; the rest sit mostly behind CEEDAYS, below). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
-difference is declared below.
+difference is declared below; every oracle assumption, with its status, is in [oracle_assumptions.md](oracle_assumptions.md).
 
 **Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
 as in style. Here a model never decides behaviour. The translator fixes it, and the model's only freedom is
@@ -413,8 +413,8 @@ The combined method runs in the porting loop like any other backend, and every e
 
 - **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
   input and output maps overlap (`REDEFINES`), which typing does not do yet.
-- **The oracle is GnuCOBOL.** The declared differences above are the known ones; IBM-compiler runs would close the
-  question.
+- **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
+  from z/OS (C1: IBM's default TRUNC(STD) has been running as TRUNC(BIN) on both sides); a z/OS session would settle most.
 - **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for
   this translator: such statements stay named holes.
 

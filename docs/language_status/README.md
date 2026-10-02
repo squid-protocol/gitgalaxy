@@ -81,6 +81,12 @@ paragraphs with the det port's methods (exactly) and the model port's (by eviden
 on both sides. It shows where the det port grows, and ranks candidate rewrite rules for its readability layers.
 Each rule lists the cases it must be proven on.
 
+The other COBOL-to-Java pages here: [`det_port_design.md`](det_port_design.md) (the deterministic translator, its
+runtime contract and every proven result), [`det_survey.md`](det_survey.md) (how much of six estates it translates),
+[`statement_inventory.md`](statement_inventory.md) (what a deterministic translator could take over, by statement
+kind), [`porting_loop.md`](porting_loop.md) (model-written ports), [`mutation_testing.md`](mutation_testing.md) and
+[`cics_crucible.md`](cics_crucible.md). The wiki's summary is `docs/wiki/05-19-proven-cobol-to-java-ports.md`.
+
 ## Signature-bearing languages (47)
 
 `LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`

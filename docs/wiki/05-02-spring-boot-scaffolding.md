@@ -13,8 +13,8 @@ Migrating from procedural execution to Object-Oriented and RESTful paradigms inv
 
 ## Design
 The controller scaffolds the foundational project:
-- **`pom.xml`**: Configures Maven dependencies (Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, PostgreSQL) for Java 17.
-- **`application.yml`**: Configures database connections, Hibernate DDL properties, and logging.
+- **Build file**: a Maven `pom.xml` or a Gradle build (Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, the configured database driver) for Java 17 or 21, as the target config says (`cobol-to-java --config`, `gitgalaxy/tools/cobol_to_java/java_target.py`).
+- **`application.yml`**: Configures the database connection and dialect for the configured engine (PostgreSQL by default; Db2, Oracle, MySQL or H2), Hibernate DDL properties, and logging.
 - **Application Entry Point**: Generates the `@SpringBootApplication` main class.
 - **Header Injection**: Scans for `header.txt` and wraps contents into Java block comments at the top of generated files.
 - **EBCDIC & COMP-3 Data Decoder Utility (`EbcdicDecoderUtil.java`)**: Generated to unpack binary legacy payloads into UTF-8 and `BigDecimal`. It validates the high nibble (0-9) and sign nibble (A-F). On encountering corrupt data, it logs a hex-dump and returns `BigDecimal.ZERO`.
@@ -35,13 +35,13 @@ graph TD
 - Returning `BigDecimal.ZERO` on corrupt COMP-3 data rather than throwing an exception. Chosen to prevent application crashes during batch processing, sacrificing strict data integrity for system resilience.
 
 ## Limitations
-- Scaffolding assumes a Spring Boot + JPA + PostgreSQL stack, with limited flexibility for other Java frameworks or databases without modifying the template generator.
+- Scaffolding targets Spring Boot. The Java version, build tool and database are configurable; other Java frameworks would need new templates.
+- The scaffold is the structure only. Each program's business logic is ported into it and proven separately: see [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md).
 
 ## Performance Notes
 File generation operations are linear $O(N)$ with respect to the number of configured endpoints and modules, relying on basic file I/O operations with minimal memory overhead.
 
 ## Future Work
-- Support for generating Gradle build scripts alongside Maven.
 - Configurable error handling strategies for corrupt EBCDIC data.
 
 ## Related Components

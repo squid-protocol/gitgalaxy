@@ -115,18 +115,19 @@ Attribute every difference to one of the differential doc's four causes: old-par
 - **A PR stacked on a squash-merged PR.** When the base PR merges, its branch is deleted and the stacked branch still carries the base's pre-squash commits. Replay only your commits with `git rebase --onto origin/main <old base tip>`, force-push with lease, then open or retarget the PR against `main`. `gh pr create --base <deleted branch>` fails with "Base ref must be a branch".
 - **Generators read the skeleton, never the DB.** The Java side must build from `06_skeleton/*` only, so the facts it used are the facts it cites. When a generator needs more (a layout, a key position), add it to an IR join and export it, as `program_interfaces` and `vsam_stores` do.
 
-## Who owns what (open, as of 2026-09-20)
+## Who owns what
 
-| issue | side | gap | unblocks |
-|---|---|---|---|
-| #3199 | engine | resolver drops ambiguous COPY targets (78/114 CBSA copybooks) | copybook switch |
-| #3120 | forge | lineage still comes from the forge's own SELECT/OPEN parser, though the DB now carries it (#3200/#3201) | — |
-| #3202 | engine | `calls_out_to` meaningless for COBOL | — |
-| #3211 | tooling | differential deltas carry no cause code; no unexplained-count gate | gating engine changes |
-| #3222 | forge | 3 quadratic regexes (baselined) | — |
-| #3121 | CI | generated Spring Boot is never compiled | "generates" = "compiles" |
+Every issue the earlier ownership table named (#3199, #3120, #3202, #3211, #3222, #3121) was closed by 2026-09-25.
+Open gaps are tracked under epic #3122 (`gh issue view 3122`); check there rather than keep a table here that goes
+stale.
 
-Update this table when an issue closes. The current scores live in the answer-key README, not here.
+## Porting the business logic is a different skill
+
+This skill covers the structure: refraction, the facts and the generated skeleton. Each program's PROCEDURE DIVISION
+is ported and proven separately, by the deterministic translator (`gitgalaxy/tools/cobol_to_java/det/`) or a
+model-written port, through the equivalence harness (`tests/tools/equivalence.py`, `det_port.py`, `proof_sweep.py`).
+Load the `det-port` skill for that work. A generator change can move every det port: run `det_port.py check --work
+DIR` and re-prove what changed (the det-port skill's checklist).
 
 ## A new generator is a consumer audit (#3616 lesson)
 
@@ -162,5 +163,4 @@ plausible but wrong fact compiles fine, which is why step 2 exists.
 - `tool_regex_redos.py --ci` passes, and any baseline entry you fixed is removed.
 - run `python tests/tools/preflight.py --java` before opening a PR (toolchain: `scripts/setup_java_toolchain.sh`).
 - `docs/refraction_engine_differential.md` has an `## Update:` section if an attribution changed.
-- The ownership table above is still true.
 - A generator PR has its "attributes consumed" table (see the consumer audit above).

@@ -109,6 +109,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [05-16: Anomaly Agent Task Forge](05-16-anomaly-agent-task-forge.md)
 * [05-17: System Limits Reporter](05-17-system-limits-reporter.md)
 * [05-18: COBOL ↔ Java Scan Parity](05-18-cobol-java-scan-parity.md)
+* [05-19: Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md)
 
 ### Mathematical Physics (3D Geometry)
 * [07-01: Code Complexity](07-01-code-complexity.md)

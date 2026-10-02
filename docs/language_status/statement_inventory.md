@@ -17,27 +17,33 @@ bucket that covers it:
 - **L library**: STRING, UNSTRING, INSPECT, SEARCH, SORT and intrinsic FUNCTIONs (built once).
 - **H hole**: the model, or a modelling decision.
 
-Measured on 2026-10-01 over the five corpora this repository proves against:
+Measured on 2026-10-02 over the five corpora this repository proves against (regenerated with `python tests/tools/statement_inventory.py <corpus dirs> --md OUT`):
 
 | corpus | programs | statements | R runtime-ready | S storage | F control flow | L library | H hole | deterministic (R+S+F+L) | programs with no hole |
 |---|---|---|---|---|---|---|---|---|---|
 | aws-mainframe-modernization-carddemo | 44 | 10176 | 25.1% | 66.4% | 4.9% | 2.6% | 0.9% | 99.1% | 28 |
-| cics-banking-sample-application-cbsa | 31 | 6561 | 22.9% | 63.9% | 2.3% | 6.9% | 4.0% | 96.0% | 4 |
-| cics-genapp | 31 | 2340 | 24.4% | 63.2% | 3.4% | 1.4% | 7.7% | 92.3% | 9 |
-| zecs | 5 | 939 | 17.9% | 52.0% | 21.0% | 1.7% | 7.5% | 92.5% | 0 |
+| cics-banking-sample-application-cbsa | 31 | 6561 | 25.1% | 63.9% | 2.3% | 6.9% | 1.8% | 98.2% | 6 |
+| cics-genapp | 31 | 2340 | 24.7% | 63.2% | 3.4% | 1.4% | 7.4% | 92.6% | 11 |
+| zecs | 5 | 939 | 18.1% | 52.0% | 21.0% | 1.7% | 7.2% | 92.8% | 0 |
 | zopeneditor-sample | 5 | 635 | 36.7% | 62.8% | 0.0% | 0.0% | 0.5% | 99.5% | 2 |
-| **all** | 116 | 20651 | 24.4% | 64.5% | 4.5% | 3.7% | 2.9% | 97.1% | 43 |
+| **all** | 116 | 20651 | 25.1% | 64.5% | 4.5% | 3.7% | 2.2% | 97.8% | 47 |
 
 ## What it says
 
-- **97.1% of 20,651 statements are deterministic** once storage (S), control flow (F) and the library (L) are
-  built; only 2.9% are holes. 43 of the 116 programs have none.
+- **97.8% of 20,651 statements are deterministic** once storage (S), control flow (F) and the library (L) are
+  built; 2.2% are holes. 47 of the 116 programs have none (43 on 2026-10-01).
 - **The largest program has none.** COACTUPC (CardDemo's account update, 1,415 statements: 1,071 storage, 127 control
-  flow, 93 library) -- the one too large for the single-shot porter -- is entirely deterministic.
-- **The holes are mostly not judgment.** Of 609 hole statements: 68% are CICS commands the runtime does not model yet
-  (ASSIGN PROGRAM, counters, DELAY, containers, WEB, ENQ / DEQ) -- runtime work, deterministic like the rest; 25% are
-  external systems (EXEC SQL, DL/I, MQ), each needing a model of that system; 6% (38 statements in 116 programs) are
-  real judgment: pointers, ALTER, ENTRY, dynamic CALL.
+  flow, 93 library) -- the one too large for the single-shot porter -- is entirely deterministic, and its det port
+  is proven ([det_port_design.md](det_port_design.md)).
+- **What moved since 2026-10-01.** The runtime now models ASSIGN PROGRAM and INVOKINGPROG, GET COUNTER, DELAY and
+  ENQ / DEQ, so those 156 statements left H for R.
+- **The holes are mostly not judgment.** Of 453 hole statements: 57% are CICS commands the translator does not take
+  yet (DEFINE / DELETE / QUERY COUNTER, RETURN IMMEDIATE, LINK SYNCONRETURN, containers, WEB, DOCUMENT) -- runtime
+  work, deterministic like the rest; 20% are EXEC SQL and 13% DL/I and MQ; 8% (38 statements) are real judgment:
+  pointers, ALTER, ENTRY, dynamic CALL.
+- **EXEC SQL is counted as a hole by definition.** This tool buckets every EXEC SQL as H, but the det translator
+  does translate embedded SQL (`gitgalaxy/tools/cobol_to_java/det/sql.py` onto the runtime's `DetSql`), and 17
+  equivalence cases prove it against IBM Db2 Community Edition. DL/I and MQ have no model and stay holes.
 - **The work is in S.** 64.5% of statements need COBOL's data semantics (9,028 MOVEs alone). That is a specified,
   finite rule set (IBM Enterprise COBOL Language Reference), testable construct by construct against GnuCOBOL.
 
@@ -50,14 +56,12 @@ counted.
 
 | kind | statements | where |
 |---|---|---|
-| EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) (translator refuses: ASSIGN PROGRAM) | 123 | cics-banking-sample-application-cbsa 123 |
 | EXEC SQL | 92 | cics-banking-sample-application-cbsa 38, cics-genapp 34, aws-mainframe-modernization-carddemo 20 |
 | EXEC CICS DELETE (translator refuses: DELETE COUNTER) | 37 | cics-genapp 37 |
 | EXEC CICS DEFINE (translator refuses: DEFINE COUNTER) | 37 | cics-genapp 37 |
 | EXEC CICS QUERY (translator refuses: QUERY COUNTER) | 36 | cics-genapp 36 |
 | pointer (SET ADDRESS OF) | 27 | cics-genapp 15, zecs 7, aws-mainframe-modernization-carddemo 5 |
 | EXEC DLI | 26 | aws-mainframe-modernization-carddemo 26 |
-| EXEC CICS DELAY (translator refuses: DELAY FOR) | 18 | cics-banking-sample-application-cbsa 18 |
 | EXEC CICS RETURN (translator refuses: RETURN IMMEDIATE) | 16 | cics-banking-sample-application-cbsa 16 |
 | EXEC CICS LINK (translator refuses: LINK SYNCONRETURN) | 14 | cics-banking-sample-application-cbsa 14 |
 | EXEC CICS WEB (translator refuses: WEB SEND) | 11 | zecs 11 |
@@ -72,24 +76,26 @@ counted.
 | EXEC CICS PUT (translator refuses: PUT CONTAINER) | 6 | cics-banking-sample-application-cbsa 6 |
 | EXEC CICS DELETEQ TS (translator refuses: DELETEQ TS) | 6 | cics-genapp 6 |
 | EXEC CICS DOCUMENT (translator refuses: DOCUMENT CREATE) | 6 | zecs 6 |
-| EXEC CICS ENQ (translator refuses: ENQ RESOURCE) | 5 | cics-banking-sample-application-cbsa 2, cics-genapp 2, zecs 1 |
 | EXEC CICS DOCUMENT (translator refuses: DOCUMENT RETRIEVE) | 5 | zecs 5 |
 | CALL MQPUT (no program, no model) | 4 | aws-mainframe-modernization-carddemo 4 |
 | ALTER | 4 | aws-mainframe-modernization-carddemo 4 |
 | EXEC CICS INQUIRE TERMINAL(EIBTRMID) (translator refuses: INQUIRE TERMINAL) | 4 | cics-banking-sample-application-cbsa 4 |
-| EXEC CICS DEQ (translator refuses: DEQ RESOURCE) | 4 | cics-banking-sample-application-cbsa 2, cics-genapp 2 |
 | EXEC CICS WEB (translator refuses: WEB OPEN) | 4 | zecs 4 |
 | EXEC CICS WEB (translator refuses: WEB CLOSE) | 4 | zecs 4 |
 | EXEC CICS WEB (translator refuses: WEB PARSE) | 4 | zecs 4 |
 | dynamic CALL (identifier) | 4 | zopeneditor-sample 3, zecs 1 |
 | CALL MQGET (no program, no model) | 3 | aws-mainframe-modernization-carddemo 3 |
 | ENTRY | 3 | aws-mainframe-modernization-carddemo 3 |
-| EXEC CICS ASSIGN INVOKINGPROG(WS-INVOKEPROG) (translator refuses: ASSIGN INVOKINGPROG) | 3 | cics-genapp 3 |
 | EXEC CICS READ (translator refuses: READ GTEQ) | 3 | zecs 2, cics-genapp 1 |
 | EXEC CICS INQUIRE URIMAP (translator refuses: INQUIRE URIMAP) | 3 | zecs 3 |
 | EXEC CICS INQUIRE URIMAP(URI-MAP) (translator refuses: INQUIRE URIMAP) | 3 | zecs 3 |
 | ACCEPT (SYSIN / console) | 2 | aws-mainframe-modernization-carddemo 2 |
 | EXEC CICS READ (translator refuses: READ TOKEN) | 2 | cics-banking-sample-application-cbsa 2 |
+| EXEC CICS DELETE (translator refuses: DELETE TOKEN) | 2 | cics-banking-sample-application-cbsa 2 |
+| EXEC CICS ASSIGN STARTCODE(WS-STARTCODE) (translator refuses: ASSIGN STARTCODE) | 2 | cics-genapp 2 |
+| EXEC CICS WEB (translator refuses: WEB RECEIVE) | 2 | zecs 2 |
+| CALL MQPUT1 (no program, no model) | 1 | aws-mainframe-modernization-carddemo 1 |
+| EXEC CICS FORMATTIME (translator refuses: FORMATTIME MILLISECONDS YYDDD) | 1 | aws-mainframe-modernization-carddemo 1 |
 
 ## Every statement kind
 
@@ -113,7 +119,7 @@ counted.
 | R:EXEC CICS RETURN | 180 |
 | R:WRITE | 170 |
 | R:EXEC CICS ASSIGN APPLID(ABND-APPLID) | 123 |
-| H:EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) (translator refuses: ASSIGN PROGRAM) | 123 |
+| R:EXEC CICS ASSIGN PROGRAM(ABND-PROGRAM) | 123 |
 | H:EXEC SQL | 92 |
 | R:EXEC CICS ABEND | 89 |
 | R:EXEC CICS ASKTIME | 68 |
@@ -139,9 +145,9 @@ counted.
 | R:ACCEPT FROM date/time | 22 |
 | L:intrinsic FUNCTION LENGTH | 20 |
 | R:EXEC CICS HANDLE ABEND | 20 |
+| R:EXEC CICS DELAY | 19 |
 | L:intrinsic FUNCTION NUMVAL | 18 |
 | R:CALL of an estate program | 18 |
-| H:EXEC CICS DELAY (translator refuses: DELAY FOR) | 18 |
 | R:EXEC CICS WRITEQ TS | 17 |
 | H:EXEC CICS RETURN (translator refuses: RETURN IMMEDIATE) | 16 |
 | L:UNSTRING | 15 |
@@ -179,7 +185,7 @@ counted.
 | H:EXEC CICS DELETEQ TS (translator refuses: DELETEQ TS) | 6 |
 | H:EXEC CICS DOCUMENT (translator refuses: DOCUMENT CREATE) | 6 |
 | R:EXEC CICS SEND MAP(CCARD-NEXT-MAP) | 5 |
-| H:EXEC CICS ENQ (translator refuses: ENQ RESOURCE) | 5 |
+| R:EXEC CICS ENQ | 5 |
 | R:EXEC CICS ASSIGN ABCODE(MY-ABEND-CODE) | 5 |
 | R:EXEC CICS HANDLE AID | 5 |
 | H:EXEC CICS DOCUMENT (translator refuses: DOCUMENT RETRIEVE) | 5 |
@@ -189,7 +195,7 @@ counted.
 | F:NEXT SENTENCE | 4 |
 | R:EXEC CICS READNEXT | 4 |
 | H:EXEC CICS INQUIRE TERMINAL(EIBTRMID) (translator refuses: INQUIRE TERMINAL) | 4 |
-| H:EXEC CICS DEQ (translator refuses: DEQ RESOURCE) | 4 |
+| R:EXEC CICS DEQ | 4 |
 | R:EXEC CICS RECEIVE INTO(WS-RECV) | 4 |
 | H:EXEC CICS WEB (translator refuses: WEB OPEN) | 4 |
 | H:EXEC CICS WEB (translator refuses: WEB CLOSE) | 4 |
@@ -209,7 +215,7 @@ counted.
 | R:EXEC CICS SEND MAP('BNK1TF') | 3 |
 | R:EXEC CICS SEND MAP('BNK1UA') | 3 |
 | R:EXEC CICS SEND MAP('BNK1ME') | 3 |
-| H:EXEC CICS ASSIGN INVOKINGPROG(WS-INVOKEPROG) (translator refuses: ASSIGN INVOKINGPROG) | 3 |
+| R:EXEC CICS ASSIGN INVOKINGPROG(WS-INVOKEPROG) | 3 |
 | H:EXEC CICS READ (translator refuses: READ GTEQ) | 3 |
 | H:EXEC CICS INQUIRE URIMAP (translator refuses: INQUIRE URIMAP) | 3 |
 | H:EXEC CICS INQUIRE URIMAP(URI-MAP) (translator refuses: INQUIRE URIMAP) | 3 |
@@ -225,7 +231,7 @@ counted.
 | R:CALL CEEDAYS (modelled) | 2 |
 | H:EXEC CICS READ (translator refuses: READ TOKEN) | 2 |
 | H:EXEC CICS DELETE (translator refuses: DELETE TOKEN) | 2 |
-| H:EXEC CICS GET (translator refuses: GET COUNTER) | 2 |
+| R:EXEC CICS GET | 2 |
 | R:EXEC CICS ASSIGN SYSID(WS-SYSID) | 2 |
 | H:EXEC CICS ASSIGN STARTCODE(WS-STARTCODE) (translator refuses: ASSIGN STARTCODE) | 2 |
 | R:EXEC CICS RECEIVE MAP('SSMAPC1') | 2 |
@@ -291,7 +297,6 @@ counted.
 | H:EXEC CICS START (translator refuses: START AFTER MINUTES) | 1 |
 | R:EXEC CICS RECEIVE INTO | 1 |
 | R:EXEC CICS ASSIGN APPLID(APPLID) | 1 |
-| H:EXEC CICS DELAY (translator refuses: DELAY INTERVAL) | 1 |
 | H:EXEC CICS WEB (translator refuses: WEB EXTRACT) | 1 |
 | H:EXEC CICS INQUIRE PROGRAM(ETTL-PROGRAM) (translator refuses: INQUIRE PROGRAM STATUS) | 1 |
 | H:EXEC CICS WEB (translator refuses: WEB READ) | 1 |

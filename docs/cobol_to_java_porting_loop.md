@@ -15,15 +15,23 @@ approves the result. The equivalence harness proves each port.
 | what the model does | rewrites one method at a time for a reader (`det_refine.py`); each rewrite is proven, else retried once with the proof's feedback, else reverted | writes the whole service; retried with the proof's feedback |
 | first proof | before any model runs | after the model's attempt |
 | a reviewer reads | a port proven at every step, each method's rewrite on record | a proven port |
-| measured | 31 programs proven: all 24 of CardDemo, 5 of GenApp, 2 of CBSA. COACTUPC (4,236 lines, 66 GO TOs), which no model ported in one pass, has 109 of 109 methods refactored and proven ([benchmark](benchmarks/det-refine-coactupc/README.md)). COTRN02C is typed and refined, 19 of 19 methods ([benchmark](benchmarks/det-refine-cotrn02c/README.md)) | 23 CardDemo programs, the 17 crucible programs (below) |
+| measured | 48 programs proven (2026-10-02): 27 of CardDemo, 8 of CBSA, 13 of GenApp, 17 cases of them on a real Db2. COACTUPC (4,236 lines, 66 GO TOs), which no model ported in one pass, has 109 of 109 methods refactored and proven ([benchmark](benchmarks/det-refine-coactupc/README.md)). COTRN02C is typed and refined, 19 of 19 methods ([benchmark](benchmarks/det-refine-cotrn02c/README.md)) | 23 CardDemo programs, the 17 crucible programs (below) |
 
 **The combined method.** The translator settles what the program does, so the model's only freedom is how the code
 reads. A rewrite that changes behaviour fails the proof and is undone, and the port is proven after every step.
 Without a model, the port can still be made readable: structured style (named methods and fields) and typed state
 (`String` / `long` / `BigDecimal` fields). Both are deterministic and proven the same way.
 
-**A model-written port** stays the path for a program the translator leaves holes in: Db2, IMS and pointer code
-(the [survey](language_status/det_survey.md) names each by line). Both paths use the steps below.
+**A model-written port** stays the path for a program the translator leaves holes in: IMS (DL/I), MQ, pointer
+arithmetic, ALTER, ENTRY, dynamic CALL, and the CICS commands the runtime does not model yet (the
+[survey](language_status/det_survey.md) names each by line). Embedded SQL is no longer one of them: the translator
+ports it and the harness proves it on IBM Db2 Community Edition ([Db2](language_status/det_port_design.md#db2-embedded-sql)).
+Both paths use the steps below.
+
+**What a proof rests on.** The oracle is GnuCOBOL with models of CICS and Language Environment, and a real Db2 for
+Linux, not z/OS. Every known or suspected difference, and whether a proven program reaches it, is in the
+[oracle-assumptions register](language_status/oracle_assumptions.md). After a change to the runtime, the harness or
+an oracle model, `tests/tools/proof_sweep.py --work DIR` re-proves every det and model port.
 
 For the combined method, the propose step is `port_runner run --backend det --source-root ESTATE [--typed]`, and
 `port_runner refine` adds the model's pass over a proven port ([in port_runner](language_status/det_port_design.md#in-port_runner)).

@@ -3,20 +3,20 @@
 `python tests/tools/det_survey.py --work DIR` translates every COBOL program of each corpus (not only those with an
 equivalence case) onto the service GitGalaxy generates for it, and compiles each port against the built estate.
 **This measures translation, not correctness**: a port is proven only by its equivalence case
-(`tests/tools/det_port.py`): 31 programs are proven, 24 from CardDemo, 5 from GenApp and 2 from CBSA
+(`tests/tools/det_port.py`): 48 programs are proven, 27 from CardDemo, 8 from CBSA and 13 from GenApp
 ([det_port_design.md](det_port_design.md)).
 
-## Result (2026-10-02)
+## Result (2026-10-02, after the Db2, counter and CICS work)
 
 | corpus | programs | translated whole | with holes | refused | statements | translated | compiles |
 |---|---|---|---|---|---|---|---|
 | aws-mainframe-modernization-carddemo | 44 | 29 | 5 | 10 | 7,231 | 7,200 (99.6%) | 31 |
-| cics-banking-sample-application-cbsa | 31 | 4 | 25 | 2 | 5,815 | 5,640 (97.0%) | 23 |
-| cics-genapp | 31 | 5 | 25 | 1 | 2,210 | 2,003 (90.6%) | 30 |
+| cics-banking-sample-application-cbsa | 31 | 11 | 19 | 1 | 6,241 | 6,145 (98.5%) | 22 |
+| cics-genapp | 31 | 20 | 10 | 1 | 2,210 | 2,077 (94.0%) | 30 |
 | dsf | 7 | 1 | 2 | 4 | 73 | 41 (56.2%) | 3 |
-| zecs | 5 | 0 | 4 | 1 | 834 | 766 (91.8%) | 0 |
+| zecs | 5 | 0 | 4 | 1 | 834 | 768 (92.1%) | 0 |
 | zopeneditor-sample | 5 | 2 | 3 | 0 | 635 | 613 (96.5%) | 0 |
-| **all** | **123** | **41** | **64** | **18** | **16,798** | **16,263 (96.8%)** | **87** |
+| **all** | **123** | **63** | **43** | **17** | **17,224** | **16,844 (97.8%)** | **86** |
 
 *Translated whole*: no statement left as a `Hole`. *With holes*: the port is written, the statements it could not
 translate each throw `Hole("line N: why")`. *Refused*: no port at all (below).
@@ -29,6 +29,7 @@ translate each throw `Hole("line N: why")`. *Refused*: no port at all (below).
 | 2. source handling | 12,977 | 95.4% | 44 | 62 |
 | 3. Db2 / older source forms | 14,981 | 93.3% | 18 | 81 |
 | 4. data names, CICS LINK / ASSIGN / TS, UNSTRING (A1-A3) | 16,798 | 96.8% | 18 | 87 |
+| 5. Db2 (EXEC SQL onto `DetSql`), GET COUNTER, ASSIGN PROGRAM / INVOKINGPROG, DELAY, ENQ / DEQ, stored-only pointers, SQLDA | 17,224 | 97.8% | 17 | 86 |
 
 The fixes between passes were in reading source, not in translating it:
 
@@ -47,23 +48,29 @@ the same translator measured on more of each estate.
 
 | statements | category | kind |
 |---|---|---|
-| 113 | CICS named counters (DEFINE / GET / DELETE COUNTER) | neither the runtime nor the harness models them yet |
-| 75 | pointers (SET ADDRESS OF, POINTER items, NULL) | out of scope for byte storage today |
-| 66 | Db2 (EXEC SQL statements) | out of scope: stays a hole |
+| 123 | other CICS: WEB, DOCUMENT, SEND CONTROL, INQUIRE, SET, BIF DEEDIT, GET / PUT CONTAINER, DELETEQ TS, START, HANDLE AID, ASSIGN STARTCODE ... | not modelled yet |
+| 111 | CICS named counters: DEFINE / DELETE / QUERY COUNTER (GET COUNTER is modelled) | not modelled yet |
 | 38 | FUNCTION RANDOM | declared: an implementation's own sequence (GnuCOBOL's is not IBM's) |
-| 30 | file I/O in an estate with no generated batch package | generator / estate |
+| 37 | file I/O with no store in the generated project | generator / estate |
 | 21 | IMS (EXEC DLI, DIBSTAT) | out of scope: stays a hole |
 | 21 | WRITE ... ADVANCING (print files) | declared: no case proves a print file yet |
-| ~110 | other CICS: DELAY, WEB, DOCUMENT, SEND CONTROL, INQUIRE, SET, BIF DEEDIT, GET / PUT, DELETEQ TS, START, HANDLE AID ... | not modelled yet |
+| 19 | pointers (SET ADDRESS OF, SET to NULL, data after a POINTER in a COMMAREA) | out of scope for byte storage today; a POINTER only stored and passed on is translated |
+| 4 | dynamic CALL | judgment |
+| 6 | other: ACCEPT FROM SYSIN, CALLs to routines no estate holds (COBDATFT, MVSWAIT, CEEGMT, CEEDATM) | no model |
 
-Programs refused (18): 9 COPY members that are not in the corpora (DCLGEN members, MQ's CMQGMOV / CMQODV, LE's
-CEEIGZCT, SQLDA, AUTHFRDS), 6 DATA DIVISION and 2 PROCEDURE DIVISION forms the grammar does not take, 1 scope error.
+No EXEC SQL statement is a hole any more: the translator ports embedded SQL onto the runtime's `DetSql`, and 17
+equivalence cases prove it against IBM Db2 Community Edition ([det_port_design.md](det_port_design.md#db2-embedded-sql)).
+
+Programs refused (17): 8 COPY members that are not in the corpora (DCLGEN members, MQ's CMQGMOV / CMQODV, LE's
+CEEIGZCT, AUTHFRDS), 6 DATA DIVISION and 3 PROCEDURE DIVISION forms the grammar does not take.
 
 ## Reading it
 
-- CardDemo, whose programs the translator was built against, translates at 99.6%; CBSA 97.0%, GenApp 90.6%, zECS
-  91.8%. What is left is mostly out of scope (Db2, IMS, pointers) or CICS the runtime does not model yet.
-- Db2, IMS and pointer code will stay holes: a deterministic port of embedded SQL needs a Db2 target, which is not
-  this translator's. Each such statement is named, by line, in the port.
-- Outside CardDemo, 7 programs have equivalence cases and all 7 prove (GenApp: LGACVS01, LGAPVS01, LGDPVS01,
-  LGUCVS01, LGUPVS01; CBSA: UPDCUST, ABNDPROC). The rest of those estates is translated, not proven.
+- CardDemo, whose programs the translator was built against, translates at 99.6%; CBSA 98.5%, GenApp 94.0%, zECS
+  92.1%. What is left is mostly CICS the runtime does not model yet, or out of scope (IMS, pointer arithmetic).
+- IMS and pointer code stay holes. Each such statement is named, by line, in the port.
+- Outside CardDemo, 21 programs have equivalence cases and all 21 prove (CBSA 8, GenApp 13; 14 of them on Db2).
+  The rest of those estates is translated, not proven.
+- "Compiles" counts ports compiled with `javac --release 17` against the built estate. This run left two javac
+  plugin jars that another project had put in `~/.m2` (Error Prone, SemanticDB) off the classpath: `det_survey.py`
+  puts every `~/.m2` jar on it, and javac loads any plugin it finds there.

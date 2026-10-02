@@ -78,14 +78,19 @@ def parse(lines: list[Line]) -> Procedure:
 
     def ph(mm):
         execs[len(execs) + 1] = mm.group(0)
-        return f"CALL 'GGEXEC{len(execs):04d}'"
+        # as many lines as the block: every later statement keeps its own line (a multi-line EXEC SQL / CICS block
+        # had shifted them -- the Db2 repositories' methods are found by the statement's line)
+        return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
 
     proc_text = re.sub(r"\bEXEC(?:UTE)?\s+(CICS|SQL|DLI)\b.*?\bEND-EXEC\b", ph, text[m.start() :], flags=re.S | re.I)
+    # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
+    proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
     pre = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. GGDET.\n"
     src = (pre + "       PROCEDURE DIVISION.\n" + proc_text[len(header) :].lstrip("\n")).encode("latin-1")
     # line numbers: map back to the expanded program's lines
-    base_line = text[: m.start()].count("\n") + 1 + header.count("\n") - 2
+    # (src row 3 is the text line after the header's last; it had been two lines early)
+    base_line = text[: m.end()].count("\n") + 1
     root = _parser_cache(get_parser).parse(src).root_node
     prog = next((c for c in root.children if c.type == "program_definition"), root)
     pd = next((c for c in prog.children if c.type == "procedure_division"), None)

@@ -272,6 +272,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+    if any(re.match(r"(?is)\s*EXEC\s+SQL\b", s.text) for p in proc.paragraphs for s in S.walk(p.body)
+           if s.kind == "EXEC"):  # fmt: skip
+        from gitgalaxy.tools.cobol_to_java.det.sql import Sql
+
+        gen.sql = Sql(gen, prog.name, gen.java_root)
     repos = stub_files(stub)
     imports = stub_imports(stub)
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
@@ -493,6 +498,9 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
 
+    if gen.sql is not None:  # the generated Db2 repositories the statements run on
+        ctor_repos += [(c, f) for c, f in gen.sql.repos.items()]
+        extra_imports.append(f"{package}.cobolrt.sql.DetSql")
     consts = [f'    private static final BigDecimal {n} = new BigDecimal("{v}");' for v, n in gen.consts.items()]
     n_para = len(proc.paragraphs)
     pkg = package
@@ -710,6 +718,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "",
                 "    /** The batch entry. */",
                 "    public int runBatch(List<Dd> dds, String parm) {",
+                *(["        DetSql.closeAll();  // a step's cursors are its own"] if gen.sql is not None else []),
                 *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
                 *inits,
                 *parm_code,
@@ -895,6 +904,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */",
         "    public void runTask(CicsTask task) {",
         "        this.task = task;",
+        *(["        DetSql.closeAll();  // a task's cursors are its own"] if gen.sql is not None else []),
         "        caBack = () -> { };",
         "        handlers.clear();",
         "        heldKey.clear();",

@@ -55,6 +55,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     svc = ej._service_class(case["program"])
     stub = (project / "src/main/java" / PKG_DIR / "service" / f"{svc}.java").read_text(encoding="utf-8")
     dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
+    dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]  # DCLGEN members
     # symbolic maps the estate does not check in, generated from its BMS sources (after its own copybooks)
     from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
 

@@ -347,7 +347,14 @@ class Db2Forge:
         self.counts = {"tables": 0, "rows": 0, "statements": 0, "positioned": 0}
         self.uses: dict[str, set[str]] = {}  # program key -> repository classes it uses
         for raw in section.get("facts", []):
-            mine = [s for s in raw.get("statements", []) if s.get("file") in self.key_of and s.get("statement")]
+            # a statement of a converted program -- its own, or in a member it includes (one per including program)
+            mine = []
+            for s in raw.get("statements", []):
+                if not s.get("statement"):
+                    continue
+                owners = [s["file"]] if s.get("file") in self.key_of else [p for p in s.get("included_by", [])
+                                                                            if p in self.key_of]  # fmt: skip
+                mine += [{**s, "program_file": p} for p in owners]
             if mine:
                 self.tables.append(self._plan({**raw, "statements": mine}))
         self.dates = self._claim("Db2Dates") if self.tables else ""  # #3828
@@ -370,7 +377,7 @@ class Db2Forge:
             fact = {"source": f"{raw['declared_in']}:{raw['line']}", "section": "db2_tables", "table": raw["table"]}
             self.trace.record(java_path(self.package, ROW_SUBPACKAGE, row), "Class", "db2-row", [fact])
         for st in raw["statements"]:
-            key = self.key_of[st["file"]]
+            key = self.key_of[st.get("program_file", st["file"])]
             self.uses.setdefault(key, set()).add(t.repository)
             t.programs.add(key)
             verb = st["verb"]

@@ -146,6 +146,7 @@ class Gen:
         self._reading = 0  # > 0 while an operand is only read
         self.java_root: Path | None = None  # the generated project's src/main/java
         self.id_methods: dict = {}  # entity -> its id_<entity> method lines (det.entity)  # where the program's copybooks are (a DTO field's declaration is read there)  # det.cics.Cics for a CICS program
+        self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         self.entities: set = set()
@@ -991,6 +992,11 @@ class Gen:
             return [c, *self.io(s, ind)]
         if k == "EXEC":
             words = s.text.split()
+            if len(words) > 1 and words[1].upper() == "SQL" and self.sql is not None:
+                try:  # (the translator's own error class, by its instance: no import of det.sql here)
+                    return [c, *self.sql.command(s.text, s.line, ind)]
+                except (self.sql.Error, E.ExprError, KeyError) as e:
+                    raise Untranslatable(f"EXEC SQL: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))
             from gitgalaxy.tools.cobol_to_java.det.cics import CicsError

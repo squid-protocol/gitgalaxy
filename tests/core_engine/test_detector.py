@@ -3092,6 +3092,50 @@ def test_detector_ts_js_def_shape_separates_bindings_members_and_signatures():
     assert c_sats and all("def_shape" not in s for s in c_sats)
 
 
+def test_detector_java_bodyless_methods_are_signatures_3836():
+    """
+    #3836: a java interface method or `abstract` method ends in `;` with no body,
+    so it runs no code -- `def_shape` `signature`, which the call resolver never
+    links to (#3757). A `native` method has no java body either but does run, and
+    every method with a body (a `default` method included) stays unset.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "public interface P<T> {\n"
+        "  public void postDeserialize(T object);\n"
+        "  default int d() { return 1; }\n"
+        "  String value() throws java.io.IOException;\n"
+        "}\n"
+        "public abstract class A {\n"
+        "  public abstract void write(JsonWriter out, T value) throws IOException;\n"
+        "  private static native long nat(int x);\n"
+        "  public final String toJson(T v) {\n"
+        "    write(null, v);\n"
+        '    return "";\n'
+        "  }\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("java", LANGUAGE_DEFINITIONS)
+    satellites, _ = detector._slice_by_braces(code, "java", LANGUAGE_DEFINITIONS["java"]["rules"], 0, {})
+    assert [(s["name"], s.get("def_shape")) for s in satellites] == [
+        ("postDeserialize", "signature"),
+        ("d", None),
+        ("value", "signature"),
+        ("write", "signature"),
+        ("nat", None),
+        ("toJson", None),
+    ]
+
+    # deliberately java-only: c# interfaces have the same shape but no compiler
+    # reference measures them yet, so they keep their old behavior
+    cs = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
+    cs_sats, _ = cs._slice_by_braces(
+        "public interface I {\n  void Run(int x);\n}\n", "csharp", LANGUAGE_DEFINITIONS["csharp"]["rules"], 0, {}
+    )
+    assert all("def_shape" not in s for s in cs_sats)
+
+
 def test_detector_string_literal_fix_gated_away_from_other_mode_b_languages():
     """
     The safe_code-matching fix above is deliberately gated to

@@ -1878,7 +1878,7 @@
     },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": 5.882,
-      "java/springboot/Binder.java": 7.559,
+      "java/springboot/Binder.java": 7.533,
       "java/springboot/JarLauncher.java": 5.506,
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": 6.305,

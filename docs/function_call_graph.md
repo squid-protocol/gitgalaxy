@@ -47,7 +47,19 @@ In TypeScript and JavaScript the detector also records what each definition is
   signature. No code runs there, so it is never a call target (#3757). A call to
   an overloaded function reaches its implementation.
 
-Other languages leave `def_shape` NULL and resolve as before.
+Java records `signature` too (#3836): an interface method or an `abstract` method,
+which ends in `;` with no body. A `native` method has no Java body either, but it
+runs, so it stays a target. A signature still tells the resolver something:
+
+- a bare or `this.` call to a method the caller's own class (or an ancestor) only
+  declares is a virtual dispatch to an override. It is an ambiguous `receiver` row,
+  not a link to another class that happens to share the name;
+- a class or interface that declares the method counts as one more candidate class
+  for an untyped receiver, so an interface plus one visible implementation is
+  ambiguous, not a confident link to that implementation.
+
+Other languages leave `def_shape` NULL and resolve as before. C# and Kotlin
+interfaces have the same shape, but no compiler reference measures them yet.
 
 ## Edge kinds
 

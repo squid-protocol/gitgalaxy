@@ -1893,7 +1893,8 @@
         "fcall:java/springboot/SpringApplication.java"
       ],
       "java/springboot/Binder.java": [
-        "fcall:java/springboot/AutoConfigurationImportSelector.java"
+        "fcall:java/springboot/AutoConfigurationImportSelector.java",
+        "fcall:java/springboot/SpringApplication.java"
       ],
       "java/springboot/OnClassCondition.java": [
         "fcall:java/springboot/Binder.java",

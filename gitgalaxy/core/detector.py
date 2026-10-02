@@ -8202,7 +8202,8 @@ class StructuralExtractor:
     # `go_declaration_group` (#2859), `matlab_return_channel`,
     # `yaml_parameter_block` (#2753), `abap_declaration_statement` (#2824)
     # and `jcl_instream_payload` (#3010), plus `cobol_sentence_start` (#3197)
-    # and `batch_call_target` (#3338); add new ones here, keyed by the
+    # and `batch_call_target` (#3338), and the language-agnostic
+    # `outside_literals` (#4136); add new ones here, keyed by the
     # name a language definition uses, so the registry stays data.
     # ------------------------------------------------------------------
 
@@ -8633,6 +8634,18 @@ class StructuralExtractor:
             # func_start is the only rule that opts in.
             called = {n.lower() for n in _BATCH_CALL_TARGET_RE.findall(code)}
             return [m for m in matches if m.group(1) and m.group(1).lower() in called]
+        if filter_name == "outside_literals":
+            # #4136: drop a match that touches a string literal or a comment.
+            # The code stream keeps string literals (the stream contract), so
+            # python's matmul `@` arm counted `"gecko@003"` and every
+            # `"johndoe@example.com"` fixture. Reuses the index-aligned
+            # string/comment shield the indentation slicer already builds: a
+            # match is code iff its span is identical in the shielded copy
+            # (any literal or comment character in it was blanked). Not
+            # memoized through `cache` (it holds offset sets); only rules that
+            # opt in pay the shield, and only when they matched something.
+            safe = self._build_indentation_safe_stream(code, seg_lang)
+            return [m for m in matches if safe[m.start() : m.end()] == code[m.start() : m.end()]]
         self.logger.warning(
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
         )

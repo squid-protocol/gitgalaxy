@@ -237,6 +237,10 @@ def brain_fingerprint(brain: dict[str, Any]) -> str:
     return _sha({k: v for k, v in (brain or {}).items() if k != "provenance"})
 
 
+def _problem(severity: str, message: str) -> tuple[str, str]:
+    return (severity, message)
+
+
 def _labels(level: str, brain: dict[str, Any]) -> list[str]:
     if level in ("function", "file"):
         return list(brain.get("cluster_names") or [])
@@ -250,7 +254,7 @@ def _input_parity(level: str, produced: list[str], consumed: list[str], producer
     matched = [n for n in consumed if n in produced]
     if not matched:
         return [
-            (
+            _problem(
                 "INVALID",
                 f"{level} reads {producer} labels by name, but none of its {len(consumed)} inputs "
                 f"(e.g. {consumed[0]!r}) is a label {producer} emits (e.g. {produced[0]!r}) -- every input "
@@ -261,7 +265,7 @@ def _input_parity(level: str, produced: list[str], consumed: list[str], producer
     dead = [n for n in consumed if n not in produced]
     if unread or dead:
         return [
-            (
+            _problem(
                 "DEGRADED",
                 f"{level} inputs disagree with {producer}'s labels: never read {unread}, never emitted {dead} "
                 "-- those units drop out and those input columns are always 0.0",
@@ -288,7 +292,7 @@ def structural_problems(brains: dict[str, dict[str, Any]]) -> dict[str, list[tup
         bad = [n for n in names if _UNNAMED_CLUSTER.match(str(n))]
         if bad:
             out[lvl].append(
-                (
+                _problem(
                     "NOTE",
                     f"{len(bad)}/{len(names)} labels are unnamed cluster indices (e.g. {bad[0]!r}) -- reports "
                     "show a cluster number, not an archetype",
@@ -304,7 +308,7 @@ def structural_problems(brains: dict[str, dict[str, Any]]) -> dict[str, list[tup
     micro = [f for f in fl.get("FEATURE_NAMES") or [] if f.startswith("log_micro_")]
     if fn_names and micro and len(micro) != len(fn_names):
         out["file"].append(
-            (
+            _problem(
                 "INVALID",
                 f"{len(micro)} log_micro_<i>_pct features for {len(fn_names)} function clusters -- the "
                 "per-function composition columns are misaligned",

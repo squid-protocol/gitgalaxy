@@ -285,23 +285,34 @@ def render_pr_delta(recorded: dict[str, Any], result: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+_ISSUE_INTRO = (
+    "The archetype brains have fallen out of step with the engine. Labels in DEGRADED levels are still "
+    "emitted but qualified; INVALID levels are withheld (`Unvalidated`). This issue is opened, updated and "
+    "closed by `archetype-validation.yml` (#4100) -- it closes itself once every level is back to "
+    "VALIDATED or DRIFTING."
+)
+_ISSUE_STEP_LAND = (
+    "2. Land them here with the paired engine review (`EXPECTED_CONTRACT_SHA` in "
+    "`tests/core_engine/test_archetype_parity.py`) and a golden-master re-bless."
+)
+_ISSUE_STEP_REBASELINE = (
+    "   `python tests/tools/archetype_drift.py rebaseline --audit <crucible audit> --engine-version vX.Y.Z "
+    "--engine-commit <sha> --trained-at <date> --corpus <corpus>`"
+)
+
+
 def render_issue(status: dict[str, Any]) -> str:
     lines = [
-        "The archetype brains have fallen out of step with the engine. Labels in DEGRADED levels are still "
-        "emitted but qualified; INVALID levels are withheld (`Unvalidated`). This issue is opened, updated and "
-        "closed by `archetype-validation.yml` (#4100) -- it closes itself once every level is back to "
-        "VALIDATED or DRIFTING.",
+        _ISSUE_INTRO,
         "",
         render_status(status, title="Current state"),
         "",
         "### Clearing it",
         "",
         "1. Retrain/refreeze the brains in gitgalaxy-population-analyses on a current fleet scan.",
-        "2. Land them here with the paired engine review (`EXPECTED_CONTRACT_SHA` in "
-        "`tests/core_engine/test_archetype_parity.py`) and a golden-master re-bless.",
+        _ISSUE_STEP_LAND,
         "3. Re-anchor the drift baseline on the engine the brains were trained against:",
-        "   `python tests/tools/archetype_drift.py rebaseline --audit <crucible audit> --engine-version vX.Y.Z "
-        "--engine-commit <sha> --trained-at <date> --corpus <corpus>`",
+        _ISSUE_STEP_REBASELINE,
     ]
     hist = (load_record().get("history") or [])[-10:]
     if hist:

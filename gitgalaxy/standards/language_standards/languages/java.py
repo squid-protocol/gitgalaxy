@@ -62,6 +62,9 @@ DEFINITION: dict[str, Any] = {
     # #3835: record each callee's argument counts at its call sites, so the call
     # resolver can choose among same-named overloads (call_resolver.OVERLOAD_LANGS).
     "calls_out_arities": True,
+    # Receiver types for the call resolver's `typed` step: `Gson gson = ...` / a parameter
+    # `JsonReader in` / a field types `gson.toJson()` / `in.peek()` (detector._java_receiver_types).
+    "calls_out_receiver_types": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,  # #3359 C1 annotation guard; #4124 `X<T>(`

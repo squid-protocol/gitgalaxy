@@ -12,7 +12,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -74,7 +74,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -120,7 +120,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -149,18 +149,18 @@
         },
         {
           "file_path": "c/cpython/object.c",
-          "name": "PyObject_GetOptionalAttr -> tp_getattro",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 1432
-          }
-        },
-        {
-          "file_path": "c/cpython/object.c",
           "name": "PyObject_GetOptionalAttr -> tp_getattr",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 1440
+          }
+        },
+        {
+          "file_path": "c/cpython/object.c",
+          "name": "PyObject_GetOptionalAttr -> tp_getattro",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1432
           }
         }
       ],
@@ -182,7 +182,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 27,
       "last_seen_examples": [
         {
@@ -244,7 +244,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -274,7 +274,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -304,7 +304,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -366,7 +366,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -396,7 +396,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -426,7 +426,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -464,7 +464,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -526,7 +526,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -580,7 +580,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -610,7 +610,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -664,7 +664,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -694,7 +694,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -756,7 +756,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -786,7 +786,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -816,7 +816,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -862,12 +862,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
           "file_path": "c/cpython/compile.c",
-          "name": "_PyCompile_CodeGen -> PyLong_FromLong",
+          "name": "_PyCompile_CodeGen -> PyDict_SetItemString",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -875,7 +875,7 @@
         },
         {
           "file_path": "c/cpython/compile.c",
-          "name": "_PyCompile_CodeGen -> PyDict_SetItemString",
+          "name": "_PyCompile_CodeGen -> PyLong_FromLong",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -924,7 +924,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "c",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -954,7 +954,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -984,7 +984,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1022,47 +1022,47 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 10,
       "last_seen_examples": [
+        {
+          "file_path": "cpp/godot/editor_node.cpp",
+          "name": "EditorNode::EditorNode -> add_export_plugin",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9440
+          }
+        },
+        {
+          "file_path": "cpp/godot/editor_node.cpp",
+          "name": "EditorNode::EditorNode -> add_parser",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9472
+          }
+        },
+        {
+          "file_path": "cpp/godot/editor_node.cpp",
+          "name": "EditorNode::EditorNode -> set_selection_enabled",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9504
+          }
+        },
+        {
+          "file_path": "cpp/godot/editor_node.cpp",
+          "name": "EditorNode::EditorNode -> set_can_move_window",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9564
+          }
+        },
         {
           "file_path": "cpp/godot/editor_node.cpp",
           "name": "EditorNode::EditorNode -> set_context_menu_enabled",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 9505
-          }
-        },
-        {
-          "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> window_set_flag",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9563
-          }
-        },
-        {
-          "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> add_platform",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9453
-          }
-        },
-        {
-          "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> get_submenu_popup_delay",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9555
-          }
-        },
-        {
-          "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> initialize_import_options",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9539
           }
         }
       ],
@@ -1084,7 +1084,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -1146,7 +1146,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1186,7 +1186,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 118,
       "last_seen_examples": [
         {
@@ -1248,23 +1248,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
-        {
-          "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> update_navigation_preset",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9551
-          }
-        },
         {
           "file_path": "cpp/godot/editor_node.cpp",
           "name": "EditorNode::EditorNode -> set_load_callback",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 9548
+          }
+        },
+        {
+          "file_path": "cpp/godot/editor_node.cpp",
+          "name": "EditorNode::EditorNode -> update_navigation_preset",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9551
           }
         },
         {
@@ -1294,7 +1294,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1334,7 +1334,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1364,15 +1364,15 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
           "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> set_project_metadata",
+          "name": "EditorNode::EditorNode -> process_events",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 9572
+            "tree_sitter": 9562
           }
         },
         {
@@ -1385,10 +1385,10 @@
         },
         {
           "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> get_ticks_msec",
+          "name": "EditorNode::EditorNode -> set_owner",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 9430
+            "tree_sitter": 9558
           }
         },
         {
@@ -1401,10 +1401,10 @@
         },
         {
           "file_path": "cpp/godot/editor_node.cpp",
-          "name": "EditorNode::EditorNode -> _build_icon_type_cache",
+          "name": "EditorNode::EditorNode -> set_edited_scene",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 9517
+            "tree_sitter": 9536
           }
         }
       ],
@@ -1426,7 +1426,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -1472,7 +1472,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -1526,7 +1526,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -1588,7 +1588,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1618,7 +1618,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1648,7 +1648,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1678,7 +1678,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1708,7 +1708,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -1746,7 +1746,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -1776,7 +1776,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 59,
       "last_seen_examples": [
         {
@@ -1838,7 +1838,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -1892,17 +1892,9 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 94,
       "last_seen_examples": [
-        {
-          "file_path": "cpp/NVDA/storage.cpp",
-          "name": "VBufStorage_controlFieldNode_t::VBufStorage_controlFieldNode_t -> identifier",
-          "readings": {
-            "gitgalaxy": 373,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "cpp/NVDA/storage.cpp",
           "name": "VBufStorage_controlFieldNode_t::VBufStorage_controlFieldNode_t -> VBufStorage_fieldNode_t",
@@ -1913,15 +1905,15 @@
         },
         {
           "file_path": "cpp/NVDA/storage.cpp",
-          "name": "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t -> firstChild",
+          "name": "VBufStorage_controlFieldNode_t::VBufStorage_controlFieldNode_t -> identifier",
           "readings": {
-            "gitgalaxy": 313,
+            "gitgalaxy": 373,
             "tree_sitter": null
           }
         },
         {
           "file_path": "cpp/NVDA/storage.cpp",
-          "name": "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t -> attributes",
+          "name": "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t -> previous",
           "readings": {
             "gitgalaxy": 313,
             "tree_sitter": null
@@ -1930,6 +1922,14 @@
         {
           "file_path": "cpp/NVDA/storage.cpp",
           "name": "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t -> isBlock",
+          "readings": {
+            "gitgalaxy": 313,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "cpp/NVDA/storage.cpp",
+          "name": "VBufStorage_fieldNode_t::VBufStorage_fieldNode_t -> next",
           "readings": {
             "gitgalaxy": 313,
             "tree_sitter": null
@@ -1954,7 +1954,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 27,
       "last_seen_examples": [
         {
@@ -2016,7 +2016,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2062,7 +2062,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2108,7 +2108,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2138,7 +2138,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2168,7 +2168,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -2206,7 +2206,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -2268,7 +2268,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -2330,7 +2330,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -2392,7 +2392,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -2454,7 +2454,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -2492,7 +2492,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2538,7 +2538,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2584,7 +2584,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -2646,7 +2646,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -2708,7 +2708,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -2762,7 +2762,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -2824,7 +2824,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -2878,7 +2878,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -2924,7 +2924,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "cpp",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -2954,7 +2954,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -3008,7 +3008,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 143,
       "last_seen_examples": [
         {
@@ -3070,7 +3070,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -3132,7 +3132,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 25,
       "last_seen_examples": [
         {
@@ -3194,7 +3194,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 22,
       "last_seen_examples": [
         {
@@ -3223,17 +3223,17 @@
         },
         {
           "file_path": "csharp/roslyn/CSharpSyntaxTree.cs",
-          "name": "Create -> EditorBrowsable",
+          "name": "Create -> Obsolete",
           "readings": {
-            "gitgalaxy": 327,
+            "gitgalaxy": 328,
             "tree_sitter": null
           }
         },
         {
           "file_path": "csharp/roslyn/CSharpSyntaxTree.cs",
-          "name": "Create -> Obsolete",
+          "name": "Create -> EditorBrowsable",
           "readings": {
-            "gitgalaxy": 328,
+            "gitgalaxy": 327,
             "tree_sitter": null
           }
         }
@@ -3256,7 +3256,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 17,
       "last_seen_examples": [
         {
@@ -3318,7 +3318,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "csharp",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3350,7 +3350,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "dart",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -3412,23 +3412,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 7,
       "last_seen_examples": [
-        {
-          "file_path": "dockerfile/moby/builder/dockerfile/containerbackend.go",
-          "name": "Run -> cancelErrCh",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 60
-          }
-        },
         {
           "file_path": "dockerfile/moby/builder/dockerfile/containerbackend.go",
           "name": "Run -> attached",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 49
+          }
+        },
+        {
+          "file_path": "dockerfile/moby/builder/dockerfile/containerbackend.go",
+          "name": "Run -> cancelErrCh",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 60
           }
         },
         {
@@ -3474,7 +3474,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 19,
       "last_seen_examples": [
         {
@@ -3538,7 +3538,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 66,
       "last_seen_examples": [
         {
@@ -3600,7 +3600,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3632,7 +3632,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 51,
       "last_seen_examples": [
         {
@@ -3694,7 +3694,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3726,7 +3726,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -3764,7 +3764,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3794,7 +3794,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -3848,7 +3848,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -3894,7 +3894,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3924,7 +3924,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "go",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -3954,7 +3954,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "java",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 17,
       "last_seen_examples": [
         {
@@ -4018,7 +4018,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "java",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 35,
       "last_seen_examples": [
         {
@@ -4039,18 +4039,18 @@
         },
         {
           "file_path": "groovy/gradle/DefaultProject.java",
-          "name": "getTasksByName -> Action",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 923
-          }
-        },
-        {
-          "file_path": "groovy/gradle/DefaultProject.java",
           "name": "getTasksByName -> HashSet",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 922
+          }
+        },
+        {
+          "file_path": "groovy/gradle/DefaultProject.java",
+          "name": "getTasksByName -> Action",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 923
           }
         },
         {
@@ -4080,9 +4080,25 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 9,
       "last_seen_examples": [
+        {
+          "file_path": "javascript/react/ReactFiberBeginWork.js",
+          "name": "updateHostRoot -> renderLanes",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1971
+          }
+        },
+        {
+          "file_path": "javascript/react/ReactFiberBeginWork.js",
+          "name": "updateHostRoot -> $$typeof",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2124
+          }
+        },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
           "name": "updateHostRoot -> MemoComponent",
@@ -4093,34 +4109,18 @@
         },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> child",
+          "name": "updateHostRoot -> pendingProps",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 1886
+            "tree_sitter": 2009
           }
         },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> Component",
+          "name": "updateHostRoot -> FunctionComponent",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2091
-          }
-        },
-        {
-          "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> ForwardRef",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 2126
-          }
-        },
-        {
-          "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> $$typeof",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 2124
+            "tree_sitter": 2109
           }
         }
       ],
@@ -4142,7 +4142,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4172,7 +4172,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4226,7 +4226,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -4288,7 +4288,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -4350,7 +4350,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 29,
       "last_seen_examples": [
         {
@@ -4363,6 +4363,14 @@
         },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
+          "name": "updateHostRoot -> createHoistableInstance",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2020
+          }
+        },
+        {
+          "file_path": "javascript/react/ReactFiberBeginWork.js",
           "name": "updateHostRoot -> tryToClaimNextHydratableTextInstance",
           "readings": {
             "gitgalaxy": null,
@@ -4371,26 +4379,18 @@
         },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> resolveLazy",
+          "name": "updateHostRoot -> getIsHydrating",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 2089
+            "tree_sitter": 2018
           }
         },
         {
           "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> renderTransitionAwareHostComponentWithHooks",
+          "name": "updateHostRoot -> validateFunctionComponentInDev",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 1971
-          }
-        },
-        {
-          "file_path": "javascript/react/ReactFiberBeginWork.js",
-          "name": "updateHostRoot -> getRootHostContainer",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 2023
+            "tree_sitter": 2111
           }
         }
       ],
@@ -4412,7 +4412,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
@@ -4474,22 +4474,14 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 11,
       "last_seen_examples": [
         {
           "file_path": "javascript/threejs/WebGLRenderer.js",
-          "name": "constructor -> computeBoneTexture",
+          "name": "constructor -> setFromMatrixPosition",
           "readings": {
-            "gitgalaxy": 2598,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "javascript/threejs/WebGLRenderer.js",
-          "name": "constructor -> useProgram",
-          "readings": {
-            "gitgalaxy": 2485,
+            "gitgalaxy": 1854,
             "tree_sitter": null
           }
         },
@@ -4503,9 +4495,17 @@
         },
         {
           "file_path": "javascript/threejs/WebGLRenderer.js",
-          "name": "constructor -> onUpdateProgram",
+          "name": "constructor -> updateProjectionMatrix",
           "readings": {
-            "gitgalaxy": 2472,
+            "gitgalaxy": 2510,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "javascript/threejs/WebGLRenderer.js",
+          "name": "constructor -> useProgram",
+          "readings": {
+            "gitgalaxy": 2485,
             "tree_sitter": null
           }
         },
@@ -4536,7 +4536,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -4590,7 +4590,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -4652,7 +4652,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4682,7 +4682,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4712,7 +4712,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4742,7 +4742,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4772,7 +4772,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4802,12 +4802,12 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "javascript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 45,
       "last_seen_examples": [
         {
           "file_path": "javascript/react/ReactFlightServer.js",
-          "name": "renderModelDestructive -> serializeSet",
+          "name": "renderModelDestructive -> isOpaqueTemporaryReference",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4815,7 +4815,7 @@
         },
         {
           "file_path": "javascript/react/ReactFlightServer.js",
-          "name": "renderModelDestructive -> emitSymbolChunk",
+          "name": "renderModelDestructive -> serializeClientReference",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4823,7 +4823,7 @@
         },
         {
           "file_path": "javascript/react/ReactFlightServer.js",
-          "name": "renderModelDestructive -> serializeBigInt",
+          "name": "renderModelDestructive -> resolveTemporaryReference",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4831,7 +4831,7 @@
         },
         {
           "file_path": "javascript/react/ReactFlightServer.js",
-          "name": "renderModelDestructive -> test",
+          "name": "renderModelDestructive -> serializeReadableStream",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4839,7 +4839,7 @@
         },
         {
           "file_path": "javascript/react/ReactFlightServer.js",
-          "name": "renderModelDestructive -> isServerReference",
+          "name": "renderModelDestructive -> serializePromiseID",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": null
@@ -4866,7 +4866,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -4906,7 +4906,7 @@
       "investigated_at": "2026-10-02T15:31:51Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3799 JVM sweep)",
       "language": "kotlin",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -4936,7 +4936,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "lua",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -4966,6 +4966,52 @@
       ],
       "metric": "capture-missed",
       "status": "unvalidated",
+      "still_reproduces": false,
+      "symbol_type": "import",
+      "verdict": null
+    },
+    "lua/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
+      "agreeing_tools": [
+        "tree_sitter"
+      ],
+      "credit_tools": [],
+      "dissenting_tools": [
+        "gitgalaxy"
+      ],
+      "first_seen_at": "2026-10-02T16:34:54Z",
+      "investigated_at": null,
+      "investigated_by": null,
+      "language": "lua",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
+      "last_seen_count": 3,
+      "last_seen_examples": [
+        {
+          "file_path": "luarocks/binary/all_in_one",
+          "name": "luarocks/binary/all_in_one -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "luarocks/src/bin/luarocks",
+          "name": "luarocks/src/bin/luarocks -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "luarocks/src/bin/luarocks-admin",
+          "name": "luarocks/src/bin/luarocks-admin -> src/luarocks/cmd/init.lua",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": null
+          }
+        }
+      ],
+      "metric": "declaration-unresolved",
+      "status": "unvalidated",
       "still_reproduces": true,
       "symbol_type": "import",
       "verdict": null
@@ -4984,7 +5030,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "objective-c",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 18,
       "last_seen_examples": [
         {
@@ -5046,7 +5092,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "perl",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5076,7 +5122,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -5138,23 +5184,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 23,
       "last_seen_examples": [
-        {
-          "file_path": "php/wordpress/functions.php",
-          "name": "wp_post_preview_js -> rawurlencode",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 7846
-          }
-        },
         {
           "file_path": "php/wordpress/functions.php",
           "name": "wp_post_preview_js -> wp_print_inline_script_tag",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 7849
+          }
+        },
+        {
+          "file_path": "php/wordpress/functions.php",
+          "name": "wp_post_preview_js -> rawurlencode",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 7846
           }
         },
         {
@@ -5167,10 +5213,10 @@
         },
         {
           "file_path": "php/wordpress/wp-login.php",
-          "name": "login_footer -> ob_get_clean",
+          "name": "login_footer -> esc_attr",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 440
+            "tree_sitter": 420
           }
         },
         {
@@ -5200,7 +5246,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5246,7 +5292,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -5300,7 +5346,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5338,7 +5384,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5368,7 +5414,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {
@@ -5381,10 +5427,10 @@
         },
         {
           "file_path": "php/wordpress/wp-login.php",
-          "name": "login_header -> get_error_data",
+          "name": "login_header -> add",
           "readings": {
             "gitgalaxy": null,
-            "tree_sitter": 248
+            "tree_sitter": 239
           }
         },
         {
@@ -5397,18 +5443,18 @@
         },
         {
           "file_path": "php/wordpress/wp-login.php",
-          "name": "login_header -> add",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 239
-          }
-        },
-        {
-          "file_path": "php/wordpress/wp-login.php",
           "name": "login_header -> get_error_codes",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 247
+          }
+        },
+        {
+          "file_path": "php/wordpress/wp-login.php",
+          "name": "login_header -> get_error_data",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 248
           }
         }
       ],
@@ -5430,7 +5476,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5460,7 +5506,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -5514,7 +5560,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5544,7 +5590,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -5606,7 +5652,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5652,7 +5698,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5682,7 +5728,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5728,7 +5774,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5758,7 +5804,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -5796,7 +5842,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -5858,7 +5904,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -5888,7 +5934,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "php",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -5934,7 +5980,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 16,
       "last_seen_examples": [
         {
@@ -5996,7 +6042,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 17,
       "last_seen_examples": [
         {
@@ -6058,7 +6104,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -6120,23 +6166,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
-        {
-          "file_path": "cpp/NVDA/braille.py",
-          "name": "getFocusRegions -> TextInfoRegion",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 2308
-          }
-        },
         {
           "file_path": "cpp/NVDA/braille.py",
           "name": "getFocusRegions -> CursorManagerRegion",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 2304
+          }
+        },
+        {
+          "file_path": "cpp/NVDA/braille.py",
+          "name": "getFocusRegions -> TextInfoRegion",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 2308
           }
         }
       ],
@@ -6158,23 +6204,23 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
-        {
-          "file_path": "python/cython/Nodes.py",
-          "name": "analyse_declarations -> module_name",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9411
-          }
-        },
         {
           "file_path": "python/cython/Nodes.py",
           "name": "analyse_declarations -> fqname",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 9415
+          }
+        },
+        {
+          "file_path": "python/cython/Nodes.py",
+          "name": "analyse_declarations -> module_name",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9411
           }
         },
         {
@@ -6220,7 +6266,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 43,
       "last_seen_examples": [
         {
@@ -6249,18 +6295,18 @@
         },
         {
           "file_path": "python/cython/Nodes.py",
-          "name": "generate_execution_code -> join",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 9528
-          }
-        },
-        {
-          "file_path": "python/cython/Nodes.py",
           "name": "generate_execution_code -> error_goto_if_null",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 9555
+          }
+        },
+        {
+          "file_path": "python/cython/Nodes.py",
+          "name": "generate_execution_code -> join",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 9528
           }
         }
       ],
@@ -6282,9 +6328,17 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 10,
       "last_seen_examples": [
+        {
+          "file_path": "python/fastapi/fastapi/routing.py",
+          "name": "app -> cancel",
+          "readings": {
+            "gitgalaxy": 584,
+            "tree_sitter": null
+          }
+        },
         {
           "file_path": "python/fastapi/fastapi/routing.py",
           "name": "app -> create_task_group",
@@ -6298,14 +6352,6 @@
           "name": "app -> start_soon",
           "readings": {
             "gitgalaxy": 581,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "python/fastapi/fastapi/routing.py",
-          "name": "app -> cancel",
-          "readings": {
-            "gitgalaxy": 584,
             "tree_sitter": null
           }
         },
@@ -6344,7 +6390,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6374,7 +6420,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 30,
       "last_seen_examples": [
         {
@@ -6436,7 +6482,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6466,7 +6512,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6496,7 +6542,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "python",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6526,9 +6572,17 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 55,
       "last_seen_examples": [
+        {
+          "file_path": "ruby/rails/base.rb",
+          "name": "process -> class",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 150
+          }
+        },
         {
           "file_path": "ruby/rails/base.rb",
           "name": "process -> name",
@@ -6540,14 +6594,6 @@
         {
           "file_path": "ruby/rails/base.rb",
           "name": "process -> raise",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 150
-          }
-        },
-        {
-          "file_path": "ruby/rails/base.rb",
-          "name": "process -> class",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 150
@@ -6588,7 +6634,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -6650,7 +6696,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "ruby",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 73,
       "last_seen_examples": [
         {
@@ -6712,7 +6758,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6742,7 +6788,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "ruby",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -6774,7 +6820,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -6812,7 +6858,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -6858,7 +6904,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -6914,7 +6960,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 424,
       "last_seen_examples": [
         {
@@ -6976,7 +7022,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -7030,7 +7076,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7060,7 +7106,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 12,
       "last_seen_examples": [
         {
@@ -7122,7 +7168,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -7184,7 +7230,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7214,7 +7260,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7260,7 +7306,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7306,7 +7352,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7344,7 +7390,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7390,7 +7436,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 15,
       "last_seen_examples": [
         {
@@ -7411,9 +7457,9 @@
         },
         {
           "file_path": "rust/serde/serde_internals_attr.rs",
-          "name": "collect_lifetimes -> Constraint",
+          "name": "collect_lifetimes -> AssocConst",
           "readings": {
-            "gitgalaxy": 1772,
+            "gitgalaxy": 1771,
             "tree_sitter": null
           }
         },
@@ -7427,9 +7473,9 @@
         },
         {
           "file_path": "rust/serde/serde_internals_attr.rs",
-          "name": "collect_lifetimes -> AssocConst",
+          "name": "collect_lifetimes -> Constraint",
           "readings": {
-            "gitgalaxy": 1771,
+            "gitgalaxy": 1772,
             "tree_sitter": null
           }
         }
@@ -7452,7 +7498,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7482,7 +7528,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7528,7 +7574,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7574,7 +7620,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7604,7 +7650,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -7634,7 +7680,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -7647,17 +7693,17 @@
         },
         {
           "file_path": "rust/serde/test_annotations.rs",
-          "name": "test_expecting_message -> Tuple",
+          "name": "test_expecting_message -> Newtype",
           "readings": {
-            "gitgalaxy": 1846,
+            "gitgalaxy": 1842,
             "tree_sitter": null
           }
         },
         {
           "file_path": "rust/serde/test_annotations.rs",
-          "name": "test_expecting_message -> Newtype",
+          "name": "test_expecting_message -> Tuple",
           "readings": {
-            "gitgalaxy": 1842,
+            "gitgalaxy": 1846,
             "tree_sitter": null
           }
         }
@@ -7680,7 +7726,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 186,
       "last_seen_examples": [
         {
@@ -7742,7 +7788,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 34,
       "last_seen_examples": [
         {
@@ -7763,6 +7809,14 @@
         },
         {
           "file_path": "rust/bevy/bevy_ecs_world.rs",
+          "name": "get_entity_mut -> entity",
+          "readings": {
+            "gitgalaxy": 4506,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "rust/bevy/bevy_ecs_world.rs",
           "name": "get_entity_mut -> AliasedMutability",
           "readings": {
             "gitgalaxy": 4483,
@@ -7774,14 +7828,6 @@
           "name": "get_entity_mut -> vec",
           "readings": {
             "gitgalaxy": 4477,
-            "tree_sitter": null
-          }
-        },
-        {
-          "file_path": "rust/bevy/bevy_ecs_world.rs",
-          "name": "get_entity_mut -> entity",
-          "readings": {
-            "gitgalaxy": 4506,
             "tree_sitter": null
           }
         }
@@ -7804,7 +7850,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 41,
       "last_seen_examples": [
         {
@@ -7866,7 +7912,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -7928,7 +7974,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 55,
       "last_seen_examples": [
         {
@@ -7990,7 +8036,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
         {
@@ -8036,7 +8082,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -8090,7 +8136,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "rust",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8112,15 +8158,17 @@
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 10,
       "last_seen_examples": [
         {
@@ -8165,24 +8213,26 @@
         }
       ],
       "metric": "capture-missed",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy missed them, but capture was not the layer: every token was captured. The label was a harness mislabel, fixed here: `_names_declaration_in` now accepts a nested owner and a package token. 9 of the 10 import a member of a nested object, `io.circe.DecodingFailure.Reason.X`. `DecodingFailure` and its `object Reason` are declared in Error.scala (Error.scala:64,120,194), and the member fallback (#3554) only ran the name search for that owner. The 10th, `import io.circe.jawn` (NumberParsingBenchmark.scala:20), names the package object `jawn` (jawn/package.scala:19), and only a wildcard reached package.scala. Engine defect #4128, fixed in the same PR; all 10 resolve."
     },
     "scala/import/declaration-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
         "tree_sitter"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "tree_sitter"
+      ],
       "dissenting_tools": [
         "gitgalaxy"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 8,
       "last_seen_examples": [
         {
@@ -8227,24 +8277,26 @@
         }
       ],
       "metric": "declaration-unresolved",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Two causes. 4 were a harness bug, tree-sitter's side wrong. `import AutoDerivedSuite._` (or SemiautoDerivedSuite) sits beside that file's own `object AutoDerivedSuite`, in scala-0/ and scala-2/ copies. The harness dropped the importer from the truth set and scored the OTHER variant; by import contract C8 the import means the importer's own copy, a self-import. Fixed in the harness, so those leave the shape. The other 4 are real GitGalaxy misses: named imports of a package object's members. `io.circe.jawn.decode` and `io.circe.jawn.parse` should reach jawn/package.scala, `io.circe.testing.instances.arbitraryJson` instances/package.scala, and `io.circe.syntax.EncoderOps` syntax/package.scala. Only a wildcard reached package.scala (#3595). Credit stands for what remains after the harness fix. Engine defect #4128, fixed in the same PR."
     },
     "scala/import/same-name-other-path/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8265,10 +8317,10 @@
         }
       ],
       "metric": "same-name-other-path",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy right. ConfiguredDerivesSuite.scala:28 and ConfiguredEnumDerivesSuites.scala:27 do `import io.circe.derivation.*`, and the engine links scala-3/io/circe/derivation/package.scala. That file is Scala 3's package file: `package io.circe.derivation` plus top-level `inline def summonLabels`/`summonEncoders`..., the successor of a package object, so it is the package's own file under import contract C7. The harness's C7 recognised only a `package object`. Fixed here: a package.scala holding top-level definitions is the package's own file."
     },
     "scala/import/target-is-test-file/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -8279,10 +8331,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8303,10 +8355,10 @@
         }
       ],
       "metric": "target-is-test-file",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "Two causes. CodecSuites.scala:37 `import io.circe.tests.examples.{ Foo, Wub }` -> tests/examples/package.scala: GitGalaxy right. That file declares `Foo` and `Wub` in a packaging block `package examples { ... }` (package.scala:53-140) after its `package object examples`. The harness appended the block's name to the whole file's package and never indexed its body; fixed here, so that occurrence leaves the shape. JawnParserSuite.scala:23 `import io.circe.tests.examples.glossary` -> src/main/resources/io/circe/tests/examples/glossary.json: GitGalaxy wrong. `glossary` is a `val` of `package object examples` (package.scala:27), but the JSON resource mirrors the package path and was the only file named glossary. No credit; that is what remains after the harness fix. Engine defect #4128, fixed in the same PR: a Scala import now only targets Scala or Java source, and lands on the package object."
     },
     "scala/import/target-not-imported/agree[gitgalaxy]_vs[tree_sitter]": {
       "agreeing_tools": [
@@ -8317,10 +8369,10 @@
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:14:38Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8333,10 +8385,10 @@
         }
       ],
       "metric": "target-not-imported",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy wrong. JsonInterpolatorSuite.scala:21 `import io.circe.jawn.parse` names a member of `package object jawn extends JawnParser` (jawn/package.scala:19), and the import's target is that package object. The engine's #3596 declaration search instead matched the CLASS METHOD `JawnParser.parse` (JawnParser.scala:90) in the package's directory. That is where the inherited body lives, but not what the import names, and the search cannot tell a method from a top-level declaration. Engine defect #4128, fixed in the same PR: a lower-case member tries the package object before the declaration search."
     },
     "scala/import/truth-names-several-files/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8352,7 +8404,7 @@
       "investigated_at": "2026-09-25T18:40:28Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 9,
       "last_seen_examples": [
         {
@@ -8406,15 +8458,17 @@
       "agreeing_tools": [
         "gitgalaxy"
       ],
-      "credit_tools": [],
+      "credit_tools": [
+        "gitgalaxy"
+      ],
       "dissenting_tools": [
         "tree_sitter"
       ],
       "first_seen_at": "2026-09-25T18:40:28Z",
-      "investigated_at": null,
-      "investigated_by": null,
+      "investigated_at": "2026-10-02T12:00:00Z",
+      "investigated_by": "claude (agent standing in for a reviewer, #3799)",
       "language": "scala",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8427,10 +8481,10 @@
         }
       ],
       "metric": "truth-sees-no-import-in-file",
-      "status": "unvalidated",
-      "still_reproduces": true,
+      "status": "validated",
+      "still_reproduces": false,
       "symbol_type": "import",
-      "verdict": null
+      "verdict": "GitGalaxy right. Derivation.scala:21 `import io.circe.derivation.*` -> scala-3/io/circe/derivation/package.scala. That file is the package's Scala 3 top-level-definitions file (`summonLabels`, `summonEncoders`, ...), its own file under import contract C7. The harness recognised only a `package object`, so it saw no import in the file; fixed here, the same cause as the same-name-other-path shape."
     },
     "solidity/import/token-unresolved/agree[tree_sitter]_vs[gitgalaxy]": {
       "agreeing_tools": [
@@ -8444,7 +8498,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "solidity",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8482,7 +8536,7 @@
       "investigated_at": "2026-09-25T18:15:04Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "solidity",
-      "last_reconciled_at": "2026-10-01T10:01:21Z",
+      "last_reconciled_at": "2026-10-02T16:34:54Z",
       "last_seen_count": 24,
       "last_seen_examples": [
         {
@@ -8544,7 +8598,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8574,7 +8628,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 23,
       "last_seen_examples": [
         {
@@ -8603,18 +8657,18 @@
         },
         {
           "file_path": "typescript/fp-ts/TaskEither.ts",
-          "name": "traverseReadonlyNonEmptyArrayWithIndexSeq -> a",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 1633
-          }
-        },
-        {
-          "file_path": "typescript/fp-ts/TaskEither.ts",
           "name": "traverseReadonlyNonEmptyArrayWithIndexSeq -> as",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 1641
+          }
+        },
+        {
+          "file_path": "typescript/fp-ts/TaskEither.ts",
+          "name": "traverseReadonlyNonEmptyArrayWithIndexSeq -> a",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 1633
           }
         }
       ],
@@ -8636,7 +8690,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -8698,7 +8752,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -8728,7 +8782,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 76,
       "last_seen_examples": [
         {
@@ -8741,18 +8795,18 @@
         },
         {
           "file_path": "typescript/assemblyscript/compiler.ts",
-          "name": "compile -> return",
-          "readings": {
-            "gitgalaxy": null,
-            "tree_sitter": 729
-          }
-        },
-        {
-          "file_path": "typescript/assemblyscript/compiler.ts",
           "name": "compile -> if",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 727
+          }
+        },
+        {
+          "file_path": "typescript/assemblyscript/compiler.ts",
+          "name": "compile -> return",
+          "readings": {
+            "gitgalaxy": null,
+            "tree_sitter": 729
           }
         },
         {
@@ -8790,7 +8844,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -8828,7 +8882,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8892,12 +8946,12 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 52,
       "last_seen_examples": [
         {
           "file_path": "typescript/fp-ts/Either.ts",
-          "name": "traverse -> isLeft",
+          "name": "traverse -> left",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 691
@@ -8913,7 +8967,7 @@
         },
         {
           "file_path": "typescript/fp-ts/Either.ts",
-          "name": "traverse -> f",
+          "name": "traverse -> isLeft",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 691
@@ -8921,7 +8975,7 @@
         },
         {
           "file_path": "typescript/fp-ts/Either.ts",
-          "name": "traverse -> left",
+          "name": "traverse -> f",
           "readings": {
             "gitgalaxy": null,
             "tree_sitter": 691
@@ -8954,7 +9008,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 14,
       "last_seen_examples": [
         {
@@ -8991,9 +9045,9 @@
         },
         {
           "file_path": "typescript/vscode/ipc.ts",
-          "name": "requestPromise -> set",
+          "name": "requestPromise -> sendRequest",
           "readings": {
-            "gitgalaxy": 611,
+            "gitgalaxy": 612,
             "tree_sitter": null
           }
         }
@@ -9016,7 +9070,7 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 48,
       "last_seen_examples": [
         {
@@ -9078,7 +9132,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -9132,22 +9186,22 @@
       "investigated_at": "2026-09-25T17:53:57Z",
       "investigated_by": "claude (agent standing in for a reviewer, #3641)",
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 3,
       "last_seen_examples": [
-        {
-          "file_path": "typescript/vscode/extHost.api.impl.ts",
-          "name": "createApiFactoryAndRegisterActors -> warn",
-          "readings": {
-            "gitgalaxy": 363,
-            "tree_sitter": null
-          }
-        },
         {
           "file_path": "typescript/vscode/extHost.api.impl.ts",
           "name": "createApiFactoryAndRegisterActors -> apply",
           "readings": {
             "gitgalaxy": 368,
+            "tree_sitter": null
+          }
+        },
+        {
+          "file_path": "typescript/vscode/extHost.api.impl.ts",
+          "name": "createApiFactoryAndRegisterActors -> warn",
+          "readings": {
+            "gitgalaxy": 363,
             "tree_sitter": null
           }
         },
@@ -9178,7 +9232,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9208,7 +9262,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -9246,7 +9300,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -9276,7 +9330,7 @@
       "investigated_at": null,
       "investigated_by": null,
       "language": "typescript",
-      "last_reconciled_at": "2026-10-01T09:58:20Z",
+      "last_reconciled_at": "2026-10-02T16:32:03Z",
       "last_seen_count": 5,
       "last_seen_examples": [
         {

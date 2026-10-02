@@ -25680,7 +25680,7 @@
         "getSpecificationContext@695": 0,
         "handleNonSharedField@276": 4,
         "handleSharedField@99": 5,
-        "handleWhereBlock@378": 1,
+        "handleWhereBlock@378": 2,
         "ifThrowableIsNotNull@458": 0,
         "makeSharedFieldProtectedAndVolatile@271": 0,
         "moveInitializer@295": 0,
@@ -25693,14 +25693,14 @@
         "storeFailedBlock@449": 1,
         "transformRhsExpressionIfNecessary@830": 0,
         "transplantMethod@325": 2,
-        "visitAnyBlock@478": 1,
+        "visitAnyBlock@478": 2,
         "visitCleanupBlock@564": 5,
         "visitField@91": 2,
         "visitMethod@302": 3,
         "visitMethodAgain@397": 2,
         "visitSpec@80": 1,
-        "visitThenBlock@500": 3,
-        "visitVerifyBlock@490": 1
+        "visitThenBlock@500": 4,
+        "visitVerifyBlock@490": 2
       },
       "groovy/spock/SpockTransform.java": {
         "SpockTransform@42": 0,
@@ -26644,7 +26644,7 @@
       },
       "java/springboot/OnClassCondition.java": {
         "StandardOutcomesResolver@195": 0,
-        "ThreadedOutcomesResolver@153": 0,
+        "ThreadedOutcomesResolver@153": 1,
         "addAll@129": 0,
         "createOutcomesResolver@79": 2,
         "getCandidates@117": 2,
@@ -26652,11 +26652,11 @@
         "getOutcome@224": 0,
         "getOutcome@242": 0,
         "getOutcomes@209": 2,
-        "getOutcomes@48": 2,
+        "getOutcomes@48": 3,
         "resolveOutcomes@141": 0,
         "resolveOutcomes@165": 0,
         "resolveOutcomes@204": 1,
-        "resolveOutcomesThreaded@64": 2
+        "resolveOutcomesThreaded@64": 3
       },
       "java/springboot/ServletWebServerApplicationContext.java": {
         "ExistingWebApplicationScopes@302": 0,
@@ -26838,7 +26838,7 @@
         "createWelcomePageHandlerMapping@493": 2,
         "customize@672": 0,
         "customize@684": 1,
-        "customizeResourceHandlerRegistration@398": 0,
+        "customizeResourceHandlerRegistration@398": 1,
         "defaultViewResolver@308": 0,
         "extendHandlerExceptionResolvers@624": 0,
         "flashMapManager@520": 0,

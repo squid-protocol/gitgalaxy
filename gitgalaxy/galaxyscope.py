@@ -383,7 +383,10 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
                     re.split(r"\s+as\s+", item)[0].strip()
                     for item in extracted_path.replace("{", "").replace("}", "").split(",")
                 ]
+            quote = lang_def.get("import_name_quote")
             for item in items:
+                if quote:
+                    item = item.replace(quote, "")
                 if item:
                     tokens.add(item)
     return tokens

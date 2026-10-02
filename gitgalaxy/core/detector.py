@@ -1362,6 +1362,76 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     return {k: v or "" for k, v in found.items()}
 
 
+# Receiver types (Java): a declaration names its variable's class, so after
+# `Gson gson = ...` or in `void f(JsonReader in)`, `gson.toJson()` and `in.peek()`
+# resolve on that class. Covers parameters, locals, fields, `for (T x :`,
+# `catch (T e)`, `instanceof T x` and `var x = new T(`. The type is an upper-case
+# identifier (`Map.Entry`, `java.util.Map` allowed), optionally generic; the
+# name is followed by `=`, `;`, `,`, `:` or `)`. An array or varargs type maps to
+# None: `xs.clone()` is not a method of the element class. Every quantifier is
+# bounded; the text is literal-shielded.
+_JAVA_DECL = re.compile(
+    r"(?<![\w$.])(?:[a-z][\w$]{0,63}\.){0,8}([A-Z][\w$]{0,127}(?:\.[A-Z][\w$]{0,127}){0,4})"
+    r"(?:<[^;=(){}]{0,200}?>)?((?:[ \t]*\[[ \t]*\])*|[ \t]*\.\.\.)[ \t\r\n]+"
+    r"([A-Za-z_$][\w$]{0,127})[ \t\r\n]*(?=[=;,:)])"
+)
+_JAVA_VAR_NEW = re.compile(
+    r"\bvar[ \t]+([A-Za-z_$][\w$]{0,127})[ \t]*=[ \t]*new[ \t]+(?:[a-z][\w$]{0,63}\.){0,8}"
+    r"([A-Z][\w$]{0,127}(?:\.[A-Z][\w$]{0,127}){0,4})[ \t]*[<(]"
+)
+# Words an upper-case "type" position can hold that are not a declaration's type.
+_JAVA_DECL_NAME_STOP = frozenset({"extends", "implements", "super", "instanceof", "throws", "default"})
+
+
+def _java_declared_types(text: str) -> dict[str, Optional[str]]:
+    """Every variable `text` declares -> its class leaf name; None when the name is
+    declared with two different classes, or as an array."""
+    found: dict[str, Optional[str]] = {}
+
+    def note(name: str, cls: Optional[str]) -> None:
+        leaf = cls.rsplit(".", 1)[-1] if cls else None
+        if name in found and found[name] != leaf:
+            found[name] = None
+        else:
+            found.setdefault(name, leaf)
+
+    for m in _JAVA_DECL.finditer(text):
+        if m.group(3) in _JAVA_DECL_NAME_STOP:
+            continue
+        note(m.group(3), None if m.group(2).strip() else m.group(1))
+    for m in _JAVA_VAR_NEW.finditer(text):
+        note(m.group(1), m.group(2))
+    return found
+
+
+def _java_receiver_types(
+    text: str, receivers: set[str], file_types: Optional[dict[str, Optional[str]]] = None
+) -> dict[str, str]:
+    """Receiver name -> class leaf name, for the receivers in `receivers` (Java).
+
+    The function's own declarations (parameters, locals) win; a name it does not
+    declare is a field, typed by the file's declarations (`file_types`, from
+    `_java_declared_types` over the whole file) when they agree on one class.
+    `this.x` is always the field. A name with no single known class maps to "".
+    The resolver checks that the answer is a class it knows.
+    """
+    local = _java_declared_types(text)
+    out: dict[str, str] = {}
+    scopes: tuple[dict[str, Optional[str]], ...]
+    for r in receivers:
+        if r.startswith("this."):
+            name, scopes = r[5:], (file_types or {},)
+        else:
+            name, scopes = r, (local, file_types or {})
+        if not name or "." in name:
+            continue
+        for scope in scopes:
+            if name in scope:
+                out[r] = scope[name] or ""
+                break
+    return out
+
+
 # #3644 (C3): words that can stand before `name(` at the start of a C++ statement
 # without being the type of a declared variable (`return f(x)`, `new Foo(x)`).
 _DECLARATOR_NON_TYPES = frozenset(
@@ -2264,6 +2334,8 @@ class StructuralExtractor:
             self.logger.setLevel(logging.INFO)
 
         self.primary_lang_id = lang_id.lower() if lang_id else "unknown"
+        # Java receiver typing (#3772): the current file's declared variable types
+        self._file_declared_types: Optional[dict[str, Optional[str]]] = None
         # Pinned explicitly: LANGUAGE_DEFINITIONS (assigned to this same
         # attribute below, in the AUTO-HEAL branch) has no module-level
         # annotation, so mypy infers its instance-attribute type from that
@@ -5668,6 +5740,12 @@ class StructuralExtractor:
             opener, closer = "(", ")"
 
         safe_code = self._build_brace_safe_stream(code, lang_id)
+        # Java receiver typing: a field's declared class, for every unit in this file
+        self._file_declared_types = (
+            _java_declared_types(self._apply_literal_shield(code, lang_id))
+            if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
+            else None
+        )
 
         # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
         # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
@@ -9926,7 +10004,9 @@ class StructuralExtractor:
         receiver_types: dict[str, str] = {}
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
-            if receivers:
+            if receivers and self.primary_lang_id == "java":
+                receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
         references: list[tuple[str, str]] = []

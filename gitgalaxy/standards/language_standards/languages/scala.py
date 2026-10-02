@@ -53,6 +53,11 @@ DEFINITION: dict[str, Any] = {
     "imports_may_name_declaration": True,
     "import_path_mirrors_module_path": True,
     "package_object_file": "package.scala",
+    # #4128: an import names a Scala or Java declaration -- never a resource file
+    # (a .json under resources/ mirrors the package path just as well).
+    "import_target_langs": ("scala", "java"),
+    # #4128: the quote of a backquoted name in an import path, dropped from the token.
+    "import_name_quote": "`",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
@@ -301,7 +306,9 @@ DEFINITION: dict[str, Any] = {
             # is bounded per-statement by construction -- there is no `\s`/`.` left dangling
             # outside an explicit brace block for it to bleed through.
             # =====================================================================
-            r"\b(?:import|export)\s+((?:[\w]+\.)*(?:\{[^{}]*\}|[" + ID_CONTINUE + r"*]+))",
+            # #4128: a backquoted segment (`import io.circe.`export`.Exported`) is a name
+            # like any other; the capture stopped before it and recorded `io.circe`.
+            r"\b(?:import|export)\s+((?:(?:\w+|`[^`\n]+`)\.)*(?:\{[^{}]*\}|[" + ID_CONTINUE + r"*]+|`[^`\n]+`))",
             re.M,
         ),
         # 25. ownership: Authorship indicators.

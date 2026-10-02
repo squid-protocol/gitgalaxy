@@ -25616,7 +25616,7 @@
         "isThenOrExpectOrFilterBlock@358": 1,
         "referenceToCurrentClosure@249": 1,
         "replaceObjectExpressionWithCurrentClosure@241": 1,
-        "visit@59": 1,
+        "visit@59": 5,
         "visitAssertStatement@64": 0,
         "visitDeclarationExpression@146": 0,
         "visitInteractionAwareExpressionStatement@94": 1
@@ -26653,7 +26653,7 @@
         "getOutcome@242": 0,
         "getOutcomes@209": 1,
         "getOutcomes@48": 0,
-        "resolveOutcomes@141": 0,
+        "resolveOutcomes@141": 3,
         "resolveOutcomes@165": 0,
         "resolveOutcomes@204": 0,
         "resolveOutcomesThreaded@64": 1
@@ -26836,7 +26836,7 @@
         "createRequestMappingHandlerAdapter@467": 0,
         "createRequestMappingHandlerMapping@590": 0,
         "createWelcomePageHandlerMapping@493": 2,
-        "customize@672": 0,
+        "customize@672": 1,
         "customize@684": 0,
         "customizeResourceHandlerRegistration@398": 1,
         "defaultViewResolver@308": 0,

@@ -24,7 +24,14 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
+from gitgalaxy.core.compiler_options import (
+    DEFAULTS,
+    SEMANTIC_OPTIONS,
+    cards,
+    compiler_options,
+    effective,
+    parse_options,
+)
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
 from gitgalaxy.core.source_text import decode_bytes, read_source
@@ -148,10 +155,11 @@ def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
 
 
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
-# behaviour already). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
+# behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
+# default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
 # switch and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully.
 COBC_OPTIONS = {
-    ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
+    ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "-fbinary-truncate", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
     ("NUMPROC", "NOPFD"): "",
 }  # fmt: skip
 
@@ -168,7 +176,10 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
     rows += compiler_options(source)
     flags = []
-    for option, value in effective(rows).items():
+    eff = effective(rows)
+    for option, default in DEFAULTS.items():  # an option nothing names is IBM's default (#4102: TRUNC(STD))
+        eff.setdefault(option, default)
+    for option, value in eff.items():
         if option not in SEMANTIC_OPTIONS:
             continue
         flag = COBC_OPTIONS.get((option, str(value or "").upper()))
@@ -543,7 +554,9 @@ def reused(work: Path) -> Path | None:
     return earlier / work.resolve().relative_to(root)
 
 
-def run_cobol_step(work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()) -> subprocess.CompletedProcess[str]:
+def run_cobol_step(
+    work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()
+) -> subprocess.CompletedProcess[str]:
     """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
     copy in what the earlier run's identical step wrote."""
     earlier = reused(work)

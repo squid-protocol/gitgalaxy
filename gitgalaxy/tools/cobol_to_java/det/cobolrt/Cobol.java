@@ -58,6 +58,13 @@ public final class Cobol {
         Codec.truncBinary = on;
     }
 
+    /** TRUNC for a program's run (#4102): `on` in effect, the setting before returned (the caller restores it). */
+    public static boolean swapTruncBinary(boolean on) {
+        boolean before = Codec.truncBinary;
+        Codec.truncBinary = on;
+        return before;
+    }
+
     // ------------------------------------------------------------------------------------------ ARITHMETIC
     /** An intermediate quotient as GnuCOBOL forms it (cob_decimal_div): the dividend shifted 38 digits, then
      *  divided and truncated -- the receiver's own truncation or ROUNDED then applies in store. */

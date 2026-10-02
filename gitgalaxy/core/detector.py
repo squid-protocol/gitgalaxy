@@ -880,6 +880,16 @@ _ANGLE_BRACKET_GENERIC_LANGUAGES = frozenset(
 # another script, not a label. Same name class as batch's func_start, bounded.
 _BATCH_CALL_TARGET_RE = re.compile(r"\bcall[ \t]+:([A-Za-z_][\w.-]{0,63})", re.I)
 
+# The brace-sliced languages whose `outside_literals` scope filter shields with
+# `_build_brace_safe_stream` (their own string/char literal syntax) rather than
+# the indentation slicer's python-shaped shield.
+_BRACE_LITERAL_SHIELD_LANGS = frozenset(
+    {
+        "apex", "c", "cpp", "csharp", "dart", "go", "groovy", "java", "javascript", "kotlin",
+        "objective-c", "php", "rust", "scala", "solidity", "swift", "typescript", "zig",
+    }
+)  # fmt: skip
+
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "fortran": frozenset({"EXIT"}),
     "abap": frozenset({"RETURN", "EXIT"}),
@@ -8736,7 +8746,16 @@ class StructuralExtractor:
             # (any literal or comment character in it was blanked). Not
             # memoized through `cache` (it holds offset sets); only rules that
             # opt in pay the shield, and only when they matched something.
-            safe = self._build_indentation_safe_stream(code, seg_lang)
+            # A brace-family language takes the brace slicer's shield instead:
+            # its literal syntax (char literals, rust lifetimes, raw/verbatim
+            # strings) is what that shield knows, and the python-shaped one
+            # would read a C `#if` or a rust `'a` as a literal. The C-family
+            # `branch` rules opt in: their `?` counted every JDBC placeholder
+            # in `"... values (?, ?, ?)"`.
+            if seg_lang in _BRACE_LITERAL_SHIELD_LANGS:
+                safe = self._build_brace_safe_stream(code, seg_lang)
+            else:
+                safe = self._build_indentation_safe_stream(code, seg_lang)
             return [m for m in matches if safe[m.start() : m.end()] == code[m.start() : m.end()]]
         self.logger.warning(
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."

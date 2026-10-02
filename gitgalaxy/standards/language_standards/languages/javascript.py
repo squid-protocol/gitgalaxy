@@ -75,6 +75,10 @@ DEFINITION: dict[str, Any] = {
     # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
     "bare_import_names_package": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         # #3361: `super` is a keyword here (a constructor's `super(x)` is not a
@@ -85,7 +89,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?|\?\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?\?|\?"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded to prevent ReDoS on massive positional/destructured sets.
         "args": re.compile(

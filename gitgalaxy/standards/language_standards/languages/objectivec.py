@@ -59,6 +59,10 @@ DEFINITION: dict[str, Any] = {
     # same-stem `chrono.h` (fmt's own header), so the resolver matches it exactly.
     "include_names_file_literally": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(
             r"\b(?<![" + ID_CONTINUE + r"])([" + ID_START + r"][" + ID_CONTINUE + r"]*)(?=\s*\(|:)"

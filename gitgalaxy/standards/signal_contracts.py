@@ -61,7 +61,9 @@ there is no shielding mechanism). Corollaries:
 1. A keyword inside a string literal is a real hit for every rule. A rule that must not
    count one has to exclude it itself -- in its pattern, or by opting into the
    `outside_literals` scope filter, which drops a match that touches a string literal or
-   comment (gitgalaxy#4136; python `vectorized_math`'s `@` arm). A corpus that plants a
+   comment (gitgalaxy#4136; python `vectorized_math`'s `@` arm; the 18 brace-family
+   `branch` rules, whose `?` read every JDBC `"values (?, ?)"` placeholder as a ternary,
+   shield with the brace slicer's literal syntax -- docs/branch_rule_contract.md). A corpus that plants a
    decoy inside a string is testing the rule, not the stream (keyword-rosetta #17, #71, #73).
 2. Comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`, `fragile_debt`,
    `spec_exposure`) read the comment surface instead; a language whose comment syntax

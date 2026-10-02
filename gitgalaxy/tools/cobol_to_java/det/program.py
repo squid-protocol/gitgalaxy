@@ -137,8 +137,26 @@ def eib_records() -> list:
     return L.parse(logical_lines(raw, "DFHEIBLK.cpy"))  # fmt: skip
 
 
+def structurable(proc: S.Procedure) -> bool:
+    """Whether paragraphs can be plain methods called in order: no GO TO (nor ALTER), no EXEC CICS HANDLE (its
+    exits transfer control like a GO TO), no SECTION. Then PERFORM a THRU b is a, ..., b in turn, and falling off a
+    paragraph is falling into the next -- exactly COBOL's flow, with no dispatcher."""
+    for p in proc.paragraphs:
+        if p.section == p.name:
+            return False
+        for s in S.walk(p.body):
+            if s.kind == "GOTO" or (s.kind == "EXEC" and re.search(r"(?i)\bHANDLE\b", s.text)):
+                return False
+            if s.kind == "HOLE" and re.match(r"(?i)\s*ALTER\b", s.text):
+                return False
+    return True
+
+
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
-              estate: dict[str, str] | None = None, project: Path | None = None) -> Result:  # fmt: skip
+              estate: dict[str, str] | None = None, project: Path | None = None,
+              style: str = "dispatch") -> Result:  # fmt: skip
+    """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
+    as named methods called directly, fields by their COBOL names) -- structured only where `structurable`."""
     lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
@@ -172,7 +190,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         r = roots[id(rec)]
         sizes[id(r)] = max(sizes.get(id(r), 0), rec.size * rec.occurs)
 
-    gen = G.Gen(prog)
+    structured = style == "structured" and structurable(proc)
+    gen = G.Gen(prog, structured)
     gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
     gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
@@ -270,8 +289,13 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     for i, p in enumerate(proc.paragraphs):
         gen.cur = i
         body = [x.replace("__PACKAGE__", package) for x in gen.paragraph(p, "        ")]
-        para_code.append(f"    /** {p.name}. */\n    private int p{i}() {{\n" + "\n".join(body) +
-                         f"\n        return {i + 1};\n    }}\n")  # fmt: skip
+        if structured:
+            para_code.append(
+                f"    /** {p.name}. */\n    private void {gen.method(i)}() {{\n" + "\n".join(body) + "\n    }\n"
+            )
+        else:
+            para_code.append(f"    /** {p.name}. */\n    private int p{i}() {{\n" + "\n".join(body) +
+                             f"\n        return {i + 1};\n    }}\n")  # fmt: skip
 
     # fields (after the paragraphs: gen.ids is complete from the start; the constants come from the statements)
     storages = []
@@ -322,11 +346,13 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     hc = re.search(r"public int handleCall\(([^)]*)\)", stub)
     if hc:
         params = [p.strip() for p in hc.group(1).split(",") if p.strip()]
+        signature = ", ".join(f"{p.rsplit(' ', 1)[0]} arg{k + 1}" for k, p in enumerate(params))
         body_in: list[str] | None = None
         ins: list[str] = []
         body_out: list[str] = []
         for k, prm in enumerate(params):
-            typ, name = prm.rsplit(" ", 1)
+            typ, _ = prm.rsplit(" ", 1)
+            name = f"arg{k + 1}"  # the stub's own names may be a field's (LS-DATE -> lsDate): only the type matters
             item = next((r for r in linkage if k < len(using) and r.name == using[k]), None)
             if typ != "CobolRef<String>" or item is None:
                 break
@@ -337,14 +363,14 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             body_in = ins
         if body_in is None:
             call_entry = [
-                f"    public int handleCall({hc.group(1)}) {{",
+                f"    public int handleCall({signature}) {{",
                 '        throw new Hole("the CALL entry\'s parameters are not CobolRef<String>");',
                 "    }",
                 "",
             ]
         else:
-            call_entry = [f"    public int handleCall({hc.group(1)}) {{", *body_in,
-                          "        try {", f"            perform(0, {len(proc.paragraphs) - 1});",
+            call_entry = [f"    public int handleCall({signature}) {{", *body_in,
+                          "        try {", f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
                           "        } catch (Goback g) {", "            // GOBACK", "        }", *body_out,
                           f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();", "    }", ""]  # fmt: skip
         if "CobolRef" in hc.group(1):
@@ -377,6 +403,69 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         [f"{c} {f}" for c, f in dict.fromkeys(ctor_repos)]
         + (["DatasetResolver datasets", "CobolFiles files", "MainframeClock clock"] if batch else [])
     )
+    dispatcher = [
+        "    /** The active PERFORMs' last paragraphs, outermost first. */",
+        "    private int[] performThru = new int[64];",
+        "    private int performDepth = 0;",
+        "",
+        "    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */",
+        "    private static final class PerformExit extends RuntimeException {",
+        "        private static final long serialVersionUID = 1L;",
+        "        final int depth;",
+        "",
+        "        PerformExit(int depth) {",
+        "            super(null, null, false, false);",
+        "            this.depth = depth;",
+        "        }",
+        "    }",
+        "",
+        "    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM",
+        "     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning",
+        "     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */",
+        "    private void perform(int from, int thru) {",
+        "        int mine = performDepth;",
+        "        if (mine == performThru.length) {",
+        "            performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+        "        }",
+        "        performThru[performDepth++] = thru;",
+        "        try {",
+        "            int i = from;",
+        "            while (true) {",
+        "                int next = run(i);",
+        "                boolean jumped = (next & GOTO) != 0;",
+        "                next &= ~GOTO;",
+        "                if (!jumped) {",
+        "                    if (i == thru) {",
+        "                        return;",
+        "                    }",
+        "                    for (int d = mine - 1; d >= 0; d--) {",
+        "                        if (performThru[d] == i) {",
+        "                            throw new PerformExit(d);",
+        "                        }",
+        "                    }",
+        "                }",
+        f"                if (next >= {n_para}) {{",
+        "                    throw new Goback();",
+        "                }",
+        "                i = next;",
+        "            }",
+        "        } catch (PerformExit e) {",
+        "            if (e.depth != mine) {",
+        "                throw e;",
+        "            }",
+        "        } finally {",
+        "            performDepth = mine;",
+        "        }",
+        "    }",
+        "",
+        "    private int run(int i) {",
+        "        switch (i) {",
+        *[f"            case {i}: return p{i}();" for i in range(n_para)],
+        '            default: throw new IllegalStateException("paragraph " + i);',
+        "        }",
+        "    }",
+        "",
+    ]
     out = [
         f"package {pkg}.service;",
         "",
@@ -483,9 +572,9 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         "    public int runProgram() {",
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
         *inits,
-        "        performDepth = 0;",
+        *([] if structured else ["        performDepth = 0;"]),
         "        try {",
-        f"            perform(0, {n_para - 1});",
+        f"            {'runAll()' if structured else f'perform(0, {n_para - 1})'};",
         "        } catch (Goback g) {",
         "            // the program ended",
         "        }",
@@ -523,7 +612,7 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
                 *parm_code,
                 *file_inits,
                 "        try {",
-                f"            perform(0, {n_para - 1});",
+                f"            {'runAll()' if structured else f'perform(0, {n_para - 1})'};",
                 "        } catch (Goback g) {",
                 "            // the program ended",
                 "        }",
@@ -534,67 +623,17 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             if batch
             else []
         ),
-        "    /** The active PERFORMs' last paragraphs, outermost first. */",
-        "    private int[] performThru = new int[64];",
-        "    private int performDepth = 0;",
-        "",
-        "    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */",
-        "    private static final class PerformExit extends RuntimeException {",
-        "        private static final long serialVersionUID = 1L;",
-        "        final int depth;",
-        "",
-        "        PerformExit(int depth) {",
-        "            super(null, null, false, false);",
-        "            this.depth = depth;",
-        "        }",
-        "    }",
-        "",
-        "    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM",
-        "     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning",
-        "     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */",
-        "    private void perform(int from, int thru) {",
-        "        int mine = performDepth;",
-        "        if (mine == performThru.length) {",
-        "            performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
-        "        }",
-        "        performThru[performDepth++] = thru;",
-        "        try {",
-        "            int i = from;",
-        "            while (true) {",
-        "                int next = run(i);",
-        "                boolean jumped = (next & GOTO) != 0;",
-        "                next &= ~GOTO;",
-        "                if (!jumped) {",
-        "                    if (i == thru) {",
-        "                        return;",
-        "                    }",
-        "                    for (int d = mine - 1; d >= 0; d--) {",
-        "                        if (performThru[d] == i) {",
-        "                            throw new PerformExit(d);",
-        "                        }",
-        "                    }",
-        "                }",
-        f"                if (next >= {n_para}) {{",
-        "                    throw new Goback();",
-        "                }",
-        "                i = next;",
-        "            }",
-        "        } catch (PerformExit e) {",
-        "            if (e.depth != mine) {",
-        "                throw e;",
-        "            }",
-        "        } finally {",
-        "            performDepth = mine;",
-        "        }",
-        "    }",
-        "",
-        "    private int run(int i) {",
-        "        switch (i) {",
-        *[f"            case {i}: return p{i}();" for i in range(n_para)],
-        '            default: throw new IllegalStateException("paragraph " + i);',
-        "        }",
-        "    }",
-        "",
+        *(
+            dispatcher
+            if not structured
+            else [
+                "    /** The PROCEDURE DIVISION: its paragraphs in order (each falls into the next). */",
+                "    private void runAll() {",
+                *[f"        {gen.method(k)}();" for k in range(n_para)],
+                "    }",
+                "",
+            ]
+        ),
         *para_code,
         "}",
         "",
@@ -740,7 +779,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         *ca_in,
         f"        Cobol.store({gen.eib('EIBCALEN')}, BigDecimal.valueOf(calen), false, CS);",
         "        try {",
-        f"            perform(0, {len(proc.paragraphs) - 1});",
+        f"            {'runAll()' if gen.structured else f'perform(0, {len(proc.paragraphs) - 1})'};",
         "        } catch (Goback g) {",
         "            // RETURN / XCTL / an abend ended the program",
         "        }",

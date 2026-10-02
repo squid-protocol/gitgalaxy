@@ -44,7 +44,7 @@ def estate(corpus: Path, work: Path) -> Path:
     return project
 
 
-def port_case(name: str, work: Path, project: Path, corpus: Path) -> dict[str, Any]:
+def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch") -> dict[str, Any]:
     import equivalence as eq
     import equivalence_java as ej
 
@@ -57,7 +57,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path) -> dict[str, A
     out: dict[str, Any] = {"case": name, "program": case["program"]}
     port = work / name / "port"
     try:
-        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project)
+        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style)
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -99,6 +99,9 @@ def main() -> int:
     r.add_argument("--faults", default="all")
     r.add_argument("--jobs", type=int, default=2)
     r.add_argument("--translate-only", action="store_true")
+    r.add_argument("--style", choices=("dispatch", "structured"), default="dispatch",
+                   help="structured: paragraphs as named methods called directly where the program has no GO TO / "
+                        "HANDLE (else dispatch)")  # fmt: skip
     args = ap.parse_args()
     import equivalence as eq
     import mainframe_corpus as mc
@@ -110,7 +113,7 @@ def main() -> int:
     corpus = mc.require_clone(entry)
     args.work.mkdir(parents=True, exist_ok=True)
     project = estate(corpus, args.work)
-    results = [port_case(n, args.work, project, corpus) for n in names]
+    results = [port_case(n, args.work, project, corpus, args.style) for n in names]
     if not args.translate_only:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]

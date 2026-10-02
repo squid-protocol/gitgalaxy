@@ -76,8 +76,10 @@ class Program:
 
 
 class Gen:
-    def __init__(self, prog: Program):
+    def __init__(self, prog: Program, structured: bool = False):
         self.p = prog
+        # structured: a program with no GO TO / HANDLE -- paragraphs are void methods called in order, no dispatcher
+        self.structured = structured
         self.lines: list[str] = []
         self.stats: dict[str, Any] = {"statements": 0, "translated": 0, "holes": []}
         self.sentence: str | None = None  # the label of the NEXT SENTENCE block being generated
@@ -85,11 +87,22 @@ class Gen:
         self.ids: dict[int, str] = {}
         self.storage_of: dict[int, str] = {}
         n = 0
+        taken: set[str] = set()
         for rec in prog.records:
             for it in rec.walk():
                 self.items.setdefault(it.name, []).append(it)
                 n += 1  # FILLER too: an 88 may be on one
-                self.ids[id(it)] = f"f{n}_{jname(it.name)}"
+                if structured:
+                    # the COBOL name in camelCase (acctId); a second item of the name: acctId2, ...
+                    base = camel(it.name) if it.name != "FILLER" else f"filler{n}"
+                    name, k = base, 1
+                    while name in taken or name in JAVA_RESERVED:
+                        k += 1
+                        name = f"{base}{k}"
+                    taken.add(name)
+                    self.ids[id(it)] = name
+                else:
+                    self.ids[id(it)] = f"f{n}_{jname(it.name)}"
         self.conds: dict[str, list[L.Item]] = {}
         for rec in prog.records:
             for it in rec.walk():
@@ -208,6 +221,36 @@ class Gen:
             return ""
         return f".withFindById(rec -> {repo}.findById(id_{entity}(rec)))"
 
+    def method(self, i: int) -> str:
+        """The Java method of paragraph i: p{i} (dispatcher), else the paragraph's name in camelCase."""
+        if not self.structured:
+            return f"p{i}"
+        if not hasattr(self, "_methods"):
+            self._methods: list[str] = []
+            taken: set[str] = set()
+            for p in self.p.proc.paragraphs:
+                base = camel(p.name)
+                base = base if base[:1].isalpha() else "p" + base[:1].upper() + base[1:]
+                name, k = base, 1
+                while name in taken or name in JAVA_RESERVED or name in METHODS_TAKEN:
+                    k += 1
+                    name = f"{base}{k}"
+                taken.add(name)
+                self._methods.append(name)
+        return self._methods[i]
+
+    def perform_call(self, a: int, b: int, ind: str) -> list[str]:
+        """PERFORM a THRU b: the dispatcher, or (structured) each paragraph of the range called in order."""
+        if not self.structured:
+            return [f"{ind}perform({a}, {b});"]
+        return [f"{ind}{self.method(i)}();" for i in range(a, b + 1)]
+
+    def jump(self, target: str) -> str:
+        """A transfer to a paragraph (a HANDLE exit): the dispatcher's GOTO; a structured program has no HANDLE."""
+        if not self.structured:
+            return f"return GOTO | {target};"
+        return 'throw new IllegalStateException("a HANDLE exit in a program without HANDLE");'
+
     def eib(self, name: str) -> str:
         return self.field_expr(E.Ref(name, ["DFHEIBLK"]))
 
@@ -215,7 +258,11 @@ class Gen:
     def const(self, v: Decimal) -> str:
         key = str(v)
         if key not in self.consts:
-            self.consts[key] = f"N{len(self.consts)}"
+            # named by its value: D16, D0_05 (0.05), DM1 (-1); the literal's scale is kept (16 and 16.0 differ)
+            name = "D" + re.sub(r"[^A-Za-z0-9]", "_", key.replace("-", "M"))
+            while name in self.consts.values():
+                name += "_"
+            self.consts[key] = name
         return self.consts[key]
 
     def num(self, e) -> str:
@@ -556,7 +603,7 @@ class Gen:
             if k == "EXIT" and what[:1] == ["PROGRAM"]:
                 return [c, f"{ind}if (true) throw new Goback();"]
             if k == "EXIT" and what[:1] == ["PARAGRAPH"]:
-                return [c, f"{ind}if (true) return {self.cur + 1};"]
+                return [c, f"{ind}if (true) return{'' if self.structured else ' ' + str(self.cur + 1)};"]
             return [c]
         if k == "NEXT-SENTENCE":
             if not getattr(self, "sentence", None):
@@ -790,9 +837,9 @@ class Gen:
             if self.p.proc.paragraphs[self.para_index[t]].section == t and d["thru"] is None:
                 # PERFORM section: its paragraphs
                 sec = [i for i, p in enumerate(self.p.proc.paragraphs) if p.section == t]
-                body = [f"{ind}    perform({sec[0]}, {sec[-1]});"]
+                body = self.perform_call(sec[0], sec[-1], ind + "    ")
             else:
-                body = [f"{ind}    perform({self.para_index[t]}, {self.para_index[thru]});"]
+                body = self.perform_call(self.para_index[t], self.para_index[thru], ind + "    ")
         if d["times"] is not None:
             i = self.tmpname("i")
             return [
@@ -857,13 +904,12 @@ class Gen:
         for sources, delim in d["parts"]:
             for src in sources:
                 a = self.str_arg(src)
+                a_field = isinstance(src, E.Ref)  # a data item is a Field; a literal / function, its text
                 if delim is None:
-                    parts.append(
-                        f"Cobol.StringPart.size({a})" if a.startswith("f") else f"Cobol.StringPart.size({a}, CS)"
-                    )
+                    parts.append(f"Cobol.StringPart.size({a})" if a_field else f"Cobol.StringPart.size({a}, CS)")
                 else:
                     b = self.str_arg(delim)
-                    tail = "" if a.startswith("f") and b.startswith("f") else ", CS"
+                    tail = "" if a_field and isinstance(delim, E.Ref) else ", CS"
                     parts.append(f"Cobol.StringPart.delimited({a}, {b}{tail})")
         pointer = self.field_expr(d["pointer"]) if d.get("pointer") is not None else "null"
         call = f"Cobol.string({self.field_expr(d['into'])}, {pointer}, CS, {', '.join(parts)})"
@@ -886,7 +932,7 @@ class Gen:
         delims = []
         for operand, every in d["delims"]:
             a = self.str_arg(operand)
-            delims.append(f"Cobol.Delim.of({a}, {_b(every)})" if a.startswith("f")
+            delims.append(f"Cobol.Delim.of({a}, {_b(every)})" if isinstance(operand, E.Ref)
                           else f"Cobol.Delim.of({a}, {_b(every)}, CS)")  # fmt: skip
         intos = []
         for target, dl, cnt in d["intos"]:
@@ -1048,6 +1094,26 @@ class Gen:
 
 
 FIG_CHAR = {"SPACES": " ", "ZEROS": "0", "QUOTES": '"', "LOW": "\x00", "HIGH": "\xff"}
+
+
+JAVA_RESERVED = {"abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const",
+                 "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally", "float", "for",
+                 "goto", "if", "implements", "import", "instanceof", "int", "interface", "long", "native", "new",
+                 "package", "private", "protected", "public", "return", "short", "static", "strictfp", "super",
+                 "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void", "volatile", "while",
+                 "true", "false", "null", "var", "record", "yield"}  # fmt: skip
+# the service's own members a paragraph method must not shadow
+METHODS_TAKEN = {"perform", "run", "runTask", "runBatch", "runProgram", "handleCall", "handleTransaction", "handleLink",
+                 "store", "condition", "paragraph", "dd", "cx", "task", "files", "datasets", "clock", "handlers",
+                 "stores", "heldKey", "caBack", "fields0", "fields1", "fields2", "fields3"}  # fmt: skip
+
+
+def camel(cobol: str) -> str:
+    """ACCT-CURR-BAL -> acctCurrBal; 1000-CARDFILE-GET-NEXT -> 1000CardfileGetNext (callers prefix a digit)."""
+    parts = [p for p in re.split(r"[^A-Za-z0-9]+", cobol) if p]
+    if not parts:
+        return "x"
+    return parts[0].lower() + "".join(p[:1].upper() + p[1:].lower() for p in parts[1:])
 
 
 def _fig(kind: str) -> str:

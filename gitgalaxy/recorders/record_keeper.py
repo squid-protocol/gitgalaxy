@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import Any, Optional, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
+from gitgalaxy.metrics import archetype_classifier
+from gitgalaxy.metrics.archetype_parity import WITHHELD_LABEL
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
     GENERAL_FILE_INFERENCE_MODEL,
@@ -2240,7 +2242,10 @@ class RecordKeeper:
             # Classify any file with code (matching the trainer's coding_loc>=10
             # population); a func-less code file just has all-zero z-score/composition
             # features, exactly as it did during training. No functions is fine.
-            if self._file_brain and float(file_data.get("coding_loc", 0) or 0) > 0:
+            if "file" in archetype_classifier.withheld_levels():
+                # #4100: the file brain is structurally INVALID for this engine.
+                file_archetype = WITHHELD_LABEL
+            elif self._file_brain and float(file_data.get("coding_loc", 0) or 0) > 0:
                 _mix: dict[int, int] = {}
                 for _f in file_data.get("functions", []) or []:
                     _idx = self._func_name_to_idx.get(_f.get("archetype"))

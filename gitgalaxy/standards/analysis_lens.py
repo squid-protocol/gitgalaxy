@@ -32,6 +32,9 @@ def _load_brain(name: str) -> dict:
 
 FILE_ARCHETYPE_BRAIN = _load_brain("file_archetype_brain.json")
 REPO_ARCHETYPE_BRAIN = _load_brain("repo_archetype_brain.json")
+# #4100: which brains were validated, against which engine/corpus, with what drift
+# tolerance -- see archetype_parity.validation_status / tests/tools/archetype_drift.py.
+ARCHETYPE_VALIDATION = _load_brain("archetype_validation.json")
 
 """
 analysis_lens.py

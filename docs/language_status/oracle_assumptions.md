@@ -31,7 +31,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
-| C1 | compiler | Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` (#4102) | **DIFFERS** | reachable (GenApp LGICDB01); no proven scenario |
+| C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
 | C2 | compiler | Arithmetic intermediates: exact decimal vs IBM's precision rules | ASSUMED | yes (INTCALC, POSTTRAN …) |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
@@ -74,23 +74,17 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 ## Compiler: GnuCOBOL 3.1.2 `-std=ibm` vs IBM Enterprise COBOL
 
-### C1. Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` — DIFFERS
+### C1. Binary truncation — MATCHED (fixed 2026-10-02, #4102)
 - **What.** Under `TRUNC(STD)`, IBM's default, a binary item (COMP, COMP-4, BINARY) holds only its PICTURE's digits:
-  `MOVE 99999` to `PIC S9(4) COMP` stores 9999, and `ADD 1` to 9999 raises ON SIZE ERROR. Under `TRUNC(BIN)` the
-  item holds whatever its bytes hold.
-- **Evidence (2026-10-02, `gitgalaxy-gnucobol:3`).** `cobc -std=ibm` behaves as `TRUNC(BIN)` with or without
-  `-fnotrunc`: MOVE gives -31073 (the bytes wrapped), ADD gives +10000 with no size error, and COMPUTE 12345 gives
-  +12345. `cobc -std=ibm -fbinary-truncate` gives IBM's `TRUNC(STD)` results: +09999, SIZE ERROR, +02345.
-- **The harness.** `equivalence_common.COBC_OPTIONS` maps `TRUNC(STD)` to no flag, and the Java runtime's
-  `Cobol.setTruncBinary` defaults to off. So both sides agree, and both run `TRUNC(BIN)`.
-- **Who asks for STD.** CBSA's programs say `PROCESS ... TRUNC(STD)` on their first line; CBSA's UPDCUST and ABNDPROC
-  are proven cases. CardDemo's compile PARMs (`samples/proc/BUILDBAT.prc`, `BUILDONL.prc`) name no TRUNC, which
-  means the installation default, STD as IBM ships it.
-- **Reached?** Only where a binary item receives more digits than its PICTURE. Not yet measured.
-- **To settle** (#4102).
-  1. Map `TRUNC(STD)` to `-fbinary-truncate`.
-  2. Have the det port call `Cobol.setTruncBinary(true)` when the effective option is STD.
-  3. Re-prove every case and report which proofs move.
+  `MOVE 99999` to `PIC S9(4) COMP` stores 9999, and `ADD 1` to 9999 raises ON SIZE ERROR. COMP-5 keeps its bytes.
+- **Was.** `cobc -std=ibm` alone behaves as `TRUNC(BIN)`, and the harness passed no flag for STD; the det runtime ran
+  BIN too. Both sides agreed, both differed from IBM.
+- **Now.** The harness applies IBM's defaults for options nothing names: STD is GnuCOBOL's `-fbinary-truncate` (measured:
+  +09999, SIZE ERROR, +02345). The det port sets each entry's TRUNC from the program's CBL / PROCESS cards, else the
+  case's `compiler_options`, else STD, and restores the caller's on exit. Every det and model port was re-proven under
+  it; nothing moved (no proven scenario puts more digits in a binary item than its PICTURE).
+- **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
+  would now behave as on z/OS.
 
 ### C2. Arithmetic intermediates — ASSUMED
 - **What.** GnuCOBOL computes arithmetic in exact decimal, and DIVIDE follows `cob_decimal_div` (the dividend

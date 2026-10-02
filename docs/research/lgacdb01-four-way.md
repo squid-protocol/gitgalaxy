@@ -72,7 +72,7 @@ Our method validates a whole program in its task:
 - **Limits.** Where our reference may differ from z/OS is listed in `docs/language_status/oracle_assumptions.md`.
 
 ### 3.3 GitGalaxy static scan
-Each file was scanned on its own with `galaxyscope` at main 582caf5f7, with default settings. The det port is admitted by its provenance header (#4164). We report `file_data` and `function_data` readings.
+Each file was scanned on its own with `galaxyscope` with default settings. Branch and complexity readings are from main after #4178, which fixed the Java `?`/`:` overcount (#4170); the other readings are unchanged by that fix. The det port is admitted by its provenance header (#4164). We report `file_data` and `function_data` readings.
 
 ## 4. Results
 
@@ -142,7 +142,7 @@ Test 2 asserts every CUSTOMER column, DATEOFBIRTH included, so IBM's method, whe
 |---|---|---|---|---|
 | Code lines | 213 | 320 | 143 | 1,495 |
 | Functions / paragraphs | 5 | 2 | 22 (1 business) | 32 |
-| Branch points | 11 | 8 | 22 † | 126 † |
+| Branch points | 11 | 8 | 3 | 95 |
 | State mutations | 30 | 10 | 24 | 331 |
 | Guards (safety) | 3 | 2 | 11 | 12 |
 | I/O signals | 6 | 3 | 4 | 4 |
@@ -152,17 +152,19 @@ Test 2 asserts every CUSTOMER column, DATEOFBIRTH included, so IBM's method, whe
 | Imports / copybooks | 3 | 0 | 8 | 23 |
 | Token mass | 2,764 | 4,718 | 1,539 | 89,943 |
 | Risk: tech debt | 21 | 12 | **84** | 10 |
-| Risk: cognitive load | 76 | 22 | 59 | 29 |
+| Risk: cognitive load | 76 | 22 | 36 | 45 |
 
-† Java branch counts are inflated by #4170. In IBM's Java, 19 of the 22 come from `?` placeholders in its two SQL strings. In the det port, its 22 ternaries count twice.
+Before #4178, the scanner counted every `?` and `:` in Java as a branch, including inside string literals. IBM's file read 22 branch points (19 of them were the `?` placeholders in its two SQL strings), and the det port read 126, because each of its ternaries counted twice. The table shows the corrected counts. Cognitive-load risk moved with them, since it is normalised within each scan.
 
 ### 4.5 The shared paragraph: INSERT-CUSTOMER
 
-| | Lines | Complexity as scanned | Complexity corrected |
-|---|---|---|---|
-| COBOL (both versions identical in this paragraph's logic) | 73 | 4 | 4 |
-| IBM `insertCustomer` | 55 | 21 | ≈2–3 (#4170) |
-| Det `p3` | 65 | 7 | lower once #4170 is fixed |
+| | Lines | Complexity |
+|---|---|---|
+| COBOL (both versions identical in this paragraph's logic) | 73 | 4 |
+| IBM `insertCustomer` | 55 | 2 (read 21 before #4178) |
+| Det `p3` | 65 | 7 |
+
+IBM's paragraph is simpler than the COBOL's because it drops the error handling.
 
 ### 4.6 Static reading of IBM's `insertCustomer`
 Eleven lines of IBM's `Lgacdb01.java` are commented-out code. They include, in both INSERT branches:
@@ -186,7 +188,7 @@ GitGalaxy's tech-debt risk reads 84 for this file, against 10 for the det port. 
 |---|---|---|
 | IBM validation (as published) | Every path of the chosen paragraph. The arguments passed to each resource call: test 2 asserts DATEOFBIRTH, so it should flag the unbound parameter whenever it compiles and runs. A real z/OS reference. | Other paragraphs. How the real database reacts, such as refusing an unset parameter, because resources are mocked. Its SQL-error tests were skipped in the published run. |
 | Our harness | The whole task against real Db2 and a CICS model, compared byte for byte. | Branches no scenario reaches, such as SQL error paths (#4173). Reference differences listed in the oracle register (GnuCOBOL, not z/OS). |
-| GitGalaxy scan | Scope (functions, IPC dropping to 0), debt pressure, output by print, size and token cost, all without running anything. | Behaviour. Equivalence. Commented-out statements in Java (#4171). Its Java complexity is unreliable around SQL strings and ternaries until #4170 is fixed. |
+| GitGalaxy scan | Scope (functions, IPC dropping to 0), debt pressure, output by print, size and token cost, all without running anything. | Behaviour. Equivalence. Commented-out statements in Java (#4171). Before #4178, its Java complexity was inflated by SQL strings and ternaries (#4170). |
 
 The lenses complement each other:
 - **The scan** flagged IBM's file in seconds, without running it: inter-program calls 14 → 0, tech-debt 84, errors handled by printing.
@@ -201,10 +203,10 @@ The lenses complement each other:
 - **IBM's reported validation passes on its own terms.** Any divergence we find concerns behaviour outside its mocked scope; it does not show their tests were wrong for what they assert.
 - **Our reference is not z/OS.** See `oracle_assumptions.md`.
 - **Our coverage is modest.** 6/14 branches.
-- **Scanner readings carry the bugs in #4170 and #4171.** They will be re-measured after those fixes.
+- **Scanner readings.** The tables use corrected branch counts (#4170, fixed in #4178). The commented-out-code gap (#4171) is still open.
 
 ## 7. Follow-ups
-- #4170: Java `?`/`:` overcount (fix in progress).
+- #4170: Java `?`/`:` overcount (fixed in #4178).
 - #4171: Java commented-out-code detection.
 - #4173: SQL fault injection in the harness.
 - #4174: det port of LGIPVS01, to complete the overlap with IBM's published GenApp set.

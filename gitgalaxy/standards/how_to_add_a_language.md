@@ -529,7 +529,7 @@ Detects the modern AI-application supply chain and its specific risk surface —
 existed in the original 43-key baseline because none of it existed as a mainstream pattern when
 that schema was designed.
 
-* `llm_api`: Direct calls into a hosted LLM provider SDK. Includes: `openai`, `anthropic`.
+* `llm_api`: Direct calls into a hosted LLM provider SDK. Includes: `openai`, `anthropic`. Anchored on the SDK's top-level package (#4137): python `import openai` / `from anthropic[.sub] import`; js/ts a module specifier naming the package (`'openai'`, `'@anthropic-ai/sdk'`, `'@openai/*'`, `'@scope/openai'`). A provider-named segment inside another module path (`airflow.providers.openai.hooks.openai`, `'./openai/client'`) is not an SDK import.
 * `llm_orchestrator`: An import of an agent or retrieval-orchestration framework from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: langchain, llama_index (the pack's whole list today).
 * `llm_vector_store`: An import of a vector-database client from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: chromadb, pinecone (the pack's whole list today).
 * `ml_traditional`: An import of a classical (non-deep-learning) machine-learning library from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: sklearn (the pack's whole list today).

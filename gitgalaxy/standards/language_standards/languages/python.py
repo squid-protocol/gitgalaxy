@@ -17,11 +17,11 @@ from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_API,
     GLOBAL_LLM_ORCHESTRATOR,
     GLOBAL_LLM_VECTOR_STORE,
     GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    PY_LLM_API,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -382,7 +382,7 @@ DEFINITION: dict[str, Any] = {
             r"__(?:getattr|setattr|del|call|new|metaclass|dict|dir|import)__|@(?:staticmethod|classmethod|property)|\b(?:getattr|setattr|inspect\.)\b"
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
-        "llm_api": GLOBAL_LLM_API,
+        "llm_api": PY_LLM_API,
         "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
         "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
         "ml_traditional": GLOBAL_ML_TRADITIONAL,

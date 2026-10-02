@@ -152,6 +152,40 @@ def structurable(proc: S.Procedure) -> bool:
     return True
 
 
+def write_only_pointers(records: list, proc) -> set[str]:
+    """The POINTER items no statement reads (GenApp's SET WS-ADDR-DFHCOMMAREA TO ADDRESS OF DFHCOMMAREA, never used):
+    named only as a SET ... TO ADDRESS OF target, and inside groups named only by INITIALIZE, with no REDEFINES over
+    the pointer or its groups. Such a pointer's value cannot reach an output, so its SET and its INITIALIZE need no
+    model of addresses. Any other mention -- a read, a group MOVE, a CALL / LINK of its record -- leaves it out."""
+    items = [x for r in records for x in r.walk()]
+    redefined = {x.redefines.upper() for x in items if x.redefines}
+    out = set()
+    for x in items:
+        if x.usage != "POINTER" or x.occurs > 1:
+            continue
+        chain, p = [x], x.parent
+        while p is not None:
+            chain.append(p)
+            p = p.parent
+        names = {c.name.upper() for c in chain}
+        if names & redefined or any(c.redefines for c in chain):
+            continue
+        ok = True
+        for para in proc.paragraphs:
+            for s in S.walk(para.body):
+                words = set(re.findall(r"[A-Z0-9][A-Z0-9-]*", s.text.upper()))
+                if not words & names:
+                    continue
+                if s.kind == "SET-POINTER" and s.data["target"] == x.name.upper():
+                    continue
+                if s.kind == "INITIALIZE" and {r.name.upper() for r in s.data["refs"]} <= names - {x.name.upper()}:
+                    continue
+                ok = False
+        if ok:
+            out.add(x.name.upper())
+    return out
+
+
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
               style: str = "dispatch", typed: bool = False, groups: bool = False) -> Result:  # fmt: skip
@@ -262,6 +296,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
 
     structured = style == "structured" and structurable(proc)
     gen = G.Gen(prog, structured)
+    gen.write_only_pointers = write_only_pointers(records, proc)
     if typed:
         gen.sync_groups = groups
         gen.lifted = liftable(records, excluded, rc)

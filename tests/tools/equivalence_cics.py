@@ -203,16 +203,17 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     opts = dict(pairs)
     if verb in ("PUSH", "POP") and kind == "HANDLE":
         return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
-    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region"
+    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
+        # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID")]
+        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID", "PROGRAM")]
         if other or not asked or not all(v for _n, v in asked):
             raise Unsupported(
                 f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
             )
         lines: list[str] = []
         for n, target in asked:
-            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4}[n]
+            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8}[n]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", [])
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
         return lines + _resp(opts, False)
@@ -642,6 +643,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
               f"    CALL '{program}'" + (" USING WS-CA" if has_commarea else ""),
+              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
@@ -673,6 +675,7 @@ def task_driver() -> str:
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN", "    MOVE IN-PROG TO GG-NAME1", "    MOVE WS-LEN TO GG-LEN",
               "    CALL 'GGCTASK' USING GG-CICS", "    CALL 'GGCRUN' USING WS-CA",
+              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
@@ -1011,7 +1014,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
     for f in files:
-        spec = case["datasets"].get(f["base"])
+        spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
         (work / "files" / f["base"]).write_bytes(
@@ -1086,7 +1089,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             for t, query, names in dumps:
                 script.append(f"{{ echo '{'|'.join(names)}'; {sqlenv}./ggsqlrun -q \"{query}\"; }} > {rel}/db2/{t}")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = (common.run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args()))
+    proc = (common.run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case)))
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
@@ -1156,6 +1159,10 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+    left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
+    res["linked_commarea"] = (
+        decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
+    )
     return res
 
 
@@ -1348,7 +1355,9 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
     return name
 
 
-DB2_JAVA = """    java.sql.Connection db2() throws java.sql.SQLException {
+DB2_JAVA = """    @Autowired org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate db2Jdbc;  // EquivalenceDb2Config
+
+    java.sql.Connection db2() throws java.sql.SQLException {
         return java.sql.DriverManager.getConnection(System.getProperty("gitgalaxy.db2.url"),
             System.getProperty("gitgalaxy.db2.user"), System.getProperty("gitgalaxy.db2.password"));
     }
@@ -1421,7 +1430,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                     f"                }}\n"
                     f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
-    for dsn, spec in case["datasets"].items():
+    for dsn, spec in case.get("datasets", {}).items():
         ent = spec["entity"]
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
@@ -1437,6 +1446,13 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     db2_reset = "            db2Reset();" if db2 else ""
     db2_dump = '            db2Dump(sc.get("name").asText());' if db2 else ""
     db2_methods = DB2_JAVA if db2 else ""
+    # a Db2 case: the task's SQL is one Db2 unit of work (one connection, as the task's Db2 thread under CICS):
+    # committed when the task ends, rolled back with its files by SYNCPOINT ROLLBACK or an abend
+    db2_begin = ("new org.springframework.transaction.support.TransactionTemplate(new org.springframework.jdbc."
+                 "datasource.DataSourceTransactionManager(db2Jdbc.getJdbcTemplate().getDataSource()))"
+                 ".executeWithoutResult(db2Status -> {\n            ") if db2 else ""  # fmt: skip
+    db2_rollback = "db2Status.setRollbackOnly(); " if db2 else ""
+    db2_end = "\n            });" if db2 else ""
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
             for m, cls in screens.items()]  # fmt: skip
@@ -1498,15 +1514,15 @@ class EquivalenceRunTest {{
                 task.withFaults(faults, out.resolve(sc.get("name").asText() + ".faults"));
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
-            new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(status::setRollbackOnly);
+            {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
+                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback}}});
                 try {{
                     {var}.runTask(task);
                 }} catch (CicsAbendException e) {{
                     status.setRollbackOnly();
-                    task.abend(e.getAbcode());
+                    {db2_rollback}task.abend(e.getAbcode());
                 }}
-            }});
+            }});{db2_end}
 {chr(10).join(dumps)}
 {db2_dump}
             List<Map<String, Object>> events = new ArrayList<>();
@@ -1516,6 +1532,12 @@ class EquivalenceRunTest {{
                     copy.put("screen", s.screenValues());
                 }}
                 events.add(copy);
+            }}
+            if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "COMMAREA");
+                left.put("commarea", commarea);
+                events.add(left);
             }}
             json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
         }}
@@ -1596,7 +1618,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         (inputs / "db2dumps.txt").write_text("".join(
             f"{t}\t{'|'.join(n)}\t{equivalence_db2.dump_query(t, n)}\n"
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
-        props = f"{props} {equivalence_db2.java_props()}"
+        props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
     result = {}
     for sc in case["scenarios"]:
@@ -1629,7 +1651,7 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
         left, right = by_key(left), by_key(right)
         if left == right:
             continue
-        spec = case["datasets"].get(base, {})
+        spec = case.get("datasets", {}).get(base, {})
         fields = []
         if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
             src = corpus / spec["copybook"]
@@ -1679,7 +1701,17 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+    if res.get("linked_commarea") is not None:
+        out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
+
+
+def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """A LINKed program's events (`"linked": true` in the case): its result is the COMMAREA it leaves in its caller's
+    storage, compared as a last COMMAREA event -- unless the task abended (no caller sees it then). Any other
+    program's final COMMAREA storage is not observable (a terminal task's RETURN COMMAREA is), so it is dropped."""
+    keep = case.get("linked") and not any(e.get("event") == "ABEND" for e in events)
+    return [e for e in events if e.get("event") != "COMMAREA" or keep]
 
 
 def _same(a: Any, b: Any) -> bool:
@@ -1808,9 +1840,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                               "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
     ok = True
     for name, res in cobol.items():
-        d = compare_events(cobol_events(res), java.get(name, []))
+        cev, jev = linked_result(case, cobol_events(res)), linked_result(case, java.get(name, []))
+        d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
-                                   "cobol": cobol_events(res), "java": java.get(name, [])}  # fmt: skip
+                                   "cobol": cev, "java": jev}  # fmt: skip
         ok &= d["equal"] == d["events"]
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("faults"):  # #4023 follow-up: the same injected conditions fired on both sides, and at least one

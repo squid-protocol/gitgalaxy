@@ -437,7 +437,7 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
         import equivalence_db2
 
         equivalence_db2.reset(case, Path("."))
-        props = f"{props} {equivalence_db2.java_props()}"
+        props = f"{props} {equivalence_db2.java_props(case)}"
     out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):

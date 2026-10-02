@@ -1,0 +1,349 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "DBCRFUN",
+ "program_source": "src/base/cobol_src/DBCRFUN.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCRA",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1CRA.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "teller-debit",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-100.50",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "teller (FACILTYPE not 496) debit: SELECT +0, both balances reduced, UPDATE +0, PROCTRAN 'DEB' 'COUNTER WTHDRW' at the clock's date/time, 'Y' '0'"
+  },
+  {
+   "name": "teller-credit",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000002",
+    "SUBPGM-AMT": "250.25",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "teller credit: COMM-AMT >= 0 skips the debit checks, UPDATE, PROCTRAN 'CRE' 'COUNTER RECVED', 'Y'"
+  },
+  {
+   "name": "payment-debit",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-200.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment debit (FACILTYPE 496) with funds: WS-DIFFERENCE >= 0, PROCTRAN 'PDR' with COMM-ORIGIN(1:14) as the description"
+  },
+  {
+   "name": "payment-credit",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000002",
+    "SUBPGM-AMT": "75.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment credit to a SAVING account: PROCTRAN 'PCR' with COMM-ORIGIN(1:14)"
+  },
+  {
+   "name": "payment-debit-insufficient",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000009",
+    "SUBPGM-AMT": "-100.01",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment debit one cent beyond the available balance (100.00): WS-DIFFERENCE < 0 and 496, 'N' '3', no UPDATE, no PROCTRAN"
+  },
+  {
+   "name": "payment-debit-exact-balance",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000009",
+    "SUBPGM-AMT": "-100.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "boundary: WS-DIFFERENCE exactly 0 is allowed; available 0.00, actual (150.00, differs from available) 50.00"
+  },
+  {
+   "name": "payment-debit-ignores-overdraft",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000007",
+    "SUBPGM-AMT": "-0.01",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "available 0.00 with a 1000 overdraft limit: the limit is never consulted, so a one-cent payment debit fails '3'"
+  },
+  {
+   "name": "teller-debit-beyond-overdraft",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000007",
+    "SUBPGM-AMT": "-1500.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "teller debit: no funds check at all, balance -1500.00 beyond the 1000 overdraft limit, 'DEB', 'Y'"
+  },
+  {
+   "name": "teller-debit-negative-balance",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000008",
+    "SUBPGM-AMT": "-0.01",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "teller debit from an already negative balance (-50.00): allowed, -50.01"
+  },
+  {
+   "name": "payment-debit-negative-balance",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000008",
+    "SUBPGM-AMT": "-0.01",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment debit from a negative balance: WS-DIFFERENCE -50.01 < 0, 'N' '3'"
+  },
+  {
+   "name": "payment-debit-mortgage",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000004",
+    "SUBPGM-AMT": "-100.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment debit to a MORTGAGE: the debit block's MORTGAGE test (l.330), 'N' '4'"
+  },
+  {
+   "name": "payment-debit-loan",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000003",
+    "SUBPGM-AMT": "-1.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment debit to a LOAN: the debit block's LOAN test (l.332), 'N' '4'"
+  },
+  {
+   "name": "payment-credit-loan",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000003",
+    "SUBPGM-AMT": "500.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment credit to a LOAN: the second MORTGAGE/LOAN test (l.370), 'N' '4'"
+  },
+  {
+   "name": "payment-credit-mortgage",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000004",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "payment credit to a MORTGAGE: the second test's MORTGAGE half (l.368), 'N' '4'"
+  },
+  {
+   "name": "teller-credit-mortgage",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000004",
+    "SUBPGM-AMT": "1000.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "teller credit to a MORTGAGE: the refusal needs 496, so allowed, 'CRE', -149000.00"
+  },
+  {
+   "name": "teller-debit-loan",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000003",
+    "SUBPGM-AMT": "-10.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "1"
+   },
+   "why": "teller debit (FACILTYPE 1) to a LOAN: allowed, 'DEB', -4510.00"
+  },
+  {
+   "name": "account-not-found",
+   "commarea": {
+    "SUBPGM-ACCNO": "99999999",
+    "SUBPGM-AMT": "-10.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "SELECT INTO no row: SQLCODE +100, 'N' '1', storm drain WHEN OTHER, no UPDATE"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000005",
+    "SUBPGM-AMT": "5.00",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "ACCOUNT_LAST_STATEMENT NULL with no indicator: SELECT -305, 'N' '2', storm drain WHEN OTHER"
+  },
+  {
+   "name": "other-sort-code-not-found",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000010",
+    "SUBPGM-AMT": "5.00",
+    "SUBPGM-SORTC": "123456",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "account 00000010 exists only under sort code 123456; COMM-SORTC is overwritten with the program's own 987654, so +100, 'N' '1'"
+  },
+  {
+   "name": "zero-amount-payment",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000002",
+    "SUBPGM-AMT": "0",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "496"
+   },
+   "why": "boundary: COMM-AMT 0 is not < 0, so the credit path: 'PCR', amount 0.00, balances unchanged"
+  },
+  {
+   "name": "max-teller-debit",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000001",
+    "SUBPGM-AMT": "-9999999999.99",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "the largest debit COMM-AMT holds: balance -9999998999.99 still fits S9(10)V99 and DECIMAL(12,2)"
+  },
+  {
+   "name": "max-balance-credit-truncates",
+   "commarea": {
+    "SUBPGM-ACCNO": "00000006",
+    "SUBPGM-AMT": "0.01",
+    "SUBPGM-SORTC": "987654",
+    "SUBPGM-APPLID": "CBSAAPPL",
+    "SUBPGM-USERID": "PAYUSER1",
+    "SUBPGM-FACILITY-NAME": "TERM0001",
+    "SUBPGM-NETWRK-ID": "NETWORK1",
+    "SUBPGM-FACILTYPE": "0"
+   },
+   "why": "boundary: 9999999999.99 + 0.01 overflows S9(10)V99; COMPUTE has no ON SIZE ERROR, so the high-order digit is lost (0.00) and written back"
+  }
+ ],
+ "notes": "CBSA's debit/credit service (DBCRFUN, LINKed with the PAYDBCR copybook's COMMAREA): COMM-SORTC is overwritten with the program's own sort code (987654) and the account is read by it and COMM-ACCNO with a SELECT INTO from Db2 table ACCOUNT (unqualified: the bind's QUALIFIER, IBMUSER); a failed SELECT gives COMM-SUCCESS 'N' with COMM-FAIL-CODE '1' (+100) or '2' (any other SQLCODE, e.g. -305). COMM-FACILTYPE 496 marks a payment, anything else a teller transaction. A payment debit (COMM-AMT < 0) to a MORTGAGE or LOAN fails '4', and one that would take the available balance below zero fails '3' (the overdraft limit is never consulted); a payment credit to a MORTGAGE or LOAN fails '4'; teller transactions have no checks. Otherwise both balances are adjusted by COMM-AMT (COMPUTE, no ON SIZE ERROR), the row is UPDATEd, COMM-AV-BAL/COMM-ACT-BAL are returned, and a PROCTRAN row is INSERTed: type DEB/CRE with 'COUNTER WTHDRW'/'COUNTER RECVED', or PDR/PCR with COMM-ORIGIN(1:14) for a payment, dated DD.MM.YYYY and timed HHMMSS from the case clock (ASKTIME/FORMATTIME), ref EIBTASKN; then 'Y' '0'. Both tables are compared after every scenario. The COMMAREA is described by the record its caller BNK1CRA passes (SUBPGM-PARMS), the layout of DBCRFUN's PAYDBCR copybook under the caller's names: the generated DTO is the caller's."
+}

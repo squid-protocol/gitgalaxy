@@ -98,3 +98,18 @@ def test_return_code_is_kept_around_the_stub_call():
 def test_a_form_not_modelled_is_refused_by_name(proc, why):
     with pytest.raises(Q.Unsupported, match=why):
         precompile(proc)
+
+
+def test_set_assigns_a_values_row_to_host_variables():
+    """GenApp's SET :DB2-CUSTOMERNUM-INT = IDENTITY_VAL_LOCAL(): one row of VALUES into the host variables."""
+    _, table = precompile(["EXEC SQL SET :HV-COUNT = IDENTITY_VAL_LOCAL() END-EXEC",
+                           "EXEC SQL SET (:HV-TYPE, :HV-AMT) =", "  ('AB', COALESCE(:HV-ZONED, 0))",
+                           "END-EXEC"])  # fmt: skip
+    lines = table.splitlines()
+    assert lines[:3] == ["S 1 SELECT1 0 1 -", "O 0 B 4 9 0 1 -1", "Q VALUES (IDENTITY_VAL_LOCAL())"]
+    assert lines[3] == "S 2 SELECT1 1 2 -" and lines[-1] == "Q VALUES ('AB', COALESCE(?, 0))"
+
+
+def test_set_of_a_special_register_is_refused():
+    with pytest.raises(Q.Unsupported, match="SET"):
+        precompile(["EXEC SQL SET CURRENT SQLID = 'X' END-EXEC"])

@@ -1137,6 +1137,11 @@ int GGCASGN(gg_cics *c) {
     memset(c->name1, ' ', 8);
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strcmp(want, "PROGRAM") == 0) { /* ASSIGN PROGRAM: the program running at this level */
+        const char *p = current_program();
+        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+        return 0;
+    }
     if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
         memcpy(c->name1, task_abcode, 4);
         return 0;
@@ -1470,6 +1475,18 @@ int GGCCNCL(gg_cics *c) {
     c->resp2 = 0;
     snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);
     event(ev, NULL, 0);
+    return 0;
+}
+
+/* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
+ * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
+int GGCAOUT(const char *ca, int len) {
+    char path[3000];
+    snprintf(path, sizeof path, "%s/commarea.out", dir_out());
+    FILE *f = fopen(path, "wb");
+    if (!f) return 0;
+    if (len > 0) fwrite(ca, 1, (size_t)len, f);
+    fclose(f);
     return 0;
 }
 

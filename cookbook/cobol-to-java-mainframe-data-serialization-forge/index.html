@@ -1215,6 +1215,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#where-the-business-logic-comes-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the business logic comes from
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -10264,6 +10275,8 @@
       
         
       
+        
+      
     
     
     
@@ -10800,6 +10813,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12121,7 +12162,7 @@
 <p>To solve this, the GitGalaxy ecosystem enforces a deterministic physical boundary. Using the blAST (Bypassing LLMs and ASTs) engine, the knowledge graph calculates the exact byte-lengths and types of the legacy data division. In a Retrieval-Augmented Generation (RAG) pipeline, this deterministic state requires a highly optimized, mathematically precise decoding utility to bridge the physical memory layer into the JVM.</p>
 <h2 id="2-the-java-spring-ebcdic-comp-3-decoder-forge">2. The Java Spring EBCDIC &amp; COMP-3 Decoder Forge</h2>
 <p>The <code>cobol_to_java_decoder_forge.py</code> script is a structural spoke within the GitGalaxy pipeline. Rather than expecting an LLM to reliably generate complex bitwise shift operators, this script deterministically scaffolds a production-ready Java utility class (<code>EbcdicDecoderUtil</code>). </p>
-<p>This utility acts as the physical translation layer for the modernized Spring Boot application. It allows the downstream LLM-translated business logic to safely ingest raw mainframe byte arrays, guaranteeing that legacy COMP-3 and EBCDIC structures are predictably unpacked into standard Java <code>BigDecimal</code> and <code>String</code> objects without risking runtime crashes.</p>
+<p>This utility acts as the physical translation layer for the modernized Spring Boot application. It allows the ported business logic to ingest raw mainframe byte arrays, guaranteeing that legacy COMP-3 and EBCDIC structures are predictably unpacked into standard Java <code>BigDecimal</code> and <code>String</code> objects without risking runtime crashes.</p>
 <h3 id="21-information-flow-processing-pipeline">2.1 Information Flow &amp; Processing Pipeline</h3>
 <p>The generated Java artifact executes a strict, bitwise deterministic extraction to convert physical mainframe storage into cloud-native JVM objects.</p>
 <table>
@@ -12196,8 +12237,10 @@
 <li><strong>High-Performance Buffer Optimization:</strong> The current <code>unpackComp3</code> method utilizes a <code>StringBuilder</code> to parse digits before casting to a <code>BigDecimal</code>. For microservices handling multi-gigabyte batch files, this creates excessive garbage collection pressure. Refactor the generated template to construct a <code>BigInteger</code> directly via bitwise accumulation, bypassing string instantiation entirely to reduce heap allocations.</li>
 </ol>
 <hr />
-<p>this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine
-This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<p>this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine</p>
+<h2 id="where-the-business-logic-comes-from">Where the business logic comes from</h2>
+<p>This forge generates the decoder the rest of the project uses for mainframe bytes. The deterministic ports also carry their own runtime codec (<code>cobolrt</code>), which keeps working storage as bytes. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a> for what is proven, how, and the limits.</p>
+<p>This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <p>🪐 Explore the GitHub Repository for code, tools, and updates.
 🔭 Visualize your own repository at GitGalaxy.io using our interactive 3D WebGPU dashboard.</p>
 <hr />

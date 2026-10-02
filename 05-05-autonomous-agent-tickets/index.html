@@ -10133,6 +10133,8 @@
       
         
       
+        
+      
     
     
     
@@ -10441,6 +10443,17 @@
     <span class="md-ellipsis">
       
         Performance Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#porting-tickets-and-the-porting-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Porting tickets and the porting loop
       
     </span>
   </a>
@@ -10829,6 +10842,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12189,6 +12230,16 @@
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Ticket generation is an <span class="arithmatex">\(O(1)\)</span> string formatting operation per target variable slice, adding negligible overhead to the pipeline.</p>
+<h2 id="porting-tickets-and-the-porting-loop">Porting tickets and the porting loop</h2>
+<p>Whole-program porting now goes through porting tickets (<code>ai_agent_jobs/&lt;PROGRAM&gt;_port_ticket.md</code>, written by <code>cobol_to_java_port_tickets.py</code>) and <code>port_runner</code>:</p>
+<ul>
+<li>A ticket carries the COBOL, the generated classes the port must use, and the porting rules.</li>
+<li><code>port_runner run</code> fills it with a model (hosted, self-hosted or air-gapped), a command, or the deterministic translator (<code>--backend det</code>), which needs no model.</li>
+<li><code>port_runner prove</code> runs the equivalence harness. A failed proof's findings become the next attempt's feedback.</li>
+<li><code>port_runner refine</code> lets a model rewrite a proven deterministic port one method at a time, each rewrite proven or reverted.</li>
+<li>A person approves or rejects every port.</li>
+</ul>
+<p>See <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
 <li>Integration of continuous feedback loops where the agent can request additional context if the provided slice is insufficient.</li>

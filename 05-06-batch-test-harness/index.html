@@ -10133,6 +10133,8 @@
       
         
       
+        
+      
     
     
     
@@ -10829,6 +10831,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12157,7 +12187,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/batch_test_harness.py"><code>gitgalaxy/tools/cobol_to_java/batch_test_harness.py</code></a></p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. In GitGalaxy, it serves as the primary CI/CD integration testing tool.</p>
+<p>This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness (<a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>).</p>
 <h2 id="purpose">Purpose</h2>
 <p>To stress-test the modernization pipeline and verify that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
@@ -12187,13 +12217,13 @@
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>Only validates syntax and compilability; it does not execute functional unit tests on the translated business logic.</li>
+<li>Only validates syntax and compilability. Functional equivalence is the equivalence harness's job (<code>tests/tools/equivalence.py</code>, <code>det_port.py</code>, <code>proof_sweep.py</code>), and every supported target config is compile-checked by <code>tests/tools/java_target_matrix.py</code>.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Test execution is bounded by the speed of Maven compilation and JDK startup overhead. Bounded by a 5-minute timeout per project to prevent blocking CI/CD runners.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Integration with JUnit generation for functional validation testing.</li>
+<li>Running the equivalence harness's cases from this harness for estates that have them.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>
 <ul>

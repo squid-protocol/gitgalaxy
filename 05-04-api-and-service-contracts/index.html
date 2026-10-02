@@ -10133,6 +10133,8 @@
       
         
       
+        
+      
     
     
     
@@ -10829,6 +10831,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12168,7 +12198,8 @@
 <li><strong>Transactional</strong>: If processing in-memory data without file allocations, generates a JSON POST endpoint (<code>/api/v1/{module}/execute</code>) accepting <code>@RequestBody</code> DTOs.</li>
 <li><strong>Batch</strong>: If dataset file bindings (<code>DD</code> allocations) exist, generates a multipart POST endpoint (<code>/api/v1/{module}/execute-batch</code>) accepting <code>@RequestParam MultipartFile</code> arguments.</li>
 <li><strong>Service Layer Auto-Wiring</strong>: Constructs <code>{ModuleName}Service.java</code>. External COBOL subroutines are injected via Lombok <code>@RequiredArgsConstructor</code>.</li>
-<li><strong>Mock Service Generation</strong>: For unresolved external module calls, generates inline interface stubs (<code>TODO: IMPLEMENT SUBROUTINE CALL</code>) and mock <code>@Service</code> classes that intercept calls, log warnings, and return execution to prevent context initialization failure on startup.</li>
+<li><strong>Mock Service Generation</strong>: For unresolved external module calls, generates inline interface stubs (a <code>// TODO: AI AGENT - Implement or mock interface call to: &lt;Name&gt;Service</code> marker) and mock <code>@Service</code> classes that intercept calls, log warnings, and return execution to prevent context initialization failure on startup.</li>
+<li><strong>Calls between ported programs</strong>: CALL, LINK and XCTL between programs of the estate are generated as service-to-service calls by the call forge (<code>cobol_to_java_call_forge.py</code>). The service skeleton is then filled by a port, deterministic or model-written, and proven against the COBOL: see <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>. Proven cases include CICS tasks that LINK to other programs, compared with the COMMAREA each LINK returns.</li>
 </ul>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p><strong>Inputs received:</strong> Execution paradigms and inter-module dependency graphs from the IR.

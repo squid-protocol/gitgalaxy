@@ -10133,6 +10133,8 @@
       
         
       
+        
+      
     
     
     
@@ -10829,6 +10831,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12164,8 +12194,8 @@
 <p>Migrating from procedural execution to Object-Oriented and RESTful paradigms involves substantial boilerplate, such as configuring build systems, application properties, and standard utility classes for legacy data decoding.</p>
 <h2 id="design">Design</h2>
 <p>The controller scaffolds the foundational project:
-- <strong><code>pom.xml</code></strong>: Configures Maven dependencies (Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, PostgreSQL) for Java 17.
-- <strong><code>application.yml</code></strong>: Configures database connections, Hibernate DDL properties, and logging.
+- <strong>Build file</strong>: a Maven <code>pom.xml</code> or a Gradle build (Spring Boot Starter Web, Spring Data JPA, Spring Batch, Lombok, the configured database driver) for Java 17 or 21, as the target config says (<code>cobol-to-java --config</code>, <code>gitgalaxy/tools/cobol_to_java/java_target.py</code>).
+- <strong><code>application.yml</code></strong>: Configures the database connection and dialect for the configured engine (PostgreSQL by default; Db2, Oracle, MySQL or H2), Hibernate DDL properties, and logging.
 - <strong>Application Entry Point</strong>: Generates the <code>@SpringBootApplication</code> main class.
 - <strong>Header Injection</strong>: Scans for <code>header.txt</code> and wraps contents into Java block comments at the top of generated files.
 - <strong>EBCDIC &amp; COMP-3 Data Decoder Utility (<code>EbcdicDecoderUtil.java</code>)</strong>: Generated to unpack binary legacy payloads into UTF-8 and <code>BigDecimal</code>. It validates the high nibble (0-9) and sign nibble (A-F). On encountering corrupt data, it logs a hex-dump and returns <code>BigDecimal.ZERO</code>.</p>
@@ -12184,13 +12214,13 @@
 </ul>
 <h2 id="limitations">Limitations</h2>
 <ul>
-<li>Scaffolding assumes a Spring Boot + JPA + PostgreSQL stack, with limited flexibility for other Java frameworks or databases without modifying the template generator.</li>
+<li>Scaffolding targets Spring Boot. The Java version, build tool and database are configurable; other Java frameworks would need new templates.</li>
+<li>The scaffold is the structure only. Each program's business logic is ported into it and proven separately: see <a href="../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>File generation operations are linear <span class="arithmatex">\(O(N)\)</span> with respect to the number of configured endpoints and modules, relying on basic file I/O operations with minimal memory overhead.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Support for generating Gradle build scripts alongside Maven.</li>
 <li>Configurable error handling strategies for corrupt EBCDIC data.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>

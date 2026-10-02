@@ -1271,6 +1271,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#where-the-business-logic-comes-from" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the business logic comes from
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -10264,6 +10275,8 @@
       
         
       
+        
+      
     
     
     
@@ -10800,6 +10813,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12168,7 +12209,7 @@
 <h3 id="entity-orchestration-generate_java_entity">Entity Orchestration (generate_java_entity)</h3>
 <p>This function acts as the bytecode architect. It iterates through the normalized schema properties, mapping base JSON types to strict Java wrappers (<code>Long</code>, <code>Integer</code>, <code>BigDecimal</code>). It implements rigorous guardrails: replacing hyphens with underscores, enforcing camelCase conventions, and prepending a character (<code>v</code>) if a legacy variable name begins with an integer. Finally, it constructs the <code>@Entity</code> file, injecting Lombok annotations (<code>@Data</code>, <code>@NoArgsConstructor</code>) to minimize boilerplate, and assigns a primary surrogate key (<code>sys_id</code>) to decouple the object from legacy operational identifiers.</p>
 <h2 id="4-execution-interface">4. Execution Interface</h2>
-<p>The forge is designed to run in a headless CI/CD environment, consuming the output of the Cloud Schema Forge prior to triggering the LLM logic translation agents.</p>
+<p>The forge is designed to run in a headless CI/CD environment, consuming the output of the Cloud Schema Forge before the business logic is ported agents.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Execute the forge against a deterministic GitGalaxy schema dump</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>python3<span class="w"> </span>cobol_to_java_spring_forge.py<span class="w"> </span>./schemas/CUSTOMER_schema.json<span class="w"> </span>--pkg<span class="w"> </span>com.enterprise.modernized
 </code></pre></div>
@@ -12180,8 +12221,10 @@
 <li><strong>Builder Pattern Scaffolding:</strong> While <code>@Data</code> provides standard getters and setters, enterprise microservices benefit from immutable object creation. Injecting the Lombok <code>@Builder</code> annotation into the class definition will provide the downstream LLM agents with a cleaner, thread-safe API for instantiating complex legacy records.</li>
 </ol>
 <hr />
-<p>this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine
-This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
+<p>this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine</p>
+<h2 id="where-the-business-logic-comes-from">Where the business logic comes from</h2>
+<p>This forge generates the entities the ports read and write. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named <code>Hole</code>), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a> for what is proven, how, and the limits.</p>
+<p>This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.</p>
 <p>🪐 Explore the GitHub Repository for code, tools, and updates.
 🔭 Visualize your own repository at GitGalaxy.io using our interactive 3D WebGPU dashboard.</p>
 <hr />

@@ -1031,6 +1031,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#5-from-the-map-to-a-proven-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. From the map to a proven port
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -10225,6 +10236,8 @@
       
         
       
+        
+      
     
     
     
@@ -10761,6 +10774,34 @@
     
   
     COBOL ↔ Java Scan Parity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../05-19-proven-cobol-to-java-ports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proven COBOL-to-Java Ports
   
 
     
@@ -12135,8 +12176,11 @@
 <p>GitGalaxy enforces an <strong>Honesty Protocol</strong>. When the System Limits Reporter detects one of these anomalies, it triggers the <strong>Autonomous Agent Task Forge</strong>.</p>
 <p>Instead of letting an LLM guess how to fix the file (which leads to catastrophic hallucinations), the Forge bounds the AI. It generates a strict JSON job ticket (<code>06_ai_agent_jobs/XYZ_agent_job.json</code>) that explicitly defines the extracted lineage (required inputs, outputs, and external calls). </p>
 <p>The LLM is dispatched as a deterministic Systems Architect, tasked solely with resolving the specific structural anomaly without altering the core business logic.</p>
+<h3 id="5-from-the-map-to-a-proven-port">5. From the map to a proven port</h3>
+<p>A flag in the audit above is a reason for review, not a reason the program cannot be ported. Three of the CBSA programs it flags (XFRFUN, INQACC and DELACC, each with <code>COPY REPLACING</code>) now have deterministic Java ports proven against the original COBOL on a real Db2, with no model involved. CREACC is not proven yet, for a different reason: its COMMAREA carries data after a POINTER, and a POINTER is 8 bytes under the test oracle but 4 on z/OS (register entry C9). See <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a>.</p>
 <blockquote>
-<p><strong>Read the full technical specification:</strong> <a href="../../05-01-legacy-refraction-controller/">Legacy Refraction Controller</a></p>
+<p><strong>Read the full technical specification:</strong> <a href="../../05-01-legacy-refraction-controller/">Legacy Refraction Controller</a>
+<strong>And:</strong> <a href="../../05-19-proven-cobol-to-java-ports/">Proven COBOL-to-Java Ports</a></p>
 </blockquote>
 <hr />
 <p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>

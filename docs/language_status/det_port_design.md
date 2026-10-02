@@ -434,8 +434,13 @@ NULL is distinct.
     scenario reaches; the COBOL side cannot run DSNTIAC either.
 - **CICS.** The COBOL side runs every scenario in one container, so a small CLI tool (`tests/equivalence/db2/ggsqlrun.c`)
   resets the tables before each task and dumps them after it. The Java side's test does the same over JDBC.
-  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it. Db2 cases
-  run one at a time: they share the database, and the harness takes a lock.
+  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it.
+- **Side by side.** Db2 cases run in parallel on a pool of databases in the one Db2 instance (GGDB, GGDB1 ..;
+  `$GITGALAXY_DB2_POOL`, default 4), one case a database for its whole run (a lock file each). Each database has
+  its own catalog, schemas and identity counters, so every name the SQL uses stays as written and no case sees
+  another's rows. A pool database is created as GGDB is (code set, territory, collation, page size); the rest of
+  its configuration differs only in self-tuned memory sizes and logging. The harness keeps each database active:
+  one nothing holds is activated by every connect, about a second each time.
 - **Declared, not measured:**
   - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
   - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.

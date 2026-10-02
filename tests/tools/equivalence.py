@@ -582,7 +582,7 @@ def main() -> int:
     data_encoding(case)  # a bad declaration fails here, not after the COBOL build
     (corpus_entry,) = mc.select([case["corpus"]])
     corpus = mc.require_clone(corpus_entry)
-    if case.get("db2"):  # one Db2 holds every case's tables: a Db2 case runs alone (parallel runs wait their turn)
+    if case.get("db2"):  # a database of the pool to this case alone (parallel runs take the others, or wait)
         equivalence_db2.hold_lock()
     work = args.keep or Path(tempfile.mkdtemp(prefix=f"equiv_{args.case}_"))
     if args.reuse:

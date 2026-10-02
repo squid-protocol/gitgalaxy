@@ -24,9 +24,15 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
   build on first use.
 - **Db2.** The container `gitgalaxy-db2` (Db2 Community Edition, port 127.0.0.1:50000, database GGDB) starts on
   first use and stays up. The first start takes minutes.
-  - Db2 cases share it, so they take a lock (`~/.cache/gitgalaxy-db2.lock`) and run one at a time.
+  - Db2 cases run side by side on a pool of databases in it (GGDB, GGDB1 ..; `GITGALAXY_DB2_POOL`, default 4),
+    one case a database (a lock file each under `~/.cache`; GGDB's is `gitgalaxy-db2.lock`, the one older checkouts
+    take). A pool database is created on first use (about 30 s). The harness keeps each database active: an
+    inactive one costs about a second a connect.
   - The test password lives in `equivalence_db2.py` and goes to containers through `docker -e`. Never write it
     into a generated script (CodeQL flags clear-text storage).
+- **Estate cache.** The corpus scan and the corpus refactor every case starts from are built once and kept under
+  `~/.cache/gitgalaxy-equivalence` (`equivalence_cache.py`), keyed by the corpus commit and state, every engine
+  file, and the `GITGALAXY_*` environment. Any engine edit is a new key. `GITGALAXY_EQUIV_CACHE=off` builds every time.
 - **Scratch.** Use the job's tmp directory for `--work` and `--keep`. A reused `--keep` directory carries state.
 
 ## Commands
@@ -39,7 +45,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 | structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
-| **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; ~1-2 h with Db2 |
+| **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
 
 Results:
 - `DIR/CASE/proof.log` ends with the coverage claim.

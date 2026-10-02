@@ -62,7 +62,9 @@ Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past i
 | Port inside the porting loop | `port_runner run <project> --ticket KEY --backend det --source-root ESTATE [--style structured] [--typed]` |
 | A model refactors a proven port | `port_runner refine <project> --ticket KEY --backend ... --prove-command ...` |
 
-`det_port.py run` and `check` also print a structural parity warning when a port's method or branch-point count falls far from what its COBOL predicts. The warning never fails a proof.
+`det_port.py run` and `check` also print a structural parity warning when a port's method or branch-point count falls far from what its COBOL predicts. The warning never fails a proof ([COBOL ↔ Java scan parity](05-18-cobol-java-scan-parity.md)).
+
+Each det port starts with a provenance header (`// gitgalaxy-det-port: COBOL <PROGRAM> (<source>), translated by rule, statement for statement`). GitGalaxy's scanner admits a file that declares it past the gates that would otherwise drop generated code ([Aperture Filter, Declared ports](02-03-aperture-filter.md)), so a det-ported estate scans like any other.
 
 ## Limits
 
@@ -78,4 +80,5 @@ Coverage is lower in GenApp: its error paths LINK to LGSTSQ, which writes past i
 ## Further reading
 - [det-port design and runtime contract](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/det_port_design.md)
 - [The porting loop](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/cobol_to_java_porting_loop.md)
+- [COBOL ↔ Java scan parity](05-18-cobol-java-scan-parity.md)
 - [Translation survey across six estates](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/language_status/det_survey.md)

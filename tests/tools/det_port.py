@@ -76,7 +76,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     port = work / name / "port"
     try:
         r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed,
-                        groups)  # fmt: skip
+                        groups, case.get("compiler_options"))  # fmt: skip
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -87,7 +87,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
         try:
             x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
-                            style, typed, groups)  # fmt: skip
+                            style, typed, groups, case.get("compiler_options"))  # fmt: skip
         except Exception as e:
             out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
             return out

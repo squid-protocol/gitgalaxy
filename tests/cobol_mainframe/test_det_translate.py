@@ -135,3 +135,21 @@ def test_a_when_condition_keeps_its_leading_not():
     assert obj == ("COND", E.And(E.Not(E.CondName(R("A-FLAG"))), E.Rel("=", R("B"), R("C"))), None, False)
     assert S._when_object("NOT 5") == ("VALUE", E.Lit(Decimal(5)), None, True)
     assert S._when_object("NOT 1 THRU 9")[0] == "RANGE" and S._when_object("NOT 1 THRU 9")[3] is True
+
+
+def test_each_entry_runs_with_its_programs_trunc(tmp_path):
+    """#4102: TRUNC(STD) is IBM's default; a program's CBL card or the compile PARM says otherwise. Each entry swaps it
+    in and restores the caller's, so a LINK into a program compiled otherwise leaves the caller's as it was."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    src = tmp_path / "T.cbl"
+    src.write_text("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n", encoding="ascii")
+    assert P.trunc_std(src) is True
+    assert P.trunc_std(src, ["TRUNC(BIN)"]) is False
+    src.write_text("       PROCESS TRUNC(STD)\n       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n", encoding="ascii")
+    assert P.trunc_std(src, ["TRUNC(BIN)"]) is True  # the program's own card wins
+    java = ("class S {\n    public void runTask(CicsTask task) {\n        x(\"{\");\n        return;\n    }\n"
+            "    void other() {\n    }\n}\n")
+    out = P.with_trunc(java, True)
+    assert "boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)" in out
+    assert out.index("finally") < out.index("void other()") and 'x("{");' in out

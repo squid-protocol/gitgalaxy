@@ -1055,6 +1055,14 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         if hit:
             raise Unsupported(f"scenario {sc['name']}: LINK PROGRAM({hit.group(1)}) -- the case runs one program",
                               ["LINK"])  # fmt: skip
+        # a library model (tests/equivalence/le) that stops rather than guess (exit 98, "... not modelled"): the
+        # scenario reaches behaviour the oracle cannot judge -- refused by name, never reported as a difference
+        rc = work / "scenarios" / sc["name"] / "rc"
+        said = work / "scenarios" / sc["name"] / "stdout.txt"
+        if rc.is_file() and rc.read_text().strip() == "98" and said.is_file():
+            why = next((ln for ln in said.read_text(encoding="latin-1").splitlines() if "not modelled" in ln), None)
+            if why:
+                raise Unsupported(f"scenario {sc['name']}: {why.strip()}", ["MODEL"])
     # #4023: how much of the program the scenarios execute, together (work/coverage.json)
     cov.write_run_coverage(work / "coverage.json", source=corpus / case["program_source"], original=program,
                            compiled=text, traces=[work / "scenarios" / sc["name"] / cov.TRACE_NAME for sc in case["scenarios"]],

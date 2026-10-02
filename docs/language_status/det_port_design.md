@@ -29,8 +29,8 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 | make readable, with a model | `port_runner refine --prove-command ...` (or `tests/tools/det_refine.py run CASE --port DIR`) (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |
 
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
-faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 256 of 397
-branches). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
+faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 310 of 397
+branches, from 256 before generated per-field scenarios; the rest sit mostly behind CEEDAYS, below). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
 difference is declared below.
 
 **Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
@@ -203,6 +203,11 @@ Only generator output, never a test case:
   folds it at compile time to +0 (`MOVE -1000 TO S9(3)` is `00{`), while every other truncating MOVE keeps the sign
   (`-1000.0`, `-0.05`, a scaled or COMP-3 target, a field sender: `00}`). The translator matches GnuCOBOL
   (`gen.literal_moved`; probed in `NEGZERO`); IBM's behaviour is not measured. No proven program reaches it.
+- **Library models that stop rather than guess.** The harness's CEEDAYS model (`tests/equivalence/le/ceedays.c`)
+  does not model a picture in a longer field. CardDemo's CSUTLDTC passes `'YYYYMMDD  '` in 10 bytes, and IBM does
+  not document how the trailing blanks are read. A scenario that reaches such a call is now refused by name ("not
+  modelled") rather than reported as a difference. COACTUPC's cursor placement for the 34 fields after its dates
+  needs a valid date, so it is unreached until IBM's behaviour is measured.
 - An unsigned binary item taken below zero by ADD / SUBTRACT: GnuCOBOL (`-std=ibm`) wraps it (`PIC 9(4) COMP`, 0 - 3
   is 65533) while its own COMPUTE and MOVE, IBM's compilers and this runtime store the absolute value (3). No case
   reaches it; test_det_programs.py keeps its unsigned item above zero.

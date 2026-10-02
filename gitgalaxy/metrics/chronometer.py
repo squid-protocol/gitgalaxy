@@ -40,6 +40,21 @@ from gitgalaxy.standards.config_resolver import resolve_config
 _GIT_BIN = shutil.which("git") or "git"
 
 
+# #4107: the history window is "the last year", which git measures against
+# today's date -- so the same pinned history yields different churn/ownership
+# numbers as the calendar moves. GITGALAXY_HISTORY_NOW=<epoch seconds> pins
+# "today" (a deterministic-fixture hook; unset, the scan is unchanged).
+HISTORY_NOW_ENV = "GITGALAXY_HISTORY_NOW"
+_YEAR_SECONDS = 365 * 24 * 3600
+
+
+def _since_arg() -> str:
+    pinned = os.environ.get(HISTORY_NOW_ENV, "").strip()
+    if pinned.isdigit():
+        return f"--since=@{int(pinned) - _YEAR_SECONDS}"
+    return "--since=1.year"
+
+
 class Chronometer:
     """
     The GitGalaxy Chronometer.
@@ -328,7 +343,7 @@ class Chronometer:
             "-c",
             "core.quotepath=off",
             "log",
-            "--since=1.year",
+            _since_arg(),
             "--name-only",
             "--relative",
             "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",

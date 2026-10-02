@@ -498,8 +498,16 @@ DEFINITION: dict[str, Any] = {
             # #2898: the matrix-multiply `@` operand gap must stay on one line --
             # `\s*` crossed newlines, so a decorator under any expression counted
             # (892 of the 898 crucible hits were decorator lines).
-            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\(|(?<=[a-zA-Z0-9_\]\)])[ \t]*@[ \t]*(?=[a-zA-Z0-9_\[\(])"
+            # #4136: the augmented form `a @= b` is the same operator (the `=`
+            # failed the operand lookahead). Strings and comments are excluded
+            # by the `outside_literals` scope filter below, not here.
+            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\("
+            r"|(?<=[a-zA-Z0-9_\]\)])[ \t]*@(?:=|[ \t]*(?=[a-zA-Z0-9_\[\(]))"
         ),
+        # #4136: the code stream keeps string literals, so `"gecko@003"` and an
+        # `"a@example.com"` fixture read as matmul. Drop matches that touch a
+        # string or comment (detector.py's `_apply_scope_filter`).
+        "_scope_filters": {"vectorized_math": "outside_literals"},
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Python Specifics) ---
         # auth_middleware (#3004): django/flask's gate decorators, the permission
         # query on a user object, and the credential-verification and session

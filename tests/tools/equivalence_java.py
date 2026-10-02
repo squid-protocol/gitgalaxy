@@ -216,6 +216,10 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
         shutil.copy(source, dest)
     if earlier is not None and overlay:
         _compile_overlay(project, earlier, overlay, work)
+    if case.get("db2"):  # IBM's JDBC driver, and the Db2 repositories on the harness's Db2
+        import equivalence_db2
+
+        equivalence_db2.patch_project(project, PKG)
     test = project / "src/test/java" / PKG_DIR / "EquivalenceRunTest.java"
     test.parent.mkdir(parents=True, exist_ok=True)
     test.write_text(test_source, encoding="utf-8")
@@ -429,12 +433,19 @@ def _run_area(case: dict[str, Any], project: Path, area: Path, inputs: Path, env
     sysout = area / "out" / "SYSOUT"  # #4056: what the port DISPLAYs (the generated Sysout appends to it)
     sysout.parent.mkdir(parents=True, exist_ok=True)
     sysout.unlink(missing_ok=True)
+    if case.get("db2"):  # the tables as the seed has them, the Db2 repositories on the harness's Db2
+        import equivalence_db2
+
+        equivalence_db2.reset(case, Path("."))
+        props = f"{props} {equivalence_db2.java_props()}"
     out = run_maven(project, area, inputs, env, f"{props} -Dgitgalaxy.sysout={sysout} {data_charset_arg(case)}".strip())
     outs = {dd: out / f"{dd}.out" for dd, spec in case["datasets"].items() if spec.get("compare")}
     for extra in ("RETURN-CODE", "ABEND", "FAULTS"):
         outs[extra] = out / extra
     read = {dd: f.read_bytes() for dd, f in outs.items() if f.is_file()}  # a stub may write nothing
     read["SYSOUT"] = sysout.read_bytes() if sysout.is_file() else b""
+    if case.get("db2"):
+        read.update(equivalence_db2.outputs(case))
     for extra in ("RETURN-CODE", "ABEND"):  # a code, not a record: whitespace is not data
         if extra in read:
             read[extra] = read[extra].strip()

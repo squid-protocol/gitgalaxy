@@ -1,0 +1,11 @@
+A08Interest charge                                   
+A01Duplicate of an existing type                     
+U02Payment received                                  
+U99No such type                                      
+A09XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+U03Credit  with  inner  blanks                       
+D07                                                  
+D98                                                  
+*  a commented line                                  
+X10Type not valid                                    
+A10Last line                                         

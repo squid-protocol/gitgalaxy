@@ -718,6 +718,15 @@ def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Op
     return "receiver", _nearest(cset, caller, cache)
 
 
+def _other_visible_class(cset: _Set, caller: _File) -> bool:
+    """Whether a file the caller sees, other than its own, defines the name on a class."""
+    if any(p in cset.owners for p in caller.imported if p != caller.path):
+        return True
+    if caller.lang in _PACKAGE_DIR_LANGS:
+        return any(d.path != caller.path for d in cset.by_dir.get(caller.dir, []))
+    return False
+
+
 def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, Optional[_Definition]]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
@@ -824,7 +833,15 @@ def _resolve_one(
     # A receiver the engine cannot type: a variable, a call result, an external
     # module. Only a method can answer it (a free function is not reachable
     # through a receiver), and only a visible one confidently.
-    return _ladder(bucket.all if ownerless else bucket.methods, caller, True, cache)
+    cset = bucket.all if ownerless else bucket.methods
+    step, d = _ladder(cset, caller, True, cache)
+    if step == "file" and d is not None and d.owner_key in lineage and _other_visible_class(cset, caller):
+        # #3837: `members.entrySet()` inside JsonObject, which has its own
+        # entrySet. An explicit receiver other than `this` is usually ANOTHER
+        # object: the caller's own class is only one candidate, so with another
+        # visible class defining the name the call is ambiguous, not `file`.
+        return "receiver", d
+    return step, d
 
 
 # #3759: languages where one file holds several bindings of a name only in

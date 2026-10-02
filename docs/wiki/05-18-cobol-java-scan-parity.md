@@ -11,7 +11,7 @@ The short version:
 - **Size does not.** The det port is about five times the code lines and nine times the token mass of the COBOL. The model port is about the same size as the COBOL.
 - **I/O moves out of the program.** In the det port, file, queue, CICS and SQL operations are calls into the `cobolrt` runtime, which the scanner did not recognise as I/O. The scanner recognises them since #4163.
 - **Risk scores do not compare across languages.** They are normalised within each scan, so they rank files inside one language only.
-- **Debt is written differently.** The model ports carry 46 TODO/FIXME lines; the det ports carry none and instead throw named `Hole`s for anything not translated.
+- **Debt is written differently.** The model ports' files carry 46 TODO/FIXME lines, but almost all of them come from the generated project, not the model: 24 are the scaffold's `TODO: [AI AGENT] implement…` docstrings, left in place after the methods were implemented, and most of the rest are the generator's "RESP … is never tested" notes. Only about 4 are the model's own (see `docs/language_status/construct_correspondence.md`). The det ports carry none and instead throw named `Hole`s for anything not translated.
 
 ## Scope
 
@@ -107,7 +107,7 @@ The det port keeps the COBOL's shape because it translates paragraph by paragrap
 
 Copybook-heavy COBOL reads as "Interface Declarations"; the same records in the det port become typed `Field` accessors and read as "Encapsulated Accessors". This is a change of representation, not of behaviour.
 
-**Debt.** In the CardDemo model ports, 46 lines across 12 files carry TODO/FIXME markers; tech-debt risk is ×4.13 the COBOL's. The det ports have no TODO/FIXME lines. Anything the det port does not translate becomes a named `Hole` that throws when reached (51 `new Hole(` sites in 40 of the 49 files; 40 of them guard CICS files the generated project has no store for, 10 guard BMS maps and mapsets, and 1 is an untranslated dynamic `CALL`). The scanner counts the TODOs but not the holes, so the det ports' debt reads lower than it is.
+**Debt.** In the CardDemo model ports, 46 lines across 12 files carry TODO/FIXME markers, and tech-debt risk is ×4.13 the COBOL's. Almost all of those markers are scaffold left behind by the generated project (24 `TODO: [AI AGENT] implement…` docstrings on methods that are now implemented, plus the generator's "RESP … is never tested" notes); about 4 are the model's own. So the ×4.13 mostly measures stale scaffold comments, not unfinished model work. The det ports have no TODO/FIXME lines. Anything the det port does not translate becomes a named `Hole` that throws when reached (51 `new Hole(` sites in 40 of the 49 files; 40 of them guard CICS files the generated project has no store for, 10 guard BMS maps and mapsets, and 1 is an untranslated dynamic `CALL`). The scanner counts the TODOs but not the holes, so the det ports' debt reads lower than it is.
 
 **Branch growth in small programs.** The median program gains ×5.1 branch points in the det port. The programs furthest from that median are all small:
 
@@ -145,7 +145,7 @@ Every det port carries a fixed amount of code (response checks, abend paths, sto
 1. **Structural parity is a cheap pre-proof check.** Function and branch counts track the COBOL closely. A det port whose ratios fall far outside its estate's norm, after allowing for the fixed per-program overhead, is worth a look before running GnuCOBOL or Db2.
 2. **Readability layers have measurable targets.** Today's det port is ×5 the code lines, its largest functions are ×3.6 as complex, it has lines over 500 characters and it fails the monotony gate. The model port shows what ordinary Java of the same programs looks like (×1.09 lines). A det port that would pass the default aperture gates without its provenance header is a concrete milestone.
 3. **Refactor the biggest conditions first.** The largest det functions (COACTUPC, COTRTUPC, COTRTLIC) are long `IF` conditions translated literally; the scan ranks them, so the readability work can start there.
-4. **Report proof and debt together for model ports.** The proof shows a model port behaves like the COBOL; the TODO count shows what it still leaves unfinished.
+4. **Report proof and debt together for model ports, but count only the model's debt.** The proof shows a model port behaves like the COBOL. The scaffold's own TODO docstrings should be removed once a method is implemented, so the TODO count shows only what the port really leaves unfinished.
 
 ## Follow-ups
 

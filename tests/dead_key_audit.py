@@ -69,6 +69,7 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS
     # command it just parsed (cics_resources._options), so "CHANNEL" is written

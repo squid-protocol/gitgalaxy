@@ -1139,7 +1139,7 @@ int GGCASGN(gg_cics *c) {
     memset(c->name1, ' ', 8);
     c->resp = NORMAL;
     c->resp2 = 0;
-    if (strcmp(want, "INVOKINGPROG") == 0) { /* the program that LINKed / XCTLed to this one; blanks at the first */
+    if (strcmp(want, "INVOKING") == 0) { /* INVOKINGPROG (GG-NAME2 holds 8): who LINKed / XCTLed here; blanks at first */
         const char *p = levels[lvl].invoker;
         memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
         return 0;
@@ -1501,6 +1501,43 @@ int GGCAOUT(const char *ca, int len) {
     if (!f) return 0;
     if (len > 0) fwrite(ca, 1, (size_t)len, f);
     fclose(f);
+    return 0;
+}
+
+/* GET COUNTER(qname) POOL(name1) (IBM CICS TS, GET COUNTER): the named counter's current value in GG-NUM, then the
+ * counter is one more. The region's counters are $GGCICS_DIR/counters.cfg ("POOL NAME VALUE", POOL "-" for none),
+ * rewritten after each GET, so a later task of the scenario sees the next value; a counter not there is NOTFND. */
+int GGCGCNT(gg_cics *c) {
+    char want[17], pool[9], path[4096], line[256], p[64], n[64], ev[128];
+    long v, got = -1;
+    char lines[64][128];
+    int nl = 0;
+    trim(c->qname, 16, want);
+    trim(c->name1, 8, pool);
+    if (!pool[0]) strcpy(pool, "-");
+    snprintf(path, sizeof path, "%s/counters.cfg", dir_in());
+    FILE *f = fopen(path, "r");
+    while (f && nl < 64 && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%63s %63s %ld", p, n, &v) != 3) continue;
+        if (got < 0 && strcmp(p, pool) == 0 && strcmp(n, want) == 0) {
+            got = v;
+            v++;
+        }
+        snprintf(lines[nl++], sizeof lines[0], "%s %s %ld\n", p, n, v);
+    }
+    if (f) fclose(f);
+    c->resp2 = 0;
+    if (got < 0) {
+        c->resp = NOTFND;
+    } else {
+        c->resp = NORMAL;
+        c->num = (int)got;
+        f = fopen(path, "w");
+        for (int i = 0; f && i < nl; i++) fputs(lines[i], f);
+        if (f) fclose(f);
+    }
+    snprintf(ev, sizeof ev, "GET-COUNTER pool=%s counter=%s resp=%d", pool, want, c->resp);
+    event(ev, NULL, 0);
     return 0;
 }
 

@@ -247,6 +247,22 @@ def _literal(value: str) -> str | None:
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
+def _counters(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, int]:
+    """The named counters a scenario's region has ("POOL/NAME": the next value): the scenario's, else the case's."""
+    return dict(sc["counters"] if "counters" in sc else case.get("counters") or {})
+
+
+def _past_from(length: str | None, area: str | None, what: str) -> list[str]:
+    """A write whose LENGTH runs past its FROM item (GenApp's LGSTSQ): CICS takes the bytes that follow the item in
+    storage, which GnuCOBOL lays out unlike IBM's compiler -- the run stops (98, "not modelled", oracle_assumptions.md
+    X6) rather than write bytes no oracle here can vouch for."""
+    if not length or not area or _literal(area):
+        return []
+    return [f"IF GG-LEN > LENGTH OF {area}",
+            f"    DISPLAY '{what} LENGTH > FROM: not modelled'",
+            "    MOVE 98 TO RETURN-CODE", "    STOP RUN", "END-IF"]  # fmt: skip
+
+
 def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None = None) -> list[str]:
     """#4002: READQ TS / WRITEQ TS -> GGCREADQ / GGCWRTQ. LENGTH is in-out on READQ (the most INTO
     takes; then the item's length, set on NORMAL and LENGERR only: IBM documents it for neither
@@ -274,7 +290,7 @@ def _ts_command(verb: str, opts: dict[str, str | None], labels: list[str] | None
             raise Unsupported(f"{feature} REWRITE without ITEM", [feature])
         lines += [f"MOVE {item if rewrite else 0} TO GG-ITEM",
                   "MOVE 'REWRITE' TO GG-FLAGS" if rewrite else "MOVE SPACES TO GG-FLAGS"]  # fmt: skip
-        lines += _call("GGCWRTQ", [f"BY REFERENCE {area}"])
+        lines += _past_from(length, area, "WRITEQ TS") + _call("GGCWRTQ", [f"BY REFERENCE {area}"])
         if item and not rewrite:
             after += ["IF GG-RESP = 0", f"    MOVE GG-ITEM TO {item}", "END-IF"]
     if num:
@@ -413,6 +429,13 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
+        bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
+        if bad or not opts.get("VALUE"):
+            raise Unsupported(f"GET COUNTER {' '.join(bad) or 'without VALUE'}", ["GET COUNTER"])
+        return ([name(opts["COUNTER"], "GG-QNAME"), name(opts.get("POOL") or "' '", "GG-NAME1")]
+                + _call("GGCGCNT", []) + ["IF GG-RESP = 0", f"    MOVE GG-NUM TO {opts['VALUE']}", "END-IF"]
+                + _resp(opts, True, labels))  # fmt: skip
     if verb == "ASKTIME":  # the task's clock; a task takes no time, so EIBDATE / EIBTIME stay as dispatched
         if not opts.get("ABSTIME"):
             return ["CONTINUE"]
@@ -460,6 +483,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         if not (queue and frm):
             raise Unsupported("WRITEQ TD without QUEUE / FROM", ["WRITEQ TD"])
         return ([name(queue, "GG-QNAME"), f"MOVE {opts.get('LENGTH') or 'LENGTH OF ' + frm} TO GG-LEN"]
+                + _past_from(opts.get("LENGTH"), frm, "WRITEQ TD")
                 + _call("GGCWRTD", [f"BY REFERENCE {frm}"]) + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READQ", "WRITEQ") and "TD" not in opts:  # #4002: temporary storage (TS is the default)
         return _ts_command(verb, opts, labels)
@@ -1038,8 +1062,22 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     for extra in case.get("programs", []):
         x_text, _ = common.read_program(case, corpus / extra["program_source"])
         x_source, _ = common.compile_options(case, x_text)
-        if re.search(r"\bEXEC\s+SQL\b", x_source, re.I):
-            raise Unsupported(f"{extra['program']}: a LINKed program with EXEC SQL (one statement table per task)")
+        if re.search(r"\bEXEC\s+SQL\b", x_source, re.I):  # its statements join the task's table, ids of its own
+            if not db2:
+                raise Unsupported(f'{extra["program"]}: EXEC SQL in a case with no "db2" section')
+            x_dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
+            try:
+                x_source, x_table = equivalence_sql.precompile(x_source, x_dirs, corpus / extra["program_source"],
+                                                               first_id=1000 * (len(linked) + 1))  # fmt: skip
+            except equivalence_sql.Unsupported as e:
+                raise Unsupported(f"{extra['program']}: EXEC SQL: {e}", ["EXEC SQL"]) from e
+            stmts_file = work / "stmts.txt"
+            have = stmts_file.read_text(encoding="latin-1")
+            ours = {ln.split()[-1] for ln in have.splitlines() if ln.startswith("S ") and ln.split()[-1] != "-"}
+            theirs = {ln.split()[-1] for ln in x_table.splitlines() if ln.startswith("S ") and ln.split()[-1] != "-"}
+            if ours & theirs:
+                raise Unsupported(f"{extra['program']}: cursor {sorted(ours & theirs)[0]} declared by two programs")
+            stmts_file.write_text(have + x_table, encoding="latin-1")
         x_translated, x_ca = translate(x_source)
         name = extra["program"].upper()
         (src / f"{name}.cbl").write_text(x_translated, encoding=staged)
@@ -1080,6 +1118,9 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             (d / "programs.cfg").write_text("".join(f"{p}\n" for p in programs), encoding="ascii")
         if tdqueues is not None:  # the CSD's transient-data queues; absent, every queue is defined
             (d / "tdqueues.cfg").write_text("".join(f"{q}\n" for q in tdqueues), encoding="ascii")
+        if _counters(case, sc):  # named counters the region has (POOL/NAME: value); absent ones are NOTFND
+            (d / "counters.cfg").write_text("".join(f"{k.split('/')[0] or '-'} {k.split('/')[1]} {v}\n"
+                                                    for k, v in _counters(case, sc).items()), encoding="ascii")  # fmt: skip
         if case.get("region"):  # ASSIGN APPLID / SYSID: the region's identity, a deployment fact the case states
             (d / "region.cfg").write_text(f"APPLID {case['region']['applid']}\nSYSID {case['region']['sysid']}\n",
                                           encoding="ascii")  # fmt: skip
@@ -1534,7 +1575,8 @@ class EquivalenceRunTest {{
             CicsTask task = new CicsTask("{case["transid"]}", sc.get("aid").asText(), commarea, received)
                     .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
-                    .withProgram("{case["program"]}");  // the task's first program (a LINK's INVOKINGPROG)
+                    .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
+                    .withCounters(counters(sc));  // GET COUNTER: the region's named counters
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
@@ -1572,6 +1614,12 @@ class EquivalenceRunTest {{
     }}
 
 {db2_methods}
+    static java.util.Map<String, Long> counters(JsonNode sc) {{
+        java.util.Map<String, Long> out = new java.util.HashMap<>();
+        sc.path("counters").fields().forEachRemaining(e -> out.put(e.getKey(), e.getValue().asLong()));
+        return out;
+    }}
+
     void dump(String name, List<byte[]> records) throws IOException {{
         try (var o = Files.newOutputStream(out.resolve(name))) {{
             for (byte[] r : records) {{
@@ -1638,7 +1686,8 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
             m: {f.removesuffix("I"): v for f, v in typed.items()} for m, typed in (sc.get("receive") or {}).items()
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
-                          "commarea": ca, "receive": receive, "faults": fault_lines(sc)})  # fmt: skip
+                          "commarea": ca, "receive": receive, "faults": fault_lines(sc),
+                          "counters": _counters(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2

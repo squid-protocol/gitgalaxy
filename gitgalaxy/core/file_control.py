@@ -21,7 +21,7 @@
 #          kind CLUSTER | AIX | PATH, name, organization (INDEXED / NUMBERED /
 #          NONINDEXED / LINEAR), key_length / key_offset (KEYS(l o)),
 #          record_avg / record_max (RECORDSIZE(a m)) -- on the object, else on its
-#          DATA(...) component (INDEX(...) as a fallback) -- related (an AIX's RELATE
+#          DATA(...) component -- related (an AIX's RELATE
 #          base, a PATH's PATHENTRY), unique_key (AIX UNIQUEKEY / NONUNIQUEKEY),
 #          upgrade (AIX UPGRADE / NOUPGRADE), step (the EXEC step).
 #
@@ -247,15 +247,14 @@ def _define_row(kind: str, body: str, step: Optional[str], line: int) -> dict[st
     params = dict(_params(own or "")) if own is not None else dict(top)
     # KEYS and RECORDSIZE may be given on the data component instead of the object
     # (`DATA(NAME(X.DATA) KEYS(10 0) RECORDSIZE(225 225))`, GenApp's adef121.jcl): IDCAMS
-    # takes them as the cluster's (or the AIX's) then. INDEX(...) is read last, as a fallback.
+    # takes them as the cluster's (or the AIX's) then. IDCAMS accepts neither on INDEX(...).
     keys = params.get("KEYS")
     size = params.get("RECORDSIZE") or params.get("RECSZ")
     if own is not None:
-        for comp in ("DATA", "INDEX"):
-            block = next((v for k, v in top if k == comp and v is not None), None)
-            sub = dict(_params(block)) if block is not None else {}
-            keys = keys or sub.get("KEYS")
-            size = size or sub.get("RECORDSIZE") or sub.get("RECSZ")
+        block = next((v for k, v in top if k == "DATA" and v is not None), None)
+        data = dict(_params(block)) if block is not None else {}
+        keys = keys or data.get("KEYS")
+        size = size or data.get("RECORDSIZE") or data.get("RECSZ")
     org = next((w for w in ("INDEXED", "NUMBERED", "NONINDEXED", "LINEAR") if w in params), None)
     if kind == "CLUSTER" and org is None and ("IXD" in params):
         org = "INDEXED"

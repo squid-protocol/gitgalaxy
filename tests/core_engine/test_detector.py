@@ -5814,6 +5814,43 @@ def test_call_arity_counts_top_level_arguments():
         assert _call_arity(src, len(name)) == want, src
 
 
+def test_detector_java_records_receiver_types():
+    """Java receiver typing: a parameter, a local, a `for` variable, `var x = new T(`
+    and a field (bare or `this.`) name their class; an array, a name declared with
+    two classes, and an undeclared name do not."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        "class A {\n"
+        "  private final LinkedTreeMap<String, JsonElement> members = new LinkedTreeMap<>();\n"
+        "  private Gson gson;\n"
+        "  void run(JsonReader in, Foo[] xs) {\n"
+        "    Map.Entry<String, List<Integer>> e = null;\n"
+        "    var w = new JsonWriter(out);\n"
+        "    for (JsonElement el : list) { el.getAsInt(); }\n"
+        "    in.peek(); xs.clone(); e.getKey(); w.flush(); members.get(1); this.gson.toJson(1);\n"
+        "    gson.toJson(2); other.go(); twice.go();\n"
+        "  }\n"
+        "  void b() { Foo twice = null; }\n"
+        "  void c() { Bar twice = null; }\n"
+        "}\n"
+    )
+    detector = StructuralExtractor("java", LANGUAGE_DEFINITIONS)
+    sats, _ = detector._slice_by_braces(code, "java", LANGUAGE_DEFINITIONS["java"]["rules"], 0, {})
+    (run,) = [s for s in sats if s["name"] == "run"]
+    assert run["calls_out_receiver_types"] == {
+        "in": "JsonReader",
+        "xs": "",
+        "e": "Entry",
+        "w": "JsonWriter",
+        "el": "JsonElement",
+        "members": "LinkedTreeMap",
+        "this.gson": "Gson",
+        "gson": "Gson",
+        "twice": "",
+    }
+
+
 def test_detector_java_records_call_site_arities():
     """#3835: java records, per callee, the distinct argument counts it is called
     with; languages without `calls_out_arities` record none."""

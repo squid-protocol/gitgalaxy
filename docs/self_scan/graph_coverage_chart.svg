@@ -400,16 +400,16 @@
 <text class="none" x="732" y="636.0">not measured</text>
 <rect class="stripe" x="16" y="650" width="1022" height="34"/>
 <text class="lang" x="22" y="671.0">scala</text>
-<g><title>scala imports: precision 98.8% of 488, recall 94.8% of 521 (raw 98.8% / 94.8%; 6 shapes without a verdict); corpus circe/circe</title>
+<g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
 <text class="pr" x="120" y="664.5">Precision</text>
 <rect class="track" x="166" y="657" width="110" height="8" rx="2"/>
-<rect x="166" y="657" width="108.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="665">98.8%*</text>
+<rect x="166" y="657" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="665">100.0%</text>
 <text class="pr" x="120" y="676.5">Recall</text>
 <rect class="track" x="166" y="669" width="110" height="8" rx="2"/>
-<rect x="166" y="669" width="104.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="677">94.8%*</text>
-<text class="n" x="324" y="665">n=521 imports</text>
+<rect x="166" y="669" width="108.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="677">98.3%</text>
+<text class="n" x="324" y="665">n=529 imports</text>
 <text class="n" x="324" y="677">repos 1 · files 233</text>
 </g>
 <text class="none" x="426" y="670.0">not measured</text>

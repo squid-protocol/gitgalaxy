@@ -592,6 +592,21 @@ def test_a_receiver_type_that_is_not_a_known_class_changes_nothing():
     assert typed["step"] == plain["step"] != "typed"
 
 
+def test_a_typed_java_field_beats_the_callers_own_same_named_method():
+    # JsonObject.getAsJsonArray: `members.get(name)` on a LinkedTreeMap field is
+    # LinkedTreeMap.get, not JsonObject's own get (the detector types the field).
+    caller = _fn("getAsJsonArray", 10, owner="JsonObject", calls=["get"], quals={"get": ["members"]})
+    caller["calls_out_receiver_types"] = {"members": "LinkedTreeMap"}
+    files = [
+        _file("gson/JsonObject.java", "java", [caller, _fn("get", 30, owner="JsonObject")],
+              [{"name": "JsonObject", "inheritance": [], "start_line": 1}]),
+        _file("gson/internal/LinkedTreeMap.java", "java", [_fn("get", 90, owner="LinkedTreeMap")],
+              [{"name": "LinkedTreeMap", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    row = _site(resolve_calls(files)[0], "get")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("typed", "gson/internal/LinkedTreeMap.java", 90)
+
+
 # ----------------------------------------------------------------------------- decorators
 
 

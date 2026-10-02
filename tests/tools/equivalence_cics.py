@@ -642,6 +642,7 @@ def cics_driver(program: str, has_commarea: bool) -> str:
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN",
               f"    CALL '{program}'" + (" USING WS-CA" if has_commarea else ""),
+              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
@@ -673,6 +674,7 @@ def task_driver() -> str:
               "    CALL 'GGCLOAD' USING WS-CA BY VALUE LENGTH OF WS-CA", "        RETURNING WS-LEN",
               "    MOVE WS-LEN TO EIBCALEN", "    MOVE IN-PROG TO GG-NAME1", "    MOVE WS-LEN TO GG-LEN",
               "    CALL 'GGCTASK' USING GG-CICS", "    CALL 'GGCRUN' USING WS-CA",
+              "    CALL 'GGCAOUT' USING WS-CA BY VALUE WS-LEN",
               "    CALL 'GGCEND' USING GG-CICS", "    STOP RUN."]  # fmt: skip
     assert all(len(ln) <= 65 for ln in lines), [ln for ln in lines if len(ln) > 65]
     return "".join("       " + ln + "\n" for ln in lines)
@@ -1011,7 +1013,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
     for f in files:
-        spec = case["datasets"].get(f["base"])
+        spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
         (work / "files" / f["base"]).write_bytes(
@@ -1086,7 +1088,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
             for t, query, names in dumps:
                 script.append(f"{{ echo '{'|'.join(names)}'; {sqlenv}./ggsqlrun -q \"{query}\"; }} > {rel}/db2/{t}")
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
-    proc = (common.run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args()))
+    proc = (common.run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case)))
             if db2 else common.run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")
@@ -1156,6 +1158,8 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "WRITEQ-TD":  # a transient-data record, as text in the data's page
             text = common._decode_text(data, enc)
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
+    left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
+    res["linked_commarea"] = decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
     return res
 
 
@@ -1421,7 +1425,7 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                     f"                }}\n"
                     f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
-    for dsn, spec in case["datasets"].items():
+    for dsn, spec in case.get("datasets", {}).items():
         ent = spec["entity"]
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
@@ -1517,6 +1521,12 @@ class EquivalenceRunTest {{
                 }}
                 events.add(copy);
             }}
+            if (commarea != null) {{  // a LINKed program's result: the COMMAREA it leaves (equivalence_cics.linked_result)
+                Map<String, Object> left = new LinkedHashMap<>();
+                left.put("event", "COMMAREA");
+                left.put("commarea", commarea);
+                events.add(left);
+            }}
             json.writeValue(out.resolve(sc.get("name").asText() + ".json").toFile(), events);
         }}
     }}
@@ -1596,7 +1606,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         (inputs / "db2dumps.txt").write_text("".join(
             f"{t}\t{'|'.join(n)}\t{equivalence_db2.dump_query(t, n)}\n"
             for t, n in ((t, equivalence_db2.columns(t)) for t in case["db2"].get("compare", []))), encoding="latin-1")  # fmt: skip
-        props = f"{props} {equivalence_db2.java_props()}"
+        props = f"{props} {equivalence_db2.java_props(case)}"
     out = ej.run_maven(project, work, inputs, props=props)
     result = {}
     for sc in case["scenarios"]:
@@ -1629,7 +1639,7 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
         left, right = by_key(left), by_key(right)
         if left == right:
             continue
-        spec = case["datasets"].get(base, {})
+        spec = case.get("datasets", {}).get(base, {})
         fields = []
         if spec.get("copybook"):  # the COPY members of a record in a program's own source: the case's copy_dirs
             src = corpus / spec["copybook"]
@@ -1679,7 +1689,17 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "ABEND":
             m = re.search(r"\babcode=(\S*)", args)
             out.append({"event": "ABEND", "abcode": m.group(1) if m else ""})
+    if res.get("linked_commarea") is not None:
+        out.append({"event": "COMMAREA", "commarea": res["linked_commarea"]})
     return out
+
+
+def linked_result(case: dict[str, Any], events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """A LINKed program's events (`"linked": true` in the case): its result is the COMMAREA it leaves in its caller's
+    storage, compared as a last COMMAREA event -- unless the task abended (no caller sees it then). Any other
+    program's final COMMAREA storage is not observable (a terminal task's RETURN COMMAREA is), so it is dropped."""
+    keep = case.get("linked") and not any(e.get("event") == "ABEND" for e in events)
+    return [e for e in events if e.get("event") != "COMMAREA" or keep]
 
 
 def _same(a: Any, b: Any) -> bool:
@@ -1808,9 +1828,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
                               "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
     ok = True
     for name, res in cobol.items():
-        d = compare_events(cobol_events(res), java.get(name, []))
+        cev, jev = linked_result(case, cobol_events(res)), linked_result(case, java.get(name, []))
+        d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
-                                   "cobol": cobol_events(res), "java": java.get(name, [])}  # fmt: skip
+                                   "cobol": cev, "java": jev}  # fmt: skip
         ok &= d["equal"] == d["events"]
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("faults"):  # #4023 follow-up: the same injected conditions fired on both sides, and at least one

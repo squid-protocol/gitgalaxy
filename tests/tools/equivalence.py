@@ -269,7 +269,7 @@ def run_cobol(
     (work / "run.sh").write_text("\n".join(script) + "\n", encoding="ascii")
     if db2 and reused(work) is None:
         equivalence_db2.reset(case, corpus)
-    proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args())) if db2
+    proc = (run_cobol_step(work, equivalence_db2.COBOL_IMAGE, tuple(equivalence_db2.cobol_docker_args(case))) if db2
             else run_cobol_step(work))  # fmt: skip
     if proc.returncode != 0:
         raise RuntimeError(f"COBOL side failed:\n{proc.stdout}\n{proc.stderr}")

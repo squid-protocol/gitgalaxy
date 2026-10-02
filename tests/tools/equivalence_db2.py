@@ -5,7 +5,13 @@ A case declares it under "db2":
 
     "db2": {"ddl": ["app/.../ddl/TRNTYPE.ddl"],        the tables, created as the corpus's DDL says
             "seed": "@case/seed.sql",                 INSERTs: the tables' content before every run
-            "compare": ["CARDDEMO.TRANSACTION_TYPE"]} what each run leaves there, compared row by row
+            "compare": ["CARDDEMO.TRANSACTION_TYPE"], what each run leaves there, compared row by row
+            "qualifier": "IBMUSER"}                   the bind's QUALIFIER: the schema unqualified names resolve to
+
+A DDL member may be SQL, or a z/OS job that runs it (a `.jcl` member: its in-stream SQL, from the first statement to
+`/*`). Db2 for z/OS clauses that place or audit a table but do not change what a query returns are removed, as Db2
+for Linux rejects them (ddl_text): `IN database.tablespace`, `USING STOGROUP`, `AUDIT ...`, `[NOT] VOLATILE
+[CARDINALITY]`, `SET CURRENT SQLID`, and CREATE DATABASE / STOGROUP / TABLESPACE statements.
 
 Before each run (the COBOL step, every Java run, every fault run) the compared and seeded tables are emptied and
 the seed loaded again. A table is dumped as text, one row a line, ordered by every column: each value between
@@ -16,6 +22,7 @@ The container is started on first use and left running (`docker rm -f gitgalaxy-
 
 from __future__ import annotations
 
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -99,13 +106,46 @@ def _tables(case: dict[str, Any]) -> list[str]:
     return list(dict.fromkeys([*spec.get("compare", []), *spec.get("tables", [])]))
 
 
+_ZOS_ONLY = [
+    re.compile(r"\bIN\s+[A-Z0-9_#@$]+\.[A-Z0-9_#@$]+", re.I),  # IN database.tablespace
+    re.compile(r"\bUSING\s+STOGROUP\s+[A-Z0-9_#@$]+", re.I),
+    re.compile(r"\bAUDIT\s+(NONE|CHANGES|ALL)\b", re.I),
+    re.compile(r"\b(NOT\s+)?VOLATILE(\s+CARDINALITY)?\b", re.I),
+]
+_ZOS_STATEMENTS = re.compile(r"^\s*(SET\s+CURRENT\s+SQLID|CREATE\s+(DATABASE|STOGROUP|TABLESPACE)|COMMIT)\b", re.I)
+
+
+def ddl_text(path: Path) -> str:
+    """A DDL member as Db2 for Linux runs it (see the module's docstring): a job's in-stream SQL, z/OS-only clauses
+    and statements removed. Anything else is kept as written."""
+    text = path.read_text(encoding="latin-1")
+    if path.suffix.lower() == ".jcl":
+        body, on = [], False
+        for ln in text.splitlines():
+            if ln.startswith("/*") and on:
+                on = False
+            elif re.match(r"\s*(SET|CREATE|ALTER|INSERT|DROP)\b", ln, re.I) and not ln.startswith("//"):
+                on = True
+            if on and not ln.startswith("//"):
+                body.append(ln[:72])
+        text = "\n".join(body)
+    out = []
+    for stmt in text.split(";"):
+        if not stmt.strip() or _ZOS_STATEMENTS.match(stmt):
+            continue
+        for rx in _ZOS_ONLY:
+            stmt = rx.sub("", stmt)
+        out.append(stmt.strip() + ";")
+    return "\n".join(out) + "\n"
+
+
 def create(case: dict[str, Any], corpus: Path) -> None:
     """The case's tables, dropped and created again from its DDL."""
     ensure()
     for t in _tables(case):
         _clp(f"DROP TABLE {t};", check=False)
     for ddl in case["db2"].get("ddl", []):
-        _clp((corpus / ddl).read_text(encoding="latin-1"))
+        _clp(ddl_text(corpus / ddl))
 
 
 def reset(case: dict[str, Any], corpus: Path) -> None:
@@ -169,9 +209,16 @@ def outputs(case: dict[str, Any]) -> dict[str, bytes]:
 
 
 # ---- the COBOL side --------------------------------------------------------------------------------------------
-def cobol_docker_args() -> list[str]:
+def qualifier(case: dict[str, Any] | None) -> str | None:
+    """The bind's QUALIFIER (the schema unqualified table names resolve to), or None: the user's own."""
+    return ((case or {}).get("db2") or {}).get("qualifier")
+
+
+def cobol_docker_args(case: dict[str, Any] | None = None) -> list[str]:
     """The COBOL step's container: on the Db2 network, the connection in its environment (not in run.sh)."""
     conn = f"DATABASE={DATABASE};HOSTNAME={CONTAINER};PORT=50000;PROTOCOL=TCPIP;UID={USER};PWD={PASSWORD};"
+    if qualifier(case):
+        conn += f"CURRENTSCHEMA={qualifier(case)};"
     return ["--network", NETWORK, "-e", f"GGSQL_CONN={conn}"]
 
 
@@ -223,6 +270,7 @@ def patch_project(project: Path, package: str) -> None:
     dest.write_text(CONFIG.replace("__PKG__", package), encoding="utf-8")
 
 
-def java_props() -> str:
-    return (f"-Dgitgalaxy.db2.url=jdbc:db2://localhost:{PORT}/{DATABASE} -Dgitgalaxy.db2.user={USER} "
+def java_props(case: dict[str, Any] | None = None) -> str:
+    schema = f":currentSchema={qualifier(case)};" if qualifier(case) else ""
+    return (f"-Dgitgalaxy.db2.url=jdbc:db2://localhost:{PORT}/{DATABASE}{schema} -Dgitgalaxy.db2.user={USER} "
             f"-Dgitgalaxy.db2.password={PASSWORD}")  # fmt: skip

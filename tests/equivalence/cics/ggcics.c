@@ -1473,6 +1473,18 @@ int GGCCNCL(gg_cics *c) {
     return 0;
 }
 
+/* A LINKed program's result: the COMMAREA it leaves in its caller's storage, written as commarea.out when the task
+ * ends (the driver calls this after the program, whether it RETURNed or GOBACKed). */
+int GGCAOUT(const char *ca, int len) {
+    char path[3000];
+    snprintf(path, sizeof path, "%s/commarea.out", dir_out());
+    FILE *f = fopen(path, "wb");
+    if (!f) return 0;
+    if (len > 0) fwrite(ca, 1, (size_t)len, f);
+    fclose(f);
+    return 0;
+}
+
 /* The program returned to the driver without a RETURN / XCTL / ABEND. */
 int GGCEND(gg_cics *c) {
     (void)c;

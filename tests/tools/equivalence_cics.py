@@ -203,16 +203,17 @@ def _handle(pairs: list[tuple[str, str | None]], labels: list[str]) -> list[str]
     opts = dict(pairs)
     if verb in ("PUSH", "POP") and kind == "HANDLE":
         return _call("GGCPUSH" if verb == "PUSH" else "GGCPOP", []) + _resp(opts, True, labels)
-    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region"
+    if verb == "ASSIGN":  # ABCODE (#4003); APPLID / SYSID: the region's identity, from the case's "region";
+        # PROGRAM: the name of the program running (IBM CICS TS, ASSIGN: "the name of the current program")
         asked = [(n, v) for n, v in pairs[1:] if n not in ("RESP", "RESP2", "NOHANDLE")]
-        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID")]
+        other = [n for n, _v in asked if n not in ("ABCODE", "APPLID", "SYSID", "PROGRAM")]
         if other or not asked or not all(v for _n, v in asked):
             raise Unsupported(
                 f"ASSIGN {' '.join(other) or 'without a target'}", [f"ASSIGN {n}" for n in other or ["?"]]
             )
         lines: list[str] = []
         for n, target in asked:
-            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4}[n]
+            width = {"ABCODE": 4, "APPLID": 8, "SYSID": 4, "PROGRAM": 8}[n]
             lines += ["MOVE SPACES TO GG-NAME2" if n == "ABCODE" else f"MOVE '{n}' TO GG-NAME2"] + _call("GGCASGN", [])
             lines.append(f"MOVE GG-NAME1(1:{width}) TO {target}")
         return lines + _resp(opts, False)
@@ -1159,7 +1160,9 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
             text = common._decode_text(data, enc)
             res.setdefault("td", []).append(f"<undecodable {data!r} in {enc}>" if text is None else text)
     left = out / "commarea.out"  # a LINKed program's result: the COMMAREA it left (ggcics GGCAOUT)
-    res["linked_commarea"] = decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
+    res["linked_commarea"] = (
+        decode_record(left.read_bytes(), ca_fields, enc) if left.is_file() and left.stat().st_size else None
+    )
     return res
 
 
@@ -1352,7 +1355,9 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
     return name
 
 
-DB2_JAVA = """    java.sql.Connection db2() throws java.sql.SQLException {
+DB2_JAVA = """    @Autowired org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate db2Jdbc;  // EquivalenceDb2Config
+
+    java.sql.Connection db2() throws java.sql.SQLException {
         return java.sql.DriverManager.getConnection(System.getProperty("gitgalaxy.db2.url"),
             System.getProperty("gitgalaxy.db2.user"), System.getProperty("gitgalaxy.db2.password"));
     }
@@ -1441,6 +1446,13 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     db2_reset = "            db2Reset();" if db2 else ""
     db2_dump = '            db2Dump(sc.get("name").asText());' if db2 else ""
     db2_methods = DB2_JAVA if db2 else ""
+    # a Db2 case: the task's SQL is one Db2 unit of work (one connection, as the task's Db2 thread under CICS):
+    # committed when the task ends, rolled back with its files by SYNCPOINT ROLLBACK or an abend
+    db2_begin = ("new org.springframework.transaction.support.TransactionTemplate(new org.springframework.jdbc."
+                 "datasource.DataSourceTransactionManager(db2Jdbc.getJdbcTemplate().getDataSource()))"
+                 ".executeWithoutResult(db2Status -> {\n            ") if db2 else ""  # fmt: skip
+    db2_rollback = "db2Status.setRollbackOnly(); " if db2 else ""
+    db2_end = "\n            });" if db2 else ""
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
             for m, cls in screens.items()]  # fmt: skip
@@ -1502,15 +1514,15 @@ class EquivalenceRunTest {{
                 task.withFaults(faults, out.resolve(sc.get("name").asText() + ".faults"));
             }}
             // one unit of work: a SYNCPOINT ROLLBACK, or an abend that ends the task, backs its changes out
-            new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
-                task.onRollback(status::setRollbackOnly);
+            {db2_begin}new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status -> {{
+                task.onRollback(() -> {{ status.setRollbackOnly(); {db2_rollback}}});
                 try {{
                     {var}.runTask(task);
                 }} catch (CicsAbendException e) {{
                     status.setRollbackOnly();
-                    task.abend(e.getAbcode());
+                    {db2_rollback}task.abend(e.getAbcode());
                 }}
-            }});
+            }});{db2_end}
 {chr(10).join(dumps)}
 {db2_dump}
             List<Map<String, Object>> events = new ArrayList<>();

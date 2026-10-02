@@ -1137,6 +1137,11 @@ int GGCASGN(gg_cics *c) {
     memset(c->name1, ' ', 8);
     c->resp = NORMAL;
     c->resp2 = 0;
+    if (strcmp(want, "PROGRAM") == 0) { /* ASSIGN PROGRAM: the program running at this level */
+        const char *p = current_program();
+        memcpy(c->name1, p, strlen(p) < 8 ? strlen(p) : 8);
+        return 0;
+    }
     if (strcmp(want, "APPLID") != 0 && strcmp(want, "SYSID") != 0) { /* ASSIGN ABCODE */
         memcpy(c->name1, task_abcode, 4);
         return 0;

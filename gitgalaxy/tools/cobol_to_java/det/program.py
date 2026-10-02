@@ -242,8 +242,10 @@ def with_trunc(java: str, std: bool) -> str:
             continue
         body = java[m.end() : end]
         out.append(java[at : m.end()])
-        out.append(f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
-                   f"({'STD' if std else 'BIN'})\n        try {{")
+        out.append(
+            f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
+            f"({'STD' if std else 'BIN'})\n        try {{"
+        )
         out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
         out.append("    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n        }\n    ")
         at = end

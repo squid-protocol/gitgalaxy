@@ -24,7 +24,14 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.compiler_options import DEFAULTS, SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
+from gitgalaxy.core.compiler_options import (
+    DEFAULTS,
+    SEMANTIC_OPTIONS,
+    cards,
+    compiler_options,
+    effective,
+    parse_options,
+)
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
 from gitgalaxy.core.source_text import decode_bytes, read_source
@@ -547,7 +554,9 @@ def reused(work: Path) -> Path | None:
     return earlier / work.resolve().relative_to(root)
 
 
-def run_cobol_step(work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()) -> subprocess.CompletedProcess[str]:
+def run_cobol_step(
+    work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()
+) -> subprocess.CompletedProcess[str]:
     """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
     copy in what the earlier run's identical step wrote."""
     earlier = reused(work)

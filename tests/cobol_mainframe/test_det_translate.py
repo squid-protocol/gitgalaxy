@@ -146,10 +146,14 @@ def test_each_entry_runs_with_its_programs_trunc(tmp_path):
     src.write_text("       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n", encoding="ascii")
     assert P.trunc_std(src) is True
     assert P.trunc_std(src, ["TRUNC(BIN)"]) is False
-    src.write_text("       PROCESS TRUNC(STD)\n       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n", encoding="ascii")
+    src.write_text(
+        "       PROCESS TRUNC(STD)\n       IDENTIFICATION DIVISION.\n       PROGRAM-ID. T.\n", encoding="ascii"
+    )
     assert P.trunc_std(src, ["TRUNC(BIN)"]) is True  # the program's own card wins
-    java = ("class S {\n    public void runTask(CicsTask task) {\n        x(\"{\");\n        return;\n    }\n"
-            "    void other() {\n    }\n}\n")
+    java = (
+        'class S {\n    public void runTask(CicsTask task) {\n        x("{");\n        return;\n    }\n'
+        "    void other() {\n    }\n}\n"
+    )
     out = P.with_trunc(java, True)
     assert "boolean truncBefore = Cobol.swapTruncBinary(true);  // TRUNC(STD)" in out
     assert out.index("finally") < out.index("void other()") and 'x("{");' in out

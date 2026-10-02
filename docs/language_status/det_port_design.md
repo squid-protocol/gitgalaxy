@@ -364,6 +364,36 @@ calls of their own: in total, runtime call sites rise about 5%. It is a readabil
 every screen field overlaps another, and overlapping items are never typed. Typing them needs aliasing (one Java
 field for `TRNAMTI` and `TRNAMTO`). That is the next step.
 
+## Db2 (embedded SQL)
+
+**Proven on real Db2.** Both sides of a Db2 case run their SQL on one IBM Db2 (Db2 Community Edition, in a container,
+`tests/tools/equivalence_db2.py`). The tables are created from the corpus's DDL, reset to the case's seed before every
+run, and compared row by row after it. Each value is compared in its character form, trailing blanks included, and
+NULL is distinct.
+
+- **COBOL side (the oracle).** GnuCOBOL has no Db2 precompiler, so the harness has one (`tests/tools/equivalence_sql.py`):
+  - each `EXEC SQL` becomes a `CALL 'GGSQL'`, and the stub (`tests/equivalence/db2/ggsql.c`) runs the statement on Db2
+    through IBM's CLI driver;
+  - host variables are bound as the Db2 precompiler declares them for COBOL: `PIC X(n)` CHAR(n) with all its bytes,
+    a 49-level pair VARCHAR, zoned and packed DECIMAL(p,s), binary SMALLINT / INTEGER / BIGINT;
+  - SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2 itself;
+  - forms it does not model are refused by name: WHENEVER, positioned UPDATE / DELETE, dynamic SQL, host-variable
+    arrays, a program that shows SQLERRMC.
+- **Java side (the det port).** Each statement calls the generated Db2 repository's method for it. The generator writes
+  one method per statement, with the SQL as written and its Javadoc naming the source line and each parameter's host
+  variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
+  and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
+  +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
+- **Proven:** CardDemo's COBTUPDT (batch, `carddemo-cobtupdt`). All three outputs match: RETURN-CODE 4, the table
+  9/9 rows and SYSOUT 32/32 lines. The case covers a duplicate key (-803), +100 updates and deletes, and a
+  50-character description. A `PIC X(50)` host variable keeps its trailing blanks in the VARCHAR(50) column, as Db2
+  stores it.
+- **Declared, not measured:**
+  - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
+  - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.
+  - A run that ends normally commits.
+  - The Java side commits each statement as the repositories run it, so ROLLBACK is a hole.
+
 ## In port_runner
 
 The combined method runs in the porting loop like any other backend, and every event lands in

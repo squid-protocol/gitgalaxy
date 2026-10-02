@@ -118,7 +118,7 @@ def _ports(work: Path) -> dict[str, dict[str, str]]:
     """{case: {file under its port: text}} of a translate-only work directory."""
     out: dict[str, dict[str, str]] = {}
     for port in sorted(work.glob("*/port")):
-        out[port.parent.name] = {str(f.relative_to(port)): f.read_text(encoding="utf-8")
+        out[port.parent.name] = {f.relative_to(port).as_posix(): f.read_text(encoding="utf-8")
                                  for f in sorted(port.rglob("*.java"))}  # fmt: skip
     return out
 

@@ -693,7 +693,7 @@ public class CicsTask {
     }
 
     private static boolean highValues(String key) {
-        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\u00ff');
+        return !key.isEmpty() && key.chars().allMatch(ch -> ch == '\\u00ff');  // ASCII escape: javac reads source as cp1252 on Windows
     }
 
     /** STARTBR FILE(file) RIDFLD(key) [GTEQ | EQUAL] (IBM CICS TS): positions a browse on the first key >= `key`

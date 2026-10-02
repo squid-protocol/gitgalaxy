@@ -21,7 +21,7 @@ The short version:
 | CBSA (IBM CICS Bank Sample) | 8 | 3,501 | 10,250 | ×2.93 | 144 → 313 | 0 |
 | GenApp (IBM CICS General Insurance) | 13 | 2,818 | 21,892 | ×7.77 | 69 → 365 | 0 |
 
-All 49 det ports translate fully; 48 of the 49 equivalence cases behind them prove (the exceptions are listed in `proof_sweep.py`'s `KNOWN_UNPROVEN`; of the programs in this table only COCRDUPC is affected). All 23 model ports prove.
+48 of the 49 det ports translate every statement; COTRTLIC leaves 1 of its 632 statements, a dynamic `CALL`, as a hole. 48 of the 50 equivalence cases behind them prove (the exceptions are listed in `proof_sweep.py`'s `KNOWN_UNPROVEN`; of the programs in this table only COCRDUPC is affected). All 23 model ports prove.
 
 ## Method
 

@@ -133,6 +133,19 @@ class Dto:
 class Generated:
     """What the generated project says about one program's CICS boundary."""
 
+    def target_contract(self, program: str) -> str | None:
+        """The COMMAREA DTO another program's generated service takes (its handleLink / handleTransaction), or None."""
+        from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
+
+        f = next(self.java.rglob(f"service/{java_class_base(program)}Service.java"), None)
+        if f is None:
+            return None
+        text = f.read_text(encoding="utf-8")
+        m = re.search(r"public \w+ handleLink\((\w+) request\)", text) or re.search(
+            r"handleTransaction\(String transid, (\w+) request\)", text
+        )
+        return m.group(1) if m else None
+
     def __init__(self, project: Path, stub: str):
         self.java = project / "src/main/java"
         self.dtos: dict[str, Dto] = {}
@@ -374,6 +387,17 @@ class Cics:
                     return it
         raise CicsError(f"{leaf.cobol}: not a {leaf.size}-byte item of {name}")
 
+    def _value_name(self, operand: str | None) -> str | None:
+        """A data item's literal VALUE (a program named through a constant), or None."""
+        if not operand or _literal(operand):
+            return None
+        try:
+            it = self.g.resolve(self.ref(_arg(operand)))
+        except Exception:  # not a plain data name
+            return None
+        vals = getattr(it, "values", None) or []
+        return vals[0][1].strip().upper() if vals and vals[0][0] == "lit" else None
+
     def dto_for(self, area: E.Ref, size: int, program: str | None = None) -> str:
         """The DTO a COMMAREA travels as: the target's (XCTL), the program's own contract when the area is its size,
         else the record's own DTO."""
@@ -381,6 +405,9 @@ class Cics:
             return self.codec(self.gp.xctl[program])
         if program and program in self.gp.links:
             return self.codec(self.gp.links[program])
+        target = self.gp.target_contract(program) if program else None
+        if target:  # the stub types no link to it: what the target accepts
+            return self.codec(target)
         if self.gp.contract and self.gp.dto(self.gp.contract).size == size:
             return self.codec(self.gp.contract)
         it = self.g.resolve(area)
@@ -448,7 +475,9 @@ class Cics:
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
         if verb == "LINK":
-            prog_lit = _literal(opts.get("PROGRAM"))
+            # a literal, or a data item's VALUE (GenApp's 01 LGUPVS01 PIC X(8) VALUE 'LGUPVS01'): the program the
+            # COMMAREA's DTO is typed for -- the name the LINK uses at run time is still the item's
+            prog_lit = _literal(opts.get("PROGRAM")) or self._value_name(opts.get("PROGRAM"))
             prog = self.name(_arg(opts.get("PROGRAM")))
             if "CHANNEL" in opts or "INPUTMSG" in opts:
                 raise CicsError("LINK with CHANNEL / INPUTMSG")
@@ -530,13 +559,16 @@ class Cics:
         if verb == "ASSIGN":
             out = []
             for k, v in opts.items():
+                if k in ("RESP", "RESP2", "NOHANDLE"):
+                    continue  # ASSIGN raises no condition here: RESP is NORMAL (below)
                 src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
                        # the running program's own name, 8 characters
-                       "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}")}.get(k)  # fmt: skip
+                       "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}"),
+                       "INVOKINGPROG": "task.invokingProgram()"}.get(k)  # fmt: skip
                 if src is None:
                     raise CicsError(f"ASSIGN {k}")
                 out.append(f"{ind}DetCics.putText({self.field(_arg(v))}, {src}, CS);")
-            return out
+            return out + (self.outcome(opts, "0", "0", ind) if "RESP" in opts or "RESP2" in opts else [])
         if verb == "ASKTIME":
             return [
                 f"{ind}Cobol.store({self.field(_arg(opts['ABSTIME']))}, BigDecimal.valueOf(task.asktime()), false, CS);"

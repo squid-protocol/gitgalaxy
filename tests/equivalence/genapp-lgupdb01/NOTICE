@@ -1,0 +1,14 @@
+CICS General Insurance Application (GenApp)
+https://github.com/cicsdev/cics-genapp
+(C) Copyright IBM Corp. 2011, 2020
+
+Licensed under the Eclipse Public License - v 2.0 (see LICENSE, the corpus's
+own licence file). The programs under test -- base/src/lgupdb01.cbl and the
+program it LINKs to, base/src/lgupvs01.cbl -- their
+copybooks, and the Db2 tables and rows (base/cntl/db2cre.jcl: the DDL and its
+INSERTs) are GenApp's, used unmodified from the corpus.
+
+ksdspoly.txt in this directory is the genapp-lgupvs01 case's: derived from
+GenApp's sample data (db2cre.jcl's policy INSERT rows) in the VSAM record
+layout, with one synthetic record (key 900000000060000000007). The scenarios
+in case.json are written for this case.

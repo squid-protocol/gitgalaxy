@@ -216,8 +216,7 @@ class Sql:
             return [f"{ind}DetSql.reset(SQLCA_AREA, CS);  // each statement committed as it ran (the repositories')"]
         if verb == "ROLLBACK":
             raise SqlError("ROLLBACK: the generated repositories commit each statement")
-        if re.search(r"\bWHERE\s+CURRENT\s+OF\b", u):
-            raise SqlError("a positioned UPDATE / DELETE")
+        pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
         meth = self.methods.get((self.program, line))
         if meth is None:
             raise SqlError(f"no generated Db2 repository method for the statement at line {line}")
@@ -225,6 +224,12 @@ class Sql:
         self.repos[meth.repo] = repo_field
         call = f"{repo_field}.{meth.name}"
         n = self.g.tmpname("sqlParams")
+        if pos:  # positioned: the generated method takes the current row's id (GG_RID) as :ggRid
+            if verb not in ("UPDATE", "DELETE") or "GG-RID" not in meth.params:
+                raise SqlError("a positioned statement the generated method does not position")
+            return [*self._params(sql[: pos.start()], meth, n, ind),
+                    f"{ind}DetSql.updateCurrent(SQLCA_AREA, {self.g_str(pos.group(1))}, rid -> {{ "
+                    f"{n}.put({self.g_str(meth.params['GG-RID'])}, rid); return {call}({n}); }}, CS);"]  # fmt: skip
         if verb in ("INSERT", "UPDATE", "DELETE"):
             searched = verb != "INSERT"
             return [

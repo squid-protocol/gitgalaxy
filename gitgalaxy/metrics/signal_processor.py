@@ -18,6 +18,7 @@ import statistics
 from collections.abc import Mapping
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.core.function_population import is_population_function
 from gitgalaxy.core.spatial_correlation import WEIGHTED_SIGNALS, weighted_view
 from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.standards import analysis_lens
@@ -2255,7 +2256,7 @@ class SignalProcessor:
         all_funcs = []
         for f in parsed_files:
             for func in f.get("functions", []):
-                if isinstance(func, dict) and not func.get("calls_only"):
+                if is_population_function(func):  # #4110
                     all_funcs.append(
                         {
                             "name": func.get("name", "anon"),

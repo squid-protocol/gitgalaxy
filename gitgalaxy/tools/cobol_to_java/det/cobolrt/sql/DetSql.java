@@ -187,9 +187,14 @@ public final class DetSql {
      *  where none): false when an assignment failed (-304 / -305 set; the rest not assigned). */
     public static boolean into(Field ca, Map<String, Object> row, String kinds, Field[] hosts, Field[] texts,
                                Field[] indicators, Charset cs) {
-        Iterator<Object> values = row.values().iterator();
+        Iterator<Object> values = row.entrySet().stream()  // GG_RID: the row id a positioned statement uses, no column
+                .filter(e -> !"GG_RID".equalsIgnoreCase(e.getKey())).map(Map.Entry::getValue).iterator();
         for (int i = 0; i < hosts.length; i++) {
-            Object v = values.hasNext() ? values.next() : null;
+            if (!values.hasNext()) {  // more host variables than columns: those left as they are, SQLWARN3 'W'
+                warn(ca, 3, cs);
+                break;
+            }
+            Object v = values.next();
             Field ind = indicators == null ? null : indicators[i];
             if (v == null) {
                 if (ind == null) {
@@ -242,6 +247,12 @@ public final class DetSql {
         if (v instanceof java.sql.Date d) {
             return d.toLocalDate().toString();  // ISO: YYYY-MM-DD
         }
+        if (v instanceof java.sql.Timestamp t) {  // Db2's character form (ISO date format): 2011-08-22-12.13.01.000000
+            return t.toLocalDateTime().format(java.time.format.DateTimeFormatter.ofPattern("uuuu-MM-dd-HH.mm.ss.SSSSSS"));
+        }
+        if (v instanceof java.sql.Time t) {  // ISO: HH.MM.SS
+            return t.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH.mm.ss"));
+        }
         if (v instanceof BigDecimal b) {
             return b.toPlainString();
         }
@@ -254,6 +265,7 @@ public final class DetSql {
 
     // ---- cursors --------------------------------------------------------------------------------------------
     private static final Map<String, Iterator<Map<String, Object>>> OPEN = new HashMap<>();
+    private static final Map<String, Map<String, Object>> CURRENT = new HashMap<>();  // the row FETCH last returned
 
     /** OPEN: the cursor's query run with the host variables' values now (-502 when it is open). */
     public static void open(Field ca, String cursor, Supplier<List<Map<String, Object>>> query, Charset cs) {
@@ -278,15 +290,37 @@ public final class DetSql {
             return null;
         }
         if (!rows.hasNext()) {
+            CURRENT.remove(cursor);  // after the last row: no current row
             code(ca, 100, "02000", cs);
             return null;
         }
-        return rows.next();
+        Map<String, Object> row = rows.next();
+        CURRENT.put(cursor, row);
+        return row;
+    }
+
+    /** A positioned UPDATE / DELETE (WHERE CURRENT OF cursor): the generated method, given the current row's id
+     *  (GG_RID, which the cursor's query returns). -501 when the cursor is not open, -508 when it has no current row
+     *  (before its first FETCH, or after +100). */
+    public static void updateCurrent(Field ca, String cursor, java.util.function.Function<Object, Integer> statement,
+                                     Charset cs) {
+        reset(ca, cs);
+        if (!OPEN.containsKey(cursor)) {
+            code(ca, -501, "24501", cs);
+            return;
+        }
+        Map<String, Object> row = CURRENT.get(cursor);
+        if (row == null) {
+            code(ca, -508, "24504", cs);
+            return;
+        }
+        update(ca, () -> statement.apply(row.get("GG_RID")), false, cs);
     }
 
     /** CLOSE (-501 when it is not open). */
     public static void close(Field ca, String cursor, Charset cs) {
         reset(ca, cs);
+        CURRENT.remove(cursor);
         if (OPEN.remove(cursor) == null) {
             code(ca, -501, "24501", cs);
         }
@@ -295,5 +329,6 @@ public final class DetSql {
     /** A task's or a step's end: its cursors closed. */
     public static void closeAll() {
         OPEN.clear();
+        CURRENT.clear();
     }
 }

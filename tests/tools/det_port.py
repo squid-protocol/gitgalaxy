@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -81,6 +82,19 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         return out
     (port / "service").mkdir(parents=True, exist_ok=True)
     (port / "service" / f"{r.service}.java").write_text(r.java, encoding="utf-8")
+    for extra in case.get("programs", []):  # the programs the task LINKs to: translated the same way
+        x_svc = ej._service_class(extra["program"])
+        x_stub = (project / "src/main/java" / PKG_DIR / "service" / f"{x_svc}.java").read_text(encoding="utf-8")
+        try:
+            x = P.translate(corpus / extra["program_source"], dirs, x_stub, PKG, P.estate_files(project), project,
+                            style, typed, groups)  # fmt: skip
+        except Exception as e:
+            out.update({"translated": False, "error": f"{extra['program']}: {type(e).__name__}: {e}"})
+            return out
+        (port / "service" / f"{x.service}.java").write_text(x.java, encoding="utf-8")
+        r.stats["statements"] += x.stats["statements"]
+        r.stats["translated"] += x.stats["translated"]
+        r.stats["holes"] += x.stats["holes"]
     for rel, text in P.runtime_files(PKG, P.has_batch(project)).items():
         (port / rel).parent.mkdir(parents=True, exist_ok=True)
         (port / rel).write_text(text, encoding="utf-8")
@@ -124,7 +138,9 @@ def _ports(work: Path) -> dict[str, dict[str, str]]:
 
 
 def compare(base: Path, new: Path) -> list[dict[str, Any]]:
-    """Each case's port in `new` against `base`: unchanged, changed (the files and changed lines), new or gone."""
+    """Each case's port in `new` against `base`: unchanged, changed (the files and changed lines), new or gone.
+    A runtime class (cobolrt/...) every port carries counts against a port only when its own code names that class
+    (a DetSql change moves the Db2 ports, not every port): the files list says which runtime class moved it."""
     import difflib
 
     a, b = _ports(base), _ports(new)
@@ -133,13 +149,17 @@ def compare(base: Path, new: Path) -> list[dict[str, Any]]:
         if case not in a or case not in b:
             rows.append({"case": case, "status": "new" if case not in a else "gone"})
             continue
+        own = " ".join(t for rel, t in b[case].items() if not rel.startswith("cobolrt/"))
         files = []
         for rel in sorted(set(a[case]) | set(b[case])):
             x, y = a[case].get(rel, ""), b[case].get(rel, "")
-            if x != y:
-                n = sum(1 for ln in difflib.unified_diff(x.splitlines(), y.splitlines(), lineterm="", n=0)
-                        if ln[:1] in "+-" and ln[:3] not in ("+++", "---"))  # fmt: skip
-                files.append({"file": rel, "lines": n})
+            if x == y:
+                continue
+            if rel.startswith("cobolrt/") and not re.search(rf"\b{re.escape(Path(rel).stem)}\b", own):
+                continue  # a runtime class this port never names
+            n = sum(1 for ln in difflib.unified_diff(x.splitlines(), y.splitlines(), lineterm="", n=0)
+                    if ln[:1] in "+-" and ln[:3] not in ("+++", "---"))  # fmt: skip
+            files.append({"file": rel, "lines": n})
         rows.append({"case": case, "status": "changed" if files else "unchanged", "files": files})
     return rows
 

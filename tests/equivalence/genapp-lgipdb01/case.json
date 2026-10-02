@@ -1,0 +1,312 @@
+{
+ "kind": "cics",
+ "corpus": "cics-genapp",
+ "program": "LGIPDB01",
+ "program_source": "base/src/lgipdb01.cbl",
+ "copy_dirs": [
+  "base/src"
+ ],
+ "transid": "LGIP",
+ "clock": "2026/10/01 10:30:15.00",
+ "db2": {
+  "ddl": [
+   "base/cntl/db2cre.jcl"
+  ],
+  "seed": "base/cntl/db2cre.jcl",
+  "symbols": {
+   "<DB2DBID>": "GENASA1"
+  },
+  "qualifier": "GENASA1",
+  "compare": [
+   "GENASA1.POLICY",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.HOUSE",
+   "GENASA1.MOTOR",
+   "GENASA1.COMMERCIAL"
+  ],
+  "tables": [
+   "GENASA1.CLAIM",
+   "GENASA1.COMMERCIAL",
+   "GENASA1.MOTOR",
+   "GENASA1.HOUSE",
+   "GENASA1.ENDOWMENT",
+   "GENASA1.POLICY",
+   "GENASA1.CUSTOMER_SECURE",
+   "GENASA1.CUSTOMER"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "base/src/lgipol01.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "endowment-3-5",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "01IEND, SELECT INTO on POLICY x ENDOWMENT +0: '00'; PADDINGDATA and LENGTH(PADDINGDATA) are NULL (indicators -1), so no padding is moved and 'FINAL' lands at CA-E-PADDING-DATA(1:5); brokerId 0 / payment 0 not NULL, moved to the 9(10)/9(6) fields"
+  },
+  {
+   "name": "endowment-8-4-lowercase-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01iend",
+    "CA-CUSTOMER-NUM": 8,
+    "CA-REQUEST-SPECIFIC": "0000000004                                                                        "
+   },
+   "why": "the request id in lower case: FUNCTION UPPER-CASE makes it 01IEND; the second endowment (equities/with-profits 'Y'); BROKERSREFERENCE '' is CHAR(10) blanks with a 0 indicator"
+  },
+  {
+   "name": "endowment-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000004                                                                        "
+   },
+   "why": "policy 4 belongs to customer 8: +100, '01', nothing moved and no 'FINAL'"
+  },
+  {
+   "name": "endowment-on-motor-policy",
+   "commarea": {
+    "CA-REQUEST-ID": "01IEND",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0000000001                                                                        "
+   },
+   "why": "policy 1 is a motor policy, no ENDOWMENT row: the join is empty, +100, '01'"
+  },
+  {
+   "name": "house-4-6",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                                                        "
+   },
+   "why": "01IHOU, POLICY x HOUSE +0: bedrooms SMALLINT and value INTEGER moved to 9(3)/9(8); house name ' '; 'FINAL' in CA-H-FILLER"
+  },
+  {
+   "name": "house-6-7-commercial-type",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 6,
+    "CA-REQUEST-SPECIFIC": "0000000007                                                                        "
+   },
+   "why": "policy 7's POLICYTYPE is 'C' but its row is in HOUSE: the program never reads POLICYTYPE, so the house is returned ('HOME FARM', 3750000)"
+  },
+  {
+   "name": "house-9-8",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 9,
+    "CA-REQUEST-SPECIFIC": "0000000008                                                                        "
+   },
+   "why": "house number ' 12b' with a leading blank, a 7-byte postcode in CHAR(8)"
+  },
+  {
+   "name": "house-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01IHOU",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "policy 5 is an endowment: +100, '01'"
+  },
+  {
+   "name": "motor-2-1",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0000000001                                                                        "
+   },
+   "why": "01IMOT, POLICY x MOTOR +0: CC, value, premium, accidents converted from binary; YEAROFMANUFACTURE (DATE) as ISO text; 'FINAL' in CA-M-FILLER"
+  },
+  {
+   "name": "motor-5-3",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "0000000003                                                                        "
+   },
+   "why": "accidents 12, premium 2850, a 5-character reg number in CHAR(7)"
+  },
+  {
+   "name": "motor-10-2",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 10,
+    "CA-REQUEST-SPECIFIC": "0000000002                                                                        "
+   },
+   "why": "the 10-character make VOLKSWAGEN, value 600"
+  },
+  {
+   "name": "motor-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "01IMOT",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "0000000009                                                                        "
+   },
+   "why": "customer 5's policy 9 is commercial: +100, '01'"
+  },
+  {
+   "name": "commercial-1-10",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "01ICOM, POLICY x COMMERCIAL +0: REQUESTDATE (TIMESTAMP) into DB2-LASTCHANGED, STARTDATE/RENEWALDATE into issue/expiry; the 255-byte CHAR columns and nine SMALLINT/INTEGER perils, premiums and status into CA-COMMERCIAL; 'FINAL' in CA-B-FILLER"
+  },
+  {
+   "name": "commercial-5-9",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "0000000009                                                                        "
+   },
+   "why": "the second commercial row (Burnley Football Club, 'STADIUM')"
+  },
+  {
+   "name": "commercial-wrong-customer",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000009                                                                        "
+   },
+   "why": "policy 9 belongs to customer 5: +100, '01'"
+  },
+  {
+   "name": "commercial-by-policy-10",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-CUSTOMER-NUM": 7,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "02ICOM selects by policy number alone: +0, CA-CUSTOMER-NUM (7 on entry) replaced by the row's 1"
+  },
+  {
+   "name": "commercial-by-policy-9-lowercase",
+   "commarea": {
+    "CA-REQUEST-ID": "02icom",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0000000009                                                                        "
+   },
+   "why": "02icom upper-cased; CA-CUSTOMER-NUM 0 replaced by 5"
+  },
+  {
+   "name": "commercial-by-policy-not-found",
+   "commarea": {
+    "CA-REQUEST-ID": "02ICOM",
+    "CA-CUSTOMER-NUM": 4,
+    "CA-REQUEST-SPECIFIC": "0000000006                                                                        "
+   },
+   "why": "policy 6 has no COMMERCIAL row: +100, '01', CA-CUSTOMER-NUM kept"
+  },
+  {
+   "name": "customer-cursor-one-row",
+   "commarea": {
+    "CA-REQUEST-ID": "03ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                        "
+   },
+   "why": "03ICOM, Cust_Cursor: OPEN +0, one FETCH +0 (customer 1's policy 10: CA-CUSTOMER-NUM, CA-POLICY-NUM, common and commercial fields filled, ICOM-Record-Count 1), then FETCH +100 ends the loop, CLOSE +0, '00'"
+  },
+  {
+   "name": "customer-cursor-skips-other-types",
+   "commarea": {
+    "CA-REQUEST-ID": "03ICOM",
+    "CA-CUSTOMER-NUM": 5,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                        "
+   },
+   "why": "customer 5 has a motor (3) and a commercial (9) policy: the join returns only policy 9"
+  },
+  {
+   "name": "customer-cursor-no-rows",
+   "commarea": {
+    "CA-REQUEST-ID": "03ICOM",
+    "CA-CUSTOMER-NUM": 2,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                        "
+   },
+   "why": "customer 2 has no commercial policy: the first FETCH is +100, nothing moved, CLOSE, '00'"
+  },
+  {
+   "name": "zip-cursor-so212jn",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                                                                                                                                                                                                                                                                                       SO212JN "
+   },
+   "why": "05ICOM, Zip_Cursor on CA-B-POSTCODE 'SO212JN ' (host variable in the COMMAREA): one row, policy 10 / customer 1, then +100, CLOSE, '00'"
+  },
+  {
+   "name": "zip-cursor-bb104bx",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                                                                                                                                                                                                                                                                                       BB104BX "
+   },
+   "why": "the other zipcode: policy 9 / customer 5"
+  },
+  {
+   "name": "zip-cursor-no-rows",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                                                                                                                                                                                                                                                                                       ZZ99 9ZZ"
+   },
+   "why": "a postcode no COMMERCIAL row has: first FETCH +100, the COMMAREA keeps customer 3 / policy 5"
+  },
+  {
+   "name": "zip-cursor-case-sensitive",
+   "commarea": {
+    "CA-REQUEST-ID": "05ICOM",
+    "CA-CUSTOMER-NUM": 0,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                                                                                                                                                                                                                                                                                       so212jn "
+   },
+   "why": "'so212jn' in lower case: CHAR comparison is exact, no rows"
+  },
+  {
+   "name": "unknown-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01IXXX",
+    "CA-CUSTOMER-NUM": 3,
+    "CA-REQUEST-SPECIFIC": "0000000005                                                                        "
+   },
+   "why": "WHEN OTHER: '99', no SQL"
+  },
+  {
+   "name": "customer-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "01ICUS",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000000                                                                        "
+   },
+   "why": "a customer request id sent to the policy program: WHEN OTHER, '99'"
+  },
+  {
+   "name": "request-id-04icom",
+   "commarea": {
+    "CA-REQUEST-ID": "04ICOM",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "04ICOM is not a handled code (01/02/03/05 only): '99'"
+  },
+  {
+   "name": "blank-request-id",
+   "commarea": {
+    "CA-REQUEST-ID": "",
+    "CA-CUSTOMER-NUM": 1,
+    "CA-REQUEST-SPECIFIC": "0000000010                                                                        "
+   },
+   "why": "request id all spaces: '99'"
+  }
+ ],
+ "notes": "GenApp's Db2 'inquire policy' (LGIPDB01, LINKed by LGIPOL01 with the 32500-byte LGCMAREA COMMAREA; the COMMAREA is described by the record the caller passes, LGIPOL01's DFHCOMMAREA (COPY LGCMAREA), since LGIPDB01 includes the same copybook with EXEC SQL INCLUDE: the generated DTO is the caller's): the request id, upper-cased, picks the inquiry -- 01IEND / 01IHOU / 01IMOT / 01ICOM a SELECT INTO on POLICY joined with ENDOWMENT / HOUSE / MOTOR / COMMERCIAL by customer and policy number; 02ICOM a commercial SELECT by policy number alone (returning the customer number); 03ICOM the scroll cursor Cust_Cursor over a customer's commercial policies; 05ICOM the cursor Zip_Cursor over COMMERCIAL rows with CA-B-POSTCODE; anything else '99'. A row found is moved into CA-POLICY-COMMON and the type's area, marked 'FINAL'; +100 gives '01'. Tables (unqualified: the bind's QUALIFIER, GENASA1) are GenApp's own (base/cntl/db2cre.jcl: DDL and INSERTs, <DB2DBID> = GENASA1) and compared after every scenario. Not reachable here: EIBCALEN 0 (ABEND LGCA, l.251-255) and a COMMAREA too short for the policy ('98', l.390-392, 487-489, 581-583, 689-691, 793-795) -- the harness passes the whole 32500-byte COMMAREA; any negative SQLCODE ('90', l.426-428 and its copies; OPEN '89' l.843-847, 926-930; CLOSE '88' l.855-859, 938-942) -- no seeded data causes one and Db2 errors are not injectable (M2), and each path LINKs to LGSTSQ, which the harness does not run; a non-NULL PADDINGDATA (l.384-385, 411-412) and a NULL BROKERID / PAYMENT (the false side of l.397, 400, 494, 497, 588, 591) -- GenApp's endowment INSERTs omit PADDINGDATA and every policy has brokerId 0 and payment 0; more than one row from either cursor and the 20-row cap (l.907-908) -- each seeded customer and zipcode has at most one commercial policy. Derived from the CICS General Insurance Application (GenApp, github.com/cicsdev/cics-genapp; (C) Copyright IBM Corp. 2011, 2021), licensed under the Eclipse Public License 2.0: LICENSE here is the corpus's own, NOTICE names the source and what was derived."
+}

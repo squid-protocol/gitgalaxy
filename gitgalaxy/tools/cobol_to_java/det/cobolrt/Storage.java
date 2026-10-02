@@ -11,6 +11,13 @@ public final class Storage {
         this.bytes = new byte[size];
     }
 
+    /** A storage holding a copy of `data` (a record, a key in its record's place). */
+    public static Storage of(byte[] data) {
+        Storage s = new Storage(data.length);
+        System.arraycopy(data, 0, s.bytes, 0, data.length);
+        return s;
+    }
+
     /** The initial image computed by the translator, base64. */
     public static Storage image(String base64) {
         byte[] b = Base64.getDecoder().decode(base64);

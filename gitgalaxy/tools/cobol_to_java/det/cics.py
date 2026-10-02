@@ -32,7 +32,11 @@ DFHRESP = {"NORMAL": 0, "ERROR": 1, "EOF": 4, "EODS": 5, "EOC": 6, "INBFMH": 7, 
            "STRELERR": 86, "OPENERR": 87, "SPOLBUSY": 88, "SPOLERR": 89, "NODEIDERR": 90, "TASKIDERR": 91,
            "TCIDERR": 92, "DSNNOTFOUND": 93, "LOADING": 94, "MODELIDERR": 95, "OUTDESCRERR": 96,
            "PARTNERIDERR": 97, "PROFILEIDERR": 98, "NETNAMEIDERR": 99, "LOCKED": 100, "RECORDBUSY": 101,
-           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103}  # fmt: skip
+           "UOWNOTFOUND": 102, "UOWLNOTFOUND": 103,
+           # IBM CICS TS API Reference, RESP values (BUSY 128 / INCOMPLETE 126 in its SPI table; the others as the
+           # equivalence harness's own table, tests/tools/equivalence_cics.py, which agrees on every shared name)
+           "RDATT": 2, "WRBRK": 3, "DSIDERR": 12, "CHANNELERR": 122, "CCSIDERR": 123, "TIMEDOUT": 124,
+           "CODEPAGEERR": 125, "INCOMPLETE": 126, "APPNOTFOUND": 127, "BUSY": 128}  # fmt: skip
 
 MAP_OPTIONS = ("ERASE", "ERASEAUP", "FREEKB", "ALARM", "CURSOR", "FRSET", "MAPONLY", "DATAONLY", "PRINT", "LAST",
                "WAIT", "ACCUM", "PAGING", "TERMINAL", "NLEOM", "FORMFEED")  # fmt: skip
@@ -97,8 +101,8 @@ def parse_exec(text: str) -> tuple[list[str], dict[str, str | None]]:
 
 # ---- the generated DTOs ----------------------------------------------------------------------------------------
 _PROP = re.compile(r"//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);")
-_LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL))?,"
-                   r"\s*offset\s+(\d+),\s*(\d+)\s+bytes")  # fmt: skip
+_LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL|DISPLAY))?,"
+                   r"\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")  # fmt: skip
 _PART = re.compile(r"offset\s+(\d+),\s*(\d+)\s+bytes\s*->\s*([A-Z0-9-]+)")
 
 
@@ -111,6 +115,7 @@ class Leaf:
     usage: str
     offset: int
     size: int
+    source: str | None = None  # the copybook the generator read the field from
 
 
 @dataclass
@@ -135,6 +140,9 @@ class Generated:
         m = re.search(r"handleTransaction\(String transid, (\w+) request\)", stub)
         if m:
             self.contract = m.group(1)
+        # LINK targets: link<Program>(Type request), as the stub types each (local or distributed)
+        self.links = {mm.group(1).upper(): mm.group(2)
+                      for mm in re.finditer(r"public \w+ link(\w+)\((\w+) request\)", stub)}  # fmt: skip
         self.xctl = {mm.group(1).upper(): mm.group(2)
                      for mm in re.finditer(r"public \w+ xctl(\w+)\((\w+) request\)", stub)}  # fmt: skip
         self.files: dict[str, tuple[str, str, str | None]] = {}  # CICS file -> (repository, entity, findBy prop)
@@ -208,7 +216,7 @@ class Generated:
             if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
             d.leaves.append(Leaf(var, jtype, leaf.group(1), leaf.group(2), (leaf.group(3) or "DISPLAY").upper(),
-                                 int(leaf.group(4)), int(leaf.group(5))))  # fmt: skip
+                                 int(leaf.group(4)), int(leaf.group(5)), leaf.group(6)))  # fmt: skip
         self.dtos[cls] = d
         return d
 
@@ -311,9 +319,13 @@ class Cics:
         self.codecs[cls] = []  # (recursion guard)
         lines_in = [f"    private void in_{cls}({cls} d, Storage s, int base) {{", "        if (d == null) {",
                     "            return;", "        }"]  # fmt: skip
-        lines_out = [f"    private {cls} out_{cls}(Storage s, int base) {{", f"        {cls} d = new {cls}();"]
+        # fill_: the bytes into an existing DTO (a LINKed program's COMMAREA is its caller's object); out_: a new one
+        lines_out = [f"    private void fill_{cls}({cls} d, Storage s, int base) {{"]
         for leaf in d.leaves:
             it = item_for(leaf)
+            if it.size != leaf.size:
+                # the comment does not carry everything (SIGN LEADING SEPARATE): the item as its copybook declares it
+                it = self.declared(leaf)
             f = self.g.factory(it, "s", f"base + {leaf.offset}")
             cap = leaf.var[0].upper() + leaf.var[1:]
             if leaf.jtype == "String":
@@ -329,14 +341,35 @@ class Cics:
             cap = var[0].upper() + var[1:]
             lines_in.append(f"        in_{part.cls}(d.get{cap}(), s, base + {off});")
             lines_out.append(f"        d.set{cap}(out_{part.cls}(s, base + {off}));")
-        self.codecs[cls] = [*lines_in, "    }", "", *lines_out, "        return d;", "    }", ""]
+        self.codecs[cls] = [*lines_in, "    }", "", *lines_out, "    }", "",
+                            f"    private {cls} out_{cls}(Storage s, int base) {{", f"        {cls} d = new {cls}();",
+                            f"        fill_{cls}(d, s, base);", "        return d;", "    }", ""]  # fmt: skip
         return cls
+
+    def declared(self, leaf: Leaf) -> L.Item:
+        """A DTO field's item as the copybook the generator read it from declares it."""
+        from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+        name = Path(leaf.source or "").name
+        path = next((d / name for d in self.g.copy_dirs if name and (d / name).is_file()), None)
+        if path is None:
+            raise CicsError(f"{leaf.cobol}: {leaf.size} bytes, PIC {leaf.pic} is not; its copybook {name!r} not found")
+        raw = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. GGDTO.", "       DATA DIVISION.",
+               "       WORKING-STORAGE SECTION.", "       01 GG-DTO-RECORD."]  # fmt: skip
+        raw += path.read_text(encoding="latin-1").splitlines()
+        for rec in L.parse(logical_lines(raw, str(path))):
+            for it in rec.walk():
+                if it.name == leaf.cobol and it.size == leaf.size:
+                    return it
+        raise CicsError(f"{leaf.cobol}: not a {leaf.size}-byte item of {name}")
 
     def dto_for(self, area: E.Ref, size: int, program: str | None = None) -> str:
         """The DTO a COMMAREA travels as: the target's (XCTL), the program's own contract when the area is its size,
         else the record's own DTO."""
         if program and program in self.gp.xctl:
             return self.codec(self.gp.xctl[program])
+        if program and program in self.gp.links:
+            return self.codec(self.gp.links[program])
         if self.gp.contract and self.gp.dto(self.gp.contract).size == size:
             return self.codec(self.gp.contract)
         it = self.g.resolve(area)
@@ -375,6 +408,8 @@ class Cics:
             self.stores[name] = (
                 f"new DetCics.Store<{entity}>({repo}::findAll, e -> e.toRecord(CS), "
                 f"b -> {entity}.fromRecord(b, CS), {repo}::save, {repo}::delete, {off}, {length}, CS)"
+                # the base cluster's key: findById; an alternate index keeps the ordered scan
+                + (self.g.find_by_id(entity, repo) if prop is None else "")
             )
             self.g.entities.add(entity)
         return f"store({self.name(arg)})"
@@ -383,6 +418,9 @@ class Cics:
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         verb = " ".join(words)
+        if "COUNTER" in opts or "DCOUNTER" in opts:
+            # named counters (DEFINE / GET / UPDATE / DELETE COUNTER): neither this runtime nor the harness models them
+            raise CicsError(f"{verb} COUNTER: named counters are not modelled")
         g = self.g
         if verb == "SEND" and "MAP" in opts:
             return self.send_map(opts, ind)
@@ -397,12 +435,44 @@ class Cics:
                     *self.outcome(opts, "0", "0", ind)]  # fmt: skip
         if verb == "RECEIVE" and "MAP" in opts:
             return self.receive_map(opts, ind)
+        if verb == "LINK":
+            prog_lit = _literal(opts.get("PROGRAM"))
+            prog = self.name(_arg(opts.get("PROGRAM")))
+            if "CHANNEL" in opts or "INPUTMSG" in opts:
+                raise CicsError("LINK with CHANNEL / INPUTMSG")
+            g = self.g
+            r, ca = g.tmpname("lr"), g.tmpname("ca")
+            out: list[str] = []
+            if "COMMAREA" in opts:
+                area = self.ref(_arg(opts["COMMAREA"]))
+                cls = self.dto_for(area, self.size(_arg(opts["COMMAREA"])), prog_lit)
+                f = g.field_expr(area)
+                length = (
+                    self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["COMMAREA"])))
+                )
+                out += [f"{ind}{cls} {ca} = out_{cls}({f}.storage(), {f}.offset());",
+                        f"{ind}String {r} = task.link({prog}, {ca}, {length});",
+                        # what the linked program left in the COMMAREA is the caller's area now
+                        f"{ind}if (\"NORMAL\".equals({r})) in_{cls}({ca}, {f}.storage(), {f}.offset());"]  # fmt: skip
+            else:
+                out.append(f"{ind}String {r} = task.link({prog});")
+            ex = g.tmpname("exit")
+            out += [f"{ind}String {ex} = task.abendExit();",  # an abend below went to this program's exit
+                    f"{ind}if ({ex} != null) return GOTO | paragraph({ex});",
+                    f"{ind}if (task.ended()) throw new Goback();"]  # fmt: skip
+            return out + self.outcome(opts, f"DetCics.resp({r})", "0", ind)
         if verb == "RETURN":
             if "TRANSID" in opts or "COMMAREA" in opts:
                 tid = self.name(_arg(opts["TRANSID"])) if opts.get("TRANSID") else "null"
                 dto, length = self.commarea_out(opts) if "COMMAREA" in opts else ("null", "null")
-                return [f"{ind}task.returnTransid({tid}, {dto}, {length});", f"{ind}if (true) throw new Goback();"]
-            return [f"{ind}task.returnTransid(null, null);", f"{ind}if (true) throw new Goback();"]
+                return [f"{ind}caBack.run();", f"{ind}task.returnTransid({tid}, {dto}, {length});",
+                        f"{ind}if (true) throw new Goback();"]  # fmt: skip
+            # (a LINKed program's COMMAREA goes back to its caller before the RETURN is recorded)
+            return [
+                f"{ind}caBack.run();",
+                f"{ind}task.returnTransid(null, null);",
+                f"{ind}if (true) throw new Goback();",
+            ]
         if verb == "XCTL":
             prog_lit = _literal(opts["PROGRAM"])
             prog = self.name(_arg(opts["PROGRAM"]))
@@ -448,7 +518,9 @@ class Cics:
         if verb == "ASSIGN":
             out = []
             for k, v in opts.items():
-                src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()"}.get(k)
+                src = {"APPLID": "task.assignApplid()", "SYSID": "task.assignSysid()", "ABCODE": "task.abcode()",
+                       # the running program's own name, 8 characters
+                       "PROGRAM": G_jstr(f"{self.g.p.name[:8]:<8}")}.get(k)  # fmt: skip
                 if src is None:
                     raise CicsError(f"ASSIGN {k}")
                 out.append(f"{ind}DetCics.putText({self.field(_arg(v))}, {src}, CS);")
@@ -482,9 +554,59 @@ class Cics:
             return [f"{ind}int {r} = task.writeqTd({self.name(_arg(opts['QUEUE']))}, "
                     f"Cobol.text({f}, CS).substring(0, {n}));",
                     *self.outcome(opts, r, "0", ind)]  # fmt: skip
+        if verb in ("WRITEQ TS", "WRITEQ", "READQ TS", "READQ") and verb.startswith(("WRITEQ", "READQ")) \
+                and "TD" not in words:  # fmt: skip
+            return self.ts_queue(verb.split()[0], opts, ind)
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
-            return [f"{ind}task.{'rollback' if 'ROLLBACK' in opts else 'syncpoint'}();"]
+            return [f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"]
         raise CicsError(f"EXEC CICS {verb} not modelled")
+
+    def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:
+        """WRITEQ TS / READQ TS on the task's temporary storage (CicsTask): an item is the program's own bytes.
+        (The proofs cover no TS command yet: declared in docs/language_status/det_port_design.md.)"""
+        q = opts.get("QUEUE") or opts.get("QNAME")
+        if q is None:
+            raise CicsError(f"{verb} TS without QUEUE / QNAME")
+        queue = self.name(q)
+        g = self.g
+        r = g.tmpname("ts")
+        out: list[str] = []
+        if verb == "WRITEQ":
+            f = self.field(_arg(opts.get("FROM")))
+            n = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{f}.length()"
+            data = f"java.util.Arrays.copyOf(DetCics.bytes({f}), {n})"
+            if "REWRITE" in opts:
+                out.append(
+                    f"{ind}CicsTask.TsResult {r} = task.rewriteqTs({queue}, {self.int_(_arg(opts.get('ITEM')))}, {data});"
+                )
+            else:
+                out.append(f"{ind}CicsTask.TsResult {r} = task.writeqTs({queue}, {data});")
+                if opts.get("ITEM"):  # the item number assigned
+                    out.append(
+                        f"{ind}Cobol.store({self.field(_arg(opts['ITEM']))}, BigDecimal.valueOf({r}.item()), false, CS);"
+                    )
+        else:
+            into = self.field(_arg(opts.get("INTO")))
+            maxlen = self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else f"{into}.length()"
+            if "NEXT" in opts or not opts.get("ITEM"):
+                out.append(f"{ind}CicsTask.TsResult {r} = task.readqTsNext({queue}, {maxlen});")
+            else:
+                out.append(
+                    f"{ind}CicsTask.TsResult {r} = task.readqTs({queue}, {self.int_(_arg(opts['ITEM']))}, {maxlen});"
+                )
+            out.append(f"{ind}if ({r}.data() != null) DetCics.put({into}, {r}.data());")
+            if opts.get("LENGTH"):
+                out.append(f"{ind}if ({r}.length() >= 0) Cobol.store({self.field(_arg(opts['LENGTH']))}, "
+                           f"BigDecimal.valueOf({r}.length()), false, CS);")  # fmt: skip
+            if opts.get("ITEM") and "NEXT" in opts:
+                out.append(
+                    f"{ind}Cobol.store({self.field(_arg(opts['ITEM']))}, BigDecimal.valueOf({r}.item()), false, CS);"
+                )
+        if opts.get("NUMITEMS"):
+            out.append(
+                f"{ind}Cobol.store({self.field(_arg(opts['NUMITEMS']))}, BigDecimal.valueOf({r}.numItems()), false, CS);"
+            )
+        return out + self.outcome(opts, f"DetCics.resp({r}.resp())", "0", ind)
 
     def symbolic(self, map_name: str, suffix: str, name: str, record: str | None) -> str | None:
         """The symbolic map item <name><suffix> under `record` (COSGN0AI / COSGN0AO), or None."""

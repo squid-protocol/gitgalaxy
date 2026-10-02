@@ -119,6 +119,10 @@ ALLOWLIST = {
     "DATESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
     "TIMESEP": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
     "QUEUE": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "QNAME": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "ITEM": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "NUMITEMS": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
+    "NOT-OVERFLOW": "COBOL phrase name written dynamically from stmt.PHRASES mapping values (det/stmt.py)",
     "RESP2": "EXEC CICS option name parsed from source (det/cics.py parse_exec builds opts keys dynamically)",
     # stmt.PHRASES maps source phrase text to these names; they become dict keys at runtime.
     "NOT-SIZE-ERROR": "COBOL phrase name written dynamically from the stmt.PHRASES mapping values (det/stmt.py)",

@@ -173,6 +173,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         sizes[id(r)] = max(sizes.get(id(r), 0), rec.size * rec.occurs)
 
     gen = G.Gen(prog)
+    gen.copy_dirs = [program.parent, *copy_dirs, C.COPY]
+    gen.java_root = (project / "src/main/java") if project is not None else None
     gen.clock = "clock.currentDate()" if batch else "Funcs.currentDate(java.time.LocalDateTime.now())"
     if is_cics:
         if project is None:
@@ -256,7 +258,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             ctor_repos.append((repo_cls, repo))
             fd.handle = (f"new DetFiles.Indexed<{entity}>(files, {G.jstr(fd.dd)}, {storage}, 0, {reclen}, "
                          f"{fd.key_item.offset}, {fd.key_item.size}, {repo}::findAll, e -> e.toRecord(CS), "
-                         f"b -> {entity}.fromRecord(b, CS), {repo}::save, CS)")  # fmt: skip
+                         f"b -> {entity}.fromRecord(b, CS), {repo}::save, CS)"
+                + gen.find_by_id(entity, repo))  # fmt: skip
         else:
             fd.why = f"ORGANIZATION {fd.organization}"
             continue
@@ -351,6 +354,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     if providers:
         ctor_repos += providers
         extra_imports += ["org.springframework.beans.factory.ObjectProvider", f"{package}.call.CobolRef"]
+    if not is_cics and any(gen.id_methods.values()):
+        extra_imports.append(f"{package}.entity.vsam.*")  # an entity's composite id class, for findById
     cics_members: list[str] = []
     cics_entry: list[str] = []
     if is_cics:
@@ -437,6 +442,8 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
         *[f"    private final Storage {n} = new Storage(IMAGE_{n}.length);" for n, _ in storages],
         "",
         *[f"    private Field {d};" for d in declared],
+        "",
+        *[ln for code in gen.id_methods.values() if code for ln in code],
         *cics_members,
         *file_decls,
         "",
@@ -471,6 +478,20 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     for k, ch in enumerate(chunks):
         out += [f"    private void fields{k}() {{", *ch, "    }", ""]
     out += [
+        "    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its",
+        "     *  initial storage; RETURN-CODE. */",
+        "    public int runProgram() {",
+        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+        *inits,
+        "        performDepth = 0;",
+        "        try {",
+        f"            perform(0, {n_para - 1});",
+        "        } catch (Goback g) {",
+        "            // the program ended",
+        "        }",
+        f"        return Cobol.num({gen.ids[id(rc)]}, CS).intValue();",
+        "    }",
+        "",
         f"    public void execute{service[: -len('Service')]}() {{",
         "        runBatch(List.of(), null);"
         if batch
@@ -513,20 +534,57 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
             if batch
             else []
         ),
-        "    /** PERFORM from THRU thru: returns when control falls off the end of `thru`. */",
+        "    /** The active PERFORMs' last paragraphs, outermost first. */",
+        "    private int[] performThru = new int[64];",
+        "    private int performDepth = 0;",
+        "",
+        "    /** Control reached the end of an outer active PERFORM's range: that PERFORM returns (`depth`). */",
+        "    private static final class PerformExit extends RuntimeException {",
+        "        private static final long serialVersionUID = 1L;",
+        "        final int depth;",
+        "",
+        "        PerformExit(int depth) {",
+        "            super(null, null, false, false);",
+        "            this.depth = depth;",
+        "        }",
+        "    }",
+        "",
+        "    /** PERFORM from THRU thru. When control falls off the end of a paragraph, the innermost active PERFORM",
+        "     *  whose range ends there returns -- this one, or an outer one a GO TO reached the end of, abandoning",
+        "     *  the PERFORMs inside it (GnuCOBOL, as IBM: test_det_programs.py, GOTOOUT). */",
         "    private void perform(int from, int thru) {",
-        "        int i = from;",
-        "        while (true) {",
-        "            int next = run(i);",
-        "            boolean jumped = (next & GOTO) != 0;",
-        "            next &= ~GOTO;",
-        "            if (i == thru && !jumped) {",
-        "                return;",
+        "        int mine = performDepth;",
+        "        if (mine == performThru.length) {",
+        "            performThru = java.util.Arrays.copyOf(performThru, mine * 2);",
+        "        }",
+        "        performThru[performDepth++] = thru;",
+        "        try {",
+        "            int i = from;",
+        "            while (true) {",
+        "                int next = run(i);",
+        "                boolean jumped = (next & GOTO) != 0;",
+        "                next &= ~GOTO;",
+        "                if (!jumped) {",
+        "                    if (i == thru) {",
+        "                        return;",
+        "                    }",
+        "                    for (int d = mine - 1; d >= 0; d--) {",
+        "                        if (performThru[d] == i) {",
+        "                            throw new PerformExit(d);",
+        "                        }",
+        "                    }",
+        "                }",
+        f"                if (next >= {n_para}) {{",
+        "                    throw new Goback();",
+        "                }",
+        "                i = next;",
         "            }",
-        f"            if (next >= {n_para}) {{",
-        "                throw new Goback();",
+        "        } catch (PerformExit e) {",
+        "            if (e.depth != mine) {",
+        "                throw e;",
         "            }",
-        "            i = next;",
+        "        } finally {",
+        "            performDepth = mine;",
         "        }",
         "    }",
         "",
@@ -594,6 +652,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
                 continue
             kw = "if" if not ca_in else "} else if"
             ca_in += [f"        {kw} (ca instanceof {cls} x) {{", f"            in_{cls}(x, {st}, 0);",
+                      f"            caBack = () -> fill_{cls}(x, {st}, 0);",
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
@@ -603,6 +662,8 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    private final java.util.Map<String, Integer> handlers = new java.util.HashMap<>();",
         "    private final java.util.Map<String, DetCics.Store<?>> stores = new java.util.HashMap<>();",
         "    private final java.util.Map<String, byte[]> heldKey = new java.util.HashMap<>();",
+        "    /** Writes the COMMAREA's bytes back into the object the task carries (a LINKed program's is its caller's). */",
+        "    private Runnable caBack = () -> { };",
         "",
         '    @SuppressWarnings("unchecked")',
         "    private <E> DetCics.Store<E> store(String name) {",
@@ -661,6 +722,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "    /** One task of the program: the EIB and COMMAREA from the task, then the PROCEDURE DIVISION. */",
         "    public void runTask(CicsTask task) {",
         "        this.task = task;",
+        "        caBack = () -> { };",
         "        handlers.clear();",
         "        heldKey.clear();",
         *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
@@ -683,6 +745,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "            // RETURN / XCTL / an abend ended the program",
         "        }",
         "        if (!task.ended()) {",
+        "            caBack.run();",
         "            task.returnTransid(null, null);  // a GOBACK is a RETURN",
         "        }",
         "    }",

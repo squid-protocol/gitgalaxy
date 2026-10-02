@@ -26,6 +26,7 @@ sys.path.insert(0, str(TOOLS))
 sys.path.insert(0, str(REPO_ROOT))
 
 PKG = "com.gitgalaxy.modernized"
+PROOF_TIMEOUT = 3600  # seconds per case
 PKG_DIR = PKG.replace(".", "/")
 
 
@@ -77,7 +78,11 @@ def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
             "--keep", str(keep), "--faults", faults]  # fmt: skip
     log = work / name / "proof.log"
     with log.open("wb") as fh:
-        rc = subprocess.run(argv, stdout=fh, stderr=subprocess.STDOUT, cwd=REPO_ROOT, check=False).returncode  # noqa: S603
+        try:  # a port that loops (a translation fault) must not hang the run
+            rc = subprocess.run(argv, stdout=fh, stderr=subprocess.STDOUT, cwd=REPO_ROOT, check=False,  # noqa: S603
+                                timeout=PROOF_TIMEOUT).returncode  # fmt: skip
+        except subprocess.TimeoutExpired:
+            return {"proof_rc": None, "proved": False, "java_failed": True, "timed_out": True, "log": str(log)}
     report = keep / "report.json"
     rep = json.loads(report.read_text(encoding="utf-8")) if report.is_file() else {}
     return {"proof_rc": rc, "proved": rc == 0 and bool(rep) and not rep.get("java_failed"),

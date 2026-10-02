@@ -1883,7 +1883,7 @@
       "java/springboot/LICENSE.txt": 0.0,
       "java/springboot/OnClassCondition.java": 0.812,
       "java/springboot/ServletWebServerApplicationContext.java": 1.196,
-      "java/springboot/SpringApplication.java": 0.744,
+      "java/springboot/SpringApplication.java": 0.768,
       "java/springboot/WebMvcAutoConfiguration.java": 1.518
     },
     "javascript": {

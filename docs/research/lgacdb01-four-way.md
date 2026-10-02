@@ -1,6 +1,6 @@
 # One program, two independent translations: GenApp LGACDB01, scanned and proven
 
-*A post-hoc comparison. Status: draft, 2026-10-02. Section 4.3 (IBM's Java run through our harness) is in progress.*
+*A post-hoc comparison. Status: draft for review, 2026-10-02.*
 
 ## Abstract
 
@@ -17,7 +17,14 @@ The two translations make opposite trade-offs:
 - **IBM's Java** is compact and readable. It covers one of the program's five paragraphs, and leaves the date of birth and the error path in commented-out lines.
 - **Our det port** covers the whole program and the two programs it LINKs to, and is proven against real Db2 on four scenarios. But it is about 7× the COBOL's code lines, and its scenarios reach only 6 of 14 branches.
 
-The comparison also exposed two GitGalaxy scanner defects (#4170, #4171).
+**Harness result.** We ran IBM's published `insertCustomer` unmodified, inside our proven det port, against real Db2. It was not equivalent on any of our four scenarios:
+- Db2 refused every INSERT, because the date-of-birth parameter is never bound.
+- The failure was swallowed.
+- No CUSTOMER row was written, and the task carried on as if it had succeeded.
+
+IBM's published JUnit test does not compile against the published Java. IBM's own recorded run in the same repository shows 2 passes (both skipped tests) and 2 failures, not the 4/4 the papers report.
+
+**The comparison cut both ways.** It also exposed a bug in our det port, on a GenApp error path none of our proofs reach (#4181), and two GitGalaxy scanner defects (#4170, #4171).
 
 ## 1. Provenance and independence
 
@@ -96,7 +103,38 @@ IBM's papers describe validating one paragraph per program, and this repository 
 IBM's coverage is complete for the unit it chose. Ours is lower but spans the whole program: the INSERT failure path (`MOVE '90' TO CA-RETURN-CODE`, `PERFORM WRITE-ERROR-MESSAGE`) is never reached, because our harness doesn't inject SQL failures (#4173). IBM's symbolic test generation is the stronger approach to coverage (#4175).
 
 ### 4.3 IBM's Java run through our harness
-*In progress.* IBM's code is run unmodified. A separately committed adapter supplies the program context IBM did not translate, using our proven code for those parts, and routes `DriverManager.getConnection("endpoint_url")` to the harness's Db2. Results for each scenario will be added here, with root causes and the adapter's exact scope. The runs are against both the original COBOL and IBM's refactored COBOL as the reference.
+Full record: `docs/language_status/ibm_wca4z_lgacdb01.md`, tooling in #4177.
+
+**Setup.** IBM's `Lgacdb01.insertCustomer` (validation-c2j @967d00b) runs unmodified, in place of our det port's INSERT-CUSTOMER method. The rest of the task is our proven det-port code: LGACDB01's other paragraphs, LGACVS01 and LGACDB02. A thin adapter, committed separately, does three things:
+- marshals the paragraph's host variables through IBM's own setters;
+- registers a JDBC driver for IBM's placeholder URL `endpoint_url`, returning the task's transaction-bound Db2 connection;
+- adds a JZOS compile shim that is never called at run time.
+
+The adapter judges only the paragraph IBM translated.
+
+**Which COBOL to compare against.** IBM's refactored INSERT-CUSTOMER is textually identical to the stock paragraph, and uses the same data layout on its success path. The refactored program cannot run as a reference itself: it has no mainline, its COMMAREA is in WORKING-STORAGE, and every run falls through into WRITE-ERROR-MESSAGE. So the stock case's scenarios test exactly what IBM translated.
+
+| Scenario | Stock COBOL (reference) | With IBM's INSERT-CUSTOMER |
+|---|---|---|
+| add-with-counter | Return code '00'; CUSTOMER row 1000011 | Db2 -4461, "Invalid parameter 4: Parameter is not set nor registered"; printed and swallowed; no row |
+| add-without-counter | '00'; row 1000001 | -4461 on parameter 3; no row; CA-CUSTOMER-NUM returned as 0 |
+| add-blank-optional-fields | '00'; row 1000020 | -4461 on parameter 4; no row |
+| add-long-email | '00'; row 1000030 | -4461 on parameter 4; no row |
+
+**Not proven on any scenario.** In every run the task continues as if the insert had worked. LGACDB02's CUSTOMER_SECURE insert then violates its foreign key to CUSTOMER, and the run ends on GenApp's LGSTSQ error path.
+
+**Root causes, verified in IBM's code:**
+1. DATEOFBIRTH is never bound: `// ps.setDate(4, …getDateofbirth());`, and `ps.setDate(3, …)` in the branch that takes the key from Db2.
+2. The failure is swallowed: `// caReturnCode = 90;` and `// errorMsg.writeErrorMessage();`, with `System.out.println("[EXCEPTION CAUGHT] " + exception);` in their place.
+3. In the branch that takes the key from Db2, a failure leaves the customer number at 0.
+
+**IBM's own test artifacts.** The generated JUnit test calls `insertCustomer()` with no arguments, while the published method takes three, so it does not compile against the published Java. The repository's recorded run (`generated_code/cache/Lgacdb01.insertCustomer.json`) shows:
+- tests 1 and 3 passing: these are the SQL-error paths, and their bodies are skipped;
+- tests 2 and 4 failing with `expected:<[xxxxxxxx]> but was:<[]>`.
+
+Test 2 asserts every CUSTOMER column, DATEOFBIRTH included, so IBM's method, when it runs, does appear to flag this translation. The papers' 4/4 may come from a different version of the Java (the cache file points at another working copy). We note the mismatch; we do not infer the cause.
+
+**A bug in our own det port.** Forcing the error path exposed it. `LINK LGSTSQ COMMAREA(ERROR-MSG)` passes a 71-byte record, but the det port marshals it with a wider record layout and reads past the end (#4181). None of our proofs reach this path, because the harness injects no SQL failures (#4173). A clamp in the scratch copy made it possible to observe IBM's results; the clamp was not committed.
 
 ### 4.4 GitGalaxy scan, file level
 
@@ -138,7 +176,7 @@ and, in both exception handlers:
 ```
 In their place is `System.out.println("[EXCEPTION CAUGHT] " + exception);`. The connection is the placeholder `DriverManager.getConnection("endpoint_url")`.
 
-Reading the code alone, we expect the following against a real database: the unset DATEOFBIRTH parameter makes the INSERT fail; the failure is printed and swallowed; and the caller sees no error return. Section 4.3 tests this expectation; it is not yet a result.
+Reading the code alone predicts that, against a real database, the unset DATEOFBIRTH parameter makes the INSERT fail, and that the failure is printed and swallowed, so the caller sees no error return. Section 4.3 confirms each part of that prediction.
 
 GitGalaxy's tech-debt risk reads 84 for this file, against 10 for the det port. But its commented-out-code signal reads 0, because the Java rule only recognises commented lines that begin with a keyword (#4171).
 
@@ -146,15 +184,20 @@ GitGalaxy's tech-debt risk reads 84 for this file, against 10 for the det port. 
 
 | Lens | Sees | Misses |
 |---|---|---|
-| IBM validation (as published) | Every path of the chosen paragraph. The arguments passed to each resource call. A real z/OS reference. | Other paragraphs. Behaviour that depends on a real resource, such as how the database treats an unset parameter, because resources are mocked. |
+| IBM validation (as published) | Every path of the chosen paragraph. The arguments passed to each resource call: test 2 asserts DATEOFBIRTH, so it should flag the unbound parameter whenever it compiles and runs. A real z/OS reference. | Other paragraphs. How the real database reacts, such as refusing an unset parameter, because resources are mocked. Its SQL-error tests were skipped in the published run. |
 | Our harness | The whole task against real Db2 and a CICS model, compared byte for byte. | Branches no scenario reaches, such as SQL error paths (#4173). Reference differences listed in the oracle register (GnuCOBOL, not z/OS). |
 | GitGalaxy scan | Scope (functions, IPC dropping to 0), debt pressure, output by print, size and token cost, all without running anything. | Behaviour. Equivalence. Commented-out statements in Java (#4171). Its Java complexity is unreliable around SQL strings and ternaries until #4170 is fixed. |
 
-The lenses complement each other. The scan flagged IBM's file (IPC 14 → 0, tech-debt 84, print-based error handling) in seconds, without running it. The harness decides whether the behaviour is equal. IBM's path-complete test generation covers the branches our hand-written scenarios miss.
+The lenses complement each other:
+- **The scan** flagged IBM's file in seconds, without running it: inter-program calls 14 → 0, tech-debt 84, errors handled by printing.
+- **Our harness** settled the question against a real database. The program was not equivalent, and the reason traced to exact lines.
+- **IBM's path-complete test generation** covers the branches our hand-written scenarios miss. Our missing error-path coverage is also why our own ERROR-MSG bug (#4181) went unproven.
 
 ## 6. Threats to validity
 - **One program, and an uneven comparison.** This is a single program, and IBM's published Java is a single paragraph. We do not generalise to WCA4Z's quality.
 - **IBM's code is old.** It dates from 2024 (COBOL slice 2024-06-11, repository 2024-10-11) and may not reflect the current product.
+- **The published artifacts may not match what the paper evaluated.** The recorded test run points at another working copy of the Java.
+- **The adapter is ours.** It is committed and documented separately, and it touches only the marshalling and the connection.
 - **IBM's reported validation passes on its own terms.** Any divergence we find concerns behaviour outside its mocked scope; it does not show their tests were wrong for what they assert.
 - **Our reference is not z/OS.** See `oracle_assumptions.md`.
 - **Our coverage is modest.** 6/14 branches.
@@ -166,6 +209,8 @@ The lenses complement each other. The scan flagged IBM's file (IPC 14 → 0, tec
 - #4173: SQL fault injection in the harness.
 - #4174: det port of LGIPVS01, to complete the overlap with IBM's published GenApp set.
 - #4175: solver-driven scenario generation.
+- #4179: remove the scaffold's TODO docstrings from adopted model ports.
+- #4181: det port marshals LINK COMMAREA(ERROR-MSG) past its 71 bytes.
 
 ## 8. Reproducing
 ```sh
@@ -173,7 +218,8 @@ The lenses complement each other. The scan flagged IBM's file (IPC 14 → 0, tec
 python tests/tools/det_port.py run genapp-lgacdb01 --faults all --work <scratch>
 # scans: each file in its own committed git tree, then
 python -m gitgalaxy.galaxyscope <tree>
-# IBM's code: git clone https://github.com/sandeephans/validation-c2j && git checkout 967d00b588057f12946058f2faa37c8d49824f7e
+# IBM's code through the harness (fetches validation-c2j at 967d00b, never committed)
+python tests/tools/ibm_wca4z_port.py --work <scratch> --junit   # see docs/language_status/ibm_wca4z_lgacdb01.md for the per-scenario run
 ```
 
 ## References

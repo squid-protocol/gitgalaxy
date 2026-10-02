@@ -1,0 +1,47 @@
+{
+  "engine/core.py": {
+    "Architectural Profile / Authorship Centralization": 50.0,
+    "Architectural Profile / Ownership Entropy": 46.69,
+    "Architectural Profile / Raw Churn Frequency": 6.0,
+    "Artifact Identity / Architect": "Alice Archer",
+    "Vulnerability & Risk Exposures / Instability Exposure": "0.0%",
+    "Vulnerability & Risk Exposures / Specification Exposure": "100.0%",
+    "Vulnerability & Risk Exposures / Volatility Exposure": "100.0%"
+  },
+  "engine/spec_module.py": {
+    "Architectural Profile / Authorship Centralization": 100.0,
+    "Architectural Profile / Ownership Entropy": 0.0,
+    "Architectural Profile / Raw Churn Frequency": 0.3567530340063379,
+    "Artifact Identity / Architect": "Carol Coder",
+    "Vulnerability & Risk Exposures / Instability Exposure": "11.58%",
+    "Vulnerability & Risk Exposures / Specification Exposure": "66.67%",
+    "Vulnerability & Risk Exposures / Volatility Exposure": "15.68%"
+  },
+  "engine/util.py": {
+    "Architectural Profile / Authorship Centralization": 100.0,
+    "Architectural Profile / Ownership Entropy": 0.0,
+    "Architectural Profile / Raw Churn Frequency": 0.6563301233138935,
+    "Artifact Identity / Architect": "Alice Archer",
+    "Vulnerability & Risk Exposures / Instability Exposure": "13.68%",
+    "Vulnerability & Risk Exposures / Specification Exposure": "100.0%",
+    "Vulnerability & Risk Exposures / Volatility Exposure": "25.93%"
+  },
+  "legacy/old.py": {
+    "Architectural Profile / Authorship Centralization": 100.0,
+    "Architectural Profile / Ownership Entropy": 0.0,
+    "Architectural Profile / Raw Churn Frequency": 0.20535012709710013,
+    "Artifact Identity / Architect": "Carol Coder",
+    "Vulnerability & Risk Exposures / Instability Exposure": "34.95%",
+    "Vulnerability & Risk Exposures / Specification Exposure": "100.0%",
+    "Vulnerability & Risk Exposures / Volatility Exposure": "9.6%"
+  },
+  "web/app.js": {
+    "Architectural Profile / Authorship Centralization": 66.7,
+    "Architectural Profile / Ownership Entropy": 29.39,
+    "Architectural Profile / Raw Churn Frequency": 2.5099800796022267,
+    "Artifact Identity / Architect": "Bob Builder",
+    "Vulnerability & Risk Exposures / Instability Exposure": "2.11%",
+    "Vulnerability & Risk Exposures / Specification Exposure": "100.0%",
+    "Vulnerability & Risk Exposures / Volatility Exposure": "64.53%"
+  }
+}

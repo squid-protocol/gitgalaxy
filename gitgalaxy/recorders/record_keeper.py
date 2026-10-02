@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any, Optional, TypedDict, cast
 
 from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
+from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
     GENERAL_FILE_INFERENCE_MODEL,
@@ -2123,9 +2124,9 @@ class RecordKeeper:
             # corpus reads as `functions_found`, and it reported 16 against 13
             # planted for livecode/lua/matlab/ruby/shell -- every per-function
             # average below was then taken over three things that are not
-            # functions. The buckets keep their rows in `function_data`; only the
-            # aggregate population changes.
-            functions = [f for f in file_data.get("functions", []) if not f.get("is_synthetic_slice")]
+            # functions. The buckets are not in `function_data` either: they are
+            # recorded in `synthetic_unit_data` (#4110 corrected this comment).
+            functions = population_functions(file_data.get("functions"))
 
             # Function Mathematics
             func_count = len(functions)
@@ -2653,7 +2654,7 @@ class RecordKeeper:
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
-                        (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
+                        (int(_tm) if (_tm := func.get("token_mass")) is not None else None),
                         int(bool(func.get("is_public", False))),
                         int(bool(func.get("is_documented", False))),
                         *func_hits,
@@ -3895,7 +3896,8 @@ class RecordKeeper:
             loc = file_data.get("total_loc", 0)
             coding_loc = file_data.get("coding_loc", 0)
             mass = file_data.get("file_impact", 0.0)
-            func_count = len([u for u in file_data.get("functions", []) if not u.get("calls_only")])
+            # #4110: agree with file_data.function_count.
+            func_count = len(population_functions(file_data.get("functions")))
             class_count = len(file_data.get("classes", []))
 
             tel = file_data.get("telemetry", {})

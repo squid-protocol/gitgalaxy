@@ -21,6 +21,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.function_population import is_population_function
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -761,7 +762,8 @@ class AuditRecorder:
                         "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])
-                    if isinstance(func, dict) and not func.get("calls_only")
+                    # #4110: the same population as the DB's function_data.
+                    if is_population_function(func)
                 ],
                 "6. Contextual Mitigations & Amplifications": (
                     formatted_mitigations if formatted_mitigations else "None Detected"

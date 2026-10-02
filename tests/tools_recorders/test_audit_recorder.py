@@ -371,3 +371,40 @@ def test_audit_recorder_carries_mainframe_facts_only_when_present(recorder, tmp_
 
     # A non-mainframe file carries no such block.
     assert "10. Mainframe System Facts" not in files["src"]["Files"]["src/app.py"]
+
+
+def test_function_analysis_lists_the_db_population(recorder, tmp_path):
+    """#4110: "5. Function Analysis" lists exactly the units the scan DB's
+    function_data holds -- slicer-synthesized units (a top-level bucket, an
+    Anonymous_Block, Mode E statement slices) are not functions, whichever flag
+    marks them."""
+    output_file = tmp_path / "pop_audit.json"
+    units = [
+        {"name": "real_fn", "loc": 5},
+        {"name": "__global_context__", "is_synthetic_slice": True, "calls_only": True},
+        {"name": "__global_context__", "is_synthetic_slice": True},
+        {"name": "Anonymous_Block", "is_synthetic_slice": True},
+        {"name": "CREATE_Statement", "is_synthetic_slice": True},
+    ]
+    recorder.generate_report(
+        [
+            {
+                "path": "src/run.sh",
+                "name": "run.sh",
+                "lang_id": "shell",
+                "directory_group": "src",
+                "total_loc": 20,
+                "telemetry": {},
+                "functions": units,
+            }
+        ],
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(output_file),
+    )
+    with open(output_file, encoding="utf-8") as f:
+        payload = json.load(f)
+    listed = payload["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["src/run.sh"]["5. Function Analysis"]
+    assert [fn["Function Name"] for fn in listed] == ["real_fn"]

@@ -371,3 +371,39 @@ def test_audit_recorder_carries_mainframe_facts_only_when_present(recorder, tmp_
 
     # A non-mainframe file carries no such block.
     assert "10. Mainframe System Facts" not in files["src"]["Files"]["src/app.py"]
+
+
+def test_file_archetype_profile_reports_distance_not_retired_fields(recorder, tmp_path):
+    """#4106: the per-language File Archetype / File Drift / File Fingerprint
+    placeholders are gone, and the general file archetype's distance is labelled
+    as a centroid distance rather than a z-score."""
+    output_file = tmp_path / "arch_audit.json"
+    recorder.generate_report(
+        [
+            {
+                "path": "src/a.py",
+                "name": "a.py",
+                "lang_id": "python",
+                "directory_group": "src",
+                "total_loc": 10,
+                "telemetry": {
+                    "archetype": "file_cluster_3",
+                    "global_drift": 1.25,
+                    "archetype_fingerprint": {"file_cluster_3": 1.25, "file_cluster_4": 2.5},
+                },
+            }
+        ],
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(output_file),
+    )
+    with open(output_file, encoding="utf-8") as f:
+        prof = json.load(f)["6. Parsed Files (Scanned Artifacts)"]["src"]["Files"]["src/a.py"][
+            "3. Architectural Profile"
+        ]
+    assert prof["Repository Drift (Centroid Distance)"] == 1.25
+    assert prof["Repository Fingerprint"] == {"file_cluster_3": 1.25, "file_cluster_4": 2.5}
+    for retired in ("File Archetype", "File Drift (Z-Score)", "File Fingerprint", "Repository Drift (Z-Score)"):
+        assert retired not in prof

@@ -157,9 +157,6 @@ class SignalProcessor:
         # per instance rather than once per classified function.
         self._archetype_dim_mismatch_warned: set[tuple[int, int, str]] = set()
 
-        # ---> NEW: Fetch Language-Specific Clustering Models <---
-        self.LANGUAGE_INFERENCE_MODELS = getattr(config, "SPECIFIC_FILE_INFERENCE_MODEL", {})
-
         # Fetch Structural Constants
         physics = getattr(config, "ENGINE_CONSTANTS", {})
         self.WEIGHT_RISK = physics.get("WEIGHT_RISK", 2.5)
@@ -729,24 +726,22 @@ class SignalProcessor:
 
             popularity = meta.get("popularity", 0)
 
-            # #ENGINE-PARITY: the file (global macro-species) and per-language
-            # (local micro-species) archetypes are now classified from the FULLY-
+            # #ENGINE-PARITY: the file archetype is classified from the FULLY-
             # assembled metrics in record_keeper (mirroring offline
-            # apply_file_clusters) and written back into this telemetry dict before
-            # the recorders read it. The old raw_vector built here used a hardcoded
+            # apply_file_clusters), which overwrites these placeholders -- label,
+            # centroid distance and per-centroid fingerprint (#4106) -- before the
+            # recorders read them. The old raw_vector built here used a hardcoded
             # feature set that silently drifted from the trainer -- the v2.8.0
-            # file_cluster "Unclassified"/mismatch bug. These are placeholders that
-            # record_keeper overwrites once every file metric + the function->file
-            # composition rollup are available.
+            # file_cluster "Unclassified"/mismatch bug.
+            #
+            # #4106: the per-language "local micro-species" model
+            # (SPECIFIC_FILE_INFERENCE_MODEL) is retired. Nothing had applied it
+            # since #3061, and it cannot be: its 74 features have no recorded order
+            # and match no feature space the engine computes. Revive it only as a
+            # retrained, self-describing brain (FEATURE_NAMES included).
             global_archetype = "Unclassified"
             global_drift = 0.0
             arch_fingerprint: dict[str, float] = {}
-
-            # B) LOCAL MICRO-SPECIES -- classified in record_keeper from the
-            # per-language self-describing brain (see above); placeholders here.
-            local_archetype = None
-            local_drift = 0.0
-            local_fingerprint: dict[str, float] = {}
 
             # ------------------------------------------------------------------
             # 2. CORE RISK EXPOSURE CALCULATIONS
@@ -873,9 +868,6 @@ class SignalProcessor:
                 "encapsulation_ratio": round(encapsulation_ratio, 3),
                 "global_drift": global_drift,
                 "archetype_fingerprint": arch_fingerprint,
-                "local_archetype": local_archetype,
-                "local_drift": local_drift,
-                "local_fingerprint": local_fingerprint,
                 "function_archetype_mix": function_archetype_mix,
                 "densities": {"cog_raw": round(cog_raw, 3)},
                 # Evidence-mass flag (#2655): consumers can tell a count-regime score

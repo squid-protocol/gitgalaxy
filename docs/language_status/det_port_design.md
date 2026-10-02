@@ -26,7 +26,7 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 
 | step | tool | what it guarantees | measured |
 |---|---|---|---|
-| translate | `port_runner run --backend det [--style structured] [--typed]` (or `tests/tools/det_port.py run CASE ...` for the equivalence cases) | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 96.8% of 16,798 statements across six estates ([survey](det_survey.md)) |
+| translate | `port_runner run --backend det [--style structured] [--typed]` (or `tests/tools/det_port.py run CASE ...` for the equivalence cases) | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 97.8% of 17,224 statements across six estates ([survey](det_survey.md), 2026-10-02) |
 | prove | `tests/tools/equivalence.py run CASE --port DIR --faults all` | equal events (screens, COMMAREAs, XCTL / LINK / RETURN), files and RETURN-CODE against GnuCOBOL, field by field, on every scenario and injected fault | 48 programs proven (50 cases, 2 not proven on purpose) |
 | make readable, no model | `--style structured` (B1), `--typed` (B3) | named methods and fields; typed Java fields where every use allows | 24 of 24 proven typed; batch runtime calls −36% |
 | make readable, with a model | `port_runner refine --prove-command ...` (or `tests/tools/det_refine.py run CASE --port DIR`) (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |

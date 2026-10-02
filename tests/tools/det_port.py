@@ -13,7 +13,10 @@ per case, statements / translated / holes, and the proof's verdict.
 
 `check` answers "which ports does my change move?": every case translated with the current code (DIR/new) and with
 the base -- a git ref translated in a throwaway worktree (DIR/base), or an earlier work directory -- and each port
-compared file by file. A changed port is one to re-prove (`run CASE ...`); exit 1 when any changed."""
+compared file by file. A changed port is one to re-prove (`run CASE ...`); exit 1 when any changed.
+
+Both print det_parity.py's structural warnings (methods and branch points far from what the COBOL predicts), and
+summary.json / check.json carry them as parity_warnings: a hint where to look, never a failed proof or exit code."""
 
 from __future__ import annotations
 
@@ -100,7 +103,26 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
         (port / rel).write_text(text, encoding="utf-8")
     out.update({"statements": r.stats["statements"], "translated_statements": r.stats["translated"],
                 "holes": r.stats["holes"]})  # fmt: skip
+    out.update(_parity(port, corpus, [(case["program"], case["program_source"])]
+                       + [(x["program"], x["program_source"]) for x in case.get("programs", [])]))  # fmt: skip
     return out
+
+
+def _parity(port: Path, corpus: Path, programs: list[tuple[str, str]]) -> dict[str, Any]:
+    """det_parity's structural check of each translated program: a warning to read, never a proof failure."""
+    import det_parity
+    import equivalence_java as ej
+
+    rows, warnings = [], []
+    for prog, src in programs:
+        try:
+            row = det_parity.parity_files(prog, corpus / src, port / "service" / f"{ej._service_class(prog)}.java")
+        except Exception as e:  # the check must never cost a port its proof
+            warnings.append(f"{prog}: parity check failed ({type(e).__name__}: {e})")
+            continue
+        rows.append(row)
+        warnings += row["warnings"]
+    return {"parity": rows, "parity_warnings": warnings}
 
 
 def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
@@ -195,12 +217,20 @@ def check(args: argparse.Namespace) -> int:
                            check=False, capture_output=True)  # fmt: skip
     translate(REPO_ROOT, work / "new")
     rows = compare(base, work / "new")
+    summary = work / "new" / "summary.json"
+    parity = {x["case"]: x.get("parity_warnings", [])
+              for x in (json.loads(summary.read_text(encoding="utf-8")) if summary.is_file() else [])}  # fmt: skip
+    for r in rows:
+        if parity.get(r["case"]):
+            r["parity_warnings"] = parity[r["case"]]
     (work / "check.json").write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8")
     changed = [r for r in rows if r["status"] != "unchanged"]
     for r in rows:
         detail = ", ".join(f"{f['file'].rsplit('/', 1)[-1]} {f['lines']} lines" for f in r.get("files", []))
         print(f"{r['case']:<28} {r['status'].upper() if r['status'] != 'unchanged' else 'unchanged'}"
               f"{'  ' + detail if detail else ''}")  # fmt: skip
+        for w in r.get("parity_warnings", []):
+            print(f"{'':<28}   parity warning: {w}")
     print(
         f"{len(rows) - len(changed)}/{len(rows)} ports unchanged"
         + (f"; re-prove: det_port.py run {' '.join(r['case'] for r in changed)} --work DIR" if changed else "")
@@ -277,6 +307,8 @@ def main() -> int:
         verdict = "" if "proved" not in x else (
             "  PROVED" if x["proved"] else "  JAVA FAILED" if x["java_failed"] else "  DIFFERS")  # fmt: skip
         print(f"{x['case']:<28} {what}{verdict}")
+        for w in x.get("parity_warnings", []):
+            print(f"{'':<28}   parity warning: {w}")
     return 0
 
 

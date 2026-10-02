@@ -172,6 +172,24 @@ COACTUPC, the 4,200-line account update a model could not port in one pass, is p
 
 No model is involved anywhere: the port is a function of the COBOL source and the generated project.
 
+### Structural parity: a warning before the proof
+
+Each translated program is also measured by GitGalaxy's own single-file extraction (`tests/tools/det_parity.py`):
+COBOL paragraphs and branch points against the port's methods and branch points. On the 49 programs ported across
+CardDemo, CBSA and GenApp (2026-10-02) the port keeps a fixed overhead plus a slope, by kind (Theil-Sen fits):
+
+| | batch | CICS | proven ports, port / prediction | warning band |
+|---|---|---|---|---|
+| methods | 11.4 + 1.12 × paragraphs | 20.8 + 1.13 × paragraphs | 0.88 .. 1.21 | outside 0.6 .. 1.6 |
+| branch points | 15.0 + 1.62 × branches | 70.8 + 2.77 × branches | 0.70 .. 1.76 | outside 0.5 .. 2.5 |
+
+The fixed overhead is why a small program reads as a huge ratio of raw counts (ABNDPROC: 1 branch in COBOL, 73 in
+Java): response checks, abend paths and storage setup every port carries. Against the fit it sits at ×0.99.
+None of the 49 warns. A warning (`det_port.py run` and `check` print it; `summary.json` / `check.json` carry
+`parity_warnings`) says a translation dropped or duplicated paragraphs or expanded a construct far beyond the
+estate's norm. It is a place to look, never a failed proof or an exit code. When the emitter's shape moves on
+purpose (a readability layer), refit `MODEL` in `det_parity.py` from a fresh `run --all-cases --translate-only`.
+
 ### Where the boundary comes from
 
 Only generator output, never a test case:

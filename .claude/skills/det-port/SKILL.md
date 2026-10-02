@@ -36,6 +36,7 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
 | **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
+| structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
 | **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; ~1-2 h with Db2 |
@@ -76,6 +77,9 @@ A translator fix is never a hand edit of a port.
       (runtime, checked against GnuCOBOL).
 - [ ] `det_port.py check --work DIR`: every port that changed is re-proven with `det_port.py run`. An unchanged port
       needs no re-proof.
+- [ ] Read any `parity warning:` lines from `check` before the proofs: a port whose methods or branch points left
+      the estate's band dropped, duplicated or over-expanded something. A warning never fails a proof; a change
+      that reshapes every port on purpose refits `det_parity.MODEL`.
 - [ ] A change in the runtime's behaviour: re-prove every det port (`run --all-cases`). Model ports don't use
       `cobolrt`.
 - [ ] Add a line under "What the proofs found" in `det_port_design.md` when a proof found the bug.

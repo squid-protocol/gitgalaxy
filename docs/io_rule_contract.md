@@ -126,6 +126,8 @@ Measured: 0 hits on 47,701 ordinary Java files (gradle, jenkins, kafka, elastics
 program control into `ipc_rpc_bridges` (`task.link(`, `task.xctl(`, `task.returnTransid(`, cobol.py's
 LINK / XCTL / RETURN; not `task.start(`, which kafka and elasticsearch use for their own worker tasks),
 and an untranslated statement (`if (true) throw new Hole("...")`) into `planned_debt`.
+[port_invariance_contract.md](port_invariance_contract.md) holds io and ipc, with the structural readings, to the
+same rank across a port.
 
 ## The 46-language audit
 

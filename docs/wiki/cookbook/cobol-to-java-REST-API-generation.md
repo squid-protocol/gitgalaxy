@@ -56,6 +56,10 @@ To fully weaponize this integration for enterprise-scale automated migration pip
 
 - - - -
 this was accomplished by the blAST engine - - - -🌌 Powered by the blAST Engine
+## Where the business logic comes from
+
+This forge generates the controllers and the contracts at the system boundary. Each program's PROCEDURE DIVISION is then ported in one of two ways: by the deterministic translator (no model; every statement becomes a call into a runtime that follows COBOL's rules byte for byte, and anything it cannot translate is a named `Hole`), or by a person or model from a porting ticket. Either way, the port is proven against the original COBOL by the equivalence harness (GnuCOBOL, a CICS model and a real Db2) before a person approves it. As of 2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as deterministic ports. See [Proven COBOL-to-Java Ports](../05-19-proven-cobol-to-java-ports.md) for what is proven, how, and the limits.
+
 This documentation is part of the GitGalaxy Ecosystem, an AST-free, LLM-free heuristic knowledge graph engine.
 
 🪐 Explore the GitHub Repository for code, tools, and updates.

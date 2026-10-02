@@ -60,8 +60,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
-| Q3 | Db2 | The Java side commits each statement | DIFFERS | no |
-| Q4 | Db2 | WHENEVER, dynamic SQL, positioned UPDATE/DELETE | REFUSED | — |
+| Q3 | Db2 | The Java side's unit of work: one per CICS task; batch commits each statement | MATCHED (CICS) / DIFFERS (batch) | CICS: yes (CBSA XFRFUN); batch: no |
+| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -284,14 +284,18 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
 
-### Q3. Java commits each statement — DIFFERS
-- **What.** The generated Db2 repositories autocommit, so a ROLLBACK is a hole. A CICS backout after a Db2 change would
-  show as a difference, never as a proof.
-- **Reached.** No proven scenario reaches it.
+### Q3. The Java side's Db2 unit of work — MATCHED for CICS tasks, DIFFERS for batch
+- **CICS.** The equivalence test runs each task's SQL in one Db2 transaction, as CICS's Db2 thread does: committed when
+  the task ends, rolled back with the task's recoverable files by SYNCPOINT ROLLBACK or an abend (X3). The transaction
+  is the harness's (`equivalence_cics.py`, a `TransactionTemplate` around the task); a deployment must give each task
+  the same unit of work. Reached: CBSA XFRFUN's four ROLLBACK paths are proven.
+- **Batch.** The generated Db2 repositories autocommit, so a batch program's ROLLBACK is a hole. No proven batch
+  scenario reaches one (COBTUPDT has no ROLLBACK path).
 
 ### Q4. Unsupported embedded SQL — REFUSED
-- **Refused.** WHENEVER, PREPARE/EXECUTE (dynamic SQL) and `WHERE CURRENT OF` stop the precompiler by name, as does an
-  undeclared host variable.
+- **Refused.** WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, SCROLL
+  cursors and host-variable arrays stop the precompiler by name, as does an undeclared host variable or a `WHERE
+  CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
 
 ### Q5. DSNTIAC / DSNTIAR — REFUSED
 - **What.** IBM's message formatter is not modelled. COTRTLIC's call to it, on the Db2-error path, is its one

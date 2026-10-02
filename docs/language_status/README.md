@@ -75,6 +75,11 @@ Java port with the COBOL program run by GnuCOBOL plus our CICS, Db2 and LE model
 every known or suspected difference between the two, its status (matched, refused, differs, assumed), whether a
 proven program reaches it, and what would settle it.
 
+**A third-party translation through the same harness: [`ibm_wca4z_lgacdb01.md`](ibm_wca4z_lgacdb01.md)** (added
+2026-10-02). IBM's published watsonx Code Assistant for Z translation of GenApp's LGACDB01 (INSERT-CUSTOMER), run
+inside our det port with a thin adapter (`tests/tools/ibm_wca4z_port.py`): not proven. Its INSERT never binds
+DATEOFBIRTH, and it swallows the failure. The page also compares IBM's paragraph-level, mocked validation with ours.
+
 ## Signature-bearing languages (47)
 
 `LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`

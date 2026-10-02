@@ -27,6 +27,9 @@ from gitgalaxy.core.function_population import population_functions
 from gitgalaxy.metrics import archetype_classifier, archetype_parity
 from gitgalaxy.standards import analysis_lens as config
 
+# #4106: relative second-archetype gap for the mixed-responsibility check.
+_MIXED_GAP = float(config.ENGINE_CONSTANTS["MIXED_RESPONSIBILITY_GAP"])
+
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
@@ -1774,12 +1777,8 @@ class LLMRecorder:
 
             arch = tel.get("archetype", "Unknown Archetype")
             g_drift = tel.get("global_drift", "N/A")
-            l_arch = tel.get("local_archetype")
-            l_drift = tel.get("local_drift", "N/A")
 
-            lines.append(f"- **Global Archetype:** `{arch}` (Drift: {g_drift} IQR)")
-            if l_arch and l_arch != "N/A":
-                lines.append(f"- **Local Micro-Species:** `{l_arch}` (Drift: {l_drift} IQR)")
+            lines.append(f"- **Global Archetype:** `{arch}` (Centroid distance: {g_drift})")
 
             fingerprint = tel.get("archetype_fingerprint", {})
             if fingerprint:
@@ -1887,34 +1886,17 @@ class LLMRecorder:
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         lines.append("## 12. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
         lines.append(
-            "> **AI CONTEXT:** Pay close attention to 'Anti-Pattern' files. These files blend in globally (Low Global Drift), but heavily violate the standard conventions of their native programming language (High Local Drift). 'Mixed-Responsibility' files sit perfectly between two global archetypes (Delta <= 0.9 IQR), indicating a violation of the Single Responsibility Principle.\n"
+            f"> **AI CONTEXT:** 'Mixed-Responsibility' files sit almost equally close to two file archetypes (second-nearest centroid within {round(_MIXED_GAP * 100)}% of the nearest), indicating a possible violation of the Single Responsibility Principle.\n"
         )
 
+        # #4106: the "Severe Anti-Patterns" check (local/global drift ratio) is
+        # retired with the per-language model it compared against.
         drifting_files = []
-        trojan_files = []
 
         for s in parsed_files:
             tel = s.get("telemetry", {})
 
-            # 1. Anti-Pattern Check
-            g_drift = tel.get("global_drift", 0.0)
-            l_drift = tel.get("local_drift", 0.0)
-
-            if g_drift > 0 and l_drift > 0:
-                biaxial_ratio = l_drift / g_drift
-                if biaxial_ratio > 1.5:
-                    trojan_files.append(
-                        {
-                            "file_data": s,
-                            "ratio": biaxial_ratio,
-                            "g_drift": g_drift,
-                            "l_drift": l_drift,
-                            "g_arch": tel.get("archetype"),
-                            "l_arch": tel.get("local_archetype"),
-                        }
-                    )
-
-            # 2. Mixed-Responsibility Architecture Check
+            # Mixed-Responsibility Architecture Check
             fingerprint = tel.get("archetype_fingerprint", {})
             if len(fingerprint) >= 2:
                 sorted_archs = sorted(fingerprint.items(), key=lambda x: x[1])
@@ -1922,7 +1904,7 @@ class LLMRecorder:
                 secondary_arch, secondary_dist = sorted_archs[1]
                 delta = secondary_dist - primary_dist
 
-                if delta <= 0.9:
+                if delta <= _MIXED_GAP * primary_dist:
                     drifting_files.append(
                         {
                             "file_data": s,
@@ -1931,18 +1913,6 @@ class LLMRecorder:
                             "secondary": (secondary_arch, secondary_dist),
                         }
                     )
-
-        if trojan_files:
-            lines.append("### 🚨 Severe Anti-Patterns (Language Convention Violations)")
-            trojan_files.sort(key=lambda x: x["ratio"], reverse=True)
-            for t in trojan_files[:5]:
-                s = t["file_data"]
-                lines.append(
-                    f"- `{s.get('path')}` ({s.get('lang_id', 'UNK').upper()}) | **Drift Ratio: {round(t['ratio'], 2)}x**"
-                )
-                lines.append(f"  * **Global Archetype:** `{t['g_arch']}` (Drift: {t['g_drift']} IQR)")
-                lines.append(f"  * **Local Reality:** `{t['l_arch']}` (Drift: {t['l_drift']} IQR)")
-            lines.append("")
 
         if drifting_files:
             from collections import defaultdict
@@ -1964,7 +1934,7 @@ class LLMRecorder:
                     sec_a, _sec_d = drift["secondary"]
 
                     lines.append(
-                        f"- `{p}` ({l}) | Magnitude: {m} | Delta: **{round(drift['delta'], 3)} IQR** | Secondary Pull: `{sec_a}`"
+                        f"- `{p}` ({l}) | Magnitude: {m} | Delta: **{round(drift['delta'], 3)}** (centroid distance) | Secondary Pull: `{sec_a}`"
                     )
 
                     struct_signal_hits = [
@@ -1978,7 +1948,9 @@ class LLMRecorder:
                     lines.append(f"  * Top Architectural Signatures: {top_hits if top_hits else 'None'}")
                 lines.append("")
         else:
-            lines.append("*No highly conflicted/drifting files detected within the 0.9 IQR threshold.*")
+            lines.append(
+                f"*No file sits within {round(_MIXED_GAP * 100)}% of a second archetype -- no mixed-responsibility candidates.*"
+            )
             lines.append("")
 
         # ==============================================================================
@@ -2230,8 +2202,6 @@ class LLMRecorder:
                     popularity INTEGER,
                     archetype TEXT,
                     global_drift REAL,
-                    local_archetype TEXT,
-                    local_drift REAL,
                     ecosystem_baseline TEXT,
                     repo_z_score REAL,
                     {risk_cols}
@@ -2345,11 +2315,11 @@ class LLMRecorder:
                         total_loc, coding_loc, doc_loc, file_impact,
                         control_flow_ratio, author_distribution, ownership_entropy,
                         raw_churn_freq, cog_raw, ownership, popularity,
-                        archetype, global_drift, local_archetype, local_drift,
+                        archetype, global_drift,
                         ecosystem_baseline, repo_z_score,
                         {", ".join(self.RISK_SCHEMA)}
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, {", ".join(["?"] * len(self.RISK_SCHEMA))})
                 """,  # noqa: S608
                     (
                         p,
@@ -2371,8 +2341,6 @@ class LLMRecorder:
                         pop_count,
                         tel.get("archetype", "Unknown"),
                         tel.get("global_drift", 0.0),
-                        tel.get("local_archetype", "N/A"),
-                        tel.get("local_drift", 0.0),
                         str(repo_macro),
                         repo_z,
                         *rv,

@@ -739,21 +739,17 @@ class AuditRecorder:
                 },
                 "3. Architectural Profile": {
                     "Repository Archetype": arch,
-                    "Repository Drift (Z-Score)": telemetry.get("global_drift", 0.0),
+                    # #4106: the general FILE archetype (legacy key name), its
+                    # Euclidean distance to the assigned centroid in the brain's
+                    # scaled space (not a z-score), and the distance to every centroid.
+                    "Repository Drift (Centroid Distance)": telemetry.get("global_drift", 0.0),
                     "Repository Fingerprint": (
                         {k: round(v, 3) for k, v in telemetry.get("archetype_fingerprint", {}).items()}
                         if isinstance(telemetry.get("archetype_fingerprint"), dict)
                         else {}
                     ),
-                    "File Archetype": telemetry.get("local_archetype") or "N/A",
                     "Composition Archetype": telemetry.get("composition_file_archetype", "N/A"),
                     "Composition Fit (Z-Score)": round(float(telemetry.get("composition_file_z", 0.0) or 0.0), 3),
-                    "File Drift (Z-Score)": telemetry.get("local_drift", 0.0),
-                    "File Fingerprint": (
-                        {k: round(v, 3) for k, v in telemetry.get("local_fingerprint", {}).items()}
-                        if isinstance(telemetry.get("local_fingerprint"), dict)
-                        else {}
-                    ),
                     "Function Archetype Mix": telemetry.get("function_archetype_mix", {}),
                     "Total LOC": file_data.get("total_loc", 0),
                     "Coding LOC": file_data.get("coding_loc", 0),

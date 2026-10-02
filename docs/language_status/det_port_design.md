@@ -1,7 +1,43 @@
 # Deterministic port (det-port): design and the runtime contract
 
-**Status: 24 CardDemo programs translate with no hole and prove -- the 23 with model-written ports, and COACTUPC.** Question it answers: of the 23 CardDemo programs already proven with
-model-written ports, how much can a deterministic translator port -- and does its port prove?
+**Status: 31 programs are translated with no model and proven.** That is 24 from CardDemo, 5 from GenApp and 2 from
+CBSA. All 24 CardDemo programs also prove in the structured, typed style. A model has refactored the largest of
+them, COACTUPC, one method at a time; every rewrite was proven and kept.
+
+## The method in brief
+
+Porting a COBOL program has three steps. Behaviour is decided once, by the translator. A model may only change how
+the code reads, and the proof is the gate.
+
+```
+COBOL program ──(1) det_port.py: translate, no model──► Java port, faithful by construction
+                                                              │
+                                     (2) equivalence harness: GnuCOBOL vs Java, every scenario, faults on
+                                                              │  proven
+                                                              ▼
+                    (3) det_refine.py: the customer's model rewrites one method ──► proven again? keep : revert
+                                                              │
+                                                              ▼
+                                     a person reviews and approves (not yet in port_runner: below)
+```
+
+| step | tool | what it guarantees | measured |
+|---|---|---|---|
+| translate | `tests/tools/det_port.py run CASE [--style structured] [--typed]` | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 96.8% of 16,798 statements across six estates ([survey](det_survey.md)) |
+| prove | `tests/tools/equivalence.py run CASE --port DIR --faults all` | equal events (screens, COMMAREAs, XCTL / LINK / RETURN), files and RETURN-CODE against GnuCOBOL, field by field, on every scenario and injected fault | 31 programs proven |
+| make readable, no model | `--style structured` (B1), `--typed` (B3) | named methods and fields; typed Java fields where every use allows | 24 of 24 proven typed; batch runtime calls −36% |
+| make readable, with a model | `tests/tools/det_refine.py run CASE --port DIR` (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |
+
+**What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
+faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 256 of 397
+branches). The oracle is GnuCOBOL in IBM mode, not an IBM compiler. Where the two are known to differ, the
+difference is declared below.
+
+**Why this order.** When a model writes the whole port, the proof has to catch its mistakes in behaviour as well
+as in style. Here a model never decides behaviour. The translator fixes it, and the model's only freedom is
+readability, where any change in behaviour fails the proof and is undone. Model-written ports remain possible
+([the porting loop](../cobol_to_java_porting_loop.md)); the combined method is the default for a program the
+translator takes whole.
 
 ## Shape
 
@@ -189,7 +225,8 @@ Only generator output, never a test case:
 A base cluster's keyed READ / WRITE / REWRITE / DELETE goes through the repository's `findById`, the id decoded
 from the key bytes by `det/entity.py` from the entity's `@Id` / `@EmbeddedId` comments; the record found must have
 exactly the key bytes asked for (a loosely decoded key -- non-digits in a numeric key -- finds nothing, as VSAM).
-Alternate indexes and browses keep the ordered scan.
+Alternate indexes and browses keep the ordered scan, as does an id whose comment's PICTURE and USAGE do not give the
+byte count it states.
 
 ## Beyond CardDemo (A5)
 
@@ -202,12 +239,30 @@ Equivalence cases for programs of two more estates, the COBOL run by GnuCOBOL as
 | genapp-lgdpvs01 | GenApp: DELETE a policy | **proven** |
 | genapp-lgupvs01 | GenApp: READ UPDATE / REWRITE a policy | **proven** |
 | cbsa-updcust | CBSA: update a customer (READ UPDATE / REWRITE, title validation, I/O faults) -- 23 scenarios | **proven** |
-| genapp-lgacvs01, genapp-lgucvs01 | GenApp: WRITE / REWRITE a customer (KSDSCUST) | differs: the generated KSDSCUST entity holds only the 10-byte key of the 225-byte record (the generator does not read KEYS / RECORDSIZE given inside IDCAMS DATA(...)) -- a generator gap |
-| cbsa-abndproc | CBSA: WRITE an abend record (ABNDFILE) | fails: the generated project maps no store for ABNDFILE -- a generator gap |
+| genapp-lgacvs01 | GenApp: WRITE a customer (KSDSCUST, `FROM(CA-CUSTOMER-NUM) LENGTH(225)`) | **proven** |
+| genapp-lgucvs01 | GenApp: REWRITE a customer | **proven** |
+| cbsa-abndproc | CBSA: WRITE an abend record (ABNDFILE): new keys, a duplicate key, negative codes, NOSPACE / NOTOPEN faults -- 8 scenarios | **proven** |
+
+The last three were blocked at first. Getting them to prove found six defects, none of them in the COBOL:
+
+| where | defect | fix |
+|---|---|---|
+| generator | KEYS and RECORDSIZE coded inside IDCAMS `DATA(...)` were ignored, so the store had no key and no record size | read from the cluster, then DATA, then INDEX (`gitgalaxy/core/file_control.py`) |
+| generator | a WRITE's record was taken as its FROM item alone, ignoring `LENGTH`: GenApp's customer entity held a 10-byte key instead of the 225-byte record | the record is the LENGTH bytes from the FROM item, inside its 01 (`galaxy_ir.vsam_stores`) |
+| generator | a CICS WRITE stub was `repo.save(...)`, which silently replaced an existing record where CICS raises DUPREC | the stub checks the key and raises `DuplicateKeyException("DUPREC")`; CardDemo's three model ports that write re-prove with it |
+| generator | `SIGN LEADING / TRAILING SEPARATE` reached the entity codec as an embedded sign (`+00000017` written back as `0000000{ `); a bare `SIGN SEPARATE` was not recognised at all | the sign's place is recorded (`record_data.sign_separate`: 1 trailing, 2 leading) and the codec has `zonedSeparate` / `putZonedSeparate` |
+| generator | entity comments gave the PICTURE without the USAGE, so the det-port decoded a COMP-3 key as zoned and a duplicate key went unseen | comments say `PIC S9(15) COMP-3`; `det/entity.py` refuses a comment whose PICTURE does not give its byte count, and the exact key-byte scan stays |
+| translator and harness | `WRITE` / `REWRITE` / `WRITEQ TS ... FROM(x) LENGTH(n)` used x's own length on both sides | n bytes from x's first byte, as CICS reads them |
+
+The harness also stopped dropping data without saying so. A scenario's COMMAREA field that the contract DTO has no
+property for used to reach the port as nothing. It is now refused by name. ABNDPROC's DTO is its callers'
+`ABNDINFO-REC` (`ABND-*`), not its own `COMM-*` names, and the case now describes it that way. All 23 other CICS
+cases were checked: none drops a field.
 
 GenApp's error paths (DUPREC, NOTFND, injected faults) all LINK to LGSTSQ first, which the one-program cases do
 not run: they are not exercised (the harness refuses a scenario that reaches such a LINK). The CBSA cases cover
-their error paths. No case here browses, so EBCDIC vs ASCII key order is still not exercised.
+their error paths, ABNDPROC's DUPREC among them. No case here browses, so EBCDIC vs ASCII key order is still not
+exercised.
 
 ## The combined method (B): deterministic first, a model refactors under proof
 
@@ -225,10 +280,12 @@ every step.
 | program | methods | kept | time | Cobol.* calls | lines |
 |---|---|---|---|---|---|
 | CBACT02C (structured) | 7 | 7 (2 on the retry) | 259 s | 47 → 45 | 302 → 353 (Javadoc, helpers) |
-| COACTUPC (dispatcher, 66 GO TOs), its 10 largest paragraphs | 10 | 10 (1 on the retry) | 585 s | 3,614 → 2,419 | 6,816 → 6,104 |
+| COACTUPC (dispatcher, 66 GO TOs), every paragraph | 109 | **109** (11 on the retry, 0 reverted) | 3,543 s | 3,614 → **1,347** | 6,816 → 6,843 |
 
-The model adds a Javadoc per paragraph, else-if chains, the 88-level conditions as named predicates, extracted
-helpers. Example: `docs/benchmarks/det-refine-cbact02c/`.
+The model adds a Javadoc per paragraph, else-if chains, the 88-level conditions as named predicates, and extracted
+helpers. It removes `if (true)` scaffolding (COACTUPC: 77 → 0). The fully refined COACTUPC was then proven again from
+scratch, with no build reused: 54 scenarios, 156 of 156 events equal. Examples: `docs/benchmarks/det-refine-cbact02c/`,
+`docs/benchmarks/det-refine-coactupc/`.
 
 **B3 -- typed state** (`det_port.py --typed`, no model). WORKING-STORAGE items become Java fields of their own type
 instead of views on byte storage: PIC X(n) a `String` of n characters, a binary integer a `long`, a zoned or packed
@@ -256,3 +313,20 @@ The batch programs' state is flags, counters and amounts: a third of the runtime
 is mostly the screen map, the commarea and file records -- groups, which stay byte storage (their typed form is a
 DTO, not a lifted field; next). test_det_programs.py runs every program both ways against GnuCOBOL, TYPED among them
 (each kind and each fallback).
+
+## Limits and next steps
+
+- **Screens, COMMAREAs and file records stay byte storage.** These are groups, and typing (B3) lifts elementary
+  items only. This is why CICS programs gain 1-11% from B3 and batch programs 32-41%. Next: a group whose every use
+  is whole, or field by field, becomes its generated DTO or entity.
+- **B2 and B3 have not yet run on the same program.** B3 needs the structured style, which needs a program with no
+  GO TO, so COACTUPC cannot take it. The next measurement is a structured CICS program, typed, then refined.
+- **The oracle is GnuCOBOL.** The declared differences above are the known ones; IBM-compiler runs would close the
+  question.
+- **Not yet in the product's workflow.** `det_port.py` and `det_refine.py` are tools under `tests/tools/`. Their
+  ports and each refinement step are recorded in the work directory (`refine.json`), not in `port_runner`'s
+  `port_log.jsonl`, so `port_runner review` / `status` do not see them yet. Next: `port_runner run --backend det`
+  and a refine step that logs like any other proposal.
+- **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for
+  this translator: such statements stay named holes.
+

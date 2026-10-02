@@ -3,7 +3,8 @@
 `python tests/tools/det_survey.py --work DIR` translates every COBOL program of each corpus (not only those with an
 equivalence case) onto the service GitGalaxy generates for it, and compiles each port against the built estate.
 **This measures translation, not correctness**: a port is proven only by its equivalence case
-(`tests/tools/det_port.py`; on CardDemo, 23 of 23 cases prove).
+(`tests/tools/det_port.py`): 31 programs are proven, 24 from CardDemo, 5 from GenApp and 2 from CBSA
+([det_port_design.md](det_port_design.md)).
 
 ## Result (2026-10-02)
 
@@ -64,4 +65,5 @@ CEEIGZCT, SQLDA, AUTHFRDS), 6 DATA DIVISION and 2 PROCEDURE DIVISION forms the g
   91.8%. What is left is mostly out of scope (Db2, IMS, pointers) or CICS the runtime does not model yet.
 - Db2, IMS and pointer code will stay holes: a deterministic port of embedded SQL needs a Db2 target, which is not
   this translator's. Each such statement is named, by line, in the port.
-- Nothing here is proven outside CardDemo: the other estates have no equivalence cases yet.
+- Outside CardDemo, 7 programs have equivalence cases and all 7 prove (GenApp: LGACVS01, LGAPVS01, LGDPVS01,
+  LGUCVS01, LGUPVS01; CBSA: UPDCUST, ABNDPROC). The rest of those estates is translated, not proven.

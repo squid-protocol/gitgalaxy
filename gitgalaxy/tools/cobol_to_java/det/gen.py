@@ -1168,7 +1168,7 @@ class Gen:
             return t if subject == "TRUE" else f"!({t})"
         if kind == "VALUE":
             t = self.rel("=", subject, obj[1])
-            return f"!({t})" if obj[2] else t
+            return f"!({t})" if obj[3] else t
         if kind == "RANGE":
             t = f"({self.rel('>=', subject, obj[1])} && {self.rel('<=', subject, obj[2])})"
             return f"!{t}" if obj[3] else t

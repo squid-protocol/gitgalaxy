@@ -34,6 +34,8 @@ from collections.abc import Iterator
 
 import cobol_coverage as cov  # #4023
 import equivalence_common as common
+import equivalence_db2
+import equivalence_sql
 
 STUB = common.CASES / "cics"
 LE_MODELS = common.CASES / "le"  # Language Environment service models (CEEDAYS) a CALLed subprogram may use
@@ -762,8 +764,13 @@ def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = 
 
 # ---- field values <-> bytes -----------------------------------------------------------
 def encode_field(
-    value: Any, pic: str | None, usage: str | None, nbytes: int, enc: str = common.DEFAULT_DATA_ENCODING,
-    sign_separate: bool = False, sign_leading: bool = True,
+    value: Any,
+    pic: str | None,
+    usage: str | None,
+    nbytes: int,
+    enc: str = common.DEFAULT_DATA_ENCODING,
+    sign_separate: bool = False,
+    sign_leading: bool = True,
 ) -> bytes:
     """A value as the field stores it (the inverse of equivalence.decode_field); #3815: text in `enc`.
     SIGN LEADING / TRAILING SEPARATE: the digits and a `+` / `-` byte of its own at that end."""
@@ -983,9 +990,6 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     db2 = case.get("db2")
     dumps: list[tuple[str, str, list[str]]] = []
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub, before the EXEC CICS translation
-        import equivalence_db2
-        import equivalence_sql
-
         dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
         try:
             source, table = equivalence_sql.precompile(source, dirs, corpus / case["program_source"])
@@ -1333,7 +1337,8 @@ def commarea_class(case: dict[str, Any], src: Path, svc_file: Path) -> str:
 
     svc_text = svc_file.read_text(encoding="utf-8")
     m = re.search(r"handleTransaction\(String transid, (\w+) request\)", svc_text) or re.search(
-        r"handleLink\((\w+) request\)", svc_text)  # a LINKed program (CBSA): its contract COMMAREA DTO
+        r"handleLink\((\w+) request\)", svc_text
+    )  # a LINKed program (CBSA): its contract COMMAREA DTO
     if m:
         return m.group(1)
     record = case["commarea"]["segments"][0]["record"]
@@ -1567,7 +1572,9 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         ca = None
         if sc.get("commarea") is not None:  # the very COMMAREA the COBOL task started with, as the DTO
             enc = common.data_encoding(case)  # #3815
-            values = decode_record(encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc, keep_nulls=True)
+            values = decode_record(
+                encode_record(ca_fields, sc["commarea"], b"init", enc), ca_fields, enc, keep_nulls=True
+            )
             # a value the DTO has no field for would reach the port as nothing at all: the case must name the
             # COMMAREA as the contract DTO's record does
             lost = sorted(set(sc["commarea"]) - shape_names(shape))
@@ -1585,8 +1592,6 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")
     props = ej.data_charset_arg(case)
     if case.get("db2"):  # the seed and the dump queries, and the harness's Db2
-        import equivalence_db2
-
         (inputs / "db2reset.sql").write_text(equivalence_db2.reset_script(case, corpus), encoding="latin-1")
         (inputs / "db2dumps.txt").write_text("".join(
             f"{t}\t{'|'.join(n)}\t{equivalence_db2.dump_query(t, n)}\n"
@@ -1636,7 +1641,6 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
 
 def compare_db2(case: dict[str, Any], cobol: dict[str, bytes], java_out: Path, scenario: str) -> dict[str, Any]:
     """A Db2 case: per compared table, what the task left there on each side -- only the tables that differ."""
-    import equivalence_db2
 
     out = {}
     for t in (case.get("db2") or {}).get("compare", []):

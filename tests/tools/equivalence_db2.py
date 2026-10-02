@@ -150,9 +150,14 @@ def ddl_text(path: Path, symbols: dict[str, str] | None = None) -> str:
 
 
 def create(case: dict[str, Any], corpus: Path) -> None:
-    """The case's tables, dropped and created again from its DDL."""
+    """The case's tables, dropped and created again from its DDL (every table the DDL creates, compared or not)."""
     ensure()
-    for t in _tables(case):
+    made = []
+    for ddl in case["db2"].get("ddl", []):
+        made += re.findall(
+            r"CREATE\s+TABLE\s+([A-Z0-9_.$#@]+)", ddl_text(corpus / ddl, case["db2"].get("symbols")), re.I
+        )
+    for t in dict.fromkeys([*_tables(case), *made]):
         _clp(f"DROP TABLE {t};", check=False)
     # a row longer than a 4K page (GenApp's ENDOWMENT VARCHAR(32606)): Db2 for Linux places such a table in a
     # table space whose pages hold it -- created once (z/OS sizes its pages per table space in the DDL itself)
@@ -192,27 +197,31 @@ def dump(case: dict[str, Any], table: str) -> bytes:
 
 
 def reset_script(case: dict[str, Any], corpus: Path) -> str:
-    """The SQL that resets the tables to the seed (ggsqlrun -f, and the Java side's EquivalenceRunTest)."""
-    script = "".join(f"DELETE FROM {t};\n" for t in _tables(case))
-    for t in _tables(case):
-        schema, _, name = t.upper().rpartition(".")
-        _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
-                       f"AND TABNAME = '{name}' AND IDENTITY = 'Y';")  # fmt: skip
-        for c in [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]:
-            script += f"ALTER TABLE {t} ALTER COLUMN {c} RESTART;\n"
+    """The SQL that resets the tables to the seed (ggsqlrun -f, and the Java side's EquivalenceRunTest): every table
+    the seed fills or the case names, emptied (the seed's tables in the reverse of their INSERTs: children first),
+    each one's identity column restarted, then the seed's INSERTs."""
+    seed_sql = ""
     seed = case["db2"].get("seed")
     if seed:
         path = common._input_path(case, corpus, seed)
         symbols = case["db2"].get("symbols")
         if path.suffix.lower() == ".jcl":  # a job's INSERTs
             stmts = [st.strip() for st in ddl_text(path, symbols).split(";")]
-            script += "".join(st + ";\n" for st in stmts if re.match(r"INSERT\b", st, re.I))
+            seed_sql = "".join(st + ";\n" for st in stmts if re.match(r"INSERT\b", st, re.I))
         else:
-            text = path.read_text(encoding="latin-1")
+            seed_sql = path.read_text(encoding="latin-1")
             for k, v in (symbols or {}).items():
-                text = text.replace(k, v)
-            script += text
-    return script
+                seed_sql = seed_sql.replace(k, v)
+    seeded = list(dict.fromkeys(t.upper() for t in re.findall(r"INSERT\s+INTO\s+([A-Z0-9_.$#@]+)", seed_sql, re.I)))
+    tables = [*reversed(seeded), *[t for t in _tables(case) if t.upper() not in seeded]]
+    script = "".join(f"DELETE FROM {t};\n" for t in tables)
+    for t in tables:
+        schema, _, name = t.upper().rpartition(".")
+        _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
+                       f"AND TABNAME = '{name}' AND IDENTITY = 'Y';")  # fmt: skip
+        for c in [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]:
+            script += f"ALTER TABLE {t} ALTER COLUMN {c} RESTART;\n"
+    return script + seed_sql
 
 
 def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
@@ -245,7 +254,10 @@ def qualifier(case: dict[str, Any] | None) -> str | None:
 
 def cobol_docker_args(case: dict[str, Any] | None = None) -> list[str]:
     """The COBOL step's container: on the Db2 network, the connection in its environment (not in run.sh)."""
-    conn = f"DATABASE={DATABASE};HOSTNAME={CONTAINER};PORT=50000;PROTOCOL=TCPIP;UID={USER};PWD={PASSWORD};"
+    # DATETIMESTRINGFORMAT=ISO: a TIMESTAMP into a character host variable as Db2 for z/OS gives it with the ISO date
+    # format (2011-08-22-12.13.01.000000), not the CLI's default (2011-08-22 12:13:01.000000)
+    conn = (f"DATABASE={DATABASE};HOSTNAME={CONTAINER};PORT=50000;PROTOCOL=TCPIP;UID={USER};PWD={PASSWORD};"
+            "DATETIMESTRINGFORMAT=ISO;")  # fmt: skip
     if qualifier(case):
         conn += f"CURRENTSCHEMA={qualifier(case)};"
     return ["--network", NETWORK, "-e", f"GGSQL_CONN={conn}"]

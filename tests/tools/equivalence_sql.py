@@ -255,8 +255,10 @@ class Precompiler:
             return st, args
         if verb in ("WHENEVER", "PREPARE", "EXECUTE", "DESCRIBE", "CONNECT", "SET", "CALL", "ALLOCATE", "ASSOCIATE"):
             raise Unsupported(f"EXEC SQL {verb}")
-        if re.search(r"\bWHERE\s+CURRENT\s+OF\b", u):
-            raise Unsupported("EXEC SQL ... WHERE CURRENT OF (a positioned UPDATE / DELETE)")
+        pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+([A-Z0-9_-]+)", u)
+        if pos and (verb not in ("UPDATE", "DELETE") or pos.group(1) not in self.cursors):
+            raise Unsupported(f"EXEC SQL {verb} ... WHERE CURRENT OF {pos.group(1)}: not a declared cursor")
+        # a positioned UPDATE / DELETE runs as written: ggsql.c names each cursor (SQLSetCursorName) at its OPEN
         if verb in ("COMMIT", "ROLLBACK"):
             if not re.fullmatch(r"(COMMIT|ROLLBACK)(\s+WORK)?", u):
                 raise Unsupported(f"EXEC SQL {u}")

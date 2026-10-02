@@ -21,10 +21,28 @@ public final class Funcs {
         return new StringBuilder(s).reverse().toString();
     }
 
-    /** FUNCTION TRIM: leading and trailing spaces removed (an all-space argument gives one space). */
+    /** FUNCTION TRIM: leading and trailing spaces removed -- spaces only (low-values stay), and an all-space
+     *  argument gives a zero-length result (GnuCOBOL, checked: test_det_programs.py TRIMS). */
     public static String trim(String s) {
-        String t = s.strip();
-        return t.isEmpty() && !s.isEmpty() ? " " : t;
+        return trimTrailing(trimLeading(s));
+    }
+
+    /** FUNCTION TRIM(x LEADING). */
+    public static String trimLeading(String s) {
+        int i = 0;
+        while (i < s.length() && s.charAt(i) == ' ') {
+            i++;
+        }
+        return s.substring(i);
+    }
+
+    /** FUNCTION TRIM(x TRAILING). */
+    public static String trimTrailing(String s) {
+        int j = s.length();
+        while (j > 0 && s.charAt(j - 1) == ' ') {
+            j--;
+        }
+        return s.substring(0, j);
     }
 
     /** FUNCTION MOD: a - b * FLOOR(a / b). */

@@ -100,3 +100,8 @@ def test_exec_cics_two_word_verb_and_nested_parentheses():
     assert words == ["HANDLE", "ABEND"] and opts == {"LABEL": "ABEND-ROUTINE"}
     _, opts = C.parse_exec("EXEC CICS READ DATASET(F) RIDFLD(K) KEYLENGTH(LENGTH OF K(1:4)) END-EXEC")
     assert opts["KEYLENGTH"] == "LENGTH OF K(1:4)"
+
+
+def test_syncpoint_rollback_is_a_rollback():
+    words, opts = C.parse_exec("EXEC CICS SYNCPOINT ROLLBACK END-EXEC")
+    assert " ".join(words) == "SYNCPOINT ROLLBACK" and opts == {}

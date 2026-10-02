@@ -30,6 +30,30 @@ def program(name: str, data: list[str], proc: list[str]) -> str:
 
 
 PROGRAMS = {
+    # FUNCTION TRIM: spaces only, an all-space argument zero-length (COACTUPC's alphabetic-field check)
+    "TRIMS": program(
+        "TRIMS",
+        [
+            "01 S PIC X(10) VALUE SPACES.",
+            "01 A PIC X(10) VALUE '  AB  '.",
+            "01 L PIC X(10) VALUE LOW-VALUES.",
+            "01 N PIC 9(4) VALUE 0.",
+        ],
+        [
+            "MOVE FUNCTION LENGTH(FUNCTION TRIM(S)) TO N",
+            "DISPLAY N",
+            "MOVE FUNCTION LENGTH(FUNCTION TRIM(A)) TO N",
+            "DISPLAY N",
+            "MOVE FUNCTION LENGTH(FUNCTION TRIM(L)) TO N",
+            "DISPLAY N",
+            "DISPLAY '[' FUNCTION TRIM(S) ']'",
+            "DISPLAY '[' FUNCTION TRIM(A LEADING) ']'",
+            "DISPLAY '[' FUNCTION TRIM(A TRAILING) ']'",
+            "IF FUNCTION LENGTH(FUNCTION TRIM(S)) = 0",
+        "    DISPLAY 'EMPTY'",
+        "END-IF",
+        ],
+    ),
     # GO TO the end of an outer PERFORM's range from inside an inner one: the outer PERFORM returns
     "GOTOOUT": "\n".join(
         [

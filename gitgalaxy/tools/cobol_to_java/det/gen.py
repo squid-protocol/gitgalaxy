@@ -256,6 +256,8 @@ class Gen:
     def func(self, f: E.Func) -> str:
         name = f.name
         args = [a for a in f.args if not (isinstance(a, tuple) and a[0] == "REFMOD")]
+        if name == "TRIM" and len(args) == 2 and isinstance(args[1], E.Ref) and args[1].name in ("LEADING", "TRAILING"):
+            return f"Funcs.trim{args[1].name.title()}({self.text(args[0])})"
         if name in ("UPPER-CASE", "LOWER-CASE", "TRIM", "REVERSE") and len(args) == 1:
             return f"Funcs.{_camel(name)}({self.text(args[0])})"
         if name == "CURRENT-DATE":

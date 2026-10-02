@@ -558,7 +558,7 @@ class Cics:
                 and "TD" not in words:  # fmt: skip
             return self.ts_queue(verb.split()[0], opts, ind)
         if verb in ("SYNCPOINT", "SYNCPOINT ROLLBACK"):
-            return [f"{ind}task.{'rollback' if 'ROLLBACK' in opts else 'syncpoint'}();"]
+            return [f"{ind}task.{'rollback' if verb == 'SYNCPOINT ROLLBACK' or 'ROLLBACK' in opts else 'syncpoint'}();"]
         raise CicsError(f"EXEC CICS {verb} not modelled")
 
     def ts_queue(self, verb: str, opts: dict, ind: str) -> list[str]:

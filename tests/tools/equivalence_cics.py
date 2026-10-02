@@ -2017,9 +2017,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report."""
     import json
 
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    import equivalence_cache
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
-    ir = load_galaxy_ir(scan_to_db(corpus, work / "scan"))
+    ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)
     files = stub_files(ir, case["program_source"], case.get("datasets"))
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))

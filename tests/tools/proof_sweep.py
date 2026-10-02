@@ -9,7 +9,7 @@ Two sweeps, as the det-port skill's checklists ask after a runtime or harness ch
 
 DIR/sweep.json holds each case's verdict and coverage line; the summary compares them with KNOWN_UNPROVEN, the cases
 not proven on purpose (each with its reason): exit 1 when a case not listed there is not proven, or a listed one now
-is (the list is then stale). Db2 cases wait their turn on the shared database (equivalence_db2.hold_lock).
+is (the list is then stale). Db2 cases each take a database of the pool (equivalence_db2.hold_lock), waiting when every one is taken.
 """
 
 from __future__ import annotations

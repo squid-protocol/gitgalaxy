@@ -204,7 +204,9 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
     if earlier is not None:  # --reuse: the earlier run's project, built from the same estate by the same generator
         project = _reused_project(earlier, work, overlay)
     else:
-        clean = jtm.refactor(corpus, work, scan=True)
+        import equivalence_cache
+
+        clean = equivalence_cache.refactor(corpus, work, scan=True)  # (once per corpus and engine: every case's)
         # #3828: a case's `culture` (e.g. {"db2_date_format": "eur"}) is the Java side's target config too
         config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
         project = jtm.generate(clean, "h2", config, work)

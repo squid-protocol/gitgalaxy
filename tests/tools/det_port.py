@@ -46,10 +46,11 @@ def estate(corpus: Path, work: Path) -> Path:
     done = work / "estate" / "project.txt"
     if done.is_file():
         return Path(done.read_text(encoding="utf-8").strip())
+    import equivalence_cache
     import java_target_matrix as jtm
 
     (work / "estate").mkdir(parents=True, exist_ok=True)
-    clean = jtm.refactor(corpus, work / "estate", scan=True)
+    clean = equivalence_cache.refactor(corpus, work / "estate", scan=True)  # (once per corpus and engine)
     project = jtm.generate(clean, "h2", jtm.MATRIX["h2"], work / "estate")
     done.write_text(str(project) + "\n", encoding="utf-8")
     return project

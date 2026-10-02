@@ -23,6 +23,9 @@ from pathlib import Path
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
+sys.path.insert(0, str(REPO_ROOT))
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 CASES = REPO_ROOT / "tests" / "equivalence"
 
 # (sweep, case) -> why it is not proven, on purpose
@@ -43,7 +46,7 @@ def _coverage(log: Path) -> str:
     """The proof's coverage line ("... proven on N scenarios ..." or "... not proven ..."), or ""."""
     if not log.is_file():
         return ""
-    lines = [ln for ln in log.read_text(encoding="utf-8", errors="replace").splitlines() if "COBOL coverage:" in ln]
+    lines = [ln for ln in read_source(log).text.splitlines() if "COBOL coverage:" in ln]
     return lines[-1].split("COBOL coverage:", 1)[-1].strip() if lines else ""
 
 

@@ -165,8 +165,8 @@ As of 2026-09-26, out of 59 languages:
   - Python, vs pyan3: 99.8% precision on 1,806 judged links, 51.6% recall;
   - TypeScript, vs the TypeScript 6.0.2 type checker: 99.9% precision on 1,520 judged links,
     57.1% recall;
-  - Java, vs scip-java (javac's own resolution): 92.7% precision on 3,474 judged links,
-    41.0% recall. A call to an overloaded method is linked only when its argument count picks
+  - Java, vs scip-java (javac's own resolution): 93.2% precision on 3,727 judged links,
+    44.2% recall. A call to an overloaded method is linked only when its argument count picks
     one overload ([#3835](https://github.com/squid-protocol/gitgalaxy/issues/3835)).
 
   A call link, when made, is usually right, but about half or more of calls are left

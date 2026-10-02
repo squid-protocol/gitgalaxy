@@ -135,6 +135,8 @@ def run(opts: argparse.Namespace) -> dict[str, Any]:
     names = [n for n, _, _ in methods(service.read_text(encoding="utf-8"))]
     if opts.methods:
         names = [n for n in names if n in opts.methods.split(",")]
+    if opts.skip:
+        names = [n for n in names if n not in opts.skip.split(",")]
     if opts.largest:
         src = service.read_text(encoding="utf-8")
         size = {n: metrics(src[s:e])["lines"] for n, s, e in methods(src)}
@@ -200,6 +202,7 @@ def main() -> int:
     r.add_argument("--api-key-env", help="the environment variable holding the API key")
     r.add_argument("--methods", help="only these methods (comma-separated)")
     r.add_argument("--largest", type=int, help="only the N largest methods")
+    r.add_argument("--skip", help="not these methods (comma-separated; e.g. those an earlier run refined)")
     r.add_argument("--retries", type=int, default=1)
     r.add_argument("--faults", default="all")
     r.add_argument("--timeout", type=int, default=600)

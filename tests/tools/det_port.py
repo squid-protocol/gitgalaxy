@@ -44,7 +44,8 @@ def estate(corpus: Path, work: Path) -> Path:
     return project
 
 
-def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch") -> dict[str, Any]:
+def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "dispatch",
+              typed: bool = False) -> dict[str, Any]:  # fmt: skip
     import equivalence as eq
     import equivalence_java as ej
 
@@ -65,7 +66,7 @@ def port_case(name: str, work: Path, project: Path, corpus: Path, style: str = "
     out: dict[str, Any] = {"case": name, "program": case["program"]}
     port = work / name / "port"
     try:
-        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style)
+        r = P.translate(corpus / case["program_source"], dirs, stub, PKG, P.estate_files(project), project, style, typed)
     except Exception as e:
         out.update({"translated": False, "error": f"{type(e).__name__}: {e}"})
         return out
@@ -107,6 +108,8 @@ def main() -> int:
     r.add_argument("--faults", default="all")
     r.add_argument("--jobs", type=int, default=2)
     r.add_argument("--translate-only", action="store_true")
+    r.add_argument("--typed", action="store_true",
+                   help="standalone WORKING-STORAGE items as typed Java fields where every use allows (B3)")
     r.add_argument("--style", choices=("dispatch", "structured"), default="dispatch",
                    help="structured: paragraphs as named methods called directly where the program has no GO TO / "
                         "HANDLE (else dispatch)")  # fmt: skip
@@ -129,7 +132,7 @@ def main() -> int:
             where = args.work if cname == "aws-mainframe-modernization-carddemo" else args.work / f"estate-{cname}"
             estates[cname] = (corpus, estate(corpus, where))
         corpus, project = estates[cname]
-        results.append(port_case(n, args.work, project, corpus, args.style))
+        results.append(port_case(n, args.work, project, corpus, args.style, args.typed))
     if not args.translate_only:
         eq.build_image()
         todo = [x for x in results if x.get("statements") is not None]

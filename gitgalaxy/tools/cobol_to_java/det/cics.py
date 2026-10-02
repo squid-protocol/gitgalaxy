@@ -303,9 +303,11 @@ class Cics:
         out = [f"{ind}Cobol.store({self.g.eib('EIBRESP')}, BigDecimal.valueOf({resp}), false, CS);",
                f"{ind}Cobol.store({self.g.eib('EIBRESP2')}, BigDecimal.valueOf({resp2}), false, CS);"]  # fmt: skip
         if "RESP" in opts:
-            out.append(f"{ind}Cobol.store({self.field(opts['RESP'])}, BigDecimal.valueOf({resp}), false, CS);")
+            out.append(ind + self.g.store_into(self.ref(_arg(opts["RESP"])), f"BigDecimal.valueOf({resp})", False))
             if "RESP2" in opts:
-                out.append(f"{ind}Cobol.store({self.field(opts['RESP2'])}, BigDecimal.valueOf({resp2}), false, CS);")
+                out.append(
+                    ind + self.g.store_into(self.ref(_arg(opts["RESP2"])), f"BigDecimal.valueOf({resp2})", False)
+                )
             return out
         if "NOHANDLE" in opts:
             return out

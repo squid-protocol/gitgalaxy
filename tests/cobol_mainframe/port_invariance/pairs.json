@@ -1,0 +1,86 @@
+[
+ {
+  "program": "ABNDPROC",
+  "estate": "cics-banking-sample-application-cbsa",
+  "case": "cbsa-abndproc",
+  "cobol": "cics-banking-sample-application-cbsa/cobol/ABNDPROC.cbl",
+  "java": "cics-banking-sample-application-cbsa/java/AbndprocService.java"
+ },
+ {
+  "program": "CBACT03C",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-readxref",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/CBACT03C.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/Cbact03cService.java"
+ },
+ {
+  "program": "CBCUS01C",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-readcust",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/CBCUS01C.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/Cbcus01cService.java"
+ },
+ {
+  "program": "CBTRN01C",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-dailyval",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/CBTRN01C.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/Cbtrn01cService.java"
+ },
+ {
+  "program": "COBTUPDT",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-cobtupdt",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/COBTUPDT.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/CobtupdtService.java"
+ },
+ {
+  "program": "COUSR01C",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-useradd",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/COUSR01C.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/Cousr01cService.java"
+ },
+ {
+  "program": "COUSR03C",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-userdel",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/COUSR03C.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/Cousr03cService.java"
+ },
+ {
+  "program": "CSUTLDTC",
+  "estate": "aws-mainframe-modernization-carddemo",
+  "case": "carddemo-dateutil",
+  "cobol": "aws-mainframe-modernization-carddemo/cobol/CSUTLDTC.cbl",
+  "java": "aws-mainframe-modernization-carddemo/java/CsutldtcService.java"
+ },
+ {
+  "program": "DBCRFUN",
+  "estate": "cics-banking-sample-application-cbsa",
+  "case": "cbsa-dbcrfun",
+  "cobol": "cics-banking-sample-application-cbsa/cobol/DBCRFUN.cbl",
+  "java": "cics-banking-sample-application-cbsa/java/DbcrfunService.java"
+ },
+ {
+  "program": "INQACC",
+  "estate": "cics-banking-sample-application-cbsa",
+  "case": "cbsa-inqacc",
+  "cobol": "cics-banking-sample-application-cbsa/cobol/INQACC.cbl",
+  "java": "cics-banking-sample-application-cbsa/java/InqaccService.java"
+ },
+ {
+  "program": "LGAPVS01",
+  "estate": "cics-genapp",
+  "case": "genapp-lgapvs01",
+  "cobol": "cics-genapp/cobol/lgapvs01.cbl",
+  "java": "cics-genapp/java/Lgapvs01Service.java"
+ },
+ {
+  "program": "UPDCUST",
+  "estate": "cics-banking-sample-application-cbsa",
+  "case": "cbsa-updcust",
+  "cobol": "cics-banking-sample-application-cbsa/cobol/UPDCUST.cbl",
+  "java": "cics-banking-sample-application-cbsa/java/UpdcustService.java"
+ }
+]

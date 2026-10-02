@@ -134,9 +134,40 @@ def to_jdbc(statement: str, verb: str) -> tuple[str, list[tuple[str, str]], list
         return ":" + params[host]
 
     sql = _HOST.sub(named, sql)
-    if re.search(r"\bWHERE\s+CURRENT\s+OF\b", sql, re.I):
-        notes.append("TODO: a positioned statement (WHERE CURRENT OF): rewrite it to the row's key")
+    if verb == "DECLARE CURSOR" and re.search(r"\bFOR\s+UPDATE\b", sql, re.I):
+        # a cursor a positioned statement may use: each row also carries its row id, which that statement names
+        at = _top_from(sql)
+        if at is not None:
+            tm = re.match(r"\s*FROM\s+([A-Z0-9_.$#@]+)(?:\s+(?:AS\s+)?(?!WHERE\b|ORDER\b|FOR\b|GROUP\b)([A-Z0-9_]+))?",
+                          sql[at:], re.I)  # fmt: skip
+            if tm:
+                sql = f"{sql[:at].rstrip()}, RID_BIT({tm.group(2) or tm.group(1)}) AS GG_RID {sql[at:]}"
+                notes.append("each row also returns GG_RID, its row id, for a positioned UPDATE / DELETE")
+    pos = re.search(r"\bWHERE\s+CURRENT\s+OF\s+[A-Z0-9_-]+", sql, re.I)
+    if pos:
+        tm = re.match(r"\s*(?:UPDATE|DELETE\s+FROM)\s+([A-Z0-9_.$#@]+)", sql, re.I)
+        if tm:  # JDBC has no cursor position here: the row FETCH last returned, by its row id
+            sql = f"{sql[: pos.start()]}WHERE RID_BIT({tm.group(1)}) = :ggRid{sql[pos.end() :]}"
+            params["GG-RID"] = "ggRid"
+            notes.append("positioned (WHERE CURRENT OF): the cursor's current row, by the GG_RID its FETCH returned")
+        else:
+            notes.append("TODO: a positioned statement (WHERE CURRENT OF): rewrite it to the row's key")
     return " ".join(sql.split()), sorted(params.items()), notes
+
+
+def _top_from(sql: str) -> int | None:
+    """The offset of the outermost SELECT's FROM (outside parentheses and quotes), or None."""
+    depth, quote = 0, ""
+    for i, ch in enumerate(sql):
+        if quote:
+            quote = "" if ch == quote else quote
+        elif ch == "'":
+            quote = ch
+        elif ch in "()":
+            depth += 1 if ch == "(" else -1
+        elif depth == 0 and re.match(r"(?i)\bFROM\b", sql[i : i + 5]) and (i == 0 or not sql[i - 1].isalnum()):
+            return i
+    return None
 
 
 # #3828: the DB2 character formats of DATE and TIME (DB2 for z/OS SQL Reference, "Datetime values"):
@@ -438,7 +469,7 @@ class Db2Forge:
             verb = st["verb"]
             sql, params, notes = to_jdbc(st["statement"], verb)
             self.counts["statements"] += 1
-            self.counts["positioned"] += any("WHERE CURRENT OF" in n for n in notes)
+            self.counts["positioned"] += any("WHERE CURRENT OF" in n for n in notes)  # (rewritten or a TODO)
             stem = "cursor" + java_class_base(st["cursor"]) if verb == "DECLARE CURSOR" else verb.split()[0].lower()
             name = f"{stem}L{st['line']}{java_class_base(key)}"
             while name in used:

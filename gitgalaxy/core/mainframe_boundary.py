@@ -893,7 +893,7 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
 _SIGN_SEPARATE_CLAUSE = re.compile(r"(?:\b(LEADING)\s+|\bTRAILING\s+|\bSIGN\s+(?:IS\s+)?)SEPARATE\b", re.IGNORECASE)
 
 
-def _sign_separate(window: str) -> int | None:
+def _sign_separate(window: str) -> Optional[int]:
     """#3694: 1 for SIGN [TRAILING] SEPARATE, 2 for SIGN LEADING SEPARATE, None for an embedded sign."""
     m = _SIGN_SEPARATE_CLAUSE.search(window)
     if not m:

@@ -750,24 +750,24 @@ class Cics:
                f"{ind}}}"]  # fmt: skip
         return out + self.outcome(opts, f"{r}.resp()", "0", ind)
 
+    def record_from(self, opts: dict) -> str:
+        """A WRITE / REWRITE's record: FROM's bytes, or LENGTH bytes from FROM's first (as CICS reads them)."""
+        frm = self.field(opts["FROM"])
+        if opts.get("LENGTH"):
+            return f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
+        return f"DetCics.bytes({frm})"
+
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g
         r = g.tmpname("resp")
-        if verb in ("WRITE", "REWRITE"):  # the record: FROM's bytes, or LENGTH bytes from FROM's first
-            frm = self.field(opts["FROM"])
-            rec = (
-                f"DetCics.bytes({frm}, {self.int_(_arg(opts['LENGTH']))})"
-                if opts.get("LENGTH")
-                else f"DetCics.bytes({frm})"
-            )
         if verb == "WRITE":
             rid = self.field(opts["RIDFLD"])
             out = [f"{ind}int {r} = task.write({file}, {st}.exists(DetCics.bytes({rid})), "
-                   f"() -> {st}.store({rec}));"]  # fmt: skip
+                   f"() -> {st}.store({self.record_from(opts)}));"]  # fmt: skip
         elif verb == "REWRITE":
-            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({rec}));"]
+            out = [f"{ind}int {r} = task.rewrite({file}, () -> {st}.store({self.record_from(opts)}));"]
         elif verb == "DELETE":
             if opts.get("RIDFLD"):
                 rid = self.field(opts["RIDFLD"])

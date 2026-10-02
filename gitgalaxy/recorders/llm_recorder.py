@@ -24,6 +24,7 @@ from typing import Any, Optional
 from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
 from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS
 from gitgalaxy.core.function_population import population_functions
+from gitgalaxy.metrics import archetype_classifier, archetype_parity
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -1086,6 +1087,14 @@ class LLMRecorder:
                 )
             elif _brain:
                 lines.append(f"| **{_label}** | `unversioned (no provenance baked -- see #3124)` |")
+        # Archetype trust state (#4100): per level, how far the engine has moved the
+        # labels since the brains were trained. Static per engine build (shipped
+        # record + brains), so it also satisfies the no-per-scan-field rule.
+        _status = archetype_classifier.validation_status()
+        lines.append(f"| **Archetype Brains** | {archetype_parity.trained_line(_status)} |")
+        for _line in archetype_parity.summary_lines(_status):
+            _name, _, _rest = _line.partition(": ")
+            lines.append(f"| **{_name}** | {_rest} |")
         lines.append("")
 
         if session_meta.get("zero_dependency_mode"):

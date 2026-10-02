@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 # --- The engine's side of the contract -----------------------------------------
@@ -177,3 +178,277 @@ def check_brain(brain: dict[str, Any], level: str) -> list[str]:
                 f"or the engine and trainer disagree on the contract"
             )
     return problems
+
+
+# ==============================================================================
+# Archetype validation: graded, per-level trust state (#4100)
+# ==============================================================================
+# Retraining the brains (gitgalaxy-population-analyses) takes far longer than an
+# engine change, so the engine is allowed to move ahead of them. What it must
+# not do is present the archetypes as equally trustworthy afterwards. Each level
+# of the tower -- function -> file -> composition file -> composition repo --
+# therefore carries its own state:
+#
+#   VALIDATED    agreement with the trained state >= thresholds.validated
+#   DRIFTING     agreement >= thresholds.degraded: engine changes have moved
+#                some labels; still used, and the drift is reported
+#   UNVALIDATED  no measurement covers the brain actually loaded
+#   DEGRADED     agreement below thresholds.degraded, or a partial structural
+#                break (some inputs dead); still used, qualified, retrain due
+#   INVALID      the level cannot honour its contract (a dimension/feature
+#                break, or input labels that match nothing); its labels are
+#                WITHHELD rather than printed as confident nonsense
+#
+# "Agreement" is the share of crucible files whose label the current engine
+# still assigns the way the engine the brain was trained against did. It is
+# stability with respect to the trained state, NOT accuracy -- there is no
+# ground-truth archetype to be accurate against.
+#
+# Two sources feed the state. Structural problems are computed LIVE from the
+# loaded brains (cheap, deterministic, no corpus). Agreement comes from
+# ``archetype_validation.json``, which ``tests/tools/archetype_drift.py``
+# re-measures on language-crucible after every push to main. Only the
+# structural half may change what a scan EMITS (withholding an INVALID level):
+# the record is refreshed by automation, and a scan's labels must not depend on
+# when that last ran.
+
+# A label the trainer never named: a cluster index, not an archetype.
+_UNNAMED_CLUSTER = re.compile(r"^(?:[A-Za-z_]*cluster_\d+|Cluster \d+)$")
+
+# The tower, bottom-up. Each level's labels feed the next.
+LEVELS: tuple[str, ...] = ("function", "file", "composition_file", "composition_repo")
+
+STATES: tuple[str, ...] = ("VALIDATED", "DRIFTING", "UNVALIDATED", "DEGRADED", "INVALID")
+_RANK = {s: i for i, s in enumerate(STATES)}
+
+DEFAULT_THRESHOLDS: dict[str, float] = {"validated": 0.98, "degraded": 0.95}
+
+# What a withheld (INVALID) level emits in place of a label.
+WITHHELD_LABEL = "Unvalidated"
+
+
+def worst(*states: str) -> str:
+    return max(states, key=lambda s: _RANK.get(s, 0)) if states else "VALIDATED"
+
+
+def brain_fingerprint(brain: dict[str, Any]) -> str:
+    """16-hex sha of everything in a brain that can change a classification.
+    ``provenance`` is excluded: it documents a brain, it does not score with it."""
+    return _sha({k: v for k, v in (brain or {}).items() if k != "provenance"})
+
+
+def _problem(severity: str, message: str) -> tuple[str, str]:
+    return (severity, message)
+
+
+def _labels(level: str, brain: dict[str, Any]) -> list[str]:
+    if level in ("function", "file"):
+        return list(brain.get("cluster_names") or [])
+    return list((brain.get("centroids") or {}).keys())
+
+
+def _input_parity(level: str, produced: list[str], consumed: list[str], producer: str) -> list[tuple[str, str]]:
+    """Problems with a level that reads ``producer``'s labels by name."""
+    if not produced or not consumed:
+        return []
+    matched = [n for n in consumed if n in produced]
+    if not matched:
+        return [
+            _problem(
+                "INVALID",
+                f"{level} reads {producer} labels by name, but none of its {len(consumed)} inputs "
+                f"(e.g. {consumed[0]!r}) is a label {producer} emits (e.g. {produced[0]!r}) -- every input "
+                "column is 0.0",
+            )
+        ]
+    unread = [n for n in produced if n not in consumed]
+    dead = [n for n in consumed if n not in produced]
+    if unread or dead:
+        return [
+            _problem(
+                "DEGRADED",
+                f"{level} inputs disagree with {producer}'s labels: never read {unread}, never emitted {dead} "
+                "-- those units drop out and those input columns are always 0.0",
+            )
+        ]
+    return []
+
+
+def structural_problems(brains: dict[str, dict[str, Any]]) -> dict[str, list[tuple[str, str]]]:
+    """Per level, every problem detectable from the loaded brains alone, as
+    ``(severity, message)`` with severity INVALID, DEGRADED or NOTE. Never raises.
+    ``brains`` is keyed by ``LEVELS``."""
+    fn = brains.get("function") or {}
+    fl = brains.get("file") or {}
+    cf = brains.get("composition_file") or {}
+    cr = brains.get("composition_repo") or {}
+    out: dict[str, list[tuple[str, str]]] = {lvl: [] for lvl in LEVELS}
+
+    for lvl, b in (("function", fn), ("file", fl), ("composition_file", cf), ("composition_repo", cr)):
+        if not b:
+            out[lvl].append(("INVALID", "brain is empty/unloaded"))
+            continue
+        names = _labels(lvl, b)
+        bad = [n for n in names if _UNNAMED_CLUSTER.match(str(n))]
+        if bad:
+            out[lvl].append(
+                _problem(
+                    "NOTE",
+                    f"{len(bad)}/{len(names)} labels are unnamed cluster indices (e.g. {bad[0]!r}) -- reports "
+                    "show a cluster number, not an archetype",
+                )
+            )
+
+    # Per-brain engine parity (#3125) for the two composition brains.
+    out["composition_file"] += [("INVALID", p) for p in check_brain(cf, "file")] if cf else []
+    out["composition_repo"] += [("INVALID", p) for p in check_brain(cr, "repo")] if cr else []
+
+    # function -> file: log_micro_<i>_pct indexes the function model's cluster order.
+    fn_names = _labels("function", fn)
+    micro = [f for f in fl.get("FEATURE_NAMES") or [] if f.startswith("log_micro_")]
+    if fn_names and micro and len(micro) != len(fn_names):
+        out["file"].append(
+            _problem(
+                "INVALID",
+                f"{len(micro)} log_micro_<i>_pct features for {len(fn_names)} function clusters -- the "
+                "per-function composition columns are misaligned",
+            )
+        )
+    # function -> composition_file, composition_file -> composition_repo: by name.
+    out["composition_file"] += _input_parity(
+        "composition_file", fn_names, list(cf.get("stoich_archetypes") or []), "the function model"
+    )
+    out["composition_repo"] += _input_parity(
+        "composition_repo",
+        _labels("composition_file", cf),
+        list(cr.get("comp_archetypes") or []),
+        "the composition_file brain",
+    )
+
+    # A level whose input level is INVALID cannot be better than INVALID.
+    for lower, upper in zip(LEVELS, LEVELS[1:]):
+        if any(sev == "INVALID" for sev, _ in out[lower]) and not any(sev == "INVALID" for sev, _ in out[upper]):
+            out[upper].append(("INVALID", f"its input level {lower!r} is INVALID"))
+    return out
+
+
+def measured_state(agreement: float | None, thresholds: dict[str, float]) -> str:
+    if agreement is None:
+        return "UNVALIDATED"
+    if agreement >= thresholds["validated"]:
+        return "VALIDATED"
+    if agreement >= thresholds["degraded"]:
+        return "DRIFTING"
+    return "DEGRADED"
+
+
+def withheld_levels(brains: dict[str, dict[str, Any]]) -> set[str]:
+    """Levels whose labels a scan must withhold: structurally INVALID ones.
+    Depends only on the loaded brains, never on the drift record."""
+    return {lvl for lvl, probs in structural_problems(brains).items() if any(s == "INVALID" for s, _ in probs)}
+
+
+def validation_status(brains: dict[str, dict[str, Any]], record: dict[str, Any]) -> dict[str, Any]:
+    """The trust state of every archetype level for THIS engine + THESE brains.
+
+    Returns ``{"trained": {...}, "measured": {...}, "thresholds": {...},
+    "retrain_issue": int|None, "levels": {level: {"state", "agreement",
+    "reasons": [...], "notes": [...], ...}}}``. Never raises.
+    """
+    record = record or {}
+    thresholds = {**DEFAULT_THRESHOLDS, **(record.get("thresholds") or {})}
+    trained = record.get("trained") or {}
+    fingerprints = trained.get("brain_fingerprints") or {}
+    recorded_levels = record.get("levels") or {}
+    structural = structural_problems(brains)
+
+    levels: dict[str, dict[str, Any]] = {}
+    for lvl in LEVELS:
+        rec = recorded_levels.get(lvl) or {}
+        reasons: list[str] = []
+        notes = [m for sev, m in structural[lvl] if sev == "NOTE"]
+        live_fp = brain_fingerprint(brains.get(lvl) or {})
+        if not record:
+            state, agreement = "UNVALIDATED", None
+            reasons.append("no archetype validation record shipped")
+        elif fingerprints.get(lvl) != live_fp:
+            state, agreement = "UNVALIDATED", None
+            reasons.append(f"brain changed since the validation record was cut (fingerprint {live_fp})")
+        else:
+            agreement = rec.get("agreement")
+            state = measured_state(agreement, thresholds) if "agreement" in rec else "UNVALIDATED"
+            # A level with no measurable agreement of its own (the crucible is one
+            # repo) inherits the measured state of the level that feeds it.
+            if rec.get("inherits"):
+                state = levels.get(rec["inherits"], {}).get("state", state)
+                reasons.append(f"not measurable on one corpus; inherits {rec['inherits']}'s measured state")
+            elif state in ("DRIFTING", "DEGRADED") and agreement is not None:
+                reasons.append(
+                    f"engine changes since training relabelled {1 - agreement:.1%} of crucible files "
+                    f"(agreement {agreement:.1%})"
+                )
+            elif state == "UNVALIDATED":
+                reasons.append("never measured against the crucible")
+        for sev, msg in structural[lvl]:
+            if sev in ("INVALID", "DEGRADED"):
+                state = worst(state, sev)
+                reasons.append(msg)
+        levels[lvl] = {
+            "state": state,
+            "agreement": agreement,
+            "reasons": reasons,
+            "notes": notes,
+            "eroding": rec.get("eroding") or {},
+            "withheld": state == "INVALID",
+        }
+    return {
+        "trained": {k: v for k, v in trained.items() if k != "brain_fingerprints"},
+        "measured": record.get("measured") or {},
+        "thresholds": thresholds,
+        "retrain_issue": record.get("retrain_issue"),
+        "levels": levels,
+    }
+
+
+def needs_retrain(status: dict[str, Any]) -> bool:
+    return any(v["state"] in ("DEGRADED", "INVALID") for v in status["levels"].values())
+
+
+_LEVEL_TITLES = {
+    "function": "Function archetypes",
+    "file": "File archetypes",
+    "composition_file": "Composition (file)",
+    "composition_repo": "Composition (repo)",
+}
+
+
+def summary_lines(status: dict[str, Any]) -> list[str]:
+    """One human-readable line per level, for reports. Pure function of status."""
+    out = []
+    issue = status.get("retrain_issue")
+    for lvl in LEVELS:
+        v = status["levels"][lvl]
+        bits = [f"**{v['state']}**"]
+        if v["agreement"] is not None:
+            bits.append(f"{v['agreement']:.1%} agreement with trained state")
+        if v["withheld"]:
+            bits.append("labels withheld")
+        line = f"{_LEVEL_TITLES[lvl]}: " + ", ".join(bits)
+        if v["reasons"]:
+            line += " -- " + "; ".join(v["reasons"])
+        if v["state"] in ("DEGRADED", "INVALID") and issue:
+            line += f" (retrain tracked in #{issue})"
+        out.append(line)
+    return out
+
+
+def trained_line(status: dict[str, Any]) -> str:
+    t = status.get("trained") or {}
+    if not t:
+        return "no archetype validation record shipped (#4100)"
+    return (
+        f"trained against engine {t.get('engine_version', '?')} ({t.get('engine_commit', '?')}, "
+        f"{t.get('trained_at', '?')}); last measured at engine "
+        f"{(status.get('measured') or {}).get('engine_commit', 'never')} on "
+        f"{(status.get('measured') or {}).get('corpus', '?')}"
+    )

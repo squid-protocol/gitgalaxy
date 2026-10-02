@@ -18,15 +18,15 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
                     (3) det_refine.py: the customer's model rewrites one method ──► proven again? keep : revert
                                                               │
                                                               ▼
-                                     a person reviews and approves (not yet in port_runner: below)
+                                    a person reviews and approves (port_runner review)
 ```
 
 | step | tool | what it guarantees | measured |
 |---|---|---|---|
-| translate | `tests/tools/det_port.py run CASE [--style structured] [--typed]` | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 96.8% of 16,798 statements across six estates ([survey](det_survey.md)) |
+| translate | `port_runner run --backend det [--style structured] [--typed]` (or `tests/tools/det_port.py run CASE ...` for the equivalence cases) | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 96.8% of 16,798 statements across six estates ([survey](det_survey.md)) |
 | prove | `tests/tools/equivalence.py run CASE --port DIR --faults all` | equal events (screens, COMMAREAs, XCTL / LINK / RETURN), files and RETURN-CODE against GnuCOBOL, field by field, on every scenario and injected fault | 31 programs proven |
 | make readable, no model | `--style structured` (B1), `--typed` (B3) | named methods and fields; typed Java fields where every use allows | 24 of 24 proven typed; batch runtime calls −36% |
-| make readable, with a model | `tests/tools/det_refine.py run CASE --port DIR` (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |
+| make readable, with a model | `port_runner refine --prove-command ...` (or `tests/tools/det_refine.py run CASE --port DIR`) (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |
 
 **What "proven" means here.** The port and the COBOL agree on every scenario the case defines, and on its injected
 faults. It is not a proof for all inputs: coverage is reported per case (COACTUPC: 89 of 95 paragraphs, 256 of 397
@@ -281,9 +281,13 @@ every step.
 |---|---|---|---|---|---|
 | CBACT02C (structured) | 7 | 7 (2 on the retry) | 259 s | 47 → 45 | 302 → 353 (Javadoc, helpers) |
 | COACTUPC (dispatcher, 66 GO TOs), every paragraph | 109 | **109** (11 on the retry, 0 reverted) | 3,543 s | 3,614 → **1,347** | 6,816 → 6,843 |
+| COTRN02C (structured **and typed**), every paragraph | 19 | **19** (1 on the retry) | 518 s | 494 untyped → 442 typed → **319** | 2,165 → 2,247 |
 
 The model adds a Javadoc per paragraph, else-if chains, the 88-level conditions as named predicates, and extracted
-helpers. It removes `if (true)` scaffolding (COACTUPC: 77 → 0). The fully refined COACTUPC was then proven again from
+helpers. It removes `if (true)` scaffolding (COACTUPC: 77 → 0). The `Cobol.*` count is of call sites: part of its fall
+is helpers that collapse repeated calls (`moveSpaces(a, b, c, ...)`), the runtime doing the same work. COTRN02C
+is the first program with all three layers -- structured, typed, refined -- and its refined port proves from
+scratch on 31 scenarios, 88 of 88 events ([benchmark](../benchmarks/det-refine-cotrn02c/README.md)). The fully refined COACTUPC was then proven again from
 scratch, with no build reused: 54 scenarios, 156 of 156 events equal. Examples: `docs/benchmarks/det-refine-cbact02c/`,
 `docs/benchmarks/det-refine-coactupc/`.
 
@@ -314,19 +318,28 @@ is mostly the screen map, the commarea and file records -- groups, which stay by
 DTO, not a lifted field; next). test_det_programs.py runs every program both ways against GnuCOBOL, TYPED among them
 (each kind and each fallback).
 
+## In port_runner
+
+The combined method runs in the porting loop like any other backend, and every event lands in
+`ai_agent_jobs/ports/port_log.jsonl`:
+
+- **`port_runner run --backend det --source-root ESTATE [--style structured] [--typed]`** proposes the translator's
+  port. The overlay holds the service and its runtime (`cobolrt/`). The log's model is `det-port@<commit>`, with
+  the translation's statement and hole counts.
+- **`port_runner refine --backend ... --prove-command ...`** starts from the latest proven attempt.
+  - Each method's rewrite is proven with the operator's own proof command, and each outcome is a `refine-step`
+    event.
+  - The result is a new attempt proposed by the refining model, and it is proven again from scratch.
+  - `status` counts the translator's and the model's ports apart, and `review` is the person's decision as for
+    any port.
+
 ## Limits and next steps
 
 - **Screens, COMMAREAs and file records stay byte storage.** These are groups, and typing (B3) lifts elementary
   items only. This is why CICS programs gain 1-11% from B3 and batch programs 32-41%. Next: a group whose every use
   is whole, or field by field, becomes its generated DTO or entity.
-- **B2 and B3 have not yet run on the same program.** B3 needs the structured style, which needs a program with no
-  GO TO, so COACTUPC cannot take it. The next measurement is a structured CICS program, typed, then refined.
 - **The oracle is GnuCOBOL.** The declared differences above are the known ones; IBM-compiler runs would close the
   question.
-- **Not yet in the product's workflow.** `det_port.py` and `det_refine.py` are tools under `tests/tools/`. Their
-  ports and each refinement step are recorded in the work directory (`refine.json`), not in `port_runner`'s
-  `port_log.jsonl`, so `port_runner review` / `status` do not see them yet. Next: `port_runner run --backend det`
-  and a refine step that logs like any other proposal.
 - **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for
   this translator: such statements stay named holes.
 

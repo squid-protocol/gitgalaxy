@@ -95,6 +95,10 @@ def _codec_kind(f: Field) -> str | None:
     return "zoned" if usage in ("DISPLAY", "") else None
 
 
+def _b(v: bool) -> str:
+    return "true" if v else "false"
+
+
 def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     kind = _codec_kind(f)
     if kind == "national":
@@ -106,7 +110,9 @@ def _codec_get(f: Field, dbcs_page: str | None = None) -> str:
     if kind == "text":
         return f"CobolRecords.text(rec, {f.offset}, {f.bytes}, text)"
     signed, _digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
-    if kind == "zoned":
+    if kind == "zoned" and f.sign:  # #3694: a sign byte of its own, '+' / '-'
+        dec = f"CobolRecords.zonedSeparate(rec, {f.offset}, {f.bytes}, {scale}, {_b(f.sign == 'leading')}, text)"
+    elif kind == "zoned":
         dec = f"CobolRecords.zoned(rec, {f.offset}, {f.bytes}, {scale}, text)"
     elif kind == "packed":
         dec = f"CobolRecords.packed(rec, {f.offset}, {f.bytes}, {scale})"
@@ -130,6 +136,9 @@ def _codec_put(f: Field, value: str, dbcs_page: str | None = None) -> str:
         return f"CobolRecords.putText(rec, {f.offset}, {f.bytes}, {value}, text)"
     signed, digits, scale = _pic_numeric(f.pic or "") or (False, 0, 0)
     dec = f"CobolRecords.decimal({value})"
+    if kind == "zoned" and f.sign:
+        return (f"CobolRecords.putZonedSeparate(rec, {f.offset}, {digits}, {scale}, {_b(f.sign == 'leading')}, "
+                f"{dec}, text)")  # fmt: skip
     if kind == "zoned":
         return f"CobolRecords.putZoned(rec, {f.offset}, {digits}, {scale}, {str(signed).lower()}, {dec}, text)"
     if kind == "packed":
@@ -288,6 +297,35 @@ public final class CobolRecords {
         }
         BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
         return negative ? v.negate() : v;
+    }
+
+    /** #3694: a SIGN ... SEPARATE item: its digits and a '+' / '-' byte before them (`leading`) or after; any
+     *  other sign byte, or a non-digit, is no number (null, as zoned). */
+    public static BigDecimal zonedSeparate(byte[] rec, int offset, int length, int scale, boolean leading,
+                                           Charset text) {
+        String s = new String(rec, offset, length, text);
+        if (s.length() != length || length < 2) {
+            return null;
+        }
+        char sign = leading ? s.charAt(0) : s.charAt(length - 1);
+        String digits = leading ? s.substring(1) : s.substring(0, length - 1);
+        if ((sign != '+' && sign != '-') || !isAsciiDigits(digits)) {
+            return null;
+        }
+        BigDecimal v = new BigDecimal(new BigInteger(digits), scale);
+        return sign == '-' ? v.negate() : v;
+    }
+
+    /** #3694: as putZoned, for a SIGN ... SEPARATE item (`digits` digits and the sign byte: '-' for a negative
+     *  value, else '+'). */
+    public static void putZonedSeparate(byte[] rec, int offset, int digits, int scale, boolean leading,
+                                        BigDecimal value, Charset text) {
+        BigInteger unscaled = value.setScale(scale, RoundingMode.DOWN).unscaledValue();
+        String s = unscaled.abs().toString();
+        s = s.length() > digits ? s.substring(s.length() - digits) : "0".repeat(digits - s.length()) + s;
+        String sign = unscaled.signum() < 0 ? "-" : "+";
+        byte[] b = (leading ? sign + s : s + sign).getBytes(text);
+        System.arraycopy(b, 0, rec, offset, digits + 1);
     }
 
     public static void putZoned(byte[] rec, int offset, int digits, int scale, boolean signed, BigDecimal value,
@@ -475,10 +513,16 @@ class Field:
     occurs: int | None
     pli_type: str | None = None  # #3720: a PL/I item's data type as written, when it has no picture
     usage: str | None = None  # #3624: a COBOL item's USAGE (COMP-3, COMP, ...), None for DISPLAY
+    sign: str | None = None  # #3694: "leading" / "trailing" -- a SIGN ... SEPARATE item's sign byte; None embedded
 
     @property
     def described(self) -> str:
-        return f"PIC {self.pic}" if self.pic else self.pli_type or "no PIC"
+        """`PIC S9(15) COMP-3`: the PICTURE and a USAGE other than DISPLAY -- the comment a reader (and the
+        det-port's key decoder) sizes the field by."""
+        if not self.pic:
+            return self.pli_type or "no PIC"
+        usage = (self.usage or "").upper()
+        return f"PIC {self.pic} {usage}" if usage and usage != "DISPLAY" else f"PIC {self.pic}"
 
 
 @dataclass
@@ -497,6 +541,7 @@ class Store:
     alternates: list[dict] = field(default_factory=list)  # {aix, paths, field: Field|None, unique}
     browse_forward: bool = False
     browse_back: bool = False
+    window: str = ""  # how a FROM ... LENGTH record is cut from its 01 (GalaxyIR.vsam_stores), else ""
 
     @property
     def repository(self) -> str:
@@ -627,6 +672,10 @@ class RepositoryForge:
         if composite:
             used_entities.claim(key_type)
         st = Store(raw, entity, table, best["record"], best["file"], layout, fields, key, composite, key_type, note)
+        if best.get("window_of"):
+            st.window = (f"the {best['length']} bytes a WRITE / REWRITE FROM {best['record']} LENGTH writes, from "
+                         f"offset {best['window_offset']} of {best['window_of']}"
+                         + (f", laid out by REDEFINES {best['overlay']}" if best.get("overlay") else ""))  # fmt: skip
         for aix in raw.get("alternate_indexes", []):
             alt = next((f for f in fields if f.offset == aix.get("key_offset") and f.bytes == aix.get("key_length")
                         and not f.occurs), None)  # fmt: skip
@@ -668,7 +717,7 @@ class RepositoryForge:
             pli = f.get("dialect") == "pli"
             out.append(Field(name, java, java_type(f), f["offset"], f["bytes"], f"'{pic}'" if pli and pic else pic,
                              f.get("occurs"), f.get("usage") if pli else None,
-                             None if pli else f.get("usage")))  # fmt: skip
+                             None if pli else f.get("usage"), f.get("sign")))  # fmt: skip
         return out
 
     def _sorted_by_code_page(self, st: Store) -> bool:
@@ -727,6 +776,8 @@ class RepositoryForge:
             )
         java.append(f" * record {st.record} ({st.record_file}, {st.layout.get('bytes')} bytes"
                     f"{', RECORDSIZE ' + str(raw['record_max']) if raw.get('record_max') else ''}).")  # fmt: skip
+        if st.window:
+            java.append(f" * The record is {st.window}.")
         java.append(f" * Key: {st.key_note}.")
         if raw.get("cics_files"):
             java.append(" * CICS files: " + ", ".join(sorted({c["file"] + (f" (path {c['via']})" if c.get("via") else "")
@@ -1060,7 +1111,7 @@ class RepositoryForge:
                     ops.append((f"read{name}", [f"    public Optional<{st.entity}> read{name}({kt} key) {{",
                                                 f"        return {repo_var}.findById(key);", "    }\n"]))  # fmt: skip
                 if "WRITE" in verbs:
-                    ops.append((f"write{name}", self._save(f"write{name}", st, repo_var)))
+                    ops.append((f"write{name}", self._add(f"write{name}", st, repo_var, user["name"])))
                 if "REWRITE" in verbs:
                     ops.append((f"rewrite{name}", self._save(f"rewrite{name}", st, repo_var)))
                 if "DELETE" in verbs:
@@ -1170,6 +1221,26 @@ class RepositoryForge:
         todo = (" TODO: the key is not one field, so it orders by its text, not the code page's bytes."
                 if self.target.culture.key_collation == "ebcdic" else "")  # fmt: skip
         return ["vsamKey"], f"Sequential READ: in key order (the vsamKey, #3945).{todo}"
+
+    @staticmethod
+    def _add(method: str, st: Store, repo_var: str, file: str) -> list[str]:
+        """A CICS WRITE: it adds a record, and a key already on file is DUPREC -- JPA's save alone would replace
+        that record. An ESDS / RRDS entity's generated id has no key to check: a plain save."""
+        if st.composite:
+            key = "record.getId()"
+        elif st.key is not None:
+            key = f"record.get{st.key.java[0].upper()}{st.key.java[1:]}()"
+        elif (st.raw.get("organization") or "").upper() in ("NONINDEXED", "NUMBERED"):
+            return RepositoryForge._save(method, st, repo_var)
+        else:
+            key = "record.getVsamKey()"
+        return [f"    public {st.entity} {method}({st.entity} record) {{",
+                "        // CICS WRITE adds a record: DUPREC when its key is already on file",
+                f"        Optional<{st.entity}> onFile = {repo_var}.findById({key});",
+                "        if (onFile.isPresent()) {",
+                "            throw new org.springframework.dao.DuplicateKeyException(",
+                f'                "DUPREC: CICS file {file} already holds the key of this record");',
+                "        }", f"        return {repo_var}.save(record);", "    }\n"]  # fmt: skip
 
     @staticmethod
     def _save(method: str, st: Store, repo_var: str) -> list[str]:

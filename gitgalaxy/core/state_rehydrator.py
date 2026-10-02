@@ -570,7 +570,7 @@ class StateRehydrator:
                         "line": int(r["line"] or 0),
                         "attributes": r["attributes"],
                         **({"copy_members": r["copy_members"]} if r["copy_members"] else {}),
-                        **({"sign_separate": True} if r["sign_separate"] else {}),
+                        **({"sign_separate": int(r["sign_separate"])} if r["sign_separate"] else {}),
                     },
                 )
                 # #3211-followup: the CSD transaction definitions, restored per

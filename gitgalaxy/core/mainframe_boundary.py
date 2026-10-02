@@ -888,7 +888,17 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
 
 
 # #3694: `SIGN IS LEADING SEPARATE [CHARACTER]` / `TRAILING SEPARATE`: the sign takes a byte of its own.
-_SIGN_SEPARATE_CLAUSE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b", re.IGNORECASE)
+# SIGN [IS] [LEADING | TRAILING] SEPARATE [CHARACTER] -- TRAILING when neither is coded. (SEPARATE is a reserved
+# word of the DATA DIVISION's SIGN clause only.)
+_SIGN_SEPARATE_CLAUSE = re.compile(r"(?:\b(LEADING)\s+|\bTRAILING\s+|\bSIGN\s+(?:IS\s+)?)SEPARATE\b", re.IGNORECASE)
+
+
+def _sign_separate(window: str) -> int | None:
+    """#3694: 1 for SIGN [TRAILING] SEPARATE, 2 for SIGN LEADING SEPARATE, None for an embedded sign."""
+    m = _SIGN_SEPARATE_CLAUSE.search(window)
+    if not m:
+        return None
+    return 2 if m.group(1) else 1
 
 
 def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> list[dict[str, Any]]:
@@ -1073,7 +1083,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
-                **({"sign_separate": True} if _SIGN_SEPARATE_CLAUSE.search(window) else {}),
+                # (1 a TRAILING separate sign, 2 a LEADING one)
+                **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),
             }
         )
     return records

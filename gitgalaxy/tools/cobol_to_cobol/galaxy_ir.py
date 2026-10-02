@@ -337,8 +337,10 @@ class EngineDataItem:
     # #3355: the COPY member(s) that expand right after this entry, comma-separated
     # (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'); None when no COPY follows.
     copy_members: Optional[str] = None
-    # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own.
+    # #3694: the item codes SIGN ... SEPARATE, so a DISPLAY sign takes a byte of its own --
+    # before the digits when `sign_leading` (SIGN LEADING SEPARATE), else after them.
     sign_separate: bool = False
+    sign_leading: bool = False
     # #3820: {symbol: currency string} for each declared currency symbol the PIC
     # uses; a string of None means the estate declares that symbol with different
     # strings, so its width is unknown. Empty when the PIC uses none.
@@ -1964,6 +1966,8 @@ class GalaxyIR:
                     "bytes": width * times,
                     "occurs": it.occurs_max,
                     "file": owner.file_path,
+                    # #3694: a separate sign's place -- presence-keyed, an embedded sign keeps the old shape
+                    **({"sign": "leading" if it.sign_leading else "trailing"} if it.sign_separate else {}),
                 }
             )
             return width * times
@@ -3371,7 +3375,10 @@ class GalaxyIR:
         names the path). Its `users` are the programs that touch it:
           - `cics`: `program`, `name` (the CICS file), `via` (the AIX path, or
             None), `verbs`, `lines`, `records` (each INTO / FROM area: `record`,
-            `file`, `layout`) and `ridflds` (each RIDFLD with its `offset` /
+            `file`, `layout`; a FROM area written with a LENGTH that is not its
+            size is the window of that many bytes from it -- `length`,
+            `window_of` / `window_offset` its 01 record and offset, `overlay` the
+            REDEFINES that lays out the window's end) and `ridflds` (each RIDFLD with its `offset` /
             `length` in the program's record, None when not a field of it);
           - `batch`: `program`, `name` (the SELECT), `dd`, `access_mode`,
             `modes` (OPEN modes from the JCL lineage), `record_key` with its
@@ -3471,14 +3478,24 @@ class GalaxyIR:
                             }
                         )
 
-        def record_of(ef: EngineFile, name: Optional[str]) -> Optional[dict]:
+        def record_of(ef: EngineFile, name: Optional[str], op: Optional[EngineCicsResource] = None) -> Optional[dict]:
             item, _q = _operand_name(name)
             found = self._find_item(ef, item, _q) if item else []
             if not found:
                 return None
             owner, it, extension = found[0]
             layout = self.record_layout(owner, it, extension)
-            return {"record": it.name, "file": owner.file_path, "layout": layout}
+            rec = {"record": it.name, "file": owner.file_path, "layout": layout}
+            # A WRITE / REWRITE FROM(area) LENGTH(n) writes the n bytes AT the area: when n is more
+            # than the area's own size (GenApp's FROM(CA-CUSTOMER-NUM) LENGTH(CUSTOMER-RECORD-SIZE) =
+            # 225 bytes from a 10-byte field), the record is that window of the area's 01 record.
+            if op is not None and (op.record_clause or "").upper() == "FROM":
+                n = self._length_value(ef, op.attributes)
+                if n is not None and layout.get("bytes") is not None and n > layout["bytes"]:
+                    window = self._record_window(ef, owner, it, it.name, _q, n)
+                    if window is not None:
+                        rec.update(window)
+            return rec
 
         # CICS: every EXEC CICS FILE command, per (program, file)
         for f in sorted(self.files.values(), key=lambda x: x.file_path):
@@ -3490,9 +3507,9 @@ class GalaxyIR:
                 u = per.setdefault(fname, {"verbs": set(), "lines": [], "records": {}, "ridflds": {}})
                 u["verbs"].add(op.verb)
                 u["lines"].append(op.line)
-                rec = record_of(f, op.record) if op.record else None
+                rec = record_of(f, op.record, op) if op.record else None
                 if rec:
-                    u["records"].setdefault((rec["file"], rec["record"]), rec)
+                    u["records"].setdefault((rec["file"], rec["record"], rec["layout"].get("bytes")), rec)
                 m = re.search(r"\bRIDFLD\(([^)]*)\)", op.attributes or "")
                 if m:
                     u["ridflds"].setdefault(m.group(1).strip().upper(), rec)
@@ -3626,6 +3643,137 @@ class GalaxyIR:
                 to_drop.add(sym_key)
 
         return [stores[k] for k in sorted(stores) if k not in to_drop]
+
+    @staticmethod
+    def _length_value(ef: EngineFile, attributes: Optional[str]) -> Optional[int]:
+        """The byte count of an EXEC CICS command's LENGTH(...): an integer literal, or a data-name
+        whose VALUE is one (GenApp's `CUSTOMER-RECORD-SIZE PIC S9(4) BINARY VALUE 0225`) and that the
+        program does not change -- no data move targets it and no INTO / SET command returns a length
+        in it. None for `LENGTH OF x`, an expression, or a data-name with no numeric VALUE. (A COMPUTE
+        whose expression names no data item -- `COMPUTE L = LENGTH OF X` -- leaves no data move row, so
+        such a VALUE must not be trusted alone: callers use it only where it exceeds the area.)"""
+        m = re.search(r"(?<![A-Z0-9-])LENGTH\(\s*([^()]*?)\s*\)", attributes or "", re.I)
+        if not m:
+            return None
+        arg = m.group(1)
+        if re.fullmatch(r"\+?[0-9]{1,9}", arg):
+            return int(arg)
+        name, qualifier = _operand_name(arg)
+        if not name or not re.fullmatch(r"[A-Z0-9][A-Z0-9-]*", name, re.I):
+            return None
+        hits = [it for it in ef.data_items if it.name.upper() == name.upper() and it.level not in (66, 88)]
+        if len(hits) != 1 or qualifier:
+            return None
+        value = (hits[0].value or "").strip()
+        if not re.fullmatch(r"\+?[0-9]{1,9}", value) or int(value.lstrip("+")) == 0:
+            return None
+        if any((_operand_name(m.target)[0] or "").upper() == name.upper() for m in ef.data_moves):
+            return None
+        for op in ef.cics_resources:
+            if (op.record_clause or "").upper() in ("INTO", "SET"):
+                m2 = re.search(r"(?<![A-Z0-9-])LENGTH\(\s*([^()]*?)\s*\)", op.attributes or "", re.I)
+                if m2 and (_operand_name(m2.group(1))[0] or "").upper() == name.upper():
+                    return None
+        return int(value.lstrip("+"))
+
+    def _record_window(self, ef: EngineFile, owner: EngineFile, item: EngineDataItem, name: str,
+                       qualifier: Optional[str], length: int) -> Optional[dict]:  # fmt: skip
+        """The `length` bytes of storage that start at data item `item`, as a record layout (offsets from
+        the item), or None when they cannot be laid out exactly.
+
+        The bytes come from the 01 record that holds the item in program `ef`. Where the window ends
+        inside an item that other items REDEFINE, the first redefinition (in source order) whose
+        fields end exactly at the window's end lays that part out: GenApp's 225 bytes from
+        CA-CUSTOMER-NUM end inside CA-REQUEST-SPECIFIC, and CA-CUSTOMER-REQUEST (FIRST-NAME ..
+        EMAIL-ADDRESS) is the one of its redefinitions that ends there. None when no root holds the
+        item, a width is unknown, the window runs past the record, or a field straddles its end."""
+        if owner is ef:
+            by_ordinal = {it.ordinal: it for it in ef.data_items}
+            root, seen = item, 0
+            while root.parent_ordinal is not None and root.parent_ordinal in by_ordinal and seen < 64:
+                root, seen = by_ordinal[root.parent_ordinal], seen + 1
+            roots = [root]
+        else:
+            roots = [r for r in ef.records if r.level not in (66, 88)]
+        for root in roots:
+            layout = self.record_layout(ef, root)
+            if layout.get("bytes") is None or layout.get("variable"):
+                continue
+            fields = layout["fields"]
+            if owner is not ef and not any(
+                (f.get("name") or "").upper() == name.upper() and f.get("file") == owner.file_path for f in fields
+            ):
+                continue
+            start, _width = self._position_in(ef, name if not qualifier else f"{name} OF {qualifier}", layout)
+            if start is None:
+                continue
+            end = start + length
+            if end > layout["bytes"]:
+                return None
+            overlay = None
+            for _ in range(8):  # a redefinition may itself end inside a redefined item
+                cut = next((f for f in fields if f["offset"] < end < f["offset"] + f["bytes"]), None)
+                if cut is None:
+                    break
+                swap = self._overlay_at(ef, root, cut["offset"], end)
+                if swap is None:
+                    return None
+                lo, hi, overlay, sub = swap
+                fields = sorted([f for f in fields if not lo <= f["offset"] < hi] + sub, key=lambda f: f["offset"])
+            else:
+                return None
+            inside = [dict(f, offset=f["offset"] - start) for f in fields if start <= f["offset"] < end]
+            if any(f["offset"] + f["bytes"] > length for f in inside):
+                return None
+            window = {"bytes": length, "variable": False, "fields": inside,
+                      "unexpanded": layout.get("unexpanded", []), "copybooks": layout.get("copybooks", [])}  # fmt: skip
+            out: dict = {"layout": window, "length": length, "window_of": root.name, "window_offset": start}
+            if overlay:
+                out["overlay"] = overlay
+            return out
+        return None
+
+    def _overlay_at(self, ef: EngineFile, root: EngineDataItem, at: int, end: int) -> Optional[tuple]:
+        """(lo, hi, redefining item's name, its fields at lo) for the innermost item of `root` that
+        holds offset `at` and is REDEFINEd by an item whose own fields end exactly at `end`; None when none."""
+        junctions: list = []  # (offset, bytes, [(file, redefining item)])
+
+        def walk(owner: EngineFile, it: EngineDataItem, offset: int, depth: int) -> bool:
+            if _is_elementary(it) or it.occurs_max:
+                return True
+            placed: dict = {}
+            pos = offset
+            for kid_file, kid in self._expanded_children(owner, it, ef, depth):
+                if kid_file is None or kid.level in (66, 88):
+                    continue
+                if kid.redefines:
+                    base = placed.get(kid.redefines.upper())
+                    if base is not None:
+                        base[2].append((kid_file, kid))
+                    continue
+                size = self.record_layout(kid_file, kid).get("bytes")
+                if size is None:
+                    return False
+                entry: tuple[int, int, list] = (pos, size, [])
+                placed[kid.name.upper()] = entry
+                junctions.append(entry)
+                if pos <= at < pos + size and not walk(kid_file, kid, pos, depth + (kid_file is not owner)):
+                    return False
+                pos += size
+            return True
+
+        if not walk(ef, root, 0, 0):
+            return None
+        for lo, size, redefiners in sorted((j for j in junctions if j[2] and j[0] <= at < end < j[0] + j[1]),
+                                           key=lambda j: j[1]):  # fmt: skip
+            for rfile, ritem in redefiners:
+                sub = self.record_layout(rfile, ritem)
+                if sub.get("bytes") is None or sub["bytes"] < end - lo:
+                    continue
+                shifted = [dict(f, offset=f["offset"] + lo) for f in sub["fields"]]
+                if not any(f["offset"] < end < f["offset"] + f["bytes"] for f in shifted):
+                    return lo, lo + size, ritem.name, shifted
+        return None
 
     def _position_in(self, ef: EngineFile, operand: str, layout: Optional[dict]) -> tuple[Optional[int], Optional[int]]:
         """(offset, length) of data item `operand` inside a record layout: an elementary
@@ -5400,6 +5548,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         attributes=attrs,
                         copy_members=copies,
                         sign_separate=bool(sign_sep),
+                        sign_leading=sign_sep == 2,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is

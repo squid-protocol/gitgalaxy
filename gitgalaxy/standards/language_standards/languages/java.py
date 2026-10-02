@@ -251,8 +251,21 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:Runtime\.getRuntime\(\)\.(?:exec|halt)|System\.exit|Thread\.stop|Unsafe)\b|\bnew\s+ProcessBuilder\b"
         ),
         # 9. io (I/O & Network Boundaries)
+        # The det port's runtime (cobolrt) is the I/O boundary of a translated COBOL program: its calls
+        # stand where the COBOL had READ / WRITE / EXEC SQL, and the program itself names no File or
+        # Connection. Mirrors cobol.py's io: the CICS file, browse, queue and counter operations on the
+        # task (`task.write("F", () -> repo.save(e))` is a store's wiring, not an operation), the SQL
+        # statements DetSql runs (close/closeAll/reset are cleanup, as COBOL's CLOSE is), and a batch
+        # FD's operations on its constant-named handle, in the shapes det/gen.py writes (`ACCOUNT_FILE.open("I-O")`,
+        # `.readNext()`, `.readKey(`, `.write(350)`: a COBOL open mode or a record length, so a serializer's
+        # `SCHEMA.write(buf)` does not count; close is cleanup).
         "io": re.compile(
             r"\b(File|InputStream|OutputStream|Reader|Writer|Scanner|Files\.|Path|Socket|RestTemplate|WebClient|RestClient|HttpClient|Connection|ResultSet|Statement|EntityManager|DataSource|Repository)\b"
+            r"|\btask\.(?:read|readForUpdate|rewrite|delete|deleteHeld|startbr|readnext|readprev|endbr"
+            r"|readqTs|readqTsNext|writeqTs|rewriteqTs|writeqTd|getCounter)\("
+            r"|\btask\.write\((?!\"[^\"\n]{0,64}\",[ \t]{0,4}\(\)[ \t]{0,4}->)"
+            r"|\bDetSql\.(?:selectOne|update|updateCurrent|fetch|open)\("
+            r"|\b[A-Z][A-Z0-9_]{1,63}\.(?:open\(\"(?:INPUT|OUTPUT|I-O|EXTEND)\"\)|readNext\(\)|readKey\(|(?:re)?write\(\d{1,9}\))"
         ),
         # 10. api (Public Surface Area)
         # BUG FIX #2730 (api contract): a bare `\bpublic|protected\b` counted the
@@ -408,7 +421,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)
-        "planned_debt": GLOBAL_PLANNED_DEBT,
+        # A det port's untranslated statement is `if (true) throw new Hole("...")` (det/gen.py): named, open
+        # work in the code stream, as a TODO is in the comments. Its runtime guards (`default -> throw new
+        # Hole(`, `if (!...) throw new Hole(`) are not debt and do not match.
+        "planned_debt": re.compile(GLOBAL_PLANNED_DEBT.pattern + r"|(?-i:\bif \(true\) throw new Hole\()", re.I),
         # 27. fragile_debt (Acknowledged Hacks / FIXMEs)
         "fragile_debt": GLOBAL_FRAGILE_DEBT,
         # 29. spec_exposure (Spec / Audit Traceability)
@@ -514,7 +530,12 @@ DEFINITION: dict[str, Any] = {
         "time_date_logic": re.compile(
             r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance)\b"
         ),
-        "ipc_rpc_bridges": re.compile(r"\b(ProcessBuilder|KafkaTemplate|RabbitTemplate|JmsTemplate|java\.rmi)\b"),
+        # The det port's CICS program control (cobol.py's EXEC CICS LINK / XCTL / RETURN). Not `task.start(`:
+        # Kafka and Elasticsearch name their worker tasks `task` and start them.
+        "ipc_rpc_bridges": re.compile(
+            r"\b(ProcessBuilder|KafkaTemplate|RabbitTemplate|JmsTemplate|java\.rmi)\b"
+            r"|\btask\.(?:link|xctl|returnTransid)\("
+        ),
         # system_config_mutation (#3084): contract-level absence. no host-config
         # primitive; java.util.prefs writes the app's own preference tree
         # (state_mutation's territory, not shared infrastructure).

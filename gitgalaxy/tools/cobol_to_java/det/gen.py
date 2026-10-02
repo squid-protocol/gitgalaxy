@@ -993,11 +993,9 @@ class Gen:
         if k == "EXEC":
             words = s.text.split()
             if len(words) > 1 and words[1].upper() == "SQL" and self.sql is not None:
-                from gitgalaxy.tools.cobol_to_java.det.sql import SqlError
-
-                try:
+                try:  # (the translator's own error class, by its instance: no import of det.sql here)
                     return [c, *self.sql.command(s.text, s.line, ind)]
-                except (SqlError, E.ExprError, KeyError) as e:
+                except (self.sql.Error, E.ExprError, KeyError) as e:
                     raise Untranslatable(f"EXEC SQL: {e}") from e
             if self.cics is None or len(words) < 2 or words[1].upper() != "CICS":
                 raise Untranslatable("EXEC " + (words[1] if len(words) > 1 else ""))

@@ -15,8 +15,8 @@
  * indicator, if any, set to the original length), a shorter one padded with blanks; a VARCHAR host variable gets
  * the length and the bytes; a number whose integer part does not fit is SQLCODE -304 and nothing is assigned; a NULL
  * without an indicator variable is SQLCODE -305. SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2.
- * SQLERRM's message tokens are not available through CLI: SQLERRML is 0 (a program that shows SQLERRMC is refused
- * by the harness).
+ * SQLERRMC's message tokens, the warnings and SQLERRD are Db2's own SQLCA (SQLGetSQLCA); -304 / -305 / -811, which
+ * this stub raises while assigning the result, carry no tokens.
  *
  * The statements come from $GGSQL_STMTS, written by the precompiler:
  *   S <id> <kind> <nin> <nout> <cursor|->      kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK
@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sqlcli1.h>
+#include <sqlca.h>
 
 #define MAXARGS 64
 #define MAXSTMT 512
@@ -129,6 +130,18 @@ static void diag(sqlca_t *c, SQLSMALLINT kind, SQLHANDLE h, SQLRETURN rc) {
     SQLINTEGER native = 0;
     SQLSMALLINT len;
     if (rc == SQL_SUCCESS) return;
+    /* Db2's own SQLCA, as the precompiled program would have it: the code, the state, the message tokens
+       (SQLERRMC), the warnings and SQLERRD -- the COBOL SQLCA's layout is the C one */
+    if (kind == SQL_HANDLE_STMT && rc != SQL_INVALID_HANDLE) {
+        struct sqlca got;
+        memset(&got, 0, sizeof got);
+        if (SQLGetSQLCA(env, dbc, (SQLHSTMT)h, &got) == SQL_SUCCESS && got.sqlcode != 0) {
+            memcpy(c, &got, sizeof(sqlca_t));  /* the same 136 bytes */
+            memcpy(c->sqlcaid, "SQLCA   ", 8);
+            c->sqlcabc = 136;
+            return;
+        }
+    }
     if (rc == SQL_NO_DATA) {
         c->sqlcode = 100;
         memcpy(c->sqlstate, "02000", 5);
@@ -167,6 +180,11 @@ static void connect_once(void) {
     /* after the connect: exit handlers run last-registered first, and the driver registers its own cleanup while
        connecting -- the commit must run before it */
     atexit(at_end);
+}
+
+/* A CICS task's unit of work ends (ggcics.c: SYNCPOINT, SYNCPOINT ROLLBACK, an abend's backout): Db2's with it. */
+void ggsql_uow_end(int rollback) {
+    if (connected) SQLEndTran(SQL_HANDLE_DBC, dbc, rollback ? SQL_ROLLBACK : SQL_COMMIT);
 }
 
 static void at_end(void) {  /* a run that ends normally commits */

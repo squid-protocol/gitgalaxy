@@ -13,7 +13,7 @@ and text pair --, DECIMAL, SMALLINT / INTEGER / BIGINT), with its indicator vari
 
 EXEC SQL INCLUDE is expanded (SQLCA is IBM's layout, a DCLGEN member is looked up in the copy directories, any
 extension); DECLARE TABLE is dropped; DECLARE CURSOR is remembered, its SELECT run by OPEN. A form not modelled
-(WHENEVER, positioned UPDATE / DELETE, dynamic SQL, a host variable array, SQLERRMC shown) raises Unsupported by
+(WHENEVER, positioned UPDATE / DELETE, dynamic SQL, a host variable array) raises Unsupported by
 name -- never a guess. The reader of the data items is the harness's own (cobol_answer_key), not the translator's."""
 
 from __future__ import annotations
@@ -62,7 +62,6 @@ def _area(line: str) -> str:
     return line[7:72] if len(line) > 7 else ""
 
 
-_EXEC = re.compile(r"\bEXEC\s+SQL\b(.*?)\bEND-EXEC\b", re.I | re.S)
 _HOST = re.compile(r":\s*([A-Z0-9][A-Z0-9-]*(?:\s+(?:OF|IN)\s+[A-Z0-9][A-Z0-9-]*)?)"
                    r"(?:\s*(?:INDICATOR\s*)?:\s*([A-Z0-9][A-Z0-9-]*))?", re.I)  # fmt: skip
 
@@ -301,8 +300,6 @@ class Precompiler:
 def precompile(source: str, dirs: list[Path], path: Path) -> tuple[str, str]:
     """(the program with its EXEC SQL replaced, the statement table)."""
     lines = expand_includes(source.split("\n"), dirs)
-    if re.search(r"\bSQLERRMC?\b", "\n".join(_area(ln) for ln in lines).split("PROCEDURE DIVISION", 1)[-1], re.I):
-        raise Unsupported("the program shows SQLERRM (message tokens are not available through CLI)")
     pre = Precompiler(Program(_items([ln for ln in lines if not re.search(r"\bEXEC\s+SQL\b", _area(ln), re.I)],
                                      path)))  # fmt: skip
     out: list[str] = []

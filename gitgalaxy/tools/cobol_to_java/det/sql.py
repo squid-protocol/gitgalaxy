@@ -78,6 +78,8 @@ def _norm(text: str) -> str:
 
 
 class Sql:
+    Error = SqlError
+
     def __init__(self, gen, program: str, java_root: Path | None):
         self.g = gen
         self.program = program.upper()

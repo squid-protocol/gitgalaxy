@@ -75,15 +75,48 @@ public final class DetSql {
         put(ca, SQLWARN + which, 1, "W", cs);
     }
 
-    /** A statement's exception as its SQLCODE: Db2's, from the driver's SQLException. */
+    /** A statement's exception as its SQLCODE: Db2's, from the driver's SQLException -- and, from IBM's JDBC
+     *  driver (DB2Diagnosable.getSqlca, by reflection: no compile-time dependency), Db2's own SQLCA: the message
+     *  tokens (SQLERRMC), SQLERRP, SQLERRD and the warnings, as the precompiled program has them. */
     private static void failed(Field ca, RuntimeException e, Charset cs) {
         for (Throwable t = e; t != null; t = t.getCause()) {
             if (t instanceof SQLException s && s.getErrorCode() != 0) {
                 code(ca, s.getErrorCode(), s.getSQLState() == null ? "     " : s.getSQLState(), cs);
+                db2Sqlca(ca, s, cs);
                 return;
             }
         }
         throw e;  // not a database error: the port's own fault
+    }
+
+    private static void db2Sqlca(Field ca, SQLException s, Charset cs) {
+        try {
+            Object sqlca = s.getClass().getMethod("getSqlca").invoke(s);
+            if (sqlca == null) {
+                return;
+            }
+            Class<?> c = sqlca.getClass();
+            String errmc = (String) c.getMethod("getSqlErrmc").invoke(sqlca);
+            if (errmc != null) {
+                byte[] b = errmc.getBytes(cs);
+                putInt(ca, SQLERRML, 2, Math.min(b.length, 70));
+                put(ca, SQLERRMC, 70, errmc, cs);
+            }
+            String errp = (String) c.getMethod("getSqlErrp").invoke(sqlca);
+            if (errp != null) {
+                put(ca, SQLERRP, 8, errp, cs);
+            }
+            int[] errd = (int[]) c.getMethod("getSqlErrd").invoke(sqlca);
+            for (int i = 0; errd != null && i < Math.min(6, errd.length); i++) {
+                putInt(ca, SQLERRD + 4 * i, 4, errd[i]);
+            }
+            char[] warn = (char[]) c.getMethod("getSqlWarn").invoke(sqlca);
+            for (int i = 0; warn != null && i < Math.min(11, warn.length); i++) {
+                put(ca, SQLWARN + i, 1, String.valueOf(warn[i]), cs);
+            }
+        } catch (ReflectiveOperationException | ClassCastException notIbm) {
+            // another driver: the code and the state only
+        }
     }
 
     private static boolean named(Throwable e, String simpleName) {

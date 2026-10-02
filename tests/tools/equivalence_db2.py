@@ -32,6 +32,7 @@ USER, PASSWORD = "db2inst1", "ggdb2pass"  # a local, throwaway test database
 PORT = 50000
 DOCKERFILE = common.CASES / "gnucobol-db2.Dockerfile"
 STUB = common.CASES / "db2" / "ggsql.c"
+RUNNER = common.CASES / "db2" / "ggsqlrun.c"
 
 
 def _docker(*args: str, check: bool = True, timeout: int = 600, inp: str | None = None) -> str:
@@ -94,25 +95,58 @@ def create(case: dict[str, Any], corpus: Path) -> None:
 
 def reset(case: dict[str, Any], corpus: Path) -> None:
     """The tables as the seed has them: emptied, the seed's INSERTs run, committed."""
-    script = "".join(f"DELETE FROM {t};\n" for t in _tables(case))
-    seed = case["db2"].get("seed")
-    if seed:
-        script += common._input_path(case, corpus, seed).read_text(encoding="latin-1")
-    _clp(script.rstrip() + "\nCOMMIT;")
+    _clp(reset_script(case, corpus).rstrip() + "\nCOMMIT;")
 
 
-def dump(case: dict[str, Any], table: str) -> bytes:
-    """One table's rows as text (see the module's docstring)."""
+def columns(table: str) -> list[str]:
     schema, _, name = table.upper().rpartition(".")
     _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
                    f"AND TABNAME = '{name}' ORDER BY COLNO;")  # fmt: skip
     names = [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]
     if not names:
         raise RuntimeError(f"Db2: no table {table}")
+    return names
+
+
+def dump_query(table: str, names: list[str]) -> str:
+    """The query a dump runs: one column, each row's values rendered and joined."""
     expr = " || '|' || ".join(f"COALESCE('[' || VARCHAR({c}) || ']', 'NULL')" for c in names)
-    _, rows = _clp(f"SELECT {expr} FROM {table} ORDER BY {', '.join(names)};")
+    return f"SELECT {expr} FROM {table} ORDER BY {', '.join(names)}"
+
+
+def dump(case: dict[str, Any], table: str) -> bytes:
+    """One table's rows as text (see the module's docstring)."""
+    names = columns(table)
+    _, rows = _clp(dump_query(table, names) + ";")
     lines = [ln.rstrip() for ln in rows.splitlines() if ln.startswith("[") or ln.startswith("NULL")]  # (CLP pads rows)
     return ("|".join(names) + "\n" + "\n".join(lines) + "\n").encode("latin-1")
+
+
+def reset_script(case: dict[str, Any], corpus: Path) -> str:
+    """The SQL that resets the tables to the seed (ggsqlrun -f, and the Java side's EquivalenceRunTest)."""
+    script = "".join(f"DELETE FROM {t};\n" for t in _tables(case))
+    seed = case["db2"].get("seed")
+    if seed:
+        script += common._input_path(case, corpus, seed).read_text(encoding="latin-1")
+    return script
+
+
+def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
+    """Two dumps of a table compared row by row, in the shape of a record diff (a row a record, its line the field)."""
+    a_lines = left.decode("latin-1").splitlines()
+    b_lines = right.decode("latin-1").splitlines()
+    head = a_lines[0] if a_lines else (b_lines[0] if b_lines else "")
+    a_rows, b_rows = a_lines[1:], b_lines[1:]
+    diffs: list[dict[str, Any]] = []
+    for i in range(max(len(a_rows), len(b_rows))):
+        a = a_rows[i] if i < len(a_rows) else None
+        b = b_rows[i] if i < len(b_rows) else None
+        if a is None or b is None:
+            diffs.append({"record": i + 1, "missing": "cobol" if a is None else "java"})
+        elif a != b:
+            diffs.append({"record": i + 1, "fields": [{"field": head, "cobol": a, "java": b}]})
+    rows = max(len(a_rows), len(b_rows))
+    return {"records": rows, "equal": rows - len(diffs), "diffs": diffs[:20], "layout_bytes": None}
 
 
 def outputs(case: dict[str, Any]) -> dict[str, bytes]:
@@ -121,12 +155,13 @@ def outputs(case: dict[str, Any]) -> dict[str, bytes]:
 
 # ---- the COBOL side --------------------------------------------------------------------------------------------
 def cobol_docker_args() -> list[str]:
-    return ["--network", NETWORK]
+    """The COBOL step's container: on the Db2 network, the connection in its environment (not in run.sh)."""
+    conn = f"DATABASE={DATABASE};HOSTNAME={CONTAINER};PORT=50000;PROTOCOL=TCPIP;UID={USER};PWD={PASSWORD};"
+    return ["--network", NETWORK, "-e", f"GGSQL_CONN={conn}"]
 
 
 def cobol_env(stmts: str) -> str:
-    conn = f"DATABASE={DATABASE};HOSTNAME={CONTAINER};PORT=50000;PROTOCOL=TCPIP;UID={USER};PWD={PASSWORD};"
-    return f"GGSQL_STMTS={stmts} DB2CODEPAGE=819 GGSQL_CONN='{conn}' "
+    return f"GGSQL_STMTS={stmts} DB2CODEPAGE=819 "
 
 
 COBOL_LINK = "-I/opt/ibm/clidriver/include -L/opt/ibm/clidriver/lib -ldb2"

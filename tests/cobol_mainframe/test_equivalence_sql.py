@@ -93,7 +93,6 @@ def test_return_code_is_kept_around_the_stub_call():
         (["EXEC SQL UPDATE T SET A = 1 WHERE CURRENT OF C1 END-EXEC"], "CURRENT OF"),
         (["EXEC SQL PREPARE S1 FROM :HV-DESC END-EXEC"], "PREPARE"),
         (["EXEC SQL INSERT INTO T VALUES (:NOT-DECLARED) END-EXEC"], "not declared"),
-        (["DISPLAY SQLERRMC"], "SQLERRM"),
     ],
 )  # fmt: skip
 def test_a_form_not_modelled_is_refused_by_name(proc, why):

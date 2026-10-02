@@ -82,6 +82,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cobol_coverage as cov  # noqa: E402 -- #4023
 
 # The primitives every harness module shares live in a leaf module (no cycle); re-exported here.
+import equivalence_db2
+import equivalence_sql
 from equivalence_common import (
     CASES,
     DEFAULT_DATA_ENCODING,
@@ -206,9 +208,6 @@ def run_cobol(
     program, option_flags = compile_options(case, source)
     db2 = case.get("db2")
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub (equivalence_sql.py)
-        import equivalence_db2
-        import equivalence_sql
-
         dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
         try:
             program, table = equivalence_sql.precompile(program, dirs, corpus / case["program_source"])
@@ -485,22 +484,9 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
             if d["equal"] != d["records"] or d["diffs"]:
                 why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
         for t in (case.get("db2") or {}).get("compare", []):  # a Db2 table: its rows, as text, line by line
-            # (the shape of a record diff: a row is a record, the whole row its one field)
-            left = cobol.get(f"DB2 {t}", b"").decode("latin-1").splitlines()
-            right = java.get(f"DB2 {t}", b"").decode("latin-1").splitlines()
-            head = left[0] if left else (right[0] if right else "")
-            left, right = left[1:], right[1:]
-            diffs: list[dict[str, Any]] = []
-            for i in range(max(len(left), len(right))):
-                a = left[i] if i < len(left) else None
-                b = right[i] if i < len(right) else None
-                if a is None or b is None:
-                    diffs.append({"record": i + 1, "missing": "cobol" if a is None else "java"})
-                elif a != b:
-                    diffs.append({"record": i + 1, "fields": [{"field": head, "cobol": a, "java": b}]})
-            rows = max(len(left), len(right))
-            run["outputs"][f"DB2 {t}"] = {"records": rows, "equal": rows - len(diffs), "diffs": diffs[:20],
-                                         "layout_bytes": None}  # fmt: skip
+            d = equivalence_db2.diff_dump(cobol.get(f"DB2 {t}", b""), java.get(f"DB2 {t}", b""))
+            run["outputs"][f"DB2 {t}"] = d
+            diffs, rows = d["diffs"], d["records"]
             if diffs:
                 why.append(f"DB2 {t}: {rows - len(diffs)}/{rows} rows equal")
     if case.get("sysout", True):  # #4056: the job log too, after an abend as well (its messages say why)
@@ -613,8 +599,6 @@ def main() -> int:
                            cobol_only=args.cobol_only)  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
-        import equivalence_db2
-
         equivalence_db2.create(case, corpus)
     cobol = run_cobol(case, corpus, work / "cobol")
     cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}

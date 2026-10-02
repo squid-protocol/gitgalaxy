@@ -23,10 +23,22 @@ the seed loaded again. A table is dumped as text, one row a line, ordered by eve
 brackets as Db2 renders it in character form (VARCHAR() of the column: a string with its trailing blanks, a number
 as its decimal digits), NULL as NULL -- so a length or a trailing blank that differs is a difference.
 
-The container is started on first use and left running (`docker rm -f gitgalaxy-db2` stops it)."""
+The container is started on first use and left running (`docker rm -f gitgalaxy-db2` stops it).
+
+A pool of databases in that one instance lets Db2 cases run side by side: GGDB (the container's own) and GGDB1 ..
+GGDB<n-1> ($GITGALAXY_DB2_POOL, default 4), each created on first use with GGDB's code set, territory, collation and
+page size. A case takes one database for its whole run (hold_lock: a lock file per database, GGDB's the one older
+checkouts take). Every name its SQL uses -- IBMUSER.ACCOUNT, CARDDEMO.TRANSACTION_TYPE, a bind QUALIFIER -- is the
+same in every database, so nothing in either side's SQL changes, and no case sees another's rows: a database has its
+own catalog, schemas, tables and identity counters. The database is held active (activate): one nothing keeps
+active is activated by each connect and deactivated by the last disconnect, about a second each time.
+
+Table metadata (columns, identity columns) is read once a run, after the tables are created, in one query; a run's
+reset and its dumps go to Db2 as one CLP call each (a CLP call costs about a second, mostly its back end starting)."""
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import time
@@ -39,7 +51,9 @@ CONTAINER = "gitgalaxy-db2"
 NETWORK = "gitgalaxy-db2"
 IMAGE = "icr.io/db2_community/db2:latest"
 COBOL_IMAGE = "gitgalaxy-gnucobol-db2:3"
-DATABASE = "GGDB"
+DATABASE0 = "GGDB"  # the container's own database: the pool's first
+DATABASE = DATABASE0  # this process's database (hold_lock picks it from the pool)
+POOL_ENV = "GITGALAXY_DB2_POOL"
 USER, PASSWORD = "db2inst1", "ggdb2pass"  # a local, throwaway test database
 PORT = 50000
 DOCKERFILE = common.CASES / "gnucobol-db2.Dockerfile"
@@ -50,16 +64,39 @@ RUNNER = common.CASES / "db2" / "ggsqlrun.c"
 _LOCK = None
 
 
+def pool() -> list[str]:
+    """The databases Db2 cases run on, one case at a time each."""
+    n = max(1, int(os.environ.get(POOL_ENV) or 4))
+    return [DATABASE0, *(f"{DATABASE0}{i}" for i in range(1, n))]
+
+
+def _lock_path(database: str) -> Path:
+    # GGDB's is the path older checkouts lock, so they and this one never share it
+    name = "gitgalaxy-db2.lock" if database == DATABASE0 else f"gitgalaxy-db2-{database}.lock"
+    return Path.home() / ".cache" / name
+
+
 def hold_lock() -> None:
-    """The Db2 to this process until it ends (an exclusive lock; another Db2 case waits for it)."""
-    global _LOCK
+    """A database of the pool to this process until it ends (an exclusive lock on it; with every database taken,
+    the next one free)."""
+    global _LOCK, DATABASE
     import fcntl
 
-    if _LOCK is None:
-        path = Path.home() / ".cache" / "gitgalaxy-db2.lock"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        _LOCK = path.open("w")
-        fcntl.flock(_LOCK, fcntl.LOCK_EX)
+    if _LOCK is not None:
+        return
+    while True:
+        for database in pool():
+            path = _lock_path(database)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fh = path.open("w")
+            try:
+                fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                fh.close()
+                continue
+            _LOCK, DATABASE = fh, database
+            return
+        time.sleep(1)
 
 
 def _docker(*args: str, check: bool = True, timeout: int = 600, inp: str | None = None) -> str:
@@ -70,8 +107,61 @@ def _docker(*args: str, check: bool = True, timeout: int = 600, inp: str | None 
     return proc.stdout
 
 
+_ACTIVE: set[str] = set()
+
+
 def ensure() -> None:
-    """The Db2 container running, and the COBOL side's image built."""
+    """The Db2 container running, this process's database created and active, the COBOL side's image built."""
+    _ensure_container()
+    _ensure_database(DATABASE)
+    activate(DATABASE)
+
+
+def activate(database: str) -> None:
+    """The database held active, once a process (see the module's docstring)."""
+    if database not in _ACTIVE:
+        _instance(f"db2 activate database {database}")
+        _ACTIVE.add(database)
+
+
+def _instance(command: str) -> str:
+    """A Db2 instance command (no database connection), as the instance owner."""
+    return _docker("exec", CONTAINER, "su", "-", USER, "-c", command, check=False, timeout=1800)
+
+
+def _db_cfg(database: str) -> dict[str, str]:
+    cfg = {}
+    for ln in _instance(f"db2 get db cfg for {database}").splitlines():
+        key, eq, value = ln.partition(" = ")
+        if eq:
+            cfg[key.strip()] = value.strip()
+    return cfg
+
+
+def _ensure_database(database: str) -> None:
+    """A pool database (not GGDB, the container's own) created on first use, as GGDB is: its code set, territory,
+    collating sequence and page size -- what a stored value, a comparison or an ORDER BY can depend on."""
+    if database == DATABASE0 or database in _ACTIVE:
+        return
+    import fcntl
+
+    listed = lambda: re.findall(r"Database name\s*=\s*(\S+)", _instance("db2 list database directory"))  # noqa: E731
+    if database in listed():
+        return
+    path = Path.home() / ".cache" / "gitgalaxy-db2-setup.lock"
+    with path.open("w") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)  # one CREATE DATABASE at a time
+        if database in listed():
+            return
+        ref = _db_cfg(DATABASE0)
+        out = _instance(f"db2 create database {database} using codeset {ref['Database code set']} territory "
+                        f"{ref['Database territory']} collate using {ref['Database collating sequence']} "
+                        f"pagesize {ref['Database page size']}")  # fmt: skip
+        if database not in listed():
+            raise RuntimeError(f"Db2: CREATE DATABASE {database} failed: {out.strip()[-400:]}")
+
+
+def _ensure_container() -> None:
     if not _docker("images", "-q", COBOL_IMAGE).strip():
         _docker("build", "-q", "-t", COBOL_IMAGE, "-f", str(DOCKERFILE), str(common.CASES), timeout=1800)
     state = _docker("inspect", "-f", "{{.State.Running}}", CONTAINER, check=False).strip()
@@ -84,7 +174,7 @@ def ensure() -> None:
     else:
         _docker("run", "-d", "--name", CONTAINER, "--network", NETWORK, "--privileged", "-p", f"127.0.0.1:{PORT}:50000",
                 "-e", "LICENSE=accept", "-e", f"DB2INSTANCE={USER}", "-e", f"DB2INST1_PASSWORD={PASSWORD}",
-                "-e", f"DBNAME={DATABASE}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
+                "-e", f"DBNAME={DATABASE0}", "-e", "BLU=false", "-e", "ENABLE_ORACLE_COMPATIBILITY=false",
                 "-e", "UPDATEAVAIL=NO", "-e", "TO_CREATE_SAMPLEDB=false", "-e", "REPODB=false",
                 "-e", "IS_OSXFS=false", "-e", "PERSISTENT_HOME=false", "-e", "HADR_ENABLED=false", IMAGE)  # fmt: skip
     for _ in range(120):  # first start: several minutes
@@ -152,19 +242,17 @@ def ddl_text(path: Path, symbols: dict[str, str] | None = None) -> str:
 def create(case: dict[str, Any], corpus: Path) -> None:
     """The case's tables, dropped and created again from its DDL (every table the DDL creates, compared or not)."""
     ensure()
-    made = []
-    for ddl in case["db2"].get("ddl", []):
-        made += re.findall(
-            r"CREATE\s+TABLE\s+([A-Z0-9_.$#@]+)", ddl_text(corpus / ddl, case["db2"].get("symbols")), re.I
-        )
-    for t in dict.fromkeys([*_tables(case), *made]):
-        _clp(f"DROP TABLE {t};", check=False)
-    # a row longer than a 4K page (GenApp's ENDOWMENT VARCHAR(32606)): Db2 for Linux places such a table in a
-    # table space whose pages hold it -- created once (z/OS sizes its pages per table space in the DDL itself)
-    _clp("CREATE BUFFERPOOL GGBP32K SIZE 1000 PAGESIZE 32K; CREATE TABLESPACE GGTS32K PAGESIZE 32K BUFFERPOOL GGBP32K;",
+    _META.clear()
+    ddls = [ddl_text(corpus / ddl, case["db2"].get("symbols")) for ddl in case["db2"].get("ddl", [])]
+    made = [t for text in ddls for t in re.findall(r"CREATE\s+TABLE\s+([A-Z0-9_.$#@]+)", text, re.I)]
+    # one CLP call: each DROP fails alone when its table is not there (CLP goes on to the next statement); a row
+    # longer than a 4K page (GenApp's ENDOWMENT VARCHAR(32606)) needs a table space whose pages hold it, created
+    # once a database (z/OS sizes its pages per table space in the DDL itself)
+    _clp("".join(f"DROP TABLE {t};\n" for t in dict.fromkeys([*_tables(case), *made]))
+         + "CREATE BUFFERPOOL GGBP32K SIZE 1000 PAGESIZE 32K;\nCREATE TABLESPACE GGTS32K PAGESIZE 32K BUFFERPOOL GGBP32K;",
          check=False)  # fmt: skip
-    for ddl in case["db2"].get("ddl", []):
-        _clp(ddl_text(corpus / ddl, case["db2"].get("symbols")))
+    if ddls:
+        _clp("".join(ddls))
 
 
 def reset(case: dict[str, Any], corpus: Path) -> None:
@@ -172,11 +260,33 @@ def reset(case: dict[str, Any], corpus: Path) -> None:
     _clp(reset_script(case, corpus).rstrip() + "\nCOMMIT;")
 
 
-def columns(table: str) -> list[str]:
+_META: dict[tuple[str, str], list[tuple[str, bool]]] = {}  # (schema, table) -> [(column, identity)], COLNO order
+
+
+def _key(table: str) -> tuple[str, str]:
     schema, _, name = table.upper().rpartition(".")
-    _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
-                   f"AND TABNAME = '{name}' ORDER BY COLNO;")  # fmt: skip
-    names = [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]
+    return schema or USER.upper(), name
+
+
+def _load_meta(tables: list[str]) -> None:
+    """The tables' columns from the catalog, in one query, kept for the run (create() empties it)."""
+    need = [k for k in dict.fromkeys(_key(t) for t in tables) if k not in _META]
+    if not need:
+        return
+    where = " OR ".join(f"(TABSCHEMA = '{s}' AND TABNAME = '{n}')" for s, n in need)
+    _, out = _clp(f"SELECT RTRIM(TABSCHEMA) || '|' || TABNAME || '|' || COLNAME || '|' || IDENTITY "
+                  f"FROM SYSCAT.COLUMNS WHERE {where} ORDER BY TABSCHEMA, TABNAME, COLNO;")  # fmt: skip
+    found: dict[tuple[str, str], list[tuple[str, bool]]] = {}
+    for ln in out.splitlines():
+        parts = ln.strip().split("|")
+        if len(parts) == 4 and (parts[0], parts[1]) in need:
+            found.setdefault((parts[0], parts[1]), []).append((parts[2], parts[3] == "Y"))
+    _META.update(found)
+
+
+def columns(table: str) -> list[str]:
+    _load_meta([table])
+    names = [c for c, _ in _META.get(_key(table), [])]
     if not names:
         raise RuntimeError(f"Db2: no table {table}")
     return names
@@ -188,12 +298,27 @@ def dump_query(table: str, names: list[str]) -> str:
     return f"SELECT {expr} FROM {table} ORDER BY {', '.join(names)}"
 
 
+_DUMP_END = "GG-DUMP-END"  # a line no dump row can be: rows start with "[" or NULL
+
+
 def dump(case: dict[str, Any], table: str) -> bytes:
     """One table's rows as text (see the module's docstring)."""
-    names = columns(table)
-    _, rows = _clp(dump_query(table, names) + ";")
-    lines = [ln.rstrip() for ln in rows.splitlines() if ln.startswith("[") or ln.startswith("NULL")]  # (CLP pads rows)
-    return ("|".join(names) + "\n" + "\n".join(lines) + "\n").encode("latin-1")
+    return dumps(case, [table])[table]
+
+
+def dumps(case: dict[str, Any], tables: list[str]) -> dict[str, bytes]:
+    """Each table's rows as text, every query in one CLP call (each followed by a marker row)."""
+    _load_meta(tables)
+    names = {t: columns(t) for t in tables}
+    _, out = _clp("".join(f"{dump_query(t, names[t])};\nVALUES '{_DUMP_END}';\n" for t in tables))
+    sections: list[list[str]] = [[]]
+    for ln in out.splitlines():
+        if ln.strip() == _DUMP_END:
+            sections.append([])
+        elif ln.startswith("[") or ln.startswith("NULL"):
+            sections[-1].append(ln.rstrip())  # (CLP pads rows)
+    return {t: ("|".join(names[t]) + "\n" + "\n".join(rows) + "\n").encode("latin-1")
+            for t, rows in zip(tables, sections)}  # fmt: skip
 
 
 def reset_script(case: dict[str, Any], corpus: Path) -> str:
@@ -215,11 +340,9 @@ def reset_script(case: dict[str, Any], corpus: Path) -> str:
     seeded = list(dict.fromkeys(t.upper() for t in re.findall(r"INSERT\s+INTO\s+([A-Z0-9_.$#@]+)", seed_sql, re.I)))
     tables = [*reversed(seeded), *[t for t in _tables(case) if t.upper() not in seeded]]
     script = "".join(f"DELETE FROM {t};\n" for t in tables)
+    _load_meta(tables)
     for t in tables:
-        schema, _, name = t.upper().rpartition(".")
-        _, cols = _clp(f"SELECT COLNAME FROM SYSCAT.COLUMNS WHERE TABSCHEMA = '{schema or USER.upper()}' "
-                       f"AND TABNAME = '{name}' AND IDENTITY = 'Y';")  # fmt: skip
-        for c in [c.strip() for c in cols.splitlines() if c.strip() and not c.startswith("SELECT")]:
+        for c in [c for c, identity in _META.get(_key(t), []) if identity]:
             script += f"ALTER TABLE {t} ALTER COLUMN {c} RESTART;\n"
     return script + seed_sql
 
@@ -243,7 +366,8 @@ def diff_dump(left: bytes, right: bytes) -> dict[str, Any]:
 
 
 def outputs(case: dict[str, Any]) -> dict[str, bytes]:
-    return {f"DB2 {t}": dump(case, t) for t in case["db2"].get("compare", [])}
+    tables = case["db2"].get("compare", [])
+    return {f"DB2 {t}": data for t, data in dumps(case, tables).items()} if tables else {}
 
 
 # ---- the COBOL side --------------------------------------------------------------------------------------------

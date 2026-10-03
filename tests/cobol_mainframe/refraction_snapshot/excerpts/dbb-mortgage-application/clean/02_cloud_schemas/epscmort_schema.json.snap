@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_FORMAT_NUMBER": {
+      "type": "number",
+      "description": "Legacy PIC: Z,ZZZ,ZZ9.99"
+    },
+    "W_CALL_PROGRAM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "W_COMAREA_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "SQL_ERROR_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(5)"
+    },
+    "IBMREQD": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "END_OF_TRANS_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(30)"
+    },
+    "BLANK_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    }
+  }
+}

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import contextlib
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
@@ -159,8 +160,10 @@ class Gen:
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
         # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
         self.callee_types: dict[str, list[str]] = {}
-        self.dto_codecs = None  # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or
-        self.dto_codecs_factory = None  # made on first use for a batch program
+        # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or made on first use for a batch
+        # program
+        self.dto_codecs: Cics | None = None
+        self.dto_codecs_factory: Callable[[], Cics] | None = None
         self.entities: set = set()
 
     # ---- references ---------------------------------------------------------------------------------------------

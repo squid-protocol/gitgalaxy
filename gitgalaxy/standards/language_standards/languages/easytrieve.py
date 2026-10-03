@@ -17,7 +17,7 @@ DEFINITION: dict[str, Any] = {
         "target_version": "Easytrieve Plus / FOCUS",
         "last_updated": "2026-09-28",
         "blueprint_version": "v6.3",
-        "status": "production"
+        "status": "production",
     },
     "extensions": [".ezt", ".mac", ".ezp"],
     "exact_matches": [],
@@ -38,7 +38,9 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(?:STOP|EXIT)\b", re.I),
         "io": re.compile(r"\b(?:GET|PUT|READ|WRITE|PRINT|DISPLAY)\b", re.I),
         "api": None,
-        "state_mutation": re.compile(r"^[ \t]*([A-Za-z0-9_-]+)[ \t]*=|\bMOVE\b[ \t]+[A-Za-z0-9_'-]+[ \t]+\bTO\b", re.I | re.M),
+        "state_mutation": re.compile(
+            r"^[ \t]*([A-Za-z0-9_-]+)[ \t]*=|\bMOVE\b[ \t]+[A-Za-z0-9_'-]+[ \t]+\bTO\b", re.I | re.M
+        ),
         "dead_code": re.compile(r"^[ \t]*\*[ \t]*(?:IF|PERFORM|GET|PUT|JOB|MACRO)\b", re.I | re.M),
         "doc": None,
         "test": None,
@@ -57,7 +59,9 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": None,
         "generics": None,
         "ssr_boundaries": None,
-        "hardcoded_secrets": re.compile(r"\b(?:PASSWORD|PASSWD|PWD|SECRET|KEY|TOKEN)\b[ \t]*=[ \t]*['\"][^'\"]{3,64}['\"]", re.I),
+        "hardcoded_secrets": re.compile(
+            r"\b(?:PASSWORD|PASSWD|PWD|SECRET|KEY|TOKEN)\b[ \t]*=[ \t]*['\"][^'\"]{3,64}['\"]", re.I
+        ),
         "dependency_injection": None,
         "test_skip": None,
         "macros": re.compile(r"^[ \t]*MACRO\b", re.I | re.M),
@@ -68,5 +72,5 @@ DEFINITION: dict[str, Any] = {
         "crypto_entropy": None,
         "crypto_obfuscation": None,
         "planned_debt": re.compile(r"^[ \t]*\*[ \t]*(?:TODO|FIXME|HACK|XXX)\b", re.I | re.M),
-    }
+    },
 }

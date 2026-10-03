@@ -126,6 +126,9 @@ class Gen:
                     self.ids[id(it)] = name
                 else:
                     self.ids[id(it)] = f"f{n}_{jname(it.name)}"
+        self.taken_names = set(self.ids.values())
+        # condition-name methods: id(88 item) -> (Java method name, the test's body); in order of first use
+        self.cond_methods: dict[int, tuple[str, str, L.Item]] = {}
         self.conds: dict[str, list[L.Item]] = {}
         for rec in prog.records:
             for it in rec.walk():
@@ -724,6 +727,32 @@ class Gen:
         raise Untranslatable(f"88 value {kind}")
 
     def cond_test(self, cn: L.Item, subscripts=()) -> str:
+        """An 88's test. Without subscripts it is a named method of the service (isAcctActive() for 88
+        ACCT-ACTIVE), emitted once and called at each use: the same test, so behaviour does not change."""
+        if subscripts:
+            return self._cond_body(cn, subscripts)
+        known = self.cond_methods.get(id(cn))
+        if known is None:
+            body = self._cond_body(cn, subscripts)
+            base = "is" + "".join(w[:1].upper() + w[1:] for w in [camel(cn.name)])
+            name, k = base, 1
+            paras = set(self.method(i) for i in range(len(self.p.proc.paragraphs))) if self.structured else set()
+            while name in self.taken_names or name in JAVA_RESERVED or name in METHODS_TAKEN or name in paras:
+                k += 1
+                name = f"{base}{k}"
+            self.taken_names.add(name)
+            known = self.cond_methods[id(cn)] = (name, body, cn)
+        return f"{known[0]}()"
+
+    def cond_method_lines(self) -> list[str]:
+        """The condition-name methods, in order of first use: each traces to its 88 and the item it tests."""
+        out = []
+        for name, body, cn in self.cond_methods.values():
+            parent = cn.parent.name if cn.parent is not None else "?"
+            out += [f"    /** 88 {cn.name} of {parent}. */", f"    private boolean {name}() {{ return {body}; }}", ""]
+        return out
+
+    def _cond_body(self, cn: L.Item, subscripts=()) -> str:
         if cn.parent is not None and id(cn.parent) in self.lifted and not subscripts:
             item = E.Ref(cn.parent.name)
             tests = []

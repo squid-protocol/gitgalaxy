@@ -19,6 +19,8 @@ import posixpath
 from collections.abc import Iterator
 from typing import Any, Optional
 
+from gitgalaxy.core.source_text import read_source
+
 _MAX_MANIFEST_BYTES = 1_000_000
 _MAX_DEPTH = 6  # nesting of `exports` conditions followed
 _MAX_TARGETS = 24  # candidate files tried per specifier
@@ -53,8 +55,7 @@ def owning_package(root: str, directory: str, cache: dict[str, Optional[Package]
         manifest = os.path.join(root, current, "package.json")
         try:
             if os.path.isfile(manifest) and os.path.getsize(manifest) <= _MAX_MANIFEST_BYTES:
-                with open(manifest, encoding="utf-8") as handle:
-                    data = json.load(handle)
+                data = json.loads(read_source(manifest).text)
                 if isinstance(data, dict):
                     found = Package(current, data)
                     break
@@ -93,7 +94,7 @@ def export_targets(pkg: Package, subpath: str) -> list[str]:
         if subpath in exports:
             return list(_leaves(exports[subpath]))[:_MAX_TARGETS]
         best: Optional[tuple[str, str]] = None  # the longest `./prefix/*` pattern that matches
-        for key, value in exports.items():
+        for key in exports:
             head, star, tail = key.partition("*")
             if (
                 star

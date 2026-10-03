@@ -69,6 +69,10 @@ BASELINE_PATH = Path(__file__).resolve().parent / "dead_key_audit_baseline.json"
 # apart from "the code changed, re-check this."
 # ==============================================================================
 ALLOWLIST = {
+    # package.json fields read from a manifest on disk (core/package_self_reference.py, #3789):
+    # the producer is the npm package author, never a literal in this repo.
+    "exports": "package.json `exports` field, read from the scanned repo's manifest (#3789)",
+    "module": "package.json `module` field, read from the scanned repo's manifest (#3789)",
     "COUNTER": "EXEC CICS option keyword parsed from source (det/cics.py parse_exec: GET COUNTER)",
     # --- Parsed source keywords (not a producer/consumer dict contract) ---
     # cics_tasks.py (#3449) keys `opts` by the option words of the EXEC CICS

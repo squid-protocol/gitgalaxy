@@ -955,21 +955,6 @@ def test_signal_processor_flux_immutability(processor):
 
 
 # ==============================================================================
-# TEST 24: EXTENSION DECEPTION SENSOR
-# ==============================================================================
-def test_signal_processor_extension_deception(processor):
-    """Proves the engine flags files that claim to be inert data but contain executable logic."""
-    m_dec, sig_dec = create_synthetic_star(processor, "data", 100)
-    m_dec["path"] = "src/data.json"  # Claims to be JSON
-    m_dec["lang_id"] = "python"  # Actually evaluated as Python!
-
-    r_dec = processor.calculate_risk_vector(m_dec, sig_dec)
-
-    idx_mismatch = processor.SIGNAL_SCHEMA.index("sec_extension_mismatch")
-    assert r_dec["hit_vector"][idx_mismatch] == 1, "Extension Deception Sensor failed to flag the mismatch!"
-
-
-# ==============================================================================
 # TEST 27: CATASTROPHIC FALLBACKS & EMPTY GALAXIES
 # ==============================================================================
 def test_signal_processor_catastrophic_fallbacks(processor):

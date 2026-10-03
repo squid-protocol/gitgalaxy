@@ -1,0 +1,8 @@
+<configuration>
+  <!-- tests/tools/thirdparty_port.py: a port log lines as a job log, the message only, on stdout. -->
+  <appender name="OUT" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.out</target>
+    <encoder><pattern>%msg%n</pattern></encoder>
+  </appender>
+  <root level="INFO"><appender-ref ref="OUT"/></root>
+</configuration>

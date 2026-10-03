@@ -20,7 +20,10 @@ The adapter -- this file and tests/tools/devin/adapter -- and nothing more:
     port's unmodified main class runs -- what the harness's generated test does for our ports;
   - how a port reports a user abend, read from its code (a stderr message, or a fixed exit status), recorded as
     the harness's Unnnn (the code modulo 4096, as the COBOL side's abend stub records it);
-  - outputs read back from the files the port wrote, as written.
+  - output decoding, declared per port and per data set (DECODERS): a port's own framing of variable-length
+    records (newline-separated, or a bare 2-byte length) re-framed as GnuCOBOL frames them; packed-decimal
+    fields a port writes as hex text turned back into their bytes. A port that writes variable-length records
+    with no framing at all is compared as written: the comparison reports the framing error.
 Not applied: the case's fault runs. They inject FILE STATUS values at the program's I/O statements through an
 I/O layer our ports call (CobolFiles); these ports have their own I/O code and no such point, and adding one would
 mean changing their code. Each port is judged on the case's base run, under every environment.
@@ -37,7 +40,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 TOOLS = Path(__file__).resolve().parent
 REPO_ROOT = TOOLS.parent.parent
@@ -51,6 +54,10 @@ from gitgalaxy.core.source_text import decode_bytes  # noqa: E402
 
 ADAPTER = TOOLS / "devin" / "adapter"
 COGNITION = "https://github.com/Cognition-Partner-Workshops/uc-legacy-modernization-cobol-to-java"
+CODEV = "https://github.com/codev-workshops/uc-legacy-modernization-cobol-to-java"
+CBACT01C_FILES = {"ACCTFILE": "{dd:ACCTFILE}", "OUTFILE": "{dd:OUTFILE}", "ARRYFILE": "{dd:ARRYFILE}",
+                  "VBRCFILE": "{dd:VBRCFILE}"}  # fmt: skip
+POSITIONAL = list(CBACT01C_FILES.values())
 
 
 def _dd_launcher(program: str) -> list[str]:
@@ -61,14 +68,15 @@ def _dd_launcher(program: str) -> list[str]:
 # dependency classpath; "javac": one source file); its main class and command line ({dd:NAME}: the data set's
 # file, {dd-options}: `--dd NAME=file` for each, {outdir}: a directory the port writes its outputs into under
 # their DD names, {parm-option}: `--parm PARM` when the step has one, {now}: the frozen clock in "now"'s form);
-# the input form ("fixed" or "source"); how it reports an abend.
+# the input form ("fixed" or "source"); the per-data-set output decoders (DECODERS); how it reports an abend.
 PORTS: dict[str, dict[str, Any]] = {
     "eval-arm-a": {
         "repo": COGNITION, "branch": "eval/devin-arm-a-raw-cobol", "sha": "19dd9f267abd4eac914d50db9367fdc083110f7e",
         "pr": None, "about": "eval arm A: the COBOL sources, copybooks, JCL and a golden-output harness only",
         "build": ("jar", "java", "java/target/carddemo-batch.jar"), "jdk": 21, "main": "carddemo.batch.Main",
         "now": "%Y-%m-%d %H:%M:%S", "abend": {"stderr": r"CEE3ABD: USER ABEND U(\d+)"}, "input": "fixed",
-        "programs": {"CBACT04C": ("carddemo-intcalc", _dd_launcher("CBACT04C")),
+        "programs": {"CBACT01C": ("carddemo-readacct", _dd_launcher("CBACT01C")),
+                     "CBACT04C": ("carddemo-intcalc", _dd_launcher("CBACT04C")),
                      "CBTRN02C": ("carddemo-posttran", _dd_launcher("CBTRN02C"))},
     },
     "eval-arm-b": {
@@ -77,10 +85,145 @@ PORTS: dict[str, dict[str, Any]] = {
         "about": "eval arm B: the same, plus AWS Transform's analysis of the code",
         "build": ("jar", "java", "java/target/carddemo-batch.jar"), "jdk": 21, "main": "carddemo.Main",
         "now": "%Y-%m-%d-%H.%M.%S.000000", "abend": {"exit": 999 & 0xFF, "code": 999}, "input": "fixed",
-        "programs": {"CBACT04C": ("carddemo-intcalc", _dd_launcher("CBACT04C")),
+        "programs": {"CBACT01C": ("carddemo-readacct", _dd_launcher("CBACT01C")),
+                     "CBACT04C": ("carddemo-intcalc", _dd_launcher("CBACT04C")),
                      "CBTRN02C": ("carddemo-posttran", _dd_launcher("CBTRN02C"))},
     },
+    "pr229": {
+        "repo": COGNITION, "branch": "devin/1785333294-cbact01c-java", "sha": "05c300cce2fc6ea9955e7913c06f598ebec74079",
+        "pr": 229, "about": "one source file; its own parity run against GnuCOBOL, byte for byte",
+        "build": ("javac", "java-migration/src/CBACT01C.java", None), "jdk": 17, "main": "CBACT01C",
+        "input": "fixed", "programs": {"CBACT01C": ("carddemo-readacct", ["{dd:ACCTFILE}", "{outdir}", "ascii"])},
+    },
+    "pr167": {
+        "repo": COGNITION, "branch": "devin/1776439113-cbact01c-java-migration",
+        "sha": "ac6c2443b42fa8725f4bb81a44fa235c67a0238e", "pr": 167, "about": "Maven project, positional arguments",
+        "build": ("classes", "java-migration", None), "jdk": 17, "main": "com.carddemo.batch.CBACT01C",
+        "input": "source", "decode": {"VBRCFILE": "vb-unframed"},
+        "programs": {"CBACT01C": ("carddemo-readacct", POSITIONAL)},
+    },
+    "pr168": {
+        "repo": COGNITION, "branch": "devin/1776677664-cbact01c-java-migration",
+        "sha": "baf8cfd453e103429c86a80810f808d869ef4a52", "pr": 168, "about": "Maven project, positional arguments",
+        "build": ("classes", "java-app", None), "jdk": 17, "main": "com.carddemo.batch.Cbact01c",
+        "input": "source", "decode": {"VBRCFILE": "vb-lines"},
+        "programs": {"CBACT01C": ("carddemo-readacct", POSITIONAL)},
+    },
+    "pr214": {
+        "repo": COGNITION, "branch": "devin/1781538606-cobol-to-java-cbact01c",
+        "sha": "1fa50de24c402efc98a25775bbd6fcfab894264f", "pr": 214, "about": "Maven project, positional arguments",
+        "build": ("classes", "java-migration", None), "jdk": 21, "main": "com.carddemo.batch.AccountFileProcessor",
+        "input": "source",
+        "decode": {"OUTFILE": ("lines-hex-packed", 107, [(90, 7)]),
+                   "ARRYFILE": ("lines-hex-packed", 110, [(23 + 19 * k, 7) for k in range(5)]),
+                   "VBRCFILE": "vb-len2"},
+        "programs": {"CBACT01C": ("carddemo-readacct", POSITIONAL)},
+    },
+    "pr220": {
+        "repo": COGNITION, "branch": "devin/1782308896-cobol-to-java-cbact01c",
+        "sha": "ceea1ef9e5c0235b1bd1c8562bba325ab01b19df", "pr": 220, "about": "Maven project, positional arguments",
+        "build": ("classes", "java-modernized", None), "jdk": 17, "main": "com.carddemo.batch.AccountFileProcessor",
+        "input": "source", "programs": {"CBACT01C": ("carddemo-readacct", POSITIONAL)},
+    },
+    "codev13": {
+        "repo": CODEV, "branch": "devin/1788345561-cbact01c-batch-flow", "sha": "73e9452dda39d56d564f5456092705ed84864983",
+        "pr": 13, "about": "codev series: the batch flow", "build": ("classes", "java", None), "jdk": 17,
+        "main": "com.carddemo.batch.cbact01c.Cbact01c", "input": "fixed",
+        "decode": {"VBRCFILE": "vb-rdw"},
+        "programs": {"CBACT01C": ("carddemo-readacct", ["--acctfile", "{dd:ACCTFILE}", "--outfile", "{dd:OUTFILE}",
+                                                        "--arryfile", "{dd:ARRYFILE}", "--vbrcfile", "{dd:VBRCFILE}",
+                                                        "--charset", "ASCII", "--display"])},
+    },
+    "codev14": {
+        "repo": CODEV, "branch": "devin/1788346206-cbact01c-golden-master",
+        "sha": "2f5c0773b96ae98b4046783f8de2e4e96e79cf1c", "pr": 14,
+        "about": "codev series: the golden master (a Python oracle for the expected bytes)",
+        "build": ("classes", "java", None), "jdk": 17, "main": "com.carddemo.batch.cbact01c.Cbact01c", "input": "fixed",
+        "decode": {"VBRCFILE": "vb-rdw"},
+        "programs": {"CBACT01C": ("carddemo-readacct", ["--acctfile", "{dd:ACCTFILE}", "--outfile", "{dd:OUTFILE}",
+                                                        "--arryfile", "{dd:ARRYFILE}", "--vbrcfile", "{dd:VBRCFILE}",
+                                                        "--charset", "ASCII", "--display"])},
+    },
 }  # fmt: skip
+
+
+# ---- output decoders: a port's own representation of a data set, as the harness's bytes ---------------------
+def gnucobol_frame(records: list[bytes]) -> bytes:
+    """Variable-length records framed as GnuCOBOL writes them (equivalence_common.split_varseq)."""
+    return b"".join(len(r).to_bytes(2, "big") + b"\0\0" + r for r in records)
+
+
+def vb_lines(data: bytes) -> bytes:
+    """Records separated by newlines (text with no newline inside a record), re-framed."""
+    recs = data.split(b"\n")
+    return gnucobol_frame(recs[:-1] if recs and recs[-1] == b"" else recs)
+
+
+def vb_len2(data: bytes) -> bytes:
+    """Records each led by a bare big-endian 2-byte length, re-framed."""
+    recs, i = [], 0
+    while i + 2 <= len(data):
+        n = int.from_bytes(data[i : i + 2], "big")
+        recs.append(data[i + 2 : i + 2 + n])
+        i += 2 + n
+    if i != len(data):
+        return data  # not that framing: compared as written (the comparison reports the framing error)
+    return gnucobol_frame(recs)
+
+
+def lines_hex_packed(data: bytes, reclen: int, packed: list[tuple[int, int]]) -> bytes:
+    """Newline-terminated records whose packed-decimal fields (offset, bytes) are written as 2*bytes hex digits:
+    each record's bytes as the copybook lays them out. Anything else is compared as written."""
+    out = []
+    for line in data.split(b"\n"):
+        if not line:
+            continue
+        rec, pos = bytearray(), 0  # rec: the record so far; pos: where in the line the next byte is read
+        for off, n in sorted(packed):
+            text = off - len(rec)  # the bytes before this packed field, copied as they are
+            rec += line[pos : pos + text]
+            pos += text
+            try:
+                rec += bytes.fromhex(line[pos : pos + 2 * n].decode("ascii"))
+            except (ValueError, UnicodeDecodeError):
+                return data  # not hex where a packed field sits: compared as written
+            pos += 2 * n
+        rec += line[pos:]
+        if len(rec) != reclen:
+            return data
+        out.append(bytes(rec))
+    return b"".join(out)
+
+
+def vb_rdw(data: bytes) -> bytes:
+    """Records each led by a z/OS RDW -- a 2-byte length that counts the 4-byte header, then two zero bytes --
+    re-framed as GnuCOBOL frames them (oracle_assumptions.md F3: GnuCOBOL's length does not count the header)."""
+    recs, i = [], 0
+    while i + 4 <= len(data):
+        n = int.from_bytes(data[i : i + 2], "big")
+        if n < 4 or data[i + 2 : i + 4] != b"\0\0":
+            return data  # not an RDW: compared as written (the comparison reports the framing error)
+        recs.append(data[i + 4 : i + n])
+        i += n
+    if i != len(data):
+        return data
+    return gnucobol_frame(recs)
+
+
+def decode(spec: Any, data: bytes) -> bytes:
+    if spec is None:
+        return data
+    if spec == "vb-lines":
+        return vb_lines(data)
+    if spec == "vb-len2":
+        return vb_len2(data)
+    if spec == "vb-rdw":
+        return vb_rdw(data)
+    if spec == "vb-unframed":
+        return data  # nothing marks where a record ends: compared as written
+    if isinstance(spec, tuple) and spec[0] == "lines-hex-packed":
+        return lines_hex_packed(data, spec[1], spec[2])
+    raise ValueError(f"unknown decoder {spec!r}")
 
 
 # ---- fetch, build, run ------------------------------------------------------------------------------------------
@@ -223,13 +366,14 @@ def abend_code(port: dict[str, Any], proc: subprocess.CompletedProcess) -> Optio
 
 def java_outputs(case: dict[str, Any], port: dict[str, Any], dds: dict[str, Path], outdir: Path,
                  proc: subprocess.CompletedProcess) -> dict[str, bytes]:  # fmt: skip
-    """Their run as the harness compares a run: every compared dataset, SYSOUT, and RETURN-CODE or ABEND."""
+    """Their run as the harness compares a run: every compared dataset (decoded per DECODERS), SYSOUT, and
+    RETURN-CODE or ABEND."""
     outs = {}
     for dd, spec in case["datasets"].items():
         if not spec.get("compare"):
             continue
         f = outdir / dd if (outdir / dd).is_file() else dds[dd]
-        outs[dd] = f.read_bytes() if f.is_file() else b""
+        outs[dd] = decode((port.get("decode") or {}).get(dd), f.read_bytes() if f.is_file() else b"")
     outs["SYSOUT"] = proc.stdout
     code = abend_code(port, proc)
     if code is not None:

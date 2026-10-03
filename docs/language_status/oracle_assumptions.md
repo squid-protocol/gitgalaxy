@@ -40,12 +40,13 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
 | C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
+| C10 | compiler | INITIALIZE / VALUE ZERO zoned items: unsigned F zone (GnuCOBOL) vs preferred C sign (z/OS) | DIFFERS (tolerated where a case declares it) | yes (CardDemo READACCT ARRYFILE) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
 | F1 | files | Natural FILE STATUS values come from GnuCOBOL's BDB files | ASSUMED | yes (00, 10, 23, 22) |
 | F2 | files | Fault FILE STATUS values are injected on both sides | MATCHED | yes |
-| F3 | files | Fixed-length records only; RECFM=VB/RDW not exercised | ASSUMED | — |
+| F3 | files | RECFM=VB: records compared by content, framed as GnuCOBOL frames them, not as a z/OS RDW | ASSUMED | yes (CardDemo READACCT VBRCFILE) |
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run | — | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
@@ -60,6 +61,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X11 | CICS | ASKTIME ABSTIME into a field narrower than S9(15) COMP-3 (GenApp's WS-ABSTIME) | DIFFERS | yes (GenApp error paths, #4173) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
+| L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
+| A1 | assembler | CardDemo's COBDATFT, translated instruction for instruction; load-module-dependent paths refused | MATCHED / REFUSED | yes (CardDemo READACCT) |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
 | Q3 | Db2 | The Java side's unit of work: one per CICS task; batch commits each statement | MATCHED (CICS) / DIFFERS (batch) | CICS: yes (CBSA XFRFUN); batch: no |
@@ -137,6 +140,20 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
   side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
 
+### C10. Zoned signs written by INITIALIZE and VALUE ZERO — DIFFERS (tolerated where declared)
+- **What.** GnuCOBOL's INITIALIZE and VALUE ZERO leave a signed zoned item's last byte with the unsigned `F` zone;
+  Enterprise COBOL writes the preferred sign, `C`. Both are the same positive value; the bytes differ.
+- **Where it shows.** CardDemo's CBACT01C writes ARRYFILE entries that INITIALIZE leaves untouched.
+- **Tolerance, scoped.** A case lists the datasets it applies to in `"zoned_sign_equivalent"` (only
+  `carddemo-readacct`'s ARRYFILE today). In those datasets, and only there, a byte is taken as equal when it is a
+  plain digit on one side and the same digit with the positive overpunch on the other (`{`, `A`–`I`: the ASCII
+  data's form of an F zone against a C zone; `equivalence.accept_unsigned_positive`). The check is by byte value,
+  not by field position, which is why it is declared per dataset rather than applied everywhere. Every such byte is
+  counted in the run's summary (`C10: ARRYFILE n sign bytes F/C`), so the tolerance is visible, never silent.
+  Everywhere else, signs are compared byte for byte.
+- **Not tolerated.** A negative overpunch (`}`, `J`–`R`) against either form, a different digit, or any byte in an
+  undeclared dataset.
+
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
   decimal form with the sign overpunched (`01K`, `000P`). `ggdisplay.c` (LD_PRELOAD) rewrites each such operand as
@@ -189,7 +206,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - The values are the ones IBM documents for the condition. What a real device failure would give is not modelled.
 
 ### F3. Record formats — ASSUMED
-- The cases' datasets are fixed-length records. Variable-length records (RECFM=VB, the RDW) are not exercised.
+- Most cases' datasets are fixed-length records.
+- **Variable-length records (RECFM=VB)** are exercised since `carddemo-readacct` (CBACT01C's VBRCFILE: a 12-byte and
+  a 39-byte record per account, `RECORD VARYING DEPENDING ON`). Records are compared by content and length, framed
+  as GnuCOBOL writes a variable sequential file: a 2-byte big-endian length, two zero bytes, then the data
+  (`equivalence_common.split_varseq`). Unlike a z/OS RDW, that length does not count the 4-byte header.
+- **Assumed.** That a record's content and length are what z/OS would write; block descriptors (BDW) and spanned
+  records are not modelled. The det translator writes the same framing (`DetFiles`); before this it wrote VB records
+  padded to the maximum length, which no case had exercised.
 
 ### F4. JCL utility steps — out of scope
 - A batch case runs one program step.
@@ -296,6 +320,27 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 
 ### L2. CEE3ABD — MATCHED
 - `ggabend.c` records `ABEND Unnnn`, and the Java side's CobolAbend gives the same.
+
+### L3. WORKING-STORAGE with no VALUE clause — ASSUMED
+- **What.** GnuCOBOL initialises such an alphanumeric item to spaces. On z/OS its first contents follow the LE
+  runtime option STORAGE (commonly binary zeros, or whatever the storage held): the program's source does not say.
+- **Where it shows.** CBACT01C moves the 10-byte `CODATECN-0UT-DATE` to `OUT-ACCT-REISSUE-DATE`, but COBDATFT (A1)
+  writes only its first 8 bytes and `CODATECN-REC` has no VALUE clause. The last 2 bytes of each OUTFILE record's
+  reissue date are GnuCOBOL's spaces, and the Java side writes the same.
+- **Assumed** to be spaces. A z/OS run with STORAGE(00) would give X'0000' there.
+
+## Assembler routines
+
+### A1. COBDATFT — MATCHED where the source decides, REFUSED otherwise
+- **What.** CardDemo's date routine `app/asm/COBDATFT.asm` (S/370 assembler), CALLed by CBACT01C. GnuCOBOL cannot run
+  it, so the harness runs a translation of it, instruction for instruction: `tests/equivalence/le/cobdatft.c` for the
+  COBOL side and the det runtime's `Cobdatft.java` for the Java side, the same bytes on both.
+- **Modelled.** Input type `'2'` (YYYY-MM-DD) to output type `'2'` (YYYYMMDD): `COOUTDT(4) = COINPDT(4)`,
+  `COOUTDT+4(2) = COINPDT+5(2)`, `COOUTDT+6(2) = COINPDT+8(2)`; every other byte is left as it was (see L3); R15 = 0.
+- **Refused (exit 98).** Input type `'1'`: its `CLC COINPDT+4,=C'-'` has no explicit length, so it compares 20
+  bytes against a 1-byte literal and whatever the literal pool holds after it. The error path: an `MVC` of 38 bytes
+  from a 13-byte literal. What both do depends on the load module, not the source, so no proof rests on them.
+  CBACT01C never takes either.
 
 ## Db2 (`equivalence_sql.py`, `ggsql.c`, `DetSql`)
 

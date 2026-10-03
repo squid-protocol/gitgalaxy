@@ -1,0 +1,201 @@
+{
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "CBACT01C",
+  "program_source": "app/cbl/CBACT01C.cbl",
+  "copy_dirs": [
+    "app/cpy"
+  ],
+  "job": "READACCT",
+  "step": "STEP05",
+  "parm": null,
+  "clock": "2022/07/18 10:30:15.00",
+  "datasets": {
+    "ACCTFILE": {
+      "input": "app/data/ASCII/acctdata.txt",
+      "organization": "indexed",
+      "reclen": 300,
+      "keys": [
+        {
+          "offset": 0,
+          "length": 11
+        }
+      ],
+      "entity": "AccountRecord"
+    },
+    "OUTFILE": {
+      "organization": "sequential",
+      "reclen": 107,
+      "compare": true,
+      "copybook": "app/cbl/CBACT01C.cbl",
+      "record": "OUT-ACCT-REC"
+    },
+    "ARRYFILE": {
+      "organization": "sequential",
+      "reclen": 110,
+      "compare": true,
+      "copybook": "app/cbl/CBACT01C.cbl",
+      "record": "ARR-ARRAY-REC"
+    },
+    "VBRCFILE": {
+      "organization": "sequential",
+      "record_format": "V",
+      "reclen": 80,
+      "compare": true,
+      "copybook": "app/cbl/CBACT01C.cbl",
+      "layouts": {
+        "12": "VBRC-REC1",
+        "39": "VBRC-REC2"
+      }
+    }
+  },
+  "notes": "Job READACCT step STEP05: CBACT01C reads CardDemo's account master (the ACCTDATA KSDS, acctdata.txt) in key order, DISPLAYs each account, and writes three files per account: OUTFILE (RECFM=FB, LRECL=107; the reissue date reformatted by the assembler routine COBDATFT, CURR-CYC-DEBIT as COMP-3, 2525.00 when it is zero), ARRYFILE (LRECL=110: a 5-entry table, three entries set, the rest as INITIALIZE leaves them) and VBRCFILE (RECFM=VB: a 12-byte and a 39-byte record per account, RECORD VARYING DEPENDING ON WS-RECD-LEN). COBDATFT is the harness's model of app/asm/COBDATFT.asm (tests/equivalence/le/cobdatft.c; oracle_assumptions.md A1). OUT-ACCT-REISSUE-DATE carries two bytes COBDATFT never writes (oracle_assumptions.md L3: GnuCOBOL's spaces). ARRYFILE's untouched table entries are INITIALIZE's zeros, unsigned under GnuCOBOL, with the preferred C sign on z/OS: zoned_sign_equivalent (oracle_assumptions.md C10). The program never CLOSEs its three output files (GOBACK does). Every input is the corpus's data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own.",
+  "zoned_sign_equivalent": [
+    "ARRYFILE"
+  ],
+  "faults": [
+    {
+      "name": "open-acctfile",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "35"
+        }
+      ],
+      "why": "35: OPEN of a file that is not present (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING ACCTFILE' from 0000-ACCTFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "open-acctfile-verified",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "97"
+        }
+      ],
+      "why": "97: OPEN successful, file integrity verified (IBM Enterprise COBOL for z/OS Language Reference, File status key values) -- a successful open, but 0000-ACCTFILE-OPEN accepts only '00', so the step abends through 9910-DISPLAY-IO-STATUS's 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "open-outfile",
+      "plan": [
+        {
+          "dd": "OUTFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "37"
+        }
+      ],
+      "why": "37: OPEN on a file the mode does not allow (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING OUTFILE' with the status from 2000-OUTFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "open-arryfile",
+      "plan": [
+        {
+          "dd": "ARRYFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "37"
+        }
+      ],
+      "why": "37 (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING ARRAYFILE' from 3000-ARRFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "open-vbrcfile",
+      "plan": [
+        {
+          "dd": "VBRCFILE",
+          "op": "OPEN",
+          "nth": 1,
+          "status": "37"
+        }
+      ],
+      "why": "37 (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 'ERROR OPENING VBRC FILE' from 4000-VBRFILE-OPEN, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "acctfile-read-error",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "READ",
+          "nth": 3,
+          "status": "30"
+        }
+      ],
+      "why": "30: permanent I/O error (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the third account: 'ERROR READING ACCOUNT FILE' from 1000-ACCTFILE-GET-NEXT after two accounts are written, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "acctfile-early-end",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "READ",
+          "nth": 3,
+          "status": "10"
+        }
+      ],
+      "why": "10: end of file (IBM Enterprise COBOL for z/OS Language Reference, File status key values) after two accounts: END-OF-FILE is set, the file is closed and the step ends normally with two accounts in each output"
+    },
+    {
+      "name": "acctfile-status-9",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "READ",
+          "nth": 1,
+          "status": "9A"
+        }
+      ],
+      "why": "9x: implementor-defined condition (IBM Enterprise COBOL for z/OS Language Reference, File status key values): 1000-ACCTFILE-GET-NEXT -> 9910-DISPLAY-IO-STATUS's non-numeric / 9 arm, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "outfile-write-error",
+      "plan": [
+        {
+          "dd": "OUTFILE",
+          "op": "WRITE",
+          "nth": 2,
+          "status": "30"
+        }
+      ],
+      "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the second OUTFILE record: 'ACCOUNT FILE WRITE STATUS IS:' from 1350-WRITE-ACCT-RECORD, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "arryfile-write-error",
+      "plan": [
+        {
+          "dd": "ARRYFILE",
+          "op": "WRITE",
+          "nth": 2,
+          "status": "30"
+        }
+      ],
+      "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the second ARRYFILE record: 1450-WRITE-ARRY-RECORD, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "vbrcfile-write-error",
+      "plan": [
+        {
+          "dd": "VBRCFILE",
+          "op": "WRITE",
+          "nth": 2,
+          "status": "30"
+        }
+      ],
+      "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) on the second VBRCFILE record -- the first account's 39-byte record: 1575-WRITE-VB2-RECORD, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    },
+    {
+      "name": "close-acctfile",
+      "plan": [
+        {
+          "dd": "ACCTFILE",
+          "op": "CLOSE",
+          "nth": 1,
+          "status": "30"
+        }
+      ],
+      "why": "30 (IBM Enterprise COBOL for z/OS Language Reference, File status key values) closing ACCTFILE after every account: 'ERROR CLOSING ACCOUNT FILE' from 9000-ACCTFILE-CLOSE, 9910-DISPLAY-IO-STATUS, then 9999-ABEND-PROGRAM -> ABEND U0999"
+    }
+  ]
+}

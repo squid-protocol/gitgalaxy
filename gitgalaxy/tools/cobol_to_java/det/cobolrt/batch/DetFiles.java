@@ -178,6 +178,101 @@ public final class DetFiles {
     }
 
     /**
+     * A sequential file of variable-length records (RECORD IS VARYING ... DEPENDING ON): each WRITE writes as many
+     * bytes of the record area as the DEPENDING ON item holds, framed as GnuCOBOL frames a variable-length record
+     * (COB_VARSEQ_FORMAT 0: the length as a big-endian halfword, two zero bytes, then the data). A length outside
+     * the FD's FROM / TO range is status 44 (a boundary violation), and nothing is written. Output only: the
+     * translator refuses a READ of such a file.
+     */
+    public static final class VarSequential implements DetFile {
+        private final CobolFiles files;
+        private final String dd;
+        private final Supplier<Path> path;
+        private final Storage rec;
+        private final int offset;
+        private final int min;
+        private final int max;
+        private OutputStream out;
+
+        public VarSequential(CobolFiles files, String dd, Supplier<Path> path, Storage rec, int offset, int min,
+                int max) {
+            this.files = files;
+            this.dd = dd;
+            this.path = path;
+            this.rec = rec;
+            this.offset = offset;
+            this.min = min;
+            this.max = max;
+        }
+
+        @Override
+        public String open(String mode) {
+            if (mode.equals("INPUT") || mode.equals("I-O")) {
+                throw new UnsupportedOperationException("OPEN " + mode + " of a variable-length file");
+            }
+            Path p = path.get();
+            String st = files.open(dd, p, false);
+            if (!st.startsWith("0")) {
+                return st;
+            }
+            try {
+                if (p != null) {
+                    if (p.getParent() != null) {
+                        Files.createDirectories(p.getParent());
+                    }
+                    out = mode.equals("EXTEND")
+                            ? Files.newOutputStream(p, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
+                            : Files.newOutputStream(p);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            return st;
+        }
+
+        @Override
+        public String close() {
+            return files.close(dd, () -> {
+                if (out != null) {
+                    out.close();
+                    out = null;
+                }
+            });
+        }
+
+        @Override
+        public String readNext() {
+            throw new UnsupportedOperationException("READ of a variable-length file");
+        }
+
+        @Override
+        public String readKey(int keyOffset, int keyLength) {
+            throw new UnsupportedOperationException("keyed READ of a sequential file");
+        }
+
+        @Override
+        public String write(int length) {
+            if (length < min || length > max) {
+                return "44";
+            }
+            byte[] b = new byte[4 + length];
+            b[0] = (byte) (length >> 8);
+            b[1] = (byte) length;
+            System.arraycopy(rec.bytes, offset, b, 4, length);
+            return files.write(dd, () -> {
+                if (out != null) {
+                    out.write(b);
+                }
+            });
+        }
+
+        @Override
+        public String rewrite(int length) {
+            throw new UnsupportedOperationException("REWRITE of a sequential file");
+        }
+    }
+
+    /**
      * An indexed (VSAM KSDS) file kept in a repository: records are entities, converted with the generated
      * fromRecord / toRecord. Records are found by comparing key bytes (any key, primary or alternate); the
      * sequential order is the primary key's EBCDIC (cp037) collating sequence, as VSAM's.

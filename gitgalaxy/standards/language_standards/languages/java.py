@@ -276,6 +276,13 @@ DEFINITION: dict[str, Any] = {
             r"|\btask\.write\((?!\"[^\"\n]{0,64}\",[ \t]{0,4}\(\)[ \t]{0,4}->)"
             r"|\bDetSql\.(?:selectOne|update|updateCurrent|fetch|open)\("
             r"|\b[A-Z][A-Z0-9_]{1,63}\.(?:open\(\"(?:INPUT|OUTPUT|I-O|EXTEND)\"\)|readNext\(\)|readKey\(|(?:re)?write\(\d{1,9}\))"
+            # #4191: the java.io classes that open a file are one token each (`FileInputStream` is not `File`);
+            # the hit is the constructor that opens the resource. The decorators around it (BufferedReader,
+            # InputStreamReader, BufferedWriter, OutputStreamWriter, PrintWriter over a writer) open nothing,
+            # so `new BufferedReader(new InputStreamReader(new FileInputStream(p)))` is one hit, not three.
+            r"|\bnew[ \t]{1,4}(?:FileInputStream|FileOutputStream|FileReader|FileWriter|RandomAccessFile)[ \t]{0,4}\("
+            r"|\bnew[ \t]{1,4}(?:PrintWriter|PrintStream)[ \t]{0,4}\([ \t]{0,4}\""
+            r"|\b(?:FileChannel|AsynchronousFileChannel)\.open\("
         ),
         # 10. api (Public Surface Area)
         # BUG FIX #2730 (api contract): a bare `\bpublic|protected\b` counted the

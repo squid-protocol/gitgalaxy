@@ -21,6 +21,109 @@ from gitgalaxy.standards.language_standards.identifiers import VIRAMA
 
 logger = logging.getLogger("security_lens")
 
+# ------------------------------------------------------------------------------
+# #4126: DISGUISED-EXECUTABLE CHECK (the in-scan producer of sec_extension_mismatch)
+# ------------------------------------------------------------------------------
+# A file whose extension claims an inert format (image, media, document, font,
+# archive, key store) but whose first bytes are a native executable or bytecode
+# container. Deliberately narrow -- the broad scan_binary() heuristics flagged
+# 10.5% of the corpus pool's denied-extension files, almost all false positives
+# (entropy on compressed formats, a 2-byte "MZ" anywhere in gif/png data, header
+# mismatches that were git-LFS pointers, empty files or a png named .jpg):
+#   * magic is tested at OFFSET 0 only, never searched for inside the data;
+#   * there is no entropy test (compressed formats are high-entropy by design);
+#   * only executable magic triggers, so an image under another image's extension,
+#     a git-LFS pointer and an empty file can never fire -- none starts with one.
+# Extensions that legitimately hold executables (.exe/.dll/.so/.dylib/.o/.a/.lib/
+# .out/.class/.jar/.war/.ear/.pyc/.pyd) and the ambiguous ones (.obj is also a
+# COFF object file, .iso's system area may carry boot code, .fon is an NE
+# executable) are not in this set, so their executable magic is never a mismatch.
+INERT_EXTENSIONS: frozenset[str] = frozenset(
+    {
+        # images / design files
+        ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".webp", ".heic", ".ico", ".tif", ".tiff",
+        ".svg", ".psd", ".ai", ".eps", ".sketch", ".fig", ".xd",
+        # audio / video
+        ".mp3", ".mp4", ".wav", ".ogg", ".flac", ".avi", ".mkv", ".mov", ".webm", ".m4a",
+        # documents
+        ".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp", ".rtf",
+        # fonts
+        ".ttf", ".otf", ".woff", ".woff2", ".eot",
+        # 3D assets
+        ".dae", ".fbx", ".gltf", ".stl",
+        # archives / compressed data
+        ".zip", ".gz", ".tgz", ".bz2", ".xz", ".7z", ".rar", ".tar", ".cab",
+        # certificates / key stores
+        ".der", ".p12", ".p7b", ".pfx", ".jks", ".kdbx",
+    }
+)  # fmt: skip
+
+_MACHO_MAGICS = (
+    b"\xfe\xed\xfa\xce",  # 32-bit, big-endian
+    b"\xce\xfa\xed\xfe",  # 32-bit, little-endian
+    b"\xfe\xed\xfa\xcf",  # 64-bit, big-endian
+    b"\xcf\xfa\xed\xfe",  # 64-bit, little-endian
+)
+
+
+def executable_magic(head: bytes) -> str:
+    """Name the executable container ``head`` starts with, or "" for none.
+
+    Only offset 0 is examined. PE is confirmed through the DOS header's e_lfanew
+    pointer (a bare ``MZ`` is two bytes any binary may start with). 0xCAFEBABE is
+    shared by a Mach-O fat (universal) binary and a Java class file; both are
+    executable, so either way it counts -- the label follows the same split
+    file(1) uses: a fat header's next word is a small architecture count, a class
+    file's is its version (major >= 45).
+    """
+    if head.startswith(b"\x7fELF"):
+        return "ELF executable"
+    if head.startswith(b"MZ") and len(head) >= 0x40:
+        e_lfanew = int.from_bytes(head[0x3C:0x40], "little")
+        if e_lfanew >= 0x40 and e_lfanew + 4 <= len(head):
+            sig = head[e_lfanew : e_lfanew + 4]
+            if sig == b"PE\x00\x00":
+                return "PE (Windows) executable"
+            if sig[:2] in (b"NE", b"LE", b"LX"):
+                return "NE/LE (DOS-era Windows/OS2) executable"
+        # A plain DOS executable has no new header; accept it only when the fixed
+        # header is self-consistent: the relocation table (e_lfarlc) starts after
+        # the 28-byte fixed header and inside the header e_cparhdr declares, and
+        # the last-page byte count (e_cblp) is a valid page offset.
+        e_cblp = int.from_bytes(head[2:4], "little")
+        e_cp = int.from_bytes(head[4:6], "little")
+        e_cparhdr = int.from_bytes(head[8:10], "little")
+        e_lfarlc = int.from_bytes(head[0x18:0x1A], "little")
+        if e_cblp < 512 and e_cp > 0 and 0x1C <= e_lfarlc <= 0x200 and e_lfarlc <= e_cparhdr * 16:
+            return "DOS (MZ) executable"
+        return ""
+    if head[:4] in _MACHO_MAGICS:
+        return "Mach-O executable"
+    if head.startswith(b"\xca\xfe\xba\xbe") and len(head) >= 8:
+        word = int.from_bytes(head[4:8], "big")
+        if 0 < word < 45:
+            return "Mach-O universal (fat) binary"
+        return "Java class file"
+    if head.startswith(b"\x00asm"):
+        return "WebAssembly module"
+    return ""
+
+
+def detect_disguised_executable(head: bytes, ext: str) -> dict[str, Any]:
+    """#4126: {"sec_extension_mismatch": 1, "threat_snippet": ...} when a file whose
+    extension claims an inert format starts with executable magic, else {}."""
+    ext = ext.lower()
+    if ext not in INERT_EXTENSIONS:
+        return {}
+    kind = executable_magic(head)
+    if not kind:
+        return {}
+    return {
+        "sec_extension_mismatch": 1,
+        "threat_snippet": f"{kind} disguised under a '{ext}' extension",
+    }
+
+
 # #3885: a homoglyph is a name that LOOKS Latin but is not (`requests` spelled with a Cyrillic small
 # ie for its `e`), never a name that is simply written in another script (a Russian or Greek word).
 # Unicode's rule (UTS #39) is the "skeleton": replace each confusable character by the Latin letter it

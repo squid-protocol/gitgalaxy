@@ -47,7 +47,10 @@ class LiftViolation(Exception):
 
 
 # Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
-LIBRARY = {"CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4)}
+LIBRARY = {
+    "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
+    "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+}
 
 
 def jstr(s: str) -> str:
@@ -85,6 +88,7 @@ class FileDef:
     repository: str | None = None  # its repository field
     handle: str | None = None  # the Java expression creating the DetFile; None: a hole
     why: str = ""
+    varying: dict | None = None  # RECORD VARYING ... DEPENDING ON: {min, max, depending} (program.fd_entries)
 
 
 @dataclass
@@ -1384,6 +1388,8 @@ class Gen:
                 raise Untranslatable(f"READ {s.data['file']}: no SELECT")
             if fd.handle is None:
                 raise Untranslatable(f"{fd.select}: {fd.why}")
+            if fd.varying is not None:
+                raise Untranslatable(f"READ of the variable-length file {fd.select}")
             v = jname(fd.select)
             seq = s.data["next"] or fd.access == "SEQUENTIAL" or fd.organization == "SEQUENTIAL"
             st = self.tmpname("st")
@@ -1413,7 +1419,13 @@ class Gen:
             if s.data["from"] is not None:
                 out.append(ind + self.move(s.data["from"], s.data["record"]))
             st = self.tmpname("st")
-            out.append(f"{ind}String {st} = {v}.{k.lower()}({rec_item.size});")
+            if fd.varying is not None:  # the record's length is the DEPENDING ON item's value when it is written
+                if k == "REWRITE":
+                    raise Untranslatable(f"REWRITE of the variable-length file {fd.select}")
+                length = self.int_expr(E.Ref(fd.varying["depending"]))
+                out.append(f"{ind}String {st} = {v}.write({length});")
+            else:
+                out.append(f"{ind}String {st} = {v}.{k.lower()}({rec_item.size});")
             out += self.status(fd, st, ind)
             out += self.io_phrases(s, st, ind, at_end=None, invalid=("21", "22", "23", "24"))
             return out

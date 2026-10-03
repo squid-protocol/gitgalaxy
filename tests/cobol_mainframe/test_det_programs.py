@@ -7,6 +7,7 @@ The port runs on its own (runProgram) with the standalone runtime; nothing of a 
 from __future__ import annotations
 
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -50,8 +51,8 @@ PROGRAMS = {
             "DISPLAY '[' FUNCTION TRIM(A LEADING) ']'",
             "DISPLAY '[' FUNCTION TRIM(A TRAILING) ']'",
             "IF FUNCTION LENGTH(FUNCTION TRIM(S)) = 0",
-        "    DISPLAY 'EMPTY'",
-        "END-IF",
+            "    DISPLAY 'EMPTY'",
+            "END-IF",
         ],
     ),
     # GO TO the end of an outer PERFORM's range from inside an inner one: the outer PERFORM returns
@@ -362,6 +363,14 @@ def test_program_output_is_gnucobols(name, mode, tmp_path):
     assert got == want, f"java {got!r} != cobol {want!r}"
 
 
+def _byte_storage(java: str, name: str) -> bool:
+    """`name` is held as bytes: declared as a Field bound to its storage (one line since #4202), never as a typed
+    Java field."""
+    bound = re.search(rf"^    private final Field {name} = Field\.\w+\(", java, re.M)
+    typed = re.search(rf"^    private (?:String|long|BigDecimal) {name};", java, re.M)
+    return bool(bound) and not typed
+
+
 def test_typed_lifts_only_what_every_use_allows(tmp_path):
     """TYPED's lifts, without running anything: NAME is read by reference modification, G1 / G2 sit in a group that
     is moved whole and OUTN is DISPLAYed (a numeric item's external form), so they stay byte storage; the rest are
@@ -376,8 +385,8 @@ def test_typed_lifts_only_what_every_use_allows(tmp_path):
     for decl in ("private String flag;", "private String src;", "private long cnt;", "private long wrap;",
                  "private BigDecimal amt;", "private BigDecimal pamt;", "private String gcopy;"):  # fmt: skip
         assert decl in r.java, decl
-    for decl in ("private Field name;", "private Field g2;", "private Field g1;", "private Field outn;"):
-        assert decl in r.java, decl
+    for name in ("name", "g2", "g1", "outn"):
+        assert _byte_storage(r.java, name), name
 
 
 def test_a_move_that_can_leave_negative_zero_keeps_the_item_bytes(tmp_path):
@@ -390,8 +399,8 @@ def test_a_move_that_can_leave_negative_zero_keeps_the_item_bytes(tmp_path):
     (tmp_path / "project").mkdir()
     r = P.translate(tmp_path / "NEGZERO.cbl", [], "public class NegzeroService {\n}\n", PKG, None,
                     tmp_path / "project", style="structured", typed=True)  # fmt: skip
-    for decl in ("private Field a;", "private Field e;"):
-        assert decl in r.java, decl
+    for name in ("a", "e"):
+        assert _byte_storage(r.java, name), name
     for decl in ("private BigDecimal b;", "private BigDecimal c;", "private BigDecimal wide;"):
         assert decl in r.java, decl
 
@@ -409,8 +418,9 @@ def test_typed_groups_sync_a_groups_bytes_around_its_whole_uses(tmp_path):
     r = P.translate(tmp_path / "TGROUPS.cbl", [], "public class TgroupsService {\n}\n", PKG, None,
                     tmp_path / "project", style="structured", typed=True, groups=True)  # fmt: skip
     for decl in ("private String sName;", "private long sCnt;", "private BigDecimal sAmt;", "private String dName;",
-                 "private long dCnt;", "private Field dAmt;"):  # fmt: skip
+                 "private long dCnt;"):  # fmt: skip
         assert decl in r.java, decl
+    assert _byte_storage(r.java, "dAmt")  # a number in a group written whole stays bytes
     init = r.java[r.java.index("// INITIALIZE DSTG") :].split("// MOVE D-CNT", 1)[0]
     lines = [ln.strip() for ln in init.splitlines()]
     assert lines.count("pack_dstg();") == 1 and lines.count("unpack_dstg();") == 1

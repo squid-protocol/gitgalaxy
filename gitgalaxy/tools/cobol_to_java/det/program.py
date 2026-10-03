@@ -651,7 +651,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     if is_cics:
         if gen.cics is None:
             raise ValueError("a CICS program has no CICS translator")
-        cics_members, cics_entry = _cics_parts(gen, records, roots, proc, storages, inits, stub)
+        cics_members, cics_entry = _cics_parts(gen, records, roots, proc, stub)
         inferred += gen.cics.gp.inferred
         ctor_repos += list(gen.cics.repos.items())
         # the codecs added constants: none (they use their own literals)
@@ -966,7 +966,7 @@ def _storage_name(rec: L.Item) -> str:
     return "s_" + G.jname(rec.name)
 
 
-def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, storages: list, inits: list,
+def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure,
                 stub: str) -> tuple[list[str], list[str]]:  # fmt: skip
     """A CICS program's members (task, handlers, file stores, COMMAREA codecs) and its entries: runTask, and the
     stub's handleTransaction / handleLink kept for their callers."""

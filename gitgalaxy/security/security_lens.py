@@ -80,7 +80,7 @@ def executable_magic(head: bytes) -> str:
         return "ELF executable"
     if head.startswith(b"MZ") and len(head) >= 0x40:
         e_lfanew = int.from_bytes(head[0x3C:0x40], "little")
-        if 0x40 <= e_lfanew and e_lfanew + 4 <= len(head):
+        if e_lfanew >= 0x40 and e_lfanew + 4 <= len(head):
             sig = head[e_lfanew : e_lfanew + 4]
             if sig == b"PE\x00\x00":
                 return "PE (Windows) executable"

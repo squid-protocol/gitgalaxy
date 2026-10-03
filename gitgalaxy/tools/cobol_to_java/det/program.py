@@ -274,7 +274,10 @@ def drop_unused_fields(java: str) -> str:
     changes, so a Field named only by another dropped Field's declaration goes too."""
     while True:
         uses = Counter(_FIELD_REF.findall(java))
-        out = _FIELD_DECL.sub(lambda m, uses=uses: "" if uses[m.group(1)] <= 1 else m.group(0), java)
+        out = "".join(
+            ln if (m := _FIELD_DECL.fullmatch(ln)) is None or uses[m.group(1)] > 1 else ""
+            for ln in java.splitlines(keepends=True)
+        )
         if out == java:
             return out
         java = out

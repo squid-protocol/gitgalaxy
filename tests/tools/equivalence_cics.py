@@ -2048,6 +2048,11 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         return 1
     report: dict[str, Any] = {"case": case["name"], "program": case["program"], "kind": "cics", "files": files,
                               "java": "ported" if port else "generated", "outputs": {}}  # fmt: skip
+    import equivalence_java as ej
+
+    linked = work / "java" / ej.LINKED_FILE
+    if linked.is_file():  # #4188: where each LINKed program's Java came from
+        report["linked_programs"] = json.loads(linked.read_text(encoding="utf-8"))
     ok = True
     for name, res in cobol.items():
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")

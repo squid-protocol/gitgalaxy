@@ -83,6 +83,10 @@ def parse(lines: list[Line]) -> Procedure:
         return f"CALL 'GGEXEC{len(execs):04d}'" + "\x01" * mm.group(0).count("\n")
 
     proc_text = re.sub(r"\bEXEC(?:UTE)?\s+(CICS|SQL|DLI)\b.*?\bEND-EXEC\b", ph, text[m.start() :], flags=re.S | re.I)
+    # SORT / MERGE: the grammar drops their later phrases (WITH DUPLICATES, OUTPUT PROCEDURE ...); each becomes a
+    # placeholder CALL too, its text parsed here (_sort_merge)
+    sorts: dict[int, str] = {}
+    proc_text = _sort_placeholders(proc_text, sorts)
     # the block's lines back after the rest of its last line (its period stays with the CALL), as blank lines
     proc_text = re.sub(r"(\x01+)([^\n]*\n)", lambda mm: mm.group(2) + "       \n" * len(mm.group(1)), proc_text)
     proc_text = re.sub(r"\bNOT=", "NOT =", proc_text, flags=re.I)  # the grammar wants a space after NOT
@@ -210,6 +214,8 @@ def parse(lines: list[Line]) -> Procedure:
             s = _statement(node_text(n), origin(n))
             if s.kind == "CALL" and re.match(r"GGEXEC\d{4}$", s.data.get("program") or ""):
                 s = Stmt("EXEC", s.line, execs[int(s.data["program"][6:])])
+            elif s.kind == "CALL" and re.match(r"GGSORT\d{4}$", s.data.get("program") or ""):
+                s = _sort_merge(sorts[int(s.data["program"][6:])], s.line)
             stack[-1].target.append(s)
             continue
         stack[-1].target.append(Stmt("HOLE", origin(n), node_text(n), {"why": f"grammar node {t}"}))
@@ -765,7 +771,134 @@ def _inspect(p: E.Parser, text: str, line: int) -> Stmt:
     return Stmt("INSPECT", line, text, {"target": target, "clauses": clauses})
 
 
+# ---- SORT / MERGE / RELEASE / RETURN (IBM Enterprise COBOL for z/OS 6.4 Language Reference) -------------------
+# the words a SORT / MERGE statement's phrases are made of; any other reserved word starts the next statement
+_SORT_WORDS = {"ON", "ASCENDING", "DESCENDING", "KEY", "IS", "WITH", "DUPLICATES", "IN", "ORDER", "COLLATING",
+               "SEQUENCE", "INPUT", "OUTPUT", "PROCEDURE", "THRU", "THROUGH", "USING", "GIVING", "OF"}  # fmt: skip
+# reserved words that begin a statement or end a scope: a SORT / MERGE stops before one (a data name cannot be one)
+_STATEMENT_WORDS = {"ACCEPT", "ADD", "ALTER", "CALL", "CANCEL", "CLOSE", "COMPUTE", "CONTINUE", "DELETE", "DISPLAY",
+                    "DIVIDE", "ELSE", "ENTRY", "EVALUATE", "EXEC", "EXIT", "GO", "GOBACK", "IF", "INITIALIZE",
+                    "INSPECT", "MERGE", "MOVE", "MULTIPLY", "NEXT", "NOT", "OPEN", "PERFORM", "READ", "RELEASE",
+                    "RETURN", "REWRITE", "SEARCH", "SET", "SORT", "START", "STOP", "STRING", "SUBTRACT", "UNSTRING",
+                    "WHEN", "WRITE", "AT", "INVALID"}  # fmt: skip
+_SORT_TOKEN = re.compile(r"'[^'\n]*'|\"[^\"\n]*\"|[A-Za-z0-9][A-Za-z0-9-]*|\.(?=\s|$)|[^\s]")
+
+
+def _sort_placeholders(text: str, sorts: dict[int, str]) -> str:
+    """Each SORT / MERGE statement in `text` (the PROCEDURE DIVISION) replaced by `CALL 'GGSORTnnnn'` and as many
+    \\x01 as it had line ends (parse() puts them back as blank lines); its text kept in `sorts`. A statement runs
+    from its verb to the period or the next statement's verb (SORT and MERGE have no conditional phrase and no
+    END-SORT)."""
+    toks = list(_SORT_TOKEN.finditer(text))
+    out, last, i = [], 0, 0
+    while i < len(toks):
+        t = toks[i].group(0).upper()
+        if t in ("SORT", "MERGE") and i + 2 < len(toks) and toks[i + 2].group(0).upper() in (
+                "ON", "ASCENDING", "DESCENDING"):  # fmt: skip
+            j = i + 2
+            while j < len(toks):
+                w = toks[j].group(0)
+                if w == "." or (w.upper() in _STATEMENT_WORDS and w.upper() not in _SORT_WORDS) or w.upper().startswith(
+                        "END-"):  # fmt: skip
+                    break
+                j += 1
+            start, end = toks[i].start(), toks[j - 1].end()
+            sorts[len(sorts) + 1] = text[start:end]
+            out += [text[last:start], f"CALL 'GGSORT{len(sorts):04d}'" + "\x01" * text[start:end].count("\n")]
+            last, i = end, j
+            continue
+        i += 1
+    return "".join(out) + text[last:]
+
+
+def _proc_range(p: E.Parser) -> tuple[str, str | None]:
+    """PROCEDURE [IS] name [THRU | THROUGH name]."""
+    p.accept("PROCEDURE")
+    p.accept("IS")
+    a = p.take().upper()
+    b = p.take().upper() if p.accept("THRU", "THROUGH") else None
+    return a, b
+
+
+def _sort_merge(text: str, line: int) -> Stmt:
+    """SORT file [ON] {ASCENDING | DESCENDING} [KEY] [IS] key ... [WITH DUPLICATES [IN ORDER]]
+    [COLLATING SEQUENCE [IS] alphabet] {INPUT PROCEDURE [IS] p [THRU q] | USING file ...}
+    {OUTPUT PROCEDURE [IS] p [THRU q] | GIVING file ...}; MERGE the same without DUPLICATES and INPUT PROCEDURE.
+    data: file, keys [(Ref, ascending)], duplicates, collating, using [file], input (p, q), giving [file],
+    output (p, q)."""
+    toks = E.tokenize(text)
+    verb = toks[0].upper()
+    p = E.Parser(toks[1:])
+    try:
+        d: dict[str, Any] = {"file": p.take().upper(), "keys": [], "duplicates": False, "collating": None,
+                             "using": [], "input": None, "giving": [], "output": None}  # fmt: skip
+        while p.up() in ("ON", "ASCENDING", "DESCENDING"):
+            p.accept("ON")
+            asc = p.take().upper() == "ASCENDING"
+            p.accept("KEY")
+            p.accept("IS")
+            n = len(d["keys"])
+            while not p.done() and p.up() not in _SORT_WORDS:
+                d["keys"].append((p.ref(), asc))
+            if len(d["keys"]) == n:
+                raise E.ExprError(f"{verb}: a KEY phrase with no key")
+        if not d["keys"]:
+            raise E.ExprError(f"{verb}: no KEY phrase")
+        if p.up() in ("WITH", "DUPLICATES"):
+            p.accept("WITH")
+            p.take()
+            p.accept("IN")
+            p.accept("ORDER")
+            d["duplicates"] = True
+        if p.up() in ("COLLATING", "SEQUENCE"):
+            p.accept("COLLATING")
+            p.take()
+            p.accept("IS")
+            d["collating"] = p.take().upper()
+        if p.accept("USING"):
+            while not p.done() and p.up() not in _SORT_WORDS:
+                d["using"].append(p.take().upper())
+        elif p.accept("INPUT"):
+            d["input"] = _proc_range(p)
+        if p.accept("GIVING"):
+            while not p.done() and p.up() not in _SORT_WORDS:
+                d["giving"].append(p.take().upper())
+        elif p.accept("OUTPUT"):
+            d["output"] = _proc_range(p)
+        if not p.done():
+            raise E.ExprError(f"{verb}: left over {' '.join(p.t[p.i :])}")
+        if verb == "SORT" and not (d["using"] or d["input"] or d["giving"] or d["output"]):
+            raise E.ExprError("SORT of a table (format 2) not modelled")
+        if not (d["using"] or d["input"]) or not (d["giving"] or d["output"]):
+            raise E.ExprError(f"{verb}: no input or no output phrase")
+        if verb == "MERGE" and (d["duplicates"] or d["input"] or len(d["using"]) < 2):
+            raise E.ExprError("MERGE takes two or more USING files and no DUPLICATES / INPUT PROCEDURE")
+    except E.ExprError as e:
+        return Stmt("HOLE", line, text, {"why": str(e)})
+    return Stmt(verb, line, text, d)
+
+
+def _release(p: E.Parser, text: str, line: int) -> Stmt:
+    """RELEASE record [FROM identifier]."""
+    rec = p.ref()
+    frm = p.operand() if p.accept("FROM") else None
+    if not p.done():
+        raise E.ExprError(f"left over: {' '.join(p.t[p.i :])}")
+    return Stmt("RELEASE", line, text, {"record": rec, "from": frm})
+
+
+def _return(p: E.Parser, text: str, line: int) -> Stmt:
+    """RETURN file [RECORD] [INTO identifier] (AT END / NOT AT END are phrases)."""
+    f = p.take().upper()
+    p.accept("RECORD")
+    into = p.ref() if p.accept("INTO") else None
+    if not p.done():
+        raise E.ExprError(f"left over: {' '.join(p.t[p.i :])}")
+    return Stmt("RETURN", line, text, {"file": f, "into": into})
+
+
 _PARSERS = {
+    "RELEASE": _release, "RETURN": _return,
     "MOVE": _move, "DISPLAY": _display, "COMPUTE": _compute, "ADD": _add, "SUBTRACT": _subtract,
     "MULTIPLY": _multiply, "DIVIDE": _divide, "INITIALIZE": _initialize, "SET": _set, "PERFORM": _perform,
     "GO": _goto, "CALL": _call, "EXIT": _simple("EXIT"), "GOBACK": _simple("GOBACK"), "STOP": _simple("STOP"),

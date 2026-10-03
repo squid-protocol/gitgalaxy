@@ -8862,6 +8862,12 @@ class StructuralExtractor:
     # source has real content in those columns (`PROCEDURE DIVISION.` at
     # column 1), and its first six characters match neither.
     _COBOL_SEQUENCE_AREA: ClassVar[re.Pattern[str]] = re.compile(r"^(?:[0-9]{6}|[ ]{6})")
+    # #4203: a free-format data description entry -- a level number or a file
+    # description indicator opening the line. func_start's optional 6-char
+    # sequence-area slot swallows a free-format indent plus the level number
+    # (`    01` of CobolCraft's `    01 VALUE-BYTES.`), which steps past its
+    # level-number shield and reads the data name as a paragraph.
+    _COBOL_FREE_DATA_ENTRY: ClassVar[re.Pattern[str]] = re.compile(r"[ \t]*(?:[0-9]{1,2}|FD|SD|RD|CD)[ \t]", re.I)
 
     def _cobol_sentence_start_offsets(self, code: str) -> set[int]:
         """Line-start offsets in `code` where a new COBOL sentence may begin.
@@ -8875,15 +8881,22 @@ class StructuralExtractor:
 
         `func_start` is `^`-anchored under re.M, so a match starts exactly at
         one of these line offsets.
+
+        A line with no fixed-format sequence area that opens with a level
+        number or FD / SD / RD / CD is a free-format data description entry,
+        never a header, though it may begin a sentence (#4203).
         """
         starts: set[int] = set()
         opens_sentence = True  # the first line of the stream
         pos = 0
         for line in code.splitlines(keepends=True):
-            if opens_sentence:
-                starts.add(pos)
             stripped = line.rstrip("\r\n")
             content = stripped[:72] if len(stripped) > 72 else stripped
+            free_data_entry = not self._COBOL_SEQUENCE_AREA.match(content) and self._COBOL_FREE_DATA_ENTRY.match(
+                content
+            )
+            if opens_sentence and not free_data_entry:
+                starts.add(pos)
             if self._COBOL_SEQUENCE_AREA.match(content):
                 indicator = content[6:7]
                 content = content[7:] if indicator and indicator not in " -" else content[6:]

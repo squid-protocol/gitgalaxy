@@ -22,7 +22,7 @@ We measured all of them with the same two instruments: the equivalence harness, 
    - error paths centralised into a framework could not be exercised by our harness, while literal ports keep them drivable.
 6. **Validation practice across the field ranges widely,** from none, through self-written tests, to executed references. Only executed comparison settled any question here.
 
-The study is uncontrolled and small. We list what it cannot establish (§9) and threats to its validity (§10).
+The study is uncontrolled and small. We list what it cannot establish (§11) and threats to its validity (§12).
 
 ## 1. Positioning: blameless and post hoc
 
@@ -218,7 +218,44 @@ Independently, the workshop practice moved toward executed references.
 
 **Maintenance and onboarding (an argument, not a measurement).** A literal port keeps the map an organisation already has: paragraph names, error messages, abend codes. A restructured port starts each team on a new design, and our variance data shows each agent session produces a different one. The counterweight: teams that will never read the COBOL may prefer idiomatic code. The data supports a sequence (literal and proven first, then restructured under proof), not a winner.
 
-## 10. What the data lets us state, and what it doesn't
+## 10. Translation strategies compared, and what each teaches
+
+### 10.1 Side by side
+
+| | Det (GitGalaxy) | SENTINEL IDE | Devin (workshops) | Lightyear | lasserre | IBM WCA4Z (2024 artifact) |
+|---|---|---|---|---|---|---|
+| Unit of translation | Statement | Paragraph → method | Per-session redesign | Service + batch step | Whole-application re-architecture | Single paragraph |
+| Structure | COBOL's paragraphs and control flow, kept | Paragraphs kept (`perform<Paragraph>()`) | Program class plus a re-invented runtime framework | Service, tasklet and codec | Spring REST/Batch/JMS/JPA modules | One method; program flow not translated |
+| Data representation | Byte-exact storage images (EBCDIC, packed, zoned) | Native typed fields; UTF-8 text I/O | Varied (5 input/output designs across 26 CBACT01C attempts) | Record codecs (`CardDemoRecordCodec`, `ZonedDecimal`) | PostgreSQL entities (JPA) | Generated record classes |
+| Size against COBOL | ×4.2 as emitted (file median) | ×0.44 (estate) | Small program classes plus a framework (60–80% of project lines) | ≈×0.5 for CBACT04C (260 / 552 lines) | ×0.07 (estate) | n.a. (one paragraph) |
+| Correctness claim | Per-program executed byte-level proof, with fault injection | None found | Mostly self-written tests from reading the COBOL (57/67) | Equivalence "unobserved"; signed evidence receipts | Lossy "shadow mode" comparator | Generated path tests, run on z/OS; Java side mocked |
+| Reproducibility | Byte-identical across runs | Unknown | Divergent across sessions (class-name Jaccard 0.18) | Unknown | Unknown | Unknown |
+| Error paths | Kept, and fault-tested | Kept (status codes and messages) | Partly collapsed into the framework (messages and Abend kept; status codes gone) | Not yet observed (pending) | Mapped onto Spring Batch exit statuses and exceptions; COBOL status codes and messages not kept | Commented out (`// caReturnCode = 90;`) |
+
+Sources: §2–§8; Lightyear and lasserre readings from this study's scans at the pinned commits.
+
+### 10.2 What each approach teaches
+
+These are observations about what each approach shows is possible or costly, not verdicts on its authors.
+
+- **SENTINEL:** literal structure need not be large. Native typed values give ×0.44 the COBOL's size while keeping paragraphs and error paths. Size follows representation, not literalness.
+- **IBM WCA4Z:** path-driven test generation addresses the coverage gap that hand-written scenarios leave. Our LGACDB01 proof reaches 6 of 14 branches; their method reports full path coverage of its unit.
+- **Lightyear:** evidence can be reported as signed receipts, with an explicit "unobserved" scope where equivalence hasn't been checked. That's an honest way to say what is and isn't known.
+- **viniman27:** scenario volume. 12,700 GnuCOBOL executions dwarf the 7–29 runs per case used here.
+- **Devin:** the cost of redesigning in each session shows up as variance between attempts and a runtime re-invented each time. The workshop's own practice nonetheless converged on GnuCOBOL references and byte parity.
+- **lasserre:** the endpoint many organisations want (a modern platform architecture), and what's at risk when it is reached without an executed oracle.
+
+### 10.3 Synthesis
+
+Every approach trades three things: **fidelity** to the COBOL's structure and bytes, the **form** of the resulting Java, and how far its correctness can be **verified**. No subject here maximises all three.
+
+**The author's roadmap (a plan, not a finding).** For the det translator, these lessons suggest:
+- a typed-value representation layer, aiming at SENTINEL's size while keeping byte-level proof;
+- path-driven scenario generation plus SQL fault injection (#4175, #4173; work started);
+- per-program proof certificates, in the spirit of Lightyear's receipts;
+- an open harness any translator can be run through, as was done here for IBM's and Devin's code.
+
+## 11. What the data lets us state, and what it doesn't
 
 **Supported:**
 1. One scanner places translations on a structural spectrum without executing them (§5).
@@ -236,7 +273,7 @@ Independently, the workshop practice moved toward executed references.
 - that our reference is z/OS-exact;
 - that commercial products today behave like these public artifacts.
 
-## 11. Threats to validity
+## 12. Threats to validity
 
 - **Selection:** public artifacts only, many of them workshop or demo code; programs chosen where we already had cases; few programs per translator.
 - **Instrument:**
@@ -249,7 +286,7 @@ Independently, the workshop practice moved toward executed references.
 - **Versions:** IBM's artifact dates from 2024 and may not match its paper's evaluation; Devin's branches span six months; snapshots are pinned.
 - **Authorship:** the translator's author designed the instruments (§1).
 
-## 12. Follow-ups
+## 13. Follow-ups
 
 **Issues:**
 - #4170 (fixed), #4171, #4172, #4173, #4174, #4175, #4179, #4181, #4188, #4191.
@@ -266,7 +303,7 @@ Independently, the workshop practice moved toward executed references.
 - more estates: NIST CCVS85, IBM DBB MortgageApplication, Galasa SimBank;
 - invite authors and vendors to run their ports through the harness.
 
-## 13. Reproduction
+## 14. Reproduction
 
 ```sh
 # environment: .claude/skills/det-port/SKILL.md

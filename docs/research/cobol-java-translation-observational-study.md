@@ -31,7 +31,7 @@ The study is uncontrolled and small. We list what it cannot establish (§11) and
 - **Player and referee.** The author of the translator also built the instruments. Our mitigations:
   - **open, pinned tooling:** every artifact is fetched at a recorded commit, and every adapter is committed separately;
   - **a public register of the oracle's limits** (`docs/language_status/oracle_assumptions.md`);
-  - **the referee's verdicts went against its author too.** It found a bug in our own det port (#4181) and corrected our own published figures (det size ×5 → ×4.2; the "model-port TODOs" were mostly our generator's scaffold, #4179). It also passed Devin's best ports on base runs.
+  - **the referee's verdicts went against its author too.** It found bugs in our own det port: a LINK COMMAREA overread (#4181), and a typed contract DTO that dropped unnamed bytes (ERROR-MSG's date under FILLER). Both are fixed in #4200, and LGSTSQ's COMMAREA now matches byte for byte and corrected our own published figures (det size ×5 → ×4.2; the "model-port TODOs" were mostly our generator's scaffold, #4179). It also passed Devin's best ports on base runs.
 - **The axis is not "LLM vs deterministic".** Several commercial translators are rule-based (AWS Blu Age / AWS Transform's refactor engine, SoftwareMining, Heirloom, Micro Focus), and an LLM can write literal code. The axes that matter in the data are **how much COBOL structure is kept** and **how equivalence is established**.
 
 ## 2. Subjects
@@ -57,6 +57,18 @@ Three further repositories in the sweep were empty or stubs. Repositories withou
 - **C10:** a scoped, counted tolerance for INITIALIZE/VALUE ZERO zoned items (GnuCOBOL's unsigned F zone against z/OS's C sign). The bytes are reported, never hidden.
 - **L3:** WORKING-STORAGE with no VALUE (GnuCOBOL's spaces, against LE's STORAGE option).
 - **F3:** variable-length (RECFM=VB) records, compared by content, not by z/OS RDW. Third-party code runs unmodified behind a thin, separately committed adapter (`ibm_wca4z_port.py`, `devin_port.py`).
+
+**SQL fault injection** (#4200; fixes #4173 and #4181):
+- **How faults are planned:** a fault plan keyed by `PROGRAM:LINE`, applied identically by the COBOL precompiler stub and by the Java side's DetSql.
+- **Automatic enumeration:** −803 on INSERT; +100 on SELECT INTO; −913 on UPDATE, DELETE, OPEN and FETCH.
+- **What can't be judged in full:**
+  - a fault run that LINKs to a program the case doesn't run is judged up to the LINK;
+  - runs that reach a translator hole, and model ports with no injection seam, are recorded as "not judged".
+- **Register updates:**
+  - M2 is now MATCHED, with the SQLCA contents assumed;
+  - X6 gains the judged-up-to-LINK rule;
+  - new X10: COMMAREA bytes past the caller's record;
+  - new X11: GenApp's ABSTIME in S9(8) COMP dates errors 01011900 on both sides.
 
 **GitGalaxy scanner.** It reads COBOL and Java on the same axes: functions, branch points, state mutations, I/O, IPC, size and tokens, complexity, debt. This work found and fixed scanner defects, and the readings here are after the fixes where stated:
 - Java `?`/`:` overcounted as branches (#4170, fixed in #4178);
@@ -131,7 +143,7 @@ In Devin's projects, 60–80% of code lines sit in a shared framework of record 
 
 | Subject | Program | Scenarios | Result | Notes |
 |---|---|---|---|---|
-| Det ports | 49 of 51 cases | 7–29 runs per batch case, with fault injection; 705 scenarios across the 50-case sweep, before CBACT01C (13 runs) was added | proven | 2 not proven on purpose (#4085, D1). Coverage modest on some CICS/Db2 programs (LGACDB01 6/14 branches) |
+| Det ports | 49 of 51 cases | 7–29 runs per batch case, with fault injection; 705 scenarios across the 50-case sweep, before CBACT01C (13 runs) was added | proven | 2 not proven on purpose (#4085, D1). Coverage modest on some CICS/Db2 programs (LGACDB01 6/14 → 8/14 with SQL faults, §6.0) |
 | Model ports | 23 committed | per case, with faults | proven | 3 more pending review (#4187). INQACC, XFRFUN and LGUPDB01 unprovable through the harness gap #4188 |
 | IBM WCA4Z | LGACDB01 INSERT-CUSTOMER, in our det task | 4 | **not equivalent on any** | Db2 −4461: DATEOFBIRTH never bound (`// ps.setDate(4, …)`); failure swallowed (`// caReturnCode = 90;`). The published JUnit doesn't compile against the published Java, and the recorded run is 2 skipped passes / 2 failures, against the 4/4 reported. Their test 2 asserts DATEOFBIRTH and would likely flag the defect if it ran. The artifacts may come from a different version |
 | Devin arm A (COBOL only) | CBACT04C / CBTRN02C | base run, 6 JVM environments each | equal in default/tr/de/hi; differs in ar-EG/th-TH | `String.format` without a locale writes non-ASCII digits (`BatchContext:45`, `Cbact04c:156`, `Cbtrn02c:42,119`) |
@@ -154,6 +166,29 @@ SENTINEL's full project does not compile as shipped (18 errors in 3 files the pr
 - SENTINEL driven by calling each program's `execute()`, as its unit tests do;
 - logging reduced to messages; `ABCODE n` mapped to `Unnnn`.
 
+### 6.0 Db2 branch coverage with SQL fault injection
+
+SQL fault injection (#4200) raised branch coverage on every Db2 case, with no new non-proofs:
+
+| Case program | Before | After |
+|---|---|---|
+| LGACDB01 | 6/14 | 8/14 |
+| LGACDB02 | 4/10 | 5/10 |
+| LGAPDB01 | 13/31 | 17/31 |
+| LGDPDB01 | 5/12 | 6/12 |
+| LGIPDB01 | 46/74 | 48/74 |
+| LGUCDB01 | 2/10 | 4/10 |
+| LGUPDB01 | 17/38 | 26/38 |
+| CBSA DBCRFUN | 22/35 | 25/35 |
+| CBSA DELACC | 10/14 | 13/14 |
+| CBSA INQACC | 13/25 | 15/25 |
+| CBSA UPDACC | 5/6 | 6/6 |
+| CBSA XFRFUN | 44/81 | 46/81 |
+| CardDemo COBTUPDT | 14/20 | 16/20 |
+| CardDemo COTRTUPC | 124/166 | 126/166 |
+
+The gains are modest on most programs. Many remaining branches depend on inputs, not on SQL results, which is the gap path-driven scenario generation (#4175) addresses.
+
 ### 6.1 CBACT01C: nine Devin runs on one program
 
 Case `carddemo-readacct` (#4198, `docs/research/devin-cbact01c-harness.md`). CBACT01C writes three files per account: OUTFILE (with a COMP-3 field and a COBDATFT-reformatted date), ARRYFILE and VBRCFILE (variable-length). Our det port proves on it: 13 runs with faults, 16/16 paragraphs, 41/44 branches. The Devin ports were run on base runs, under 6 locales.
@@ -174,7 +209,7 @@ Every Devin port reaches 24/44 branches on the base run; none has a seam for the
 **Coverage asymmetry.** The third-party ports have no hook for injecting file statuses, so they were judged on base runs, plus the missing-file runs in §8. Base runs cover 49/86 (CBACT04C), 55/96 (CBTRN02C) and 13/22 branches, against 85/86 and 95/96 for our ports' fault-injected proofs.
 
 **Our own failures, found by the same harness:**
-- **#4181:** the det port marshals `LINK LGSTSQ COMMAREA(ERROR-MSG)` past its 71 bytes, on an error path none of our proofs reach.
+- **#4181:** the det port marshalled `LINK LGSTSQ COMMAREA(ERROR-MSG)` past its 71 bytes, on an error path none of our proofs reached. A second bug sat beside it: the typed contract DTO dropped unnamed bytes (ERROR-MSG's date under FILLER). Both were found once SQL faults reached the path, and both are fixed (#4200).
 - **Variable-length records:** the det translator had been writing CBACT01C's VB records as 80-byte ones (found while building the CBACT01C case; WIP branch).
 
 ## 7. Observation D: reproducibility and variance
@@ -280,7 +315,7 @@ The structural observation (error handling collapsed into a framework) becomes m
 
 | Strategy (examples) | Pros | Cons |
 |---|---|---|
-| **Literal, byte-level (det)** | Path-by-path verifiable (fault injection reaches 85/86, 95/96 branches); reproducible byte for byte; paragraph lineage keeps runbooks, abend codes and audit trails; regenerate-and-diff on COBOL change | ×3.8 size (×4.2 as emitted, by file median); COBOL-shaped Java; depends on the cobolrt runtime; coverage limited by hand-written scenarios (SQL errors unreached, #4173) |
+| **Literal, byte-level (det)** | Path-by-path verifiable (fault injection reaches 85/86, 95/96 branches); reproducible byte for byte; paragraph lineage keeps runbooks, abend codes and audit trails; regenerate-and-diff on COBOL change | ×3.8 size (×4.2 as emitted, by file median); COBOL-shaped Java; depends on the cobolrt runtime; coverage limited by hand-written scenarios (SQL faults now injected, #4200; input-driven branches still unreached, #4175) |
 | **Literal, native fields (SENTINEL)** | Keeps structure (ρ 0.88–0.91) at 0.44× size; keeps file-status codes and error messages, and matches 10 of 11 missing-file abend codes | Two record-offset errors broke CBACT04C and CBTRN02C on base runs; records logged as Java objects; no parity claim found; the project doesn't compile as shipped; reproducibility unknown |
 | **Model-written under proof (our loop)** | Idiomatic; near-COBOL size (×1.09); proven on its scenarios | Not reproducible; leftover scaffold TODOs (#4179); LINKed-program harness gap (#4188) |
 | **Agent-restructured (Devin, Lightyear)** | Idiomatic, small program classes; base-run data equal to the COBOL in default locales (Devin's eval arms, Lightyear CBACT04C) | Each session a new codebase (Jaccard 0.18); failure behaviour diverges (exit 0 on a failed job, generic exit codes, stack traces); no fault seam; mostly self-written tests (Devin); the same locale defect in all three |
@@ -311,7 +346,7 @@ Sources: §2–§8; Lightyear and lasserre readings from this study's scans at t
 These are observations about what each approach shows is possible or costly, not verdicts on its authors.
 
 - **SENTINEL:** literal structure need not be large. Native typed values give ×0.44 the COBOL's size while keeping paragraphs and error paths. Size follows representation, not literalness.
-- **IBM WCA4Z:** path-driven test generation addresses the coverage gap that hand-written scenarios leave. Our LGACDB01 proof reaches 6 of 14 branches; their method reports full path coverage of its unit.
+- **IBM WCA4Z:** path-driven test generation addresses the coverage gap that hand-written scenarios leave. Our LGACDB01 proof reaches 8 of 14 branches, even with SQL fault injection (6 before); their method reports full path coverage of its unit.
 - **Lightyear:** evidence can be reported as signed receipts, with an explicit "unobserved" scope where equivalence hasn't been checked. That's an honest way to say what is and isn't known.
 - **viniman27:** scenario volume. 12,700 GnuCOBOL executions dwarf the 7–29 runs per case used here.
 - **Devin:** the cost of redesigning in each session shows up as variance between attempts and a runtime re-invented each time. The workshop's own practice nonetheless converged on GnuCOBOL references and byte parity.
@@ -328,7 +363,7 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 
 **The author's roadmap (a plan, not a finding).** For the det translator, these lessons suggest:
 - a typed-value representation layer, aiming at SENTINEL's size while keeping byte-level proof;
-- path-driven scenario generation plus SQL fault injection (#4175, #4173; work started);
+- path-driven scenario generation (#4175), building on the SQL fault injection now in place (#4200);
 - per-program proof certificates, in the spirit of Lightyear's receipts;
 - an open harness any translator can be run through, as was done here for IBM's and Devin's code.
 
@@ -362,7 +397,7 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
   - name-based framework detection;
   - rewrapped det copies inflate line counts (†).
 - **Oracle:** GnuCOBOL, our CICS model and Db2 LUW stand in for z/OS (`oracle_assumptions.md`, e.g. C9, D1, C10, X6, M2).
-- **Coverage:** hand-written scenarios; no SQL fault injection (#4173); third-party ports judged on base runs (49/86, 55/96, 13/22 branches) plus one external fault class (a missing file, which on z/OS usually fails at allocation rather than OPEN).
+- **Coverage:** hand-written scenarios; SQL faults are injected (#4200), but input-driven branches remain unreached (#4175); third-party ports judged on base runs (49/86, 55/96, 13/22 branches) plus one external fault class (a missing file, which on z/OS usually fails at allocation rather than OPEN).
 - **Adapters:** thin and committed separately, but written by us.
 - **Versions:** IBM's artifact dates from 2024 and may not match its paper's evaluation; Devin's branches span six months; snapshots are pinned.
 - **Authorship:** the translator's author designed the instruments (§1).
@@ -370,7 +405,8 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 ## 13. Follow-ups
 
 **Issues:**
-- #4170 (fixed), #4171, #4172, #4173, #4174, #4175, #4179, #4181, #4188, #4191 (fixed in #4193).
+- Done: #4170 (fixed in #4178), #4191 (#4193), #4173 and #4181 (#4200).
+- Open: #4171, #4172, #4174, #4175, #4179, #4188.
 
 **Next:**
 - the survey's 8 fixed-width CBACT01C ports, as a field-by-field tier;

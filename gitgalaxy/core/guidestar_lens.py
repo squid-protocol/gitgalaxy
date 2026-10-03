@@ -145,7 +145,7 @@ class GuideStarLens:
         if not lock:
             # #4058: the parts of the path under the scan root only. An absolute path's
             # parents (`/home/me/src/...`) say where the checkout sits, not what the file is.
-            parts = set(p.lower() for p in Path(rel_path).parts)
+            parts = {p.lower() for p in Path(rel_path).parts}
             if parts.intersection(self.INTENT_BIASED_SECTORS):
                 return True, {
                     "lang_id": "unknown",

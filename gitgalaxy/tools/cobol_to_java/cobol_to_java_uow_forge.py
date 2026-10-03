@@ -26,6 +26,17 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
+def _is_cics(prog_sk: dict) -> bool:
+    """A program's skeleton shows it runs under CICS: a transaction enters it, it uses CICS resources, or it has a
+    COMMAREA contract."""
+    sections = (prog_sk or {}).get("sections", {})
+    return bool(
+        sections.get("entry_transactions", {}).get("facts")
+        or sections.get("cics_resources", {}).get("facts")
+        or sections.get("commarea_contracts", {}).get("facts")
+    )
+
+
 class UowForge:
     def __init__(
         self,
@@ -43,9 +54,12 @@ class UowForge:
         self.counts = {"services": 0, "commits": 0, "rollbacks": 0, "abends": 0, "handlers": 0, "unchecked": 0}
         # Planned once, like the other forges: service_extras only looks the result up.
         self.planned = {key: self._plan(key) for key in sorted(skeletons)}
+        # A CICS estate always gets the CICS exception types: a task's ABEND (the CICS runtime's, a translated
+        # program's) surfaces as CicsAbendException whether or not any program ABENDs explicitly -- IBM DBB
+        # MortgageApplication's programs never do, and its equivalence harness catches it on every task.
         self.needs_exceptions = any(
             ex and any("Exception" in m for m in ex.get("methods", [])) for ex in self.planned.values()
-        )
+        ) or any(_is_cics(sk) for sk in skeletons.values())
         if self.needs_exceptions:
             names.claim("CicsAbendException")
             names.claim("CicsConditionException")
@@ -211,13 +225,7 @@ class UowForge:
         has_commit = False
         has_rollback = False
 
-        is_cics = False
-        if (
-            sections.get("entry_transactions", {}).get("facts")
-            or sections.get("cics_resources", {}).get("facts")
-            or sections.get("commarea_contracts", {}).get("facts")
-        ):
-            is_cics = True
+        is_cics = _is_cics(prog_sk)
 
         for h in handlers:
             kind = h.get("kind")

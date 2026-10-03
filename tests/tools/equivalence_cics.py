@@ -987,7 +987,7 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
 
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
     scr = case["screens"][map_name]
-    return common.layout_fields(corpus, scr["copybook"], scr[side])
+    return common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
@@ -1030,11 +1030,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
     src.mkdir(exist_ok=True)
-    for cpy in case.get("copy_dirs", []):
-        for p in (corpus / cpy).iterdir():
-            if p.is_file():
-                shutil.copy(p, src / p.name)
-                shutil.copy(p, src / (p.stem.upper() + ".cpy"))  # COPY COACTVW finds COACTVW.CPY
+    common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
@@ -1267,7 +1263,8 @@ def map_subfields(
     cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
     out: dict[str, dict[str, int]] = {}
     scr = case["screens"][map_name]
-    layouts = [common.layout_fields(corpus, scr["copybook"], scr[side]) for side in ("input", "output")]
+    layouts = [common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
+               for side in ("input", "output")]  # fmt: skip
     data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
     space = " ".encode(enc)
     for f in (x for layout in layouts for x in layout):
@@ -1812,6 +1809,36 @@ def mask_clock_dump(case: dict[str, Any], table: str, dump: bytes, counter: list
     return "\n".join(lines).encode("latin-1")
 
 
+def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: list[dict[str, Any]],
+                         counter: list[int]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:  # fmt: skip
+    """A task that starts with no COMMAREA (EIBCALEN 0) but MOVEs DFHCOMMAREA anyway (IBM DBB EPSCMORT does, before
+    it tests EIBCALEN) copies storage it was never given -- on z/OS, undefined (oracle_assumptions.md X10). The
+    harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
+    X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
+    task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
+    if sc.get("commarea") is not None:
+        return cev, jev
+    undefined = set()
+    for e in cev:
+        ca = e.get("commarea")
+        if isinstance(ca, dict):
+            undefined |= {k for k, v in ca.items() if isinstance(v, str) and re.fullmatch(r"<invalid b'(\\x00)+'>", v)}
+    if not undefined:
+        return cev, jev
+
+    def drop(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for e in events:
+            ca = e.get("commarea")
+            if isinstance(ca, dict) and undefined & set(ca):
+                e = {**e, "commarea": {k: v for k, v in ca.items() if k not in undefined}}
+            out.append(e)
+        return out
+
+    counter[0] += len(undefined)
+    return drop(cev), drop(jev)
+
+
 def mask_clock_events(case: dict[str, Any], events: list[dict[str, Any]], counter: list[int]) -> list[dict[str, Any]]:
     """Events with the clock COMMAREA fields' run-written values replaced by <clock>."""
     fields = []  # (name, start, length): a field, or a slice of one (`CA-REQUEST-SPECIFIC(31:26)`, 1-based)
@@ -2053,6 +2080,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         clock = [0]  # the clock fields masked in this scenario (a case's "clock_fields")
         cev = mask_clock_events(case, linked_result(case, cobol_events(res)), clock)
         jev = mask_clock_events(case, linked_result(case, java.get(name, [])), clock)
+        undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X10)
+        cev, jev = mask_absent_commarea(next(x for x in case["scenarios"] if x["name"] == name), cev, jev, undefined)
         d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev}  # fmt: skip
@@ -2072,6 +2101,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
         if clock[0]:
             report["outputs"][name]["clock_masked"] = clock[0]
+        if undefined[0]:
+            report["outputs"][name]["undefined_commarea_fields"] = undefined[0]
         if changed:  # file updates: what the task left in a file differs
             report["outputs"][name]["files"] = changed
             ok = False

@@ -164,6 +164,57 @@ COBC_OPTIONS = {
 }  # fmt: skip
 
 
+def bms_dir(corpus: Path) -> Path:
+    """The symbolic-map copybooks of the corpus's BMS sources (det.source.bms_copybooks, the generator the det
+    translator's own copybook path uses), generated once next to the corpus clone: a build artefact most estates do
+    not check in (CBSA, IBM DBB MortgageApplication)."""
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    out = corpus.parent / "_bms" / corpus.name
+    if not out.is_dir():
+        bms_copybooks([p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
+                       and ".git" not in p.parts], out)  # fmt: skip
+    return out
+
+
+def case_path(corpus: Path, rel: str) -> Path:
+    """A path a case names: relative to the corpus, or `@bms/<MAPSET>.cpy` -- a generated symbolic map (bms_dir)."""
+    return bms_dir(corpus) / rel[len("@bms/") :] if rel.startswith("@bms/") else corpus / rel
+
+
+def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
+    """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
+    names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
+    COACTVW.cpy, and COPY EPSNBRPM finds IBM DBB's lower-case epsnbrpm.cpy. A case whose screens name generated
+    symbolic maps (`@bms/...`) also gets them, after the estate's own copybooks (a member the estate ships wins)."""
+    for cpy in case.get("copy_dirs", []):
+        for p in (corpus / cpy).iterdir():
+            if p.is_file():
+                shutil.copy(p, src / p.name)
+                shutil.copy(p, src / (p.stem.upper() + ".cpy"))
+    if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
+        for p in bms_dir(corpus).iterdir():
+            if p.is_file() and not (src / p.name).exists():
+                shutil.copy(p, src / p.name)
+
+
+# A PROGRAM-ID paragraph whose name is not followed by its period: IBM Enterprise COBOL assumes the period (a
+# warning) and compiles; GnuCOBOL refuses (IBM DBB MortgageApplication EPSNBRVL: `PROGRAM-ID. EPSNBRVL`).
+_PROGRAM_ID_NO_PERIOD = re.compile(r"^(.{6}[ ]{1,4}PROGRAM-ID\.?[ ]+'?[A-Z0-9#@$-]+'?)([ ]*)$", re.I)
+
+
+def ibm_assumed_periods(source: str) -> str:
+    """The source as IBM's compiler reads it where it assumes a missing period GnuCOBOL requires: a PROGRAM-ID name
+    with nothing after it on its line gets its period (oracle_assumptions.md, register entry L4)."""
+    lines = source.split("\n")
+    for i, ln in enumerate(lines):
+        body = ln[:72]
+        m = _PROGRAM_ID_NO_PERIOD.match(body.rstrip())
+        if m and not body.rstrip().endswith("."):
+            lines[i] = m.group(1) + "." + ln[len(m.group(1)) + 1 :] if len(ln) > len(m.group(1)) else m.group(1) + "."
+    return "\n".join(lines)
+
+
 class UnsupportedOption(Exception):
     """A compiler option the GnuCOBOL side cannot honour (#3828)."""
 
@@ -188,7 +239,7 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
         if flag:
             flags.append(flag)
     blank = {n for n, _ in cards(source)}
-    lines = source.split("\n")
+    lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags
 
 

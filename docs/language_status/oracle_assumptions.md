@@ -35,7 +35,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C2 | compiler | Arithmetic intermediates: exact decimal vs IBM's precision rules | ASSUMED | yes (INTCALC, POSTTRAN …) |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
-| C5 | compiler | `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)`, `TRUNC(OPT)` | REFUSED | — |
+| C5 | compiler | `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)`, `NUMPROC(MIG)`, `TRUNC(OPT)` | REFUSED | — |
 | C6 | compiler | COMP-1 / COMP-2: IEEE vs IBM hexadecimal floating point | DIFFERS | no (CBSA uses them) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
@@ -57,6 +57,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | X7 | CICS | ASSIGN INVOKINGPROG / PROGRAM; LINKed programs run in one task | MATCHED | yes (GenApp LGUPDB01) |
 | X8 | compiler | A reference modification past its item (no SSRANGE): a storage overlay | not run | no |
 | X9 | CICS | Named counters (GET COUNTER) | MATCHED | yes (GenApp LGACDB01) |
+| X10 | CICS | A task with no COMMAREA that MOVEs DFHCOMMAREA anyway | UNDEFINED, masked | yes (DBB EPSCMORT) |
 | L1 | LE | CEEDAYS: documented pictures only | MATCHED / REFUSED | yes |
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | L3 | LE | WORKING-STORAGE with no VALUE clause: GnuCOBOL's spaces vs LE's STORAGE option on z/OS | ASSUMED | yes (CardDemo READACCT OUTFILE, 2 bytes) |
@@ -111,8 +112,10 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Reached.** No case reaches it. `test_det_programs.py` keeps its unsigned item above zero.
 
 ### C5. Options GnuCOBOL cannot honour — REFUSED
-- **What.** `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)` and `TRUNC(OPT)`, from a CBL/PROCESS card or a case's
-  `compiler_options`, stop the run (`UnsupportedOption`).
+- **What.** `INTDATE(LILIAN)`, `ARITH(EXTEND)`, `NUMPROC(PFD)`, `NUMPROC(MIG)` and `TRUNC(OPT)`, from a CBL/PROCESS
+  card or a case's `compiler_options`, stop the run (`UnsupportedOption`).
+- **NUMPROC(MIG)** (OS/VS COBOL migration sign processing): IBM DBB MortgageApplication's EPSMPMT and EPSCSMRT carry
+  `CBL NUMPROC(MIG)`. Their cases (`mortgage-mpmt`) are written and listed in KNOWN_UNPROVEN until an oracle models it.
 - **Note.** CBSA's build JCL passes `TRUNC(OPT)`, but its programs' PROCESS cards override it with `TRUNC(STD)` (C1).
 - `TRUNC(OPT)` is undefined for out-of-range values by IBM's own description, so no oracle could be faithful to it.
 
@@ -285,6 +288,16 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 - GET COUNTER returns the counter's value and then adds one (IBM CICS TS, GET COUNTER); a counter the region does not
   have is NOTFND. A case (or a scenario) states the region's counters (`"counters": {"POOL/NAME": next}`); both sides
   read the same. Other counter options (INCREMENT, WRAP, MINIMUM / MAXIMUM, RESP2 ...) are refused by name.
+
+### X10. DFHCOMMAREA referenced with EIBCALEN = 0 — UNDEFINED, masked
+- **What.** IBM DBB EPSCMORT does `MOVE DFHCOMMAREA TO W-COMMUNICATION-AREA` before it tests EIBCALEN, so its first
+  task (no COMMAREA) copies storage it was never given. On z/OS that is undefined: CICS establishes no addressability
+  for an absent COMMAREA, and what the MOVE reads (or whether it abends) depends on the region.
+- **Harness.** The CICS model gives LOW-VALUES there. A numeric field the task then returns still holding all
+  LOW-VALUES was set by nothing (a MOVE leaves digits, never X'00'), and the Java side's COMMAREA DTO cannot hold an
+  invalid number. In a scenario with `"commarea": null` only, such a field is left out of the comparison on both
+  sides and counted (`undefined_commarea_fields` in the report): `equivalence_cics.mask_absent_commarea`. Every other
+  field of that COMMAREA, and every field of every other scenario, is compared as usual.
 
 ## Language Environment
 

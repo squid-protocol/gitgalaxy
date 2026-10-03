@@ -154,6 +154,10 @@ class Gen:
         self.sql: Any = None  # det.sql.Sql for a program with EXEC SQL
         self.clock = "clock.currentDate()"  # FUNCTION CURRENT-DATE outside CICS
         self.callees: dict[str, str] = {}  # CALLed program -> the ObjectProvider field of its service
+        # CALLed program -> its handleCall parameter types (CobolRef<String>, or a contract DTO for a group item)
+        self.callee_types: dict[str, list[str]] = {}
+        self.dto_codecs = None  # the COMMAREA codec (det.cics.Cics) a DTO crosses storage with: the CICS one, or
+        self.dto_codecs_factory = None  # made on first use for a batch program
         self.entities: set = set()
 
     # ---- references ---------------------------------------------------------------------------------------------
@@ -1236,6 +1240,17 @@ class Gen:
             return [f"{ind}{{", *body, f"{ind}}}"]
         return [x[4:] if x.startswith(ind + "    ") else x for x in body]
 
+    def codec_for(self, cls: str) -> str:
+        """The in_ / out_ / fill_ codec of contract DTO `cls` (det.cics.Cics.codec), made on first use."""
+        if self.dto_codecs is None and self.dto_codecs_factory is not None:
+            self.dto_codecs = self.dto_codecs_factory()
+        if self.dto_codecs is None:
+            raise Untranslatable(f"no generated project to carry {cls} across a CALL")
+        try:
+            return self.dto_codecs.codec(cls)
+        except Exception as e:  # det.cics.CicsError: a DTO property the port cannot convert
+            raise Untranslatable(f"{cls}: {e}") from e
+
     def call(self, s: S.Stmt, ind: str) -> list[str]:
         prog = s.data["program"]
         args = s.data["args"]
@@ -1248,15 +1263,25 @@ class Gen:
         if callee is not None:
             if any(m != "REFERENCE" or not isinstance(a, E.Ref) for m, a in args):
                 raise Untranslatable(f"CALL {prog}: items BY REFERENCE expected")
-            refs, out = [], []
-            for _, a in args:
+            refs, out, back = [], [], []
+            types = self.callee_types.get(prog, [])
+            for k, (_, a) in enumerate(args):
                 v = self.tmpname("arg")
                 refs.append(v)
-                out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({self.field_expr(a)}, CS));")
+                f = self.field_expr(a)
+                typ = types[k] if k < len(types) else "CobolRef<String>"
+                if typ == "CobolRef<String>":
+                    out.append(f"{ind}CobolRef<String> {v} = CobolRef.of(Cobol.text({f}, CS));")
+                    back.append(f"{ind}Cobol.move({v}.get(), {f}, CS);")
+                    continue
+                # a group USING item the callee takes as its contract DTO: built from the item's bytes, and the
+                # object the callee filled written back (BY REFERENCE) -- the codec a LINKed COMMAREA crosses with
+                cls = self.codec_for(typ)
+                out.append(f"{ind}{typ} {v} = out_{cls}({f}.storage(), {f}.offset());")
+                back.append(f"{ind}in_{cls}({v}, {f}.storage(), {f}.offset());")
             rc = self.tmpname("rc")
             out.append(f"{ind}int {rc} = {callee}.getObject().handleCall({', '.join(refs)});")
-            for v, (_, a) in zip(refs, args):
-                out.append(f"{ind}Cobol.move({v}.get(), {self.field_expr(a)}, CS);")
+            out += back
             out.append(
                 f"{ind}Cobol.store({self.field_expr(E.Ref('RETURN-CODE'))}, BigDecimal.valueOf({rc}), false, CS);"
             )

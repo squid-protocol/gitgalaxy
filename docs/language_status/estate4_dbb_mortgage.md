@@ -37,7 +37,7 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 | case | program | kind | result | coverage |
 |---|---|---|---|---|
 | `mortgage-nbrvl` | EPSNBRVL, number validator | CALL, group USING item | **proven**, 15 calls | 3/3 paragraphs, 22/22 branches |
-| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL | **proven**, 6 scenarios | 3/6 paragraphs, 11/21 branches |
+| `mortgage-cmort` | EPSCMORT, mortgage screen | CICS, BMS (generated map), Db2 `SYSIBM.SYSDUMMY1`, CALL EPSNBRVL | **proven**, 7 scenarios (6 written, plus the automatic SQL-fault task on its SELECT, #4200) | 3/6 paragraphs, 12/21 branches |
 | `mortgage-mpmt` | EPSMPMT, payment calculator | CALL, binary arguments as field values | **not proven on purpose**: `CBL NUMPROC(MIG)` (C5) | — |
 
 **Not reached, and why:**

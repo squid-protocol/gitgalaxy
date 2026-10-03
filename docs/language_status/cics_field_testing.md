@@ -45,7 +45,7 @@ counted in it (their fact counts are not recorded here).
 | units | 7 | 0 | 4 | 2,058 | 7 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 4 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
-| record fields | 6 | 0 | 3 | 5,475 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
+| record fields | 6 | 0 | 3 | 5,475 | 4 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CALL USING | 5 | 0 | 2 | 103 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS RIDFLD | 5 | 0 | 0 | 781 | 0 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | CICS resources | 5 | 0 | 3 | 3,588 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -79,7 +79,7 @@ counted in it (their fact counts are not recorded here).
 | 4 | cics-genapp | public | 2,294 | 11 | 4 | 1 | 0 |
 | 5 | zecs | public | 1,293 | 43 | 0 | 0 | 2 |
 | 6 | dsf | public | 2,018 | 4 | 7 | 1 | 0 |
-| 7 | dbb-mortgage-application | public | 45 | 0 | 2 | 0 | 0 |
+| 7 | dbb-mortgage-application | public | 45 | 0 | 3 | 0 | 0 |
 
 ## Defect log
 
@@ -129,6 +129,7 @@ counted in it (their fact counts are not recorded here).
 | D038 | 7 | engine | fact | MOVE truncation | #4204 | A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231. Root cause: the item lives in EPSMTOUT, nested in EPSMTCOM, which EPSCMORT COPYs under both W-COMMUNICATION-AREA and DFHCOMMAREA; storage spans were keyed by item, so the second placement overwrote the first and a qualifier naming the first never matched (17 qualified data flows on this estate were unresolved). |
 | D039 | 7 | engine | fact | data moves | #4205 | MOVE ALL X'..' (a hexadecimal figurative) is not recorded as a data move: IBM DBB EPSCSMRD L1457 (ALL X'00') and L3452 (ALL X'FF'). |
 | D040 | unkeyed estate, after 7 | engine | fact | units | #4203 | In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it. |
+| D042 | 7 | engine | fact | record fields | #4246 | An unnamed data description entry (an implicit FILLER: `2 PIC X(40) USAGE DISPLAY VALUE '...'`, IBM DBB EPSCSMRD L24 / L27 / L30) was read as an item named PIC with no PICTURE: the clause keyword standing where the name goes was taken for the name, and the entry's clauses were read from after it. Found onboarding EPSCSMRD into the key (#4226); the key's own reader made the same misreading. |
 | D043 | review, after 7 | engine | fact | data moves, CALL USING, DD names | #4264 | Columns 73-80 of a fixed-format line (the identification area the compiler ignores: NIST CCVS `NC1314.2`) reached the COBOL readers, and no reader knew fixed from free format (no >>SOURCE FORMAT handling). On the crucible's NIST CCVS85 set ~2,500 phantom data-flow operands came from it (`MOVE "." -> NC1314`), CALL USING gained a `CONTENT:IC2244` operand, and 198 dataset bindings took the identification tag as their DD name (`DB1044` for `ASSIGN TO` / `XXXXX055` on the next line; with the tag gone the reader then saw the next line's sequence area and read `TO`, so it now blanks sequence fields as file_control does). Prism now blanks the identification area of fixed lines only, the format detected per file and switched by directives. Found by the 2026-10-03 engine audit, not by a keyed estate (the ledger did not move). |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's

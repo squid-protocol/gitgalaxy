@@ -153,3 +153,55 @@ def test_the_procedure_division_is_not_read_as_data_items():
 
 def test_jcl_carries_no_record_layouts():
     assert extract_boundary("jcl", "//J JOB\n//S EXEC PGM=X\n")["records"] == []
+
+
+# #4246: DBB MortgageApplication EPSCSMRD's real shape -- level-2 entries with no name, each an implicit
+# FILLER whose first word is its PIC clause; beside them a named item and an explicit FILLER.
+UNNAMED_ITEMS = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. EPSCSMRD.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       1 EPSPDATA-HEADER.
+         2 PIC X(40) USAGE DISPLAY VALUE 'HEADER LINE ONE'.
+         2 TITLE-TEXT PIC X(10) VALUE 'TITLE'.
+         2 COMP-3 PIC S9(5).
+         2 FILLER PIC X(4).
+         2 USAGE BINARY PIC 9(4).
+         2 VALUE 'Z' PIC X.
+         2 PICTURE IS 9(3) OCCURS 2 TIMES.
+       PROCEDURE DIVISION.
+           GOBACK.
+"""
+
+
+def test_an_unnamed_entry_is_an_implicit_filler_with_its_clauses():
+    recs = records(UNNAMED_ITEMS)
+    assert [(r["level"], r["name"], r["pic"], r["usage"], r["value"]) for r in recs] == [
+        (1, "EPSPDATA-HEADER", None, None, None),
+        (2, "FILLER", "X(40)", "DISPLAY", "HEADER LINE ONE"),  # not an item named PIC with no PIC
+        (2, "TITLE-TEXT", "X(10)", None, "TITLE"),
+        (2, "FILLER", "S9(5)", "COMP-3", None),
+        (2, "FILLER", "X(4)", None, None),
+        (2, "FILLER", "9(4)", "BINARY", None),
+        (2, "FILLER", "X", None, "Z"),
+        (2, "FILLER", "9(3)", None, None),
+    ]
+    assert recs[-1]["occurs_min"] == 2
+    assert all(r["parent_ordinal"] == 0 for r in recs[1:])
+
+
+def test_an_unnamed_entrys_value_is_no_call_target():
+    """The VALUE of an unnamed entry belongs to no name, so it never resolves `CALL PIC`."""
+    from gitgalaxy.core.mainframe_boundary import _cobol_value_map
+
+    assert _cobol_value_map(UNNAMED_ITEMS) == {"TITLE-TEXT": "TITLE"}
+
+
+def test_a_name_that_only_starts_with_a_clause_word_is_kept():
+    """`PIC-CODE`, `VALUE-DATE`, `COMP-RATE`, `INDEX-NO`: names, not unnamed entries."""
+    src = COPYBOOK.replace("ACCT-ID  ", "PIC-CODE ").replace("ACCT-CURR-BAL", "COMP-RATE    ")
+    src += "           05  VALUE-DATE                        PIC X(8).\n"
+    src += "           05  INDEX-NO                          PIC 9(4).\n"
+    names = [r["name"] for r in records(src)]
+    assert names == ["ACCOUNT-RECORD", "PIC-CODE", "COMP-RATE", "FILLER", "VALUE-DATE", "INDEX-NO"]

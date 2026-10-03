@@ -15,13 +15,13 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
-    GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_ORCHESTRATOR,
-    GLOBAL_LLM_VECTOR_STORE,
-    GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    PY_DL_FRAMEWORKS,
     PY_LLM_API,
+    PY_LLM_ORCHESTRATOR,
+    PY_LLM_VECTOR_STORE,
+    PY_ML_TRADITIONAL,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -383,10 +383,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": PY_LLM_API,
-        "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
-        "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
-        "ml_traditional": GLOBAL_ML_TRADITIONAL,
-        "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
+        "llm_orchestrator": PY_LLM_ORCHESTRATOR,
+        "llm_vector_store": PY_LLM_VECTOR_STORE,
+        "ml_traditional": PY_ML_TRADITIONAL,
+        "dl_frameworks": PY_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         # #2875 contract C5: statement position -- 279 of python's 1,925 crucible hits
         # were doctest `>>> import numpy as np` lines inside docstrings (strings count

@@ -16,13 +16,13 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
     COMMENTED_STATEMENT_C_FAMILY,
-    GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_ORCHESTRATOR,
-    GLOBAL_LLM_VECTOR_STORE,
-    GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    JS_DL_FRAMEWORKS,
     JS_LLM_API,
+    JS_LLM_ORCHESTRATOR,
+    JS_LLM_VECTOR_STORE,
+    JS_ML_TRADITIONAL,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -376,10 +376,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
         "llm_api": JS_LLM_API,
-        "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
-        "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
-        "ml_traditional": GLOBAL_ML_TRADITIONAL,
-        "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
+        "llm_orchestrator": JS_LLM_ORCHESTRATOR,
+        "llm_vector_store": JS_LLM_VECTOR_STORE,
+        "ml_traditional": JS_ML_TRADITIONAL,
+        "dl_frameworks": JS_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         "import": re.compile(
             # #2875: the lazy scan to `from` is bounded -- unbounded it is quadratic on a

@@ -54,11 +54,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.standards.language_standards._lazy_re import is_pattern
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+# After the insert, so this checkout's gitgalaxy is the one measured (not an installed one).
+from gitgalaxy.standards.language_standards._lazy_re import is_pattern  # noqa: E402
 
 SUITES = (
     "gitgalaxy/tools/cobol_to_cobol",

@@ -1,0 +1,131 @@
+{
+  "history": [
+    {
+      "agreement": {
+        "composition_file": 0.978,
+        "composition_repo": null,
+        "file": 0.9927,
+        "function": 0.986
+      },
+      "date": "2026-10-02",
+      "engine_commit": "aaf0f7cb",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "VALIDATED",
+        "function": "VALIDATED"
+      }
+    },
+    {
+      "agreement": {
+        "composition_file": 0.9772,
+        "composition_repo": null,
+        "file": 0.9883,
+        "function": 0.9849
+      },
+      "date": "2026-10-02",
+      "engine_commit": "575c3900",
+      "state": {
+        "composition_file": "DEGRADED",
+        "composition_repo": "INVALID",
+        "file": "VALIDATED",
+        "function": "VALIDATED"
+      }
+    }
+  ],
+  "levels": {
+    "composition_file": {
+      "agreement": 0.9772,
+      "eroding": {
+        "Large Core Modules": {
+          "files": 304,
+          "mostly_to": "Large Core Modules (3)",
+          "retained": 0.9408
+        },
+        "Large Core Modules (3)": {
+          "files": 292,
+          "mostly_to": "Interface Declarations Files",
+          "retained": 0.9247
+        },
+        "Many-Argument Workhorses Files": {
+          "files": 70,
+          "mostly_to": "Large Core Modules (3)",
+          "retained": 0.9714
+        }
+      },
+      "files_compared": 2725,
+      "fit_shift": -0.069
+    },
+    "composition_repo": {
+      "crucible_label": {
+        "current": "Unvalidated",
+        "trained": "Flat Modular Platform"
+      },
+      "inherits": "composition_file"
+    },
+    "file": {
+      "agreement": 0.9883,
+      "eroding": {
+        "file_cluster_13": {
+          "files": 76,
+          "mostly_to": "file_cluster_15",
+          "retained": 0.9737
+        },
+        "file_cluster_6": {
+          "files": 55,
+          "mostly_to": "file_cluster_4",
+          "retained": 0.9455
+        },
+        "file_cluster_8": {
+          "files": 38,
+          "mostly_to": "file_cluster_6",
+          "retained": 0.8158
+        },
+        "file_cluster_9": {
+          "files": 52,
+          "mostly_to": "file_cluster_2",
+          "retained": 0.9231
+        }
+      },
+      "files_compared": 2725
+    },
+    "function": {
+      "agreement": 0.9849,
+      "eroding": {
+        "C Struct Operations": {
+          "functions": 82,
+          "retained": 0.9512
+        },
+        "I/O & Config Routines": {
+          "functions": 7440,
+          "retained": 0.9286
+        }
+      },
+      "functions_compared": 43654
+    }
+  },
+  "measured": {
+    "corpus": "language-crucible@v1.6.0",
+    "coverage": 0.9873,
+    "engine_commit": "575c3900",
+    "measured_at": "2026-10-02"
+  },
+  "retrain_issue": 4111,
+  "schema": 1,
+  "thresholds": {
+    "degraded": 0.95,
+    "validated": 0.98
+  },
+  "trained": {
+    "brain_fingerprints": {
+      "composition_file": "ddc5ffe61f66b6c0",
+      "composition_repo": "08d21cfcae209a4a",
+      "file": "68dea3cf440c21b3",
+      "function": "e3ab16e33a9273e3"
+    },
+    "corpus": "language-crucible (golden master at 44ffeb1e)",
+    "engine_commit": "44ffeb1e",
+    "engine_version": "v2.9.1",
+    "trained_at": "2026-09-19"
+  }
+}

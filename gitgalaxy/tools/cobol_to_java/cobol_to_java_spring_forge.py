@@ -29,7 +29,7 @@ from typing import Callable, Optional
 
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import java_identifier as _java_field_name
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_common import parse_pic_precision
-from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key, sql_name
 from gitgalaxy.tools.cobol_to_java.java_target import JavaTarget
 
 
@@ -133,7 +133,7 @@ def _render_field(
         if jpa:
             lines.append("    @ElementCollection")
             lines.append(
-                f'    @CollectionTable(name = "{table_name}_{col_name.lower()}", joinColumns = @JoinColumn(name = "{table_name.lower()}_id"))'
+                f'    @CollectionTable(name = "{sql_name(f"{table_name}_{col_name.lower()}")}", joinColumns = @JoinColumn(name = "{table_name.lower()}_id"))'
             )
             lines.append(f'    @Column(name = "{col_name.lower()}_item")')
         lines.append(f"    private List<{base_java_type}> {camel_name};\n")
@@ -141,7 +141,7 @@ def _render_field(
 
     # --- SCENARIO 3: STANDARD COLUMN ---
     if jpa:
-        col_attrs = [f'name = "{col_name}"']
+        col_attrs = [f'name = "{sql_name(col_name)}"']  # #4037: CURRENT-DATE, USER, ORDER: quoted
         if base_java_type == "String" and "length" in constraints:
             col_attrs.append(f"length = {constraints['length']}")
         elif base_java_type == "BigDecimal":
@@ -255,7 +255,7 @@ def generate_java_entity(
         java.append("@Data")
         java.append("@NoArgsConstructor")
     java.append("@Entity")
-    java.append(f'@Table(name = "{table_name}")')
+    java.append(f'@Table(name = "{sql_name(table_name)}")')
     java.append(f"public class {class_name} {{")
 
     # Change 'id' to 'sysId' to prevent collision with legacy variables named 'id'

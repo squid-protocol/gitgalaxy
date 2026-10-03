@@ -96,7 +96,11 @@ _PY_SIMPLE_CASES = [
     ("branch", "if (x := 1):", "iffy = True"),
     ("branch", "match x:\n    case 1:", "def case_func():"),
     ("branch", "while True:", "while_loop = False"),
-    ("structural_boundaries", "with open('f.txt') as f:", "without = True"),  # 2833: with is resource scope, not a branch
+    (
+        "structural_boundaries",
+        "with open('f.txt') as f:",
+        "without = True",
+    ),  # 2833: with is resource scope, not a branch
     ("branch", "for i in range(10):", "format_string"),
     # args (generics, newlines, edge-case lambdas)
     ("args", "def foo[T, U](x, y):", "define_foo = 1"),
@@ -354,3 +358,61 @@ def test_python_doc_docstring_counts_once_regression():
 
     # An unterminated delimiter at EOF must not hang or falsely count.
     assert_redos_immune(doc, '"""' + "x" * 200000, timeout_sec=3.0)
+
+
+# --- #4136: vectorized_math's `@` arm vs string literals and comments ---------
+# The code stream keeps string literals (the stream contract), so the matmul arm
+# counted `"text-embedding-gecko@003"` (langchain) and every
+# `"johndoe@example.com"` fixture (fastapi's test_response_model_data_filter*.py,
+# 7 hits each). Python opts the rule into the `outside_literals` scope filter,
+# so these go through the real extractor rather than the bare regex.
+
+
+def _py_vectorized(code: str) -> tuple[int, list[int]]:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    counts, _mit, _maps, _parents, locations = StructuralExtractor("python", LANGUAGE_DEFINITIONS).coding_analysis(
+        [("python", code, 0)]
+    )
+    return counts["vectorized_math"], locations.get("vectorized_math", [])
+
+
+def test_python_vectorized_math_declares_outside_literals_filter():
+    assert PY_RULES["_scope_filters"] == {"vectorized_math": "outside_literals"}
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        'model = "text-embedding-gecko@003"\n',
+        "owner = {'email': 'johndoe@example.com'}\n",
+        'doc = """\nresult = a @ b\n"""\n',
+        "x = 1  # mail me@example.com, or try a @ b\n",
+        "@app.get('/pets/')\ndef f():\n    pass\n",
+        "class C:\n    @property\n    def p(self):\n        return 1\n",
+        "x = f(a)\n@decorator\ndef g():\n    pass\n",
+    ],
+)
+def test_python_vectorized_math_ignores_at_in_strings_comments_and_decorators(code):
+    assert _py_vectorized(code) == (0, [])
+
+
+def test_python_vectorized_math_real_operator_still_counts():
+    assert _py_vectorized("c = a @ b\n") == (1, [1])
+    assert _py_vectorized("c = f(a)@g(b)\n") == (1, [1])
+    assert _py_vectorized("w = x[0] @ W.T\n") == (1, [1])
+    # The augmented form is the same operator (#4136: the `=` failed the operand lookahead).
+    assert _py_vectorized("c @= d\n") == (1, [1])
+    assert _py_vectorized("c@=d\n") == (1, [1])
+    assert _py_vectorized("y = np.einsum('ij,jk->ik', a, b)\n") == (1, [1])
+
+
+def test_python_vectorized_math_mixed_line_keeps_only_the_code_hit():
+    """A string `@` and a real `@` on neighbouring lines: only the real one counts, at its own line."""
+    code = 'tag = "user@host"\nout = q @ k  # "@" docs\n'
+    assert _py_vectorized(code) == (1, [2])
+
+
+def test_python_vectorized_math_augmented_operator_redos_immunity():
+    for payload in ("a" + " " * 20000 + "@", ")" + "\t" * 20000 + "@=", "x@" * 20000):
+        assert_redos_immune(PY_RULES["vectorized_math"], payload)

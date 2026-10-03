@@ -1,0 +1,75 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "gt-terminal-coalesce",
+ "program": "GTTERM",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:00:50+00:00",
+ "ticket_sha256": "b3e9779089d018be84d66917f9940a84b83b94bfd60503559616affda1fb9f93",
+ "prompt_tokens": 23637,
+ "feedback_from": 1,
+ "notes": "Fix from attempt 1:\n- EIBTRMID now comes from task.termid(); the attempt 1 overload runTask(task, eibtrmid) is removed. Every START now carries TERMID(WS-TERM), for example 'T001'.\n\nDefects of the original kept (behaviour preserved):\n- WHEN OTHER issues the CANCEL for any mode that is not '3', 'S' or 'C': blank, lower case, typos. The header documents only 'K'. Fix: WHEN 'K' for the CANCEL, and a WHEN OTHER that rejects the mode.\n- The RESP of CANCEL at line 58 is never tested (matches the field-tested unchecked_responses / uow_handlers fact). It is only shown as \"CANCEL RESP=nn\": NOTFND gives 13, and the task continues normally. Fix: IF WS-RESP NOT = DFHRESP(NORMAL), handle it.\n- RECEIVE and the STARTs have no RESP or HANDLE CONDITION. Any condition therefore takes CICS's default action and abends the task, which is ported as task.abendOnCondition(...), followed by a return.\n\nNo contradicted facts found.",
+ "proof": {
+  "at": "2026-09-29T22:01:35+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "cancel-in-time": "1/1",
+   "cancel-too-late": "1/1",
+   "staggered": "1/1",
+   "three-in-one": "1/1"
+  },
+  "sibling_ports": [
+   "GTSHOW",
+   "GTTERM"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:47:11+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:47:54+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "cancel-in-time": "0/1",
+    "cancel-too-late": "0/1",
+    "staggered": "0/1",
+    "three-in-one": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:07+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "cancel-in-time": "0/1",
+    "cancel-too-late": "0/1",
+    "staggered": "0/1",
+    "three-in-one": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:00:50+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:01:35+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "cancel-in-time": "1/1",
+    "cancel-too-late": "1/1",
+    "staggered": "1/1",
+    "three-in-one": "1/1"
+   }
+  }
+ ]
+}

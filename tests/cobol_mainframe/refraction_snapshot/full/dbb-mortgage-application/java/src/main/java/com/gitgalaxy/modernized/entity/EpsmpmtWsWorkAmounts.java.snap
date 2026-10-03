@@ -1,0 +1,46 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "WS_WORK_AMOUNTS")
+public class EpsmpmtWsWorkAmounts {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "STATIC_MAXIMUM_PRINCIPLE", precision = 11, scale = 2)
+    private BigDecimal staticMaximumPrinciple;
+
+    @Column(name = "ERROR_INDICATOR")
+    private Integer errorIndicator;
+
+    @Column(name = "ERROR_TEXT", length = 80)
+    private String errorText;
+
+    @Column(name = "VALIDATION_INDICATOR")
+    private Integer validationIndicator;
+
+    @Column(name = "WS_NUMBER_OF_MONTHS", precision = 11, scale = 2)
+    private BigDecimal wsNumberOfMonths;
+
+    @Column(name = "LOAN", precision = 11, scale = 2)
+    private BigDecimal loan;
+
+    @Column(name = "PAYMENT", precision = 11, scale = 2)
+    private BigDecimal payment;
+
+    @Column(name = "INTEREST", precision = 13, scale = 4)
+    private BigDecimal interest;
+
+    @Column(name = "NUMBER_PERIODS")
+    private Integer numberPeriods;
+
+}

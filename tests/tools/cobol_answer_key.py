@@ -113,6 +113,17 @@ _HEADER = re.compile(rf"^({NAME})(?:\s+(SECTION)(?:\s+[0-9]{{1,2}})?)?\s*\.(?:\s
 _HEADER_NO_PERIOD = re.compile(rf"^({NAME})(?:\s+SECTION(?:\s+[0-9]{{1,2}})?)?$")
 # Words that can sit in Area A followed by a period without being a unit header.
 _NOT_A_HEADER = {"DECLARATIVES", "END", "EXIT", "GOBACK", "CONTINUE", "STOP", "ELSE"}
+# The reserved END- words (scope terminators and `END-OF-PAGE`). #4026: only these,
+# not every `END-...` word -- GENAPP LGIPDB01's `End-Program.` is a PERFORMed
+# paragraph, and opensourcecobol4j's `END-IPROC1.` a GO TO target.
+_RESERVED_END = {
+    "END-" + w
+    for w in (
+        "ACCEPT ADD CALL CHAIN COLOR COMPUTE DELETE DISPLAY DIVIDE EVALUATE EXEC FREE IF INVOKE JSON"
+        " MULTIPLY OF-PAGE PERFORM READ RECEIVE RETURN REWRITE SEARCH SEND START STRING SUBTRACT"
+        " UNSTRING WAIT WRITE XML"
+    ).split()
+}
 # `(?<![\w-])` for the same reason as _CALL below: `END-PERFORM` followed by a
 # real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
 # (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
@@ -155,6 +166,7 @@ _DD_LEVEL = re.compile(rf"^[ \t]*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)  # 
 _DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([^\s;]+)")
 # `SIGN IS LEADING SEPARATE CHARACTER` / `TRAILING SEPARATE`: the sign takes its own byte (census #3649, CBSA ABNDINFO).
 _DD_SIGN_SEPARATE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b")
+_DD_SIGN_LEADING_SEPARATE = re.compile(r"\bLEADING\s+SEPARATE\b")  # which end the sign byte is at
 _DD_USAGE = re.compile(
     r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
     r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
@@ -364,7 +376,7 @@ def _units(src: Source) -> list[dict[str, Any]]:
             if nxt.startswith("."):
                 head += " ."
         m = _HEADER.match(head) if head and lead < 4 else None
-        if m and m.group(1) not in _NOT_A_HEADER and not m.group(1).startswith("END-"):
+        if m and m.group(1) not in _NOT_A_HEADER and m.group(1) not in _RESERVED_END:
             units.append({"name": m.group(1), "kind": "section" if m.group(2) else "paragraph", "line": no, "body": []})
             rest = head[m.end() :] if head == area.strip() else ""
             if rest.strip():
@@ -683,6 +695,8 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
         if level in (66, 88):
             parent = last_item
         else:
+            if level == 77:  # a 77 is a root like an 01 (it never sits under the group before it)
+                stack.clear()
             while stack and stack[-1][0] >= level:
                 stack.pop()
             parent = stack[-1][1] if stack else None
@@ -720,6 +734,7 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
                 "redefines": redef_m.group(1).upper() if redef_m else None,
                 "value": value,
                 "sign_separate": bool(_DD_SIGN_SEPARATE.search(window)),
+                "sign_leading": bool(_DD_SIGN_LEADING_SEPARATE.search(window)),
                 "line": src.line_of(m.start()),
             }
         )
@@ -3910,11 +3925,15 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         ]
         own = cmd[kind.end() :]
         # The object's own parameter block ends before DATA( / INDEX(.
-        own = re.split(r"\)\s*(?:DATA|INDEX)\s*\(", own)[0]
+        parts = re.split(r"\)\s*(DATA|INDEX)\s*\(", own)
+        own = parts[0]
+        # the DATA component's block (KEYS and RECORDSIZE may be given there instead: IDCAMS takes them as the
+        # object's -- GenApp's adef121.jcl; never on INDEX)
+        data = next((parts[j + 1] for j in range(1, len(parts) - 1, 2) if parts[j] == "DATA"), "")
 
-        def one(*names: str) -> Optional[str]:
+        def one(*names: str, block: Optional[str] = None) -> Optional[str]:
             for n in names:
-                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own)
+                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own if block is None else block)
                 if m2:
                     return m2.group(1)
             return None
@@ -3922,7 +3941,8 @@ def vsam_define_rows(text: str) -> list[dict[str, Any]]:
         def nums(v: Optional[str]) -> list[int]:
             return [int(x) for x in re.findall(r"\d+", v or "")]
 
-        keys, rec = nums(one("KEYS")), nums(one("RECORDSIZE", "RECSZ"))
+        keys = nums(one("KEYS") or one("KEYS", block=data))
+        rec = nums(one("RECORDSIZE", "RECSZ") or one("RECORDSIZE", "RECSZ", block=data))
         org = next((w for w in ("NONINDEXED", "NUMBERED", "LINEAR", "INDEXED") if re.search(rf"\b{w}\b", own)), None)
         uniq = (
             "NONUNIQUE"

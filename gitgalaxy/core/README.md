@@ -40,7 +40,7 @@ This file categorizes different keyword terms into structural signature counts. 
 
 #### Proximity correlations (`spatial_correlation.py`) — the dampener/amplifier pairs
 
-After raw counting, six signal-pair correlations look at *where* hits sit relative to each
+After raw counting, five signal-pair correlations look at *where* hits sit relative to each
 other — within a character radius **and** (post-#346/#348) inside the same detected function —
 and tally the pairings in the per-file `mitigation_telemetry`. These were previously invisible
 outside the source (#2546 — the #1096 keyword-rosetta control corpus had to rediscover the flux
@@ -113,7 +113,7 @@ If you are onboarding into the `core/` architecture, pay special attention to ho
 * **Multi-Tiered ReDoS Defense Architecture (`detector.py` & `prism.py`):** Regular Expression Denial of Service (ReDoS) is a critical threat when scanning unknown or minified code. We do not rely on a single timeout guillotine. The engine utilizes a three-tiered defense:
     1. **O(1) Atomic Literal Shielding:** Temporarily masks string literals to prevent the regex engine from catastrophically backtracking on overlapping quotes.
     2. **Line-Length Limiters:** Identifies abnormally long lines (e.g., hex arrays or minified data blobs) and truncates them before regex evaluation, while perfectly preserving the mathematical Lines of Code (LOC) count.
-    3. **OS-Level Interrupts:** If a malformed file still traps the engine in an evaluation loop, a hardware-level OS interrupt fires after 15 seconds. It safely terminates the isolated worker process, downgrades the file to `plaintext`, and ensures the CI/CD pipeline never hangs.
+    3. **OS-Level Interrupts:** If a malformed file still traps the engine in an evaluation loop, an OS-level interrupt (`SIGALRM`) fires after 60 seconds. It safely terminates the isolated worker process, downgrades the file to `plaintext`, and ensures the CI/CD pipeline never hangs.
 * **Dynamic Mid-File Language Switching (`detector.py`):** Standard parsers routinely fail or miscategorize polyglot files (e.g., SQL logic embedded within a Python string, or JavaScript nested inside HTML). Instead of failing, the engine dynamically swaps syntax registries mid-file. It uses scope-aware handshakes to isolate and correctly parse embedded languages, preserving structural context across 50+ languages.
 * **AST-Free Cyclomatic Complexity (`detector.py`):** Compiling an Abstract Syntax Tree to determine cyclomatic nesting depth requires massive overhead. GitGalaxy bypasses this by counting control-flow branch signatures directly from the lexical stream as a fast proxy for cyclomatic complexity, in the same pass covered by the throughput benchmark cited above. This deliberately stops short of inferring algorithmic (Big-O) complexity or recursion depth from code shape -- a prior heuristic attempting that was removed for producing systematic false positives.
 * **Recall vs. Exhaustiveness (By Design):** GitGalaxy optimizes for near-total structural recall at heuristic speed, not byte-for-byte AST completeness, and has two explicit, intentional boundaries. `aperture.py` excludes pathological single-file monoliths outright (30,000+ LOC, or content matching binary/minified/machine-generated-source heuristics) to protect the regex engine from catastrophic backtracking. `detector.py` caps per-file function extraction at a fixed ceiling to bound memory and CPU on extremely dense files. Both trade a small amount of recall on the long tail of pathological files for guaranteed bounded runtime across the rest of a repository.
@@ -128,5 +128,5 @@ Explore the ecosystem:
 
 * **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
 * **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
 * **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

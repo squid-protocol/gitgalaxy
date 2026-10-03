@@ -1,0 +1,213 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COSGN00C",
+ "program_source": "app/cbl/COSGN00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CC00",
+ "clock": "2022/07/18 10:30:15.00",
+ "region": {
+  "applid": "CARDDEMO",
+  "sysid": "CICA"
+ },
+ "datasets": {
+  "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS": {
+   "input": "@case/usrsec.txt",
+   "entity": "SecUserData",
+   "copybook": "app/cpy/CSUSR01Y.cpy",
+   "record": "SEC-USER-DATA"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "COSGN0A": {
+   "copybook": "app/cpy-bms/COSGN00.CPY",
+   "input": "COSGN0AI",
+   "output": "COSGN0AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "admin-signs-on",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "ADMIN001",
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "user-signs-on",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0003",
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "lowercase-credentials",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "user0001",
+     "PASSWDI": "password"
+    }
+   },
+   "why": "UPPER-CASE on both the id and the password"
+  },
+  {
+   "name": "wrong-password",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "NOTMYPWD"
+    }
+   }
+  },
+  {
+   "name": "user-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "NOBODY01",
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "user-id-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "password-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001"
+    }
+   }
+  },
+  {
+   "name": "both-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {}
+   }
+  },
+  {
+   "name": "pf3-thank-you",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {}
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "PASSWORD"
+    }
+   }
+  },
+  {
+   "name": "user-file-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CC00",
+    "CDEMO-FROM-PROGRAM": "COSGN00C",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "receive": {
+    "COSGN0A": {
+     "USERIDI": "USER0001",
+     "PASSWDI": "PASSWORD"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "USRSEC",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: 'Unable to verify the User ...'"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's sign-on (transaction CC00, program COSGN00C): the screen shows the region's APPLID and SYSID (EXEC CICS ASSIGN); ENTER upper-cases the user id and password, reads the user security record and XCTLs an administrator to COADM01C and a user to COMEN01C; a wrong password, an unknown id or an empty field shows the screen again; PF3 says goodbye in plain text. The region's identity is a deployment fact CardDemo does not fix: CARDDEMO / CICA here are illustrative values the case states, given alike to both sides. usrsec.txt is CardDemo's own DUSRSECJ in-stream data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

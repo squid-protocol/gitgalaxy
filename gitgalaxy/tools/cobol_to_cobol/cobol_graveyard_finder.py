@@ -33,8 +33,16 @@ _PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b", re.IGNORECASE)
 _SEQ_AREA = r"(?:[^\n]{6} )?"
 
 # Scope terminators and verbs that can stand alone on a line ending in a period.
-# None of these can name a paragraph (#3203 defect 1).
-_NOT_A_PARAGRAPH = re.compile(r"END-[A-Z0-9\-]+|GOBACK|EXIT|CONTINUE|STOP|DECLARATIVES")
+# None of these can name a paragraph (#3203 defect 1). #4026: only the reserved
+# END- words, not every `END-...` name -- `END-IPROC1.` in Area A is a legal
+# paragraph (opensourcecobol4j jp-compat 033, reached by `AT END GO TO END-IPROC1`).
+# The list is the COBOL 2014 / IBM Enterprise COBOL / GnuCOBOL reserved END- words.
+_RESERVED_END_WORDS = (
+    "ACCEPT|ADD|CALL|CHAIN|COLOR|COMPUTE|DELETE|DISPLAY|DIVIDE|EVALUATE|EXEC|FREE|IF|INVOKE"
+    "|JSON|MULTIPLY|OF-PAGE|PERFORM|READ|RECEIVE|RETURN|REWRITE|SEARCH|SEND|START|STRING"
+    "|SUBTRACT|UNSTRING|WAIT|WRITE|XML"
+)
+_NOT_A_PARAGRAPH = re.compile(rf"END-(?:{_RESERVED_END_WORDS})|GOBACK|EXIT|CONTINUE|STOP|DECLARATIVES")
 
 # Matches a copy statement, with or without a sequence field in cols 1-6
 # (`R2     COPY SAM2PARM.`):
@@ -64,7 +72,16 @@ def copy_member(match: re.Match) -> str:
     return (match.group("name") or match.group("inc")).upper()
 
 
-_NAME = r"[A-Z0-9][A-Z0-9\-]*"
+# A COBOL word character (#4026): an upper-case letter or digit in any script --
+# full-width and CJK too (opensourcecobol4j writes `東京ラベル`, and section
+# names in full-width letters and digits) -- or a
+# hyphen, including the full-width hyphen-minus U+FF0D and the minus sign U+2212
+# that Japanese sources write inside names. `[^\W_a-z]` is `\w` less `_` and
+# ASCII lower case, so on ASCII text it is exactly the old `[A-Z0-9]`. U+3000
+# (the full-width space, #3956) is not `\w`: it stays a separator.
+_LETTER = r"[^\W_a-z]"
+_HYPHEN = r"[\-\uff0d\u2212]"
+_NAME = rf"{_LETTER}(?:{_LETTER}|{_HYPHEN})*"
 
 # A fixed-format unit header: `NAME.` or `NAME SECTION [nn].` starting in Area A
 # (cols 8-11), alone on its line.
@@ -78,7 +95,8 @@ _UNIT_HEADER = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"\s*
 # hyphens and `\b` fires at each one, so `END-PERFORM` followed by `PERFORM X`
 # read as a PERFORM of the word PERFORM (swallowing X, which then read dead --
 # CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR), and `END-IF` counted as an IF.
-_V = r"(?<![A-Z0-9\-])"
+# #4026: the same word characters as `_NAME`, so `東京PERFORM` is no verb either.
+_V = rf"(?<!{_LETTER})(?<!{_HYPHEN})"
 _PERFORM = re.compile(rf"{_V}PERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")
 _GO_TO = re.compile(rf"{_V}GO\s+(?:TO\s+)?({_NAME}(?:\s+{_NAME})*)")
 # `ALTER P TO PROCEED TO Q` rewires P's GO TO: Q is reached as a GO TO target

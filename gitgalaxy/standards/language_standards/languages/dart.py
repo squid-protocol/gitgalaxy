@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -48,6 +53,10 @@ DEFINITION: dict[str, Any] = {
     # same name repeats across a monorepo's packages.
     "imports_resolve_from_importer_dir": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
         # #3359 (contract C2): keywords and special forms, never calls
@@ -68,7 +77,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?\?|\?",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -466,6 +475,8 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or dead widgets.
         "dead_code": re.compile(
             r"//[ \t]*(?:class|mixin|void|if|for|while|print|Widget|return)\b|/\*[ \t]*(?:class|mixin|void|Widget|if|for)"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
         ),
         # 13. doc: Structured Documentation. dartdoc annotations and structured comments.
         # BUG FIX #2672: `/**`, `///` and the doc tags (`@param`, `@return`)

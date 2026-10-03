@@ -64,8 +64,20 @@ CASES = {
         ["rescue StandardError", "ensure", "begin", "retry"],
     ),
     "java": (
-        ["if (x) {", "} else {", "switch (k) {", "do {"],
-        ["try {", "catch (Exception e) {", "finally {"],
+        ["if (x) {", "} else {", "switch (k) {", "do {", "a ? b : c"],
+        # A `:` is never a decision; a generic wildcard `?` is a type (see "Literals").
+        [
+            "try {",
+            "catch (Exception e) {",
+            "finally {",
+            "outer:",
+            "assert ok : msg;",
+            "List<?> a;",
+            "Map<?, ?> m;",
+            "List<? extends T> l;",
+            "Class<? super T> c;",
+            "System.out::println",
+        ],
     ),
     "javascript": (
         ["if (x) {", "} else {", "for (;;) {"],
@@ -245,6 +257,15 @@ COUNTS = [
     ("csharp", "if (x) {\n} else {\n}\nswitch (x) {}\ngoto done;", 3),
     ("makefile", "ifeq ($(FLAG),1)\nelse\nendif", 2),
     ("go", "for i := range xs {", 1),  # range rides the for it continues
+    # A ternary is one decision, at its `?`; a case label's `:` adds nothing to its `case`.
+    ("java", "int y = x ? 1 : 2;", 1),
+    ("java", "switch (k) {\ncase 1: f();\ndefault: g();\n}", 3),
+    # `??` is one value-selection decision, not two `?`s.
+    ("typescript", "const v = a ?? b;", 1),
+    ("javascript", "const v = a ?? b;", 1),
+    ("dart", "var v = a ?? b;", 1),
+    ("swift", "let v = a ?? b", 1),
+    ("apex", "Integer v = a ?? b;", 1),
 ]
 
 # The typescript mirror: type keywords are not runtime guards (safety side).
@@ -261,6 +282,8 @@ PAYLOADS = [
     "PERFORM " * 20000,
     "[" * 60000,
     "?" * 80000,
+    "? " * 40000 + ">",
+    "?" + "\t" * 100000 + "extends",
     "\t" * 50000 + "when",
 ]
 

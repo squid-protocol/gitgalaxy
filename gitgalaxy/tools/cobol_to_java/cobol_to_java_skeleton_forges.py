@@ -62,10 +62,15 @@ class SkeletonForges:
         repos = self.repos
         entities = {st.entity: repos.entity_source(st) for st in repos.stores}
         entities.update({st.key_type: repos.key_source(st) or "" for st in repos.stores if st.composite})
-        records = repos.records_source()  # #3624: the runtime the entities' record codecs share
+        # #3624: the runtime the entities' record codecs share; #3989: a CICS program's port needs it (and
+        # CobolEdit) for its screen fields even with no entity to share it; #4039: so does every port -- every
+        # ticket's rules name both (numval, zoned / packed, sortKey, width / fit, CobolEdit.format) -- so a
+        # batch-only estate, or a CICS program with no CICS resource the forge sees, gets them too
+        needed = bool(self.skeletons)
+        records = repos.records_source(needed=needed)
         if records:
             entities["CobolRecords"] = records
-        edit = repos.edit_source()
+        edit = repos.edit_source(needed=needed)
         if edit:
             entities["CobolEdit"] = edit
         out: dict[tuple[str, ...], dict[str, str]] = {
@@ -73,6 +78,7 @@ class SkeletonForges:
             ("repository", "vsam"): {st.repository: repos.repository_source(st) for st in repos.stores},
             ("dto", "contract"): self.cics.dto_sources(),
             ("base_pkg", "client"): self.calls.client_sources(),
+            ("base_pkg", "call"): self.calls.ref_sources(),  # #4023 follow-up: CobolRef, a CALL's BY REFERENCE item
             ("base_pkg", "cics"): self.cics.runtime_sources(),  # #3754: CicsTask
             **self.db2.sources(),
         }

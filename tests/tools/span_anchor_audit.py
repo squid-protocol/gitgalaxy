@@ -48,9 +48,11 @@ import tempfile
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.source_text import read_source
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:  # before any gitgalaxy import: this checkout's, not an installed one
+    sys.path.insert(0, str(REPO_ROOT))
+from gitgalaxy.core.source_text import read_source  # noqa: E402
+
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 BASELINE = REPO_ROOT / "tests" / "span_anchor_baseline.json"
 

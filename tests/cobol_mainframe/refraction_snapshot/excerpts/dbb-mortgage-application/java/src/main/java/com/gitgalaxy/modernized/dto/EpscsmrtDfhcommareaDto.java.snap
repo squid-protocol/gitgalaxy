@@ -1,0 +1,15 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class EpscsmrtDfhcommareaDto {
+
+    private String wsCalledProgram;
+
+    private String calledProgramName;
+
+}

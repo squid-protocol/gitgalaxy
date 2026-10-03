@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union, cast
 
-from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
+from gitgalaxy.core.aperture import DENIED_EXTENSION, ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.detector import HAS_TIKTOKEN, _compiled_rules
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
@@ -55,7 +55,7 @@ from gitgalaxy.recorders.sbom_recorder import SbomRecorder
 from gitgalaxy.security.ai_appsec_sensor import AIAppSecSensor
 from gitgalaxy.security.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.security.security_auditor import HAS_NUMPY, HAS_PANDAS, HAS_XGBOOST, SecurityAuditor
-from gitgalaxy.security.security_lens import SecurityLens
+from gitgalaxy.security.security_lens import SecurityLens, detect_disguised_executable
 from gitgalaxy.standards.analysis_lens import (
     ASSET_MASKS,
     PATH_MODIFIERS,
@@ -383,7 +383,10 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
                     re.split(r"\s+as\s+", item)[0].strip()
                     for item in extracted_path.replace("{", "").replace("}", "").split(",")
                 ]
+            quote = lang_def.get("import_name_quote")
             for item in items:
+                if quote:
+                    item = item.replace(quote, "")
                 if item:
                     tokens.add(item)
     return tokens
@@ -502,16 +505,20 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             phase_times["1_Aperture_Filter"] = time.perf_counter() - t_aperture
 
         if not is_valid:
-            # ---> NEW: THE BINARY ANALYSIS SENSOR <---
-            # Intercept binary and blacklisted extensions for deep inspection
-            if "Binary Format" in reason or "Blacklisted Extension" in reason or "Embedded Data Payload" in reason:
+            # ---> THE BINARY ANALYSIS SENSOR (#4126) <---
+            # A file whose extension Gate 1.3 denies is checked for executable magic at offset 0
+            # (ELF, PE/NE/LE, a self-consistent DOS MZ, Mach-O, Java class, wasm) -- and only when
+            # the extension claims an inert format (an image, an archive, a document...). The gate
+            # reads the reason's kind, not its wording: a reworded message once disconnected it.
+            # scan_binary()'s entropy and anywhere-in-8KB checks flagged 10.5% of ordinary denied
+            # files (compressed images, LFS pointers); it stays for binary_anomaly_detector.py.
+            if getattr(reason, "kind", "") == DENIED_EXTENSION:
                 try:
                     with open(full_path_str, "rb") as f:
-                        # Read the first 8KB to check headers and entropy
                         head = f.read(8192)
 
                     ext = Path(rel_path).suffix.lower()
-                    binary_threats = security.scan_binary(head, ext)
+                    binary_threats = detect_disguised_executable(head, ext)
 
                     if binary_threats:
                         logger.critical(f"🚨 BINARY ANALYSIS TRIGGERED: Weaponized binary detected at '{rel_path}'!")
@@ -540,7 +547,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                             "doc_loc": 0,
                             "raw_imports": [],
                             "popularity_hits": set(),
-                            "equations": binary_threats,
+                            # the snippet is evidence text, not a signal count: it rides in
+                            # threat_snippets below, never in the numeric equations
+                            "equations": {k: v for k, v in binary_threats.items() if k != "threat_snippet"},
                             # #368: the hit_vector above was computed but never
                             # attached, so scan_binary()'s findings only ever
                             # rode out on the non-durable "equations" dict and
@@ -2117,6 +2126,12 @@ class Orchestrator:
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
                     self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
+                elif self._is_disguised_executable(self.root / path_obj, reason):
+                    # #4126: denied by extension but executable inside -- dispatch it so the
+                    # worker's Binary Analysis Sensor forges its threat artifact. It joins the
+                    # dispatch maps only, not the language census or the extension tallies.
+                    self.stem_map[rel_path] = rel_path
+                    self.file_size_map[rel_path] = size_bytes
                 else:
                     # Route directly to Unparsable Artifacts, bypassing the Multi-Processing pool
                     self.unparsable_files.append(
@@ -2183,6 +2198,10 @@ class Orchestrator:
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
                     self.ext_tally[name] = self.ext_tally.get(name, 0) + 1
+                elif self._is_disguised_executable(full_p, reason):
+                    # #4126: see the git census above
+                    self.stem_map[rel_p] = rel_p
+                    self.file_size_map[rel_p] = size_bytes
                 else:
                     self.unparsable_files.append(
                         {
@@ -2193,6 +2212,23 @@ class Orchestrator:
                         }
                     )
                     self._record_anomaly(rel_p, reason)
+
+    @staticmethod
+    def _is_disguised_executable(full_path: Path, reason: Any) -> bool:
+        """#4126: a file Gate 1.3 denied by extension whose first bytes are an executable.
+
+        Census routes every denied file straight to the unparsable list, so without this
+        the worker's Binary Analysis Sensor never sees one. Only an extension that claims
+        an inert format (image, archive, document...) with executable magic at offset 0
+        qualifies -- see security_lens.detect_disguised_executable()."""
+        if getattr(reason, "kind", "") != DENIED_EXTENSION:
+            return False
+        try:
+            with open(full_path, "rb") as fh:
+                head = fh.read(8192)
+        except OSError:
+            return False
+        return bool(detect_disguised_executable(head, Path(full_path).suffix.lower()))
 
     def _extract_features_parallel(self):
         """

@@ -7,7 +7,6 @@
 # A copy of the license can be found in the LICENSE file in the root directory
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
-import contextlib
 import logging
 import math
 import re
@@ -297,9 +296,10 @@ class LanguageDetector:
             if "rules" in data:
                 for rule_name, regex in data["rules"].items():
                     if isinstance(regex, str):
-                        # Safely bypass malformed strings in external definitions
-                        with contextlib.suppress(re.error):
+                        try:
                             data["rules"][rule_name] = re.compile(regex)
+                        except re.error:
+                            pass  # Safely bypass malformed strings in external definitions
 
         for anchor in self.PROSE_ANCHORS:
             if anchor not in self.anchor_map:

@@ -1,0 +1,128 @@
+{
+ "kind": "call",
+ "corpus": "dbb-mortgage-application",
+ "program": "EPSNBRVL",
+ "program_source": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+ "copy_dirs": [
+  "zBuilder/MortgageApplication/copybook"
+ ],
+ "clock": "2026/10/03 10:30:15.00",
+ "using": [
+  {
+   "name": "EPS-NUMBER-VALIDATION",
+   "size": 129,
+   "record": {
+    "copybook": "zBuilder/MortgageApplication/copybook/epsnbrpm.cpy",
+    "name": "EPS-NUMBER-VALIDATION"
+   }
+  }
+ ],
+ "calls": [
+  {
+   "name": "integer",
+   "args": [
+    "123          13"
+   ],
+   "why": "a plain integer: trailing spaces trimmed, digits right-aligned into EPSPARM-NUMBER, binary number = 123.00"
+  },
+  {
+   "name": "leading-spaces",
+   "args": [
+    "   4567      13"
+   ],
+   "why": "leading spaces are skipped by the second PERFORM UNTIL"
+  },
+  {
+   "name": "comma-and-decimal",
+   "args": [
+    "1,234.56     13"
+   ],
+   "why": "a comma is skipped by A001; the fraction digits go left-aligned into EPSPARM-DECIMAL"
+  },
+  {
+   "name": "decimal-only",
+   "args": [
+    ".5           13"
+   ],
+   "why": "no integer part: EPSPARM-NUMBER stays zero, binary = 0.50"
+  },
+  {
+   "name": "trailing-point",
+   "args": [
+    "7.           13"
+   ],
+   "why": "a point with nothing after it: decimal zero"
+  },
+  {
+   "name": "too-many-points",
+   "args": [
+    "1.2.3        13"
+   ],
+   "why": "a second '.' -> STATIC-ERROR-TABLE(3) 'TOO MANY DEICMAL POINTS'; no binary number"
+  },
+  {
+   "name": "embedded-space",
+   "args": [
+    "12 34        13"
+   ],
+   "why": "a space inside the number -> error 2 'SPACES IN NUMBER'"
+  },
+  {
+   "name": "not-numeric",
+   "args": [
+    "12A4         13"
+   ],
+   "why": "a letter -> error 2 (IS NOT NUMERIC)"
+  },
+  {
+   "name": "negative-sign",
+   "args": [
+    "-5           13"
+   ],
+   "why": "'-' is not numeric -> error 2"
+  },
+  {
+   "name": "all-spaces",
+   "args": [
+    "             13"
+   ],
+   "why": "nothing to read: END-SPACE stays 0 -> error 1 'NO NUMBER PRESENT'"
+  },
+  {
+   "name": "thirteen-digits",
+   "args": [
+    "999999999999913"
+   ],
+   "why": "the field's whole width: thirteen digits"
+  },
+  {
+   "name": "max-length-limits",
+   "args": [
+    "1234567890   05"
+   ],
+   "why": "EPSPARM-MAX-LENGTH 05: only the first five characters are read (12345)"
+  },
+  {
+   "name": "max-length-too-big",
+   "args": [
+    "42           99"
+   ],
+   "why": "a maximum above the field's 13 is clamped to 13"
+  },
+  {
+   "name": "max-length-zero",
+   "args": [
+    "42           00"
+   ],
+   "why": "a zero maximum reads nothing -> error 1"
+  },
+  {
+   "name": "long-fraction",
+   "args": [
+    ".12345678901213"
+   ],
+   "why": "twelve fraction digits, then '13' as the maximum length: EPSPARM-DECIMAL takes them left-aligned"
+  }
+ ],
+ "notes": "IBM DBB MortgageApplication's number validator, CALLed by EPSCMORT. Its one USING item is the 129-byte EPS-NUMBER-VALIDATION group (copybook EPSNBRPM): EPSPARM-VALIDATE-DATA X(13) and EPSPARM-MAX-LENGTH 99 in; EPSPARM-NUMBER 9(13), EPSPARM-DECIMAL V9(13), EPSPARM-BINARY-NUMBER 9(9)V99 COMP and EPSPARM-RETURN-ERROR X(80) out. Each call passes the 15 input characters; the rest of the group starts as spaces and is set by the program."
+}

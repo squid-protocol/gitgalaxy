@@ -10,8 +10,12 @@ name: Archive Release Output to Language Crucible
 #     language-crucible/raw_output/<tag>/ via a PR, so it's browsable
 #     and diffable directly in that repo.
 #   - Everything heavier (SQLite DB, graph, SARIF, SBOM, GPU payload,
-#     LLM brief) attaches to the GitGalaxy release itself as assets --
-#     permanent, but never re-cloned as part of any repo's history.
+#     LLM brief) is this run's workflow artifact (90 days), never part of
+#     any repo's history. It used to attach to the release as assets, but
+#     this repo's releases are immutable: GitHub refuses an asset once a
+#     release is published ("HTTP 422: Cannot upload assets to an
+#     immutable release"), which failed every release from v2.8.0 to
+#     v2.11.0 before the baseline PR below was ever opened.
 #
 # workflow_dispatch lets this be dry-run against a past release tag
 # without needing to cut a new one.
@@ -32,6 +36,7 @@ jobs:
   archive-crucible-output:
     if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       RELEASE_TAG: ${{ github.event.release.tag_name || github.event.inputs.tag }}
     steps:
@@ -52,7 +57,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --upgrade pip setuptools wheel
-          pip install PyYAML tiktoken pandas xgboost
+          pip install PyYAML tiktoken "pandas>=2.0.0" xgboost
           pip install -e .
 
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF, same as CI)
@@ -80,19 +85,23 @@ jobs:
           GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
         run: |
           mkdir -p telemetry_out
-          timeout 180s galaxyscope ./language-crucible/data --output ./telemetry_out/
+          # 180s was enough once; the pinned corpus (3,600+ files) took ~3 min for v2.11.0 and was killed
+          # (exit 124) while writing its last export. The job's own timeout still bounds a hang.
+          timeout 900s galaxyscope ./language-crucible/data --output ./telemetry_out/
 
-      - name: Upload heavy artifacts as release assets
-        if: ${{ github.event_name == 'release' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd telemetry_out
-          for f in data_galaxy_master.db data_galaxy_graph.sqlite data_galaxy_sarif.json data_galaxy_sbom.json data_galaxy_gpu.json data_galaxy_llm.md; do
-            if [ -f "$f" ]; then
-              gh release upload "$RELEASE_TAG" "$f" --repo squid-protocol/gitgalaxy --clobber
-            fi
-          done
+      - name: Keep the heavy artifacts with this run
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: crucible-output-${{ env.RELEASE_TAG }}
+          retention-days: 90
+          if-no-files-found: warn
+          path: |
+            telemetry_out/data_galaxy_master.db
+            telemetry_out/data_galaxy_graph.sqlite
+            telemetry_out/data_galaxy_sarif.json
+            telemetry_out/data_galaxy_sbom.json
+            telemetry_out/data_galaxy_gpu.json
+            telemetry_out/data_galaxy_llm.md
 
       - name: Checkout Language Crucible
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -119,9 +128,9 @@ jobs:
             Automated archive of GitGalaxy `${{ env.RELEASE_TAG }}`'s output against the pinned
             `data/` corpus (`${{ env.CRUCIBLE_REF }}` tag), for release-over-release comparison.
 
-            The remaining artifacts (SQLite DB, graph, SARIF, SBOM, GPU payload, LLM brief) are
-            attached to the release itself rather than committed here:
-            ${{ github.event.release.html_url || format('https://github.com/squid-protocol/gitgalaxy/releases/tag/{0}', env.RELEASE_TAG) }}
+            The remaining artifacts (SQLite DB, graph, SARIF, SBOM, GPU payload, LLM brief) are kept
+            with the run that made them (90 days) rather than committed here:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           branch: auto/crucible-archive-${{ env.RELEASE_TAG }}
           delete-branch: true
           add-paths: raw_output/${{ env.RELEASE_TAG }}/data_galaxy_audit.json

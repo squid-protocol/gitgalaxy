@@ -62,7 +62,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken pandas xgboost pytest ruff==0.16.0
+          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest ruff==0.16.0
           pip install --no-build-isolation -e .
 
       # Cross-platform/cross-version floor check (fatal syntax errors, undefined
@@ -117,7 +117,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken pandas xgboost pytest pytest-xdist
+          pip install PyYAML networkx tiktoken "pandas>=2.0.0" xgboost pytest pytest-xdist
+          # the COBOL translator's parser: without it every det-translator test importorskips and the
+          # suite passes without running them (a stale emitter expectation reached main that way)
+          pip install "tree-sitter-language-pack==1.20.0"
           pip install --no-build-isolation -e .
 
       - name: Golden Record Integration Test (Pytest)

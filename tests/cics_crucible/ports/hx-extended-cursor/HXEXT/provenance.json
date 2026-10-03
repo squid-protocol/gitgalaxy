@@ -1,0 +1,54 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "hx-extended-cursor",
+ "program": "HXEXT",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:50:20+00:00",
+ "ticket_sha256": "a644aaf31849ac5252d2650f72f316eb4a958eeaec53a14a01608e4afc85a243",
+ "prompt_tokens": 18894,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (behaviour unchanged, commented in the code):\n- BLINK-MISTAKE moves X'F1' to MSGA (the attribute byte: autoskip + MDT) instead of the highlight byte.\n  This is the program's own deliberate demonstration. Fix: MOVE DFHBLINK TO MSGH.\n- CHECK-INPUT never tests WS-RESP after RECEIVE MAP (fact \"unchecked_responses\", field-tested).\n  On MAPFAIL, HXM2I stays LOW-VALUES and ACCTL = 0, so the task sends \"ACCOUNT MUST BE 6 DIGITS\".\n  Fix: IF WS-RESP = DFHRESP(MAPFAIL) resend the first-entry screen.\n- AMOUNT is never validated; its NUM attribute only restricts the keyboard. When AMOUNT is not\n  entered, AMOUNTI stays LOW-VALUES. Those X'00' bytes then go into MSGO through the STRING, and\n  back out as AMOUNTO on the DATAONLY send.\n  Fix: IF AMOUNTL = 0 MOVE ZEROS TO AMOUNTI before the STRING.\n\nModelling notes:\n- HXM2O REDEFINES HXM2I. On both CHECK-INPUT sends, ACCTO and AMOUNTO therefore carry the received\n  ACCTI / AMOUNTI data. Received data is modelled as BMS lays it out:\n  - ACCT uses JUSTIFY=(LEFT,BLANK).\n  - AMOUNT uses JUSTIFY=(RIGHT,ZERO).\n  - ACCTL is the length of the value typed.\n  - A field that is null or empty is treated as not received: length 0, LOW-VALUES.\n- Hxm2Screen carries no received flag bytes (ACCTF / AMOUNTF / MSGF). On the CHECK-INPUT sends,\n  AMOUNTA and MSGA keep whatever flag BMS set (X'80' after an erase-EOF). They are ported as not\n  set, i.e. LOW-VALUES. On the error path ACCTA is overwritten.\n- EIBCALEN = 0 is tested as !task.hasCommarea(), or eibcalen() == 0.\n\nFacts contradicted: none found. The screen_bindings, calls, commarea_contracts and cics_resources\nfacts (field testing open) all match the source.",
+ "proof": {
+  "at": "2026-09-29T21:59:48+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "bad-account": "1/1",
+   "good-entry": "1/1",
+   "pf5-blink": "1/1"
+  },
+  "sibling_ports": [
+   "HXEXT"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:50:20+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:50:42+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "bad-account": "1/1",
+    "good-entry": "1/1",
+    "pf5-blink": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:48+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "bad-account": "1/1",
+    "good-entry": "1/1",
+    "pf5-blink": "1/1"
+   }
+  }
+ ]
+}

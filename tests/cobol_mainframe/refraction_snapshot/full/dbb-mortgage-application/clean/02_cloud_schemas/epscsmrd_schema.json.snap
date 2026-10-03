@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "X00000175",
+  "type": "object",
+  "properties": {
+    "PROCESS_INDICATOR": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "EPSPCOM_PRINCIPLE_DATA": {
+      "type": "number",
+      "description": "Legacy PIC: S9(9)V9(2)"
+    },
+    "EPSPCOM_NUMBER_OF_YEARS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "EPSPCOM_NUMBER_OF_MONTHS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "EPSPCOM_QUOTED_INTEREST_RATE": {
+      "type": "number",
+      "description": "Legacy PIC: S9(2)V9(3)"
+    },
+    "EPSPCOM_YEAR_MONTH_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "EPSPCOM_RETURN_MONTH_PAYMENT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(7)V9(2)"
+    },
+    "EPSPCOM_ERRMSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "EPSPCOM_PROGRAM_RETCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "EPSPCOM_PROGRAM_RETCODE_RDF": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    }
+  }
+}

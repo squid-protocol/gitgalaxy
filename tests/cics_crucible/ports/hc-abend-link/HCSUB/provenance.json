@@ -1,0 +1,71 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "hc-abend-link",
+ "program": "HCSUB",
+ "attempt": 2,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:01:07+00:00",
+ "ticket_sha256": "78bb1a19d18e4e231de5844cebd14b09cf9e843ebc998d41e5476c1b1a25680c",
+ "prompt_tokens": 23689,
+ "feedback_from": 1,
+ "notes": "Fix over attempt 1: the unhandled QIDERR in mode 'Q' was thrown as a CicsAbendException. That marked the\n@Transactional task rollback-only, and HCMAIN's HANDLE ABEND exit never got it. The port now calls\ntask.abendOnCondition(resp). It searches the exits from HCSUB's level upward, so HCMAIN's MAIN-ABEND\ntakes AEYH. On null the port returns at once, with no RETURN event. Mode 'A' now issues\ntask.handleAbend(\"SUB-ABEND\") and task.abend(\"HCX1\"), and goes on to SUB-ABEND when the label comes\nback. No CICS transfer throws anymore.\n\nDefects of the original kept:\n- Line 35 (MOVE 'x' TO CA-TRAIL(3:1)) can never run: ABEND does not return, and SUB-ABEND ends in RETURN.\n  Fix: delete line 35.\n- HCSUB never tests EIBCALEN. With no COMMAREA, the first MOVE to DFHCOMMAREA (line 23) fails. This is\n  modelled as task.abend(\"ASRA\"), searched through the exits, not as an exception. The recorded cause is\n  \"command\", because CicsTask has no program-check cause.\n  Fix: IF EIBCALEN = 0 EXEC CICS RETURN END-IF before line 23.\n- CA-COUNT wraps past 9999: ADD without SIZE ERROR, TRUNC(STD) assumed. No CBL card is given, so the\n  installation default is used.\n\nFacts contradicted: none. The commarea_contracts fact (open) reports HCMAIN's WS-CA as 4 bytes, but the\nharness shows a 20-byte LINK. The port uses the 20-byte DFHCOMMAREA that HCSUB declares.",
+ "proof": {
+  "at": "2026-09-29T22:02:33+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "sub-own-exit": "1/1",
+   "sub-resp": "1/1",
+   "sub-unhandled": "1/1"
+  },
+  "sibling_ports": [
+   "HCMAIN",
+   "HCSUB"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:48:37+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:50:48+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:59:27+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:01:07+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:02:33+00:00",
+   "event": "proven",
+   "attempt": 2,
+   "summary": {
+    "sub-own-exit": "1/1",
+    "sub-resp": "1/1",
+    "sub-unhandled": "1/1"
+   }
+  }
+ ]
+}

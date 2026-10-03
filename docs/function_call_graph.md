@@ -18,12 +18,12 @@ Every (caller, callee name) pair goes down the ladder until one step matches:
 | `class` | a method of the caller's own class, or an ancestor's (via `self`/`this`/a bare call) | scoped |
 | `qualified` | `Store.make()` / `Store::make()`: a method of the named class | scoped |
 | `typed` | `x.save()` where the same function shows `x`'s class (`x = Store()`, `def f(x: Store)`, `with Store() as x`): a method of that class or its nearest ancestor. Python only; the evidence is `function_data.calls_out_receiver_types` | scoped |
-| `file` | defined in the caller's own file | scoped |
+| `file` | defined in the caller's own file. For an explicit receiver other than `this`/`self` (`members.entrySet()`), not when the definition is on the caller's own class (or an ancestor) and another visible file, imported or in the caller's package directory, also defines the name on a class: that call is a `receiver` row (#3837) | scoped |
 | `import` | defined in a file the caller imports, or its own directory for an untyped receiver | scoped |
 | `unique` | the only definition of the name in the repository | unique |
 | `unseen` | the only definition, but a bare call in a package-scoped language (Python, JS/TS, Perl, Zig, Rust, Dart; Go and the JVM languages outside the caller's directory) cannot see it: not imported, not its own package (#3443) | ambiguous |
 | `nearest` | several definitions; the nearest by path is recorded as a guess | ambiguous |
-| `receiver` | `obj.m()` with an untyped `obj`, and `m` not visible to the caller | ambiguous |
+| `receiver` | `obj.m()` with an untyped `obj`, and `m` not visible to the caller; or visible on both the caller's own class and another visible class (#3837) | ambiguous |
 | `tie` | several definitions, equally near | ambiguous |
 | `none` | defined nowhere in the repository (built-in, stdlib, package) | external |
 
@@ -31,6 +31,10 @@ The receiver chain written before a C-style call (`utils.parse`, `self.save`,
 `$this->load`) is captured as `function_data.calls_out_qualifiers`, and is what
 keeps `d.get()` on a dictionary from landing on the repository's one `get`
 method. **Ambiguous pairs are never graph edges.**
+
+In Java, `->` only ever ends a lambda's parameters, so `() -> toJson(gson, x)` records a bare
+call to `toJson`, not a call on an `<expr>` receiver (#3837). Kotlin, Groovy and Scala read `->`
+the same way, but they keep the old reading until a compiler reference measures them.
 
 In TypeScript and JavaScript the detector also records what each definition is
 (`function_data.def_shape`, #3757), because only some shapes can be called by name:
@@ -47,7 +51,19 @@ In TypeScript and JavaScript the detector also records what each definition is
   signature. No code runs there, so it is never a call target (#3757). A call to
   an overloaded function reaches its implementation.
 
-Other languages leave `def_shape` NULL and resolve as before.
+Java records `signature` too (#3836): an interface method or an `abstract` method,
+which ends in `;` with no body. A `native` method has no Java body either, but it
+runs, so it stays a target. A signature still tells the resolver something:
+
+- a bare or `this.` call to a method the caller's own class (or an ancestor) only
+  declares is a virtual dispatch to an override. It is an ambiguous `receiver` row,
+  not a link to another class that happens to share the name;
+- a class or interface that declares the method counts as one more candidate class
+  for an untyped receiver, so an interface plus one visible implementation is
+  ambiguous, not a confident link to that implementation.
+
+Other languages leave `def_shape` NULL and resolve as before. C# and Kotlin
+interfaces have the same shape, but no compiler reference measures them yet.
 
 ## Edge kinds
 
@@ -89,6 +105,7 @@ case at a time). It is what the graph knows on top of the names.
 | module-level code (#3704) | route registration and wiring at import time | fastapi: 416 of 417 module-level call pairs confident; pyan has no module node, so not scored against it |
 | decorators (#3708) | `@provide_bucket_name` on `get_key` -> `provide_bucket_name` | 100.0% precision over 575 judged |
 | references (#3712) | `Depends(get_db)` -> `get_db`; `return wrapper` -> the nested `wrapper` | 99.7% precision over 323 judged |
+| explicit receivers (#3837) | `members.entrySet()` inside a class that also has `entrySet` is not taken as a self-call | Java vs scip-java 0.12.3 on gson: confident precision 99.4% -> 99.7%, strict 91.9% -> 92.8%, recall 63.3% -> 64.9%; Python 99.8% -> 99.9% precision |
 | nested definitions (#3712) | a function's own nested `wrapper`, not the file's first | call precision 99.4% -> 99.8% |
 
 Together: recall of pyan3's function edges across calls, decorators and references is
@@ -101,8 +118,8 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
   judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
   `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
-  scip-java (javac-resolved SCIP) on gson: 92.7% confident precision over 3,474 judged
-  links, and 41.0% recall. A call to an overloaded method links to the overload with that
+  scip-java (javac-resolved SCIP) on gson: 93.2% confident precision over 3,727 judged
+  links, and 44.2% recall. A call to an overloaded method links to the overload with that
   many parameters (#3835). When several overloads take that many, the call is ambiguous:
   a row, not an edge (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP").
   Other languages run the same machinery unmeasured.

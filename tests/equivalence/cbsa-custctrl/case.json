@@ -1,0 +1,115 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "CUSTCTRL",
+ "program_source": "src/base/cobol_src/CUSTCTRL.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OCCS",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "datasets": {
+  "CBSA.CICSBSA.CUSTOMER": {
+   "input": "@case/customer.txt",
+   "entity": "OutputData",
+   "copybook": "src/base/cobol_copy/CUSTOMER.cpy",
+   "record": "CUSTOMER-RECORD"
+  }
+ },
+ "db2": {
+  "ddl": [],
+  "compare": [],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/CUSTCTRL.cbl",
+    "record": "DFHCOMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "control-record",
+   "commarea": {},
+   "why": "READ of key 000000/9999999999 NORMAL: the whole 259-byte control record (CTRL, 42 customers, last 0000000057, flag and fail code as stored: spaces) lands in the COMMAREA; the program never sets the success flag itself"
+  },
+  {
+   "name": "caller-data-overwritten",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "XXXX",
+    "CUSTOMER-CONTROL-SORTCODE": "987654",
+    "CUSTOMER-CONTROL-NUMBER": "0000000001",
+    "NUMBER-OF-CUSTOMERS": "9999999999",
+    "LAST-CUSTOMER-NUMBER": "1234567890",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y",
+    "CUSTOMER-CONTROL-FAIL-CODE": "9"
+   },
+   "why": "a COMMAREA arriving full of the caller's values (other key, counts, 'Y'/'9') is INITIALIZEd, then the READ INTO replaces all of it with the control record"
+  },
+  {
+   "name": "control-record-not-found",
+   "commarea": {
+    "CUSTOMER-CONTROL-EYECATCHER": "CTRL",
+    "NUMBER-OF-CUSTOMERS": "0000000005",
+    "CUSTOMER-CONTROL-SUCCESS-FLAG": "Y"
+   },
+   "why": "READ NOTFND (a CUSTOMER file without its control record): 'N' '1'; the COMMAREA is what INITIALIZE and the key MOVEs left (spaces, zeros, key 000000/9999999999)",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTFND",
+     "why": "13 on the READ: no control record"
+    }
+   ]
+  },
+  {
+   "name": "read-io-error",
+   "commarea": {},
+   "why": "READ IOERR: any RESP other than NORMAL (and SYSIDERR) gives 'N' '1' alike",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "IOERR",
+     "why": "17 on the READ"
+    }
+   ]
+  },
+  {
+   "name": "file-not-open",
+   "commarea": {},
+   "why": "READ NOTOPEN: 'N' '1'",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ"
+    }
+   ]
+  },
+  {
+   "name": "file-disabled",
+   "commarea": {},
+   "why": "READ DISABLED: 'N' '1'",
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CUSTOMER",
+     "resp": "DISABLED",
+     "why": "84 on the READ"
+    }
+   ]
+  }
+ ],
+ "notes": "CBSA's customer-control service (CUSTCTRL; no program in the corpus LINKs it, so the COMMAREA is its own DFHCOMMAREA, the CUSTCTRL copybook). It INITIALIZEs the COMMAREA, sets the key to sort code 000000 and customer number 9999999999 (CUSTOMER-CONTROL-KEY) and READs the CUSTOMER file INTO the COMMAREA with that 16-byte key: the control record BANKDATA writes into the CUSTOMER file (eyecatcher CTRL, NUMBER-OF-CUSTOMERS, LAST-CUSTOMER-NUMBER). On NORMAL the record is returned as stored, success flag included (the program never sets 'Y'); any other RESP gives CUSTOMER-CONTROL-SUCCESS-FLAG 'N' and FAIL-CODE '1'. The SYSIDERR retry loop (l.171-187: up to 100 READs, a 3-second DELAY each) is not reached: SYSIDERR is not an injectable condition. The file is compared after every scenario. customer.txt holds the control record, a decoy with the same customer number 9999999999 under sort code 123456, and two customers; the control record's FILLERs are spaces then zeros, which the CUSTOMER layout reads as name/address, date of birth, credit score and review date. The program is precompiled with CBL SQL and INCLUDEs SQLCA but runs no SQL statement: the empty \"db2\" section only lets the harness precompile it (no tables, nothing compared)."
+}

@@ -13,6 +13,7 @@ from typing import Any, Dict
 _HERE = os.path.dirname(os.path.abspath(__file__))
 if _HERE not in sys.path:
     sys.path.insert(0, _HERE)
+import golden_db_snapshot
 import golden_store
 
 # Parallel file processing means per-language/per-repo float sums (e.g.
@@ -25,8 +26,16 @@ FLOAT_ABS_TOL = 1e-6
 
 def load_and_sanitize(filepath: str) -> Dict[str, Any]:
     """Loads a golden master (a split fixture directory, #3384) or a plain JSON
-    audit file (a fresh scan's output) and strips volatile execution metadata."""
-    return sanitize(golden_store.load(filepath))
+    audit file (a fresh scan's output) and strips volatile execution metadata.
+
+    A fresh audit whose sibling ``*_master.db`` exists also gets the scan-DB
+    slice the fixtures carry (#4109, golden_db_snapshot), so a fresh scan and a
+    committed fixture always have the same shape."""
+    data = sanitize(golden_store.load(filepath))
+    db = golden_db_snapshot.db_for_audit(filepath)
+    if db is not None:
+        golden_db_snapshot.attach(data, db)
+    return data
 
 
 def sanitize(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -40,6 +49,11 @@ def sanitize(data: Dict[str, Any]) -> Dict[str, Any]:
         # Absolute path is machine/runner-specific (e.g. /home/joe/... locally
         # vs /home/runner/work/... in CI) -- never structurally meaningful.
         context.pop("Absolute Project Path", None)
+        # #4100: the archetype validation record is refreshed by automation on main
+        # (archetype-validation.yml) independently of engine output; a golden
+        # master must not go stale when it is. Withheld LABELS still diff -- they
+        # depend only on the brains.
+        data["1. Forensic Trail (Traceability)"].pop("Archetype Validation", None)
 
         git_footprint = data["1. Forensic Trail (Traceability)"].get("Source Control Footprint (Immutable Anchor)", {})
         git_footprint.pop("Commit Hash (SHA-1)", None)

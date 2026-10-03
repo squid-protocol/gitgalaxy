@@ -288,6 +288,7 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             kinds.setdefault(sym, kind)
 
     defs_by_symbol: dict[str, DefKey] = {}
+    ctor_arity: dict[DefKey, Optional[int]] = {}  # #4124: a class reference picks among these
     scopes: dict[str, list[tuple[tuple[int, int, int, int], DefKey]]] = collections.defaultdict(list)
     for d in docs:
         lines = sources[d.path]
@@ -309,6 +310,8 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             if not _has_body(lines, o.enclosing, (span[2], span[3])):
                 continue
             key: DefKey = (d.path, name, span[0] + 1)
+            if _descriptors(o.symbol)[-1:] and _descriptors(o.symbol)[-1][0] in _CONSTRUCTOR_NAMES:
+                ctor_arity[key] = _arg_count(lines, span[2], span[3], declaration=True)
             if o.symbol.startswith("local "):
                 defs_by_symbol[f"{d.path}\0{o.symbol}"] = key
             else:
@@ -333,7 +336,9 @@ def contract_from_index(data: bytes, root: Path, lang: str) -> dict[str, Any]:
             sym = f"{d.path}\0{o.symbol}" if o.symbol.startswith("local ") else o.symbol
             callee = defs_by_symbol.get(sym)
             if callee is None and o.symbol in classes and _after_new(lines, span):
-                callee = classes[o.symbol]  # TypeScript `new X(`: the reference is to the class
+                # TypeScript `new X(`, Java `new X<T>() {}` (an anonymous subclass): the
+                # reference is to the class, so the constructor is chosen by argument count
+                callee = _pick_constructor(classes[o.symbol], ctor_arity, lines, span)
             if callee is not None:
                 if _is_call(lines, span) and callee != caller:
                     edges.setdefault((caller, callee), span[0] + 1)
@@ -367,16 +372,76 @@ def _after_new(lines: list[str], span: tuple[int, int, int, int]) -> bool:
     return bool(re.search(r"\bnew\s+(?:[\w$]+\s*\.\s*)*$", head))
 
 
-def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict[str, Any]:
-    """TypeScript `new X(` references the class `X#`; map it to X's constructor def."""
-    out: dict[str, Any] = {}
-    for sym, key in defs_by_symbol.items():
+def _constructors_by_class(defs_by_symbol: dict[str, DefKey], lang: str) -> dict[str, list[DefKey]]:
+    """TypeScript `new X(` and Java `new X<T>() {}` reference the class `X#`; map it to
+    every constructor def of X, in symbol order (#4124: a dict of one kept only the last
+    overload, so every class reference went to it)."""
+    out: dict[str, list[DefKey]] = collections.defaultdict(list)
+    for sym, key in sorted(defs_by_symbol.items()):
         if sym.startswith(("local ",)) or "\0" in sym:
             continue
         desc = _descriptors(sym)
         if desc and desc[-1][0] in _CONSTRUCTOR_NAMES:
-            out[sym[: sym.rfind("#") + 1]] = key
-    return out
+            out[sym[: sym.rfind("#") + 1]].append(key)
+    return dict(out)
+
+
+def _pick_constructor(
+    ctors: list[DefKey], arity: dict[DefKey, Optional[int]], lines: list[str], span: tuple[int, int, int, int]
+) -> Optional[DefKey]:
+    """#4124: the one constructor a class reference calls. With overloads, the one whose
+    parameter count is the call's argument count; None when that does not single one out
+    (varargs, two of one arity): the reference is then neither an edge nor external."""
+    if len(ctors) == 1:
+        return ctors[0]
+    n = _arg_count(lines, span[2], span[3])
+    hits = [k for k in ctors if n is not None and arity.get(k) == n]
+    return hits[0] if len(hits) == 1 else None
+
+
+_ARG_SCAN_LINES = 30
+
+
+def _arg_count(lines: list[str], line: int, col: int, declaration: bool = False) -> Optional[int]:
+    """The number of entries in the `(...)` list after (line, col), past an optional
+    `<...>` type-argument list: a call's arguments, or, with `declaration`, a signature's
+    parameters (whose `Map<K, V>` types hold commas). None when no list follows."""
+    text = "\n".join([lines[line][col:] if line < len(lines) else "", *lines[line + 1 : line + _ARG_SCAN_LINES]])
+    s = text.lstrip()
+    if s.startswith("<"):
+        depth = 0
+        for k, ch in enumerate(s):
+            depth += {"<": 1, ">": -1}.get(ch, 0)
+            if depth == 0:
+                s = s[k + 1 :].lstrip()
+                break
+        else:
+            return None
+    if not s.startswith("("):
+        return None
+    opens = "([{<" if declaration else "([{"
+    closes = {"(": ")", "[": "]", "{": "}", "<": ">"}
+    stack: list[str] = []
+    commas, empty, quote = 0, True, ""
+    for k in range(1, len(s)):
+        ch = s[k]
+        if quote:
+            if ch == quote and s[k - 1] != "\\":
+                quote = ""
+            continue
+        if ch in "\"'":
+            quote, empty = ch, False
+        elif ch in opens:
+            stack.append(closes[ch])
+        elif stack and ch == stack[-1]:
+            stack.pop()
+        elif ch == ")" and not stack:
+            return 0 if empty else commas + 1
+        elif ch == "," and not stack:
+            commas += 1
+        if not ch.isspace():
+            empty = False
+    return None
 
 
 def _external_name(symbol: str, kind: int, lang: str) -> Optional[str]:

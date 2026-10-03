@@ -14,9 +14,11 @@
       "abap/abapGit/zcl_abapgit_xml_output.clas.abap": "Single Indicator (Ext: .abap)"
     },
     "ada": {
-      "ada/PROVENANCE.md": "Prose Extension (.md)"
+      "ada/PROVENANCE.md": "Prose Extension (.md)",
+      "ada/SOURCES.md": "Prose Extension (.md)"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "Prose Extension (.txt)",
       "ada/alire/alire-conditional_trees.adb": "Single Indicator (Ext: .adb)",
       "ada/alire/alire-crate_configuration.adb": "Single Indicator (Ext: .adb)",
       "ada/alire/alire-dependencies-states.ads": "Single Indicator (Ext: .ads)",
@@ -322,22 +324,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "Ecosystem Consensus Lock (75% Local Dominance)",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "Ecosystem Consensus Lock (75% Local Dominance)"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "Single Indicator (Ext: .s)",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "Single Indicator (Ext: .s)"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "Single Indicator (Ext: .adoc)",
@@ -393,6 +390,9 @@
       "blueprint/ghostty/split-tree.blp": "Single Indicator (Ext: .blp)",
       "blueprint/ghostty/window.blp": "Single Indicator (Ext: .blp)"
     },
+    "bms": {
+      "bms/SOURCES.md": "Prose Extension (.md)"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "Absolute Consensus (Ext + Internal Signature)",
       "bms/cbsa/BNK1CAM.bms": "Absolute Consensus (Ext + Internal Signature)",
@@ -403,8 +403,10 @@
       "bms/cbsa/BNK1MAI.bms": "Absolute Consensus (Ext + Internal Signature)",
       "bms/cbsa/BNK1TFM.bms": "Absolute Consensus (Ext + Internal Signature)",
       "bms/cbsa/BNK1UAM.bms": "Absolute Consensus (Ext + Internal Signature)",
-      "bms/cbsa/PROVENANCE.md": "Prose Extension (.md)",
-      "bms/cbsa/ssmap.bms": "Absolute Consensus (Ext + Internal Signature)"
+      "bms/cbsa/PROVENANCE.md": "Prose Extension (.md)"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "Absolute Consensus (Ext + Internal Signature)"
     },
     "c": {
       "c/SOURCES.md": "Prose Extension (.md)"
@@ -449,6 +451,7 @@
       "c/micropython/vm.c": "Ecosystem Consensus Lock (100% Local Dominance)"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "Prose Extension (.md)",
       "c/sqlite/README.md": "Prose Extension (.md)",
       "c/sqlite/lemon.c": "Ecosystem Consensus Lock (100% Local Dominance)"
     },
@@ -582,6 +585,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "Single Indicator (Ext: .cpy)",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "Single Indicator (Ext: .cpy)",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "Single Indicator (Ext: .cpy)",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "Prose Extension (.md)",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "Prose Extension (.md)",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "Prose Extension (.md)",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "Single Indicator (Ext: .cpy)"
     },
     "cobol/cash-account-cobol": {
@@ -590,6 +596,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "Single Indicator (Ext: .cpy)"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "Prose Extension (.md)",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "Prose Extension (.md)",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "Single Indicator (Ext: .cpy)",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "Single Indicator (Ext: .cpy)",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "Single Indicator (Ext: .cpy)"
@@ -1039,6 +1047,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "Single Indicator (Ext: .cpy)"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "Metadata Anchor (COPYING)",
       "cobol/gnucobol_internals/codegen.c": "Ecosystem Consensus Lock (100% Local Dominance)",
       "cobol/gnucobol_internals/fileio.c": "Ecosystem Consensus Lock (100% Local Dominance)",
       "cobol/gnucobol_internals/numeric.c": "Ecosystem Consensus Lock (100% Local Dominance)",
@@ -1117,11 +1126,15 @@
       "cpp/powertoys/main.cpp": "Single Indicator (Ext: .cpp)",
       "cpp/powertoys/powertoy_module.h": "Ecosystem Consensus Lock (81% Local Dominance)"
     },
+    "csd": {
+      "csd/SOURCES.md": "Prose Extension (.md)"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "Absolute Consensus (Ext + Internal Signature)",
       "csd/carddemo/CRDDEMO2.csd": "Absolute Consensus (Ext + Internal Signature)",
       "csd/carddemo/CRDDEMOD.csd": "Absolute Consensus (Ext + Internal Signature)",
       "csd/carddemo/CRDDEMOM.csd": "Absolute Consensus (Ext + Internal Signature)",
+      "csd/carddemo/NOTICE": "Metadata Anchor (NOTICE)",
       "csd/carddemo/PROVENANCE.md": "Prose Extension (.md)"
     },
     "csd/cbsa": {
@@ -1207,6 +1220,9 @@
       "dart/flutter/semantics.dart": "Single Indicator (Ext: .dart)",
       "dart/flutter/theme_data.dart": "Single Indicator (Ext: .dart)"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "Prose Extension (.md)"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/00-Prereqs.sql": "Single Indicator (Internal Signature)",
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "Single Indicator (Internal Signature)",
@@ -1216,6 +1232,7 @@
       "db2_sql/db2unit/07-Version.sql": "Single Indicator (Internal Signature)",
       "db2_sql/db2unit/98-Clean.sql": "Single Indicator (Internal Signature)",
       "db2_sql/db2unit/99-CleanAdmin.sql": "Single Indicator (Internal Signature)",
+      "db2_sql/db2unit/LICENSE.txt": "Prose Extension (.txt)",
       "db2_sql/db2unit/PROVENANCE.md": "Prose Extension (.md)"
     },
     "dockerfile": {
@@ -1721,7 +1738,8 @@
       "haskell/pandoc/Shared.hs": "Single Indicator (Ext: .hs)"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "Prose Extension (.md)"
+      "hlasm/PROVENANCE.md": "Prose Extension (.md)",
+      "hlasm/SOURCES.md": "Prose Extension (.md)"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "Single Indicator (Ext: .hlasm)",
@@ -1729,6 +1747,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "Single Indicator (Ext: .hlasm)",
+      "hlasm/che4z_hlasm/NOTICE.md": "Prose Extension (.md)",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "Single Indicator (Ext: .hlasm)",
       "hlasm/che4z_hlasm/comments.hlasm": "Single Indicator (Ext: .hlasm)",
@@ -1823,6 +1842,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "Single Indicator (Ext: .html)"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "Prose Extension (.txt)",
       "html/polyglot_vscode/vscode_builtin.html": "Single Indicator (Ext: .html)"
     },
     "html/revealjs_decks": {
@@ -2278,6 +2298,7 @@
       "lua/darwin-xnu/wqtrace.lua": "Absolute Consensus (Ext + Shebang)"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
       "lua/freebsd-src/cli.lua": "Single Indicator (Ext: .lua)",
       "lua/freebsd-src/color.lua": "Single Indicator (Ext: .lua)",
       "lua/freebsd-src/config.lua": "Single Indicator (Ext: .lua)",
@@ -2398,6 +2419,7 @@
       "nix/SOURCES.md": "Prose Extension (.md)"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "Prose Extension (.md)",
       "nix/bun/flake.nix": "Single Indicator (Ext: .nix)",
       "nix/bun/shell.nix": "Single Indicator (Ext: .nix)"
     },
@@ -2508,6 +2530,7 @@
       "plaintext/SOURCES.md": "Prose Extension (.md)"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "Metadata Anchor (COPYING)",
       "plaintext/ansible/requirements.txt": "Single Indicator (Exact Match)"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -2521,6 +2544,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Single Indicator (Exact Match)"
+    },
+    "pli": {
+      "pli/SOURCES.md": "Prose Extension (.md)"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "Prose Extension (.md)",
@@ -2700,12 +2726,15 @@
       "python/SOURCES.md": "Prose Extension (.md)"
     },
     "python/airflow": {
+      "python/airflow/NOTICE": "Metadata Anchor (NOTICE)",
       "python/airflow/dag.py": "Single Indicator (Internal Signature)",
       "python/airflow/s3.py": "Single Indicator (Internal Signature)",
       "python/airflow/scheduler_job_runner.py": "Single Indicator (Internal Signature)"
     },
     "python/cython": {
+      "python/cython/COPYING.txt": "Prose Extension (.txt)",
       "python/cython/CodeGeneration.py": "Ecosystem Consensus Lock (75% Local Dominance)",
+      "python/cython/LICENSE.txt": "Prose Extension (.txt)",
       "python/cython/MemoryView.pxd": "Single Indicator (Ext: .pxd)",
       "python/cython/MemoryView.pyx": "Single Indicator (Ext: .pyx)",
       "python/cython/Nodes.py": "Ecosystem Consensus Lock (75% Local Dominance)"
@@ -2982,18 +3011,24 @@
       "python/wtfpython/noxfile.py": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "Prose Extension (.md)"
+      "rexx/PROVENANCE.md": "Prose Extension (.md)",
+      "rexx/SOURCES.md": "Prose Extension (.md)"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
+      "rexx/hercules_390_hyperion/sample.rexx": "Absolute Consensus (Ext + Internal Signature)"
     },
     "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
       "rexx/hercules_hyperion/cmpsc.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/hercules_hyperion/hbasic1.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/hercules_hyperion/hcommand.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/hercules_hyperion/hexecio.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/hercules_hyperion/hlinein.rexx": "Absolute Consensus (Ext + Internal Signature)",
-      "rexx/hercules_hyperion/hrecurs.rexx": "Absolute Consensus (Ext + Internal Signature)",
-      "rexx/hercules_hyperion/sample.rexx": "Absolute Consensus (Ext + Internal Signature)"
+      "rexx/hercules_hyperion/hrecurs.rexx": "Absolute Consensus (Ext + Internal Signature)"
     },
     "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "Prose Extension (.md)",
       "rexx/ibm_z_zos/bpxget.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/ibm_z_zos/bpxput.rexx": "Absolute Consensus (Ext + Internal Signature)",
       "rexx/ibm_z_zos/bpxwtabs.rexx": "Absolute Consensus (Ext + Internal Signature)",
@@ -3030,6 +3065,8 @@
       "rust/SOURCES.md": "Prose Extension (.md)"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "Prose Anchor (LICENSE-APACHE)",
+      "rust/bevy/LICENSE-MIT": "Prose Anchor (LICENSE-MIT)",
       "rust/bevy/bevy_ecs_macros.rs": "Single Indicator (Ext: .rs)",
       "rust/bevy/bevy_ecs_query.rs": "Single Indicator (Ext: .rs)",
       "rust/bevy/bevy_ecs_table.rs": "Single Indicator (Ext: .rs)",
@@ -3048,6 +3085,8 @@
       "rust/holylang/transpiler.rs": "Single Indicator (Ext: .rs)"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "Prose Anchor (LICENSE-APACHE)",
+      "rust/serde/LICENSE-MIT": "Prose Anchor (LICENSE-MIT)",
       "rust/serde/serde_core_de_impls.rs": "Single Indicator (Ext: .rs)",
       "rust/serde/serde_core_de_mod.rs": "Single Indicator (Ext: .rs)",
       "rust/serde/serde_core_macros.rs": "Single Indicator (Ext: .rs)",
@@ -3194,6 +3233,7 @@
       "shell/darwin-xnu/xcrun_cache.sh": "Absolute Consensus (Ext + Shebang)"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "Metadata Anchor (COPYRIGHT)",
       "shell/freebsd-src/chflags_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/chmod_test.sh": "Single Indicator (Ext: .sh)",
       "shell/freebsd-src/cp_test.sh": "Single Indicator (Ext: .sh)",
@@ -3419,23 +3459,26 @@
     "sql/baseline": {
       "sql/baseline/schema.php": "Single Indicator (Ext: .php)"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "Metadata Anchor (COPYING)",
-      "sql/mysql/mediawiki/blobs.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "Metadata Anchor (COPYING)",
+      "sql/mediawiki_mysql/blobs.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "Metadata Anchor (COPYING)",
+      "sql/mediawiki_postgresql/tables.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "Metadata Anchor (NOTICE)",
+      "sql/spamassassin_mysql/neural_mysql.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "Ecosystem Consensus Lock (100% Local Dominance)",
       "sql/sqlite/001-sudoku.sql": "Ecosystem Consensus Lock (100% Local Dominance)",
+      "sql/sqlite/LICENSE.md": "Prose Extension (.md)",
       "sql/sqlite/dotcmd01.sql": "Single Indicator (Shebang)"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "Ecosystem Consensus Lock (75% Local Dominance)"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "Prose Extension (.md)"
@@ -3600,6 +3643,7 @@
       "tcl/macports_registry/registry_util.tcl": "Single Indicator (Ext: .tcl)"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "Prose Extension (.md)",
       "tcl/sqlite/README.md": "Prose Extension (.md)",
       "tcl/sqlite/malloc_common.tcl": "Single Indicator (Ext: .tcl)",
       "tcl/sqlite/speedtest.tcl": "Absolute Consensus (Ext + Trampoline Exec)",
@@ -3700,10 +3744,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "Single Indicator (Ext: .xml)",
       "xml/apex/IterationRecipes_Tests.cls": "Single Indicator (Ext: .cls)",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "Single Indicator (Ext: .xml)",
+      "xml/apex/LICENSE.md": "Prose Extension (.md)",
       "xml/apex/ListSortingRecipes_Tests.cls": "Single Indicator (Ext: .cls)",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "Single Indicator (Ext: .xml)"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "Prose Extension (.txt)",
       "xml/jenkins/XStreamDOMTest.data1.xml": "Single Indicator (Ext: .xml)",
       "xml/jenkins/XStreamDOMTest.data2.xml": "Single Indicator (Ext: .xml)",
       "xml/jenkins/excludesFilter.xml": "Single Indicator (Ext: .xml)"
@@ -3810,10 +3856,21 @@
       "zig/SOURCES.md": "Prose Extension (.md)"
     },
     "zig/bun": {
+      "zig/bun/LICENSE.md": "Prose Extension (.md)",
       "zig/bun/MimallocArena.zig": "Single Indicator (Ext: .zig)",
       "zig/bun/Parser.zig": "Single Indicator (Ext: .zig)",
       "zig/bun/comptime_string_map.zig": "Single Indicator (Ext: .zig)",
       "zig/bun/napi.zig": "Single Indicator (Ext: .zig)"
+    },
+    "zig/mach": {
+      "zig/mach/Core.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/StringTable.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/collision.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/graph.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/main.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/module.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/testing.zig": "Single Indicator (Ext: .zig)",
+      "zig/mach/win32.zig": "Single Indicator (Ext: .zig)"
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": "Single Indicator (Ext: .zig)",
@@ -3844,16 +3901,6 @@
       "zig/zls/ast.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/config_gen.zig": "Single Indicator (Ext: .zig)",
       "zig/zls/print_ast.zig": "Single Indicator (Ext: .zig)"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/Core.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/StringTable.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/collision.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/graph.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/main.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/module.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/testing.zig": "Single Indicator (Ext: .zig)",
-      "zig/zls/mach/win32.zig": "Single Indicator (Ext: .zig)"
     }
   },
   "path": [

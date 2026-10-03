@@ -1,0 +1,20 @@
+package com.gitgalaxy.modernized.service;
+
+import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * ⚠️ AUTO-GENERATED MOCK SERVICE
+ * This module intercepts unresolved COBOL calls to 'WS-CALLED-PROGRAM'.
+ * It allows the Spring Context to load and the AI Agent to write code
+ * without crashing due to missing dependencies.
+ */
+@Service
+public class WsCalledProgramService {
+    private static final Logger log = LoggerFactory.getLogger(WsCalledProgramService.class);
+
+    public void executeDummyCall() {
+        log.warn("Mock Service WsCalledProgramService was invoked. Implementation missing.");
+    }
+}

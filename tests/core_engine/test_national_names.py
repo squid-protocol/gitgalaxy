@@ -14,6 +14,7 @@ import pytest
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.prism import Prism
+from gitgalaxy.core.source_text import read_source
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -35,7 +36,8 @@ def test_every_mainframe_letter_class_accepts_the_national_letters():
         f"{rel}: {m.group(0)}"
         for rel in READERS
         for m in re.finditer(r"\[(?!\^)[^\]\[]*A-Z[^\]\[]*\]", _code(rel))
-        if not re.search(r'"\s*\+\s*NATIONAL\s*\+\s*r"', m.group(0))  # the class splices the constant in
+        # the class splices the constant in (a COBOL word class adds #3991's full-width digits / hyphens after it)
+        if not re.search(r'"\s*\+\s*NATIONAL(?:\s*\+\s*WIDE_(?:DIGITS|HYPHENS))*\s*\+\s*r"', m.group(0))
     ]
     assert not missing, "\n".join(missing)
 
@@ -86,3 +88,85 @@ def _units(lang: str, code: str) -> list[str]:
 )
 def test_a_national_unit_is_found_whole(lang, code, name):
     assert name in _units(lang, code)
+
+
+# --- #3991: a Japanese COBOL word's full-width digits and hyphen --------------------------------------
+# #3955 let a COBOL word hold any Unicode letter; a Japanese word also holds full-width digits (０-９) and
+# the full-width hyphen. Shift-JIS 0x817C is that hyphen, and it has two decodings: cp932 gives U+FF0D
+# (－), Python's shift_jis gives U+2212 (−). Before this, the name was cut at either character.
+_JP_WORDS = (
+    "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. JPWORDS.\n       DATA DIVISION.\n"
+    "       WORKING-STORAGE SECTION.\n"
+    "       01  項目２           PIC X(4).\n"
+    "       01  Ｏ−文字列       PIC X(4).\n"
+    "       01  ｗｋ－０３       PIC X(4).\n"
+    "       01  横浜-1           PIC X(4).\n"
+    "       01  ＴＥＳＴ−ＤＡＴＡ１ PIC X(4).\n"
+    "       01  ＴＥＳＴ−ＲＥＣＯＲＤ１ REDEFINES ＴＥＳＴ−ＤＡＴＡ１ PIC X(4).\n"
+    "       PROCEDURE DIVISION.\n"
+    "       主処理 SECTION.\n           PERFORM Ｓ−初期化.\n           MOVE 'A' TO 項目２.\n"
+    "       ASCII-SEC SECTION.\n           DISPLAY 'X'.\n"
+    "       Ｓ−初期化 SECTION.\n           DISPLAY 'Y'.\n"
+    "       ｓ１２３ SECTION.\n           DISPLAY 'Z'.\n"
+    "       Ｓ－終了 SECTION.\n           STOP RUN.\n"
+)
+
+
+def test_japanese_data_names_keep_their_full_width_digits_and_hyphens():
+    records = extract_boundary("cobol", _JP_WORDS)["records"]
+    assert [r["name"] for r in records] == [
+        "項目２",
+        "Ｏ−文字列",
+        "ＷＫ－０３",  # upper-cased like any COBOL name
+        "横浜-1",
+        "ＴＥＳＴ−ＤＡＴＡ１",
+        "ＴＥＳＴ−ＲＥＣＯＲＤ１",  # no longer collides with the item above as `ＴＥＳＴ`
+    ]
+    assert records[-1]["redefines"] == "ＴＥＳＴ−ＤＡＴＡ１"
+
+
+def test_japanese_sections_with_full_width_digits_and_hyphens_are_found_whole():
+    assert _units("cobol", _JP_WORDS) == ["主処理", "ASCII-SEC", "Ｓ−初期化", "ｓ１２３", "Ｓ－終了"]
+
+
+def test_a_japanese_callee_is_read_whole():
+    rules = LANGUAGE_DEFINITIONS["cobol"]["rules"]
+    assert rules["calls_out"].findall("           PERFORM Ｓ－終了.\n") == ["Ｓ－終了"]
+    assert rules["_transfers_out"].findall("           GO TO ｓ１２３.\n") == ["ｓ１２３"]
+
+
+@pytest.mark.parametrize("codec, hyphen", [("shift_jis", "\u2212"), ("cp932", "\uff0d")])
+def test_both_decodings_of_sjis_0x817c_are_the_word_hyphen(tmp_path, codec, hyphen):
+    p = tmp_path / "JPSJIS.cbl"
+    p.write_bytes(_JP_WORDS.replace("\u2212", "\uff0d").encode("cp932"))
+    assert p.read_bytes().count(b"\x81\x7c") == 8  # every hyphen above is the one byte pair
+    text = read_source(p, declared=codec).text
+    assert "\uff0d\u2212".replace(hyphen, "") not in text  # the codec decides which character it is
+    records = [r["name"] for r in extract_boundary("cobol", text)["records"]]
+    assert records[1] == f"Ｏ{hyphen}文字列" and records[-1] == f"ＴＥＳＴ{hyphen}ＲＥＣＯＲＤ１"
+    assert [u for u in _units("cobol", text) if u.startswith("Ｓ")] == [f"Ｓ{hyphen}初期化", f"Ｓ{hyphen}終了"]
+
+
+@pytest.mark.parametrize("minus", ["\u2212", "\uff0d"])
+def test_a_spaced_full_width_minus_is_not_part_of_a_name(minus):
+    # Only a hyphen INSIDE a word joins it; `A − B` (arithmetic, operands spaced as COBOL requires) is two words.
+    rules = LANGUAGE_DEFINITIONS["cobol"]["rules"]
+    assert rules["calls_out"].findall(f"           PERFORM ＷＫ {minus} ＷＫ２.\n") == ["ＷＫ"]
+    src = f"       PROCEDURE DIVISION.\n       MAIN-PARA.\n           COMPUTE ＷＫ = ＷＫ１ {minus} ＷＫ２.\n"
+    assert _units("cobol", src) == ["MAIN-PARA"]
+
+
+def test_every_cobol_word_class_takes_the_full_width_digits_and_hyphens():
+    """#3991: a COBOL word class that takes `0-9` takes WIDE_DIGITS, and one that takes `-` takes WIDE_HYPHENS.
+
+    The fixed-format sequence area (`[0-9a-zA-Z ... \\t]{6}`) is a column prefix, not a word, and is exempt.
+    """
+    code = _code("gitgalaxy/standards/language_standards/languages/cobol.py")
+    missing = []
+    for m in re.finditer(r"\[(?!\^)[^\]\[]*A-Z[^\]\[]*\]", code):
+        cls = m.group(0)
+        if "\\t" in cls or "0-9" not in cls:
+            continue
+        if "WIDE_DIGITS" not in cls or (cls.endswith("-]") and "WIDE_HYPHENS" not in cls):
+            missing.append(cls)
+    assert not missing, "\n".join(missing)

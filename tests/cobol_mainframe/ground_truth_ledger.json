@@ -1,10 +1,20 @@
 {
   "about": "Mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py). Every engine/forge disagreement with a hand-verified answer key, keyed '<side> | <field> | <program> | <value> | fp|fn' -> cause; every cause has a kind (defect|deliberate) and names its owning issue. CI fails on an unlisted mismatch, a listed one that no longer reproduces, an UNTRIAGED entry, a cause without an issue, or a stale scoreboard. Re-measure with `update`, triage with `assign`.",
   "causes": {
+    "engine_data_moves_all_hex_figurative": {
+      "issue": 4205,
+      "kind": "defect",
+      "summary": "MOVE ALL X'..' (a hex figurative) is not recorded as a data move."
+    },
     "engine_dead_is_unreferenced_by_name": {
       "issue": 2806,
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
+    },
+    "engine_move_truncation_qualified_source": {
+      "issue": 4204,
+      "kind": "defect",
+      "summary": "A MOVE whose source is qualified (X OF Y) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length."
     },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
@@ -1503,11 +1513,14 @@
         "engine | dead (non-trivial) | base/src/lgtestp2.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgtestp3.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgtestp4.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | base/src/lgucdb01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgucdb01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgucus01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgucvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgucvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | base/src/lgupdb01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgupdb01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | base/src/lgupol01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgupol01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgupvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | base/src/lgupvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
@@ -1541,11 +1554,14 @@
         "engine | dead | base/src/lgtestp2.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgtestp3.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgtestp4.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | base/src/lgucdb01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgucdb01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgucus01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgucvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgucvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | base/src/lgupdb01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupdb01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | base/src/lgupol01.cbl | END-PROGRAM | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupol01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
@@ -1789,7 +1805,7 @@
         },
         "dead": {
           "engine": {
-            "got": 60,
+            "got": 63,
             "tp": 22,
             "truth": 22
           },
@@ -1802,7 +1818,7 @@
         },
         "dead (non-trivial)": {
           "engine": {
-            "got": 44,
+            "got": 47,
             "tp": 6,
             "truth": 6
           },
@@ -1935,14 +1951,14 @@
         },
         "units": {
           "engine": {
-            "got": 157,
-            "tp": 157,
-            "truth": 157
+            "got": 162,
+            "tp": 162,
+            "truth": 162
           },
           "forge": {
-            "got": 157,
-            "tp": 157,
-            "truth": 157
+            "got": 162,
+            "tp": 162,
+            "truth": 162
           },
           "truth": "cross_verified"
         },
@@ -1963,6 +1979,409 @@
           },
           "forge": null,
           "truth": "cross_verified"
+        }
+      }
+    },
+    "dbb-mortgage-application": {
+      "mismatches": {
+        "engine | MOVE truncation | zBuilder/MortgageApplication/cobol/epscmort.cbl | L231 EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA -> MSGERRO | fn": "engine_move_truncation_qualified_source",
+        "engine | data moves | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L1457 MOVE ALL X'00' -> HASH-TOKEN | fn": "engine_data_moves_all_hex_figurative",
+        "engine | data moves | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L3452 MOVE ALL X'FF' -> INSTRUCTIONS | fn": "engine_data_moves_all_hex_figurative",
+        "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epscmort.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epsmlist.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | zBuilder/MortgageApplication/cobol/epscmort.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | zBuilder/MortgageApplication/cobol/epsmlist.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | zBuilder/MortgageApplication/cobol/epsmpmt.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | zBuilder/MortgageApplication/cobol/epsnbrvl.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": {
+            "got": 70,
+            "tp": 70,
+            "truth": 70
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CALL USING": {
+          "engine": {
+            "got": 53,
+            "tp": 53,
+            "truth": 53
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS RIDFLD": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS task control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table access": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "DL/I calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS access check": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS definitions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "IMS segment access": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCICS": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL job flow": {
+          "engine": {
+            "got": 50,
+            "tp": 50,
+            "truth": 50
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL resolved DSNs": {
+          "engine": {
+            "got": 40,
+            "tp": 40,
+            "truth": 40
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "JCL runner programs": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "MOVE truncation": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 4
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "MQ calls": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I call sites": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I data moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "VSAM defines": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "async children": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 2,
+            "tp": 2,
+            "truth": 2
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "truth": "cross_verified"
+        },
+        "copybook layouts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "forge": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 576,
+            "tp": 576,
+            "truth": 578
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "dead": {
+          "engine": {
+            "got": 6,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "truth": "cross_verified"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 6,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "truth": "cross_verified"
+        },
+        "dynamic call targets": {
+          "engine": {
+            "got": 2,
+            "tp": 2,
+            "truth": 2
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "draft"
+        },
+        "file I/O moves": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "file control": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "inputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "outputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "cross_verified"
+        },
+        "program_id": {
+          "engine": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
+          "forge": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
+          "truth": "cross_verified"
+        },
+        "record fields": {
+          "engine": {
+            "got": 58,
+            "tp": 58,
+            "truth": 58
+          },
+          "forge": {
+            "got": 58,
+            "tp": 58,
+            "truth": 58
+          },
+          "truth": "draft"
+        },
+        "refmod spans": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "symbolic maps": {
+          "engine": {
+            "got": 389,
+            "tp": 389,
+            "truth": 389
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "units": {
+          "engine": {
+            "got": 21,
+            "tp": 21,
+            "truth": 21
+          },
+          "forge": {
+            "got": 21,
+            "tp": 21,
+            "truth": 21
+          },
+          "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": {
+            "got": 4,
+            "tp": 4,
+            "truth": 4
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "web services": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         }
       }
     },

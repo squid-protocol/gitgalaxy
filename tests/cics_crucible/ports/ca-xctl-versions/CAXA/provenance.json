@@ -1,0 +1,97 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "ca-xctl-versions",
+ "program": "CAXA",
+ "attempt": 3,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T22:05:08+00:00",
+ "ticket_sha256": "6c7c794a6d7eaca935e9a5bc77fe387aea05f989eacbca6116483e1c342861f7",
+ "prompt_tokens": 22807,
+ "feedback_from": 2,
+ "notes": "Fixed in this attempt:\n- Scenario length-range: the XCTL at line 52 now passes WS-BIG as a String of 32767 spaces.\n  WS-BIG is a plain PIC X(32767) item that no generated DTO describes, so rule 14 / #3989 applies.\n  The previous attempt passed an 80-byte CaxbDfhcommarea with LENGTH 32767, which is the harness's\n  \"commarea bytes past what its DTO holds\" divergence.\n\nDefects of the original kept:\n- The RESP of the XCTL at line 52 is never tested (unchecked_responses, field-tested).\n  The report runs whenever control returns, which happens only on failure.\n  Fix: IF WS-RESP NOT = DFHRESP(NORMAL) around the report.\n- WS-BIGLEN = 32767 is outside 0..32763, so mode X (or any mode other than S or L, including a blank\n  one) always fails with LENGERR, RESP2 11.\n  The screen then shows \"XCTL FAILED RESP=22 RESP2=11\".\n  Fix: pass LENGTH(80) with a version-2 COMMAREA.\n- Mode L uses XCTL LENGTH(80) on the 10-byte WS-V1. It passes the 70 bytes of WS-NEIGHBOUR, which\n  CAXB reads as V2-TIER, V2-BALANCE and V2-NOTE.\n  Fix: build a real 80-byte CAV2 COMMAREA.\n- The RECEIVE and the XCTLs at lines 44 and 48 code no RESP. A LENGERR on input longer than 20 bytes\n  abends the task with AEIV, and a PGMIDERR abends it with AEI0.\n  Fix: code RESP on those commands.\n\nFacts contradicted: none found.",
+ "proof": {
+  "at": "2026-09-29T22:05:30+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "length-range": "1/1",
+   "long-overread": "1/1",
+   "short-upgrade": "1/1"
+  },
+  "sibling_ports": [
+   "CAXA",
+   "CAXB"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:47:21+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:48:00+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "length-range": "0/1",
+    "long-overread": "0/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:58:38+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "length-range": "0/1",
+    "long-overread": "0/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:01:15+00:00",
+   "event": "proposed",
+   "attempt": 2,
+   "feedback_from": 1
+  },
+  {
+   "at": "2026-09-29T22:01:45+00:00",
+   "event": "proof-failed",
+   "attempt": 2,
+   "summary": {
+    "length-range": "0/1",
+    "long-overread": "1/1",
+    "short-upgrade": "0/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:03:57+00:00",
+   "event": "proof-failed",
+   "attempt": 2,
+   "summary": {
+    "length-range": "0/1",
+    "long-overread": "1/1",
+    "short-upgrade": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T22:05:08+00:00",
+   "event": "proposed",
+   "attempt": 3,
+   "feedback_from": 2
+  },
+  {
+   "at": "2026-09-29T22:05:30+00:00",
+   "event": "proven",
+   "attempt": 3,
+   "summary": {
+    "length-range": "1/1",
+    "long-overread": "1/1",
+    "short-upgrade": "1/1"
+   }
+  }
+ ]
+}

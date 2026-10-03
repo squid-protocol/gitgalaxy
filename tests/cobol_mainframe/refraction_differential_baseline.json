@@ -29,6 +29,17 @@
         "exec_sql_include": 1,
         "stated_absence": 7
       },
+      "note": "0 unexplained since #4031 (#4069): the engine reads GenApp's End-Program. paragraph as a unit, as the forge does. Re-blessed with estate 4.",
+      "unexplained": 0
+    },
+    "dbb-mortgage-application": {
+      "by_cause": {
+        "bms_symbolic_map": 2,
+        "entry_point": 5,
+        "exec_sql_include": 1,
+        "stated_absence": 8,
+        "system_copybook": 2
+      },
       "note": null,
       "unexplained": 0
     },
@@ -88,10 +99,11 @@
         "bms_symbolic_map": 5,
         "entry_point": 38,
         "exec_sql_include": 8,
-        "stated_absence": 70
+        "stated_absence": 70,
+        "unexplained": 5
       },
-      "note": null,
-      "unexplained": 0
+      "note": "5 unexplained: GENAPP's End-Program. paragraph (lgipdb01, lgucdb01, lgucus01, lgupdb01, lgupol01), which the forge reads since #4028 and the engine does not -- its COBOL function-start rule excludes every END- word. Owned by #4031; re-bless to 0 when it lands.",
+      "unexplained": 5
     },
     "dsf": {
       "by_cause": {

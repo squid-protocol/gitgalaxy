@@ -16,15 +16,25 @@ from __future__ import annotations
 
 import codecs
 import functools
+import re
+import shutil
+import subprocess
 import sys
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Optional
 
-from gitgalaxy.core.compiler_options import SEMANTIC_OPTIONS, cards, compiler_options, effective, parse_options
+from gitgalaxy.core.compiler_options import (
+    DEFAULTS,
+    SEMANTIC_OPTIONS,
+    cards,
+    compiler_options,
+    effective,
+    parse_options,
+)
 from gitgalaxy.core.ebcdic_codecs import java_charset_name
 from gitgalaxy.core.ebcdic_codecs import register as _register_ebcdic
-from gitgalaxy.core.source_text import read_source
+from gitgalaxy.core.source_text import decode_bytes, read_source
 from gitgalaxy.tools.cobol_to_java.java_target import zoned_sign_characters
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -137,17 +147,72 @@ def _fixed(src: Path, reclen: int, enc: str = DEFAULT_DATA_ENCODING) -> bytes:
 
 
 def _input_path(case: dict[str, Any], corpus: Path, rel: str) -> Path:
-    """A dataset's input: `@case/...` is a file of the case directory, else the corpus's."""
-    return CASES / case["name"] / rel[len("@case/") :] if rel.startswith("@case/") else corpus / rel
+    """A dataset's input: `@case/...` is a file of the case directory, an absolute path itself (#4049: the
+    strengthening loop's candidate inputs), else the corpus's."""
+    if rel.startswith("@case/"):
+        return CASES / case["name"] / rel[len("@case/") :]
+    return Path(rel) if Path(rel).is_absolute() else corpus / rel
 
 
 # #3828: the compiler options that change results, as GnuCOBOL 3.1 flags under `-std=ibm` ("" = its own
-# behaviour already). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
+# behaviour already). #4102: `-std=ibm` alone keeps a binary item's bytes (TRUNC(BIN)); -fbinary-truncate gives IBM's
+# default TRUNC(STD) -- MOVE 99999 to S9(4) COMP stores 9999, ADD past 9999 is a size error (measured 2026-10-02). GnuCOBOL has no INTDATE (INTEGER-OF-DATE is always ANSI), no ARITH(EXTEND) or NUMPROC
 # switch and no TRUNC(OPT): a case needing one cannot be proven here, and says so rather than run unfaithfully.
 COBC_OPTIONS = {
-    ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
+    ("INTDATE", "ANSI"): "", ("TRUNC", "STD"): "-fbinary-truncate", ("TRUNC", "BIN"): "-fnotrunc", ("ARITH", "COMPAT"): "",
     ("NUMPROC", "NOPFD"): "",
 }  # fmt: skip
+
+
+def bms_dir(corpus: Path) -> Path:
+    """The symbolic-map copybooks of the corpus's BMS sources (det.source.bms_copybooks, the generator the det
+    translator's own copybook path uses), generated once next to the corpus clone: a build artefact most estates do
+    not check in (CBSA, IBM DBB MortgageApplication)."""
+    from gitgalaxy.tools.cobol_to_java.det.source import bms_copybooks
+
+    out = corpus.parent / "_bms" / corpus.name
+    if not out.is_dir():
+        bms_copybooks([p for p in corpus.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
+                       and ".git" not in p.parts], out)  # fmt: skip
+    return out
+
+
+def case_path(corpus: Path, rel: str) -> Path:
+    """A path a case names: relative to the corpus, or `@bms/<MAPSET>.cpy` -- a generated symbolic map (bms_dir)."""
+    return bms_dir(corpus) / rel[len("@bms/") :] if rel.startswith("@bms/") else corpus / rel
+
+
+def stage_copybooks(case: dict[str, Any], corpus: Path, src: Path) -> None:
+    """The case's copy_dirs into the GnuCOBOL source directory. A z/OS library member's name is upper-case and COPY
+    names are not case-sensitive, so each file is also staged under its upper-case name: COPY COACTVW finds
+    COACTVW.cpy, and COPY EPSNBRPM finds IBM DBB's lower-case epsnbrpm.cpy. A case whose screens name generated
+    symbolic maps (`@bms/...`) also gets them, after the estate's own copybooks (a member the estate ships wins)."""
+    for cpy in case.get("copy_dirs", []):
+        for p in (corpus / cpy).iterdir():
+            if p.is_file():
+                shutil.copy(p, src / p.name)
+                shutil.copy(p, src / (p.stem.upper() + ".cpy"))
+    if any(str(s.get("copybook", "")).startswith("@bms/") for s in (case.get("screens") or {}).values()):
+        for p in bms_dir(corpus).iterdir():
+            if p.is_file() and not (src / p.name).exists():
+                shutil.copy(p, src / p.name)
+
+
+# A PROGRAM-ID paragraph whose name is not followed by its period: IBM Enterprise COBOL assumes the period (a
+# warning) and compiles; GnuCOBOL refuses (IBM DBB MortgageApplication EPSNBRVL: `PROGRAM-ID. EPSNBRVL`).
+_PROGRAM_ID_NO_PERIOD = re.compile(r"^(.{6}[ ]{1,4}PROGRAM-ID\.?[ ]+'?[A-Z0-9#@$-]+'?)([ ]*)$", re.I)
+
+
+def ibm_assumed_periods(source: str) -> str:
+    """The source as IBM's compiler reads it where it assumes a missing period GnuCOBOL requires: a PROGRAM-ID name
+    with nothing after it on its line gets its period (oracle_assumptions.md, register entry L4)."""
+    lines = source.split("\n")
+    for i, ln in enumerate(lines):
+        body = ln[:72]
+        m = _PROGRAM_ID_NO_PERIOD.match(body.rstrip())
+        if m and not body.rstrip().endswith("."):
+            lines[i] = m.group(1) + "." + ln[len(m.group(1)) + 1 :] if len(ln) > len(m.group(1)) else m.group(1) + "."
+    return "\n".join(lines)
 
 
 class UnsupportedOption(Exception):
@@ -162,7 +227,10 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
     rows = [{"option": o, "value": v} for text in case.get("compiler_options", []) for o, v, _ in parse_options(text)]
     rows += compiler_options(source)
     flags = []
-    for option, value in effective(rows).items():
+    eff = effective(rows)
+    for option, default in DEFAULTS.items():  # an option nothing names is IBM's default (#4102: TRUNC(STD))
+        eff.setdefault(option, default)
+    for option, value in eff.items():
         if option not in SEMANTIC_OPTIONS:
             continue
         flag = COBC_OPTIONS.get((option, str(value or "").upper()))
@@ -171,7 +239,7 @@ def compile_options(case: dict[str, Any], source: str) -> tuple[str, list[str]]:
         if flag:
             flags.append(flag)
     blank = {n for n, _ in cards(source)}
-    lines = source.split("\n")
+    lines = ibm_assumed_periods(source).split("\n")
     return "\n".join("" if n in blank else ln for n, ln in enumerate(lines, 1)), flags
 
 
@@ -254,12 +322,98 @@ def decode_field(
     return (Decimal(int(text)) * sign).scaleb(-scale)
 
 
-def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> list[dict[str, Any]]:
+class LayoutError(ValueError):
+    """A record's layout cannot be computed faithfully (#4010): a COPY inside it that resolves
+    nowhere, or a COPY ... REPLACING. Raised instead of returning a layout whose later fields shift."""
+
+
+# #4010: a COPY statement's start, in Area A..B text (upper-cased, comments dropped). The member
+# name may be quoted; the rest of the statement (OF/IN library, REPLACING, the period) is read by
+# _copy_statement with plain string operations, so no regex spans it.
+_COPY_START = re.compile(r"^\s*COPY\s+['\"]?([A-Z0-9#@$][A-Z0-9#@$-]*)['\"]?(?![A-Z0-9#@$-])")
+_HEADER = re.compile(r"^\s*(?:[A-Z0-9-]+\s+SECTION|[A-Z]+\s+DIVISION)\b")
+_COPY_EXTS = (".cpy", ".CPY", ".copy", ".COPY", "")
+_COPY_DEPTH = 8
+
+
+def _area_lines(path: Path) -> list[str]:
+    """Area A..B of each code line of a fixed-format source, as the answer key's Source reads it:
+    comment and debug lines dropped, `*>` comments cut, upper-cased."""
+    from key_text import read_key_text
+
+    out = []
+    for raw in read_key_text(path).splitlines():
+        if len(raw) > 6 and raw[6] in "*/Dd":
+            continue
+        out.append((raw[7:72] if len(raw) > 7 else "").split("*>", 1)[0].upper())
+    return out
+
+
+def _copy_statement(lines: list[str], i: int) -> tuple[str, int]:
+    """The text of the COPY statement starting on lines[i], up to its period (a few lines at
+    most), and the index of the line after it."""
+    text, j = lines[i], i + 1
+    while "." not in text and j < len(lines) and j < i + 12:
+        text += " " + lines[j]
+        j += 1
+    return text, j
+
+
+_PROCEDURE_DIVISION = re.compile(r"^\s*PROCEDURE\s+DIVISION\b", re.IGNORECASE)
+
+
+def _expanded_lines(path: Path, dirs: list[Path], unresolved: list[tuple[int, str]], depth: int = 0) -> list[str]:
+    """The code lines of `path` with each `COPY member.` replaced by the member's own (expanded)
+    lines, found in `dirs` in order. A COPY found nowhere contributes no lines: its position (the
+    index in the returned list its lines would have started at) and name go to `unresolved`."""
+    lines = _area_lines(path)
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        if _PROCEDURE_DIVISION.match(lines[i]):  # no record is laid out here: its COPYs (COACTUPC's 39 COPY
+            out.extend(lines[i:])  # CSSETATY REPLACING, screen-attribute code) are left as written
+            break
+        m = _COPY_START.match(lines[i])
+        if not m:
+            out.append(lines[i])
+            i += 1
+            continue
+        stmt, i = _copy_statement(lines, i)
+        member = m.group(1)
+        if "REPLACING" in stmt.split():
+            raise LayoutError(f"{path.name}: COPY {member} REPLACING is not modelled by layout_fields")
+        if depth >= _COPY_DEPTH:
+            raise LayoutError(f"{path.name}: COPY {member} nests deeper than {_COPY_DEPTH} levels")
+        found = next(
+            (d / f"{name}{ext}" for d in dirs for name in dict.fromkeys((member, member.lower()))
+             for ext in _COPY_EXTS if (d / f"{name}{ext}").is_file()),
+            None,
+        )  # fmt: skip
+        if found is None:
+            unresolved.append((len(out), member))
+        else:
+            out.extend(_expanded_lines(found, dirs, unresolved, depth + 1))
+    return out
+
+
+def layout_fields(
+    corpus: Path, copybook: str, record: Optional[str] = None, copy_dirs: Optional[list[Path]] = None
+) -> list[dict[str, Any]]:
     """The elementary fields of a copybook record: name, offset, bytes, pic, usage (the answer
-    key's own reader and storage arithmetic, cobol_answer_key)."""
+    key's own reader and storage arithmetic, cobol_answer_key).
+
+    #4010: each COPY in the file is expanded first, its member looked up in `copy_dirs` (default:
+    the file's own directory, then `corpus`), so the fields after a nested COPY keep their offsets.
+    A COPY that resolves nowhere is harmless outside the chosen record but raises LayoutError
+    inside it, as does a COPY ... REPLACING anywhere before the PROCEDURE DIVISION (after it, no record
+    is laid out and nothing is expanded): a shifted layout is never returned."""
     import cobol_answer_key as ak
 
-    items = [it for it in ak._data_items(ak.Source(corpus / copybook)) if it["level"] not in (66, 88)]
+    path = corpus / copybook
+    dirs = copy_dirs if copy_dirs is not None else [path.parent, corpus]
+    unresolved: list[tuple[int, str]] = []
+    text = _expanded_lines(path, dirs, unresolved)
+    items = [it for it in ak._data_items(ak.Source(path, list(enumerate(text, 1)))) if it["level"] not in (66, 88)]
     kids: dict[Optional[int], list[dict[str, Any]]] = {}
     for it in items:
         kids.setdefault(it["parent"], []).append(it)
@@ -277,7 +431,8 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
         if it.get("pic"):
             out.append(
                 {"name": it["name"], "offset": at, "bytes": size(it), "pic": it["pic"], "usage": it.get("usage"),
-                 "sign_separate": bool(it.get("sign_separate"))}
+                 "sign_separate": bool(it.get("sign_separate")),
+                 **({"sign_leading": bool(it.get("sign_leading"))} if it.get("sign_separate") else {})}
             )  # fmt: skip
             return
         cur = at
@@ -290,5 +445,231 @@ def layout_fields(corpus: Path, copybook: str, record: Optional[str] = None) -> 
     # A named record may itself REDEFINE another (#3754: a symbolic map's output area, CACTVWAO
     # REDEFINES CACTVWAI); with no name, the first record that does not is the layout.
     roots = [r for r in kids.get(None, []) if (r["name"] == record if record else not r.get("redefines"))]
-    place(roots[0], 0)
+    if not roots:
+        raise LayoutError(f"{copybook}: no record {record or '(first)'}")
+    root = roots[0]
+    # The record runs from its own line to the next 01/77, section or division header (or the
+    # end): a COPY that resolved nowhere there could hold any of its fields. (Line n is
+    # text[n - 1]; an unresolved COPY at index `at` sits just before line at + 1.)
+    later = [r["line"] for r in kids.get(None, []) if r["line"] > root["line"]]
+    later += [n for n, line in enumerate(text, 1) if n > root["line"] and _HEADER.match(line)]
+    end = min(later) if later else len(text) + 1
+    inside = [name for at, name in unresolved if root["line"] < at + 1 <= end]
+    if inside:
+        raise LayoutError(
+            f"{copybook}: COPY {', '.join(inside)} inside {root['name']} resolves nowhere in "
+            f"{', '.join(str(d) for d in dirs)}, so every field after it would shift"
+        )
+    place(root, 0)
     return out
+
+
+# ---- the field-by-field diff ---------------------------------------------------------
+# #3815: the usages whose bytes are characters in the data's page (the rest -- COMP, COMP-3 -- are binary)
+_TEXT_USAGES = frozenset({"DISPLAY"})
+
+
+def _as_text(raw: bytes, enc: str) -> Any:
+    """#3815: bytes as text in `enc`, or the bytes themselves when they are not text there (never lost)."""
+    try:
+        return raw.decode(enc)
+    except UnicodeDecodeError:
+        return raw
+
+
+def split_varseq(data: bytes) -> list[bytes]:
+    """A variable-length sequential file (RECORDING MODE V / RECORD VARYING) as GnuCOBOL writes it
+    (COB_VARSEQ_FORMAT 0, its default): per record a 4-byte header -- the data length as a big-endian halfword,
+    then two zero bytes -- and the data. Unlike a z/OS RDW, the length does not count the header. Both sides of
+    a comparison are framed this way; a framing error is a difference, never skipped."""
+    recs, i = [], 0
+    while i < len(data):
+        if i + 4 > len(data) or data[i + 2 : i + 4] != b"\0\0":
+            raise ValueError(f"not a GnuCOBOL variable-length record header at byte {i}: {data[i : i + 4]!r}")
+        n = int.from_bytes(data[i : i + 2], "big")
+        if i + 4 + n > len(data):
+            raise ValueError(f"record at byte {i} claims {n} bytes; {len(data) - i - 4} remain")
+        recs.append(data[i + 4 : i + 4 + n])
+        i += 4 + n
+    return recs
+
+
+def diff_varseq(
+    left: bytes,
+    right: bytes,
+    layouts: dict[int, list[dict[str, Any]]],
+    code_page: str = "cp037",
+    data_encoding: str = DEFAULT_DATA_ENCODING,
+) -> dict[str, Any]:
+    """diff_records for a variable-length file: records paired in order, each compared field by field against the
+    layout its length selects (`layouts`: length -> fields; a length with no layout is compared byte for byte). A
+    record of another length, a missing record, or a framing error is a difference."""
+    out: dict[str, Any] = {"records": 0, "equal": 0, "diffs": [], "filler_differs": 0, "layout_bytes": 0}
+    try:
+        lrecs, rrecs = split_varseq(left), split_varseq(right)
+    except ValueError as e:
+        out["diffs"].append({"record": 0, "framing": str(e)})
+        return out
+    out["records"] = max(len(lrecs), len(rrecs))
+    out["layout_bytes"] = max(layouts, default=0)
+    for n in range(out["records"]):
+        a = lrecs[n] if n < len(lrecs) else None
+        b = rrecs[n] if n < len(rrecs) else None
+        if a is None or b is None:
+            out["diffs"].append({"record": n + 1, "missing": "cobol" if a is None else "java"})
+            continue
+        if len(a) != len(b):
+            out["diffs"].append({"record": n + 1, "fields": [{"field": "(record length)", "cobol": str(len(a)),
+                                                              "java": str(len(b))}]})  # fmt: skip
+            continue
+        d = diff_records(a, b, len(a), layouts.get(len(a), []), code_page, data_encoding)
+        out["filler_differs"] += d["filler_differs"]
+        if d["diffs"]:
+            out["diffs"].append({"record": n + 1, "fields": d["diffs"][0]["fields"]})
+        else:
+            out["equal"] += 1
+    return out
+
+
+def diff_records(
+    left: bytes,
+    right: bytes,
+    reclen: int,
+    fields: list[dict[str, Any]],
+    code_page: str = "cp037",
+    data_encoding: str = DEFAULT_DATA_ENCODING,
+    right_encoding: Optional[str] = None,
+) -> dict[str, Any]:
+    """Pair records in order; per pair, every differing field (value left vs right). A field whose value is
+    equal but whose bytes are not (a C vs F sign nibble, -0 vs +0) is a difference too, marked `raw` and
+    shown as hex (#3830): the files differ, and a later program may test the sign. A FILLER is counted
+    apart (`filler_differs`), not as a difference: no program can name it, so what it holds after an
+    INITIALIZE or a new record is the runtime's leftover record area, not the program's logic.
+
+    #3820: the bytes no field covers are compared too, as `(bytes outside the layout)`. The layout is
+    read from the copybook, so a width it gets wrong (a currency string sized as one byte) leaves the
+    record's tail -- where the real later fields sit -- unread: comparing only the listed fields let
+    two different records pass as equal. `layout_bytes` reports the layout's own width beside `reclen`.
+
+    #3815: text and zoned fields are decoded in `data_encoding` (the case's page, default Latin-1), the right
+    side in `right_encoding` when it was written in another (a mainframe's cp277 unload against a run in
+    ISO-8859-1): then the same text in two pages is equal, and only a binary field's (COMP / COMP-3) bytes,
+    which no page changes, are compared as bytes; FILLER and the bytes outside the layout are compared as text.
+    Across pages, a record's layout must fit both (single-byte pages): offsets are bytes."""
+    renc = right_encoding or data_encoding
+    same_page = codecs.lookup(renc).name == codecs.lookup(data_encoding).name
+
+    def same_bytes(x: bytes, y: bytes, usage: Optional[str] = None) -> bool:
+        if same_page or (usage or "DISPLAY").upper() not in _TEXT_USAGES:
+            return x == y
+        return _as_text(x, data_encoding) == _as_text(y, renc)
+
+    covered = bytearray(reclen)
+    for f in fields:
+        for i in range(max(f["offset"], 0), min(f["offset"] + f["bytes"], reclen)):
+            covered[i] = 1
+    layout_bytes = max((f["offset"] + f["bytes"] for f in fields), default=0)
+    lrecs = [left[i : i + reclen] for i in range(0, len(left), reclen)]
+    rrecs = [right[i : i + reclen] for i in range(0, len(right), reclen)]
+    diffs, equal, filler = [], 0, 0
+    for n in range(max(len(lrecs), len(rrecs))):
+        a = lrecs[n] if n < len(lrecs) else None
+        b = rrecs[n] if n < len(rrecs) else None
+        if a is None or b is None:
+            diffs.append({"record": n + 1, "missing": "cobol" if a is None else "java"})
+            continue
+        bad, filler_bad = [], False
+        for f in fields:
+            sl = slice(f["offset"], f["offset"] + f["bytes"])
+            sep = f.get("sign_separate", False)
+            va, vb = (
+                decode_field(a[sl], f["pic"], f["usage"], code_page, sep, data_encoding),
+                decode_field(b[sl], f["pic"], f["usage"], code_page, sep, renc),
+            )
+            if not same_bytes(a[sl], b[sl], f["usage"]) and f["name"] == "FILLER":
+                filler_bad = True
+            elif va != vb:
+                bad.append({"field": f["name"], "cobol": str(va), "java": str(vb)})
+            elif not same_bytes(a[sl], b[sl], f["usage"]):  # #3830: same value, other bytes -- C vs F sign, -0 / +0
+                bad.append({"field": f["name"], "cobol": a[sl].hex(), "java": b[sl].hex(), "raw": True})
+        outside = [
+            i
+            for i in range(max(len(a), len(b)))
+            if (i >= reclen or not covered[i]) and not same_bytes(a[i : i + 1], b[i : i + 1])
+        ]
+        if outside:
+            lo, hi = outside[0], outside[-1] + 1
+            bad.append(
+                {"field": f"(bytes outside the layout @{lo}..{hi})", "cobol": repr(a[lo:hi]), "java": repr(b[lo:hi])}
+            )
+        filler += filler_bad
+        if bad:
+            diffs.append({"record": n + 1, "fields": bad})
+        else:
+            equal += 1
+    return {"records": max(len(lrecs), len(rrecs)), "equal": equal, "diffs": diffs, "filler_differs": filler,
+            "layout_bytes": layout_bytes}  # fmt: skip
+
+
+def java_failure_report(case: dict[str, Any], work: Path, error: str) -> dict[str, Any]:
+    """The report of a proof whose Java side did not build or run: its compiler / test errors as the feedback."""
+    log = next((p for p in [work / "java" / "maven.log", *(work / "java").glob("**/maven.log")] if p.is_file()), None)
+    text = decode_bytes(log.read_bytes()) if log else error  # #3813: the lossless ladder, never errors=
+    errors = []  # each compiler / test error once, its path cut to the file name (Maven prints them twice)
+    boiler = ("Help 1", "Re-run Maven", "Please refer", "For more information", "To see the full stack trace",
+              "Failed to execute goal", "-> [Help")  # fmt: skip
+    lines = text.splitlines()
+    for i, ln in enumerate(lines):
+        keep = ("[ERROR]" in ln and ln.strip() != "[ERROR]" and not any(b in ln for b in boiler)) or (
+            ln.startswith(("java.", "Caused by:")) and "Exception" in ln and i > 0 and "Tests run" in "".join(lines[max(0, i - 3) : i])
+        )  # fmt: skip
+        if keep:
+            ln = re.sub(r"\S*/([A-Za-z0-9_$]+\.java)", r"\1", ln)
+            if ln not in errors:
+                errors.append(ln)
+            if ln.startswith("java.") and "Exception" in ln:  # where in the port: its first frames
+                frames = [f.strip() for f in lines[i + 1 : i + 40] if f.strip().startswith("at com.gitgalaxy.")]
+                errors += [f"    {f}" for f in frames[:4] if f"    {f}" not in errors]
+    shown = "\n".join(errors[:40]) if errors else "\n".join(text.splitlines()[-60:])
+    return {"case": case["name"], "program": case["program"], "outputs": {}, "proven": False,
+            "java_failed": True, "feedback": "### The Java side did not build or run\n\n```\n" + shown + "\n```"}  # fmt: skip
+
+
+# ---- --reuse: an earlier run's COBOL side and generated project ----------------------------------------------------
+# Mutation testing (tests/tools/mutation.py) proves hundreds of ports of ONE case. Each would redo the same COBOL
+# runs and regenerate the same estate; only the port differs. With `run --reuse EARLIER`, a COBOL step whose
+# run.sh is byte-identical to the one EARLIER ran takes EARLIER's outputs instead of running (the step is
+# deterministic: the same program, inputs, clock and fault plan), and the Java project is EARLIER's, re-overlaid
+# with the port (the same files, or it refuses). Everything after -- reading, comparing, coverage -- is unchanged.
+_REUSE: tuple[Path, Path] | None = None  # (this run's work root, the earlier run's)
+
+
+def reuse(work: Path, earlier: Path) -> None:
+    global _REUSE
+    if not (earlier / "report.json").is_file():
+        raise SystemExit(f"--reuse: {earlier} is not a finished run (no report.json)")
+    _REUSE = (work.resolve(), earlier.resolve())
+
+
+def reused(work: Path) -> Path | None:
+    """The earlier run's directory for this run's `work`, when reusing; else None."""
+    if _REUSE is None:
+        return None
+    root, earlier = _REUSE
+    return earlier / work.resolve().relative_to(root)
+
+
+def run_cobol_step(
+    work: Path, image: str = IMAGE, docker_args: tuple[str, ...] = ()
+) -> subprocess.CompletedProcess[str]:
+    """Run work/run.sh in the GnuCOBOL image (`image`: a Db2 case's, on `docker_args`' network) -- or, with --reuse,
+    copy in what the earlier run's identical step wrote."""
+    earlier = reused(work)
+    if earlier is None:
+        return subprocess.run(["docker", "run", "--rm", *docker_args, "-v", f"{work}:/work", image, "bash",  # noqa: S603, S607
+                               "/work/run.sh"], capture_output=True, text=True, check=False)  # fmt: skip
+    script = earlier / "run.sh"
+    if not script.is_file() or script.read_bytes() != (work / "run.sh").read_bytes():
+        raise RuntimeError(f"--reuse: {earlier} did not run this COBOL step (its run.sh differs or is missing)")
+    shutil.copytree(earlier, work, dirs_exist_ok=True)
+    return subprocess.CompletedProcess(["reuse", str(earlier)], 0, "", "")

@@ -15,13 +15,14 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC,
+    COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_API,
     GLOBAL_LLM_ORCHESTRATOR,
     GLOBAL_LLM_VECTOR_STORE,
     GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    JS_LLM_API,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -66,6 +67,10 @@ DEFINITION: dict[str, Any] = {
     # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
     "bare_import_names_package": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,
@@ -88,7 +93,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # EXCLUDES: Exceptions (throw). Includes control flow and logical short-circuits.
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?|\?\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?\?|\?"),
         # 2. args (Parameters / Coupling)
         # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
         # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
@@ -478,18 +483,17 @@ DEFINITION: dict[str, Any] = {
             # because the `^[ \t]*` anchor enforces it must be the start of a line. We cannot
             # easily fix this without massive ReDoS or losing precision.
             # Mid-statement function values cannot be reliably matched without a full AST.
-            # BUG FIX (epic #1261 / issue #1630): the zero-prefix branch's
-            # parameter-list terminator used a FLAT `\([^)]*\)` character class,
-            # which cannot represent even one level of nested parens. Any
-            # callback-typed parameter (`onDisconnect: () => void`, `handler:
-            # (...args: any[]) => void`) has an inner `()`, so the class stopped
-            # at the first inner `)`, the terminator lookahead then failed to find
-            # its `{`/`;`/`:` anchor, and the WHOLE signature -- constructor or
-            # method -- silently stopped matching (regex-level non-match, not just a
-            # misrecord). Replaced with the bounded one-level-nesting form
-            # `\((?:[^()]|\([^()]*\))*\)` -- same Rule 11 shape the generic
-            # step-over already uses (`(?:[^<>]|<[^<>]*>)*`), linear because the
-            # two alternatives never match overlapping text.
+            # BUG FIX (issue #1630): the parameter list below used to be closed
+            # by a flat `\([^)]*\)`, which stops at the FIRST `)`. A
+            # callback-typed parameter (`onDone: () => void`, `handler:
+            # (...args: any[]) => void`) carries its own `(...)`, so that
+            # inner `)` ended the list early, the terminator lookahead never
+            # found its `{`/`;`, and the whole constructor or method went
+            # unmatched. The list now allows nested parens:
+            # `\((?:[^()]|\( ... \))*\)`. It stays linear because the two
+            # alternatives cannot overlap: `[^()]` never takes a paren and the
+            # nested group must start with one, so each character can only be
+            # consumed one way and no backtracking blow-up is possible (Rule 11).
             # BUG FIX (issue #1838, R1): one level of nesting still wasn't
             # enough -- a callback-typed parameter can itself contain a
             # parenthesized sub-expression (nesting depth 2 from the outer
@@ -693,7 +697,11 @@ DEFINITION: dict[str, Any] = {
         # is `standard_block` (both `//` and `/* */` are real comment
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
-        "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"),
+        "dead_code": re.compile(
+            r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/**` and the JSDoc/TSDoc tags (`@param`,
         # `@return`, ...) were independent alternatives, so one doc block
@@ -753,7 +761,7 @@ DEFINITION: dict[str, Any] = {
             r"|\.bind\(|\.call\(|\.apply\("
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
-        "llm_api": GLOBAL_LLM_API,
+        "llm_api": JS_LLM_API,
         "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
         "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
         "ml_traditional": GLOBAL_ML_TRADITIONAL,

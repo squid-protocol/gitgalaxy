@@ -1,0 +1,36 @@
+{
+  "format": "cics-crucible/expected/1",
+  "case": "fx-text-chain",
+  "scenario": "three-visits",
+  "tasks": [
+    {"seq": 1, "transid": "FX01", "program": "FXCHAIN", "termid": "T001", "at": "2026-03-02T10:00:00",
+     "trigger": {"kind": "terminal", "step": 0}, "eibaid": "ENTER", "eibcalen": 0, "commarea": null,
+     "events": [
+       {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 001", "length": 20, "options": ["ERASE"]},
+       {"event": "RETURN", "program": "FXCHAIN", "level": 1, "transid": "FX01",
+        "commarea": {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "1", "WS-NAME": "FIRST"}}}
+     ],
+     "end": "normal"},
+    {"seq": 2, "transid": "FX01", "program": "FXCHAIN", "termid": "T001", "at": "2026-03-02T10:00:10",
+     "trigger": {"kind": "terminal", "step": 1}, "eibaid": "ENTER", "eibcalen": 11,
+     "commarea": {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "1", "WS-NAME": "FIRST"}},
+     "events": [
+       {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 002", "length": 20, "options": ["ERASE"]},
+       {"event": "RETURN", "program": "FXCHAIN", "level": 1, "transid": "FX01",
+        "commarea": {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "2", "WS-NAME": "FIRST"}}}
+     ],
+     "end": "normal"},
+    {"seq": 3, "transid": "FX01", "program": "FXCHAIN", "termid": "T001", "at": "2026-03-02T10:00:20",
+     "trigger": {"kind": "terminal", "step": 2}, "eibaid": "PF3", "eibcalen": 11,
+     "commarea": {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "2", "WS-NAME": "FIRST"}},
+     "events": [
+       {"event": "SEND-TEXT", "program": "FXCHAIN", "text": "VISIT 003", "length": 20, "options": ["ERASE"]},
+       {"event": "XCTL", "program": "FXCHAIN", "target": "FXLAST", "length": 11,
+        "commarea": {"length": 11, "layout": "STATE", "fields": {"WS-COUNT": "3", "WS-NAME": "FIRST"}},
+        "resp": "NORMAL"},
+       {"event": "SEND-TEXT", "program": "FXLAST", "text": "DONE FIRST", "length": 20, "options": ["ERASE"]},
+       {"event": "RETURN", "program": "FXLAST", "level": 1, "transid": null, "commarea": null}
+     ],
+     "end": "normal"}
+  ]
+}

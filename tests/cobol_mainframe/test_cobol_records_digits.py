@@ -42,8 +42,8 @@ CASES = [
     ("CobolRecords.decimal(Integer.valueOf(7))", "7"),
     ('CobolRecords.zoned("00123".getBytes(UTF), 0, 5, 2, UTF)', "1.23"),
     ('CobolRecords.zoned("0012C".getBytes(UTF), 0, 5, 0, UTF)', "123"),
-    ('CobolRecords.zoned("١٢٣".getBytes(UTF), 0, "١٢٣".getBytes(UTF).length, 0, UTF)', "INVALID"),
-    ('CobolRecords.zoned("１２3".getBytes(UTF), 0, "１２3".getBytes(UTF).length, 0, UTF)', "INVALID"),
+    ('CobolRecords.zoned("١٢٣".getBytes(UTF), 0, "١٢٣".getBytes(UTF).length, 0, UTF)', "null"),
+    ('CobolRecords.zoned("１２3".getBytes(UTF), 0, "１２3".getBytes(UTF).length, 0, UTF)', "null"),
 ]
 
 

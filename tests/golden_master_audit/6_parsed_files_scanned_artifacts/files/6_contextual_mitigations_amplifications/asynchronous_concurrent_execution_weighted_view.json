@@ -266,6 +266,10 @@
     "yaml/vscode_workflows": {
       "yaml/vscode_workflows/pr.yml": 6
     },
+    "zig/mach": {
+      "zig/mach/graph.zig": 17,
+      "zig/mach/module.zig": 7
+    },
     "zig/zig": {
       "zig/zig/InternPool.zig": 269,
       "zig/zig/Zcu.zig": 7
@@ -273,10 +277,6 @@
     "zig/zls": {
       "zig/zls/DocumentStore.zig": 19,
       "zig/zls/Server.zig": 6
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/graph.zig": 17,
-      "zig/zls/mach/module.zig": 7
     }
   },
   "path": [

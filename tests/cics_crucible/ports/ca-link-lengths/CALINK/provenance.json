@@ -1,0 +1,58 @@
+{
+ "format": "cics-crucible-port/1",
+ "case": "ca-link-lengths",
+ "program": "CALINK",
+ "attempt": 1,
+ "backend": "command",
+ "model": "claude-opus-5-5",
+ "command": "claude CLI 2.1.285 print mode (claude -p --model claude-opus-5-5 --effort high --tools '' --strict-mcp-config --mcp-config '{\"mcpServers\":{}}' --no-session-persistence --system-prompt <porting system prompt>, prompt file on stdin, run from an empty directory)",
+ "proposed_at": "2026-09-29T21:48:00+00:00",
+ "ticket_sha256": "5be42ca5d1f49adba2771d0346813dc6609eb4700e970f9ca238cad509759b0f",
+ "prompt_tokens": 13997,
+ "feedback_from": null,
+ "notes": "Defects of the original kept (each is commented in the port with its one-line fix):\n- Line 52: the RESP / RESP2 of the LINK to CAGONE go into WS-RESP / WS-RESP2 but are never tested.\n  They are only shown in the report, and the program goes on with the header it built itself. This matches\n  the field-tested unchecked_responses / uow_handlers facts.\n  Fix: IF WS-RESP NOT = DFHRESP(NORMAL) handle the failed LINK.\n- Line 46 (mode L): LENGTH(500) on the 100-byte WS-CA100 exposes WS-AFTER (the next 400 bytes of\n  WORKING-STORAGE) to CASUB as CA-EXT-FLAG / CA-EXT-DATA, and CASUB can overwrite it.\n  Fix: LENGTH(LENGTH OF WS-CA100).\n- The LINKs at lines 42, 46 and 50 have no RESP. Any condition (for example PGMIDERR if CASUB is not\n  defined) abends the task through CICS's default action, and the port does this with abendOnCondition.\n- The RECEIVE at line 33 has no RESP. More than 20 bytes typed raises LENGERR and abends the task (AEIV).\n- Mode 'P' is not tested for explicitly. WHEN OTHER also takes a blank mode (nothing typed after the\n  transid) and lower-case s / l / z.\n- MOVE CA-SEEN-LEN (S9(4) COMP) TO WS-SEEN-D (9(4)) drops the sign.\n- WS-RESP / WS-RESP2 stay 0 in modes S, L and Z, so the report shows RESP=00/00 there.\n\nMapping decisions:\n- The generated TODO asks to map the caller's 100-byte WS-CA100 onto CASUB's 500-byte DFHCOMMAREA.\n  A local LINK passes the caller's storage by address, so the DTO overlays the whole of WS-BLOCK:\n  - the header fields are WS-CA100;\n  - CA-EXT-FLAG / CA-EXT-DATA are WS-AFTER-FLAG / WS-AFTER-DATA.\n  This holds in both mode S and mode L. LENGTH only sets the callee's EIBCALEN (100 or 500). Whatever\n  the callee changes is copied back into WORKING-STORAGE after the LINK. The source header describes\n  mode S as \"the callee sees 100 bytes\"; that is true of EIBCALEN, not of the addressable storage.\n- An abend in CASUB that no exit takes terminates the whole task. The port detects it from the task's\n  events and stops, with no SEND TEXT or RETURN.\n- executeCalink has no batch equivalent: CALINK is CICS-only (transaction CA01). It throws\n  UnsupportedOperationException and points to runTask.\n- handleTransaction and linkCasub are left as generated. The port LINKs through CicsTask.link so CASUB\n  runs at the next level with shared events.\n\nFacts contradicted by the source: none found.",
+ "proof": {
+  "at": "2026-09-29T21:58:43+00:00",
+  "crucible_ref": "v0.1.0 (0c942cb8)",
+  "summary": {
+   "long-500": "1/1",
+   "no-commarea": "1/1",
+   "short-100": "1/1",
+   "undefined-program": "1/1"
+  },
+  "sibling_ports": [
+   "CALINK",
+   "CASUB"
+  ]
+ },
+ "approved": false,
+ "history": [
+  {
+   "at": "2026-09-29T21:48:00+00:00",
+   "event": "proposed",
+   "attempt": 1
+  },
+  {
+   "at": "2026-09-29T21:48:23+00:00",
+   "event": "proof-failed",
+   "attempt": 1,
+   "summary": {
+    "long-500": "0/1",
+    "no-commarea": "1/1",
+    "short-100": "0/1",
+    "undefined-program": "1/1"
+   }
+  },
+  {
+   "at": "2026-09-29T21:58:43+00:00",
+   "event": "proven",
+   "attempt": 1,
+   "summary": {
+    "long-500": "1/1",
+    "no-commarea": "1/1",
+    "short-100": "1/1",
+    "undefined-program": "1/1"
+   }
+  }
+ ]
+}

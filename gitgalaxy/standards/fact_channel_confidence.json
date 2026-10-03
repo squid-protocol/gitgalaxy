@@ -155,9 +155,9 @@
       "tested_on_public": 4
     },
     "MOVE truncation": {
-      "clean_fresh_facts": 73,
-      "clean_fresh_rounds": 3,
-      "engine_defects": 0,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 1,
       "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,
@@ -236,13 +236,13 @@
       "tested_on_public": 2
     },
     "call targets": {
-      "clean_fresh_facts": 0,
-      "clean_fresh_rounds": 0,
+      "clean_fresh_facts": 2,
+      "clean_fresh_rounds": 1,
       "engine_defects": 1,
-      "fresh_rounds": 3,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 7
     },
     "cics/sql": {
       "clean_fresh_facts": 0,
@@ -263,49 +263,49 @@
       "tested_on_public": 5
     },
     "copybook paths": {
-      "clean_fresh_facts": 41,
-      "clean_fresh_rounds": 2,
-      "engine_defects": 2,
-      "fresh_rounds": 2,
+      "clean_fresh_facts": 9,
+      "clean_fresh_rounds": 1,
+      "engine_defects": 3,
+      "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 5
+      "tested_on_public": 6
     },
     "data moves": {
-      "clean_fresh_facts": 517,
-      "clean_fresh_rounds": 2,
-      "engine_defects": 2,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 3,
       "fresh_rounds": 3,
-      "status": "field-tested",
+      "status": "open",
       "tested_on_private": 0,
       "tested_on_public": 6
     },
     "dead": {
-      "clean_fresh_facts": 34,
-      "clean_fresh_rounds": 2,
+      "clean_fresh_facts": 35,
+      "clean_fresh_rounds": 3,
       "engine_defects": 0,
-      "fresh_rounds": 2,
+      "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 4
+      "tested_on_public": 5
     },
     "dead (non-trivial)": {
-      "clean_fresh_facts": 9,
+      "clean_fresh_facts": 10,
+      "clean_fresh_rounds": 3,
+      "engine_defects": 0,
+      "fresh_rounds": 3,
+      "status": "open",
+      "tested_on_private": 0,
+      "tested_on_public": 5
+    },
+    "dynamic CALLs": {
+      "clean_fresh_facts": 2,
       "clean_fresh_rounds": 2,
       "engine_defects": 0,
       "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 4
-    },
-    "dynamic CALLs": {
-      "clean_fresh_facts": 1,
-      "clean_fresh_rounds": 1,
-      "engine_defects": 0,
-      "fresh_rounds": 1,
-      "status": "open",
-      "tested_on_private": 0,
-      "tested_on_public": 2
+      "tested_on_public": 3
     },
     "dynamic call targets": {
       "clean_fresh_facts": 16,
@@ -371,20 +371,20 @@
       "tested_on_public": 4
     },
     "program_id": {
-      "clean_fresh_facts": 43,
-      "clean_fresh_rounds": 3,
-      "engine_defects": 1,
-      "fresh_rounds": 3,
+      "clean_fresh_facts": 5,
+      "clean_fresh_rounds": 1,
+      "engine_defects": 2,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 7
     },
     "record fields": {
-      "clean_fresh_facts": 1622,
-      "clean_fresh_rounds": 3,
-      "engine_defects": 0,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 3,
       "fresh_rounds": 3,
-      "status": "field-tested",
+      "status": "open",
       "tested_on_private": 0,
       "tested_on_public": 6
     },
@@ -407,13 +407,13 @@
       "tested_on_public": 1
     },
     "units": {
-      "clean_fresh_facts": 0,
-      "clean_fresh_rounds": 0,
-      "engine_defects": 3,
-      "fresh_rounds": 3,
+      "clean_fresh_facts": 21,
+      "clean_fresh_rounds": 1,
+      "engine_defects": 6,
+      "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,
-      "tested_on_public": 6
+      "tested_on_public": 7
     },
     "units of work and handlers": {
       "clean_fresh_facts": 2111,

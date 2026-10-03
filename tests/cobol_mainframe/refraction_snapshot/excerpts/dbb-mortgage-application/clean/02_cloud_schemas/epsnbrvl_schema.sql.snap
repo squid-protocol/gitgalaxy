@@ -1,0 +1,12 @@
+CREATE TABLE WS_WORK_AMOUNTS (
+    ERROR_INDICATOR                SMALLINT,
+    ERROR_TEXT                     VARCHAR(80),
+    WS_LEADING_SPACES              SMALLINT,
+    WS_TRAILING_SPACES             SMALLINT,
+    WS_END_SPACE                   SMALLINT,
+    WS_DECIMAL_SPACE               SMALLINT,
+    WS_IDX                         SMALLINT,
+    WS_DEC_IDX                     SMALLINT,
+    WS_NUM_IDX                     SMALLINT,
+    WS_MAX_FIELD                   SMALLINT
+);

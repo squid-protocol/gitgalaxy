@@ -22,6 +22,7 @@ import logging
 import math
 from typing import Any
 
+from gitgalaxy.metrics import archetype_parity
 from gitgalaxy.standards import analysis_lens
 
 logger = logging.getLogger(__name__)
@@ -47,6 +48,48 @@ def _warn_once(msg: str) -> None:
     if msg not in _logged_parity_warnings:
         _logged_parity_warnings.add(msg)
         logger.warning(msg)
+
+
+def loaded_brains() -> dict[str, dict]:
+    """The four archetype brains this engine classifies with, keyed by
+    ``archetype_parity.LEVELS``."""
+    return {
+        "function": analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL,
+        "file": analysis_lens.GENERAL_FILE_INFERENCE_MODEL,
+        "composition_file": analysis_lens.FILE_ARCHETYPE_BRAIN,
+        "composition_repo": analysis_lens.REPO_ARCHETYPE_BRAIN,
+    }
+
+
+def validation_status() -> dict[str, Any]:
+    """The per-level archetype trust state for this engine (#4100). Static per
+    engine build -- it depends only on the shipped brains and record."""
+    return archetype_parity.validation_status(loaded_brains(), analysis_lens.ARCHETYPE_VALIDATION)
+
+
+# withheld_levels() hashes the brains; classify_file runs once per file. Cache on
+# the identity of the loaded brain objects so a test that swaps one still sees a
+# fresh answer.
+_withheld_cache: tuple[tuple[int, ...], frozenset[str]] | None = None
+
+
+def withheld_levels() -> frozenset[str]:
+    """Levels that are structurally INVALID for the loaded brains; their labels are
+    replaced by ``archetype_parity.WITHHELD_LABEL``."""
+    global _withheld_cache
+    brains = loaded_brains()
+    key = tuple(id(b) for b in brains.values())
+    if _withheld_cache is None or _withheld_cache[0] != key:
+        problems = archetype_parity.structural_problems(brains)
+        withheld = frozenset(lvl for lvl, ps in problems.items() if any(sev == "INVALID" for sev, _ in ps))
+        for lvl in sorted(withheld):
+            why = "; ".join(m for sev, m in problems[lvl] if sev == "INVALID")
+            _warn_once(
+                f"{lvl} archetype brain is INVALID for this engine; its labels are withheld "
+                f"({archetype_parity.WITHHELD_LABEL!r}) until the brains are retrained (#4100): {why}"
+            )
+        _withheld_cache = (key, withheld)
+    return _withheld_cache[1]
 
 
 def _rank(value: float, ref: list) -> float:
@@ -127,6 +170,8 @@ def classify_file(f: dict[str, Any], drift: dict | None = None):
     coding_loc = float(f.get("coding_loc", 0) or 0)
     if lang in set(b["noncode_languages"]) or coding_loc < b["min_coding_loc"]:
         return b["noncode_bucket"], 0.0
+    if "composition_file" in withheld_levels():
+        return archetype_parity.WITHHELD_LABEL, 0.0
 
     mix = tel.get("function_archetype_mix", {}) or {}
     total = sum(mix.get(a, 0) for a in b["stoich_archetypes"])
@@ -188,6 +233,8 @@ def classify_repo(parsed_files: list[dict[str, Any]]):
     file_count = len(parsed_files)
     if file_count < b["min_files"]:
         return b["micro_bucket"], 0.0
+    if "composition_repo" in withheld_levels():
+        return archetype_parity.WITHHELD_LABEL, 0.0
 
     comp_counts: dict[str, int] = {}
     noncode = 0

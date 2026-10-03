@@ -16,7 +16,7 @@ public class Cbpaup0cPendingAuthDetails {
     @Column(name = "sys_id")
     private Long sysId;
 
-    @Column(name = "CURRENT_DATE")
+    @Column(name = "\"CURRENT_DATE\"")
     private Integer currentDate;
 
     @Column(name = "CURRENT_YYDDD")

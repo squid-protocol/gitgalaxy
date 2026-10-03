@@ -17,9 +17,9 @@ The GitGalaxy Metrics engine is engineered to solve this through **Contextual Sy
 All modules in this directory are engineered to operate strictly in $O(1)$ or $O(N)$ linear time complexity. Because expensive disk I/O and regex parsing have already concluded in the `core/` phase, these mathematical operations execute across tens of thousands of files in milliseconds.
 
 ### 1. `signal_processor.py` (The Mathematical Core)
-The primary heuristic synthesis engine. It translates raw structural hits into an 18-point Structural Surface Profile evaluating dimensions like Debt Markers (formerly Technical Debt), Complexity Load (formerly Cognitive Load), and Mutation Surface (formerly State Flux). The underlying `risk_*` DB columns and JSON keys are unchanged; see [`docs/vectors.md`](../../docs/vectors.md).
+The primary heuristic synthesis engine. It translates raw structural hits into the 13-vector Structural Surface Profile evaluating dimensions like Debt Markers (formerly Technical Debt), Complexity Load (formerly Cognitive Load), and Mutation Surface (formerly State Flux). The underlying `risk_*` DB columns and JSON keys are unchanged; see [`docs/vectors.md`](../../docs/vectors.md).
 * **Dual-Axis Anomaly Detection:** Evaluates threats using both global repository baselines and local language models. It leverages **Architectural Drift (Z-Score)** to mathematically flag files that blend in globally but violate their local ecosystem's structural norms.
-* **Autonomous Execution Vectors & AI Topology:** Analyzes the density of LLM orchestration tools, vector databases, and execution loops to classify the repository's AI footprint. It explicitly flags vulnerabilities where raw **Prompt Injection Surfaces** flow directly into OS-level execution.
+* **AI Topology:** Counts LLM orchestration tools, vector databases and execution loops to describe the repository's AI footprint. It does not claim a prompt-injection-to-execution path: that detector was removed as unprovable without data-flow analysis (#1020, #1102).
 
 ### 2. `statistical_auditor.py` (The Quality Gate)
 A statistical gatekeeper designed to protect downstream Machine Learning models and LLMs from context poisoning.
@@ -54,5 +54,5 @@ Explore the ecosystem:
 
 * **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
 * **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
 * **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

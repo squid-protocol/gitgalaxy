@@ -14,6 +14,7 @@ import re
 from pathlib import Path
 from typing import Any, Optional, TypedDict, Union
 
+from gitgalaxy.core.model_magic import MODEL_EXTENSIONS, sniff_model_format
 from gitgalaxy.core.source_text import open_source
 
 # ==============================================================================
@@ -22,7 +23,49 @@ from gitgalaxy.core.source_text import open_source
 # Architecture: Path Evaluation -> Intent Resolution -> Content Validation
 # ==============================================================================
 
+# --- DECLARED PORTS ---
+# A deterministic COBOL-to-Java port (gitgalaxy/tools/cobol_to_java/det) opens with this line. Its
+# output is machine-translated by design -- uniform indentation, long compound conditions -- so the
+# generated-noise classifiers (Gates 4.1, 4.3, 5.1) would drop the very files a migrated estate is
+# made of. The line is a self-declaration anyone can write; it is trusted because what it lifts are
+# noise filters, never the binary, payload, size or secrets gates: a forged header only admits code
+# to the scan (where every sensor reads it), it cannot hide any. Long lines stay bounded
+# (DECLARED_PORT_MAX_LINE_LENGTH) for the regex engines downstream.
+DET_PORT_MARKER = "// gitgalaxy-det-port:"
+_DET_PORT_LINE = re.compile(r"// gitgalaxy-det-port: COBOL ([A-Z0-9#@$-]{1,30}) ")
+
+
+def declared_port(content: Optional[str], rel_path: str) -> Optional[str]:
+    """The COBOL program a .java file declares itself a deterministic port of (its first line), or None."""
+    if not content or not rel_path.lower().endswith(".java"):
+        return None
+    m = _DET_PORT_LINE.match(content[:200])
+    return m.group(1) if m else None
+
+
 # --- CUSTOM EXCEPTION HIERARCHY ---
+
+
+# #4126: a block reason a caller can act on without matching its wording. The Binary Analysis
+# Sensor used to test the reason text for "Blacklisted Extension", and a rename of Gate 1.3's
+# message (3477c48cc) silently disconnected it. A reason now carries its gate as `.kind`; the text
+# stays a plain str for every log, report and SARIF consumer.
+DENIED_EXTENSION = "denied_extension"
+
+
+class ApertureReason(str):
+    """A block reason (a str) that also names the gate that produced it."""
+
+    kind: str
+
+    def __new__(cls, text: str, kind: str = "") -> "ApertureReason":
+        obj = super().__new__(cls, text)
+        obj.kind = kind
+        return obj
+
+    def __reduce__(self) -> tuple[Any, ...]:
+        # survive the ProcessPoolExecutor's pickling with the kind intact
+        return (ApertureReason, (str(self), self.kind))
 
 
 class ApertureError(Exception):
@@ -172,21 +215,18 @@ class ApertureFilter:
             return False, size_bytes, reason
 
         # --- Gate 1.2: Model Weight Shunt ---
-        AI_MODEL_EXTS = {
-            ".safetensors",
-            ".gguf",
-            ".onnx",
-            ".pt",
-            ".pth",
-            ".bin",
-            ".tflite",
-            ".pb",
-            ".h5",
-        }
-        if ext.lower() in AI_MODEL_EXTS:
-            reason = f"AI MODEL WEIGHTS (Bypassing Standard Logic: '{ext}')"
-            self.logger.info(f"NEURAL SHUNT: Routing {path_obj.name} away from standard regex engines.")
-            return False, size_bytes, reason
+        # #4138: the extension only nominates a candidate; the header has to prove
+        # the format (model_magic.py: one bounded head read, never the whole file).
+        # A `.pb`/`.bin`/`.onnx` that is ordinary protobuf or binary data falls
+        # through to the gates below instead of becoming a "local model" -- and an
+        # `llm_local_compute` hit -- on its name alone.
+        if ext.lower() in MODEL_EXTENSIONS:
+            model_format = sniff_model_format(path_obj, size_bytes)
+            if model_format:
+                reason = f"AI MODEL WEIGHTS (Bypassing Standard Logic: '{ext}', {model_format} header)"
+                self.logger.info(f"NEURAL SHUNT: Routing {path_obj.name} away from standard regex engines.")
+                return False, size_bytes, reason
+            self.logger.debug(f"NEURAL SHUNT: {path_obj.name} has a model extension but no model header.")
 
         # --- Gate 1.2.5: Absolute Mass Ceiling (Zero-I/O Memory Backstop) ---
         # DEFENSIVE DESIGN: Checked here, before the file is ever opened for
@@ -202,7 +242,7 @@ class ApertureFilter:
 
         # --- Gate 1.3: Explicit Extension Firewall ---
         if ext.lower() in self.ignored_extensions and ext.lower() not in self.whitelisted_extensions:
-            reason = f"Blocked (Explicitly Denied Extension: '{ext}')"
+            reason = ApertureReason(f"Blocked (Explicitly Denied Extension: '{ext}')", DENIED_EXTENSION)
             return False, size_bytes, reason
 
         # Establish Intent Lock
@@ -308,7 +348,9 @@ class ApertureFilter:
                 result["reason"] = "Protocol Violation: Missing content buffer"
                 return result
 
-            integrity = self._check_artifact_integrity(content, relative_path, has_intent=active_intent)
+            integrity = self._check_artifact_integrity(
+                content, relative_path, has_intent=active_intent, port=declared_port(content, relative_path) is not None
+            )
             result["total_loc"] = integrity["loc"]
 
             if not integrity["valid"]:
@@ -324,10 +366,15 @@ class ApertureFilter:
             result["reason"] = f"Internal Exception: {e!s}"
             return result
 
-    def _check_artifact_integrity(self, content: str, rel_path: str, has_intent: bool = False) -> dict[str, Any]:
+    def _check_artifact_integrity(
+        self, content: str, rel_path: str, has_intent: bool = False, port: bool = False
+    ) -> dict[str, Any]:
         """
         Deep-scans the content buffer for corruption, binary data, arrays,
         or documentation generator signatures.
+
+        `port`: the file declares itself a deterministic port (declared_port): the generated-noise
+        gates (4.1 up to DECLARED_PORT_MAX_LINE_LENGTH, 4.3, 5.1) admit it; every other gate stands.
         """
         report = {
             "valid": True,
@@ -442,6 +489,8 @@ class ApertureFilter:
         # DEFENSIVE DESIGN: Code minifiers remove newlines, creating ultra-long strings
         # that cause regex engines to hang (ReDoS). We check the first 100 lines for length.
         max_line = self.config.get("MAX_LINE_LENGTH", 500)
+        if port:
+            max_line = self.config.get("DECLARED_PORT_MAX_LINE_LENGTH", 5000)
         is_prose = low_path.endswith((".md", ".markdown", ".txt", ".json", ".csv", ".rst", ".sql", ".svg"))
 
         for i, line in enumerate(lines_list[:100]):
@@ -484,6 +533,7 @@ class ApertureFilter:
             not low_path.endswith(tuple(self._SQL_DDL_EXTENSIONS))
             and self.machine_gen_pattern.search(head_sample)
             and (not has_intent or loc > 1000)
+            and not port
         ):
             report.update(
                 {
@@ -504,7 +554,12 @@ class ApertureFilter:
         # --- Gate 5.1: Lexical Monotony Sensor ---
         # Fixed-format mainframe source (COBOL, PL/I #2502) is uniformly indented by
         # construction, which this indentation-frequency sensor reads as machine output.
-        if loc > 2000 and not has_intent and not low_path.endswith((".cpy", ".cbl", ".cob", ".pli", ".pl1")):
+        if (
+            loc > 2000
+            and not has_intent
+            and not port
+            and not low_path.endswith((".cpy", ".cbl", ".cob", ".pli", ".pl1"))
+        ):
             sample_lines = lines_list[:500]
             meaningful_lines = [l for l in sample_lines if l.strip()]
 

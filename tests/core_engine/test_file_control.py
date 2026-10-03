@@ -198,3 +198,28 @@ def test_sequential_synonyms():
     idx_row = rows[-1]
     assert idx_row["record_key"] == "WS-REC-KEY"
     assert idx_row["alternate_keys"] == "WS-ALT-KEY+DUP"
+
+
+def test_keys_and_recordsize_on_the_data_component():
+    """IDCAMS takes KEYS / RECORDSIZE on the data component as the cluster's (GenApp adef121.jcl)."""
+    jcl = (
+        "//DEFINE1   EXEC PGM=IDCAMS\n"
+        "//SYSIN    DD *\n"
+        " DEFINE CLUSTER(NAME(<USRHLQ>.GENAPP.KSDSCUST)-\n"
+        "          INDEXED -\n"
+        "           REUSE) -\n"
+        "        DATA(NAME(<USRHLQ>.GENAPP.KSDSCUST.DATA)-\n"
+        "          KEYS(10 0)-\n"
+        "          RECORDSIZE(225 225) -\n"
+        "          CISZ(8000)) -\n"
+        "       INDEX(NAME(<USRHLQ>.GENAPP.KSDSCUST.INDEX))\n"
+        " DEFINE CLUSTER(NAME(A.B) INDEXED KEYS(8 2) RECORDSIZE(40 50)) -\n"
+        "        DATA(NAME(A.B.DATA) KEYS(4 0) RECORDSIZE(10 10))\n"
+        "/*\n"
+    )
+    got = [(r["name"], r["organization"], r["key_length"], r["key_offset"], r["record_max"])
+           for r in jcl_vsam_defines(jcl)]  # fmt: skip
+    assert got == [
+        ("<USRHLQ>.GENAPP.KSDSCUST", "INDEXED", 10, 0, 225),
+        ("A.B", "INDEXED", 8, 2, 50),  # the cluster's own KEYS / RECORDSIZE win
+    ]

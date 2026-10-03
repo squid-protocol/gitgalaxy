@@ -8,9 +8,11 @@
       "abap/abapGit/zabapgit.prog.abap": "None Detected"
     },
     "ada": {
-      "ada/PROVENANCE.md": "None Detected"
+      "ada/PROVENANCE.md": "None Detected",
+      "ada/SOURCES.md": "None Detected"
     },
     "ada/alire": {
+      "ada/alire/LICENSE.txt": "None Detected",
       "ada/alire/alire-dependencies-states.ads": "None Detected",
       "ada/alire/alire-releases.ads": "None Detected",
       "ada/alire/alire-solutions.ads": "None Detected"
@@ -250,22 +252,17 @@
       "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "None Detected",
       "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "None Detected"
     },
-    "assembly/raspberrypi_baremetal": {
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "None Detected",
-      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "None Detected"
+    "assembly/rpi_smartstart_baremetal": {
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart32.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/10_virtualmemory_SmartStart64.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart32.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/Arm32_64_USB_SmartStart64.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/Core3Interrupt_SmartStart64.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart32.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/FreeRTOSv10.1.1_loader_RaspberryPi_SmartStart64.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart32.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/Multicore_SmartStart64.S": "None Detected",
+      "assembly/rpi_smartstart_baremetal/SimpleSched_SmartStart32.S": "None Detected"
     },
     "assembly/x86_bare_metal": {
       "assembly/x86_bare_metal/LICENSE.adoc": "None Detected",
@@ -318,6 +315,9 @@
       "blueprint/ghostty/split-tree.blp": "None Detected",
       "blueprint/ghostty/window.blp": "None Detected"
     },
+    "bms": {
+      "bms/SOURCES.md": "None Detected"
+    },
     "bms/cbsa": {
       "bms/cbsa/BNK1ACC.bms": "None Detected",
       "bms/cbsa/BNK1CAM.bms": "None Detected",
@@ -328,8 +328,10 @@
       "bms/cbsa/BNK1MAI.bms": "None Detected",
       "bms/cbsa/BNK1TFM.bms": "None Detected",
       "bms/cbsa/BNK1UAM.bms": "None Detected",
-      "bms/cbsa/PROVENANCE.md": "None Detected",
-      "bms/cbsa/ssmap.bms": "None Detected"
+      "bms/cbsa/PROVENANCE.md": "None Detected"
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": "None Detected"
     },
     "c": {
       "c/SOURCES.md": "None Detected"
@@ -349,10 +351,12 @@
       "c/micropython/compile.h": "None Detected",
       "c/micropython/gc.h": "None Detected",
       "c/micropython/modmachine.c": "None Detected",
+      "c/micropython/modmachine.h": "None Detected",
       "c/micropython/objtype.h": "None Detected",
       "c/micropython/vfs.h": "None Detected"
     },
     "c/sqlite": {
+      "c/sqlite/LICENSE.md": "None Detected",
       "c/sqlite/README.md": "None Detected"
     },
     "cobol/CICS-Cobol": {
@@ -438,6 +442,9 @@
       "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/LICENSE.md": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/NOTICE.md": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/README.md": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "None Detected"
     },
     "cobol/cash-account-cobol": {
@@ -445,6 +452,8 @@
       "cobol/cash-account-cobol/DCLFRANK.cpy": "None Detected"
     },
     "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/LICENSE.md": "None Detected",
+      "cobol/che-che4z-lsp-for-cobol/NOTICE.md": "None Detected",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "None Detected",
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "None Detected",
       "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "None Detected"
@@ -688,6 +697,7 @@
       "cobol/gnucobol/xfhfcd3.cpy": "None Detected"
     },
     "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/COPYING": "None Detected",
       "cobol/gnucobol_internals/syn_misc.at": "None Detected"
     },
     "cobol/zECS": {
@@ -727,11 +737,15 @@
       "cpp/powertoys/FancyZones.h": "None Detected",
       "cpp/powertoys/powertoy_module.h": "None Detected"
     },
+    "csd": {
+      "csd/SOURCES.md": "None Detected"
+    },
     "csd/carddemo": {
       "csd/carddemo/CARDDEMO.CSD": "None Detected",
       "csd/carddemo/CRDDEMO2.csd": "None Detected",
       "csd/carddemo/CRDDEMOD.csd": "None Detected",
       "csd/carddemo/CRDDEMOM.csd": "None Detected",
+      "csd/carddemo/NOTICE": "None Detected",
       "csd/carddemo/PROVENANCE.md": "None Detected"
     },
     "csd/cbsa": {
@@ -803,6 +817,9 @@
     "dart": {
       "dart/SOURCES.md": "None Detected"
     },
+    "db2_sql": {
+      "db2_sql/SOURCES.md": "None Detected"
+    },
     "db2_sql/db2unit": {
       "db2_sql/db2unit/01-ObjectsAdmin.sql": "None Detected",
       "db2_sql/db2unit/02-Objects.sql": "None Detected",
@@ -811,6 +828,7 @@
       "db2_sql/db2unit/07-Version.sql": "None Detected",
       "db2_sql/db2unit/98-Clean.sql": "None Detected",
       "db2_sql/db2unit/99-CleanAdmin.sql": "None Detected",
+      "db2_sql/db2unit/LICENSE.txt": "None Detected",
       "db2_sql/db2unit/PROVENANCE.md": "None Detected"
     },
     "dockerfile": {
@@ -878,19 +896,27 @@
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "None Detected",
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "None Detected",
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "None Detected"
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "None Detected",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": "None Detected"
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": "None Detected",
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": "None Detected",
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "None Detected"
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": "None Detected"
     },
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": "None Detected",
@@ -898,6 +924,9 @@
       "groovy/godot_android_gradle/java_app_settings.gradle": "None Detected",
       "groovy/godot_android_gradle/java_scripts_publish-module.gradle": "None Detected",
       "groovy/godot_android_gradle/java_settings.gradle": "None Detected"
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultTask.java": "None Detected"
     },
     "groovy/gradle_buildlogic_groovy": {
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": "None Detected",
@@ -1027,6 +1056,7 @@
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": "None Detected",
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": "None Detected",
@@ -1170,7 +1200,8 @@
       "haskell/pandoc/Shared.hs": "None Detected"
     },
     "hlasm": {
-      "hlasm/PROVENANCE.md": "None Detected"
+      "hlasm/PROVENANCE.md": "None Detected",
+      "hlasm/SOURCES.md": "None Detected"
     },
     "hlasm/che4z_hlasm": {
       "hlasm/che4z_hlasm/A.hlasm": "None Detected",
@@ -1178,6 +1209,7 @@
       "hlasm/che4z_hlasm/B.hlasm": "None Detected",
       "hlasm/che4z_hlasm/BBBBB.hlasm": "None Detected",
       "hlasm/che4z_hlasm/CCCCC.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/NOTICE.md": "None Detected",
       "hlasm/che4z_hlasm/code_action_1.hlasm": "None Detected",
       "hlasm/che4z_hlasm/code_action_2.hlasm": "None Detected",
       "hlasm/che4z_hlasm/comments.hlasm": "None Detected",
@@ -1264,6 +1296,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": "None Detected"
     },
     "html/polyglot_vscode": {
+      "html/polyglot_vscode/LICENSE.txt": "None Detected",
       "html/polyglot_vscode/vscode_builtin.html": "None Detected"
     },
     "html/revealjs_decks": {
@@ -1595,6 +1628,7 @@
       "lua/darwin-xnu/ktruss.lua": "None Detected"
     },
     "lua/freebsd-src": {
+      "lua/freebsd-src/COPYRIGHT": "None Detected",
       "lua/freebsd-src/gfx-beastie.lua": "None Detected",
       "lua/freebsd-src/gfx-beastiebw.lua": "None Detected",
       "lua/freebsd-src/gfx-fbsdbw.lua": "None Detected",
@@ -1679,6 +1713,7 @@
       "nix/SOURCES.md": "None Detected"
     },
     "nix/bun": {
+      "nix/bun/LICENSE.md": "None Detected",
       "nix/bun/flake.nix": "None Detected",
       "nix/bun/shell.nix": "None Detected"
     },
@@ -1720,6 +1755,7 @@
       "plaintext/SOURCES.md": "None Detected"
     },
     "plaintext/ansible": {
+      "plaintext/ansible/COPYING": "None Detected",
       "plaintext/ansible/requirements.txt": "None Detected"
     },
     "plaintext/cpython/Lib/test/tokenizedata": {
@@ -1733,6 +1769,9 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "None Detected"
+    },
+    "pli": {
+      "pli/SOURCES.md": "None Detected"
     },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/LICENSE.md": "None Detected",
@@ -1808,8 +1847,13 @@
     "python": {
       "python/SOURCES.md": "None Detected"
     },
+    "python/airflow": {
+      "python/airflow/NOTICE": "None Detected"
+    },
     "python/cython": {
+      "python/cython/COPYING.txt": "None Detected",
       "python/cython/CodeGeneration.py": "None Detected",
+      "python/cython/LICENSE.txt": "None Detected",
       "python/cython/MemoryView.pxd": "None Detected"
     },
     "python/fastapi": {
@@ -2002,7 +2046,17 @@
       "python/wtfpython/README.md": "None Detected"
     },
     "rexx": {
-      "rexx/PROVENANCE.md": "None Detected"
+      "rexx/PROVENANCE.md": "None Detected",
+      "rexx/SOURCES.md": "None Detected"
+    },
+    "rexx/hercules_390_hyperion": {
+      "rexx/hercules_390_hyperion/COPYRIGHT": "None Detected"
+    },
+    "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/COPYRIGHT": "None Detected"
+    },
+    "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/LICENSE.md": "None Detected"
     },
     "ruby": {
       "ruby/SOURCES.md": "None Detected"
@@ -2015,6 +2069,8 @@
       "rust/SOURCES.md": "None Detected"
     },
     "rust/bevy": {
+      "rust/bevy/LICENSE-APACHE": "None Detected",
+      "rust/bevy/LICENSE-MIT": "None Detected",
       "rust/bevy/bevy_render_phase.rs": "None Detected"
     },
     "rust/holylang": {
@@ -2023,6 +2079,9 @@
       "rust/holylang/main.rs": "None Detected"
     },
     "rust/serde": {
+      "rust/serde/LICENSE-APACHE": "None Detected",
+      "rust/serde/LICENSE-MIT": "None Detected",
+      "rust/serde/serde_core_de_mod.rs": "None Detected",
       "rust/serde/serde_core_macros.rs": "None Detected",
       "rust/serde/test_annotations.rs": "None Detected"
     },
@@ -2098,6 +2157,7 @@
       "shell/darwin-xnu/setup.sh": "None Detected"
     },
     "shell/freebsd-src": {
+      "shell/freebsd-src/COPYRIGHT": "None Detected",
       "shell/freebsd-src/chflags_test.sh": "None Detected",
       "shell/freebsd-src/chmod_test.sh": "None Detected",
       "shell/freebsd-src/cp_test.sh": "None Detected",
@@ -2204,23 +2264,26 @@
     "sql": {
       "sql/SOURCES.md": "None Detected"
     },
-    "sql/mysql/mediawiki": {
-      "sql/mysql/mediawiki/COPYING": "None Detected",
-      "sql/mysql/mediawiki/blobs.sql": "None Detected"
+    "sql/mediawiki_mysql": {
+      "sql/mediawiki_mysql/COPYING": "None Detected",
+      "sql/mediawiki_mysql/blobs.sql": "None Detected"
     },
-    "sql/mysql/spamassassin": {
-      "sql/mysql/spamassassin/neural_mysql.sql": "None Detected"
+    "sql/mediawiki_postgresql": {
+      "sql/mediawiki_postgresql/COPYING": "None Detected",
+      "sql/mediawiki_postgresql/tables.sql": "None Detected"
     },
-    "sql/postgresql/mediawiki": {
-      "sql/postgresql/mediawiki/tables.sql": "None Detected"
-    },
-    "sql/postgresql/sqlmap": {
-      "sql/postgresql/sqlmap/dns_request.sql": "None Detected"
+    "sql/spamassassin_mysql": {
+      "sql/spamassassin_mysql/NOTICE": "None Detected",
+      "sql/spamassassin_mysql/neural_mysql.sql": "None Detected"
     },
     "sql/sqlite": {
       "sql/sqlite/000-mandelbrot.sql": "None Detected",
       "sql/sqlite/001-sudoku.sql": "None Detected",
+      "sql/sqlite/LICENSE.md": "None Detected",
       "sql/sqlite/dotcmd01.sql": "None Detected"
+    },
+    "sql/sqlmap_postgresql": {
+      "sql/sqlmap_postgresql/dns_request.sql": "None Detected"
     },
     "sqlite": {
       "sqlite/SOURCES.md": "None Detected"
@@ -2354,6 +2417,7 @@
       "tcl/macports_registry/entry.tcl": "None Detected"
     },
     "tcl/sqlite": {
+      "tcl/sqlite/LICENSE.md": "None Detected",
       "tcl/sqlite/README.md": "None Detected"
     },
     "tcl/sqlite_core_dml": {
@@ -2429,10 +2493,12 @@
       "xml/apex/CanTheUser_Tests.cls-meta.xml": "None Detected",
       "xml/apex/IterationRecipes_Tests.cls": "None Detected",
       "xml/apex/IterationRecipes_Tests.cls-meta.xml": "None Detected",
+      "xml/apex/LICENSE.md": "None Detected",
       "xml/apex/ListSortingRecipes_Tests.cls": "None Detected",
       "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "None Detected"
     },
     "xml/jenkins": {
+      "xml/jenkins/LICENSE.txt": "None Detected",
       "xml/jenkins/XStreamDOMTest.data1.xml": "None Detected",
       "xml/jenkins/XStreamDOMTest.data2.xml": "None Detected",
       "xml/jenkins/excludesFilter.xml": "None Detected"
@@ -2523,14 +2589,17 @@
     "zig": {
       "zig/SOURCES.md": "None Detected"
     },
+    "zig/bun": {
+      "zig/bun/LICENSE.md": "None Detected"
+    },
+    "zig/mach": {
+      "zig/mach/main.zig": "None Detected",
+      "zig/mach/testing.zig": "None Detected"
+    },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/config.zig": "None Detected",
       "zig/tigerbeetle/constants.zig": "None Detected",
       "zig/tigerbeetle/direction.zig": "None Detected"
-    },
-    "zig/zls/mach": {
-      "zig/zls/mach/main.zig": "None Detected",
-      "zig/zls/mach/testing.zig": "None Detected"
     }
   },
   "path": [

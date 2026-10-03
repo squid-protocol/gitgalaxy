@@ -13,7 +13,7 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_RUST, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_RUST, COMMENTED_STATEMENT_C_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -54,6 +54,10 @@ DEFINITION: dict[str, Any] = {
     # package, so the typosquat radar never tallies them (#3595).
     "local_import_prefixes": ("crate::", "self::", "super::"),
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_RUST,  # #3643: macros, turbofish; patterns are not calls
         # #3359 (contract C2): keywords and special forms, never calls
@@ -221,7 +225,11 @@ DEFINITION: dict[str, Any] = {
         # comment styles), but this only ever checked `//` -- a block-
         # commented-out function/struct (`/* fn foo() {} */`) was
         # invisible.
-        "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:fn|let|struct|impl|mod|use|match|for|while|loop|if|return)\b"),
+        "dead_code": re.compile(
+            r"(?://|/\*)[ \t]*(?:fn|let|struct|impl|mod|use|match|for|while|loop|if|return)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         "doc": re.compile(r"///|//!|#!?\[doc\b[^\]]*\]"),
         # 14. test (Testing & Assertions)

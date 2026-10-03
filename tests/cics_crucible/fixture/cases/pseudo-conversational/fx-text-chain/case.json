@@ -1,0 +1,17 @@
+{
+  "format": "cics-crucible/case/1",
+  "id": "fx-text-chain",
+  "trap": "pseudo-conversational",
+  "title": "Runner fixture: a COMMAREA counter across RETURN TRANSID, then XCTL on the third visit",
+  "clock": "2026-03-02T10:00:00",
+  "terminal": "T001",
+  "sources": {"cobol": ["src/FXCHAIN.cbl", "src/FXLAST.cbl"], "bms": [], "csd": ["csd/fx-text-chain.csd"],
+              "copy": [], "data": []},
+  "layouts": {"STATE": {"source": "src/FXCHAIN.cbl", "record": "WS-STATE"}},
+  "maps": {},
+  "scenarios": [
+    {"id": "three-visits", "path": "happy",
+     "summary": "FX01 typed, then ENTER and PF3 restart FX01 with the COMMAREA; the third visit XCTLs to FXLAST",
+     "steps": [{"at": 0, "aid": "ENTER", "text": "FX01"}, {"at": 10, "aid": "ENTER"}, {"at": 20, "aid": "PF3"}]}
+  ]
+}

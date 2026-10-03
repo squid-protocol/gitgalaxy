@@ -110,12 +110,16 @@ class CallForge:
             fields = (layout or {}).get("fields", [])
             if layout and len(fields) == 1 and fields[0].get("name") == p["record"]:
                 jtype, note = java_type(fields[0]), f"PIC {fields[0].get('pic')}"  # an elementary item
+                if p["mode"] == "REFERENCE":  # the callee's changes reach the caller, as shared storage does
+                    jtype = f"CobolRef<{jtype}>"
             elif layout:
                 doc = self.cics._record_doc(p["record"], p["file"], layout, status)
                 use = f"USING parameter {p['position']} of {cls}."
                 jtype, note = self.cics._dto_for(p["record"], p["file"], layout, cls, doc, use), ""
             else:
                 jtype, note = "String", f"TODO: {p['name']} was not found in the DATA DIVISION; carried as text"
+                if p["mode"] == "REFERENCE":
+                    jtype = "CobolRef<String>"
             out.append(Param(p["position"], p["name"], p["mode"], jtype, note))
         self._params[key] = out
         return out
@@ -129,15 +133,20 @@ class CallForge:
         ex.imports |= {self._dto_import(p.jtype) for p in params} - {""}
         sig = ", ".join(f"{p.jtype} {_camel(p.name)}" for p in params)
         using = ", ".join(f"{p.name}" + ("" if p.mode == "REFERENCE" else f" (BY {p.mode})") for p in params)
-        ex.methods.append(f"    /** CALLed by another program{f' USING {using}' if using else ''}. "
-                          "TODO: [AI AGENT] implement from the program's business rules. */")  # fmt: skip
+        ex.methods.append(f"    /** CALLed by another program{f' USING {using}' if using else ''}; returns its RETURN-CODE. "
+                          "A BY REFERENCE item is a CobolRef: set() it where the program changes it -- the caller "
+                          "sees the change. TODO: [AI AGENT] implement from the program's business rules. */")  # fmt: skip
         for p in params:
             if p.note:
                 ex.methods.append(f"    // {p.name}: {p.note}")
-        ex.methods += [f"    public void handleCall({sig}) {{", f'        log.info("{self.cls_of[key]}: handleCall");',
-                       "    }\n"]  # fmt: skip
+        ex.methods += [f"    public int handleCall({sig}) {{", f'        log.info("{self.cls_of[key]}: handleCall");',
+                       "        return 0;", "    }\n"]  # fmt: skip
 
     def _dto_import(self, jtype: str) -> str:
+        if jtype.startswith("CobolRef<"):
+            self._refs = True
+            inner = self._dto_import(jtype[len("CobolRef<") : -1])
+            return f"import {self.package}.call.CobolRef;" + (f"\n{inner}" if inner else "")
         if jtype in self.cics.dtos:
             return f"import {self.package}.{DTO_SUBPACKAGE}.{jtype};"
         if jtype == "BigDecimal":
@@ -279,8 +288,8 @@ class CallForge:
                 ex.methods.append(f"    /** CALL '{written}' at {where}; the parameters are {target}'s USING items.")
                 ex.methods.append(f"     *  Call targets {status['calls']}; CALL USING {status['call_contracts']}. */")
                 ex.methods += [
-                    f"    public void call{target}({sig}) {{",
-                    f"        {ref}.handleCall({args});",
+                    f"    public int call{target}({sig}) {{",
+                    f"        return {ref}.handleCall({args});",
                     "    }\n",
                 ]
                 self.counts["call"] += 1
@@ -458,6 +467,37 @@ class CallForge:
             )
             self.trace.record(java_path(self.package, "client", cls), f"{cls}#{name}", "remote-client", facts, [])
             self.trace.record(java_path(self.package, "client", cls), "Class", "remote-client", facts, [])
+
+    def ref_sources(self) -> dict[str, str]:
+        """#4023 follow-up: CobolRef (package <pkg>.call), when a CALLed program takes a BY REFERENCE item."""
+        if not getattr(self, "_refs", False):
+            return {}
+        return {"CobolRef": "\n".join([
+            f"package {self.package}.call;\n",
+            "/**",
+            " * A CALL's BY REFERENCE item: the caller and the called program share its storage, so what the called",
+            " * program stores in it (set) is what the caller reads back (get) -- a Java String or number could not.",
+            " */",
+            "public final class CobolRef<T> {\n",
+            "    private T value;\n",
+            "    public CobolRef(T value) {",
+            "        this.value = value;",
+            "    }\n",
+            "    public static <T> CobolRef<T> of(T value) {",
+            "        return new CobolRef<>(value);",
+            "    }\n",
+            "    public T get() {",
+            "        return value;",
+            "    }\n",
+            "    public void set(T value) {",
+            "        this.value = value;",
+            "    }\n",
+            "    @Override",
+            "    public String toString() {",
+            "        return String.valueOf(value);",
+            "    }",
+            "}",
+        ]) + "\n"}  # fmt: skip
 
     def client_sources(self) -> dict[str, str]:
         """Remote client class name -> Java source (package <pkg>.client)."""

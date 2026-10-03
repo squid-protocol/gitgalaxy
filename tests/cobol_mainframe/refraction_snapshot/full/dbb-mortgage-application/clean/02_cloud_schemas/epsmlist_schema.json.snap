@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_FORMAT_NUMBER": {
+      "type": "number",
+      "description": "Legacy PIC: Z,ZZZ,ZZ9.99"
+    },
+    "W_CALL_PROGRAM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "RESPONSE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "RID_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DISP_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "MAX_LOOP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "END_OF_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "CLOSE_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "W_COMAREA_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "OUTMAP_COMPANY": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "OUTMAP_PHONE_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "OUTMAP_RATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(5)"
+    },
+    "OUTMAP_LOAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)"
+    },
+    "OUTMAP_YEARS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    }
+  }
+}

@@ -169,27 +169,27 @@
 <text class="n" x="324" y="325">n=1,085 imports</text>
 <text class="n" x="324" y="337">repos 1 · files 264</text>
 </g>
-<g><title>java callee names: precision 100.0% of 1,911, recall 98.2% of 1,946 (raw 100.0% / 98.2%; 1 shapes without a verdict)</title>
+<g><title>java callee names: precision 100.0% of 1,946, recall 100.0% of 1,946</title>
 <text class="pr" x="426" y="324.5">Precision</text>
 <rect class="track" x="472" y="317" width="110" height="8" rx="2"/>
 <rect x="472" y="317" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="587" y="325">100.0%</text>
 <text class="pr" x="426" y="336.5">Recall</text>
 <rect class="track" x="472" y="329" width="110" height="8" rx="2"/>
-<rect x="472" y="329" width="108.0" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="587" y="337">98.2%*</text>
+<rect x="472" y="329" width="110.0" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="587" y="337">100.0%</text>
 <text class="n" x="630" y="325">n=1,946 calls</text>
 <text class="n" x="630" y="337">functions 735</text>
 </g>
-<g><title>java call resolution: precision 92.7% of 3,474, recall 41.0% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
+<g><title>java call resolution: precision 99.7% of 5,117, recall 64.9% of 7,858; vs scip-java 0.12.3; corpus import_graph</title>
 <text class="pr" x="732" y="324.5">Precision</text>
 <rect class="track" x="778" y="317" width="110" height="8" rx="2"/>
-<rect x="778" y="317" width="102.0" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="325">92.7%</text>
+<rect x="778" y="317" width="109.7" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="325">99.7%</text>
 <text class="pr" x="732" y="336.5">Recall</text>
 <rect class="track" x="778" y="329" width="110" height="8" rx="2"/>
-<rect x="778" y="329" width="45.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="337">41.0%</text>
+<rect x="778" y="329" width="71.4" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="337">64.9%</text>
 <text class="n" x="936" y="325">n=7,858 edges</text>
 <text class="n" x="936" y="337">vs scip-java 0.12.3</text>
 </g>
@@ -221,7 +221,7 @@
 <text class="none" x="732" y="364.0">not measured</text>
 <rect class="stripe" x="16" y="378" width="1022" height="34"/>
 <text class="lang" x="22" y="399.0">kotlin</text>
-<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377 (raw 100.0% / 99.2%; 1 shapes without a verdict); corpus square/kotlinpoet</title>
+<g><title>kotlin imports: precision 100.0% of 218, recall 99.2% of 377; corpus square/kotlinpoet</title>
 <text class="pr" x="120" y="392.5">Precision</text>
 <rect class="track" x="166" y="385" width="110" height="8" rx="2"/>
 <rect x="166" y="385" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -229,7 +229,7 @@
 <text class="pr" x="120" y="404.5">Recall</text>
 <rect class="track" x="166" y="397" width="110" height="8" rx="2"/>
 <rect x="166" y="397" width="109.1" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="405">99.2%*</text>
+<text class="val" x="281" y="405">99.2%</text>
 <text class="n" x="324" y="393">n=377 imports</text>
 <text class="n" x="324" y="405">repos 1 · files 131</text>
 </g>
@@ -333,16 +333,16 @@
 <text class="n" x="630" y="563">n=11,230 calls</text>
 <text class="n" x="630" y="575">functions 4,045</text>
 </g>
-<g><title>python call resolution: precision 99.8% of 1,806, recall 51.6% of 3,492; vs pyan3 2.8.1; corpus crucible</title>
+<g><title>python call resolution: precision 99.9% of 1,805, recall 51.7% of 3,489; vs pyan3 2.8.1; corpus crucible</title>
 <text class="pr" x="732" y="562.5">Precision</text>
 <rect class="track" x="778" y="555" width="110" height="8" rx="2"/>
-<rect x="778" y="555" width="109.8" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="893" y="563">99.8%</text>
+<rect x="778" y="555" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="893" y="563">99.9%</text>
 <text class="pr" x="732" y="574.5">Recall</text>
 <rect class="track" x="778" y="567" width="110" height="8" rx="2"/>
-<rect x="778" y="567" width="56.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="575">51.6%</text>
-<text class="n" x="936" y="563">n=3,492 edges</text>
+<rect x="778" y="567" width="56.9" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="575">51.7%</text>
+<text class="n" x="936" y="563">n=3,489 edges</text>
 <text class="n" x="936" y="575">vs pyan3 2.8.1</text>
 </g>
 <rect class="stripe" x="16" y="582" width="1022" height="34"/>
@@ -400,16 +400,16 @@
 <text class="none" x="732" y="636.0">not measured</text>
 <rect class="stripe" x="16" y="650" width="1022" height="34"/>
 <text class="lang" x="22" y="671.0">scala</text>
-<g><title>scala imports: precision 98.8% of 488, recall 94.8% of 521 (raw 98.8% / 94.8%; 6 shapes without a verdict); corpus circe/circe</title>
+<g><title>scala imports: precision 100.0% of 502, recall 98.3% of 529; corpus circe/circe</title>
 <text class="pr" x="120" y="664.5">Precision</text>
 <rect class="track" x="166" y="657" width="110" height="8" rx="2"/>
-<rect x="166" y="657" width="108.7" height="8" rx="2" fill="#4a3aa7"/>
-<text class="val" x="281" y="665">98.8%*</text>
+<rect x="166" y="657" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
+<text class="val" x="281" y="665">100.0%</text>
 <text class="pr" x="120" y="676.5">Recall</text>
 <rect class="track" x="166" y="669" width="110" height="8" rx="2"/>
-<rect x="166" y="669" width="104.3" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="281" y="677">94.8%*</text>
-<text class="n" x="324" y="665">n=521 imports</text>
+<rect x="166" y="669" width="108.1" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="281" y="677">98.3%</text>
+<text class="n" x="324" y="665">n=529 imports</text>
 <text class="n" x="324" y="677">repos 1 · files 233</text>
 </g>
 <text class="none" x="426" y="670.0">not measured</text>

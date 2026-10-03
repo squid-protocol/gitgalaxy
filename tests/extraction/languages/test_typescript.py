@@ -69,21 +69,6 @@ FUNCTION_CASES: dict[str, Any] = {
             "export const TargetFunc: React.FC<Props> = ({ a, b }) => {",
             "TargetFunc",
         ),  # typed-arrow assignment with explicit type annotation (was a real bug, now fixed)
-        # Issue #1630: callback-typed parameters (nested parens in the parameter list)
-        # used to break the zero-prefix branch's flat `\([^)]*\)` terminator, dropping
-        # the WHOLE signature at the regex level. These now match.
-        (
-            "constructor(transport: ConnectionTransport, onDisconnect: () => void) {",
-            "constructor",
-        ),  # class constructor with a callback-typed parameter
-        (
-            "addObjectListener(eventName: (string | symbol), handler: (...args: any[]) => void) {",
-            "addObjectListener",
-        ),  # method with union + rest-callback parameters
-        (
-            "constructor(transport: ConnectionTransport, onDisconnect: () => void, protocolLogger: ProtocolLogger) {",
-            "constructor",
-        ),  # playwright bidiConnection.ts shape
         # new issues fixed
         ("const _alt: Alt2<URI>['alt'] = (fa, that) => {", "_alt"),
         ("  isUnderTest: () => {", "isUnderTest"),
@@ -91,6 +76,28 @@ FUNCTION_CASES: dict[str, Any] = {
         ("  [Symbol.asyncIterator]() {", "[Symbol.asyncIterator]"),
         ("this._emitManyFn = (items) => {", "_emitManyFn"),
         ("const predicate = (event) => {", "predicate"),
+        # #1630: callback-typed parameters carry their own `(...)`, which used to
+        # end the flat parameter-list class early and drop the whole signature
+        (
+            "constructor(transport: ConnectionTransport, onDisconnect: () => void) {",
+            "constructor",
+        ),  # constructor with a zero-arg callback parameter
+        (
+            "  constructor(private readonly onClose: (code: number) => void, retries: number) {",
+            "constructor",
+        ),  # parameter-property constructor, callback first
+        (
+            "addObjectListener(eventName: (string | symbol), handler: (...args: any[]) => void) {",
+            "addObjectListener",
+        ),  # method with a parenthesized type and a rest-args callback
+        (
+            "  subscribe(topic: string, listener: (payload: Message) => void): Unsubscribe {",
+            "subscribe",
+        ),  # method with a callback parameter and a return type
+        (
+            "  private retry(task: () => Promise<void>, onFail: (err: Error) => void): void {",
+            "retry",
+        ),  # modifier-prefixed method with two callback parameters
     ],
     "invalid": [
         "class TargetFunc implements Interface",
@@ -168,25 +175,26 @@ def test_typescript_func_start_pathological(payload, expected_name):
     assert_pathological_match(TS_RULES["func_start"], payload, expected_name, "typescript.func_start")
 
 
-def test_typescript_func_start_bare_call_site_identifier_no_longer_matches():
+@pytest.mark.parametrize(
+    "payload",
+    [
+        "describe('parser', () => {",
+        "$(document).ready(function() {",
+        "jQuery.each(items, function() {",
+    ],
+)
+def test_typescript_func_start_bare_call_with_inline_callback_does_not_match(payload):
     """
-    A bare call statement written at true line start with no preceding
-    modifier keyword (e.g. a Jest/Mocha `it('...', () => {...})` block)
-    is correctly REJECTED. This was previously a documented false positive
-    (known limitation): the old flat `[^)]*` parameter-list class
-    stopped at the first inner `)` of the inline callback's `()`, so
-    `describe('suite', () => {` matched as if the whole callback were a
-    method signature. Once the parameter list tolerates one level of nested
-    parens (issue #1630), the outer `(` must actually close again before
-    the terminator -- `describe('suite', () => {` has no closing paren
-    before the block, so it no longer matches. Mirrors the identical
-    javascript fix in #1452.
+    #1630 widened the parameter-list class to allow nested parens. A bare call
+    statement at line start whose argument is an inline callback (a test
+    framework's `describe(...)` block, a jQuery-style `function() {` argument)
+    ends in `() {` or `() => {` too, so it must still not read as a method
+    definition. The nested group only absorbs a balanced inner `(...)`: here
+    the `{` sits inside the call's still-open argument list, so the outer
+    list never closes before it. (`$` and `jQuery` callees are also excluded
+    outright by the name's own negative lookahead.)
     """
-    func_start = TS_RULES["func_start"]
-    jest_block = "describe('suite', () => {\n  it('does the thing', () => {\n    TargetFunc();\n  });\n});"
-    swap_block = "\t\t\t\t\tswap( elem, cssShow, function() {"
-    assert not func_start.search(jest_block), "the inline arrow function in the arguments prevents match"
-    assert not func_start.search(swap_block), "the inline function in the arguments prevents match"
+    assert_invalid_no_match(TS_RULES["func_start"], payload, "typescript.func_start")
 
 
 def test_typescript_func_start_string_literal_lookalike_still_matches_at_regex_level():

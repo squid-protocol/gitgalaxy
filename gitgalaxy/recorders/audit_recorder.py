@@ -21,6 +21,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.function_population import is_population_function
+from gitgalaxy.metrics import archetype_classifier, archetype_parity
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -67,6 +69,26 @@ class AuditRecorder:
         # PERFORMANCE OPTIMIZATION: Pre-cache all labels to avoid regex overhead on the hot path
         self._label_cache = {}
         self._friendly_map = schemas.get("FRIENDLY_MAP", {})
+
+    @staticmethod
+    def _archetype_validation() -> dict[str, Any]:
+        status = archetype_classifier.validation_status()
+        return {
+            "Trained": archetype_parity.trained_line(status),
+            **{
+                lvl: {
+                    "State": v["state"],
+                    "Agreement With Trained State": (
+                        f"{v['agreement']:.1%}" if v["agreement"] is not None else "not measured"
+                    ),
+                    "Labels Withheld": v["withheld"],
+                    "Reasons": v["reasons"],
+                    "Notes": v["notes"],
+                }
+                for lvl, v in status["levels"].items()
+            },
+            "Retrain Issue": status["retrain_issue"],
+        }
 
     def format_label(self, key: str) -> str:
         """Translates raw dictionary keys into descriptive human-readable labels."""
@@ -582,6 +604,10 @@ class AuditRecorder:
                 "Remote Origin URL": git_audit.get("remote_url", "Local/Disconnected"),
                 "Last Code Integration Date": git_audit.get("latest_commit_date", "Unknown"),
             },
+            # #4100: how far each archetype level can be trusted on this engine.
+            # Read from the shipped validation record, which automation refreshes
+            # on main -- tests/golden_diff.py strips it, like a timestamp.
+            "Archetype Validation": self._archetype_validation(),
         }
 
         # --- DYNAMIC TRANSLATION FETCH ---
@@ -713,21 +739,17 @@ class AuditRecorder:
                 },
                 "3. Architectural Profile": {
                     "Repository Archetype": arch,
-                    "Repository Drift (Z-Score)": telemetry.get("global_drift", 0.0),
+                    # #4106: the general FILE archetype (legacy key name), its
+                    # Euclidean distance to the assigned centroid in the brain's
+                    # scaled space (not a z-score), and the distance to every centroid.
+                    "Repository Drift (Centroid Distance)": telemetry.get("global_drift", 0.0),
                     "Repository Fingerprint": (
                         {k: round(v, 3) for k, v in telemetry.get("archetype_fingerprint", {}).items()}
                         if isinstance(telemetry.get("archetype_fingerprint"), dict)
                         else {}
                     ),
-                    "File Archetype": telemetry.get("local_archetype") or "N/A",
                     "Composition Archetype": telemetry.get("composition_file_archetype", "N/A"),
                     "Composition Fit (Z-Score)": round(float(telemetry.get("composition_file_z", 0.0) or 0.0), 3),
-                    "File Drift (Z-Score)": telemetry.get("local_drift", 0.0),
-                    "File Fingerprint": (
-                        {k: round(v, 3) for k, v in telemetry.get("local_fingerprint", {}).items()}
-                        if isinstance(telemetry.get("local_fingerprint"), dict)
-                        else {}
-                    ),
                     "Function Archetype Mix": telemetry.get("function_archetype_mix", {}),
                     "Total LOC": file_data.get("total_loc", 0),
                     "Coding LOC": file_data.get("coding_loc", 0),
@@ -761,7 +783,8 @@ class AuditRecorder:
                         "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])
-                    if isinstance(func, dict) and not func.get("calls_only")
+                    # #4110: the same population as the DB's function_data.
+                    if is_population_function(func)
                 ],
                 "6. Contextual Mitigations & Amplifications": (
                     formatted_mitigations if formatted_mitigations else "None Detected"

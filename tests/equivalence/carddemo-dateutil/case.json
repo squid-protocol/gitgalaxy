@@ -1,0 +1,126 @@
+{
+  "kind": "call",
+  "corpus": "aws-mainframe-modernization-carddemo",
+  "program": "CSUTLDTC",
+  "program_source": "app/cbl/CSUTLDTC.cbl",
+  "copy_dirs": [
+    "app/cpy"
+  ],
+  "clock": "2022/07/18 10:30:15.00",
+  "using": [
+    {
+      "name": "LS-DATE",
+      "size": 10
+    },
+    {
+      "name": "LS-DATE-FORMAT",
+      "size": 10
+    },
+    {
+      "name": "LS-RESULT",
+      "size": 80
+    }
+  ],
+  "calls": [
+    {
+      "name": "iso-date",
+      "args": [
+        "2022-07-18",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "a valid date: feedback all zero, severity 0 -> 'Date is valid'"
+    },
+    {
+      "name": "leap-day-2024",
+      "args": [
+        "2024-02-29",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "29 February of a leap year is valid"
+    },
+    {
+      "name": "leap-day-2000",
+      "args": [
+        "2000-02-29",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "2000 is a leap year (divisible by 400)"
+    },
+    {
+      "name": "not-leap-1900",
+      "args": [
+        "1900-02-29",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "1900 is not a Gregorian leap year: CEE2EC (2508, date value not valid) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "february-30",
+      "args": [
+        "2022-02-30",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "no 30 February: CEE2EC (2508) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "non-numeric",
+      "args": [
+        "2022-AB-01",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "non-numeric data in a numeric position: CEE2EO (2520) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "wrong-separator",
+      "args": [
+        "2022/07/18",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "the date does not match the picture string: CEE2EO (2520) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "before-lilian",
+      "args": [
+        "1582-10-14",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "before 15 October 1582, the first Lilian day: CEE2EH (2513, outside the supported range) (IBM z/OS Language Environment, CEEDAYS)"
+    },
+    {
+      "name": "first-lilian-day",
+      "args": [
+        "1582-10-15",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "Lilian day 1: valid"
+    },
+    {
+      "name": "last-supported-day",
+      "args": [
+        "9999-12-31",
+        "YYYY-MM-DD",
+        ""
+      ],
+      "why": "the last date CEEDAYS supports: valid"
+    },
+    {
+      "name": "slash-picture",
+      "args": [
+        "2022/07/18",
+        "YYYY/MM/DD",
+        ""
+      ],
+      "why": "the same picture with '/' separators: valid"
+    }
+  ],
+  "notes": "CardDemo's shared date check CSUTLDTC, CALLed by COTRN02C, CORPT00C and the CSUTLDPY copybook: it passes the date and picture to the Language Environment service CEEDAYS and returns a message (severity, message number, result, date, picture) in LS-RESULT, and the severity as RETURN-CODE. GnuCOBOL has no CEEDAYS: the COBOL side runs against tests/equivalence/le/ceedays.c, a model of IBM's documented behaviour for the pictures it models (YYYY-MM-DD and its '/' and '.' forms) -- every call here is one of those; each `why` cites the rule. CardDemo's callers also pass 'YYYYMMDD' in the 10-byte field, which that model does not cover (how CEEDAYS treats the trailing blanks is not modelled), so no call here uses it; nor a month outside 1-12, whose condition (2508 or 2517) IBM's documentation does not settle. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

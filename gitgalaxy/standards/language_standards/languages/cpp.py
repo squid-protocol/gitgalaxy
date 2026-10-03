@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_GENERIC,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -71,6 +76,10 @@ DEFINITION: dict[str, Any] = {
     # the type, never the variable. A top-level helper flag, not a `rules` pattern (#2806).
     "calls_out_declarator_constructs": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,
@@ -227,15 +236,14 @@ DEFINITION: dict[str, Any] = {
             # literal `[*&]`, the other forbids consuming past the first
             # non-whitespace char), so this doesn't reopen the Rule 14
             # backtracking gap the surrounding bounds were built to close.
-            r"(?:(?![ \t]*#)(?!(?:["
+            # OPERATOR-KEYWORD GUARD: no segment of a return-type word may be
+            # the `operator` keyword. Without this, `Box::operator Payload()`
+            # was read as return type `Box::operator` + function `Payload`.
+            r"(?:(?![ \t]*#)(?!operator\b)["
             + ID_START
             + r"]["
             + ID_CONTINUE
-            + r"]*::)*operator\b)["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:::["
+            + r"]*(?:::(?!operator\b)["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -253,23 +261,20 @@ DEFINITION: dict[str, Any] = {
             # `(?:[a-zA-Z_]\w*::)*`. Out-of-line operator overload definitions (defined in a
             # .cpp file, declared in the header) are mainstream, common C++ -- completely
             # invisible to func_start before this fix.
+            # CALL / CONVERSION OPERATORS: two more operator shapes.
+            #   - function-call operator `Widget::operator()(int x)`: the symbol
+            #     alternative can't take it (its class excludes `(`), so the
+            #     literal `()` gets its own branch; the real parameter list
+            #     follows in item 7.
+            #   - conversion operator `Handle::operator bool()`,
+            #     `Path::operator std::string()`, `operator const char*()`,
+            #     `operator Vector<T>()`: up to two cv-qualifiers, a qualified
+            #     type name (at most 10 `::` segments), an optional 2-level
+            #     template argument list and an optional pointer/reference run.
+            #     Tried after `new`/`delete` so those keep their own branch.
+            #   Every repeat is bounded or separated by a literal (`::`, `<`),
+            #   so no two quantifiers compete for the same characters.
             r"(?![ \t]*#)((?:["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*::)*operator[ \t]*\(\)|(?:["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*::)*operator[ \t]+(?:::)?["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*(?:::["
-            + ID_START
-            + r"]["
-            + ID_CONTINUE
-            + r"]*)*(?:<(?:[^<>]|<[^<>]*>)*>)?(?:[ \t]*[*&]+)?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -277,7 +282,23 @@ DEFINITION: dict[str, Any] = {
             + ID_START
             + r"]["
             + ID_CONTINUE
+            + r"]*::)*operator[ \t]*\(\)|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
             + r"]*::)*operator[ \t]+(?:new|delete)(?:\[\])?|(?:["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*::)*operator[ \t]+(?:(?:const|volatile)[ \t]+){0,2}(?:::)?["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*(?:::["
+            + ID_START
+            + r"]["
+            + ID_CONTINUE
+            + r"]*){0,10}(?:<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)?(?:[ \t]{0,20}[*&]{1,5})?|(?:["
             + ID_START
             + r"]["
             + ID_CONTINUE
@@ -430,6 +451,8 @@ DEFINITION: dict[str, Any] = {
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
             r"(?://|/\*)[ \t]*(?:if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/**`, `///` and the Doxygen tags (`@param`,

@@ -1,0 +1,29 @@
+{
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COBTUPDT",
+ "program_source": "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+ "copy_dirs": [],
+ "job": "MNTTRDB2",
+ "step": "STEP1",
+ "parm": null,
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "INPFILE": {
+   "input": "@case/input.txt",
+   "reclen": 53
+  }
+ },
+ "db2": {
+  "ddl": [
+   "app/app-transaction-type-db2/ddl/TRNTYPE.ddl"
+  ],
+  "include_dirs": [
+   "app/app-transaction-type-db2/dcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "CARDDEMO.TRANSACTION_TYPE"
+  ]
+ },
+ "notes": "CardDemo's Db2 transaction-type maintenance (COBTUPDT, run by MNTTRDB2 under DSN): each INPFILE record adds (A), updates (U) or deletes (D) a row of CARDDEMO.TRANSACTION_TYPE, '*' is a comment, any other type is refused. Both sides run their SQL on one real Db2 (IBM Db2 Community Edition; tests/tools/equivalence_db2.py), the table seeded from the corpus's own DB2LTTYP.ctl before each run and compared row by row after it -- trailing blanks included: a PIC X(50) host variable is CHAR(50), so a description keeps its blanks in the VARCHAR(50) column. The input exercises a new row, a duplicate key (SQLCODE -803), an update and an update of no row (+100), a 50-character description, inner blanks, a delete and a delete of no row (+100), a comment and an invalid type (RETURN-CODE 4, the program's own message residue kept: STRING does not clear its target)."
+}

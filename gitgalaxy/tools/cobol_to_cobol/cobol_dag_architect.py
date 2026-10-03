@@ -21,6 +21,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.core.mainframe_boundary import cobol_select_assigns
 from gitgalaxy.core.source_text import read_source
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import _blank_literals, unit_header
 
@@ -33,20 +34,21 @@ _OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
 _V = r"(?<![A-Z0-9\-])"
 _OPEN_ANCHOR = re.compile(rf"{_V}OPEN\s+(?=(?:INPUT|OUTPUT|I-O|EXTEND)\b)")
 _DYNAMIC_CALL = re.compile(rf"{_V}CALL\s+(?![\'\"])([A-Z0-9\-]+)")
-_SELECT = re.compile(rf"{_V}SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$\-]+)")
 # A COBOL user-defined word contains a letter; a digits-only token after
 # `PROGRAM-ID.` is a sequence number (#3418's shape).
 _PROGRAM_ID = re.compile(r"PROGRAM-ID\.\s+([0-9\-]*[A-Z@#$][A-Z0-9@#$\-]*)")
 
 
-def code_view(content: str) -> str:
+def code_view(content: str, blank_literals: bool = True) -> str:
     """The source as code only, line for line (#3420). Comment and debug lines
     (column 7 `*`, `/`, `D`) become empty, the cols 1-6 sequence area becomes
     blanks, cols 73-80 are dropped, and literal contents are blanked, so a
     commented-out `*CALL MENU PROGRAM`, a `DISPLAY 'GNP CALL FAILED'`, a
     commented `SELECT ... ASSIGN` / `OPEN OUTPUT`, or a sequence number is never
     read as code. Line count and the column of every kept character are
-    preserved, so unit_header still finds Area-A headers."""
+    preserved, so unit_header still finds Area-A headers.
+    #3998: `blank_literals=False` keeps literal contents, for the SELECT reader,
+    whose ASSIGN target may be a literal (`ASSIGN TO "./IN-FILE"`)."""
     out = []
     for line in content.split("\n"):
         if len(line) > 6 and line[6] in "*/D":
@@ -55,7 +57,7 @@ def code_view(content: str) -> str:
         line = line[:72]
         if len(line) >= 6:
             line = " " * 6 + line[6:]
-        out.append(_blank_literals(line))
+        out.append(_blank_literals(line) if blank_literals else line)
     return "\n".join(out)
 
 
@@ -69,7 +71,8 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None, declared: 
         dead_paras = set()
 
     try:
-        content = code_view(read_source(filepath, declared=declared).text.upper())
+        text = read_source(filepath, declared=declared).text.upper()
+        content = code_view(text)
     except Exception:
         return None
 
@@ -79,12 +82,12 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None, declared: 
         return None
     program_id = prog_match.group(1)
 
-    # 2. Map internal file variables to physical external boundaries (DD Names)
-    file_map = {}
-    for match in _SELECT.finditer(content):
-        raw_dd = match.group(2)
-        clean_dd = re.sub(r"^(?:UT|UR)-S-", "", raw_dd)
-        file_map[match.group(1)] = clean_dd
+    # 2. Map internal file variables to physical external boundaries (DD Names).
+    # #3998: the engine's own SELECT reader (dataset_data's), so this no-scan lineage
+    # maps files exactly as `--scan` does: `SELECT OPTIONAL`, an `ASSIGN TO "lit"`
+    # target (hence the literal-keeping view), national / full-width names, and the
+    # UT-S- / UR-S- / DA-S- device prefixes stripped.
+    file_map = cobol_select_assigns(code_view(text, blank_literals=False))
 
     inputs = set()
     outputs = set()

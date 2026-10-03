@@ -104,7 +104,7 @@ from gitgalaxy.core.pli_on_units import pli_on_units
 from gitgalaxy.core.special_names import special_names
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
 from gitgalaxy.core.web_services import jcl_web_services
-from gitgalaxy.standards.language_standards.identifiers import NATIONAL
+from gitgalaxy.standards.language_standards.identifiers import NATIONAL, WIDE_DIGITS, WIDE_HYPHENS
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -126,7 +126,7 @@ TRANSACTION_ROUTING_VERBS = ("RETURN TRANSID", "START TRANSID", "RUN TRANSID")
 # COBOL's optional sequence-number area (cols 1-6) plus the indicator column,
 # the same prefix cobol.py's own anchored rules carry. Accepted source may or
 # may not number its lines; both forms appear in the pinned corpora.
-_COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*"
+_COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t\u3000]*"
 
 # A data description entry opens with a level number. 01-49 plus the special
 # levels 66/77/88; `77` carries a VALUE as often as `01` does in real source.
@@ -138,22 +138,37 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z" + NATIONAL + r" \t]{6}[ \-]?)?[ \t]*"
 # name is any word with a letter in it -- a bare number (a continued VALUE list) is not.
 _LEVEL_START = re.compile(
     _COBOL_AREA_A
-    + r"(\d{1,2})[ \t]+((?=[0-9-]*[A-Z"
+    + r"(\d{1,2})[ \t\u3000]+((?=[0-9"
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"-]*[A-Z"
     + NATIONAL
     + r"])[A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-]*)(?![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])",
     re.I | re.M,
 )
 
 # The period that ends a data description entry (not a decimal point), and an
 # entry left open mid VALUE list (#3452).
-_ENTRY_END = re.compile(r"\.(?=[ \t\n]|$)")
-_OPEN_VALUE_LIST = re.compile(r"(?:(?<![A-Z" + NATIONAL + r"0-9-])VALUES?(?:[ \t]+(?:IS|ARE))?|,)[ \t\n]*$", re.I)
+_ENTRY_END = re.compile(r"\.(?=[ \t\n\u3000]|$)")
+_OPEN_VALUE_LIST = re.compile(
+    r"(?:(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])VALUES?(?:[ \t\u3000]+(?:IS|ARE))?|,)[ \t\n\u3000]*$",
+    re.I,
+)
 
 # A data description entry runs to the next level number. Capped so the last
 # entry before PROCEDURE DIVISION cannot swallow the procedure body and read a
@@ -163,14 +178,26 @@ _ENTRY_LIMIT = 600
 
 # `VALUE 'LIT'` / `VALUE IS "LIT"` inside one already-bounded entry. The literal
 # body cannot contain the quote that opened it, so neither branch can run away.
-_VALUE_LITERAL = re.compile(r"\bVALUE[ \t]+(?:IS[ \t]+)?(?:'([^']*)'|\"([^\"]*)\")", re.I)
+_VALUE_LITERAL = re.compile(r"\bVALUE[ \t\u3000]+(?:IS[ \t\u3000]+)?(?:'([^']*)'|\"([^\"]*)\")", re.I)
 
 # `SELECT <internal-file-name> ASSIGN TO <name>`, inside one accumulated
 # sentence. TO is optional (IBM accepts `ASSIGN <name>`), and the assign operand
 # may be a literal in some dialects, so both forms are read.
 _SELECT_ASSIGN = re.compile(
-    r"\bSELECT[ \t]+(?:OPTIONAL[ \t]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)[ \t\n]+"
-    r"ASSIGN[ \t\n]+(?:TO[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9@#$-]*))",
+    r"\bSELECT[ \t\u3000]+(?:OPTIONAL[ \t\u3000]+)?([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)[ \t\n\u3000]+"
+    r"ASSIGN[ \t\n\u3000]+(?:TO[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9@#$-]*))",
     re.I,
 )
 
@@ -180,7 +207,17 @@ _OPEN_MODES = ("INPUT", "OUTPUT", "I-O", "EXTEND")
 
 # The OPEN verb itself. `-` is a COBOL name character, so plain `\b` would fire
 # inside `WS-OPEN-FLAG`; both guards exclude it explicitly.
-_OPEN_ANCHOR = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])OPEN(?![A-Z" + NATIONAL + r"0-9-])")
+_OPEN_ANCHOR = re.compile(
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])OPEN(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])"
+)
 
 # Environment-division device prefixes that are not part of the ddname
 # (`ASSIGN TO UT-S-CUSTFILE` binds DD CUSTFILE). Stripped for `dd_name`; the
@@ -188,28 +225,41 @@ _OPEN_ANCHOR = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])OPEN(?![A-Z" + NATION
 _ASSIGN_DEVICE_PREFIX = re.compile(r"^(?:UT|UR|DA|UT-S|UR-S|DA-S)-(?:S-)?", re.I)
 
 # `CALL 'PROG'` / `CALL "PROG"` -- the static, link-edited form.
-_CALL_LITERAL = re.compile(r"\bCALL[ \t\n]+(?:'([^']*)'|\"([^\"]*)\")", re.I)
+_CALL_LITERAL = re.compile(r"\bCALL[ \t\n\u3000]+(?:'([^']*)'|\"([^\"]*)\")", re.I)
 
 # `CALL WS-PROGRAM-NAME` -- the dynamic form, resolved through the data item's
 # own VALUE clause when it has one. The negative lookahead keeps the literal
 # form above from matching twice, and `END-CALL` cannot match because the verb
 # is anchored on a word boundary that `-` does not close.
 _CALL_IDENTIFIER = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])CALL[ \t\n]+(?!['\"])([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])CALL[ \t\n\u3000]+(?!['\"])([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)",
+    re.I,
 )
 
 # An `EXEC CICS LINK`/`XCTL` block, up to its END-EXEC. The body bound is
 # generous enough for the real multi-option blocks (PROGRAM/COMMAREA/RESP/
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
 # rest of the file.
-_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(LINK|XCTL)\b", re.I)
+_CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(LINK|XCTL)\b", re.I)
 # #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
 # `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
 # The operand of PROGRAM(...) / TRANSID(...): a quoted literal, or a data name --
 # HLASM symbols included (#3495), and a PL/I qualified reference kept whole (#3491:
 # DSF's `TRANSID(TRANS_OPPL_OMR.TRANSKODE)`); COBOL names contain neither `_` nor `.`.
-_OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + r"0-9@#$_-]*"
-_OPERAND_VALUE = r"[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
+_OPERAND_NAME = r"[A-Z" + NATIONAL + r"@#$_][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9@#$_-]*"
+_OPERAND_VALUE = (
+    r"[ \t\n\u3000]*\([ \t\n\u3000]*(?:'([^']*)'|\"([^\"]*)\"|(" + _OPERAND_NAME + r"(?:\." + _OPERAND_NAME + r")*))"
+)
 _CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM" + _OPERAND_VALUE, re.I)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
@@ -221,7 +271,7 @@ _CICS_BLOCK_LIMIT = 2000
 # `EXEC CICS RETURN` (no TRANSID) is not routing and draws nothing. `START` is
 # `\bSTART\b`, so `STARTBR` (a file browse) cannot match. Read as an EXEC block
 # up to END-EXEC, the same bounded shape as the LINK/XCTL transfer above.
-_CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b", re.I)
+_CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n\u3000]+CICS[ \t\n\u3000]+(RETURN|START|RUN)\b", re.I)
 # The TRANSID operand: a 4-char literal (`TRANSID('OCRA')`) or a data-name
 # resolved through its working-storage VALUE (`TRANSID(WS-TRANID)` where
 # `05 WS-TRANID PIC X(4) VALUE 'CC00'`). A name with no readable VALUE (populated
@@ -236,11 +286,20 @@ _CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID" + _OPERAND_VALUE, re.I)
 # paren-balanced scan (`LENGTH(LENGTH OF X)`, `COMMAREA(WS-AREA(1:10))`) capped at
 # `_CICS_OPERAND_LIMIT`, inside the already END-EXEC-bounded block.
 _CICS_CONTRACT_OPERANDS = (
-    ("commarea", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])COMMAREA[ \t\n]*\(", re.I)),
-    ("commarea_length", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])LENGTH[ \t\n]*\(", re.I)),
-    ("commarea_datalength", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])DATALENGTH[ \t\n]*\(", re.I)),
+    (
+        "commarea",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])COMMAREA[ \t\n\u3000]*\(", re.I),
+    ),
+    (
+        "commarea_length",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])LENGTH[ \t\n\u3000]*\(", re.I),
+    ),
+    (
+        "commarea_datalength",
+        re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])DATALENGTH[ \t\n\u3000]*\(", re.I),
+    ),
     # #3494: the region a LINK / START ships to (Distributed Program Link).
-    ("sysid", re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])SYSID[ \t\n]*\(", re.I)),
+    ("sysid", re.compile(r"(?<![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])SYSID[ \t\n\u3000]*\(", re.I)),
 )
 _CICS_OPERAND_LIMIT = 160
 
@@ -250,7 +309,7 @@ _CICS_OPERAND_LIMIT = 160
 # CICS GENAPP ship `//<CMASAPPL> JOB` / `DSN=<USRHLQ>.GENAPP.KSDSCUST`): kept as
 # written, like an unresolved symbol, so the job and its datasets are not lost.
 _JCL_STATEMENT = re.compile(
-    r"^//([A-Z" + NATIONAL + r"0-9_#$@<>]*)[ \t]+([A-Z" + NATIONAL + r"]+)(?:[ \t]+(.*))?$", re.I
+    r"^//([A-Z" + NATIONAL + r"0-9_#$@<>]*)[ \t\u3000]+([A-Z" + NATIONAL + r"]+)(?:[ \t\u3000]+(.*))?$", re.I
 )
 # `EXEC PGM=X`. `EXEC name` / `EXEC PROC=name` invoke a PROCEDURE, not a
 # program: jcl.py's `api` rule already owns that relation and #3200 asks for
@@ -305,24 +364,36 @@ _JCL_RESOLVE_DEPTH = 8
 # All of these are searched INSIDE one already-bounded data-description entry
 # (`_LEVEL_START` to the next level number, capped at `_ENTRY_LIMIT`), so none
 # can run away across the whole file -- the same bounding `_cobol_value_map`
-# relies on. `[ \t\n]` where a clause can wrap onto a continuation line, which
+# relies on. `[ \t\n\u3000]` where a clause can wrap onto a continuation line, which
 # real source does constantly (`USAGE\n IS COMP-3.`, `REDEFINES\n WS-FOO.`).
 
 # The division/section that owns the entries that follow it. Only the data
 # sections matter; `FILE SECTION` additionally carries FD record layouts.
 _SECTION_HEADER = re.compile(
-    _COBOL_AREA_A + r"(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)[ \t]+SECTION[ \t]*\.",
+    _COBOL_AREA_A
+    + r"(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)[ \t\u3000]+SECTION[ \t\u3000]*\.",
     re.I | re.M,
 )
 # The DATA DIVISION / PROCEDURE DIVISION boundaries: record layouts live only
 # between them (a copybook has neither header and is parsed whole).
-_DATA_DIVISION = re.compile(_COBOL_AREA_A + r"DATA[ \t]+DIVISION[ \t]*\.", re.I | re.M)
-_PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t]+DIVISION", re.I | re.M)
+_DATA_DIVISION = re.compile(_COBOL_AREA_A + r"DATA[ \t\u3000]+DIVISION[ \t\u3000]*\.", re.I | re.M)
+_PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t\u3000]+DIVISION", re.I | re.M)
 # `FD <file>` / `SD <sort-file>` binds the `01` record(s) that follow it in the
 # FILE SECTION to a logical file. It is not a data-description entry (no level
 # number), so it is tracked separately and joined by position.
 _FD_START = re.compile(
-    _COBOL_AREA_A + r"(?:FD|SD)[ \t]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)(?![A-Z" + NATIONAL + r"0-9-])",
+    _COBOL_AREA_A
+    + r"(?:FD|SD)[ \t\u3000]+([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])",
     re.I | re.M,
 )
 # `PIC`/`PICTURE [IS] <chars>`: the whole character-string, up to the first space
@@ -333,30 +404,52 @@ _FD_START = re.compile(
 # PIC is kept as written; what each symbol is worth is the reader's (galaxy_ir,
 # with the program's SPECIAL-NAMES currency strings). A clause-terminating period
 # is stripped by the caller.
-_PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([^\s;]+)", re.I)
+_PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t\u3000]+(?:IS[ \t\u3000]+)?([^\s;]+)", re.I)
 # USAGE, with or without the `USAGE [IS]` keyword (COBOL allows a bare `COMP-3`).
 # The keyword is delimited by COBOL name-character boundaries, not `\b`: `-` is a
 # name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
 # (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
 _NATIONAL_PICTURE = re.compile(r"[NGB0/()0-9]*[NG][NGB0/()0-9]*")  # #3816: N / G with national editing only
 # #3816: USAGE NATIONAL, looked for only inside the entry's own text (see _cobol_records)
-_NATIONAL_USAGE = re.compile(r"(?<![A-Z" + NATIONAL + r"0-9-])NATIONAL(?![A-Z" + NATIONAL + r"0-9-])", re.I)
-_QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
-_USAGE_CLAUSE = re.compile(
-    r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
+_NATIONAL_USAGE = re.compile(
     r"(?<![A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])NATIONAL(?![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])",
+    re.I,
+)
+_QUOTED = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'")  # a quoted literal on one line
+_USAGE_CLAUSE = re.compile(
+    r"(?:\bUSAGE[ \t\n\u3000]+(?:IS[ \t\n\u3000]+)?)?"
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
-    r"(?![A-Z" + NATIONAL + r"0-9-])",
+    r"(?![A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-])",
     re.I,
 )
 # `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
-_OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n]+(\d+)(?:[ \t\n]+TO[ \t\n]+(\d+))?", re.I)
+_OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n\u3000]+(\d+)(?:[ \t\n\u3000]+TO[ \t\n\u3000]+(\d+))?", re.I)
 _DEPENDING_CLAUSE = re.compile(
-    r"\bDEPENDING[ \t\n]+(?:ON[ \t\n]+)?([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I
+    r"\bDEPENDING[ \t\n\u3000]+(?:ON[ \t\n\u3000]+)?([A-Z"
+    + NATIONAL
+    + r"][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-]*)",
+    re.I,
 )
 # `REDEFINES <name>` -- the storage-overlay pointer.
-_REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9-]*)", re.I)
+_REDEFINES_CLAUSE = re.compile(
+    r"\bREDEFINES[ \t\n\u3000]+([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + WIDE_DIGITS + WIDE_HYPHENS + r"0-9-]*)", re.I
+)
 # `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
 # (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
 # #3943: `VALUES [ARE]` too -- the plural condition-names use (`88 OK VALUES 1, 2, 3.`); a COBOL-name
@@ -364,10 +457,15 @@ _REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z" + NATIONAL + r"][A-Z"
 _VALUE_CLAUSE = re.compile(
     r"(?<![A-Z"
     + NATIONAL
-    + r"0-9-])VALUES?[ \t\n]+(?:(?:IS|ARE)[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])VALUES?[ \t\n\u3000]+(?:(?:IS|ARE)[ \t\n\u3000]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z"
     + NATIONAL
+    + WIDE_DIGITS
     + r"0-9][A-Z"
     + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
     + r"0-9+.-]*))",
     re.I,
 )
@@ -382,7 +480,18 @@ _NUMERIC_BAREWORD = re.compile(r"[+-]?[0-9]{0,31}")
 # reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
 # and a trailing `OF/IN library` are allowed; the member name is what is kept.
 _COPY_IN_ENTRY = re.compile(
-    r"(?<![A-Z" + NATIONAL + r"0-9-])COPY[ \t\n]+['\"]?([A-Z" + NATIONAL + r"0-9@#$][A-Z" + NATIONAL + r"0-9@#$-]*)",
+    r"(?<![A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9-])COPY[ \t\n\u3000]+['\"]?([A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + r"0-9@#$][A-Z"
+    + NATIONAL
+    + WIDE_DIGITS
+    + WIDE_HYPHENS
+    + r"0-9@#$-]*)",
     re.I,
 )
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
@@ -398,17 +507,22 @@ _DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
 # indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
 # Only DEFINE carries a resource we capture; the rest merely terminate the record
 # that precedes them.
-_CSD_COMMAND = re.compile(r"^[ \t]*(DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UPGRADE|COPY)\b", re.I)
+_CSD_COMMAND = re.compile(r"^[ \t\u3000]*(DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UPGRADE|COPY)\b", re.I)
 # The head of a DEFINE record: the resource type and its name. The name run is
 # permissive (a CICS transaction id is 4 chars, a program 8; an over-long name is
 # DFHCSDUP's diagnostic, not ours).
 _CSD_DEFINE_HEAD = re.compile(
-    r"^[ \t]*DEFINE[ \t]+([A-Z" + NATIONAL + r"0-9]+)[ \t]*\([ \t]*([A-Z" + NATIONAL + r"0-9@#$]+)[ \t]*\)", re.I
+    r"^[ \t\u3000]*DEFINE[ \t\u3000]+([A-Z"
+    + NATIONAL
+    + r"0-9]+)[ \t\u3000]*\([ \t\u3000]*([A-Z"
+    + NATIONAL
+    + r"0-9@#$]+)[ \t\u3000]*\)",
+    re.I,
 )
 # A `KEYWORD(` attribute opener. The value is read by a paren-balanced scan
 # (values carry spaces, commas `WAITTIME(0,0,0)`, slashes and quoted strings), so
 # this only finds the keyword and the opening paren.
-_CSD_ATTR_KEY = re.compile(r"\b([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9]*)[ \t]*\(", re.I)
+_CSD_ATTR_KEY = re.compile(r"\b([A-Z" + NATIONAL + r"][A-Z" + NATIONAL + r"0-9]*)[ \t\u3000]*\(", re.I)
 # Attribute-name abbreviations DFHCSDUP accepts (seen in carddemo inline JCL).
 # Only the ones that touch a field we keep need mapping; the rest pass through.
 # #3356: the longest value `_csd_attributes` will scan before calling it unterminated.
@@ -690,11 +804,11 @@ def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = Fal
     return calls
 
 
-def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
-    """`SELECT ... ASSIGN TO <dd>` with the OPEN modes each file is actually opened in."""
-    records: dict[str, dict[str, Any]] = {}
-    sentences = _cobol_sentences(code_stream)
-
+def _select_assigns(sentences: list[tuple[int, str]]) -> dict[str, dict[str, Any]]:
+    """Internal file name -> {internal_name, assign_name, dd_name, line}, one per
+    `SELECT [OPTIONAL] <file> ASSIGN [TO] <name | literal>`; the first SELECT of a
+    name wins."""
+    selects: dict[str, dict[str, Any]] = {}
     for line_no, sentence in sentences:
         match = _SELECT_ASSIGN.search(sentence)
         if not match:
@@ -704,19 +818,42 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
         assign = assign.strip()
         if not assign:
             continue
-        records.setdefault(
+        selects.setdefault(
             internal,
             {
                 "internal_name": internal,
                 "assign_name": assign.upper(),
                 "dd_name": _ASSIGN_DEVICE_PREFIX.sub("", assign).upper(),
-                "modes": set(),
                 "line": line_no,
-                # #3348: every OPEN of the file, (mode, line), so a consumer can drop the
-                # ones in unreachable code (the refractor masks dead paragraphs by line).
-                "open_sites": set(),
             },
         )
+    return selects
+
+
+def cobol_select_assigns(code_stream: str) -> dict[str, str]:
+    """Internal file name -> the DD (or path) it is ASSIGNed to, device prefix
+    stripped: the SELECT half of dataset_data (#3998). `code_stream` must still
+    carry its literals (`ASSIGN TO "./IN-FILE"`); comments should be gone. The
+    refractor's no-scan lineage (cobol_dag_architect) reads it so it maps files
+    exactly as the scan does."""
+    return {k: v["dd_name"] for k, v in _select_assigns(_cobol_sentences(code_stream)).items()}
+
+
+def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
+    """`SELECT ... ASSIGN TO <dd>` with the OPEN modes each file is actually opened in."""
+    sentences = _cobol_sentences(code_stream)
+    records: dict[str, dict[str, Any]] = {}
+    for internal, sel in _select_assigns(sentences).items():
+        # #3348: every OPEN of the file, (mode, line), so a consumer can drop the
+        # ones in unreachable code (the refractor masks dead paragraphs by line).
+        records[internal] = {
+            "internal_name": internal,
+            "assign_name": sel["assign_name"],
+            "dd_name": sel["dd_name"],
+            "modes": set(),
+            "line": sel["line"],
+            "open_sites": set(),
+        }
 
     # OPEN walks its operand run, switching mode at each mode keyword. Only
     # operands that a SELECT declared are credited, which is what keeps a
@@ -751,7 +888,17 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
 
 
 # #3694: `SIGN IS LEADING SEPARATE [CHARACTER]` / `TRAILING SEPARATE`: the sign takes a byte of its own.
-_SIGN_SEPARATE_CLAUSE = re.compile(r"\b(?:LEADING|TRAILING)\s+SEPARATE\b", re.IGNORECASE)
+# SIGN [IS] [LEADING | TRAILING] SEPARATE [CHARACTER] -- TRAILING when neither is coded. (SEPARATE is a reserved
+# word of the DATA DIVISION's SIGN clause only.)
+_SIGN_SEPARATE_CLAUSE = re.compile(r"(?:\b(LEADING)\s+|\bTRAILING\s+|\bSIGN\s+(?:IS\s+)?)SEPARATE\b", re.IGNORECASE)
+
+
+def _sign_separate(window: str) -> Optional[int]:
+    """#3694: 1 for SIGN [TRAILING] SEPARATE, 2 for SIGN LEADING SEPARATE, None for an embedded sign."""
+    m = _SIGN_SEPARATE_CLAUSE.search(window)
+    if not m:
+        return None
+    return 2 if m.group(1) else 1
 
 
 def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> list[dict[str, Any]]:
@@ -936,7 +1083,8 @@ def _cobol_records(code_stream: str, decimal_comma: Optional[bool] = None) -> li
                 # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
                 **({"copy_members": ",".join(copy_members)} if copy_members else {}),
                 # #3694: presence-keyed likewise -- only a SEPARATE sign is recorded.
-                **({"sign_separate": True} if _SIGN_SEPARATE_CLAUSE.search(window) else {}),
+                # (1 a TRAILING separate sign, 2 a LEADING one)
+                **({"sign_separate": _sign_separate(window)} if _sign_separate(window) else {}),
             }
         )
     return records
@@ -977,12 +1125,12 @@ _PLI_FRAGMENT = re.compile(r"\d{1,3}[ \t\r\n]+(?:[^\W\d]|[@#$(*])")
 # Fixed-format source carries a sequence number in columns 73-80 (navikt/DSF:
 # `00000110`). Blanked in place so offsets and line numbers are unchanged. A line
 # over 80 columns is free-format and left alone.
-_PLI_SEQ_FIELD = re.compile(r"[ \t]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t]*", re.I)
+_PLI_SEQ_FIELD = re.compile(r"[ \t\u3000]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t\u3000]*", re.I)
 # PRISM removes a comment but not the sequence number after it, so a line such as
 # `2 X CHAR(1), /* note */ 00000160` leaves the number at a column other than 73.
 # It then sits alone before a newline at the start of the next item or statement --
 # several in a row when consecutive lines each lost a comment.
-_PLI_LEADING_SEQ = re.compile(r"[ \t\r\n]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t]*(?=\r?\n)", re.I)
+_PLI_LEADING_SEQ = re.compile(r"[ \t\r\n]*[A-Z" + NATIONAL + r"]{0,4}[0-9]{2,8}[ \t\u3000]*(?=\r?\n)", re.I)
 # Canonical spellings of the attribute keywords this reader interprets.
 _PLI_SYNONYMS = {
     "CHARACTER": "CHAR",

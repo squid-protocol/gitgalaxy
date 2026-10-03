@@ -12,7 +12,7 @@
           "Organization": "SEQUENTIAL",
           "Record Key": null,
           "Relative Key": null,
-          "Select": "APXT01"
+          "Select": "APXT01_CANAL"
         }
       ],
       "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": [

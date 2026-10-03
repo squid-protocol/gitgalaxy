@@ -51,5 +51,11 @@ def test_brace_selectors_distribute_their_prefix():
     assert _tokens("rust", "use std::{fs, io::{self, Read}};\n") == {"std::fs", "std::io", "std::io::Read"}
 
 
+def test_a_backquoted_scala_import_segment_is_a_plain_name():
+    # #4128: the capture stopped at the backquote and recorded `io.circe`.
+    src = "import io.circe.`export`.Exported\nimport io.circe.{ `type` => T, Json }\n"
+    assert _tokens("scala", src) == {"io.circe.export.Exported", "io.circe.type", "io.circe.Json"}
+
+
 def test_a_shell_expansion_is_not_a_selector_group():
     assert _tokens("shell", 'source "${BASH_IT}/lib/log.bash"\n') == {"$BASH_IT/lib/log.bash"}

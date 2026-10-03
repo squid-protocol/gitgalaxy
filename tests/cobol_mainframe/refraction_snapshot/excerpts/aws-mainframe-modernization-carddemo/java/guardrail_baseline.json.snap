@@ -225,6 +225,30 @@
       "program": "app/cbl/CORPT00C.cbl",
       "sha256": "7f0fc0cba6fb11fc3b1b4e20fb49e95d6e8d668b1d6bf6cbad5cdecd73b63d89"
     },
+    "src/main/java/com/gitgalaxy/modernized/util/CobolCompare.java": {
+      "calls": [],
+      "classes": [
+        "CobolCompare"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "CobolCompare",
+        "bytes",
+        "compare",
+        "eq",
+        "filled",
+        "ge",
+        "gt",
+        "highValues",
+        "le",
+        "lowValues",
+        "lt"
+      ],
+      "program": null,
+      "sha256": "a97626e7b0add603f98f9cc6bc825ef247c7fa57a6bba7619738a77b4385a45f"
+    },
     "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
       "calls": [],
       "classes": [

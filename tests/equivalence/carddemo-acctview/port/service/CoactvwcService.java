@@ -111,7 +111,7 @@ public class CoactvwcService {
         } else if (context == 1) { // CDEMO-PGM-REENTER
             processInputs(task, ca, w); // 2000-PROCESS-INPUTS
             if (!w.inputError) {
-                readAcct(ca, w); // 9000-READ-ACCT
+                readAcct(task, ca, w); // 9000-READ-ACCT
             }
             sendMap(task, ca, w);
         } else {
@@ -131,6 +131,11 @@ public class CoactvwcService {
     }
 
     /** CC-WORK-AREA / WS-MISC-STORAGE: the flags and messages 0000-MAIN INITIALIZEs. */
+    // DFHBMSCA: the EBCDIC bytes BMS reads
+    private static final int DFHBMFSE = 0xC1;
+    private static final int DFHRED = 0xF2;
+    private static final int DFHNEUTR = 0xF7;
+
     private static final class Work {
         boolean inputError;
         char acctFilter = ' '; // FLG-ACCTFILTER: ' ' blank, '0' not ok, '1' valid
@@ -174,47 +179,71 @@ public class CoactvwcService {
         }
     }
 
-    // 9000-READ-ACCT: 9200-GETCARDXREF-BYACCT, 9300-GETACCTDATA-BYACCT, 9400-GETCUSTDATA-BYCUST.
-    private void readAcct(CarddemoCommarea ca, Work w) {
+    // 9000-READ-ACCT: 9200-GETCARDXREF-BYACCT, 9300-GETACCTDATA-BYACCT, 9400-GETCUSTDATA-BYCUST. Each READ goes
+    // through task.read, so its RESP -- NORMAL, NOTFND, or any other condition -- drives the EVALUATE as in the COBOL.
+    private void readAcct(CicsTask task, CarddemoCommarea ca, Work w) {
         String acctKey = String.format("%011d", ca.getCdemoAcctId());
-        List<CardXrefRecord> xref = readCxacaix(ca.getCdemoAcctId());
-        if (xref.isEmpty()) {
+        CicsTask.FileRead<CardXrefRecord> xref = task.read("CXACAIX",
+                () -> readCxacaix(ca.getCdemoAcctId()).stream().findFirst());
+        if (xref.resp() == NOTFND) {
             w.inputError = true;
             w.acctFilter = '0';
             if (w.returnMsg.isEmpty()) {
-                w.returnMsg = fit("Account:" + acctKey + " not found in Cross ref file.  Resp:" + resp(13)
-                        + " Reas:" + resp(0), 75);
+                w.returnMsg = fit("Account:" + acctKey + " not found in Cross ref file.  Resp:" + resp(xref.resp())
+                        + " Reas:" + resp(xref.resp2()), 75);
             }
+        } else if (!xref.normal()) {                   // WHEN OTHER
+            w.inputError = true;
+            w.acctFilter = '0';
+            w.returnMsg = fileError("CXACAIX", xref);
+        }
+        if (!xref.normal()) {                          // FLG-ACCTFILTER-NOT-OK: GO TO 9000-READ-ACCT-EXIT
             return;
         }
-        CardXrefRecord x = xref.get(0);
+        CardXrefRecord x = xref.record();
         ca.setCdemoCustId(x.getXrefCustId());
         ca.setCdemoCardNum(Long.parseLong(x.getXrefCardNum().trim()));
-        Optional<AccountRecord> acct = readAcctdat(ca.getCdemoAcctId());
-        if (acct.isPresent()) {
+        CicsTask.FileRead<AccountRecord> acct = task.read("ACCTDAT", () -> readAcctdat(ca.getCdemoAcctId()));
+        if (acct.normal()) {
             w.foundAcct = true;
-            w.acct = acct.get();
-        } else {
+            w.acct = acct.record();
+        } else if (acct.resp() == NOTFND) {
             w.inputError = true;
             w.acctFilter = '0';
             if (w.returnMsg.isEmpty()) {
-                w.returnMsg = fit("Account:" + acctKey + " not found in Acct Master file.Resp:" + resp(13)
-                        + " Reas:" + resp(0), 75);
+                w.returnMsg = fit("Account:" + acctKey + " not found in Acct Master file.Resp:" + resp(acct.resp())
+                        + " Reas:" + resp(acct.resp2()), 75);
             }
+        } else {                                       // WHEN OTHER
+            w.inputError = true;
+            w.acctFilter = '0';
+            w.returnMsg = fileError("ACCTDAT", acct);
         }
-        // DEFECT: 9000-READ-ACCT tests DID-NOT-FIND-ACCT-IN-ACCTDAT, an 88 on WS-RETURN-MSG that the message
-        // above never equals, so a missing account still goes on to read the customer. Fix: test the flag.
-        Optional<CustomerRecord> cust = readCustdat(ca.getCdemoCustId());
-        if (cust.isPresent()) {
+        // DEFECT: 9000-READ-ACCT tests DID-NOT-FIND-ACCT-IN-ACCTDAT, an 88 on WS-RETURN-MSG that the messages
+        // above never equal, so a missing account still goes on to read the customer. Fix: test the flag.
+        CicsTask.FileRead<CustomerRecord> cust = task.read("CUSTDAT", () -> readCustdat(ca.getCdemoCustId()));
+        if (cust.normal()) {
             w.foundCust = true;
-            w.cust = cust.get();
-        } else {
+            w.cust = cust.record();
+        } else if (cust.resp() == NOTFND) {
             w.inputError = true;
             if (w.returnMsg.isEmpty()) {
                 w.returnMsg = fit("CustId:" + String.format("%09d", ca.getCdemoCustId())
-                        + " not found in customer master.Resp: " + resp(13) + " REAS:" + resp(0), 75);
+                        + " not found in customer master.Resp: " + resp(cust.resp()) + " REAS:" + resp(cust.resp2()), 75);
             }
+        } else {                                       // WHEN OTHER
+            w.inputError = true;
+            w.returnMsg = fileError("CUSTDAT", cust);
         }
+    }
+
+    private static final int NOTFND = 13;              // DFHRESP(NOTFND)
+
+    /** WS-FILE-ERROR-MESSAGE (80 bytes) moved to WS-RETURN-MSG X(75): 'File Error: ' ERROR-OPNAME X(8) ' on '
+     *  ERROR-FILE X(9) ' returned RESP ' ERROR-RESP X(10) ',RESP2 ' ERROR-RESP2 X(10), 5 spaces. */
+    private static String fileError(String file, CicsTask.FileRead<?> r) {
+        return fit("File Error: " + String.format("%-8s", "READ") + " on " + String.format("%-9s", file)
+                + " returned RESP " + resp(r.resp()) + ",RESP2 " + resp(r.resp2()) + "     ", 75);
     }
 
     // 1000-SEND-MAP: 1100-SCREEN-INIT, 1200-SETUP-SCREEN-VARS, 1300-SETUP-SCREEN-ATTRS, 1400-SEND-SCREEN.
@@ -269,13 +298,22 @@ public class CoactvwcService {
         // WS-INFO-MSG is only ever blank (9000-READ-ACCT sets WS-NO-INFO-MESSAGE), so the prompt always shows.
         s.setInfomsg("Enter or update id of account to display");
         s.setErrmsg(w.returnMsg);
-        // 1300-SETUP-SCREEN-ATTRS: a blank filter on re-entry shows '*' (the colours are attributes).
-        if (w.acctFilter == ' ' && ca.getCdemoPgmContext() != null && ca.getCdemoPgmContext() == 1) {
-            s.setAcctsid("*");
+        // 1300-SETUP-SCREEN-ATTRS (#4053: the attributes, colours and cursor are what the screen shows too)
+        CicsTask.MapSubfields attrs = new CicsTask.MapSubfields()
+                .attr("ACCTSID", DFHBMFSE)                   // MOVE DFHBMFSE TO ACCTSIDA (unprotected, modified)
+                .cursor("ACCTSID");                          // MOVE -1 TO ACCTSIDL: every EVALUATE branch
+        // MOVE DFHDFCOL TO ACCTSIDC is X'00', the map's own colour
+        if (w.acctFilter == '0') {                           // FLG-ACCTFILTER-NOT-OK
+            attrs.color("ACCTSID", DFHRED);
         }
+        if (w.acctFilter == ' ' && ca.getCdemoPgmContext() != null && ca.getCdemoPgmContext() == 1) {
+            s.setAcctsid("*");                               // FLG-ACCTFILTER-BLANK AND CDEMO-PGM-REENTER
+            attrs.color("ACCTSID", DFHRED);
+        }
+        attrs.color("INFOMSG", DFHNEUTR);                    // WS-INFO-MSG is never blank here (see above)
         // 1400-SEND-SCREEN
         ca.setCdemoPgmContext(1); // SET CDEMO-PGM-REENTER
-        task.sendMap("CACTVWA", s);
+        task.sendMap("CACTVWA", "COACTVW", s, attrs, "CURSOR", "ERASE", "FREEKB");
     }
 
     /** PIC +ZZZ,ZZZ,ZZZ.99: a sign, nine integer digits with leading zeros (and their commas) blanked, cents. */

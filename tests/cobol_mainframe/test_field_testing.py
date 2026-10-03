@@ -102,3 +102,20 @@ def test_a_review_defect_must_not_name_an_estate_and_needs_after_round():
     ]
     errors = [e for e in ft.validate(registry, _ledger({f"e{i}": 1 for i in range(1, 6)}), {}) if "review" in e]
     assert [e.split(":")[0] for e in errors] == ["D1", "D2", "D3"]
+
+
+def test_a_defect_found_on_an_unkeyed_estate_names_no_estate_and_resets_from_after_round():
+    """#3998: a defect found on an estate that cannot be a round (unkeyed, kept outside the repo -- the
+    opensourcecobol4j fresh estate) is placed like a review find: `estate` null, `after_round`."""
+    registry = _registry([], dev=3)
+    registry["defects"].append(
+        {"id": "D9", "estate": None, "after_round": 4, "found_by": "fresh-estate scan (#3806)", "side": "engine",
+         "severity": "fact", "issue": 1, "summary": "s", "fields": ["units"]}
+    )  # fmt: skip
+    ledger = _ledger({f"e{i}": 200 for i in range(1, 6)})
+    assert not [e for e in ft.validate(registry, ledger, {}) if e.startswith("D9")]
+    row = _units(registry, ledger)
+    assert (row["engine_defects"], row["clean_rounds"], row["status"]) == (1, 1, "open")
+    assert "| D9 | unkeyed estate, after 4 |" in ft.render(registry, ledger)
+    registry["defects"][0].pop("after_round")
+    assert any(e.startswith("D9") and "after_round" in e for e in ft.validate(registry, ledger, {}))

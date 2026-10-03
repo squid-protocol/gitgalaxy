@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 347,
+    "ambig_file_count": 369,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -13,9 +13,6 @@
       },
       ".am": {
         "Blocked (Unsupported Extension: '.am')": 2
-      },
-      ".asm": {
-        "Blocked (Embedded Array/Matrix Payload: 5323 commas in 957 LOC)": 1
       },
       ".bash": {
         "Blocked (Machine-Generated Source Code Signature: 3531 LOC)": 1
@@ -45,8 +42,8 @@
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 6,
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 4
       },
-      ".db": {
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      ".doc": {
+        "Blocked (Explicitly Denied Extension: '.DOC')": 1
       },
       ".gradle": {
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
@@ -61,10 +58,16 @@
         "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
       },
       ".json": {
-        "Blocked (Static Asset Blob without Intent: 2488 LOC)": 1
+        "Blocked (Massive Static Asset Blob: 2705 LOC)": 1
       },
       ".lds": {
         "Blocked (Unsupported Extension: '.lds')": 1
+      },
+      ".lesser": {
+        "Blocked (Unsupported Extension: '.LESSER')": 1
+      },
+      ".license": {
+        "Blocked (Unsupported Extension: '.LICENSE')": 1
       },
       ".lock": {
         "Blocked (Unsupported Extension: '.lock')": 3
@@ -92,6 +95,9 @@
       ".py": {
         "Blocked (Machine-Generated Source Code Signature: 1695 LOC)": 1,
         "Blocked (Saturation: Line 96 exceeds 500 chars)": 1
+      },
+      ".python": {
+        "Blocked (Unsupported Extension: '.python')": 1
       },
       ".rs": {
         "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)": 1,
@@ -171,12 +177,12 @@
       "no_extension": {
         "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 117,
-        "Unsupported Format (.undeterminable)": 1
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 135,
+        "Unsupported Format (.undeterminable)": 3
       }
     },
     "os_permissions": 0,
-    "size_limit": 0,
+    "size_limit": 1,
     "unparsable": 0
   }
 }

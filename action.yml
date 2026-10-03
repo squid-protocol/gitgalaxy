@@ -36,24 +36,27 @@ runs:
       with:
         python-version: '3.10'
 
+    # Inputs reach the scripts only through env vars (GitHub script-injection
+    # hardening): the runner never splices caller-controlled text into the
+    # shell source, and every variable below is expanded inside double quotes.
     - name: Install GitGalaxy
       shell: bash
       env:
-        GG_VERSION: ${{ inputs.version }}
-        GG_FULL_PRECISION: ${{ inputs.full_precision }}
+        GALAXY_ACT_VERSION: ${{ inputs.version }}
+        GALAXY_ACT_FULL_PRECISION: ${{ inputs.full_precision }}
       run: |
-        if [ "$GG_VERSION" = "local" ]; then
+        if [ "$GALAXY_ACT_VERSION" = "local" ]; then
           echo "Dogfooding local GitGalaxy source..."
           pip install -e ".[yaml]"
-        elif [ "$GG_VERSION" = "latest" ]; then
+        elif [ "$GALAXY_ACT_VERSION" = "latest" ]; then
           echo "Installing latest GitGalaxy from PyPI..."
           pip install "gitgalaxy[yaml]"
         else
-          echo "Installing GitGalaxy version ${GG_VERSION}..."
-          pip install "gitgalaxy[yaml]==${GG_VERSION}"
+          echo "Installing GitGalaxy version ${GALAXY_ACT_VERSION}..."
+          pip install "gitgalaxy[yaml]==${GALAXY_ACT_VERSION}"
         fi
 
-        if [ "$GG_FULL_PRECISION" = "true" ]; then
+        if [ "$GALAXY_ACT_FULL_PRECISION" = "true" ]; then
           echo "Unlocking Full Precision Mode..."
           pip install tiktoken xgboost pandas numpy
         else
@@ -63,11 +66,13 @@ runs:
     - name: Execute GitGalaxy Tool
       shell: bash
       env:
-        GG_TOOL: ${{ inputs.tool }}
-        GG_TARGET: ${{ inputs.target }}
-        GG_ARGS: ${{ inputs.args }}
         GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
+        GALAXY_ACT_TOOL: ${{ inputs.tool }}
+        GALAXY_ACT_TARGET: ${{ inputs.target }}
+        GALAXY_ACT_ARGS: ${{ inputs.args }}
       run: |
-        echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"
-        set -- ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}
-        "$@"
+        # Split GALAXY_ACT_ARGS on whitespace into an array. `read -a` does word
+        # splitting only: no eval, no command/variable substitution, no globbing.
+        read -r -a galaxy_act_args <<< "$GALAXY_ACT_ARGS"
+        echo "Running: $GALAXY_ACT_TOOL $GALAXY_ACT_TARGET ${galaxy_act_args[*]}"
+        "$GALAXY_ACT_TOOL" "$GALAXY_ACT_TARGET" "${galaxy_act_args[@]}"

@@ -9,14 +9,14 @@ Abstract Syntax Trees (ASTs) are excellent for catching syntax errors, but they 
 
 The **blAST (Bypassing LLMs and ASTs) engine** takes a third path, borrowed from a specific insight in computational biology: BLAST proved that a fast heuristic search — willing to accept a small, bounded margin of error — beats an exhaustive, mathematically perfect one once a database gets large enough. GitGalaxy applies that same tradeoff to source code. Instead of compiling a full parse tree, it scans raw text for **Structural Signatures**: bounded, ReDoS-safe regex patterns that mark the boundaries of functions, control flow, I/O, state mutation, and dozens of other structural and security-relevant behaviors — the same way a conserved sequence motif can imply a protein's function without anyone solving its 3D structure.
 
-The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) use standard network-analysis algorithms with explicit sampling bounds on very large graphs.
+The result is a deterministic knowledge graph of the repository, built without ever requiring the code to compile. It calculates the ratio of test code to core logic, maps each file's downstream "blast radius" through the dependency graph, and surfaces project-structure signal that line-by-line linters miss entirely. Per-file signal extraction runs in time linear to codebase size; repository-level graph metrics (centrality, community detection) run exactly on GitGalaxy's own stdlib graph engine, within a work budget: past it a metric is reported as not computed, never estimated (#3033, #3037-#3040).
 
 *(Note: raw structural signatures are just counts. The risk scores GitGalaxy reports are derived metrics — density-normalized against file size and weighted by network centrality — not raw hit counts.)*
 
 Think of GitGalaxy as a highly configurable macro-analyzer for codebase risk. Every assumption the system makes is exposed as one of 300+ tunable variables. You can query active API nodes, isolate supply chain threats, or highlight functions exhibiting extreme cognitive load — all adjusted via custom thresholds to reduce false-positive fatigue. Field-tested on over 1,000 repositories, the engine ships with enterprise-oriented defaults ready for CI/CD integration.
 
 * **Heuristic Structural Scanning:** Bypasses LLMs and rigid ASTs. Reads code as raw text without requiring it to compile.
-* **Deterministic Signal Extraction:** Maps code using a 97-point structural signal schema (I/O intent, state mutation, execution wrappers, security-relevant patterns, and more), rolled up into 19 aggregate risk categories.
+* **Deterministic Signal Extraction:** Maps code using a 98-signal structural schema (I/O intent, state mutation, execution wrappers, security-relevant patterns, and more), rolled up into 13 per-file vectors ([reference](../docs/vectors.md)).
 * **Taxonomical Classification:** These structural profiles let us cluster functions, files, and entire repositories into distinct architectural archetypes.
 * **Topological Cartography:** Builds a full dependency graph from imports and dynamic execution markers, with PageRank-style centrality and blast-radius scoring.
 * **No LLM in the Analysis Loop:** The core mapping and risk-scoring engine makes no calls to any language model — output is fully deterministic and reproducible run over run. (Some optional legacy-migration tools, like COBOL-to-Java translation, do use AI to translate isolated business logic; the analysis engine itself does not.)
@@ -45,7 +45,7 @@ at all.
 
 The engine parsed the mixed-language architecture, analyzing **236,754 lines of code** in
 **5.59 seconds** (42,357 LOC/s on this specific run — see
-[`core/README.md`](../core/README.md) for the 104-repo benchmark average).
+[`core/README.md`](core/README.md) for the 104-repo benchmark average).
 
 During import resolution, the dependency scanner flagged a structural naming collision
 (`fstream` vs `sstream`) as a typosquatting lookalike — a concrete example of the local

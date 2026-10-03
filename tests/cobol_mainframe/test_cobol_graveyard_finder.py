@@ -588,3 +588,66 @@ def test_dsf_shapes_procedure_division_spacing_inline_header_and_at_end(tmp_path
     assert metrics["dead_paras"] == set()
     split = graveyard_module.split_procedure_division("X PROCEDURE    DIVISION. Y")
     assert split == ("X ", ". Y")
+
+
+# ==============================================================================
+# #4026: non-ASCII unit names, and `END-...` paragraph names
+# ==============================================================================
+def test_japanese_section_names_are_units_and_their_perform_is_followed(tmp_path):
+    """opensourcecobol4j cobol_utf8 005 / 008 / 115: full-width and CJK section and
+    paragraph names, with the full-width hyphens U+2212 and U+FF0D inside them."""
+    assert graveyard_module.unit_header("       Ｓ−初期化       SECTION.") == "Ｓ−初期化"
+    assert graveyard_module.unit_header("       Ｐ－初期化.") == "Ｐ－初期化"
+    assert graveyard_module.unit_header("       神奈川−１ラベル.") == "神奈川−１ラベル"
+    assert graveyard_module.unit_header("       S-INIT SECTION.") == "S-INIT"
+    assert _dead(
+        tmp_path,
+        "       Ｓ−主処理 SECTION.",
+        "           PERFORM Ｓ−初期化.",
+        "           GO TO 東京ラベル.",
+        "       大阪ラベル.",
+        "           DISPLAY 'NEVER'.",
+        "       東京ラベル.",
+        "           STOP RUN.",
+        "       Ｓ−初期化 SECTION.",
+        "       Ｐ－初期化.",
+        "           DISPLAY 'INIT'.",
+        "       Ｓ−未使用 SECTION.",
+        "           DISPLAY 'NEVER'.",
+    ) == {"大阪ラベル", "Ｓ−未使用"}
+
+
+def test_full_width_space_still_separates_names():
+    """#3956: U+3000 is a separator, never part of a name."""
+    assert graveyard_module.unit_header("       ＡＢＣ　ＤＥＦ.") is None
+    assert graveyard_module.unit_header("       Ｓ−初期化　SECTION.") == "Ｓ−初期化"
+    units = [
+        {"name": None, "kind": "implicit", "text": "PERFORM　東京ラベル　MOVE 1 TO A. STOP RUN."},
+        {"name": "東京ラベル", "kind": "paragraph", "text": "EXIT."},
+    ]
+    assert graveyard_module._PERFORM.search(units[0]["text"]).group(1) == "東京ラベル"
+    assert graveyard_module.reachable_units(units) == {"東京ラベル"}
+
+
+def test_a_paragraph_named_end_something_is_a_unit(tmp_path):
+    """jp-compat 033: `END-IPROC1.` in Area A is a paragraph, reached by `AT END GO TO`;
+    the reserved scope terminators (`END-IF.`, `END-PERFORM.`) still are not."""
+    assert graveyard_module.unit_header("       END-IPROC1.") == "END-IPROC1"
+    for terminator in ("END-IF", "END-PERFORM", "END-EVALUATE", "END-READ", "END-EXEC", "END-OF-PAGE"):
+        assert graveyard_module.unit_header(f"       {terminator}.") is None, terminator
+    pgm = tmp_path / "IPROC.cbl"
+    pgm.write_text(
+        _proc(
+            "       IPROC1               SECTION.",
+            "       BEGIN-IPROC1.",
+            "          READ INPUT-FILE1 AT END GO TO END-IPROC1.",
+            "          GO TO BEGIN-IPROC1.",
+            "       END-IPROC1.",
+            "       END-IF.",
+            "          STOP RUN.",
+        ),
+        encoding="utf-8",
+    )
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+    assert metrics["total_paras"] == 3
+    assert metrics["dead_paras"] == set()

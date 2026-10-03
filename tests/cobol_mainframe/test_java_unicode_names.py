@@ -150,6 +150,6 @@ def test_a_class_named_from_national_names_compiles(tmp_path):
     src = tmp_path / f"{cls}.java"
     src.write_text(f"public class {cls} {{\n{body}}}\n", encoding="utf-8")
     proc = subprocess.run([javac, "-encoding", "UTF-8", "-d", str(tmp_path / "out"), str(src)],
-                          capture_output=True, text=True, timeout=120)  # fmt: skip
+                          capture_output=True, text=True, timeout=600)  # fmt: skip  # a shared Windows runner took over 120 s
     assert proc.returncode == 0, proc.stderr
     assert (tmp_path / "out" / f"{cls}.class").is_file()

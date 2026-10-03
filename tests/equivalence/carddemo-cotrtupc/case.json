@@ -1,0 +1,485 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COTRTUPC",
+ "program_source": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/app-transaction-type-db2/cpy",
+  "app/app-transaction-type-db2/cpy-bms"
+ ],
+ "transid": "CTTU",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {},
+ "db2": {
+  "ddl": [
+   "app/app-transaction-type-db2/ddl/TRNTYPE.ddl",
+   "app/app-transaction-type-db2/ddl/TRNTYCAT.ddl"
+  ],
+  "include_dirs": [
+   "app/app-transaction-type-db2/dcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "CARDDEMO.TRANSACTION_TYPE_CATEGORY",
+   "CARDDEMO.TRANSACTION_TYPE"
+  ]
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CTRTUPA": {
+   "copybook": "app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy",
+   "input": "CTRTUPAI",
+   "output": "CTRTUPAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "enter-from-admin-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CA00",
+    "CDEMO-FROM-PROGRAM": "COADM01C",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "A",
+    "CDEMO-PGM-CONTEXT": 0
+   },
+   "why": "option 6 of COADM01C (XCTL, context 0): CDEMO-FROM-PROGRAM is COADM01C and not re-entered, so 0000-MAIN INITIALIZEs CARDDEMO-COMMAREA and WS-THIS-PROGCOMMAREA; WHEN CDEMO-PGM-ENTER AND TTUP-DETAILS-NOT-FETCHED sends the empty screen ('Enter transaction type to be maintained', the type field unprotected) and returns re-entered"
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null,
+   "why": "EIBCALEN 0: the same fresh start as from the menu"
+  },
+  {
+   "name": "enter-from-list-pf2",
+   "aid": "DFHPF2",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CTLI",
+    "CDEMO-FROM-PROGRAM": "COTRTLIC",
+    "CDEMO-USER-ID": "ADMIN001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-TO-PROGRAM": "COTRTUPC",
+    "CDEMO-LAST-MAP": "CTRTLIA",
+    "CDEMO-LAST-MAPSET": "COTRTLI"
+   },
+   "why": "COTRTLIC's PF2 XCTL (the EIB keeps PF2): from COTRTLIC and not re-entered -> INITIALIZE; 0001-CHECK-PFKEYS finds PF2 invalid and sets 'Invalid key pressed', but the fresh-start WHEN INITIALIZEs WS-MISC-STORAGE, so the empty screen goes out without it"
+  },
+  {
+   "name": "search-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01"
+    }
+   },
+   "why": "WHEN OTHER: 1150-STORE-MAP-IN-NEW keeps '01', 1210-EDIT-TRANTYPE (1245-EDIT-NUM-REQD) accepts it; 2000-DECIDE-ACTION (TTUP-DETAILS-NOT-FETCHED) runs 9000-READ-TRANTYPE: the SELECT finds PURCHASE -> TTUP-SHOW-DETAILS, the description unprotected, F4 / F12 shown"
+  },
+  {
+   "name": "search-one-digit",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "1"
+    }
+   },
+   "why": "'1' then a blank passes TEST-NUMVAL; 1210-EDIT-TRANTYPE re-edits NUMVAL into '01', which the SELECT finds"
+  },
+  {
+   "name": "search-not-found",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "20"
+    }
+   },
+   "why": "the SELECT returns +100: 9100-GET-TRANSACTION-TYPE sets 'No record found for this key in database' -> TTUP-DETAILS-NOT-FOUND ('Press F05 to add. F12 to cancel', the key red, F5 / F12 shown)"
+  },
+  {
+   "name": "search-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": ""
+    }
+   },
+   "why": "1150 stores LOW-VALUES for a blank key; 1245-EDIT-NUM-REQD: 'Tran Type code must be supplied.'; 3300-SETUP-SCREEN-ATTRS marks the field '*' in red"
+  },
+  {
+   "name": "search-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "AB"
+    }
+   },
+   "why": "TEST-NUMVAL fails: 'Tran Type code must be numeric.'; 1200 sets TTUP-INVALID-SEARCH-KEYS then TTUP-DETAILS-NOT-FETCHED, the key red"
+  },
+  {
+   "name": "search-zero",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "00"
+    }
+   },
+   "why": "NUMVAL is 0: 'Tran Type code must not be zero.'"
+  },
+  {
+   "name": "pf4-before-search-invalid-key",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "why": "PF4 is valid only with details shown or a delete pending: 0001-CHECK-PFKEYS sets 'Invalid key pressed' and WHEN WS-INVALID-KEY-PRESSED resends the search screen"
+  },
+  {
+   "name": "not-found-enter-same-key",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "X",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": ""
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "20"
+    }
+   },
+   "why": "'X' and the same key: 1150 keeps the stored key, 1200 resets TTUP-DETAILS-NOT-FETCHED and skips the edits; the SELECT runs again and finds nothing: the not-found screen again"
+  },
+  {
+   "name": "not-found-other-key",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "X",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": ""
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "02"
+    }
+   },
+   "why": "'X' and a different key: 1150 stores it, so 1200 finds the key equal to the stored one, resets TTUP-DETAILS-NOT-FETCHED and skips the key edits (1210); the SELECT finds PAYMENT -> 'S'"
+  },
+  {
+   "name": "pf5-on-not-found-starts-add",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "X",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": ""
+   },
+   "why": "WHEN CCARD-AID-PFK05 AND TTUP-DETAILS-NOT-FOUND: TTUP-CREATE-NEW-RECORD, 'Enter new transaction type details.', the description unprotected"
+  },
+  {
+   "name": "add-enter-details",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "R",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": ""
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "20",
+     "TRTYDSCI": "GIFT CARD"
+    }
+   },
+   "why": "'R': 1200 skips the key edit (TTUP-CREATE-NEW-RECORD); 1205-COMPARE-OLD-NEW sees a change, 1230-EDIT-ALPHANUM-REQD accepts the description -> TTUP-CHANGES-OK-NOT-CONFIRMED: 'Changes validated.Press F5 to save', all protected"
+  },
+  {
+   "name": "add-description-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "R",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": ""
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "20",
+     "TRTYDSCI": ""
+    }
+   },
+   "why": "'R' with the description left blank: 'Transaction Desc must be supplied.', TTUP-CHANGES-NOT-OK, '*' in red"
+  },
+  {
+   "name": "pf5-inserts-new-type",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": "GIFT CARD"
+   },
+   "why": "'N', no old record: 9600-WRITE-PROCESSING's UPDATE finds no row (+100), so 9700-INSERT-RECORD INSERTs type 20 and SYNCPOINTs -> TTUP-CHANGES-OKAYED-AND-DONE, 'Changes committed to database'. The VARCHAR length is FUNCTION LENGTH of the 50-byte field: the row keeps the blanks after GIFT CARD"
+  },
+  {
+   "name": "pf12-cancels-add",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-NEW-TTYP-TYPE": "20",
+    "TTUP-NEW-TTYP-TYPE-DESC": "GIFT CARD"
+   },
+   "why": "'N' and PF12: 2000-DECIDE-ACTION (the filter flag is not valid) -> 'Update was cancelled', TTUP-CHANGES-BACKED-OUT; with no old record the search prompt and the key field come back"
+  },
+  {
+   "name": "edit-description",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASES"
+    }
+   },
+   "why": "'S', a new description: 1205-COMPARE-OLD-NEW finds a change, 1230 accepts it -> TTUP-CHANGES-OK-NOT-CONFIRMED, the confirmation prompt, F5 / F12 shown"
+  },
+  {
+   "name": "edit-no-change-case-only",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "purchase"
+    }
+   },
+   "why": "the description compares upper-cased and trimmed: 'No change detected with respect to values fetched.', the stored details shown again"
+  },
+  {
+   "name": "edit-description-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": ""
+    }
+   },
+   "why": "the description cleared: 'Transaction Desc must be supplied.', TTUP-CHANGES-NOT-OK ('Update transaction type details shown.'), '*' in red"
+  },
+  {
+   "name": "edit-description-not-alphanumeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "receive": {
+    "CTRTUPA": {
+     "TRTYPCDI": "01",
+     "TRTYDSCI": "PURCHASE-ONLINE"
+    }
+   },
+   "why": "1230-EDIT-ALPHANUM-REQD: a '-' is neither a letter, a digit nor a blank -> 'Transaction Desc can have numbers or alphabets only.', red"
+  },
+  {
+   "name": "pf5-saves-update",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'N' and PF5: 9600-WRITE-PROCESSING UPDATEs type 01 (SQLCODE 0, SYNCPOINT) -> 'Changes committed to database'; the 50-byte description is written with its trailing blanks"
+  },
+  {
+   "name": "pf12-cancels-update",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "N",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'N' and PF12: 'Update was cancelled', TTUP-CHANGES-BACKED-OUT, the stored description shown again ('Update transaction type details shown.'); no SQL"
+  },
+  {
+   "name": "pf12-on-details-starts-over",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "PF12 with 'S': the first EVALUATE simulates a fresh entry (CDEMO-PGM-ENTER, TTUP-DETAILS-NOT-FETCHED) -> the empty search screen"
+  },
+  {
+   "name": "invalid-key-on-details",
+   "aid": "DFHPF7",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "PF7 is not handled: 'Invalid key pressed', the details screen again"
+  },
+  {
+   "name": "pf4-asks-delete-confirmation",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "08",
+    "TTUP-OLD-TTYP-TYPE-DESC": "FEE"
+   },
+   "why": "WHEN CCARD-AID-PFK04 AND TTUP-SHOW-DETAILS: TTUP-CONFIRM-DELETE, 'Delete this record ? Press F4 to confirm', all protected, ENTER's label dark"
+  },
+  {
+   "name": "pf4-confirms-delete",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "9",
+    "TTUP-OLD-TTYP-TYPE": "08",
+    "TTUP-OLD-TTYP-TYPE-DESC": "FEE"
+   },
+   "why": "'9' and PF4: 9800-DELETE-PROCESSING DELETEs type 08 (no category rows) and SYNCPOINTs -> TTUP-DELETE-DONE, 'Delete successful.'"
+  },
+  {
+   "name": "pf4-delete-refused-child-rows",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "9",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "type 01 has rows in TRANSACTION_TYPE_CATEGORY (ON DELETE RESTRICT): the DELETE returns -532; 9800 builds 'Please delete associated child records first:SQLCODE : -532:' with SQLERRM OF SQLCA (twice, cut at 75) and leaves TTUP-START-DELETE ('8'), shown with the search prompt; nothing deleted"
+  },
+  {
+   "name": "pf4-delete-row-gone",
+   "aid": "DFHPF4",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "9",
+    "TTUP-OLD-TTYP-TYPE": "30",
+    "TTUP-OLD-TTYP-TYPE-DESC": "CHARGEBACK"
+   },
+   "why": "the type confirmed for deletion is no longer in the table: the DELETE returns +100 -> WHEN OTHER: 'Delete failed with message:SQLCODE :  100:' with SQLERRM, TTUP-DELETE-FAILED ('Changes unsuccessful', the key red)"
+  },
+  {
+   "name": "pf12-cancels-delete",
+   "aid": "DFHPF12",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "9",
+    "TTUP-OLD-TTYP-TYPE": "08",
+    "TTUP-OLD-TTYP-TYPE-DESC": "FEE"
+   },
+   "why": "'9' and PF12: 2000-DECIDE-ACTION -> 'Delete was cancelled', back to the empty search screen; nothing deleted"
+  },
+  {
+   "name": "enter-while-confirming-delete",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "9",
+    "TTUP-OLD-TTYP-TYPE": "08",
+    "TTUP-OLD-TTYP-TYPE-DESC": "FEE"
+   },
+   "why": "ENTER is not valid while a delete awaits confirmation: 'Invalid key pressed', the confirmation screen again"
+  },
+  {
+   "name": "enter-after-update-starts-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "C",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE",
+    "TTUP-NEW-TTYP-TYPE": "01",
+    "TTUP-NEW-TTYP-TYPE-DESC": "PURCHASES"
+   },
+   "why": "'C' (TTUP-CHANGES-OKAYED-AND-DONE): the first EVALUATE simulates a fresh entry -> the empty search screen"
+  },
+  {
+   "name": "enter-after-delete-starts-over",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "7",
+    "TTUP-OLD-TTYP-TYPE": "08",
+    "TTUP-OLD-TTYP-TYPE-DESC": "FEE"
+   },
+   "why": "'7' (TTUP-DELETE-DONE): the same fresh start"
+  },
+  {
+   "name": "pf3-back-to-admin",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-PGM-CONTEXT": 1,
+    "TTUP-CHANGE-ACTION": "S",
+    "TTUP-OLD-TTYP-TYPE": "01",
+    "TTUP-OLD-TTYP-TYPE-DESC": "PURCHASE"
+   },
+   "why": "PF3: CDEMO-FROM-TRANID / -PROGRAM are blank (cleared on entry), so CA00 / COADM01C; SYNCPOINT and XCTL with CARDDEMO-COMMAREA (FROM CTTU / COTRTUPC, admin user, context 0)"
+  }
+ ],
+ "notes": "CardDemo's Db2 transaction-type maintenance screen (transaction CTTU, program COTRTUPC, admin menu option 6 or PF2 on COTRTLIC): a type code is validated and looked up in CARDDEMO.TRANSACTION_TYPE; a found type's description can be changed (ENTER validates, PF5 saves, PF12 cancels) or the type deleted (PF4, PF4 again to confirm); a type not found can be added (PF5, the description, ENTER, PF5: the UPDATE finds no row and the program INSERTs). The state between screens is TTUP-CHANGE-ACTION and the old / new details in the program's own COMMAREA area after CARDDEMO-COMMAREA; on entry the program INITIALIZEs CARDDEMO-COMMAREA, so every later screen carries an empty CardDemo area with context 1 -- the scenarios give that state. Both sides run their SQL on one real Db2 (tests/tools/equivalence_db2.py): TRANSACTION_TYPE and TRANSACTION_TYPE_CATEGORY (whose ON DELETE RESTRICT foreign key makes deleting type 01 return -532) are created from the corpus DDL, seeded before each scenario and both compared after it. The seed is the corpus's DB2LTTYP.ctl and DB2LTCAT.ctl INSERTs unchanged, plus five types (08-12) without category rows in a separate INSERT, written for this case and its sibling carddemo-cotrtlic (08 is the type a delete can remove). Not covered: the -911 / other negative SQLCODE branches and a duplicate key on the INSERT, which real data cannot reach (the INSERT runs only after the UPDATE found no row), and the 'UNEXPECTED DATA SCENARIO' ABEND-ROUTINE. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

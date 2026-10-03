@@ -122,6 +122,26 @@ def test_area_b_continuation_is_not_a_header(tmp_path):
     assert names == ["MAIN-PARA"]
 
 
+def test_a_paragraph_named_end_something_is_a_header(tmp_path):
+    """#4026 (GENAPP LGIPDB01): `End-Program.` in Area A is a PERFORMed paragraph;
+    only the reserved END- words (`END-IF.`, `END-EVALUATE.`) are not headers."""
+    names, why = _reach(
+        _program(
+            tmp_path,
+            "       MAINLINE SECTION.\n"
+            "           IF A = B PERFORM END-PROGRAM\n"
+            "       END-IF.\n"
+            "       END-EVALUATE.\n"
+            "       END-PROGRAM.\n"
+            "           EXEC CICS RETURN END-EXEC.\n"
+            "       MAINLINE-EXIT.\n"
+            "           EXIT.\n",
+        )
+    )
+    assert names == ["MAINLINE", "END-PROGRAM", "MAINLINE-EXIT"]
+    assert "END-PROGRAM" in why and "MAINLINE-EXIT" not in why
+
+
 def test_perform_goto_and_fall_through(tmp_path):
     names, why = _reach(
         _program(

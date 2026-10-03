@@ -82,6 +82,14 @@ summary with both charts and per-claim limitation clauses.
    repo's raw main-branch URL so it self-updates). Each subsection states one limitation
    and links to `docs/validation.md` for the full treatment. Proof sits before the
    speed benchmark on purpose (rule 5) — don't float "Real-world scale" back above it.
+5b. **COBOL to Java: ported, then proven** (added 2026-10-01) — the mainframe migration
+   pipeline in five steps, a table of the proven CardDemo ports (kind, who ported it,
+   runs, COBOL branch coverage, mutants caught), the CICS crucible line, and a "What these
+   numbers do not show" list (the oracle is GnuCOBOL, the data is development data, proven
+   covers the runs' paths only, 6 of 44 programs). It sits after "Accuracy, measured" and
+   before "Real-world scale" because it is a proof section with its limitations, not a
+   speed claim. Re-verify its numbers from `tests/equivalence/*/port/provenance.json`, the
+   harness reports and `docs/language_status/mutation_testing.md` when they move.
 6. **Real-world scale** — Kubernetes benchmark + the fitted two-regime speed model as its
    rule-4 limitation clause (the clause rule 4 previously flagged as missing — now
    present; keep it) + the self-updating loc_vs_time chart.

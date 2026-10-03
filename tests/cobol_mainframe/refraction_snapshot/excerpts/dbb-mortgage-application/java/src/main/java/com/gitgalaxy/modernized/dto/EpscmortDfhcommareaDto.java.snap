@@ -1,0 +1,25 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class EpscmortDfhcommareaDto {
+
+    private BigDecimal wsFormatNumber;
+
+    private String wCallProgram;
+
+    private Integer wComareaLength;
+
+    private Integer sqlErrorCode;
+
+    private String ibmreqd;
+
+    private String endOfTransMsg;
+
+    private String blankMsg;
+
+}

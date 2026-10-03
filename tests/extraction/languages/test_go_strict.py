@@ -400,7 +400,7 @@ def test_go_globals_anchor_bug_regression():
 
 
 def test_go_scope_filter_is_declared_for_globals():
-    assert GO_RULES["_scope_filters"] == {"globals": "go_declaration_group"}
+    assert GO_RULES["_scope_filters"] == {"globals": "go_declaration_group", "branch": "outside_literals"}
 
 
 def test_go_declaration_group_walk_is_linear_on_pathological_input():

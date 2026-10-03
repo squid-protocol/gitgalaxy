@@ -32,7 +32,9 @@
 #                         (SORT, IDCAMS, ...) fails the job unless
 #                         gitgalaxy.batch.skip-unimplemented -- never a silent success;
 #   JclJobLauncher        runs a job by its JCL name (the REST endpoint, and the programs
-#                         that submit jobs through the internal reader: job_submissions).
+#                         that submit jobs through the internal reader: job_submissions);
+#   CobolFiles / CobolAbend  a ported program's FILE STATUS per I/O statement and its abends
+#                         (#4023 follow-up), with the equivalence harness's fault plan.
 # ==============================================================================
 from __future__ import annotations
 
@@ -107,6 +109,9 @@ class BatchForge:
         sections = estate.get("sections") or {}
         self.status = status_text(sections.get("job_steps"))
         self.programs: dict[str, str] = {}  # PROGRAM-ID / stem -> skeleton key
+        # A main program no JCL step names (CardDemo's CBTRN01C): files of its own, a PROCEDURE DIVISION with no
+        # USING and no COMMAREA -- it is still a batch step, run by JCL the estate does not hold.
+        self.unscheduled: set[str] = set()
         self.lineage: dict[str, list[dict]] = {}
         self.submissions: dict[str, list[dict]] = {}
         for key, sk in skeletons.items():
@@ -114,6 +119,13 @@ class BatchForge:
             for pid in [*prog.get("program_ids", []), key]:
                 self.programs.setdefault(str(pid).upper(), key)
             secs = sk.get("sections") or {}
+            entries = (secs.get("entry_points") or {}).get("facts", [])
+            itf = (secs.get("interface") or {}).get("facts") or {}
+            if ((secs.get("file_control") or {}).get("facts") and entries
+                    and all(e.get("kind") == "PROCEDURE" and not e.get("params") for e in entries)
+                    and not (itf.get("commarea") if isinstance(itf, dict) else None)
+                    and not (secs.get("cics_tasks") or {}).get("facts")):  # fmt: skip
+                self.unscheduled.add(key)
             self.lineage[key] = (secs.get("dataset_lineage") or {}).get("facts", [])
             self.submissions[key] = [s for s in (secs.get("job_submissions") or {}).get("facts", [])
                                      if s.get("submitter") == prog.get("file")]  # fmt: skip
@@ -324,16 +336,20 @@ class BatchForge:
     def service_extras(self, key: str) -> dict[str, Any] | None:
         runs = [(j, st) for j in self.applications for st in j.steps if st.key == key]
         subs = self.submissions.get(key, []) if self.enabled else []
-        if not runs and not subs:
+        # only where the batch runtime is generated (an estate with JCL jobs): a JCL-free estate's file programs keep
+        # their upload controllers (#3992)
+        unscheduled = bool(self.applications) and not runs and key in self.unscheduled
+        if not runs and not subs and not unscheduled:
             return None
         pkg = f"{self.package}.{SUBPACKAGE}"
         imports: list[str] = []
         methods: list[str] = []
         fields: list[tuple[str, str]] = []
-        if runs:
+        if runs or unscheduled:
             imports += [f"import {pkg}.Dd;", "import java.util.List;"]
             where = "; ".join(f"job {j.job} step {st.jcl} ({j.file}:{st.line})"
                               + (f" through {st.runner} ({st.via})" if st.runner else "") for j, st in runs)  # fmt: skip
+            where = where or "no JCL step in this estate (a main program with files of its own: its JCL is elsewhere)"
             lin = self.lineage.get(key, [])
             dd_doc = sorted({f"{x['dd_name']} ({'/'.join(x.get('modes') or [])}) -> {x.get('dataset') or x.get('dsn') or '?'}"
                              for x in lin if x.get("dd_name")})  # fmt: skip
@@ -380,6 +396,304 @@ class BatchForge:
 
 
 _RUNTIME = {
+    "Sysout": """package {pkg};
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+/**
+ * The job log (#4056): a COBOL `DISPLAY` is `Sysout.display(...)` -- one line, its operands' text concatenated
+ * exactly as IBM Enterprise COBOL writes them -- not a log line. SYSOUT is what operators read and scripts parse,
+ * and the equivalence harness compares it line by line (trailing blanks aside). Written to standard output, or
+ * appended to the file named by the system property gitgalaxy.sysout.
+ */
+public final class Sysout {
+
+    private static final Object LOCK = new Object();
+    private static final String POSITIVE = "{ABCDEFGHI";
+    private static final String NEGATIVE = "}JKLMNOPQR";
+
+    private Sysout() {
+    }
+
+    /** `DISPLAY a b c`: one line. */
+    public static void display(Object... operands) {
+        write(join(operands) + "\\n");
+    }
+
+    /** `DISPLAY a b c WITH NO ADVANCING`: the next DISPLAY continues the line. */
+    public static void displayNoAdvancing(Object... operands) {
+        write(join(operands));
+    }
+
+    /**
+     * The text DISPLAY writes for a numeric item that is not edited and has no SIGN SEPARATE: its PICTURE digits
+     * (`digits`, of which `scale` decimals), zero-padded, with no decimal point; when `signed`, the sign
+     * overpunched in the last digit ({ A-I positive, } J-R negative). The same for a COMP / COMP-3 item, which IBM
+     * converts to that external decimal first. PIC S9(3) holding -12 is "01K"; PIC S9(4) COMP holding -7 is "000P".
+     */
+    public static String number(BigDecimal value, int digits, int scale, boolean signed) {
+        BigDecimal v = value == null ? BigDecimal.ZERO : value;
+        String d = v.setScale(scale, RoundingMode.DOWN).unscaledValue().abs().toString();
+        d = d.length() >= digits ? d.substring(d.length() - digits) : "0".repeat(digits - d.length()) + d;
+        if (!signed || digits == 0) {
+            return d;
+        }
+        int last = d.charAt(digits - 1) - '0';
+        return d.substring(0, digits - 1) + (v.signum() < 0 ? NEGATIVE : POSITIVE).charAt(last);
+    }
+
+    private static String join(Object... operands) {
+        StringBuilder b = new StringBuilder();
+        for (Object o : operands) {
+            b.append(o);
+        }
+        return b.toString();
+    }
+
+    private static void write(String text) {
+        String target = System.getProperty("gitgalaxy.sysout");
+        synchronized (LOCK) {
+            if (target == null) {
+                System.out.print(text);
+                System.out.flush();
+                return;
+            }
+            try {
+                Files.writeString(Path.of(target), text, StandardCharsets.UTF_8, StandardOpenOption.CREATE,
+                        StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+    }
+}
+""",
+    "CobolAbend": """package {pkg};
+
+import java.util.Locale;
+
+/**
+ * A program's abend (#4023 follow-up): `CALL 'CEE3ABD' USING ABCODE` is `throw CobolAbend.user(abcode, why)`.
+ * The step ends ABEND Unnnn (the code modulo 4096, as a user completion code is) with no return code.
+ */
+public class CobolAbend extends RuntimeException {
+
+    private final String code;
+
+    public CobolAbend(String code, String message) {
+        super(code + ": " + message);
+        this.code = code;
+    }
+
+    /** A user abend: CEE3ABD's ABCODE. */
+    public static CobolAbend user(int abcode, String why) {
+        return new CobolAbend(String.format(Locale.ROOT, "U%04d", Math.floorMod(abcode, 4096)), why);
+    }
+
+    /** The completion code: U0999. */
+    public String code() {
+        return code;
+    }
+}
+""",
+    "CobolFiles": """package {pkg};
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/**
+ * The FILE STATUS of each COBOL file I/O statement (#4023 follow-up). A port makes ONE call here per I/O
+ * statement of the program, in the order the program runs them, and takes the program's FILE STATUS logic
+ * (IF WS-STATUS = '00', AT END, INVALID KEY) from the status it returns: "00" done, "23" no record with that
+ * key, "10" end of file, "35" an input dataset that does not exist.
+ *
+ * gitgalaxy.faults.plan names a fault plan -- the equivalence harness's, the same file its GnuCOBOL side
+ * reads (tests/equivalence/faults/ggfault.c): one fault per line, `DD OP NTH STATUS` (e.g. `XREFFILE READ 2 23`;
+ * NTH `*` = every occurrence). The planned statement is not performed: it returns its status, and the port's
+ * error handling runs as the program's does. Every statement is counted, faulted or not, by DD and operation
+ * (READ counts keyed and sequential reads alike). Each fault that fires is appended to gitgalaxy.faults.log.
+ * With no plan (production) nothing is injected.
+ */
+@Component
+public class CobolFiles {
+
+    public enum Op { OPEN, CLOSE, READ, WRITE, REWRITE, DELETE, START }
+
+    /** A READ's outcome: its FILE STATUS, and the record when there is one. */
+    public record Read<T>(String status, T record) {
+        public boolean found() {
+            return record != null;
+        }
+    }
+
+    /** An I/O action that may fail on the file system. */
+    @FunctionalInterface
+    public interface Io {
+        void run() throws IOException;
+    }
+
+    private record Fault(String dd, Op op, int nth, String status) {
+    }
+
+    private final List<Fault> plan = new ArrayList<>();
+    private final Map<String, Integer> seen = new HashMap<>();
+    private final Path log;
+
+    public CobolFiles(@Value("${gitgalaxy.faults.plan:}") String plan, @Value("${gitgalaxy.faults.log:}") String log) {
+        this.log = log.isBlank() ? null : Path.of(log);
+        if (plan.isBlank()) {
+            return;
+        }
+        try {
+            for (String line : Files.readAllLines(Path.of(plan), StandardCharsets.US_ASCII)) {
+                String[] w = line.trim().split("[ ]+");
+                if (w.length == 4) {
+                    this.plan.add(new Fault(w[0], Op.valueOf(w[1]), "*".equals(w[2]) ? 0 : Integer.parseInt(w[2]), w[3]));
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /** The planned status of this statement, or null. Every statement counts, whether or not it faults. */
+    public String planned(String dd, Op op) {
+        if (plan.isEmpty()) {
+            return null;
+        }
+        int n = seen.merge(dd + " " + op, 1, Integer::sum);
+        for (Fault f : plan) {
+            if (f.dd().equals(dd) && f.op() == op && (f.nth() == 0 || f.nth() == n)) {
+                if (log != null) {
+                    try {
+                        Files.writeString(log, String.format(Locale.ROOT, "%s %s %d %s%n", dd, op, n, f.status()),
+                                StandardCharsets.US_ASCII, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                }
+                return f.status();
+            }
+        }
+        return null;
+    }
+
+    /** OPEN of a file the port keeps in a repository (a VSAM store): "00". */
+    public String open(String dd) {
+        String p = planned(dd, Op.OPEN);
+        return p != null ? p : "00";
+    }
+
+    /** OPEN of a dataset file: "35" when an input (or I-O) dataset does not exist, else "00". */
+    public String open(String dd, Path file, boolean input) {
+        String p = planned(dd, Op.OPEN);
+        return p != null ? p : input && (file == null || !Files.exists(file)) ? "35" : "00";
+    }
+
+    /** CLOSE: `close` runs, "00" (a planned status: it does not run). */
+    public String close(String dd, Io close) {
+        return perform(dd, Op.CLOSE, close);
+    }
+
+    public String close(String dd) {
+        return close(dd, () -> { });
+    }
+
+    /** A keyed READ: "00" and the record, or "23" when there is none. */
+    public <T> Read<T> read(String dd, Supplier<Optional<T>> read) {
+        String p = planned(dd, Op.READ);
+        if (p != null) {
+            return new Read<>(p, null);
+        }
+        T r = read.get().orElse(null);
+        return new Read<>(r != null ? "00" : "23", r);
+    }
+
+    /** A sequential READ (READ NEXT): "00" and the next record, or "10" at the end. A planned status does not
+     *  advance the cursor. */
+    public <T> Read<T> readNext(String dd, Iterator<T> cursor) {
+        String p = planned(dd, Op.READ);
+        if (p != null) {
+            return new Read<>(p, null);
+        }
+        return cursor.hasNext() ? new Read<>("00", cursor.next()) : new Read<>("10", null);
+    }
+
+    public String write(String dd, Io write) {
+        return perform(dd, Op.WRITE, write);
+    }
+
+    /** WRITE of a new record to a keyed (VSAM KSDS) file: "22" when a record with that key is already on file --
+     *  a WRITE never replaces one, as repository.save() would -- else `write` runs, "00". */
+    public String writeKeyed(String dd, BooleanSupplier exists, Io write) {
+        String p = planned(dd, Op.WRITE);
+        if (p != null) {
+            return p;
+        }
+        return exists.getAsBoolean() ? "22" : perform(write);
+    }
+
+    /** REWRITE of a keyed file's record: "23" when no record with that key is on file (save() would insert one),
+     *  else `rewrite` runs, "00". */
+    public String rewriteKeyed(String dd, BooleanSupplier exists, Io rewrite) {
+        String p = planned(dd, Op.REWRITE);
+        if (p != null) {
+            return p;
+        }
+        return exists.getAsBoolean() ? perform(rewrite) : "23";
+    }
+
+    public String rewrite(String dd, Io rewrite) {
+        return perform(dd, Op.REWRITE, rewrite);
+    }
+
+    public String delete(String dd, Io delete) {
+        return perform(dd, Op.DELETE, delete);
+    }
+
+    /** START: "00" when a record satisfies the key condition, else "23". */
+    public String start(String dd, BooleanSupplier found) {
+        String p = planned(dd, Op.START);
+        return p != null ? p : found.getAsBoolean() ? "00" : "23";
+    }
+
+    private String perform(String dd, Op op, Io io) {
+        String p = planned(dd, op);
+        return p != null ? p : perform(io);
+    }
+
+    private static String perform(Io io) {
+        try {
+            io.run();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return "00";
+    }
+}
+""",
     "MainframeClock": """package {pkg};
 
 import java.time.LocalDateTime;

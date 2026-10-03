@@ -51,7 +51,7 @@ yaml = ["PyYAML>=6.0"]
 # unpinned, the same set CI installs ("Install GitGalaxy & Full Precision
 # Engines" in .github/workflows/gitgalaxy.yml). Opt-in like every other extra:
 # a plain `pip install gitgalaxy` still installs nothing.
-full = ["PyYAML>=6.0", "tiktoken", "xgboost", "pandas", "numpy"]
+full = ["PyYAML>=6.0", "tiktoken", "xgboost", "pandas>=2.0.0", "numpy"]
 
 # Unlike `yaml` above, this extra is never imported by anything under gitgalaxy/ and changes no
 # behavior of the shipped engine -- it exists purely so a contributor can
@@ -79,13 +79,13 @@ blast = "gitgalaxy.galaxyscope:main"
 vault-sentinel = "gitgalaxy.tools.supply_chain_security.vault_sentinel:main"
 supply-chain-firewall = "gitgalaxy.tools.supply_chain_security.supply_chain_firewall:main"
 xray-inspector = "gitgalaxy.tools.supply_chain_security.binary_anomaly_detector:main"
-# NOTE: there is deliberately no `zero-trust-sbom` script here. SBOM generation
-# stopped being a standalone tool in 638c8a2 (#83), which moved
-# gitgalaxy/tools/compliance/sbom_generator.py to
-# gitgalaxy/recorders/sbom_recorder.py and turned it into a passive Phase 12
-# exit stage, so the manifest is tied to the same finalized in-RAM state as the
-# forensic audits. Use `galaxyscope <target> --sbom-only`. The entry point
-# outlived the module it pointed at and shipped broken until #1179.
+# No standalone SBOM command is registered here on purpose. SBOM output is a
+# mode of the hub command (`galaxyscope <target> --sbom-only`), produced by the
+# recorder stage in gitgalaxy/recorders/sbom_recorder.py at the end of a scan so
+# it shares the final in-memory scan state with the other audit outputs. That
+# code moved out of gitgalaxy/tools/compliance/sbom_generator.py in 638c8a2
+# (PR #83); the old console-script entry still pointed at the deleted module and
+# was dropped in #1179. Please do not add it back.
 pii-leak-hunter = "gitgalaxy.tools.terabyte_log_scanning.pii_leak_hunter:main"
 terabyte-log-scanner = "gitgalaxy.tools.terabyte_log_scanning.terabyte_log_scanner:main"
 api-network-map = "gitgalaxy.tools.network_auditing.full_api_network_map:main"
@@ -123,6 +123,8 @@ exclude = [
 [tool.setuptools.package-data]
 "gitgalaxy.standards" = ["archetype_brains/*.json", "fact_channel_confidence.json"]
 "gitgalaxy.core" = ["ebcdic_dbcs/*.json"]  # #3816: the mixed CJK EBCDIC tables
+# det-port: the Java runtime a deterministic port is overlaid with, and the CICS copybooks it lays out
+"gitgalaxy.tools.cobol_to_java.det" = ["cobolrt/*.java", "cobolrt/*/*.java", "copy/*.cpy"]
 
 [tool.setuptools_scm]
 # This tells it to expect tags like "v2.0.5" instead of just "2.0.5"

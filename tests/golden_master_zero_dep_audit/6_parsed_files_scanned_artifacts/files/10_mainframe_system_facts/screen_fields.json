@@ -5074,8 +5074,10 @@
           "POS Line": 24,
           "Parent Ordinal": 1
         }
-      ],
-      "bms/cbsa/ssmap.bms": [
+      ]
+    },
+    "bms/genapp": {
+      "bms/genapp/ssmap.bms": [
         {
           "ATTRB": null,
           "Attributes": "TYPE=MAP,MODE=INOUT,LANG=COBOL,STORAGE=AUTO,TIOAPFX=YES,EXTATT=MAPONLY,CTRL=(FREEKB)",

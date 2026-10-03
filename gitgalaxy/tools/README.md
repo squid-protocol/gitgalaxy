@@ -25,10 +25,10 @@ Unindexed binary streaming engines for processing massive data outputs without R
 * **Full API Network Mapper:** Automatically extracts physical outbound and inbound API routing intents across 9+ frameworks (Spring, Express, FastAPI) and compares them against OpenAPI/Swagger docs to expose undocumented **Shadow APIs**.
 
 ### [Mainframe Modernization Suite](./cobol_to_java/README.md) & [Structural Extraction](./cobol_to_cobol/README.md)
-A complete suite of deterministic architectural controllers for modernizing monolithic legacy systems without relying on hallucination-prone LLMs.
+Deterministic tools for mapping and migrating mainframe estates. The structure is generated from facts the engine verified. The business logic is ported per program by a person or a model the customer chooses, and every port is proven against the original COBOL before a person approves it.
 * **Deprecated Trails Analyzer & DAG Architect:** Identifies dead mainframe memory and mathematically derives execution topologies.
 * **Microservice Logic Extractor:** Performs recursive data-flow taint tracking to isolate COBOL business rules.
-* **Java Spring Boot Forge:** Deterministically translates COBOL architectures into 100% compiling Java Spring `@Entity` models, `@RestController` endpoints, and Maven build systems.
+* **COBOL to Java, with proof:** generates a Spring Boot project from the verified facts (entities and repositories for VSAM and DB2, Spring Batch jobs from JCL, REST endpoints and view models for CICS and BMS), writes a porting ticket per program with business logic, and proves each ported program byte for byte against the COBOL ([how, and what has been proven](./cobol_to_java/README.md)). A generated project compiles under each of the 17 target configs `tests/tools/java_target_matrix.py` builds. Compiling is not correctness: that is what the proof is for.
 
 ---
 
@@ -43,7 +43,7 @@ You can trigger any of the standalone CLI tools securely in your CI/CD pipeline 
       - name: Run GitGalaxy Tool
         uses: squid-protocol/gitgalaxy@main
         with:
-          tool: 'supply-chain-firewall' # Options: vault-sentinel, xray-inspector, api-network-map, etc.
+          tool: 'vault-sentinel'  # or: galaxyscope, supply-chain-firewall, xray-inspector, pii-leak-hunter, api-network-map
           target: '.'
 ```
 
@@ -68,5 +68,5 @@ Explore the ecosystem:
 
 * **[Official Documentation](https://squid-protocol.github.io/gitgalaxy/)** — Comprehensive deep dives into the engine's mathematics, pipeline architecture, and DevSecOps integration protocols.
 * **[GitGalaxy Visualizer](http://gitgalaxy.io/)** — Render your codebase's topological network locally in interactive 3D using hardware-accelerated WebGPU.
-* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/docs/wiki/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
+* **[The blAST Paradigm](https://squid-protocol.github.io/gitgalaxy/01-03-the-blast-paradigm/)** — The architectural thesis, academic research, and structural math that makes AST-free parsing possible at scale.
 * **[Language Calibration Standards](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/standards/how_to_add_a_language.md)** — The definitive engineering guide to extending our comparative lexical taxonomy for custom enterprise dialects.

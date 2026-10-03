@@ -1,0 +1,390 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "COCRDSLC",
+ "program_source": "app/cbl/COCRDSLC.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CCDL",
+ "clock": "2022/07/18 10:30:15.00",
+ "datasets": {
+  "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS": {
+   "input": "app/data/ASCII/carddata.txt",
+   "entity": "CardRecord",
+   "copybook": "app/cpy/CVACT02Y.cpy",
+   "record": "CARD-RECORD"
+  }
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cpy/COCOM01Y.cpy",
+    "record": "CARDDEMO-COMMAREA"
+   },
+   {
+    "copybook": "app/cbl/COCRDSLC.cbl",
+    "record": "WS-THIS-PROGCOMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CCRDSLA": {
+   "copybook": "app/cpy-bms/COCRDSL.CPY",
+   "input": "CCRDSLAI",
+   "output": "CCRDSLAO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "enter-from-menu",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "from-card-list",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "0500024453765740"
+   }
+  },
+  {
+   "name": "from-card-list-card-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0,
+    "CDEMO-ACCT-ID": 50,
+    "CDEMO-CARD-NUM": "9999999999999999"
+   }
+  },
+  {
+   "name": "view-card",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "view-another-card",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000068",
+     "CARDSIDI": "0683586198171516"
+    }
+   }
+  },
+  {
+   "name": "card-not-on-file",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "9999999999999999"
+    }
+   }
+  },
+  {
+   "name": "both-filters-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "",
+     "CARDSIDI": ""
+    }
+   }
+  },
+  {
+   "name": "account-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "card-blank",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": ""
+    }
+   }
+  },
+  {
+   "name": "account-star",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "*",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "account-zero",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000000",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "account-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "ABC",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "card-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "05000244537657AB"
+    }
+   }
+  },
+  {
+   "name": "both-not-numeric",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "ABC",
+     "CARDSIDI": "XYZ"
+    }
+   }
+  },
+  {
+   "name": "other-key-acts-as-enter",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-caller",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CCLI",
+    "CDEMO-FROM-PROGRAM": "COCRDLIC",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "pf3-back-to-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "",
+    "CDEMO-FROM-PROGRAM": "",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   }
+  },
+  {
+   "name": "unexpected-context",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 2
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "why": "CDEMO-PGM-CONTEXT neither ENTER (0) nor REENTER (1): WHEN OTHER, 'UNEXPECTED DATA SCENARIO' as plain text"
+  },
+  {
+   "name": "card-file-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "IOERR",
+     "why": "17 on the READ -> WHEN OTHER: the file error message"
+    }
+   ]
+  },
+  {
+   "name": "card-file-not-open",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CCRDSLA": {
+     "ACCTSIDI": "00000000050",
+     "CARDSIDI": "0500024453765740"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "READ",
+     "file": "CARDDAT",
+     "resp": "NOTOPEN",
+     "why": "19 on the READ -> WHEN OTHER"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's card detail screen (transaction CCDL, program COCRDSLC): from the menu it sends the empty screen; from the card list it reads the selected card and shows it; re-entered it edits the account and card filters (blank, '*', zero, not numeric), reads the card by number and shows it; PF3 returns to the caller or the menu; any other key acts as ENTER. 9150-GETCARD-BYACCT (the account path) is never performed. Every file is the corpus's own data. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

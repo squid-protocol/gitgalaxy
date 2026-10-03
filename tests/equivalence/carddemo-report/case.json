@@ -1,0 +1,325 @@
+{
+ "kind": "cics",
+ "corpus": "aws-mainframe-modernization-carddemo",
+ "program": "CORPT00C",
+ "program_source": "app/cbl/CORPT00C.cbl",
+ "copy_dirs": [
+  "app/cpy",
+  "app/cpy-bms"
+ ],
+ "transid": "CR00",
+ "clock": "2022/07/18 10:30:15.00",
+ "csd": "app/csd/CARDDEMO.CSD",
+ "subprograms": [
+  "app/cbl/CSUTLDTC.cbl"
+ ],
+ "uses_ports": [
+  "carddemo-dateutil"
+ ],
+ "datasets": {},
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "app/cbl/CORPT00C.cbl",
+    "record": "CARDDEMO-COMMAREA"
+   }
+  ]
+ },
+ "screens": {
+  "CORPT0A": {
+   "copybook": "app/cpy-bms/CORPT00.CPY",
+   "input": "CORPT0AI",
+   "output": "CORPT0AO"
+  }
+ },
+ "scenarios": [
+  {
+   "name": "first-entry",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 0
+   }
+  },
+  {
+   "name": "no-commarea",
+   "aid": "DFHENTER",
+   "commarea": null
+  },
+  {
+   "name": "monthly-confirmed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "the month of the task's clock (July 2022): JCL lines on JOBS"
+  },
+  {
+   "name": "monthly-not-confirmed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X"
+    }
+   }
+  },
+  {
+   "name": "monthly-declined",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "n"
+    }
+   }
+  },
+  {
+   "name": "monthly-confirm-invalid",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Q"
+    }
+   }
+  },
+  {
+   "name": "yearly-confirmed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "YEARLYI": "X",
+     "CONFIRMI": "y"
+    }
+   }
+  },
+  {
+   "name": "custom-confirmed",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "custom-start-month-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "custom-end-year-empty",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "custom-day-32",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "32",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "06",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "custom-not-a-date",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CUSTOMI": "X",
+     "SDTMMI": "01",
+     "SDTDDI": "01",
+     "SDTYYYYI": "2022",
+     "EDTMMI": "02",
+     "EDTDDI": "30",
+     "EDTYYYYI": "2022",
+     "CONFIRMI": "Y"
+    }
+   },
+   "why": "CSUTLDTC -> CEEDAYS 2508"
+  },
+  {
+   "name": "no-report-selected",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "CONFIRMI": "Y"
+    }
+   }
+  },
+  {
+   "name": "pf3-main-menu",
+   "aid": "DFHPF3",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {}
+   }
+  },
+  {
+   "name": "invalid-key",
+   "aid": "DFHPF5",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X"
+    }
+   }
+  },
+  {
+   "name": "jobs-queue-io-error",
+   "aid": "DFHENTER",
+   "commarea": {
+    "CDEMO-FROM-TRANID": "CM00",
+    "CDEMO-FROM-PROGRAM": "COMEN01C",
+    "CDEMO-USER-ID": "USER0001",
+    "CDEMO-USER-TYPE": "U",
+    "CDEMO-PGM-CONTEXT": 1
+   },
+   "receive": {
+    "CORPT0A": {
+     "MONTHLYI": "X",
+     "CONFIRMI": "Y"
+    }
+   },
+   "faults": [
+    {
+     "cmd": "WRITEQ-TD",
+     "file": "JOBS",
+     "resp": "IOERR",
+     "nth": 3,
+     "why": "17 on the third JCL line: 'Unable to Write TDQ (JOBS)...'"
+    }
+   ]
+  }
+ ],
+ "notes": "CardDemo's report request (transaction CR00, program CORPT00C): a monthly (the clock's month), yearly or custom date range is validated -- the custom dates through CALL 'CSUTLDTC' (CEEDAYS; the COBOL side links CardDemo's CSUTLDTC and tests/equivalence/le/ceedays.c, the Java side its proven port from carddemo-dateutil) -- and, once confirmed, the program submits its in-line JCL with the dates filled in, one WRITEQ TD to the JOBS queue per line, each line compared. A month above 12 is flagged by the program but still passed to CSUTLDTC, where the CEEDAYS model refuses it (IBM leaves open which condition a month outside 1-12 raises), so no scenario uses one -- nor a non-numeric month, which NUMVAL-C turns into 00. Derived from CardDemo (Apache-2.0; Copyright Amazon.com, Inc. or its affiliates): LICENSE and NOTICE here are the source's own."
+}

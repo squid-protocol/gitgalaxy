@@ -94,3 +94,19 @@ def test_arrow_stays_a_separator_outside_java():
     # PHP and C/C++ member access still split on `->`.
     assert _call_qualifier("$this->save(", len("$this->")) == "this"
     assert _call_qualifier("p->f(", len("p->")) == "p"
+
+
+def test_spread_operator_is_not_a_receiver():
+    # #3787: `...f()` is a bare call and `...ns.f()` a call on `ns`; the spread's dots are
+    # not a member access, so neither has an `<expr>` receiver. `a.b()` and `a.f()` stay.
+    assert _call_qualifier("x(...f(", len("x(...")) == ""
+    assert _call_qualifier("{ ...f(", len("{ ...")) == ""
+    assert _call_qualifier("x(...errorUtil.errToObj(", len("x(...errorUtil.")) == "errorUtil"
+    assert _call_qualifier("x(...a.b.f(", len("x(...a.b.")) == "a.b"
+    assert _call_qualifier("x(a.f(", len("x(a.")) == "a"
+    code = "function run(v, i) {\n  r.push(...parseCaseValue(v));\n  s.parse({ ...makeBig(i), ...errorUtil.errToObj(v) });\n}\n"
+    q = _quals("typescript", code, "run")
+    assert q["parseCaseValue"] == [""]
+    assert q["makeBig"] == [""]
+    assert q["errToObj"] == ["errorUtil"]
+    assert q["push"] == ["r"]

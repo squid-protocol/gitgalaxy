@@ -4753,6 +4753,7 @@ class StructuralExtractor:
                         # back to its last line-start `exit /b` by the shared
                         # terminator vocabulary.
                         "batch",
+                        "easytrieve",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

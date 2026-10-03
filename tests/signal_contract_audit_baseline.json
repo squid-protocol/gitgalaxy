@@ -13,6 +13,10 @@
   "draft:spec_exposure",
   "draft:sync_locks",
   "draft:telemetry",
+  "missing-contract:crypto_algorithms",
+  "missing-contract:crypto_entropy",
+  "missing-contract:crypto_obfuscation",
+  "missing-contract:memory_management",
   "schema-drift:func_start"
  ]
 }

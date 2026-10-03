@@ -2001,7 +2001,7 @@
         "SVCT3X@211": 1.3e-05,
         "T3RUPT2@384": 1.3e-05,
         "T3RUPT@378": 1.3e-05,
-        "TASKOVER@423": 4.5e-05,
+        "TASKOVER@423": 4.4e-05,
         "TWIDDLE@129": 8.3e-05,
         "VARDELAY@171": 2.4e-05,
         "WAIT2@221": 1.3e-05,
@@ -18319,7 +18319,7 @@
         "display@3601": 5.8e-05,
         "displaySize@2372": 2.9e-05,
         "focus@2091": 2.1e-05,
-        "formatCellsForLog@2324": 4.6e-05,
+        "formatCellsForLog@2324": 4.5e-05,
         "getControlFieldBraille@956": 1.3e-05,
         "getDisplayDrivers@4000": 1.8e-05,
         "getDisplayList@516": 1.3e-05,
@@ -30420,7 +30420,7 @@
         "delay@11": 1.3e-05
       },
       "lua/redis/printf.lua": {
-        "printf@3": 0.000387
+        "printf@3": 0.000386
       },
       "lua/redis/sort.lua": {
         "qsort@5": 2e-05,
@@ -32554,7 +32554,7 @@
         "_clearReferences@984": 1.7e-05,
         "_construct@222": 1.7e-05,
         "_createValidatorBeforeSave@779": 3.3e-05,
-        "_getEventData@575": 9.9e-05,
+        "_getEventData@575": 9.8e-05,
         "_getResource@495": 7.4e-05,
         "_getValidationRulesBeforeSave@813": 2.3e-05,
         "_getValidatorBeforeSave@763": 2.4e-05,
@@ -41422,7 +41422,7 @@
       "scheme/racket/fun.c": {
         "ASSERT_SUSPEND_BREAK_ZERO@11": 3.6e-05,
         "X_scheme_apply_to_list@1721": 5.7e-05,
-        "_apply@1554": 0.000444,
+        "_apply@1554": 0.000443,
         "_apply_native@3744": 2.7e-05,
         "_scheme_apply_multi_with_prompt@1668": 1.3e-05,
         "_scheme_apply_native@3772": 1.3e-05,

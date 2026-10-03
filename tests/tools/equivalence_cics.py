@@ -1763,6 +1763,10 @@ class EquivalenceRunTest {{
             }}
             List<String> sqlFaults = new ArrayList<>();  // #4173: the scenario's SQL faults (every task starts afresh)
             sc.path("sql_faults").forEach(f -> sqlFaults.add(f.asText()));
+            if (!sc.path("sql_unjudged").asText("").isEmpty()) {{  // a faulted statement's program has no seam
+                Files.writeString(out.resolve(sc.get("name").asText() + ".hole"), sc.get("sql_unjudged").asText());
+                continue;  // not judged: recorded, never run unfaulted
+            }}
             if (!sqlFaultPlan(sqlFaults, out.resolve(sc.get("name").asText() + ".faults"))) {{
                 Files.writeString(out.resolve(sc.get("name").asText() + ".hole"),
                         "this port has no SQL fault hook (cobolrt.sql.DetSql)");
@@ -1841,6 +1845,31 @@ class EquivalenceRunTest {{
 """
 
 
+def sql_seam_programs(case: dict[str, Any], src: Path) -> set[str]:
+    """#4173 x #4188: the task's programs whose Java can take an injected SQL fault -- those that reach Db2
+    through cobolrt's DetSql (det ports). A model port reaches Db2 its own way and has no seam, even when a
+    det-ported program it LINKs to puts DetSql on the classpath."""
+    import equivalence_java as ej
+
+    out = set()
+    for prog in [case["program"], *[str(p.get("program", "")) for p in case.get("programs") or []]]:
+        if not prog:
+            continue
+        hits = list(src.rglob(f"{ej._service_class(prog)}.java"))
+        if any(b"DetSql." in h.read_bytes() for h in hits):
+            out.add(prog.upper())
+    return out
+
+
+def sql_unjudged(plan: list[str], seams: set[str]) -> str:
+    """The reason a scenario's SQL faults cannot be injected on the Java side ("" when they can): every fault
+    names its statement's program (`PROGRAM LINE NTH SQLCODE SQLSTATE`), and that program's Java needs the seam."""
+    missing = sorted({line.split()[0] for line in plan if line.split() and line.split()[0] not in seams})
+    if not missing:
+        return ""
+    return f"no SQL fault hook in {', '.join(missing)} (its Java does not reach Db2 through cobolrt.sql.DetSql)"
+
+
 def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Path, files: list[dict[str, Any]],
                   port: bool = True, port_dir: Path | None = None) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
     """The generated project runs every scenario as a CicsTask; {scenario: its events}, each
@@ -1855,6 +1884,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
     svc_file = next(src.rglob(f"{svc}.java"))
     ca_cls = commarea_class(case, src, svc_file)
     shape = dto_shape(src, ca_cls, svc_file)  # #4011: the class the service imports, not any of that name
+    seams = sql_seam_programs(case, src)  # #4173 x #4188: whose Java can take an injected SQL fault
     test = project / "src/test/java" / ej.PKG_DIR / "EquivalenceRunTest.java"
     test.write_text(
         cics_equivalence_test(case, src, files, csd_programs(corpus, case), csd_tdqueues(corpus, case)),
@@ -1887,6 +1917,7 @@ def run_java_cics(case: dict[str, Any], corpus: Path, work: Path, cobol_work: Pa
         }
         scenarios.append({"name": sc["name"], "aid": sc.get("aid", "DFHENTER").removeprefix("DFH"),
                           "commarea": ca, "receive": receive, "faults": fault_lines(sc), "sql_faults": sc.get("sql_plan", []),
+                          "sql_unjudged": sql_unjudged(sc.get("sql_plan", []), seams),
                           "derived": bool(sc.get("derived")),
                           "counters": _counters(case, sc)})  # fmt: skip
     (inputs / "scenarios.json").write_text(json.dumps(scenarios, indent=1), encoding="utf-8")

@@ -168,3 +168,35 @@ def test_detsql_injects_a_planned_fault_and_a_link_window_stops_at_the_record(tm
     assert out == ["run 1 sqlcode 0 ran 1", "run 2 sqlcode -803 ran 1", "run 3 sqlcode 0 ran 2",
                    "other sqlcode 0", "window EE 0 0", "back X 71"]  # fmt: skip
     assert log.read_text(encoding="ascii").split() == ["SQL", "PROG", "12", "2", "-803"]
+
+
+def _service(src, cls, body):
+    d = src / "com" / "x" / "service"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / f"{cls}.java").write_text(f"class {cls} {{ void p() {{ {body} }} }}\n", encoding="utf-8")
+
+
+def test_sql_seam_is_decided_per_statement_owner(tmp_path):
+    """#4173 x #4188: a model-ported main program has no seam even when a det-ported program it LINKs to puts
+    DetSql on the classpath; a fault on the det program's own statement can be injected and judged."""
+    import equivalence_cics as ec
+
+    src = tmp_path / "src"
+    _service(src, "InqaccService", "repo.findById(1);")  # model port: its own Db2 access
+    _service(src, "AbndprocService", "DetSql.update(\"ABNDPROC:120\", s);")  # det port, LINKed
+    case = {"program": "INQACC", "programs": [{"program": "ABNDPROC", "program_source": "src/abndproc.cbl"}]}
+    seams = ec.sql_seam_programs(case, src)
+    assert seams == {"ABNDPROC"}
+    main_fault = ec.sql_unjudged(["INQACC 270 1 -913 57033"], seams)
+    assert "no SQL fault hook" in main_fault and "INQACC" in main_fault  # not judged
+    assert ec.sql_unjudged(["ABNDPROC 120 1 -803 23505"], seams) == ""  # injected and judged
+    assert "INQACC" in ec.sql_unjudged(["ABNDPROC 120 1 -803 23505", "INQACC 270 1 100 02000"], seams)
+    assert ec.sql_unjudged([], set()) == ""  # no faults: nothing to refuse
+
+
+def test_a_det_main_program_has_the_seam(tmp_path):
+    import equivalence_cics as ec
+
+    src = tmp_path / "src"
+    _service(src, "Lgacdb01Service", "DetSql.update(\"LGACDB01:240\", s);")
+    assert ec.sql_seam_programs({"program": "LGACDB01"}, src) == {"LGACDB01"}

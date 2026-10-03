@@ -938,6 +938,11 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
 # `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
+# #3837: in java `->` only ever ends a lambda's parameters (`() -> toJson(gson, x)`),
+# so a call right after it is bare, not one on an `<expr>` receiver. Kotlin, Groovy
+# and Scala read `->` the same way, but no compiler reference measures them yet.
+_LAMBDA_ARROW_LANGS = frozenset({"java"})
+_QUALIFIER_SEPARATORS_NO_ARROW = tuple(s for s in _QUALIFIER_SEPARATORS if s != "->")
 _QUALIFIER_MAX_SEGMENTS = 4
 _QUALIFIER_MAX_IDENT = 64
 
@@ -952,7 +957,7 @@ def _is_qualified_calls_out(pattern: Any) -> bool:
     return getattr(pattern, "pattern", pattern) in _QUALIFIED_CALLS_OUT_SOURCES
 
 
-def _call_qualifier(text: str, pos: int) -> str:
+def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIER_SEPARATORS) -> str:
     """The receiver chain written before the callee name that starts at `pos`.
 
     `utils.parse(` -> `utils`, `self.store.save(` -> `self.store`, `$this->save(`
@@ -969,7 +974,7 @@ def _call_qualifier(text: str, pos: int) -> str:
         j = i
         while j > 0 and text[j - 1] in " \t\r\n" and i - j < 80:
             j -= 1
-        sep = next((s for s in _QUALIFIER_SEPARATORS if text.startswith(s, j - len(s)) and j >= len(s)), None)
+        sep = next((s for s in separators if text.startswith(s, j - len(s)) and j >= len(s)), None)
         if sep is None:
             break
         k = j - len(sep)
@@ -985,6 +990,10 @@ def _call_qualifier(text: str, pos: int) -> str:
         segments.append(ident)
         i = start
     return ".".join(reversed(segments))
+
+
+def _qualifier_separators(lang_id: str) -> tuple[str, ...]:
+    return _QUALIFIER_SEPARATORS_NO_ARROW if lang_id in _LAMBDA_ARROW_LANGS else _QUALIFIER_SEPARATORS
 
 
 # #3835: how far `_call_arity` scans for a call's argument list, and how long a
@@ -9553,7 +9562,7 @@ class StructuralExtractor:
             kept: dict[str, list[str]] = {}
             for m in pattern.finditer(safe):
                 seen = kept.setdefault(m.group(1), [])
-                qualifier = _call_qualifier(safe, m.start(1))
+                qualifier = _call_qualifier(safe, m.start(1), _qualifier_separators(self.primary_lang_id))
                 if qualifier not in seen:
                     seen.append(qualifier)
             sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c in kept]
@@ -9981,7 +9990,7 @@ class StructuralExtractor:
                             if not declared[0]:
                                 continue
                             callee, callee_pos = declared
-                    qualifier = _call_qualifier(safe_block, callee_pos)
+                    qualifier = _call_qualifier(safe_block, callee_pos, _qualifier_separators(self.primary_lang_id))
                     if callee == own_leaf and qualifier in own_qualifiers:
                         continue
                     if callee_pos == m.start(1) and _is_declaration_header(decl_headers, m):

@@ -319,6 +319,14 @@ up to and including the LINK (its events and the COMMAREA bytes it passes, byte 
 their error paths, ABNDPROC's DUPREC among them. No case here browses, so EBCDIC vs ASCII key order is still not
 exercised.
 
+### Estate 4: IBM DBB MortgageApplication (2026-10-03)
+
+A fourth estate, from a different IBM team: [estate4_dbb_mortgage.md](estate4_dbb_mortgage.md). 99.0% of its 204
+statements translate. EPSNBRVL (a CALL with a group USING item; 22/22 branches) and EPSCMORT (CICS, a generated BMS map,
+Db2) are proven. EPSMPMT is not proven on purpose (`NUMPROC(MIG)`, C5), and EPSMLIST waits for ESDS browse by RBA
+(#4213). Onboarding it needed general fixes: compiler cards from column 1, `ID DIVISION`, group USING items across a
+CALL as contract DTOs, and nested COPY in a copybook's record (the IR).
+
 ## The combined method (B): deterministic first, a model refactors under proof
 
 **B1 -- structured style** (`det_port.py --style structured`, no model). A program with no GO TO, no EXEC CICS HANDLE

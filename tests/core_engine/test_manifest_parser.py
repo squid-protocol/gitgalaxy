@@ -4,7 +4,7 @@ import logging
 import pytest
 
 # Adjust this import based on your actual project structure
-from gitgalaxy.security.manifest_parser import ManifestParser
+from gitgalaxy.security.manifest_parser import ManifestParser, UniversalManifestSlicer
 
 
 @pytest.fixture
@@ -398,3 +398,26 @@ def test_manifest_parser_scope_is_npm_and_pypi_only(parser, tmp_path):
         "is intentional, great, but SUPPORTED_MANIFEST_FILENAMES coverage "
         "claims in sbom_recorder/galaxyscope comments should be revisited too."
     )
+
+
+def _venv_with_pkg(base):
+    pkg = base / "proj" / "venv" / "lib" / "python3.12" / "site-packages" / "requests"
+    pkg.mkdir(parents=True)
+    return base / "proj"
+
+
+def test_locate_pypi_package_is_independent_of_scan_root_parent_names(tmp_path):
+    """#4239 / #4058: a `site-packages` directory ABOVE the scan root must not change the result."""
+    plain = _venv_with_pkg(tmp_path / "plain")
+    found = UniversalManifestSlicer.locate_physical_package(plain, "requests", "pypi")
+    assert found is not None and found.name == "requests"
+
+    # no real site-packages inside the venv, but the scan root lives under one
+    ghost = tmp_path / "site-packages" / "proj"
+    (ghost / "venv" / "lib" / "requests").mkdir(parents=True)
+    assert UniversalManifestSlicer.locate_physical_package(ghost, "requests", "pypi") is None
+
+    # same tree with a real site-packages gives the same answer under a site-packages parent
+    nested = _venv_with_pkg(tmp_path / "site-packages" / "nested")
+    found2 = UniversalManifestSlicer.locate_physical_package(nested, "requests", "pypi")
+    assert found2 is not None and found2.relative_to(nested) == found.relative_to(plain)

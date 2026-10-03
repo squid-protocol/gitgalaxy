@@ -3950,7 +3950,7 @@ class GalaxyIR:
         if index is None:
             index = {}
             for p in self.source_root.rglob("*"):
-                if p.is_file() and ".git" not in p.parts:
+                if p.is_file() and ".git" not in p.relative_to(self.source_root).parts:
                     index.setdefault(nfc(p.stem.upper()), []).append(p)  # #3815: an NFD file name too
             self.__dict__["_member_index"] = index
         hits = index.get(nfc(member.upper()), [])

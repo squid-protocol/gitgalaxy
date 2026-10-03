@@ -25,6 +25,7 @@ Do not change lock policy or slot counts mid-run.
 - Use `gh api` REST, not `gh issue view` / `gh pr edit` (gh 2.45 fails on Projects-classic GraphQL). No `jq` in loops; use `gh -q`.
 - Tests first: the narrowest failing test, then fix, then the language/extraction tests.
 - Golden: bless only via `golden-lock.sh python tests/tools/crucible_check.py --update --yes`, on BOTH legs (both modes it runs), only after a real-scan proof. Attribute every diff to your change (`scope_check.py --expect <lang>`); never bless a sibling's drift. REFUSE to bless if the run excluded files via timeouts (load-induced fake diffs, #4247); rerun when quieter.
+- Bless with `crucible_check.py --update --yes` ONLY (CI-matched venvs per leg), never `update_golden_master` from `~/venvs/galaxy_venv` (py3.12 vs CI pin gave ~2.9k phantom diffs, #4258). After a sibling merge touching golden masters, merge origin/main and re-bless.
 - Before calling any failure "pre-existing": `git fetch` and re-test on current origin/main (`pr_gates.py --vs-main` does it).
 - `ruff format` changed `.py` files only (`git diff --name-only`, never bare `ruff format .`), THEN regenerate any baseline.
 - Full gates before push: `tests/tools/box/heavy-run.sh python tests/tools/pr_gates.py` (warns if local ruff/mypy/python differ from CI; follow its private-venv hint). Re-read new subclasses for a missing `super().__init__()`.

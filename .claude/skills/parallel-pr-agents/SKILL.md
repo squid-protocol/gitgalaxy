@@ -103,6 +103,8 @@ Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing t
 - [ ] Watchers wait on PIDs (`wait-pids.sh`), never on output files: a watcher hung on files a never-started job would have written.
 - [ ] Checkpoint: push the branch and open a placeholder PR (title `WIP: ...`) early; unpushed work dies with the agent.
 - [ ] Load-aware bless: a bless/check run under load can time out regexes, which fakes diffs (2,911 golden diffs, #4247). Run it under `golden-lock.sh`, and REFUSE to bless if any file was excluded by a timeout in the run output.
+- [ ] Bless ONLY with `golden-lock.sh python tests/tools/crucible_check.py --update --yes` (builds CI-matched venvs per leg). Never run `update_golden_master` from `~/venvs/galaxy_venv` (Python 3.12 vs CI's pin): that produced ~2.9k phantom full-leg diffs on #4258.
+- [ ] After any sibling merge that touches golden masters (e.g. #4240 added snapshot section 12), merge origin/main and re-bless; that is what broke #4258's zero-dep leg.
 - [ ] After ANY sibling merge, re-validate every claim in the PR body (counts, "no drift", "rebased on") and edit it via `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...` (`gh pr edit` fails on gh 2.45).
 
 **Stopping an agent**

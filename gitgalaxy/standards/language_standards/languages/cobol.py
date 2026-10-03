@@ -134,9 +134,12 @@ DEFINITION: dict[str, Any] = {
         # blocks the ~30-space identification-area bridge while leaving
         # normal spacing untouched. Wider single-line alignment (rare for a
         # USING list -- multi-operand lists wrap with commas) is
-        # conservatively counted short, never over-read. Column-73 blanking
-        # is not done here because it is unsafe without fixed/free-format
-        # detection (free-format lines legitimately run past column 72).
+        # conservatively counted short, never over-read. #4264: Prism now
+        # blanks columns 73+ of every fixed-format line before any rule runs
+        # (gitgalaxy/core/cobol_source_format.py: per-file fixed/free
+        # detection, switched by >>SOURCE FORMAT directives), and leaves a
+        # free-format line's text past column 72 alone. The `{1,4}` cap stays
+        # as defence for a rule matched against raw text.
         #
         # Both branches of the separator are disjoint from the operand's
         # own `[A-Z0-9_-]+`, the operand is non-nullable, and the

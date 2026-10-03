@@ -11,9 +11,9 @@
       "tested_on_public": 3
     },
     "CALL USING": {
-      "clean_fresh_facts": 5,
-      "clean_fresh_rounds": 2,
-      "engine_defects": 0,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 1,
       "fresh_rounds": 2,
       "status": "open",
       "tested_on_private": 0,
@@ -74,9 +74,9 @@
       "tested_on_public": 2
     },
     "DD names": {
-      "clean_fresh_facts": 22,
-      "clean_fresh_rounds": 1,
-      "engine_defects": 0,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 1,
       "fresh_rounds": 1,
       "status": "open",
       "tested_on_private": 0,
@@ -274,7 +274,7 @@
     "data moves": {
       "clean_fresh_facts": 0,
       "clean_fresh_rounds": 0,
-      "engine_defects": 3,
+      "engine_defects": 4,
       "fresh_rounds": 3,
       "status": "open",
       "tested_on_private": 0,

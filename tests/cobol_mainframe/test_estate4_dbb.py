@@ -6,7 +6,7 @@
   copybook under its member name, and a CALL case may pass a group USING item (a contract DTO on the Java side, its
   argument given as text or as field values);
 - a CICS task with no COMMAREA that MOVEs DFHCOMMAREA anyway: the fields it copies from nowhere are undefined
-  (oracle_assumptions.md X10).
+  (oracle_assumptions.md X12).
 """
 
 from __future__ import annotations

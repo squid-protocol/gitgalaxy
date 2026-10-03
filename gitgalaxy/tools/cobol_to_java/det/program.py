@@ -601,7 +601,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             fid = gen.ids.get(id(it))
             if fid:
                 inits.append(f"        Cobol.moveFigurative(Figurative.ZEROS, {fid}, CS);")
-    declared = sorted({ln.split(" = ")[0].strip() for ln in field_lines})
 
     linkage = [r for r in records if r.section == "LINKAGE" and r.level == 1]
     extra_imports: list[str] = []
@@ -702,7 +701,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     imp = sorted({imports.get(c, f"{package}.repository.vsam.{c}") for c, _ in ctor_repos if c.endswith("Repository")} |
                  {imports.get(f.entity, f"{package}.entity.vsam.{f.entity}")
                   for f in prog.files.values() if f.entity})  # fmt: skip
-    chunks = [field_lines[i : i + 300] for i in range(0, len(field_lines), 300)] or [[]]
     ctor_params = ", ".join(
         [f"{c} {f}" for c, f in dict.fromkeys(ctor_repos)]
         + (["DatasetResolver datasets", "CobolFiles files", "MainframeClock clock"] if batch else [])
@@ -837,7 +835,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         ],
         *[f"    private final Storage {n} = new Storage(IMAGE_{n}.length);" for n, _ in storages],
         "",
-        *[f"    private Field {d};" for d in declared],
+        # each item declared and bound to its storage in one line, in record order (the storages are declared above)
+        *[f"    private final Field {ln.strip()}" for ln in dict.fromkeys(field_lines)],
         *lifted_decls,
         *sync_methods,
         "",
@@ -864,7 +863,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             if batch
             else []
         ),
-        *[f"        fields{k}();" for k in range(len(chunks))],
         # a CALLed program's WORKING-STORAGE is set once and keeps its values from call to call
         *(
             [f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages] + inits
@@ -874,8 +872,6 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    }",
         "",
     ]
-    for k, ch in enumerate(chunks):
-        out += [f"    private void fields{k}() {{", *ch, "    }", ""]
     out += [
         "    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its",
         "     *  initial storage; RETURN-CODE. */",
@@ -946,6 +942,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             ]
         ),
         *para_code,
+        *gen.cond_method_lines(),
         "}",
         "",
     ]
@@ -1044,6 +1041,15 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
+        # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
+        # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
+        ca_in += ["        byte[] raw = task.linkArea();",
+                  "        if (raw != null) {",
+                  f"            System.arraycopy(raw, 0, {st}.bytes, 0, Math.min(raw.length, {st}.bytes.length));",
+                  "            Runnable typed = caBack;",
+                  f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, "
+                  f"Math.min(raw.length, {st}.bytes.length)); }};",
+                  "        }"]  # fmt: skip
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",

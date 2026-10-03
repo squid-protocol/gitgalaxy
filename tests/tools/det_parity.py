@@ -31,6 +31,10 @@ BANDS = {"methods": (0.6, 1.6), "branches": (0.5, 2.5)}
 _CICS = re.compile(r"EXEC\s+CICS\b", re.IGNORECASE)
 
 
+# a condition-name method the det translator emits for an 88 (its lineage comment, then the method)
+_COND_METHOD = re.compile(r"/\*\* 88 [^*\n]*\*/\s*private boolean \w+\(\)")
+
+
 @cache
 def _engines() -> tuple[Any, Any]:
     from gitgalaxy.core.prism import Prism
@@ -55,6 +59,8 @@ def parity(program: str, cobol: str, java: str) -> dict[str, Any]:
     """One program's counts, predictions, ratios and warnings (cobol / java: the source texts)."""
     kind = "cics" if _CICS.search(cobol) else "batch"
     c, j = structure(cobol, "cobol"), structure(java, "java")
+    # a condition-name method (isApplAok() for 88 APPL-AOK) is not a paragraph: the model counts paragraph methods
+    j["functions"] -= len(_COND_METHOD.findall(java))
     out: dict[str, Any] = {"program": program, "kind": kind, "cobol": c, "java": j, "warnings": []}
     for metric, have, src in (("methods", j["functions"], c["functions"]), ("branches", j["branches"], c["branches"])):
         overhead, slope = MODEL[kind][metric]

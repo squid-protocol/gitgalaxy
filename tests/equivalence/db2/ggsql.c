@@ -19,13 +19,25 @@
  * this stub raises while assigning the result, carry no tokens.
  *
  * The statements come from $GGSQL_STMTS, written by the precompiler:
- *   S <id> <kind> <nin> <nout> <cursor|->      kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK
+ *   S <id> <kind> <nin> <nout> <cursor|-> <program> <line>
+ *                                              kind: EXEC SELECT1 OPEN FETCH CLOSE COMMIT ROLLBACK; program and line
+ *                                              (#4173): the EXEC SQL's own line in its program's source
  *   I <arg> <type> <len> <digits> <scale> <signed> <indicator-arg|-1>      one per input marker, in order
  *   O <arg> <type> <len> <digits> <scale> <signed> <indicator-arg|-1>      one per output column, in order
  *   Q <sql, the host variables replaced by ?>
  * <arg> numbers the CALL's arguments after GG-SQL-ID and SQLCA. The connection is $GGSQL_CONN (a CLI connection
  * string); autocommit is off, COMMIT / ROLLBACK are the program's own, and a run that ends normally commits (as a
  * batch step or a CICS task does). A form this stub does not model ends the run (exit 98, "not modelled").
+ *
+ * #4173 -- SQL faults. $GGSQL_FAULTS names a plan, one fault per line:
+ *   <program> <line> <nth|*> <sqlcode> <sqlstate>
+ * The nth execution of the statement at that line of that program (every one, for *) does not reach Db2: its SQLCA
+ * is the one sqlca_reset leaves, with that SQLCODE and SQLSTATE -- no message tokens (SQLERRML 0), SQLERRD 0, no
+ * warning (docs/language_status/oracle_assumptions.md M2) -- and nothing else changes: no row, no host variable,
+ * a cursor's state as it was. Each fault that fires is appended to $GGSQL_FAULTS_LOG as
+ *   SQL <program> <line> <n> <sqlcode>
+ * the line the det port's DetSql writes for the same fault. $GGSQL_TRACE, when set, gets `<program> <line>` for
+ * each statement executed (the harness's fault enumeration reads it).
  */
 #include <ctype.h>
 #include <stdarg.h>
@@ -45,8 +57,8 @@ typedef struct {
 } hv;
 
 typedef struct {
-    int id, nin, nout;
-    char kind[12], cursor[64];
+    int id, nin, nout, line, runs;
+    char kind[12], cursor[64], program[16];
     hv in[MAXHV], out[MAXHV];
     char *sql;
     SQLHSTMT h;
@@ -78,7 +90,9 @@ static void load(void) {
         if (line[0] == 'S') {
             cur = &stmts[nstmts++];
             memset(cur, 0, sizeof *cur);
-            sscanf(line + 2, "%d %11s %d %d %63s", &cur->id, cur->kind, &cur->nin, &cur->nout, cur->cursor);
+            strcpy(cur->program, "-");
+            sscanf(line + 2, "%d %11s %d %d %63s %15s %d", &cur->id, cur->kind, &cur->nin, &cur->nout, cur->cursor,
+                   cur->program, &cur->line);
             cur->nin = 0, cur->nout = 0;
         } else if ((line[0] == 'I' || line[0] == 'O') && cur) {
             hv *v = line[0] == 'I' ? &cur->in[cur->nin++] : &cur->out[cur->nout++];
@@ -412,6 +426,38 @@ static int fetch_into(stmt *s, unsigned char **a, sqlca_t *c) {
     return 1;
 }
 
+/* ---- #4173: SQL faults -------------------------------------------------------------------------------- */
+/* The planned fault of this execution (the statement's nth), if $GGSQL_FAULTS plans one: 1, the SQLCA set. */
+static int injected(stmt *s, sqlca_t *c) {
+    const char *trace = getenv("GGSQL_TRACE"), *plan = getenv("GGSQL_FAULTS");
+    stmt *k = s;  /* executions counted per key (program, line), as DetSql counts them: a member INCLUDEd twice */
+    for (int i = 0; i < nstmts; i++)
+        if (!strcmp(stmts[i].program, s->program) && stmts[i].line == s->line) { k = &stmts[i]; break; }
+    int n = ++k->runs;
+    if (trace && *trace) {
+        FILE *t = fopen(trace, "a");
+        if (t) { fprintf(t, "%s %d\n", s->program, s->line); fclose(t); }
+    }
+    FILE *f = plan && *plan ? fopen(plan, "r") : NULL;
+    char prog[16], nth[16], state[8], line[256];
+    int ln, code, hit = 0;
+    while (f && !hit && fgets(line, sizeof line, f)) {
+        if (sscanf(line, "%15s %d %15s %d %7s", prog, &ln, nth, &code, state) != 5) continue;
+        if (strcmp(prog, s->program) || ln != s->line) continue;
+        if (nth[0] != '*' && atoi(nth) != n) continue;
+        c->sqlcode = code;
+        memcpy(c->sqlstate, state, 5);
+        hit = 1;
+    }
+    if (f) fclose(f);
+    if (hit) {
+        const char *log = getenv("GGSQL_FAULTS_LOG");
+        FILE *l = log && *log ? fopen(log, "a") : NULL;
+        if (l) { fprintf(l, "SQL %s %d %d %d\n", s->program, s->line, n, code); fclose(l); }
+    }
+    return hit;
+}
+
 /* ---- the entry ---------------------------------------------------------------------------------------- */
 int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char *h1, unsigned char *h2,
           unsigned char *h3, unsigned char *h4, unsigned char *h5, unsigned char *h6, unsigned char *h7,
@@ -430,6 +476,7 @@ int GGSQL(unsigned char *id, unsigned char *ca, unsigned char *h0, unsigned char
     if (!s) die("statement", "an unknown GG-SQL-ID");
     connect_once();
     sqlca_reset(c);
+    if (injected(s, c)) return 0;  /* #4173: a planned SQL fault -- the statement never reaches Db2 */
     if (!strcmp(s->kind, "COMMIT") || !strcmp(s->kind, "ROLLBACK")) {
         rc = SQLEndTran(SQL_HANDLE_DBC, dbc, !strcmp(s->kind, "COMMIT") ? SQL_COMMIT : SQL_ROLLBACK);
         diag(c, SQL_HANDLE_DBC, dbc, rc);

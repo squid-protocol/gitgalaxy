@@ -530,10 +530,14 @@ class Cics:
                 length = (
                     self.int_(_arg(opts["LENGTH"])) if opts.get("LENGTH") else str(self.size(_arg(opts["COMMAREA"])))
                 )
-                out += [f"{ind}{cls} {ca} = out_{cls}({f}.storage(), {f}.offset());",
-                        f"{ind}String {r} = task.link({prog}, {ca}, {length});",
+                # #4181: the target's DTO over the caller's storage from the area on, never past its record's end
+                w = g.tmpname("cw")
+                out += [f"{ind}Storage {w} = Cobol.commarea({f}, {self.gp.dto(cls).size});",
+                        f"{ind}{cls} {ca} = out_{cls}({w}, 0);",
+                        # #4181 follow-up: the bytes too (by reference), every one the target's DTO does not name
+                        f"{ind}String {r} = task.link({prog}, {ca}, {length}, {w}.bytes);",
                         # what the linked program left in the COMMAREA is the caller's area now
-                        f"{ind}if (\"NORMAL\".equals({r})) in_{cls}({ca}, {f}.storage(), {f}.offset());"]  # fmt: skip
+                        f"{ind}if (\"NORMAL\".equals({r})) {{ in_{cls}({ca}, {w}, 0); Cobol.commareaBack({w}, {f}); }}"]  # fmt: skip
             else:
                 out.append(f"{ind}String {r} = task.link({prog});")
             ex = g.tmpname("exit")

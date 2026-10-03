@@ -370,3 +370,17 @@ CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([" + ID_START + r"][" + ID_CONTINUE +
 CALLS_OUT_COMMAND_POSITION = re.compile(
     r"(?m)^[ \t]*([" + ID_START + r"][" + ID_CONTINUE + r":-]*)(?<=[" + ID_CONTINUE + r"])(?![" + ID_CONTINUE + r"])"
 )
+
+# #4171: dead_code in a `;`-terminated C-family language -- a commented-out STATEMENT, not only a keyword-led line:
+# a call, an assignment, or a declaration, ending in `;` (prose rarely does). A capitalised type needs an
+# initializer (`// Load data;` stays prose); a primitive or inferred type may stand alone (`// int x;`).
+# Each alternative is bounded by the line (no `\n`), so the pattern stays linear. Placed after a comment marker.
+COMMENTED_STATEMENT = (
+    r"(?:[A-Za-z_$][\w$]*(?:(?:\.|->|::)[A-Za-z_$][\w$]*)*\([^\n;]*\)"
+    r"|[A-Za-z_$][\w$]*(?:(?:\.|->)[A-Za-z_$][\w$]*|\[[^\n\]]*\])*[ \t]*[-+*/%&|^]?=(?!=)[^\n;]+"
+    r"|[A-Z][\w$]*(?:<[^\n>;]*>)?(?:\[\])*[ \t]+[a-z_$][\w$]*[ \t]*=(?!=)[^\n;]+"
+    r"|(?:int|long|short|byte|char|boolean|bool|float|double|var|let|const|auto|string|unsigned)"
+    r"(?:\[\])*[ \t]+[a-z_$][\w$]*[ \t]*(?:=(?!=)[^\n;]+)?"
+    r")[ \t]*;"
+)
+COMMENTED_STATEMENT_C_FAMILY = r"(?<![/*])(?://|/\*)[ \t]*" + COMMENTED_STATEMENT  # (not a `///` doc line)

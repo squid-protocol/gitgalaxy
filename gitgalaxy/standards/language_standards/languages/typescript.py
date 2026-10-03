@@ -15,6 +15,7 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC,
+    COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_LLM_ORCHESTRATOR,
@@ -696,7 +697,11 @@ DEFINITION: dict[str, Any] = {
         # is `standard_block` (both `//` and `/* */` are real comment
         # styles), but this only ever checked `//` -- a block-commented-out
         # function/class (`/* function foo() {} */`) was invisible.
-        "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"),
+        "dead_code": re.compile(
+            r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/**` and the JSDoc/TSDoc tags (`@param`,
         # `@return`, ...) were independent alternatives, so one doc block

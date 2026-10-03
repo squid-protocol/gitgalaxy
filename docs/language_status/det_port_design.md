@@ -59,6 +59,16 @@ entry), proven by the same harness. It is *faithful by construction*, not idioma
 - **Boundaries convert.** Where the program meets the generated project -- a file READ / WRITE (entities'
   `fromRecord` / `toRecord`), a CICS command (`CicsTask`), DISPLAY (`Sysout`), an abend (`CobolAbend`) -- the
   translator emits the conversion between storage bytes and the generated classes.
+- **Items are declared where they are bound.** Each data item's `Field` is one line,
+  `private final Field acctId = Field.zoned(s_ACCOUNT_RECORD, 0, 11, 0, false, false, false);`, in record order after
+  its storage (until 2026-10 a declaration list plus `fields0()..fieldsN()` init chunks: two lines per item; merging
+  them took 20.7% of the code lines off the 50 cases' ports; the largest constructor, COACTUPC's 1,332 items, is well
+  inside the JVM's 64 KB method limit).
+- **Condition-names are named methods.** An 88's test (without subscripts) is emitted once as
+  `private boolean isApplAok()`, documented with its lineage (`/** 88 APPL-AOK of APPL-RESULT. */`), and called at each
+  use. It is the same expression the use site held, so behaviour does not change; it is a readability rule, not a size
+  one (+0.4% code lines on its own: each test was already one expression). `det_parity.py` counts paragraph methods
+  only, so these do not count as methods.
 - **Holes are explicit.** A statement the translator does not handle becomes
   `throw new Hole("line N: <statement>")`; the measurement counts it as untranslated.
 
@@ -303,7 +313,9 @@ property for used to reach the port as nothing. It is now refused by name. ABNDP
 cases were checked: none drops a field.
 
 GenApp's error paths (DUPREC, NOTFND, injected faults) all LINK to LGSTSQ first, which the one-program cases do
-not run: they are not exercised (the harness refuses a scenario that reaches such a LINK). The CBSA cases cover
+not run. A case scenario that reaches such a LINK is refused. Since #4173 an SQL-fault task that reaches it is judged
+up to and including the LINK (its events and the COMMAREA bytes it passes, byte for byte), its end state not compared
+(register X6, M2). The CBSA cases cover
 their error paths, ABNDPROC's DUPREC among them. No case here browses, so EBCDIC vs ASCII key order is still not
 exercised.
 
@@ -469,8 +481,16 @@ NULL is distinct.
     the equivalence test's, around each task; a deployment must give each task the same unit of work. A batch
     program's repositories autocommit, so a batch ROLLBACK is a hole (register Q3). A file defined `RECOVERY(NONE)`
     in the CSD keeps its changes through a backout on both sides.
-  - The harness has no SQL fault injection yet (register M2): Db2 error paths are reached only where a scenario's
-    data produces the error (a duplicate key, a foreign-key refusal, +100).
+  - SQL faults (#4173, register M2): each statement is keyed `PROGRAM:LINE` (its EXEC SQL's line in the file it is
+    written in), the key every DetSql call carries; a fault plan skips that execution on both sides (ggsql.c,
+    DetSql) with its SQLCODE. `equivalence.py run --sql-faults auto` (the default) adds a task per statement the
+    case's tasks executed: -803 for an INSERT, +100 for a SELECT INTO, -913 for the rest. Branches covered rose on 14
+    of the 17 Db2 cases (LGACDB01 6/14 → 8/14, LGUPDB01 17/38 → 26/38, DELACC 10/14 → 13/14).
+  - What the proofs found (#4173): a LINK whose area is shorter than the target's contract DTO read past the caller's
+    record (#4181: GenApp's 71-byte ERROR-MSG as LGSTSQ's 99-byte CA-ERROR-MSG); and a contract DTO typed from another
+    caller's record dropped the bytes it does not name (ERROR-MSG's date, under CA-ERROR-MSG's FILLER). A LINK now
+    reads to the end of the caller's record only (`Cobol.commarea`, register X10) and a det caller passes the bytes
+    themselves (`CicsTask.link(..., area)`).
 
 ## In port_runner
 

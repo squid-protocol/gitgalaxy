@@ -118,6 +118,7 @@ epic #813), not that no cases exist.
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
 | **[db2_sql](db2_sql.md)** | production | multi_style_dash | 43/53 | | 141 | **written** (#2511) |
 | dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |
+| easytrieve | production | line_exclusive | 11/35 | | | not written |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | [embedded_python.md](embedded_python.md) |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |

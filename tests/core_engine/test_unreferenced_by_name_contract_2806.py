@@ -368,8 +368,9 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
         "apex",
         "livecode",
         "batch",
+        "easytrieve",
     }
-    assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol", "batch"}
+    assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol", "batch", "easytrieve"}
 
 
 def test_a_case_insensitive_language_sees_a_differently_cased_call():

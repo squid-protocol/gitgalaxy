@@ -175,6 +175,7 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "db2_sql": (True, False, True, True),
     "dart": (True, False, True, True),
     "dockerfile": (False, False, True, False),  # RUN lines are shell; ARG/ENV are global
+    "easytrieve": (True, False, True, False),  # files and reports are global
     "fortran": (True, False, False, False),  # IMPLICIT NONE is not the default; bounds unchecked
     "glsl": (True, False, True, True),
     "go": (True, False, True, True),  # errors are values; ignoring one is legal
@@ -988,6 +989,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "db2_sql",
             "hlasm",
             "fortran",
+            "easytrieve",
             "micropython",
             "objective-c",
         },

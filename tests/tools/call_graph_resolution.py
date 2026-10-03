@@ -315,6 +315,7 @@ def score_typescript(samples: int = 0) -> dict[str, Any]:
 def score_cobol() -> dict[str, Any]:
     sys.path.insert(0, str(TOOLS))
     import mainframe_corpus as mc
+    from cobol_answer_key import keyed_dead, keyed_unit_name, keyed_units, sibling_at
 
     out: dict[str, Any] = {}
     for corpus in mc.load_manifest():
@@ -330,14 +331,16 @@ def score_cobol() -> dict[str, Any]:
         programs = key.get("programs", {})
         c = collections.Counter()
         bad: list[str] = []
-        for sp, sn, _sl, _callee, step, dp, dn, dl, _kind in _links(dbs[-1]):
+        for sp, sn, sl, _callee, step, dp, dn, dl, _kind in _links(dbs[-1]):
             prog = programs.get(sp)
             if prog is None or step not in CONFIDENT:
                 continue
             c["links"] += 1
-            units = {(u["name"].upper(), int(u["line"])) for u in prog.get("units", [])}
-            dead = {n.upper() for n in (prog.get("dead") or {})}
-            if dp != sp:
+            # #4206: a sibling program's units are `PROG:NAME`, placed by line.
+            units = {(u["name"].upper(), int(u["line"])) for u in keyed_units(prog)}
+            dead = {n.upper() for n in keyed_dead(prog)}
+            dn = keyed_unit_name(prog, str(dn).upper(), int(dl))
+            if dp != sp or sibling_at(prog, int(sl or 0)) != sibling_at(prog, int(dl)):
                 c["other_program"] += 1
                 bad.append(f"{sp}:{sn} -> {dp}:{dn}")
             elif (str(dn).upper(), int(dl)) not in units:

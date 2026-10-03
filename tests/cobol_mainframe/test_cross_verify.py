@@ -181,3 +181,32 @@ def test_census_sign_covers_only_its_batch_and_coverage_reports_the_rest():
     assert signed["cross_verification"][-1]["mode"] == "census"
     cov = cv.coverage(signed)
     assert cov["programs"] == [2, 7] and "B.cbl" in cov["missing"]
+
+
+def test_census_asks_about_sibling_programs_units_by_program():
+    """#4206: a multi-program source's siblings are censused too, their units asked
+    as PROG:NAME (siblings repeat MAINLINE) with the rule that says what that means,
+    graded against each sibling's own dead verdicts, and counted in coverage."""
+    key = copy.deepcopy(KEY)
+    key["programs"]["B.cbl"]["siblings"] = {
+        "PROGS": {
+            "line": 10,
+            "end_line": 20,
+            "nested_in": None,
+            "units": [
+                {"name": "MAIN", "kind": "section", "line": 11},
+                {"name": "GONE", "kind": "paragraph", "line": 15},
+            ],
+            "dead": {"GONE": {"reason": "r", "trivial": False}},
+        }
+    }
+    brief, truth = cv.build_census(key, REPO, ["B.cbl"], 1, 1)
+    assert [(t["unit"], t["reachable"]) for t in truth["A"]] == [
+        ("MAIN", True),
+        ("OTHER", True),
+        ("PROGS:MAIN", True),
+        ("PROGS:GONE", False),
+    ]
+    assert cv.SIBLING_RULES in brief and "PROGS:GONE" in brief
+    assert cv.SIBLING_RULES not in cv.build_census(KEY, REPO, ["B.cbl"], 1, 1)[0]
+    assert cv.coverage(key)["units"] == [0, 8]

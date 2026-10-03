@@ -62,6 +62,7 @@ from typing import Any, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import mainframe_corpus as mc  # noqa: E402
+from cobol_answer_key import keyed_dead, keyed_units  # noqa: E402 -- #4206: sibling programs' units
 
 REPO_ROOT = mc.REPO_ROOT
 
@@ -69,6 +70,12 @@ FIXED_FORMAT_RULES = """COBOL fixed-format rules to apply: columns 1-6 are a seq
 the indicator ('*' or '/' = comment line, ignore the whole line), Area A is columns 8-11 (paragraph and section
 headers start there), columns 73-80 are an identification area (ignore). A paragraph header's separator period may
 appear on a following line. The same paragraph name may be declared twice while nothing references it."""
+
+# #4206: added to a brief only when it asks about a unit of a sibling program.
+SIBLING_RULES = """A source file may hold several programs, each from its own IDENTIFICATION DIVISION to its END PROGRAM
+(a program can also be nested inside another one). A unit written PROG:NAME is unit NAME of program PROG in that
+file, and its entry point is the start of PROG's own PROCEDURE DIVISION; a bare unit name belongs to the file's first
+program. Control never passes between programs by PERFORM, GO TO or fall-through."""
 
 REACH_RULES = """Decide from control STRUCTURE only: treat every IF / EVALUATE / PERFORM UNTIL condition as able to
 be true or false, and do not reason about what values data items can hold. Count as reaching a unit: PERFORM X; PERFORM A THRU B (every unit from A to B inclusive, but only as far as
@@ -106,7 +113,7 @@ def key_answers(
     b_set = set(progs) if b_programs is None else set(b_programs)
     return {
         "A": [
-            {"n": i + 1, "program": p, "unit": n, "reachable": n not in progs[p]["dead"]}
+            {"n": i + 1, "program": p, "unit": n, "reachable": n not in keyed_dead(progs[p])}
             for i, (p, n) in enumerate(units)
         ],
         "B": {p: v["program_id"] for p, v in sorted(progs.items()) if p in b_set},
@@ -127,8 +134,10 @@ def build(key: dict[str, Any], repo: Path, live: int, programs: int, seed: int) 
     """(brief markdown, truth). Deterministic for a given key and seed."""
     rng = random.Random(seed)
     progs = key["programs"]
-    dead = sorted((p, n) for p, v in progs.items() for n in v["dead"])
-    live_pool = sorted({(p, u["name"]) for p, v in progs.items() for u in v["units"] if u["name"] not in v["dead"]})
+    dead = sorted((p, n) for p, v in progs.items() for n in keyed_dead(v))
+    live_pool = sorted(
+        {(p, u["name"]) for p, v in progs.items() for u in keyed_units(v) if u["name"] not in keyed_dead(v)}
+    )
     units = dead + rng.sample(live_pool, min(max(live, len(dead)), len(live_pool)))
     rng.shuffle(units)
     sample = sorted(rng.sample(sorted(progs), min(programs, len(progs))))
@@ -141,11 +150,11 @@ def build(key: dict[str, Any], repo: Path, live: int, programs: int, seed: int) 
 def census_batches(key: dict[str, Any], max_units: int) -> list[list[str]]:
     """Every program, packed whole into batches of about `max_units` units
     (a program larger than that gets a batch of its own), largest first."""
-    progs = sorted(key["programs"], key=lambda p: (-len(key["programs"][p]["units"]), p))
+    progs = sorted(key["programs"], key=lambda p: (-len(keyed_units(key["programs"][p])), p))
     batches: list[list[str]] = []
     sizes: list[int] = []
     for p in progs:
-        n = len({u["name"] for u in key["programs"][p]["units"]})
+        n = len({u["name"] for u in keyed_units(key["programs"][p])})
         for i, size in enumerate(sizes):
             if size + n <= max_units:
                 batches[i].append(p)
@@ -164,7 +173,7 @@ def build_census(key: dict[str, Any], repo: Path, batch: list[str], index: int, 
     units: list[tuple[str, str]] = []
     for p in batch:
         seen: set[str] = set()
-        for u in key["programs"][p]["units"]:
+        for u in keyed_units(key["programs"][p]):
             if u["name"] not in seen:
                 seen.add(u["name"])
                 units.append((p, u["name"]))
@@ -190,19 +199,20 @@ def render(
     ul = "\n".join(f"{t['n']}. {repo / t['program']} :: {t['unit']}" for t in truth["A"])
     listing = "\n".join(str(repo / p) for p in sample)
     all_progs = "\n".join(str(repo / p) for p in truth["B"])
+    rules = FIXED_FORMAT_RULES + ("\n\n" + SIBLING_RULES if any(":" in t["unit"] for t in truth["A"]) else "")
     brief = f"""You are independently verifying facts about real IBM mainframe COBOL source code, as a second reviewer.
 Read the source files yourself. They are all under the repository root {repo} (absolute paths below);
 read only inside that directory. Do NOT edit or create any files except your answers file, and do not look for any
 existing answer key or analysis of this code: the point is an independent reading. Read the COBOL source directly
 (grep/sed/cat or a file reader).
 
-{FIXED_FORMAT_RULES}
+{rules}
 
 TASK A -- reachability. For each numbered PROCEDURE DIVISION unit (paragraph or section), decide whether control can
 EVER reach it when the program runs from its entry point (the start of the PROCEDURE DIVISION). {REACH_RULES}
 {ul}
 
-TASK B -- PROGRAM-ID. For each file, the program name its PROGRAM-ID paragraph declares:
+TASK B -- PROGRAM-ID. For each file, the program name its (first) PROGRAM-ID paragraph declares:
 {all_progs}
 
 TASK C -- copybooks. For each file below, every COPY member and every EXEC SQL INCLUDE member that is not commented
@@ -377,8 +387,8 @@ def coverage(key: dict[str, Any]) -> dict[str, Any]:
     """How much of the key a clean blind census has covered: programs and units."""
     progs = key["programs"]
     done = [p for p, v in progs.items() if v["verification"].get("census")]
-    units = sum(len({u["name"] for u in v["units"]}) for v in progs.values())
-    units_done = sum(len({u["name"] for u in progs[p]["units"]}) for p in done)
+    units = sum(len({u["name"] for u in keyed_units(v)}) for v in progs.values())
+    units_done = sum(len({u["name"] for u in keyed_units(progs[p])}) for p in done)
     return {
         "programs": [len(done), len(progs)],
         "units": [units_done, units],

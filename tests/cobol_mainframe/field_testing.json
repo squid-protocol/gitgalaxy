@@ -702,7 +702,7 @@
       "severity": "fact",
       "found_by": "ledger",
       "issue": 4204,
-      "summary": "A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231."
+      "summary": "A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231. Root cause: the item lives in EPSMTOUT, nested in EPSMTCOM, which EPSCMORT COPYs under both W-COMMUNICATION-AREA and DFHCOMMAREA; storage spans were keyed by item, so the second placement overwrote the first and a qualifier naming the first never matched (17 qualified data flows on this estate were unresolved)."
     },
     {
       "id": "D039",
@@ -716,6 +716,20 @@
       "found_by": "ledger",
       "issue": 4205,
       "summary": "MOVE ALL X'..' (a hexadecimal figurative) is not recorded as a data move: IBM DBB EPSCSMRD L1457 (ALL X'00') and L3452 (ALL X'FF')."
+    },
+    {
+      "id": "D040",
+      "estate": null,
+      "after_round": 7,
+      "side": "engine",
+      "fields": [
+        "units"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "scan of CobolCraft (GnuCOBOL free-format; not a mainframe estate)",
+      "issue": 4203,
+      "summary": "In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it."
     }
   ],
   "fields": {

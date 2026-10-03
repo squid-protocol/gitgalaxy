@@ -4536,6 +4536,10 @@ class GalaxyIR:
             return cache[(ef.file_path, id(ef))][0]
         spans: dict = {}
         paths: dict = {}  # id(item) -> the names of its storage ancestors, innermost first
+        # id(item) -> [(item, span, path)]: EVERY placement of the item. A copybook COPYed under
+        # two records (IBM DBB EPSCMORT: `COPY EPSMTCOM.` under W-COMMUNICATION-AREA and DFHCOMMAREA) lays the
+        # same item objects out twice, and `spans` / `paths` keep only the last placement (#4204).
+        placed: dict = {}
         items: dict = {}  # record key -> [(offset, bytes, depth, name)]
 
         def walk(
@@ -4571,6 +4575,7 @@ class GalaxyIR:
             # One occurrence's width rides along: a subscripted reference moves one.
             spans[id(it)] = (key, offset, total, None if total is None else total // times)
             paths[id(it)] = path
+            placed.setdefault(id(it), []).append((it, spans[id(it)], path))
             items.setdefault(key, []).append((offset, total, len(path), it.name))
             return total
 
@@ -4585,6 +4590,7 @@ class GalaxyIR:
                     times = it.occurs_max or 1
                     spans[id(it)] = (key, (off or 0) // 8, width, None if width is None else width // times)
                     paths[id(it)] = path
+                    placed.setdefault(id(it), []).append((it, spans[id(it)], path))
                     items.setdefault(key, []).append(((off or 0) // 8, width, len(path), it.name))
                     for kid in children.get(id(it), []):
                         if kid in it.children:  # not the members a LIKE borrows: those are the base's
@@ -4594,6 +4600,7 @@ class GalaxyIR:
             cache[(ef.file_path, id(ef))] = (spans, ef)
             self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
             self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
+            self.__dict__.setdefault("_span_placed", {})[ef.file_path] = placed
             return spans
         fd_first: dict = {}
         for root in ef.records:
@@ -4611,6 +4618,7 @@ class GalaxyIR:
         cache[(ef.file_path, id(ef))] = (spans, ef)  # ef held so its id is never reused
         self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
         self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
+        self.__dict__.setdefault("_span_placed", {})[ef.file_path] = placed
         return spans
 
     def _name_at(self, file_path: str, span: dict) -> Optional[str]:
@@ -4636,23 +4644,26 @@ class GalaxyIR:
             return None, "unresolved"
         parts = operand.upper().split(" OF ")
         spans = self._storage_spans(ef)
-        paths = self.__dict__["_span_paths"][ef.file_path]
-        found = self._find_item(ef, parts[0], None)
         if len(parts) > 1:
             # Qualifiers are matched against the STORAGE ancestors, so a copybook
             # item expanded under the program's own group (`01 DFHCOMMAREA.` + `COPY
             # PAYDBCR.`) answers to that group, which its copybook never names. Every
-            # same-named item is a candidate, the program's own and each copybook's.
-            owners = [ef, *self._copy_files(ef)]
+            # placement of a same-named item is a candidate: the program's own, each
+            # copybook's, a nested COPY's, and each record a copybook is COPYed under
+            # (#4204: IBM DBB EPSCMORT's `EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA` lives
+            # in EPSMTOUT, nested in EPSMTCOM, which is COPYed under both
+            # W-COMMUNICATION-AREA and DFHCOMMAREA).
             found = [
-                (o, it, None)
-                for o in owners
-                for it in o.data_items
-                if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], paths.get(id(it), ()))
+                (it, sp)
+                for at in self.__dict__["_span_placed"][ef.file_path].values()
+                for it, sp, path in at
+                if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], path)
             ]
+        else:
+            found = [(it, spans.get(id(it))) for _, it, _ in self._find_item(ef, parts[0], None)]
         if not found:
             return None, ("system" if _SYSTEM_NAME.match(parts[0]) else "unresolved")
-        hits = {spans[id(it)]: it for _, it, _ in found if id(it) in spans}
+        hits = {sp: it for it, sp in found if sp is not None}
         if len(hits) != 1:
             return None, ("ambiguous" if len(hits) > 1 else "unresolved")
         (key, offset, size, unit), item = next(iter(hits.items()))

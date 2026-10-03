@@ -51,6 +51,16 @@ def test_move_forms():
     ]
 
 
+def test_move_all_of_a_prefixed_literal_is_a_figurative_move():
+    # #4205 (IBM DBB EPSCSMRD L1457 / L3452): ALL + a hexadecimal literal is a figurative constant.
+    src = _program("MOVE ALL X'00' TO HASH-TOKEN.", "MOVE ALL x'FF' TO INSTRUCTIONS.", "MOVE ALL N'A' TO WS-N.")
+    assert _rows(src) == [
+        (7, "MOVE", "ALL X'00'", "figurative", "HASH-TOKEN"),
+        (8, "MOVE", "ALL x'FF'", "figurative", "INSTRUCTIONS"),
+        (9, "MOVE", "ALL N'A'", "figurative", "WS-N"),
+    ]
+
+
 def test_arithmetic_string_unstring_initialize():
     src = _program(
         "COMPUTE WS-T ROUNDED = WS-A * FUNCTION NUMVAL(WS-B) + 1",

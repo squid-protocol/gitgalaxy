@@ -128,8 +128,17 @@ _RESERVED_END = {
 # real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
 # (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
 _PERFORM = re.compile(rf"(?<![\w-])PERFORM\s+({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?")
+# #4206: `XML PARSE ... PROCESSING PROCEDURE [IS] A [THRU B]` runs A..B for each
+# parser event and returns, like a PERFORM (DBB EPSCSMRI's XML-HANDLER).
+_PROCESSING_PROCEDURE = re.compile(
+    rf"(?<![\w-])PROCESSING\s+PROCEDURE\s+(?:IS\s+)?({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?"
+)
 _ALTER = re.compile(rf"(?<![\w-])ALTER\s+({NAME})\s+TO\s+(?:PROCEED\s+TO\s+)?({NAME})")
-_GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?((?:{NAME}\s*)+)")
+# #4206: the target run is read in a lookahead, so it consumes nothing: a run of
+# names also spans the statements after it, and a consuming match swallowed every
+# later GO TO in that run (DBB EPSCSMRI `... OF DFHCOMMAREA GO TO X000000CC ...
+# DEPENDING ON ELE-CON-LEN`, whose targets all read as dead).
+_GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?(?=((?:{NAME}\s*)+))")
 _SENTENCE_END = re.compile(r"\.(?=\s|$)")
 _TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{NAME})\s*$")
 _SELECT = re.compile(rf"\bSELECT\s+(?:OPTIONAL\s+)?({NAME})\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$-]+)")
@@ -357,15 +366,142 @@ def _operand_name(src: Source) -> str:
 # ==============================================================================
 # Units and reachability
 # ==============================================================================
-def _units(src: Source) -> list[dict[str, Any]]:
+_ID_DIVISION = re.compile(r"^(?:IDENTIFICATION|ID)\s+DIVISION\s*\.")
+_END_PROGRAM = re.compile(r"^END\s+PROGRAM\s+['\"]?([A-Z0-9@#$-]+)")
+_PROGRAM_ID = re.compile(r"\bPROGRAM-ID\.?\s+['\"]?([A-Z0-9@#$-]+)")
+
+
+def program_spans(src: Source) -> list[dict[str, Any]]:
+    """#4206: every program in a COBOL source, in source order. A batch-compiled
+    source holds sibling programs, each `IDENTIFICATION DIVISION ... END PROGRAM`;
+    an IDENTIFICATION DIVISION met while a program is still open starts a program
+    nested in it (DBB `epscsmrd.cbl`: EPSCSMRC contains XCHRFLTR and XWSPFLTR).
+
+    Each span has `program_id`, `line` (its IDENTIFICATION DIVISION), `end_line`
+    (its END PROGRAM, or the last line), `nested_in`, and the `proc`..`stop` slice
+    of `src.lines` holding its own PROCEDURE DIVISION code: from after the
+    division header sentence to its END PROGRAM or its first nested program."""
+    spans: list[dict[str, Any]] = []
+    open_: list[dict[str, Any]] = []
+    starts: list[int] = []
+    for i, (no, area) in enumerate(src.lines):
+        head = area.strip()
+        area_a = bool(head) and len(area) - len(area.lstrip(" ")) < 4
+        if area_a and _ID_DIVISION.match(head):
+            if open_ and open_[-1]["stop"] is None:
+                open_[-1]["stop"] = i
+            span = {
+                "program_id": None,
+                "line": no,
+                "end_line": None,
+                "nested_in": spans.index(open_[-1]) if open_ else None,  # named after the loop
+                "proc": None,
+                "stop": None,
+            }
+            spans.append(span)
+            open_.append(span)
+            starts.append(i)
+            continue
+        if not open_:
+            continue
+        top = open_[-1]
+        if area_a and _END_PROGRAM.match(head):
+            top["end_line"] = no
+            if top["stop"] is None:
+                top["stop"] = i
+            open_.pop()
+            continue
+        if (
+            top["proc"] is None
+            and top["stop"] is None
+            and re.search(r"\bPROCEDURE\s+DIVISION\b", _blank_literals(area))
+        ):
+            j = i
+            while j < len(src.lines) and not _SENTENCE_END.search(_blank_literals(src.lines[j][1])):
+                j += 1
+            top["proc"] = j + 1
+    for span in open_:
+        span["end_line"] = src.lines[-1][0]
+        if span["stop"] is None:
+            span["stop"] = len(src.lines)
+    for span, start in zip(spans, starts):
+        # Read over the header lines joined: the name may sit on the line after
+        # `PROGRAM-ID.` (#3418).
+        head_end = next((x for x in (span["proc"], span["stop"]) if x is not None), len(src.lines))
+        m = _PROGRAM_ID.search("\n".join(a for _, a in src.lines[start:head_end]))
+        span["program_id"] = m.group(1) if m else None
+    for span in spans:
+        if span["nested_in"] is not None:
+            span["nested_in"] = spans[span["nested_in"]]["program_id"]
+    return spans
+
+
+def sibling_unit(program_id: str, name: str) -> str:
+    """#4206: how a unit of a source's second or later program is named in a score
+    pair or a census claim. Siblings repeat names (each has a MAINLINE SECTION),
+    so a bare name means the file's first program, and `PROG:NAME` any other.
+    A colon never occurs in a COBOL name."""
+    return f"{program_id}:{name}"
+
+
+def keyed_units(prog: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every unit of a key entry, its siblings' as `PROG:NAME` (#4206)."""
+    out = list(prog["units"])
+    for pid, s in prog.get("siblings", {}).items():
+        out += [{**u, "name": sibling_unit(pid, u["name"])} for u in s["units"]]
+    return out
+
+
+def keyed_dead(prog: dict[str, Any]) -> dict[str, Any]:
+    """Every dead verdict of a key entry, its siblings' as `PROG:NAME` (#4206)."""
+    out = dict(prog["dead"])
+    for pid, s in prog.get("siblings", {}).items():
+        out.update({sibling_unit(pid, n): v for n, v in s["dead"].items()})
+    return out
+
+
+def sibling_at(prog: dict[str, Any], line: int) -> Optional[str]:
+    """The innermost sibling program whose lines hold `line`, or None for the
+    entry's own (first) program (#4206)."""
+    inside = [(s["line"], pid) for pid, s in prog.get("siblings", {}).items() if s["line"] <= line <= s["end_line"]]
+    return max(inside)[1] if inside else None
+
+
+def keyed_unit_name(prog: dict[str, Any], name: str, line: int) -> str:
+    """A parser's unit `name` at `line`, named the way `keyed_units` names it (#4206)."""
+    pid = sibling_at(prog, line)
+    return sibling_unit(pid, name) if pid else name
+
+
+def bare_units(prog: dict[str, Any]) -> set[str]:
+    """Every unit name in the entry's source, whichever program declares it: what
+    a parser that reads a file as one program can be checked against (#4206)."""
+    return {u["name"] for u in prog["units"]} | {
+        u["name"] for s in prog.get("siblings", {}).values() for u in s["units"]
+    }
+
+
+def bare_dead(prog: dict[str, Any]) -> set[str]:
+    """The bare names dead in EVERY program that declares them (#4206): a name a
+    sibling still reaches is not dead code in the file."""
+    progs = [prog, *prog.get("siblings", {}).values()]
+    return {
+        n for n in bare_units(prog) if all(n in p["dead"] for p in progs if any(u["name"] == n for u in p["units"]))
+    }
+
+
+def _units(src: Source, start: Optional[int] = None, stop: Optional[int] = None) -> list[dict[str, Any]]:
     """Paragraph/section headers in Area A of the PROCEDURE DIVISION, with bodies.
 
     An implicit unit holds any statements between the division header and the
-    first named header (the program's unnamed first paragraph)."""
-    if src.proc_start is None:
+    first named header (the program's unnamed first paragraph). `start`/`stop`
+    scope it to one program's `src.lines` slice (#4206, `program_spans`); the
+    default is the first PROCEDURE DIVISION to the end of the file."""
+    start = src.proc_start if start is None else start
+    if start is None:
         return []
     units: list[dict[str, Any]] = [{"name": None, "kind": "implicit", "line": None, "body": []}]
-    lines = src.lines[src.proc_start :]
+    lines = src.lines[start:stop]
     for i, (no, area) in enumerate(lines):
         lead = len(area) - len(area.lstrip(" "))
         head = area.strip()
@@ -411,9 +547,11 @@ _CONDITIONAL_PHRASE = re.compile(
     r"(?<![\w-])(?:(?:NOT\s+)?(?:AT\s+)?(?:END|END-OF-PAGE|EOP)|(?:NOT\s+)?INVALID\s+KEY"
     r"|(?:NOT\s+)?(?:ON\s+)?(?:SIZE\s+ERROR|OVERFLOW|EXCEPTION))(?![\w-])"
 )
+# #4206: END-XML / END-JSON / END-INVOKE close an ON EXCEPTION phrase too (DBB
+# EPSCSMRI MAINLINE `XML PARSE ... ON EXCEPTION ... END-XML GOBACK.` never falls through).
 _PHRASE_SCOPE_END = re.compile(
     r"\bEND-(?:READ|RETURN|WRITE|REWRITE|DELETE|START|ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE|CALL|STRING"
-    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY)\b"
+    r"|UNSTRING|SEARCH|ACCEPT|DISPLAY|XML|JSON|INVOKE)\b"
 )
 
 
@@ -458,7 +596,12 @@ def _sentence_is_terminal(sentence: str) -> bool:
     if sentence.endswith("END-EXEC"):
         start = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
         return bool(start) and re.match(r"EXEC\s+CICS\s+(RETURN|XCTL|ABEND)\b", sentence[start[-1] :]) is not None
-    return _TERMINAL_TAIL.search(sentence) is not None and " DEPENDING " not in sentence
+    # A GO TO ... DEPENDING ON falls through when its index is out of range, so it
+    # ends nothing; a plain transfer AFTER it in the same sentence still does
+    # (#4206, DBB EPSCSMRI `GO TO X..C6 ... DEPENDING ON ROUTING-CODE (HASH-VALUE)
+    # GO TO GENERAL-LOGIC-EXIT .`).
+    tail = _TERMINAL_TAIL.search(sentence)
+    return tail is not None and " DEPENDING " not in sentence[tail.start() :]
 
 
 def _is_terminal(text: str) -> bool:
@@ -536,11 +679,12 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
         while k < len(units):
             reached.setdefault(k, reason)
             u, here = units[k], units[k]["name"] or "(procedure division)"
-            for m in _PERFORM.finditer(u["text"]):
-                if m.group(1) in index:
-                    a = index[m.group(1)]
-                    b = span_end(index[m.group(2)]) if m.group(2) in index else span_end(a)
-                    queue.append((a, b, f"PERFORM from {here}"))
+            for rx, verb in ((_PERFORM, "PERFORM"), (_PROCESSING_PROCEDURE, "XML PARSE PROCESSING PROCEDURE")):
+                for m in rx.finditer(u["text"]):
+                    if m.group(1) in index:
+                        a = index[m.group(1)]
+                        b = span_end(index[m.group(2)]) if m.group(2) in index else span_end(a)
+                        queue.append((a, b, f"{verb} from {here}"))
             for m in _GOTO.finditer(u["text"]):
                 for tok in m.group(1).split():
                     if tok not in index:
@@ -6030,15 +6174,8 @@ def _common_prefix(a: str, b: str) -> list[str]:
     return out
 
 
-def draft_program(
-    path: Path,
-    repo: Path,
-    files: list[Path],
-    pid_to_path: dict[str, list[str]],
-    tx_map: Optional[dict[str, set[str]]] = None,
-) -> tuple[dict[str, Any], dict[str, str]]:
-    src = Source(path)
-    units = _units(src)
+def _named_dead(units: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, str], dict[str, dict[str, Any]]]:
+    """One program's named units, its reach evidence, and its dead verdicts."""
     reached = reachability(units)
     named = [u for u in units if u["name"]]
     dead: dict[str, dict[str, Any]] = {}
@@ -6058,6 +6195,39 @@ def draft_program(
         # An `EXIT.`-only paragraph is dead but carries no logic: a tool that
         # counts it as removable bloat is right about reachability, not about size.
         dead[u["name"]] = {"reason": reason, "trivial": _is_exit_only(body)}
+    return named, reached, dead
+
+
+def draft_program(
+    path: Path,
+    repo: Path,
+    files: list[Path],
+    pid_to_path: dict[str, list[str]],
+    tx_map: Optional[dict[str, set[str]]] = None,
+) -> tuple[dict[str, Any], dict[str, str]]:
+    src = Source(path)
+    # #4206: a source holding several programs keys its first as the entry and the
+    # rest as `siblings`, each with units and dead verdicts read from its own
+    # PROCEDURE DIVISION only (reachability never crosses a program boundary).
+    # The other fields stay file-wide, as the parsers they grade read them.
+    spans = program_spans(src)
+    if len(spans) > 1:
+        units = _units(src, spans[0]["proc"], spans[0]["stop"]) if spans[0]["proc"] is not None else []
+    else:
+        units = _units(src)
+    named, reached, dead = _named_dead(units)
+    siblings: dict[str, dict[str, Any]] = {}
+    for span in spans[1:]:
+        s_units = _units(src, span["proc"], span["stop"]) if span["proc"] is not None else []
+        s_named, s_reached, s_dead = _named_dead(s_units)
+        siblings[span["program_id"]] = {
+            "line": span["line"],
+            "end_line": span["end_line"],
+            "nested_in": span["nested_in"],
+            "units": [{"name": u["name"], "kind": u["kind"], "line": u["line"]} for u in s_named],
+            "dead": s_dead,
+        }
+        reached.update({sibling_unit(span["program_id"], n): why for n, why in s_reached.items()})
 
     copybooks = []
     for rx, via in ((_COPY, "COPY"), (_SQL_INCLUDE, "SQL INCLUDE")):
@@ -6121,6 +6291,7 @@ def draft_program(
         "program_id": src.program_id(),
         "units": [{"name": u["name"], "kind": u["kind"], "line": u["line"]} for u in named],
         "dead": dead,
+        **({"siblings": siblings} if siblings else {}),
         "copybooks": copybooks,
         "files": files_,
         "calls": calls,
@@ -6145,7 +6316,11 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
     programs = sorted(p for p in files if p.suffix.lower() in PROGRAM_EXTS and Source(p).program_id())
     pid_to_path: dict[str, list[str]] = {}
     for p in programs:
-        pid_to_path.setdefault(Source(p).program_id(), []).append(p.relative_to(repo).as_posix())
+        # #4206: a sibling program is called by its own PROGRAM-ID, from its own
+        # source or another one, and binds to the file that holds it.
+        pids = [s["program_id"] for s in program_spans(Source(p)) if s["program_id"]] or [Source(p).program_id()]
+        for pid in dict.fromkeys(pids):
+            pid_to_path.setdefault(pid, []).append(p.relative_to(repo).as_posix())
     tx_map = _key_transactions(repo)  # #3247: repo-wide CSD read, once
     key: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -6166,7 +6341,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         entry, reached = draft_program(p, repo, files, pid_to_path, tx_map)
         key["programs"][rel] = entry
         report += [f"## {rel} ({entry['program_id']})", "", "| unit | line | reached by |", "|---|---|---|"]
-        for u in entry["units"]:
+        for u in keyed_units(entry):
             report.append(f"| {u['name']} | {u['line']} | {reached.get(u['name'], '**DEAD**')} |")
         report.append("")
     return key, "\n".join(report)
@@ -6488,22 +6663,28 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         ef = ir.files.get(rel) if ir else None
 
         add("program_id", rel, {k["program_id"]}, {intent["program_id"]}, set(ef.program_ids[:1]) if ef else None)
+        # #4206: a sibling program's units score as `PROG:NAME`; the engine's units
+        # are placed in a program by their line. The forge reads a file as one
+        # program, so its bare names stand as they are.
         add(
             "units",
             rel,
-            {u["name"] for u in k["units"]},
+            {u["name"] for u in keyed_units(k)},
             old_paragraphs(path, repo),
-            {u.name.upper() for u in ef.units} if ef else None,
+            {keyed_unit_name(k, u.name.upper(), u.start_line) for u in ef.units} if ef else None,
         )
         forge_dead = set(gy.get("dead_paras", set()))
-        engine_dead = {u.name.upper() for u in ef.units if u.usage_status == 1} if ef else None
-        add("dead", rel, set(k["dead"]), forge_dead, engine_dead)
+        engine_dead = (
+            {keyed_unit_name(k, u.name.upper(), u.start_line) for u in ef.units if u.usage_status == 1} if ef else None
+        )
+        key_dead = keyed_dead(k)
+        add("dead", rel, set(key_dead), forge_dead, engine_dead)
         # Only real logic: a tool is not credited, or blamed, for EXIT.-only paragraphs.
-        trivial = {n for n, v in k["dead"].items() if v["trivial"]}
+        trivial = {n for n, v in key_dead.items() if v["trivial"]}
         add(
             "dead (non-trivial)",
             rel,
-            set(k["dead"]) - trivial,
+            set(key_dead) - trivial,
             forge_dead - trivial,
             engine_dead - trivial if engine_dead is not None else None,
         )
@@ -6997,8 +7178,11 @@ def sample_claims(key: dict[str, Any], n: int, seed: int) -> list[dict[str, Any]
     claims: list[dict[str, Any]] = []
     for rel, p in key["programs"].items():
         claims.append({"program": rel, "kind": "program_id", "claim": f"PROGRAM-ID is {p['program_id']}"})
-        live = [u for u in p["units"] if u["name"] not in p["dead"]]
-        for name, d in p["dead"].items():
+        for pid in p.get("siblings", {}):
+            claims.append({"program": rel, "kind": "program_id", "claim": f"the source also holds program {pid}"})
+        dead = keyed_dead(p)
+        live = [u for u in keyed_units(p) if u["name"] not in dead]
+        for name, d in dead.items():
             claims.append({"program": rel, "kind": "dead", "claim": f"{name} is unreachable ({d['reason']})"})
         for u in live:
             claims.append({"program": rel, "kind": "live", "claim": f"{u['name']} (line {u['line']}) is reachable"})

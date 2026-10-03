@@ -76,6 +76,7 @@ LENS_CONFIG: LensConfig = {
         ".dml",
         ".asm",
         ".cmd",
+        ".mac",
     },
     "PROSE_ANCHORS": {
         "README",

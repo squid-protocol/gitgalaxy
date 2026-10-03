@@ -6886,7 +6886,7 @@
   "pli_calls": {},
   "pli_calls_included": [],
   "excluded_programs": {
-    "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": "Nine sibling programs in one source (EPSCSMRD, EPSCSMRF, EPSCSMRX, EPSCSMRI, EPSCSMRJ, ... each ends with END PROGRAM): a generated CICS web-service wrapper. The key holds one program per file and keys dead verdicts by unit name, so the siblings' repeated MAINLINE SECTIONs and their separate entry points cannot be represented; the draft reader also read the later programs' IDENTIFICATION DIVISION paragraphs as units. Left out until the key models multi-program sources (issue filed with this corpus)."
+    "zBuilder/MortgageApplication/cobol/epscsmrd.cbl": "Thirteen programs in one source: eleven batch-compiled siblings (EPSCSMRD, EPSCSMRF, EPSCSMRX, EPSCSMRI, EPSCSMRJ, EPSCSMRA, EPSCSMRO, EPSCSMRC, EPSCSMRK, EPSCSMRL, EPSCSMRE, each ending with END PROGRAM), and XCHRFLTR and XWSPFLTR nested in EPSCSMRC: a generated CICS web-service wrapper. Since #4206 the key models such a source (the first program is the entry, the rest are `siblings`, each with units and dead verdicts from its own PROCEDURE DIVISION, scored as PROG:NAME) and the draft reads it correctly. It stays out until it is censused and the forge's reading of the file as one program (about 1,000 ledger mismatches) has an owning issue."
   },
   "cross_verification": [
     {

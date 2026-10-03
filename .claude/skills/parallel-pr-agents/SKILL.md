@@ -1,6 +1,6 @@
 ---
 name: parallel-pr-agents
-description: Run several subagents in parallel, each landing its own PR against main, without them colliding on worktrees, shared files, or golden masters. Use when the user says "spin up agents for these issues", "work these in parallel", "fan out this roadmap/epic across agents", or is orchestrating several fact-channel/rule-fix/rebase PRs at once (the #3249/#3387 pattern). Covers both what each subagent must do (worktree, commit/PR conventions, additive-only edits, own-drift re-blessing, scratch files, CI watch, report format) and what the orchestrator must do (model tiering, concurrency cap, merge-train order, rebase-after-merge, a background PR-queue monitor, verifying claims). NOT for a single agent working one issue alone (no orchestration concerns), and not a substitute for `add-fact-channel`'s own per-channel spine/checklist.
+description: Run several subagents in parallel, each landing its own PR against main, without them colliding on worktrees, shared files, or golden masters. Use when the user says "spin up agents for these issues", "work these in parallel", "fan out this roadmap/epic across agents", or is orchestrating several fact-channel/rule-fix/rebase PRs at once (the #3249/#3387 pattern). Covers both what each subagent must do (worktree, commit/PR conventions, additive-only edits, own-drift re-blessing, scratch files, CI watch, report format) and what the orchestrator must do (model tiering, concurrency cap, merge-train order, rebase-after-merge, a background PR-queue monitor, verifying claims) and fleet operations (lock tiers, freshness, shared-venv hygiene, stop-cleanup, PID watchers, WIP checkpoints, golden merge trains, load-aware bless, the `gitgalaxy-pr-worker` agent and `tests/tools/box/` tools). NOT for a single agent working one issue alone (no orchestration concerns), and not a substitute for `add-fact-channel`'s own per-channel spine/checklist.
 ---
 
 Lessons from the #3249 round (PRs #3349, #3350, #3357, #3368, #3369, #3375) and the #3383-#3387
@@ -75,3 +75,37 @@ each one recurring, not a general parallel-agent tutorial.
 - **Verify agents' claims before reporting them onward.** An agent's final report describes what it
   intended and believes happened, not a guarantee. Before relaying "PR #NNNN is green and ready,"
   run `gh pr view <n>` and `gh pr checks <n>` yourself and report what CI actually shows.
+
+## Fleet operations
+
+Evidence is the 2026-10-03 multi-agent day; each rule below prevents one thing that went wrong.
+
+**Box tools** (`tests/tools/box/`, bash, usage in each header; lock dir `${GG_LOCK_DIR:-/tmp/gitgalaxy-scratch/locks}`):
+
+| Tool | Use |
+|---|---|
+| `heavy-run.sh <cmd...>` | N shared slots, `N=${GG_HEAVY_SLOTS:-nproc/4}` (min 1). Wrap pr_gates, scans, full suite. |
+| `golden-lock.sh <cmd...>` | Exclusive. Golden bless/check ONLY (`crucible_check.py`). |
+| `kill-by-cwd.sh <dir> [--dry-run]` | Kill processes whose cwd is under a worktree; lists first; never itself/ancestors. |
+| `wait-pids.sh <pid...>` | Block until PIDs exit; prints statuses. |
+
+**Before launch (orchestrator)**
+- [ ] Lock tiers decided and stated in every brief: heavy work -> `heavy-run.sh`, golden -> `golden-lock.sh`, slot count fixed. NEVER change lock policy mid-run: one exclusive lock serialized 10+ jobs behind a 40-min proof sweep while 11/12 cores idled, and an agent that changed the policy mid-run was blocked by the auto-mode classifier ("Interfere With Workloads").
+- [ ] Brief = issue(s) + acceptance criteria + model + coordination notes only; the setup/run/never boilerplate lives in `.claude/agents/gitgalaxy-pr-worker.md` (launch with `subagent_type: gitgalaxy-pr-worker`). Example:
+  `Land #4301 (acceptance: X passes, no golden drift outside rust). Model: sonnet. Merge-train: you are 2nd; #4299 merges first, expect a rebase.`
+- [ ] Merge train for golden-touching PRs: order stated up front, golden/pin-bump PRs LAST, each rebased and re-blessed (own drift only) after the one before it merges.
+- [ ] Cap concurrent agents so a usage-limit cutoff cannot take the fleet at once (it killed 4 agents together; only the one that had pushed WIP lost nothing).
+
+**During the run**
+- [ ] Freshness: `git fetch origin` and re-test on CURRENT origin/main before calling any failure "pre-existing" (agents did so against a main 10 min stale, before #4220). `python tests/tools/pr_gates.py --vs-main` does it and labels each failure "caused by branch" / "pre-existing on main@<sha>".
+- [ ] Never mutate a shared venv (an agent pip-upgraded `~/venvs/galaxy_venv` mid-flight). Need another tool version -> private venv under `/tmp/gitgalaxy-scratch/claude/<slug>/`. Match CI's pins: local mypy passed while CI failed ("Cannot infer type of lambda", #4257). `pr_gates.py` now warns on mypy/ruff/python drift from the workflows and prints the private-venv command.
+- [ ] Catch what CodeQL catches before push (implicit string concat in a list #4241; missing superclass `__init__` #4236): ruff now selects ISC001/002/004 (baseline-gated); no ruff rule exists for missing `super().__init__()`, so re-read every new subclass by hand.
+- [ ] Watchers wait on PIDs (`wait-pids.sh`), never on output files: a watcher hung on files a never-started job would have written.
+- [ ] Checkpoint: push the branch and open a placeholder PR (title `WIP: ...`) early; unpushed work dies with the agent.
+- [ ] Load-aware bless: a bless/check run under load can time out regexes, which fakes diffs (2,911 golden diffs, #4247). Run it under `golden-lock.sh`, and REFUSE to bless if any file was excluded by a timeout in the run output.
+- [ ] Bless ONLY with `golden-lock.sh python tests/tools/crucible_check.py --update --yes` (builds CI-matched venvs per leg). Never run `update_golden_master` from `~/venvs/galaxy_venv` (Python 3.12 vs CI's pin): that produced ~2.9k phantom full-leg diffs on #4258.
+- [ ] After any sibling merge that touches golden masters (e.g. #4240 added snapshot section 12), merge origin/main and re-bless; that is what broke #4258's zero-dep leg.
+- [ ] After ANY sibling merge, re-validate every claim in the PR body (counts, "no drift", "rebased on") and edit it via `gh api -X PATCH repos/squid-protocol/gitgalaxy/pulls/<n> -f body=...` (`gh pr edit` fails on gh 2.45).
+
+**Stopping an agent**
+- [ ] Stop the agent AND its helper subagents, then `kill-by-cwd.sh /nvme-data/projects/gitgalaxy-worktrees/<slug> --dry-run`, review, run without `--dry-run`: stopping an agent left its helper subagent and its queued flock'd pr_gates running. Never `pkill -f <pattern>`: it matched and killed the caller's own shell (exit 144).

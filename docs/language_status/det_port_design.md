@@ -64,6 +64,13 @@ entry), proven by the same harness. It is *faithful by construction*, not idioma
   its storage (until 2026-10 a declaration list plus `fields0()..fieldsN()` init chunks: two lines per item; merging
   them took 20.7% of the code lines off the 50 cases' ports; the largest constructor, COACTUPC's 1,332 items, is well
   inside the JVM's 64 KB method limit).
+- **Only the items the program names get a `Field`.** A `Field` is a view of its storage, built with no side effect,
+  so one that nothing in the class names is dead code and is not emitted (`program.drop_unused_fields`). The storage
+  keeps every byte -- its VALUE image, its length, every group move, record I/O and REDEFINES -- so the proof sees the
+  same bytes. On the 54 cases 10,083 of 17,436 `Field`s were never named (mostly copybook and screen-map items:
+  a map's `L` / `F` / `A` / `I` / `O` views, record fields only moved whole); dropping them took 14.0% of the code
+  lines off the service files (2026-10). The remaining `Field`s keep their item numbers (`f25_APPL_RESULT`), so the
+  numbering shows where unused items were, and the COBOL layout stays in the copybook.
 - **Condition-names are named methods.** An 88's test (without subscripts) is emitted once as
   `private boolean isApplAok()`, documented with its lineage (`/** 88 APPL-AOK of APPL-RESULT. */`), and called at each
   use. It is the same expression the use site held, so behaviour does not change; it is a readability rule, not a size
@@ -420,6 +427,25 @@ PIC S9(9) BINARY`), at +1.0% code lines. `--groups` stays opt-in (+10.7%).
 
 The large programs are ×1.6–2.0 of their COBOL; the ratio is high only for small programs, where the fixed
 service overhead dominates. Token mass and complexity barely move: the removed lines were short boilerplate.
+
+**Unused items (2026-10, measured on all 54 cases, translate-only, typed default).** Counting the lines by kind again
+(main, 53 programs' service files, 65,990 code lines): statements in paragraphs 34.5%, byte `Field` declarations
+24.6%, entry points 11.8%, storage image data 8.9%, PERFORM / GOBACK scaffolding 5.7%. 10,083 of the 17,436 `Field`s
+were named nowhere else in the class. Dropping them is the largest saving that leaves every stored byte in place:
+
+| 53 programs, each program's service file | COBOL | main (typed default) | + unused `Field`s dropped |
+|---|---|---|---|
+| code lines | 24,424 | 65,990 | 56,764 (−14.0%) |
+| code lines ÷ COBOL, median (range) | 1 | ×3.21 (1.6–7.3) | ×2.65 (1.4–6.6) |
+| token mass | 334 K | 2,503 K | 2,243 K (−10.4%) |
+| max function complexity, median / max | 8 / 97 | 25 / 172 | 25 / 172 |
+
+(53 programs: the 49 above plus four merged since, three of them IBM DBB MortgageApplication's.) The
+port-invariance readings do not move (53 pairs: function_count 0.916, struct_branch 0.805, state_flux 0.729, arch_io
+0.884, arch_ipc 0.857, the same as main), and no parity warning appears. Next by size, measured the same way: storage
+images deflated before base64 (~5,000 lines: the image data lines go to about one per storage), the PERFORM /
+GOBACK / PerformExit scaffolding moved into `cobolrt` (~2,600), the CICS EIBAID switch as a runtime table (~700),
+a storage that owns its image (`reset()` for the `arraycopy` line, ~900).
 
 **Typed groups** (`--typed --groups`, no model). B3 types only items whose groups are never used whole, so a
 COMMAREA or a record read INTO stayed byte storage. With `--groups` the items inside such a group are typed too,

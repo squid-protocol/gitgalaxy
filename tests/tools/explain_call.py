@@ -39,6 +39,7 @@ REPO_ROOT = TOOLS.parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
 from gitgalaxy.core import call_resolver as cr  # noqa: E402
+from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor  # noqa: E402
 from gitgalaxy.core.state_rehydrator import StateRehydrator  # noqa: E402
 
 
@@ -121,7 +122,9 @@ def explain(db: Path, spec: str, only: str | None = None) -> str:
     name, line = str(func.get("name")), int(func.get("start_line", 0))
     group = cr._group(lang)
 
-    sites, _ = cr.resolve_calls(parsed, edges)
+    sensor = NetworkRiskSensor()  # #3788: the namespace aliases a scan's import pass resolves
+    sensor.resolve_import_edges(parsed)
+    sites, _ = cr.resolve_calls(parsed, edges, sensor.namespace_aliases)
     mine: dict[str, list[dict[str, Any]]] = {}
     for s in sites:
         if s["src_path"] == path and s["src_line"] == line and s["kind"] == "call":

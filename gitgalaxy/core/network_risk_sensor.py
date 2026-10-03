@@ -180,6 +180,10 @@ class NetworkRiskSensor:
         # as the edge_data table. Deliberately not written into file telemetry
         # or the returned macro metrics -- both reach the audit/GPU JSON exports.
         self.dependency_edges: list[dict[str, Any]] = []
+        # #3788: per importing file, the module each JS/TS namespace alias names
+        # (`import * as ns from "./x"` -> {"ns": <x's path>}) from the latest
+        # _resolve_edges pass; the call resolver reads it for `ns.f()` calls.
+        self.namespace_aliases: dict[str, dict[str, str]] = {}
         # #perf: memoized extension-stripped candidate paths for Stage-2 import
         # disambiguation. On generated SDKs (many files share a stem) a single
         # token matches thousands of candidates, so _resolve_target stripped the
@@ -1127,11 +1131,24 @@ class NetworkRiskSensor:
         folded_maps = self._build_folded_resolution_map(parsed_files)
         file_facts = self._build_file_facts(parsed_files)
         edges: dict[tuple[str, str], dict[str, Any]] = {}
+        self.namespace_aliases = {}
 
         for f in parsed_files:
             curr_path = f.get("path", "")
             fold_lang = self._fold_lang(f)
             src_lang = str(f.get("lang_id", "")).lower()
+            for alias, spec in (f.get("namespace_imports") or {}).items():
+                aliased = self._resolve_target(
+                    spec,
+                    resolution_map,
+                    curr_path,
+                    folded_maps=folded_maps,
+                    fold_lang=fold_lang,
+                    src_lang=src_lang,
+                    file_facts=file_facts,
+                )
+                if aliased and aliased != curr_path:
+                    self.namespace_aliases.setdefault(curr_path, {})[alias] = aliased
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String

@@ -392,6 +392,36 @@ def extract_raw_imports(import_regex: "re.Pattern[str]", content: str, lang_def:
     return tokens
 
 
+# #3788: a JS/TS namespace import binds an ALIAS to a whole module -- `import * as ns from "x"`,
+# `import ns = require("x")`, `const ns = require("x")` -- and `ns.f()` then calls that module's
+# `f`. The alias is rarely the file's name, so the call resolver needs alias -> specifier.
+_NAMESPACE_IMPORT_LANGS = frozenset({"javascript", "typescript"})
+_NAMESPACE_IMPORT = re.compile(
+    r"""(?:\bimport\s+(?:type\s+)?\*\s*as\s+([A-Za-z_$][\w$]*)\s+from"""
+    r"""|\bimport\s+(?:type\s+)?([A-Za-z_$][\w$]*)\s*=\s*require\s*\("""
+    r"""|\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*require\s*\()"""
+    r"""\s*(['"])([^'"\n]{1,300})\4"""
+)
+
+
+def extract_namespace_imports(code: str, lang_id: str) -> dict[str, str]:
+    """#3788: `{alias: module specifier}` for a JS/TS file's namespace imports.
+
+    An alias bound twice to different modules is dropped (the call site cannot say which one
+    it means); the same module twice is kept.
+    """
+    if lang_id not in _NAMESPACE_IMPORT_LANGS or ("as" not in code and "require" not in code):
+        return {}
+    found: dict[str, str] = {}
+    clash: set[str] = set()
+    for m in _NAMESPACE_IMPORT.finditer(code):
+        alias = m.group(1) or m.group(2) or m.group(3)
+        spec = m.group(5)
+        if found.setdefault(alias, spec) != spec:
+            clash.add(alias)
+    return {a: sp for a, sp in found.items() if a not in clash}
+
+
 # #3595: a brace selector group opens right after an import-path separator
 # (`a.b.{`, `a::{`, `A\\{`). Only then is a brace a group; `${VAR}` and an HTML
 # `{{ placeholder }}` are not, and keep the plain comma split.
@@ -934,7 +964,14 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 except Exception:
                     logging.exception("Import extraction failed for language '%s'.", lang_id)
 
+            namespace_imports: dict[str, str] = {}
             if not is_inert:
+                try:
+                    namespace_imports = extract_namespace_imports(
+                        refraction.get("code_stream", content_buffer), lang_id
+                    )
+                except Exception:
+                    logging.exception("Namespace import extraction failed for language '%s'.", lang_id)
                 # #3660: a language's `_declaration_capture` (group 1: the name) over
                 # the code stream, so a commented-out declaration is never indexed.
                 declaration_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_declaration_capture")
@@ -1078,6 +1115,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
             "declared_names": sorted(declared_names),
+            "namespace_imports": namespace_imports,
             # #3813: how the file's bytes became text -- the codec, and whether it was certain
             # (bom / utf-8 / utf-16-heuristic / declared) or a legacy guess (cp1252 / latin-1).
             "source_encoding": source.encoding,
@@ -2443,7 +2481,9 @@ class Orchestrator:
         Runs after the import graph (step 3 of the ladder reads its edges). The
         per-step counts are logged here and kept on `fcall_stats` for #3331.
         """
-        self.fcall_sites, self.fcall_stats = resolve_calls(self.parsed_files, self.network_sensor.dependency_edges)
+        self.fcall_sites, self.fcall_stats = resolve_calls(
+            self.parsed_files, self.network_sensor.dependency_edges, self.network_sensor.namespace_aliases
+        )
         by_step = self.fcall_stats.get("by_step", {})
         logger.info(
             "Call Resolver: %d call pairs -> %s",

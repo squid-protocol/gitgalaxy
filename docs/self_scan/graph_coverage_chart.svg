@@ -446,7 +446,7 @@
 <text class="none" x="426" y="738.0">not measured</text>
 <text class="none" x="732" y="738.0">not measured</text>
 <text class="lang" x="22" y="773.0">typescript</text>
-<g><title>typescript imports: precision 100.0% of 629, recall 100.0% of 666; corpus colinhacks/zod</title>
+<g><title>typescript imports: precision 100.0% of 817, recall 100.0% of 859; corpus colinhacks/zod</title>
 <text class="pr" x="120" y="766.5">Precision</text>
 <rect class="track" x="166" y="759" width="110" height="8" rx="2"/>
 <rect x="166" y="759" width="110.0" height="8" rx="2" fill="#4a3aa7"/>
@@ -455,7 +455,7 @@
 <rect class="track" x="166" y="771" width="110" height="8" rx="2"/>
 <rect x="166" y="771" width="110.0" height="8" rx="2" fill="#eda100"/>
 <text class="val" x="281" y="779">100.0%</text>
-<text class="n" x="324" y="767">n=666 imports</text>
+<text class="n" x="324" y="767">n=859 imports</text>
 <text class="n" x="324" y="779">repos 1 · files 460</text>
 </g>
 <g><title>typescript callee names: precision 99.6% of 6,202, recall 97.2% of 6,356 (raw 99.6% / 97.2%; 11 shapes without a verdict)</title>
@@ -470,15 +470,15 @@
 <text class="n" x="630" y="767">n=6,356 calls</text>
 <text class="n" x="630" y="779">functions 2,918</text>
 </g>
-<g><title>typescript call resolution: precision 99.9% of 1,520, recall 57.1% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
+<g><title>typescript call resolution: precision 99.9% of 1,614, recall 60.6% of 2,661; vs tsc 6.0.2; corpus import_graph</title>
 <text class="pr" x="732" y="766.5">Precision</text>
 <rect class="track" x="778" y="759" width="110" height="8" rx="2"/>
 <rect x="778" y="759" width="109.9" height="8" rx="2" fill="#4a3aa7"/>
 <text class="val" x="893" y="767">99.9%</text>
 <text class="pr" x="732" y="778.5">Recall</text>
 <rect class="track" x="778" y="771" width="110" height="8" rx="2"/>
-<rect x="778" y="771" width="62.8" height="8" rx="2" fill="#eda100"/>
-<text class="val" x="893" y="779">57.1%</text>
+<rect x="778" y="771" width="66.7" height="8" rx="2" fill="#eda100"/>
+<text class="val" x="893" y="779">60.6%</text>
 <text class="n" x="936" y="767">n=2,661 edges</text>
 <text class="n" x="936" y="779">vs tsc 6.0.2</text>
 </g>

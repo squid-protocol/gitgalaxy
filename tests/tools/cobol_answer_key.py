@@ -185,6 +185,13 @@ _DD_DEPENDING = re.compile(rf"\bDEPENDING\s+(?:ON\s+)?({NAME})")
 _DD_REDEFINES = re.compile(rf"\bREDEFINES\s+({NAME})")
 _DD_VALUE = re.compile(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))")
 _DD_ENTRY_LIMIT = 600
+# #4246: an entry with no name is an implicit FILLER (`2 PIC X(40) VALUE '...'`, DBB EPSCSMRD). The word in
+# the name's place is then a clause keyword -- reserved, so never a data name -- and the clauses start there.
+_DD_UNNAMED = re.compile(
+    r"PIC|PICTURE|USAGE|VALUES?|OCCURS|SIGN|LEADING|TRAILING|JUST(?:IFIED)?|BLANK|SYNC(?:HRONIZED)?|EXTERNAL"
+    r"|GLOBAL|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|NATIONAL|INDEX|(?:PROCEDURE-|FUNCTION-)?POINTER"
+    r"|COMP(?:UTATIONAL)?(?:-[1-6])?"
+)
 
 
 # ==============================================================================
@@ -833,8 +840,11 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
         name = m.group(2).upper()
         if name in ("THROUGH", "THRU"):
             continue  # #3602: `1 THROUGH 12.` continues an 88's VALUES; a reserved word is no data name
+        body = m.end()
+        if _DD_UNNAMED.fullmatch(name):  # #4246: an implicit FILLER; its first clause sits where a name would
+            name, body = "FILLER", m.start(2)
         stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(text)
-        window = text[m.end() : min(stop, m.end() + _DD_ENTRY_LIMIT)]
+        window = text[body : min(stop, body + _DD_ENTRY_LIMIT)]
         ordinal = len(items)
         if level in (66, 88):
             parent = last_item

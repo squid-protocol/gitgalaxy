@@ -31,7 +31,9 @@
  *                         this task gets RESP / RESP2 (DFHRESP numbers) and does nothing
  *                         else; each one that fires is appended to $GGCICS_OUT/faults.txt
  *                         (`CMD FILE NTH RESP RESP2`). The Java side's CicsTask.read reads
- *                         the same plan.
+ *                         the same plan. #4049: also XCTL (FILE: the program), WRITEQ-TS (the
+ *                         queue), START (the TRANSID), RETRIEVE (FILE `-`) and CANCEL (the
+ *                         REQID).
  * Outputs go to $GGCICS_OUT: events.txt, one line per command in order (`NNN VERB
  * pgm=<issuing program> key=value ...`), and NNN.bin, the bytes the command carried.
  *
@@ -129,12 +131,12 @@ int GGCLOAD(char *area, int maxlen) {
 /* #4023 follow-up: the planned condition of this command on this file, if faults.cfg plans one. Every
  * command counts (per task: a task is one process), whether or not it faults. */
 static int fault_counts[32];
-static char fault_keys[32][24];
+static char fault_keys[32][40];
 static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
-    char path[3000], line[256], pcmd[16], pfile[16], nth[16];
+    char path[3000], line[256], pcmd[16], pfile[32], nth[16];
     int presp, presp2, n = 0, slot = -1, hit = 0;
-    char key[24];
-    snprintf(key, sizeof key, "%.7s %.9s", cmd, file);
+    char key[40];
+    snprintf(key, sizeof key, "%.15s %.16s", cmd, file);
     for (int i = 0; i < 32; i++) {
         if (fault_keys[i][0] == 0 || strcmp(fault_keys[i], key) == 0) { slot = i; break; }
     }
@@ -145,7 +147,7 @@ static int injected(const char *cmd, const char *file, int *resp, int *resp2) {
     FILE *f = fopen(path, "r");
     while (f && !hit && fgets(line, sizeof line, f)) {
         presp2 = 0;
-        if (sscanf(line, "%15s %15s %15s %d %d", pcmd, pfile, nth, &presp, &presp2) < 4) continue;
+        if (sscanf(line, "%15s %31s %15s %d %d", pcmd, pfile, nth, &presp, &presp2) < 4) continue;
         if (strcmp(pcmd, cmd) != 0 || strcmp(pfile, file) != 0) continue;
         if (nth[0] != '*' && atoi(nth) != n) continue;
         *resp = presp;
@@ -987,9 +989,14 @@ int GGCWRTQ(gg_cics *c, char *from) {
     trim(c->flags, 40, flags);
     int rewrite = strstr(flags, "REWRITE") != NULL;
     ts_dir(c, dir, sizeof dir, hex);
-    int count = ts_count(dir), item = 0;
+    int count = ts_count(dir), item = 0, fresp, fresp2;
+    char qname[17];
+    trim(c->qname, 16, qname);
     c->resp2 = 0;
-    if (len < 1 || len > 32763) {
+    if (injected("WRITEQ-TS", qname, &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is written */
+        c->resp = fresp;
+        c->resp2 = fresp2;
+    } else if (len < 1 || len > 32763) {
         c->resp = LENGERR;
     } else if (rewrite && count < 0) {
         c->resp = QIDERR;
@@ -1078,12 +1085,13 @@ int GGCINQP(gg_cics *c) {
 
 int GGCXCTL(gg_cics *c, char *commarea, int len) {
     char program[9], ev[128];
-    int has = c->item != 0;
+    int has = c->item != 0, fresp, fresp2;
     trim(c->name1, 8, program);
     c->resp = NORMAL;
     c->resp2 = 0;
     if (has && (len < 0 || len > 32763)) { c->resp = LENGERR; c->resp2 = 11; }
     else if (!program_defined(program)) { c->resp = PGMIDERR; c->resp2 = 1; }
+    else if (injected("XCTL", program, &fresp, &fresp2)) { c->resp = fresp; c->resp2 = fresp2; }  /* #4049 */
     snprintf(ev, sizeof ev, "XCTL program=%s len=%d area=%d resp=%d resp2=%d", program, has ? len : 0, has,
              c->resp, c->resp2);
     event(ev, has ? commarea : NULL, has && len > 0 && len <= 65535 ? len : 0);
@@ -1585,7 +1593,7 @@ int GGCSTRT(gg_cics *c, char *from) {
     char transid[9], termid[9], reqid[17], flags[41], ev[256], expires[32] = "";
     int hhmmss = c->num, has = c->item != 0, len = has ? c->len : 0;
     int hh = hhmmss / 10000, mm = hhmmss / 100 % 100, ss = hhmmss % 100;
-    int is_time = 0, protect;
+    int is_time = 0, protect, fresp, fresp2;
     time_t now = now_epoch(), at = now;
     trim(c->name1, 8, transid);
     trim(c->name2, 8, termid);
@@ -1603,6 +1611,9 @@ int GGCSTRT(gg_cics *c, char *from) {
         c->resp = TRANSIDERR;
     } else if (termid[0] && !listed("terminals.cfg", termid)) {
         c->resp = TERMIDERR;
+    } else if (injected("START", transid, &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is started */
+        c->resp = fresp;
+        c->resp2 = fresp2;
     } else if (is_time) {
         struct tm t;
         gmtime_r(&now, &t);
@@ -1639,10 +1650,17 @@ static int retrieved = 0;
 
 int GGCRTRV(gg_cics *c, char *into) {
     char path[4096], ev[96], buf[32768];
-    int n = -1, max = c->len, copied = 0;
+    int n = -1, max = c->len, copied = 0, fresp, fresp2;
     snprintf(path, sizeof path, "%s/retrieve_%03d.bin", dir_in(), retrieved + 1);
-    FILE *f = fopen(path, "rb");
     c->resp2 = 0;
+    if (injected("RETRIEVE", "-", &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is retrieved */
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        snprintf(ev, sizeof ev, "RETRIEVE resp=%d len=%d copied=%d", c->resp, -1, 0);
+        event(ev, into, 0);
+        return 0;
+    }
+    FILE *f = fopen(path, "rb");
     if (!f) {
         c->resp = ENDDATA;
     } else {
@@ -1665,8 +1683,15 @@ int GGCCNCL(gg_cics *c) {
     char reqid[17], path[4096], line[128], word[64], ev[96];
     long expires;
     time_t now = now_epoch();
-    int found = 0;
+    int found = 0, fresp, fresp2;
     trim(c->qname, 8, reqid);
+    if (injected("CANCEL", reqid, &fresp, &fresp2)) {  /* #4049: a planned condition; nothing is cancelled */
+        c->resp = fresp;
+        c->resp2 = fresp2;
+        snprintf(ev, sizeof ev, "CANCEL reqid=%s resp=%d", reqid, c->resp);
+        event(ev, NULL, 0);
+        return 0;
+    }
     for (int i = 0; i < nown && !found; i++) {
         if (!own[i].cancelled && strcmp(own[i].reqid, reqid) == 0 && own[i].expires > now) {
             own[i].cancelled = found = 1;

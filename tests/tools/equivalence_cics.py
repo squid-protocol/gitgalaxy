@@ -1036,7 +1036,8 @@ def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
 CICS_RESP = {"NORMAL": 0, "FILENOTFOUND": 12, "NOTFND": 13, "DUPREC": 14, "INVREQ": 16, "IOERR": 17, "NOSPACE": 18,
              "NOTOPEN": 19, "ILLOGIC": 21, "LENGERR": 22, "PGMIDERR": 27, "NOTAUTH": 70, "DISABLED": 84,
-             "LOADING": 94, "ENDFILE": 20}  # fmt: skip
+             "LOADING": 94, "ENDFILE": 20, "TERMIDERR": 11, "ITEMERR": 26, "TRANSIDERR": 28, "QIDERR": 44,
+             "SYSIDERR": 53, "ISCINVREQ": 54, "LOCKED": 100}  # fmt: skip
 
 
 FAULT_COMMANDS = (
@@ -1050,7 +1051,30 @@ FAULT_COMMANDS = (
     "ENDBR",
     "DELETE",
     "WRITEQ-TD",
+    # #4049: the program-control, temporary-storage and interval-control commands. A plan names the resource the
+    # command names -- XCTL its `program`, WRITEQ-TS its `queue`, START its `transid`, CANCEL its `reqid` --
+    # and RETRIEVE, which names none, `-`. Plan only a condition IBM documents for the command (CICS TS, the
+    # command's "Conditions"): XCTL PGMIDERR (RESP2 3: the program could not be loaded), NOTAUTH (101), INVREQ;
+    # WRITEQ TS INVREQ, IOERR (RESP2 5), NOSPACE (only with NOSUSPEND), NOTAUTH (101), LOCKED; START INVREQ,
+    # IOERR, NOTAUTH (7), TRANSIDERR, TERMIDERR, SYSIDERR (1); RETRIEVE ENDDATA, ENVDEFERR, INVREQ, IOERR,
+    # LENGERR; CANCEL NOTFND, NOTAUTH, ISCINVREQ, SYSIDERR (CANCEL has no INVREQ).
+    "XCTL",
+    "WRITEQ-TS",
+    "START",
+    "RETRIEVE",
+    "CANCEL",
 )  # a file command (FILE), an INQUIRE PROGRAM (the program's name in `file`)
+
+_FAULT_NAME = ("file", "program", "queue", "transid", "reqid")  # #4049: the resource a fault names, by key
+
+
+def case_file_records(case: dict[str, Any], corpus: Path, spec: dict[str, Any], reclen: int, enc: str) -> bytes:
+    """A CICS file's records: its dataset's `input`, then (#4049) the records of `append` -- a case's own file of
+    records added after the corpus's (the test-strengthening loop's new accounts, customers ...)."""
+    data = common._fixed(common._input_path(case, corpus, spec["input"]), reclen, enc)
+    if spec.get("append"):
+        data += common._fixed(common._input_path(case, corpus, spec["append"]), reclen, enc)
+    return data
 
 
 def fault_lines(sc: dict[str, Any]) -> list[str]:
@@ -1064,7 +1088,10 @@ def fault_lines(sc: dict[str, Any]) -> list[str]:
                 f"scenario {sc['name']}: fault {f} ({'/'.join(FAULT_COMMANDS)} with a CICS_RESP condition)"
             )
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
-        out.append(f"{cmd} {f.get('file') or f.get('program')} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
+        name = "-" if cmd == "RETRIEVE" else next((f[k] for k in _FAULT_NAME if f.get(k)), None)
+        if not name:
+            raise Unsupported(f"scenario {sc['name']}: fault {f} names no {'/'.join(_FAULT_NAME)}")
+        out.append(f"{cmd} {name} {nth} {CICS_RESP[f['resp']]} {int(f.get('resp2', 0))}")
     return out
 
 
@@ -1115,9 +1142,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         spec = case.get("datasets", {}).get(f["base"])
         if spec is None:
             raise Unsupported(f"the case gives no data for {f['base']} (CICS file {f['file']})")
-        (work / "files" / f["base"]).write_bytes(
-            common._fixed(common._input_path(case, corpus, spec["input"]), f["reclen"], enc)
-        )
+        (work / "files" / f["base"]).write_bytes(case_file_records(case, corpus, spec, f["reclen"], enc))
     ca_fields = commarea_fields(corpus, case)
     # The COBOL programs the program CALLs (COTRN02C -> CSUTLDTC), as they are, and the LE service models
     # (tests/equivalence/le: CEEDAYS) they may call in turn.

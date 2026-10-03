@@ -95,7 +95,10 @@ def fd_entries(lines: list[Line]) -> dict[str, dict[str, Any]]:
         return out
     for fd in re.finditer(r"\b[FS]D\s+([A-Z0-9-]+)(.*?)(?=\s0?1\s+[A-Z0-9-]+|\s[FS]D\s|\Z)", m.group(1), re.I | re.S):
         e = fd.group(2)
-        d: dict[str, Any] = {"varying": None, "mode_v": bool(re.search(r"\bRECORDING\s+(?:MODE\s+)?(?:IS\s+)?V\b", e, re.I))}
+        d: dict[str, Any] = {
+            "varying": None,
+            "mode_v": bool(re.search(r"\bRECORDING\s+(?:MODE\s+)?(?:IS\s+)?V\b", e, re.I)),
+        }
         v = re.search(r"\bRECORD\s+(?:IS\s+)?VARYING\b(.*?)(?:\.\s*$|$)", e, re.I | re.S)
         if v:
             lo = re.search(r"\bFROM\s+(\d+)", v.group(1), re.I)

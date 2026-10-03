@@ -47,7 +47,10 @@ class LiftViolation(Exception):
 
 
 # Library routines the runtime models (each the twin of the harness's COBOL-side model): program -> (Java, args)
-LIBRARY = {"CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4), "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1)}
+LIBRARY = {
+    "CEEDAYS": ("__PACKAGE__.cobolrt.le.Ceedays.call", 4),
+    "COBDATFT": ("__PACKAGE__.cobolrt.le.Cobdatft.call", 1),
+}
 
 
 def jstr(s: str) -> str:

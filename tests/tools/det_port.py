@@ -203,7 +203,7 @@ def check(args: argparse.Namespace) -> int:
     """Translate every case with the current code and with the base, and list the ports that changed."""
     work: Path = args.work
     work.mkdir(parents=True, exist_ok=True)
-    flags = ["--style", args.style] + (["--typed"] if args.typed else []) + (["--groups"] if args.groups else [])
+    flags = ["--style", args.style] + (["--typed"] if args.typed else ["--no-typed"]) + (["--groups"] if args.groups else [])
     cases = args.cases or all_cases()
 
     def translate(repo: Path, out: Path) -> None:
@@ -269,8 +269,10 @@ def main() -> int:
     )
     r.add_argument(
         "--typed",
-        action="store_true",
-        help="standalone WORKING-STORAGE items as typed Java fields where every use allows (B3)",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="standalone WORKING-STORAGE items as typed Java fields where every use allows (B3; the default since "
+        "2026-10: it proves every case the byte form proves; --no-typed for the byte form)",
     )
     r.add_argument("--style", choices=("dispatch", "structured"), default="dispatch",
                    help="structured: paragraphs as named methods called directly where the program has no GO TO / "
@@ -281,7 +283,7 @@ def main() -> int:
     c.add_argument("--base-ref", default="origin/main", help="the git ref translated as the base (default origin/main)")
     c.add_argument("--base", type=Path, help="an earlier translate-only work directory, instead of --base-ref")
     c.add_argument("--style", choices=("dispatch", "structured"), default="dispatch")
-    c.add_argument("--typed", action="store_true")
+    c.add_argument("--typed", action=argparse.BooleanOptionalAction, default=True)
     c.add_argument("--groups", action="store_true")
     args = ap.parse_args()
     if args.cmd == "check":

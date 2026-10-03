@@ -268,6 +268,13 @@ class StateRehydrator:
                     # predates the columns: unknown, not a guess.
                     "source_encoding": f["source_encoding"] if "source_encoding" in row_keys else None,
                     "source_decode": f["source_decode"] if "source_decode" in row_keys else None,
+                    # #3788: the file's namespace-import aliases, so an unchanged file's `ns.f()`
+                    # calls still resolve on a delta scan. NULL/absent: none.
+                    "namespace_imports": (
+                        json.loads(f["namespace_imports"])
+                        if "namespace_imports" in row_keys and f["namespace_imports"]
+                        else {}
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

@@ -670,13 +670,32 @@ def _nearest_of(defs: list[_Definition], src_parts: tuple[str, ...]) -> Optional
     return None if second_rank == best_rank else best
 
 
+def _alias_scope(target: str, imports: dict[str, set[str]]) -> set[str]:
+    """#3788: the files a namespace alias bound to `target` can reach: the module itself, and
+    what a barrel module (`index.ts`) re-exports, `_BARREL_HOPS` deep (see `_with_reexports`)."""
+    seen = {target}
+    frontier = [target] if posixpath.basename(target) in _BARREL_BASENAMES else []
+    for _ in range(_BARREL_HOPS + 1):
+        nxt = []
+        for barrel in frontier:
+            for d in imports.get(barrel, ()):
+                if d not in seen:
+                    seen.add(d)
+                    if posixpath.basename(d) in _BARREL_BASENAMES:
+                        nxt.append(d)
+        frontier = nxt
+    return seen
+
+
 class _File:
     """What one calling file brings to every lookup made from it."""
 
-    __slots__ = ("dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
+    __slots__ = ("aliases", "dir", "imported", "imported_dirs", "imported_stems", "lang", "parts", "path")
 
-    def __init__(self, path: str, lang: str, imported: set[str]) -> None:
+    def __init__(self, path: str, lang: str, imported: set[str], aliases: Optional[dict[str, set[str]]] = None) -> None:
         self.path = path
+        # #3788: a namespace alias (`import * as ns from "x"`) -> the files `ns.f()` may reach
+        self.aliases = aliases or {}
         self.lang = lang
         self.dir = _dirname(path)
         self.parts = _parts(self.dir)
@@ -863,6 +882,13 @@ def _resolve_one(
     d = owned(_key(last, caller.lang))
     if d is not None:
         return "qualified", d
+    if caller.aliases and qualifier in caller.aliases:
+        # #3788: `import * as processors from "./json-schema-processors.js"`: the alias names that
+        # module, whatever the file is called. Only the module itself (and, for a barrel, what it
+        # re-exports) can hold `processors.f`.
+        via = [d for p, d in bucket.all.by_path.items() if p in caller.aliases[qualifier] and d.owner_key is None]
+        if via:
+            return "import", (_nearest_of(via, caller.parts) or min(via, key=lambda d: d.path))
     if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:
         via = [
             d
@@ -944,8 +970,12 @@ def _choose_overloads(overloads: list[_Definition], arities: list[int]) -> tuple
 def resolve_calls(
     parsed_files: list[dict[str, Any]],
     dependency_edges: Optional[list[dict[str, Any]]] = None,
+    namespace_aliases: Optional[dict[str, dict[str, str]]] = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Resolve every (caller function, callee name) pair in the repository.
+
+    `namespace_aliases` (#3788) maps a JS/TS file to the modules its namespace imports
+    name (`{file: {alias: module path}}`), so `ns.f()` reaches the module `ns` is bound to.
 
     Returns `(sites, stats)`:
       - `sites`: one row per distinct callee name per caller (calls_out_to is
@@ -978,7 +1008,12 @@ def resolve_calls(
         src_path = f.get("path", "")
         lang = str(f.get("lang_id", "")).lower()
         group = _group(lang)
-        caller = _File(src_path, lang, imports.get(src_path, set()))
+        caller = _File(
+            src_path,
+            lang,
+            imports.get(src_path, set()),
+            {a: _alias_scope(t, imports) for a, t in (namespace_aliases or {}).get(src_path, {}).items()},
+        )
         lang_counts = by_lang.setdefault(lang, Counter())
         # A module's own receiver types (`app = FastAPI()` at top level) hold in
         # every function of the file that does not bind that name itself.

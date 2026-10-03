@@ -180,11 +180,11 @@
     "repos": "OpenZeppelin/openzeppelin-contracts"
   },
   "typescript": {
-    "engine_edges": 629,
+    "engine_edges": 817,
     "files": 460,
     "fn": 0,
     "fp": 0,
-    "imports": 666,
+    "imports": 859,
     "precision_pct": 100.0,
     "recall_pct": 100.0,
     "repos": "colinhacks/zod"

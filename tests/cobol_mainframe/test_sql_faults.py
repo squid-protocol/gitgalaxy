@@ -183,7 +183,7 @@ def test_sql_seam_is_decided_per_statement_owner(tmp_path):
 
     src = tmp_path / "src"
     _service(src, "InqaccService", "repo.findById(1);")  # model port: its own Db2 access
-    _service(src, "AbndprocService", "DetSql.update(\"ABNDPROC:120\", s);")  # det port, LINKed
+    _service(src, "AbndprocService", 'DetSql.update("ABNDPROC:120", s);')  # det port, LINKed
     case = {"program": "INQACC", "programs": [{"program": "ABNDPROC", "program_source": "src/abndproc.cbl"}]}
     seams = ec.sql_seam_programs(case, src)
     assert seams == {"ABNDPROC"}
@@ -198,5 +198,5 @@ def test_a_det_main_program_has_the_seam(tmp_path):
     import equivalence_cics as ec
 
     src = tmp_path / "src"
-    _service(src, "Lgacdb01Service", "DetSql.update(\"LGACDB01:240\", s);")
+    _service(src, "Lgacdb01Service", 'DetSql.update("LGACDB01:240", s);')
     assert ec.sql_seam_programs({"program": "LGACDB01"}, src) == {"LGACDB01"}

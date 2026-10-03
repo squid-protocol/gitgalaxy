@@ -1620,6 +1620,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     var = svc[0].lower() + svc[1:]
     ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
+    # The estate has the CICS exception package only when some program throws or handles one (UowForge): IBM DBB
+    # MortgageApplication's do not, so nothing there can throw CicsAbendException and the test catches none.
+    has_abend = any(src.rglob("exception/CicsAbendException.java"))
+    abend_import = f"import {pkg}.exception.CicsAbendException;\n" if has_abend else ""
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
@@ -1664,6 +1668,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                  "datasource.DataSourceTransactionManager(db2Jdbc.getJdbcTemplate().getDataSource()))"
                  ".executeWithoutResult(db2Status -> {\n            ") if db2 else ""  # fmt: skip
     db2_rollback = "db2Status.setRollbackOnly(); " if db2 else ""
+    abend_catch = (" catch (CicsAbendException e) {\n                    status.setRollbackOnly();\n"
+                   f"                    {db2_rollback}task.abend(e.getAbcode());\n                }}")  # fmt: skip
+    abend_catch = abend_catch if has_abend else ""
     db2_end = "\n            });" if db2 else ""
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
@@ -1675,8 +1682,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import {pkg}.cics.CicsTask;
 import {pkg}.dto.screen.ScreenModel;
-import {pkg}.exception.CicsAbendException;
-import java.io.IOException;
+{abend_import}import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1772,10 +1778,7 @@ class EquivalenceRunTest {{
                     {var}.runTask(task);
                 }} catch (NotRun e) {{
                     // #4173: the LINKed program is not run here; the task's events end at its LINK
-                }} catch (CicsAbendException e) {{
-                    status.setRollbackOnly();
-                    {db2_rollback}task.abend(e.getAbcode());
-                }} catch (RuntimeException e) {{
+                }}{abend_catch} catch (RuntimeException e) {{
                     // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure
                     if (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName())) {{

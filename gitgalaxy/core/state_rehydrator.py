@@ -268,6 +268,13 @@ class StateRehydrator:
                     # predates the columns: unknown, not a guess.
                     "source_encoding": f["source_encoding"] if "source_encoding" in row_keys else None,
                     "source_decode": f["source_decode"] if "source_decode" in row_keys else None,
+                    # #3788: the file's namespace-import aliases, so an unchanged file's `ns.f()`
+                    # calls still resolve on a delta scan. NULL/absent: none.
+                    "namespace_imports": (
+                        json.loads(f["namespace_imports"])
+                        if "namespace_imports" in row_keys and f["namespace_imports"]
+                        else {}
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,
@@ -421,6 +428,13 @@ class StateRehydrator:
                     for k in rk:
                         if k not in ("_fp", "id", "file_id") and k not in cl:
                             cl[k] = r[k]
+                    # #3786: the resolver (and a fresh scan) carry a class's parents as
+                    # `inheritance`, a list; the DB column `inheritance_parents` is its JSON.
+                    try:
+                        parents = json.loads(cl.pop("inheritance_parents", None) or "[]")
+                    except (TypeError, ValueError):
+                        parents = []
+                    cl["inheritance"] = parents if isinstance(parents, list) else []
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
                 # #3200/#3201/#3246: the mainframe boundary channel, restored for

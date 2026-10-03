@@ -21,7 +21,7 @@ import signal_contract_audit as audit  # noqa: E402
 from gitgalaxy.standards import signal_contracts as sc  # noqa: E402
 
 STATES = ("draft", "declared", "stated")
-# The AI/ML pack rules are `_IMPORT_WRAPPER` regexes: they fire on the import
+# The AI/ML pack rules are import-anchored regexes (#4150): they fire on the import
 # statement, never on a use, so their unit is the import contract's.
 IMPORT_ANCHORED = (
     "llm_orchestrator",

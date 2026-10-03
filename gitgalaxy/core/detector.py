@@ -978,6 +978,10 @@ def _call_qualifier(text: str, pos: int, separators: tuple[str, ...] = _QUALIFIE
         if sep is None:
             break
         k = j - len(sep)
+        if sep == "." and text.startswith("...", k - 2):
+            # #3787: `...f()` / `...ns.f()` is a spread (rest of a call or an object), not a
+            # member access: there is no receiver before it, so the walk ends here.
+            break
         while k > 0 and text[k - 1] in " \t\r\n" and j - k < 80:
             k -= 1
         start = k

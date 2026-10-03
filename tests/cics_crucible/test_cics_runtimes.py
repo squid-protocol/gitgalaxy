@@ -839,3 +839,167 @@ def test_cics_task_asktime_and_formattime_follow_the_clock(tmp_path):
                 + " " + CicsTask.formatDate(abs, "MMDDYY", "/") + " " + CicsTask.formatDate(abs, "DDMMYYYY", ""));""",
     )
     assert out.split() == ["3867129015000", "2022-07-18", "10:30:15", "07/18/22", "18072022"]
+
+
+# ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------------
+_RBA_MAIN = r"""
+#include <stdio.h>
+#include <string.h>
+typedef struct { int resp; int resp2; char name1[8]; char name2[8]; char flags[40]; int len;
+                 char qname[16]; int item; int num; int go_to; } gg_cics;
+int GGCSTBR(gg_cics *c, char *rid, int kl); int GGCRDNX(gg_cics *c, char *rid, int kl, char *into, int il);
+int GGCRDPV(gg_cics *c, char *rid, int kl, char *into, int il); int GGCENBR(gg_cics *c);
+int main(int argc, char **argv) {
+    gg_cics c;
+    unsigned char rid[4] = {0, 0, 0, 0};
+    char into[5];
+    memset(&c, 0, sizeof c);
+    for (int i = 1; i < argc; i++) {
+        char op = argv[i][0];
+        memset(c.name1, ' ', 8);
+        memcpy(c.name1, op == 'K' || op == 'k' ? "K" : "F", 1);
+        memset(c.flags, ' ', 40);
+        if (argv[i][1] == ':') {                                   /* the program sets RIDFLD: a fullword RBA */
+            unsigned long v = strtoul(argv[i] + 2, NULL, 10);
+            rid[0] = (unsigned char)(v >> 24); rid[1] = (unsigned char)(v >> 16);
+            rid[2] = (unsigned char)(v >> 8); rid[3] = (unsigned char)v;
+        }
+        if (argv[i][1] == '*') memset(rid, 0xFF, 4);              /* X'FFFFFFFF' */
+        memset(into, '.', 4);
+        into[4] = 0;
+        if (op == 'S' || op == 'K') { memcpy(c.flags, "EQUAL RBA", 9); GGCSTBR(&c, (char *)rid, 4); }
+        if (op == 's') { memcpy(c.flags, "EQUAL", 5); GGCSTBR(&c, (char *)rid, 4); }   /* by key */
+        if (op == 'N') { memcpy(c.flags, "RBA", 3); GGCRDNX(&c, (char *)rid, 4, into, 4); }
+        if (op == 'P') { memcpy(c.flags, "RBA", 3); GGCRDPV(&c, (char *)rid, 4, into, 4); }
+        if (op == 'n') GGCRDNX(&c, (char *)rid, 4, into, 4);                            /* by key */
+        if (op == 'B') GGCENBR(&c);
+        unsigned long v = ((unsigned long)rid[0] << 24) | ((unsigned long)rid[1] << 16) | ((unsigned long)rid[2] << 8) | rid[3];
+        if (v == 0xFFFFFFFFUL) printf("%c resp=%d rid=FF into=%s\n", op, c.resp, into);
+        else printf("%c resp=%d rid=%lu into=%s\n", op, c.resp, v, into);
+        fflush(stdout);
+    }
+    return 0;
+}
+"""
+
+# IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV with RBA ("the record identification field specified in the
+# RIDFLD option contains a relative byte address"; READNEXT "causes CICS to return the relative byte address of each
+# retrieved record"); STARTBR EQUAL, the default of a direct ESDS browse; a RIDFLD of X'FF's at the end, for READPREV;
+# READPREV right after STARTBR on the STARTBR's record; changing RIDFLD repositions (in the same form, an RBA).
+_RBA_OPS = ["S:0", "N", "N", "N", "N", "P", "P", "P", "P", "S:4", "B", "S:4", "P", "B", "S*", "P", "P", "B",
+            "S*", "N", "B", "S:0", "N", "N:8", "N", "B", "B"]  # fmt: skip
+_RBA_EXPECTED = [
+    "S resp=0 rid=0",  # RBA 0: the first record
+    "N resp=0 rid=0 into=10aa",  # the STARTBR's record; RIDFLD is its RBA
+    "N resp=0 rid=4 into=20bb",
+    "N resp=0 rid=8 into=30cc",
+    "N resp=20 rid=8",  # past the last: ENDFILE
+    "P resp=0 rid=8 into=30cc",  # after a READNEXT: back to RIDFLD, the same record again
+    "P resp=0 rid=4 into=20bb",
+    "P resp=0 rid=0 into=10aa",
+    "P resp=20 rid=0",  # before the first: ENDFILE
+    "S resp=16 rid=4",  # a browse is active: INVREQ
+    "B resp=0 rid=4",
+    "S resp=0 rid=4",
+    "P resp=0 rid=4 into=20bb",  # READPREV right after STARTBR: the record at the STARTBR's RBA
+    "B resp=0 rid=4",
+    "S resp=0 rid=FF",  # X'FFFFFFFF': the end, for READPREV
+    "P resp=0 rid=8 into=30cc",
+    "P resp=0 rid=4 into=20bb",
+    "B resp=0 rid=4",
+    "S resp=0 rid=FF",
+    "N resp=20 rid=FF",  # READNEXT from the end: ENDFILE
+    "B resp=0 rid=FF",
+    "S resp=0 rid=0",
+    "N resp=0 rid=0 into=10aa",
+    "N resp=0 rid=8 into=30cc",  # RIDFLD changed to RBA 8: repositions there
+    "N resp=20 rid=8",
+    "B resp=0 rid=8",
+    "B resp=16 rid=8",  # no browse: INVREQ
+]
+
+
+def _rba_files(work: Path) -> None:
+    (work / "f.dat").write_bytes(b"10aa20bb30cc")
+    (work / "k.dat").write_bytes(b"10aa20bb30cc")
+    (work / "files.cfg").write_text(f"F {work / 'f.dat'} 4 0 0 ESDS\nK {work / 'k.dat'} 4 0 2\n", encoding="ascii")
+
+
+@needs_cc
+def test_the_stub_browses_an_esds_by_rba_as_cics_does(tmp_path):
+    """An ESDS of three 4-byte records at RBAs 0, 4 and 8 (each record's byte offset: oracle_assumptions.md X13)."""
+    _rba_files(tmp_path)
+    exe = _stub(tmp_path, _RBA_MAIN)
+    got = [ln.replace(" into=....", "") for ln in _run_stub(exe, tmp_path, *_RBA_OPS)]
+    assert got == _RBA_EXPECTED
+
+
+@needs_cc
+@pytest.mark.parametrize(
+    "ops, why",
+    [
+        (["S:2"], "STARTBR RBA 2 on F: no record starts there"),  # mid-record: IBM does not say what happens
+        (["S:12"], "STARTBR RBA 12 on F: no record starts there"),  # past the end of the data
+        (["S:0", "N", "N:6"], "READNEXT RBA 6 on F: no record starts there"),
+        (["s:0"], "STARTBR by key on F, an ESDS"),  # an ESDS browse is by RBA (or through a path)
+        (["K:0"], "STARTBR RBA on K, not an ESDS"),  # a KSDS by RBA: not modelled
+        (["S:0", "n"], "READNEXT by key in an RBA browse of F"),
+    ],
+)
+def test_the_stub_refuses_an_rba_it_cannot_vouch_for(tmp_path, ops, why):
+    """#4213: what IBM does not document stops the run (98, "... not modelled"), refused by name, never guessed."""
+    _rba_files(tmp_path)
+    exe = _stub(tmp_path, _RBA_MAIN)
+    (tmp_path / "out").mkdir()
+    env = {"PATH": "/usr/bin:/bin", "GGCICS_DIR": str(tmp_path), "GGCICS_OUT": str(tmp_path / "out")}
+    proc = subprocess.run([str(exe), *ops], env=env, capture_output=True, text=True, check=False)  # noqa: S603
+    assert proc.returncode == 98
+    assert proc.stdout.splitlines()[-1] == f"{why}: not modelled"
+
+
+@needs_javac
+def test_cics_task_browses_an_esds_by_rba_as_the_stub_does(tmp_path):
+    """The same RBA browse through CicsTask (withEsds, startbrRba / readnextRba / readprevRba): the same RESPs, RBAs
+    and records; and the same refusals."""
+    out = _cics_task(
+        tmp_path,
+        """
+        java.util.List<byte[]> recs = new java.util.ArrayList<>();
+        for (String r : new String[] {"10aa", "20bb", "30cc"}) recs.add(r.getBytes());
+        CicsTask t = new CicsTask("T", "ENTER", null, null).withEsds("F", 4, recs);
+        long rid = 0;
+        String[] ops = {%s};
+        for (String op : ops) {
+            if (op.length() > 1) {
+                rid = op.charAt(1) == '*' ? 0xFFFFFFFFL : Long.parseLong(op.substring(2));
+            }
+            int resp;
+            String into = "";
+            switch (op.charAt(0)) {
+                case 'S': resp = t.startbrRba("F", rid); break;
+                case 'N': case 'P': {
+                    CicsTask.BrowsedRba b = op.charAt(0) == 'N' ? t.readnextRba("F", rid, 4) : t.readprevRba("F", rid, 4);
+                    resp = b.resp();
+                    if (b.record() != null) { rid = b.rba(); into = " into=" + new String(b.record()); }
+                    break;
+                }
+                default: resp = t.endbr("F");
+            }
+            System.out.println(op.charAt(0) + " resp=" + resp + " rid=" + (rid == 0xFFFFFFFFL ? "FF" : rid) + into);
+        }
+        byte[] word = CicsTask.rbaBytes(168);
+        System.out.println(CicsTask.rba(word) + " " + word.length + " " + CicsTask.rba(new byte[] {-1, -1, -1, -1}));
+        for (Runnable r : new Runnable[] {() -> t.startbrRba("F", 2), () -> t.startbrRba("F", 12),
+                                           () -> t.startbrRba("G", 0)}) {
+            try { r.run(); System.out.println("no refusal"); }
+            catch (UnsupportedOperationException e) { System.out.println(e.getMessage()); }
+        }"""
+        % ", ".join(f'"{o}"' for o in _RBA_OPS),
+    )
+    assert out.splitlines() == [
+        *_RBA_EXPECTED,
+        "168 4 4294967295",
+        "STARTBR RBA 2 on F: no record starts there: not modelled",
+        "STARTBR RBA 12 on F: no record starts there: not modelled",
+        "STARTBR RBA on G, not an ESDS: not modelled",
+    ]

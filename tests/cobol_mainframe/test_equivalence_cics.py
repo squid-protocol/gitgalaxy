@@ -422,7 +422,7 @@ def test_browse_delete_and_time_commands_translate():
         "MOVE 'EQUAL' TO GG-FLAGS",
         "CALL 'GGCSTBR' USING GG-CICS",
     ]
-    assert ec.translate_command("READPREV DATASET(F) INTO(REC) RIDFLD(K) RESP(R)")[1] == "CALL 'GGCRDPV' USING GG-CICS"
+    assert ec.translate_command("READPREV DATASET(F) INTO(REC) RIDFLD(K) RESP(R)")[2] == "CALL 'GGCRDPV' USING GG-CICS"
     assert ec.translate_command("DELETE FILE(F) RESP(R)")[1] == "MOVE 'HELD' TO GG-FLAGS"  # the READ UPDATE's record
     for bad in (
         "STARTBR FILE(F) RIDFLD(K) GENERIC KEYLENGTH(2)",
@@ -462,3 +462,84 @@ def test_assign_applid_sysid_and_writeq_td_translate():
                       "    BY REFERENCE REC"]  # fmt: skip
     with pytest.raises(ec.Unsupported):
         ec.translate_command("ASSIGN USERID(U)")
+
+
+def test_an_esds_browse_by_rba_translates_and_the_rest_of_rba_is_refused():
+    """#4213 (IBM DBB EPSMLIST): STARTBR / READNEXT / READPREV ... RBA reach the stub with 'RBA' in GG-FLAGS.
+    IBM, EXEC CICS STARTBR: EQUAL "is the default for a direct ESDS browse" and GTEQ "is not valid for directly
+    browsing an ESDS", so an RBA browse is EQUAL and GTEQ with RBA is refused; READ / WRITE / DELETE by RBA, XRBA,
+    RRN and KEYLENGTH with RBA are not modelled (refused by name)."""
+    assert ec.translate_command("STARTBR DATASET('EPSMORTF') RIDFLD(RID-LENGTH) RBA EQUAL RESP(R)")[:3] == [
+        "MOVE 'EPSMORTF' TO GG-NAME1",
+        "MOVE 'EQUAL RBA' TO GG-FLAGS",
+        "CALL 'GGCSTBR' USING GG-CICS",
+    ]
+    assert ec.translate_command("STARTBR FILE(F) RIDFLD(K) RBA RESP(R)")[1] == "MOVE 'EQUAL RBA' TO GG-FLAGS"
+    for verb, stub in (("READNEXT", "GGCRDNX"), ("READPREV", "GGCRDPV")):
+        assert ec.translate_command(f"{verb} FILE(F) INTO(REC) RIDFLD(K) RBA RESP(R)")[:3] == [
+            "MOVE F TO GG-NAME1",
+            "MOVE 'RBA' TO GG-FLAGS",
+            f"CALL '{stub}' USING GG-CICS",
+        ]
+        # a keyed READNEXT says so too: GG-FLAGS is not left as the last command set it
+        assert ec.translate_command(f"{verb} FILE(F) INTO(REC) RIDFLD(K) RESP(R)")[1] == "MOVE SPACES TO GG-FLAGS"
+    for bad in (
+        "STARTBR FILE(F) RIDFLD(K) RBA GTEQ",
+        "STARTBR FILE(F) RIDFLD(K) RBA KEYLENGTH(4)",
+        "STARTBR FILE(F) RIDFLD(K) XRBA",
+        "STARTBR FILE(F) RIDFLD(K) RRN",
+        "READNEXT FILE(F) INTO(R) RIDFLD(K) XRBA",
+        "READPREV FILE(F) INTO(R) RIDFLD(K) RRN",
+        "READNEXT FILE(F) INTO(R) RIDFLD(K) RBA KEYLENGTH(4)",
+        "READ FILE(F) INTO(R) RIDFLD(K) RBA",
+        "WRITE FILE(F) FROM(R) RIDFLD(K) RBA",
+        "DELETE FILE(F) RIDFLD(K) RBA",
+    ):
+        with pytest.raises(ec.Unsupported):
+            ec.translate_command(bad)
+
+
+class _NoDefineIR:
+    """An estate whose CICS file has no CSD DEFINE FILE (IBM DBB MortgageApplication's EPSMORTF)."""
+
+    files: dict = {}
+
+    @staticmethod
+    def cics_file_lineage():
+        return [{"program": "p.cbl", "name": "EPSMORTF", "definitions": []}]
+
+
+def test_a_case_states_an_esds_the_estate_does_not_define():
+    """#4213: with no CSD DEFINE FILE nor IDCAMS DEFINE in the estate, the case's dataset may state the file
+    (`csd`: organization ESDS, reclen, why) -- a deployment fact, as `recovery` is. Anything else stays refused."""
+    csd = {"organization": "ESDS", "reclen": 56, "why": "stated"}
+    assert ec.stub_files(_NoDefineIR(), "p.cbl", {"EPSMORTF": {"csd": csd}}) == [
+        {
+            "file": "EPSMORTF",
+            "dsname": "EPSMORTF",
+            "base": "EPSMORTF",
+            "key_offset": 0,
+            "key_length": 0,
+            "reclen": 56,
+            "via": ["the case's csd"],
+            "organization": "ESDS",
+        }  # fmt: skip
+    ]
+    with pytest.raises(ec.Unsupported):
+        ec.stub_files(_NoDefineIR(), "p.cbl", {})
+    for wrong in ({"organization": "KSDS", "reclen": 56, "why": "x"}, {"organization": "ESDS", "why": "x"},
+                  {"organization": "ESDS", "reclen": 56}):  # fmt: skip
+        with pytest.raises(ec.Unsupported):
+            ec.stub_files(_NoDefineIR(), "p.cbl", {"EPSMORTF": {"csd": wrong}})
+
+
+def test_an_esds_is_compared_in_arrival_order():
+    """#4213: an ESDS has no key -- its records' order is their RBAs, so it is data and is compared as it is."""
+    files = [{"base": "LOG", "reclen": 2, "key_offset": 0, "key_length": 0, "organization": "ESDS"}]
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        (tmp / "s.LOG.out").write_bytes(b"BBAA")
+        diff = ec.compare_files({"datasets": {"LOG": {}}}, Path("."), files, {"LOG": b"AABB"}, tmp, "s")
+        assert diff["LOG"]["equal"] == 0 and diff["LOG"]["records"] == 2

@@ -99,52 +99,98 @@ GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_
 # Mirrors GLOBAL_PLANNED_DEBT/GLOBAL_FRAGILE_DEBT: compiled once here and
 # referenced identically by every language block that wants it, instead of
 # being hand-pasted per-language (see #322).
-_IMPORT_WRAPPER = r"\b(?:import|require|from)\b.*?(?:{names})\b"
-
-_LLM_ORCHESTRATOR_NAMES = r"langchain|llama_index"
-_LLM_VECTOR_STORE_NAMES = r"chromadb|pinecone"
-_ML_TRADITIONAL_NAMES = r"sklearn"
-_DL_FRAMEWORKS_NAMES = r"tensorflow|torch|keras"
-
-# #4137: llm_api is anchored on the provider SDK's TOP-LEVEL package, not on any
-# path segment that happens to be named after a provider. The shared
-# `_IMPORT_WRAPPER` shape (`import ... openai\b` anywhere later on the line)
-# fired on `from airflow.providers.openai.hooks.openai import OpenAIHook` -- an
-# airflow-internal module that never imports the SDK -- and on JS/TS relative
-# paths such as `from './openai/client'`. The two families spell "the package"
-# differently, so each gets its own pattern:
 #
-# * Python: the module right after `from` / each item after `import` must BE
-#   the SDK package (`openai`, `anthropic`, or langchain's per-provider
-#   `langchain_openai` / `langchain_anthropic` distributions -- top-level
-#   packages that `llm_orchestrator`'s `langchain\b` cannot see), optionally
-#   followed by a submodule (`from openai.types import X`). Anchored at a
-#   statement start (line start or `;`), so `from airflow.providers import
-#   openai` and `from . import openai` are not SDK imports. Pieces are
-#   adjacent-disjoint (`[\w.]+` / `[ \t]` / `,`) and the item list is bounded,
-#   so there is no Rule-14 split ambiguity.
-# * JS/TS: the module SPECIFIER (the quoted string after `from` / `import` /
-#   `require(` / `import(`) must name a package: `openai`, `anthropic`, the
-#   official `@openai/*` and `@anthropic-ai/*` scopes, or a scoped provider
-#   adapter `@scope/openai` / `@scope/anthropic` (`@ai-sdk/openai`,
-#   `@azure/openai`, `@langchain/anthropic`). A relative (`./`, `../`), absolute
-#   or alias (`@/`, `~/`) path is never a package, so it never matches.
+# #4137 / #4150: every AI/ML import-pack rule is anchored on the library's
+# TOP-LEVEL package, not on any path segment that happens to share its name.
+# The old shared shape `\b(?:import|require|from)\b.*?(?:{names})\b` (the name
+# anywhere later on an import line) fired on
+# `from airflow.providers.openai.hooks.openai import OpenAIHook` and
+# `from airflow.providers.pinecone.hooks import PineconeHook` -- airflow-internal
+# modules that never import the SDK -- on `from myproj.models.torch import Net`,
+# and on JS/TS relative paths such as `from './openai/client'` or
+# `require('../sklearn')`. The two families spell "the package" differently, so
+# each gets its own builder; every rule uses the same two shapes:
+#
+# * Python (`_py_package_import`): the module right after `from` / each item
+#   after `import` must BE the package, optionally followed by a submodule
+#   (`from openai.types import X`). Anchored at a statement start (line start or
+#   `;`), so `from airflow.providers import openai` and `from . import openai`
+#   are not package imports. Pieces are adjacent-disjoint (`[\w.]+` / `[ \t]` /
+#   `,`) and the item list is bounded, so there is no Rule-14 split ambiguity.
+# * JS/TS (`_js_package_import`): the module SPECIFIER (the quoted string after
+#   `from` / `import` / `require(` / `import(`) must name the package. A relative
+#   (`./`, `../`), absolute or alias (`@/`, `~/`) path is never a package, so it
+#   never matches.
+
+
+def _py_package_import(packages: str) -> "re.Pattern[str]":
+    return re.compile(
+        r"(?:^|;)[ \t]*(?:"
+        r"from[ \t]+(?:" + packages + r")(?!\w)[\w.]*[ \t]+import\b"
+        r"|import[ \t]+(?:[\w.]+(?:[ \t]+as[ \t]+\w+)?[ \t]*,[ \t]*){0,16}(?:" + packages + r")(?!\w)"
+        r")",
+        re.M,
+    )
+
+
+def _js_package_import(packages: str) -> "re.Pattern[str]":
+    return re.compile(r"\b(?:from|import|require)[ \t]*(?:\([ \t]*)?['\"`](?:" + packages + r")(?=['\"`/])")
+
+
+# llm_api (#4137): `openai`, `anthropic`, or langchain's per-provider
+# `langchain_openai` / `langchain_anthropic` distributions. JS/TS: the official
+# `@openai/*` and `@anthropic-ai/*` scopes, or a scoped provider adapter
+# `@scope/openai` / `@scope/anthropic` (`@ai-sdk/openai`, `@azure/openai`,
+# `@langchain/anthropic`).
 _LLM_API_PY_PACKAGES = r"openai|anthropic|langchain_openai|langchain_anthropic"
-PY_LLM_API = re.compile(
-    r"(?:^|;)[ \t]*(?:"
-    r"from[ \t]+(?:" + _LLM_API_PY_PACKAGES + r")(?!\w)[\w.]*[ \t]+import\b"
-    r"|import[ \t]+(?:[\w.]+(?:[ \t]+as[ \t]+\w+)?[ \t]*,[ \t]*){0,16}(?:" + _LLM_API_PY_PACKAGES + r")(?!\w)"
-    r")",
-    re.M,
-)
+PY_LLM_API = _py_package_import(_LLM_API_PY_PACKAGES)
 _LLM_API_JS_PACKAGES = r"openai|anthropic|@(?:openai|anthropic-ai)/[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
-JS_LLM_API = re.compile(
-    r"\b(?:from|import|require)[ \t]*(?:\([ \t]*)?['\"`](?:" + _LLM_API_JS_PACKAGES + r")(?=['\"`/])"
+JS_LLM_API = _js_package_import(_LLM_API_JS_PACKAGES)
+
+# llm_orchestrator (#4150): langchain and LlamaIndex. Every langchain
+# distribution is the orchestration framework (`langchain_core`,
+# `langchain_community`, ...), matching js/ts where the whole `@langchain/*`
+# scope always counted; so the per-provider `langchain_openai` /
+# `@langchain/openai` count here AND under llm_api. The bounded `_\w{1,64}`
+# suffix is followed by `(?!\w)`, so it cannot split ambiguously.
+PY_LLM_ORCHESTRATOR = _py_package_import(r"langchain(?:_\w{1,64})?|llama_index")
+JS_LLM_ORCHESTRATOR = _js_package_import(r"langchain|llamaindex|@(?:langchain|llamaindex)/[\w.-]+")
+# llm_vector_store (#4150): Chroma and Pinecone (npm: `@pinecone-database/*`).
+PY_LLM_VECTOR_STORE = _py_package_import(r"chromadb|pinecone")
+JS_LLM_VECTOR_STORE = _js_package_import(r"chromadb|@pinecone-database/[\w.-]+")
+# ml_traditional (#4150): scikit-learn. There is no js/ts scikit-learn; the
+# anchored name is kept so a literal `require('sklearn')` still counts.
+PY_ML_TRADITIONAL = _py_package_import(r"sklearn")
+JS_ML_TRADITIONAL = _js_package_import(r"sklearn")
+# dl_frameworks (#4150): TensorFlow, PyTorch, Keras. On npm TensorFlow.js ships
+# as the `@tensorflow/*` and `@tensorflow-models/*` scopes; the bare names are
+# kept so a literal `from 'tensorflow'` still counts.
+PY_DL_FRAMEWORKS = _py_package_import(r"tensorflow|torch|keras")
+JS_DL_FRAMEWORKS = _js_package_import(r"tensorflow|torch|keras|@tensorflow(?:-models)?/[\w.-]+")
+
+# hardware_bridge / cryptography (#4238): the last two import-anchored rules had the
+# same `\b(?:import|require|from)\b.*?(?:names)\b` shape (library name ANYWHERE on
+# an import line) and fired on `from myproj.crypto.utils import X`,
+# `from .ssl_helpers import y`, `import { Foo } from './usb/driver'`. They now use the
+# same builders as the AI/ML pack. Names are unchanged except the deliberate
+# additions noted inline.
+# python: `cryptography` and `OpenSSL` are added so `from cryptography import x509` and
+# `from OpenSSL import crypto` (which the old rule caught only through the incidental
+# `x509` / `crypto` tokens) still count; `socket.io` is
+# dropped (not a python module name) and `webgl` kept as before.
+PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|usb|bluetooth|websocket|printer|webgl")
+PY_CRYPTOGRAPHY = _py_package_import(
+    r"cryptography|OpenSSL|crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac"
 )
-GLOBAL_LLM_ORCHESTRATOR = re.compile(_IMPORT_WRAPPER.format(names=_LLM_ORCHESTRATOR_NAMES))
-GLOBAL_LLM_VECTOR_STORE = re.compile(_IMPORT_WRAPPER.format(names=_LLM_VECTOR_STORE_NAMES))
-GLOBAL_ML_TRADITIONAL = re.compile(_IMPORT_WRAPPER.format(names=_ML_TRADITIONAL_NAMES))
-GLOBAL_DL_FRAMEWORKS = re.compile(_IMPORT_WRAPPER.format(names=_DL_FRAMEWORKS_NAMES))
+# js/ts: `node:`-prefixed builtins, `crypto-*` (`crypto-js`) and the `@serialport/*`,
+# `@socket.io/*` and `@scope/x509` scoped packages all counted under the old
+# anywhere-on-the-line shape, so they are named explicitly.
+JS_HARDWARE_BRIDGE = _js_package_import(
+    r"serialport|@serialport/[\w.-]+|usb|bluetooth|socket\.io(?:-client)?|@socket\.io/[\w.-]+|websocket|printer"
+)
+JS_CRYPTOGRAPHY = _js_package_import(
+    r"(?:node:)?(?:crypto|tls)|crypto-[\w.-]+|bcrypt|ssl|jsonwebtoken|argon2|x509|@[\w.-]+/x509"
+)
 
 # A `<script>` whose `type` attribute is any of these carries NO executable logic
 # -- a browser treats every `type` outside the JS-MIME / `module` / bare set as an

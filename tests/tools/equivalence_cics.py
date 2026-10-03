@@ -247,6 +247,12 @@ def _literal(value: str) -> str | None:
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
+def _cfg_flags(case: dict[str, Any], f: dict[str, Any]) -> str:
+    """files.cfg's sixth column: the file's flags, comma-separated -- NONE (RECOVERY(NONE)) and ESDS (#4213)."""
+    flags = (["NONE"] if _recovery(case, f) else []) + (["ESDS"] if f.get("organization") == "ESDS" else [])
+    return " " + ",".join(flags) if flags else ""
+
+
 def _recovery(case: dict[str, Any], f: dict[str, Any]) -> str:
     """files.cfg's sixth column: " NONE" for a file whose dataset the case says the CSD defines RECOVERY(NONE)
     (`"recovery": "NONE"`, a deployment fact with its `why`): CICS does not back out its changes."""
@@ -363,7 +369,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         return f"MOVE {operand} TO {into}" if operand else f"MOVE SPACES TO {into}"
 
     if verb == "READ":
-        for bad in ("GENERIC", "GTEQ", "SET", "SYSID", "RBA", "RRN", "TOKEN"):
+        for bad in ("GENERIC", "GTEQ", "SET", "SYSID", "RBA", "XRBA", "RRN", "TOKEN"):
             if bad in opts:
                 raise Unsupported(f"READ {bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
@@ -376,7 +382,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
                                     f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb == "WRITE" and {"FILE", "DATASET"} & set(opts):
-        for bad in ("MASSINSERT", "SYSID", "RBA", "RRN"):
+        for bad in ("MASSINSERT", "SYSID", "RBA", "XRBA", "RRN"):
             if bad in opts:
                 raise Unsupported(f"WRITE {bad}")
         file, frm, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("FROM"), opts.get("RIDFLD")
@@ -397,27 +403,36 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         length = opts.get("LENGTH") or f"LENGTH OF {frm}"  # LENGTH bytes from FROM's first, as CICS reads them
         return ([name(file, "GG-NAME1")] + _call("GGCREWR", [f"BY REFERENCE {frm}", f"BY VALUE {length}"])
                 + _resp(opts, True, labels))  # fmt: skip
-    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys
-        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "XRBA", "DEBKEY", "DEBREC"):
+    if verb == "STARTBR":  # browse (CardDemo's lists): one browse per file, full keys -- or an ESDS's RBAs (#4213)
+        rba = "RBA" in opts
+        for bad in ("GENERIC", "REQID", "SYSID", "RRN", "XRBA", "DEBKEY", "DEBREC") + (
+            ("GTEQ", "KEYLENGTH") if rba else ()
+        ):
             if bad in opts:
-                raise Unsupported(f"STARTBR {bad}")
+                raise Unsupported(f"STARTBR {'RBA ' if rba else ''}{bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
         if not (file and ridfld):
             raise Unsupported("STARTBR without FILE / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
-        mode = "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS"  # GTEQ is the default
+        # GTEQ is a keyed browse's default; EQUAL "is the default for a direct ESDS browse" (IBM, STARTBR), and GTEQ
+        # "is not valid for directly browsing an ESDS"
+        mode = ("MOVE 'EQUAL RBA' TO GG-FLAGS" if rba else
+                "MOVE 'EQUAL' TO GG-FLAGS" if "EQUAL" in opts else "MOVE SPACES TO GG-FLAGS")  # fmt: skip
         return ([name(file, "GG-NAME1"), mode] + _call("GGCSTBR", [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}"])
                 + _resp(opts, True, labels))  # fmt: skip
     if verb in ("READNEXT", "READPREV"):
-        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "XRBA", "SET", "UPDATE", "TOKEN", "NOSUSPEND"):
+        rba = "RBA" in opts  # #4213: every READNEXT / READPREV of an RBA browse says RBA too
+        for bad in ("GENERIC", "REQID", "SYSID", "RRN", "XRBA", "SET", "UPDATE", "TOKEN", "NOSUSPEND") + (
+            ("KEYLENGTH",) if rba else ()
+        ):
             if bad in opts:
-                raise Unsupported(f"{verb} {bad}")
+                raise Unsupported(f"{verb} {'RBA ' if rba else ''}{bad}")
         file, into, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("INTO"), opts.get("RIDFLD")
         if not (file and into and ridfld):
             raise Unsupported(f"{verb} without FILE / INTO / RIDFLD")
         keylen = opts.get("KEYLENGTH") or f"LENGTH OF {ridfld}"
         stub = "GGCRDNX" if verb == "READNEXT" else "GGCRDPV"
-        return ([name(file, "GG-NAME1")]
+        return ([name(file, "GG-NAME1"), "MOVE 'RBA' TO GG-FLAGS" if rba else "MOVE SPACES TO GG-FLAGS"]
                 + _call(stub, [f"BY REFERENCE {ridfld}", f"BY VALUE {keylen}", f"BY REFERENCE {into}",
                                f"BY VALUE LENGTH OF {into}"])
                 + _resp(opts, True, labels))  # fmt: skip
@@ -430,7 +445,7 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
             raise Unsupported("ENDBR without FILE")
         return [name(file, "GG-NAME1")] + _call("GGCENBR", []) + _resp(opts, True, labels)
     if verb == "DELETE" and ({"FILE", "DATASET"} & set(opts)):
-        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "RRN", "TOKEN", "NOSUSPEND", "NUMREC"):
+        for bad in ("GENERIC", "REQID", "SYSID", "RBA", "XRBA", "RRN", "TOKEN", "NOSUSPEND", "NUMREC"):
             if bad in opts:
                 raise Unsupported(f"DELETE {bad}")
         file, ridfld = opts.get("FILE") or opts.get("DATASET"), opts.get("RIDFLD")
@@ -766,6 +781,23 @@ def task_dispatcher(programs: dict[str, bool]) -> str:
 
 
 # ---- the stub's files, from the engine's facts ----------------------------------------
+def _case_csd(file: str, datasets: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
+    """#4213: a CICS file the estate defines nowhere (no CSD DEFINE FILE, no IDCAMS DEFINE: IBM DBB MortgageApplication
+    ships neither for EPSMORTF), stated by the case's dataset of that name as a deployment fact with its `why`:
+    `"csd": {"organization": "ESDS", "reclen": N, "why": ...}`. Only an ESDS of fixed-length records is stated so."""
+    spec = ((datasets or {}).get(file.upper()) or {}).get("csd")
+    if spec is None:
+        return None
+    if (
+        str(spec.get("organization", "")).upper() != "ESDS"
+        or not isinstance(spec.get("reclen"), int)
+        or not spec.get("why")
+    ):
+        raise Unsupported(f"CICS file {file}: a case's csd states an ESDS, its reclen and why ({spec})")
+    return {"file": file.upper(), "dsname": file.upper(), "base": file.upper(), "key_offset": 0, "key_length": 0,
+            "reclen": spec["reclen"], "via": ["the case's csd"], "organization": "ESDS"}  # fmt: skip
+
+
 def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
     """Each CICS file the program uses: {file, dsname, base (the cluster whose records it
     reads), key_offset, key_length, reclen, via}, from the engine's facts -- the CSD
@@ -784,7 +816,11 @@ def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = 
             continue
         defs = [d for d in e["definitions"] if d.get("dsname")]
         if not defs:
-            raise Unsupported(f"CICS file {e['name']}: no CSD DEFINE FILE with a DSNAME")
+            stated = _case_csd(e["name"], datasets)
+            if stated is None:
+                raise Unsupported(f"CICS file {e['name']}: no CSD DEFINE FILE with a DSNAME")
+            out.append(stated)
+            continue
         dsn = defs[0]["dsname"].upper()
         d, via = defines.get(dsn), []
         if d is not None and d.kind == "PATH":
@@ -806,6 +842,13 @@ def stub_files(ir: Any, program_file: str, datasets: Optional[dict[str, Any]] = 
             if d is None:
                 raise Unsupported(f"CICS file {e['name']}: AIX {key.name} has no base cluster define")
         stated = ((datasets or {}).get(d.name.upper()) or {}).get("vsam") or {}
+        if key is d and (d.organization or "").upper() == "NONINDEXED":  # #4213: an ESDS: no key, browsed by RBA
+            reclen = d.record_max if d.record_max is not None else stated.get("reclen")
+            if reclen is None or (d.record_avg is not None and d.record_avg != reclen):
+                raise Unsupported(f"CICS file {e['name']}: ESDS {d.name} without fixed-length records (RECORDSIZE)")
+            out.append({"file": e["name"], "dsname": dsn, "base": d.name.upper(), "key_offset": 0, "key_length": 0,
+                        "reclen": reclen, "via": via, "organization": "ESDS"})  # fmt: skip
+            continue
         koff = key.key_offset if key.key_offset is not None else stated.get("key_offset")
         klen = key.key_length if key.key_length is not None else stated.get("key_length")
         reclen = d.record_max if d.record_max is not None else stated.get("reclen")
@@ -1064,7 +1107,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
-        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_recovery(case, f)}\n"
+        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_cfg_flags(case, f)}\n"
         for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
@@ -1146,7 +1189,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
         (d / "files.cfg").write_text("".join(
             f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
-            f"{f['key_length']}{_recovery(case, f)}\n" for f in files
+            f"{f['key_length']}{_cfg_flags(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
             (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
@@ -1647,6 +1690,11 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                      f"            }});")  # fmt: skip
     fields, loads, dumps = [], [], []
     for dsn, spec in case.get("datasets", {}).items():
+        if by_base[dsn].get("organization") == "ESDS":  # #4213: the region's ESDS, on the task (CicsTask.withEsds)
+            f = by_base[dsn]
+            csd_java += f'            task.withEsds("{f["file"]}", {f["reclen"]}, records("{dsn}", {f["reclen"]}));\n'
+            dumps.append(f'            dump(sc.get("name").asText() + ".{dsn}.out", task.esdsRecords("{f["file"]}"));')
+            continue
         ent = spec["entity"]
         repo = f"{ent[0].lower()}{ent[1:]}Repository"
         fields.append(f"    @Autowired {pkg}.repository.vsam.{ent}Repository {repo};")
@@ -1832,6 +1880,16 @@ class EquivalenceRunTest {{
         }}
     }}
 
+    /** #4213: a dataset's records, as loaded, each `reclen` bytes (an ESDS: in arrival order). */
+    List<byte[]> records(String dd, int reclen) throws IOException {{
+        byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
+        List<byte[]> rows = new ArrayList<>();
+        for (int i = 0; i + reclen <= data.length; i += reclen) {{
+            rows.add(java.util.Arrays.copyOfRange(data, i, i + reclen));
+        }}
+        return rows;
+    }}
+
     <E> void load(String dd, int reclen, BiFunction<byte[], Charset, E> fromRecord, JpaRepository<E, ?> repo)
             throws IOException {{
         byte[] data = Files.readAllBytes(in.resolve(dd + ".in"));
@@ -1956,6 +2014,8 @@ def compare_files(case: dict[str, Any], corpus: Path, files: list[dict[str, Any]
         right = right_file.read_bytes() if right_file.is_file() else b""
 
         def by_key(data: bytes) -> bytes:
+            if f.get("organization") == "ESDS":  # #4213: an ESDS's order is its records' RBAs: data, kept
+                return data
             recs = [data[i : i + reclen] for i in range(0, len(data) - reclen + 1, reclen)]
             return b"".join(sorted(recs, key=lambda r: r[f["key_offset"] : f["key_offset"] + f["key_length"]]))
 

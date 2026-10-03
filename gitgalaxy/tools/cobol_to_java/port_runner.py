@@ -321,7 +321,7 @@ def det_port(project: Path, ticket: dict[str, Any], source_root: Path, work: Pat
             dirs.append(d)
     bms = work / "bms"
     bms_copybooks([p for p in source_root.rglob("*") if p.is_file() and p.suffix.lower() == ".bms"
-                   and ".git" not in p.parts], bms)  # fmt: skip
+                   and ".git" not in p.relative_to(source_root).parts], bms)  # fmt: skip
     dirs.append(bms)
     stub_file = _service_file(project, ticket)
     stub = stub_file.read_text(encoding="utf-8")

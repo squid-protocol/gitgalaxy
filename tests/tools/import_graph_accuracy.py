@@ -61,7 +61,9 @@ RESOLUTION RULES (the language's, never the engine's)
   javascript, typescript
               relative specifiers only (`./`, `../`): the path, with each JS/TS
               extension, a `.js` spelling of a `.ts` file, or its index file.
-              Bare specifiers are packages (or tsconfig aliases) and not scored.
+              A bare specifier naming the file's own package (`zod/v4` in zod) is the
+              file its nearest package.json `exports` declares (Node self-reference,
+              #3789); any other bare specifier is a package (or tsconfig alias), not scored.
   lua         `require "a.b"` -> a/b.lua, a/b/init.lua (suffix); dofile/loadfile
               string paths by suffix.
   php         include/require of a string literal (a leading __DIR__ . "/x"
@@ -414,10 +416,51 @@ def java_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     return out
 
 
+def _exports_leaves(value: Any, depth: int = 0) -> list[str]:
+    """Every string target of a package.json `exports` value, in declaration order."""
+    if isinstance(value, str):
+        return [value]
+    if depth > 6:
+        return []
+    items = value if isinstance(value, list) else list(value.values()) if isinstance(value, dict) else []
+    return [leaf for item in items for leaf in _exports_leaves(item, depth + 1)]
+
+
+def _self_reference(spec: str, rel: str, group: Group) -> Optional[set[str]]:
+    """Node's self-reference (#3789): inside a package, `name/sub` is the file the nearest
+    package.json's `exports["./sub"]` declares. None when the specifier is not one."""
+    if group.root is None:
+        return None
+    here = posixpath.dirname(rel)
+    while True:
+        manifest = group.root / here / "package.json"
+        if manifest.is_file():
+            try:
+                pkg = json.loads(manifest.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                return None
+            break
+        if not here:
+            return None
+        here = posixpath.dirname(here)
+    name, exports = pkg.get("name"), pkg.get("exports")
+    if not isinstance(name, str) or not isinstance(exports, dict) or not (spec == name or spec.startswith(name + "/")):
+        return None
+    sub = "." + spec[len(name) :]
+    targets = _exports_leaves(exports.get(sub)) if sub in exports else []
+    for target in targets:
+        base = posixpath.normpath(posixpath.join(here, target))
+        stem, ext = posixpath.splitext(base)
+        found = {c for c in [base, *(stem + e for e in (".ts", ".tsx", ".mts", ".cts"))] if c in group.files}
+        if found:
+            return found
+    return None
+
+
 def js_imports(lang: str) -> Callable[[bytes, str, Group], list[set[str]]]:
     def resolve(spec: str, rel: str, group: Group) -> Optional[set[str]]:
         if not spec.startswith(("./", "../")):
-            return None  # a package or a configured alias: not the language's rule to resolve
+            return _self_reference(spec, rel, group)  # else a package or alias: not scored
         base = posixpath.normpath(posixpath.join(posixpath.dirname(rel), spec))
         cands = [base] + [base + e for e in _JS_EXTS] + [posixpath.join(base, "index" + e) for e in _JS_EXTS]
         stem, ext = posixpath.splitext(base)

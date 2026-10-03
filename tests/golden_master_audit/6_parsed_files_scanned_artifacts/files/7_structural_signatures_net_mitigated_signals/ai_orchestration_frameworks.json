@@ -3069,9 +3069,9 @@
       "python/homeassistant_ble_integrations/utils.py": 0
     },
     "python/langchain_agents": {
-      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 2,
-      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 4,
-      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 1
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": 4,
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": 6,
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": 6
     },
     "python/micropython_usb_tls": {
       "python/micropython_usb_tls/ssl_verify_callback.py": 0,

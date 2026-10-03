@@ -773,7 +773,8 @@ class RecordKeeper:
                 wrapped_memory_alloc INTEGER DEFAULT 0,
                 declared_names TEXT,
                 source_encoding TEXT,
-                source_decode TEXT
+                source_decode TEXT,
+                namespace_imports TEXT
             )
         """)
 
@@ -822,6 +823,8 @@ class RecordKeeper:
         # certain; cp1252-fallback / latin-1-fallback are guesses a reader should know about).
         # NULL on a file rehydrated from a DB that predates the columns.
         _ensure_columns(cursor, "file_data", ["source_encoding TEXT", "source_decode TEXT"])
+        # #3788: JS/TS namespace-import aliases, so a delta scan keeps `ns.f()` resolution.
+        _ensure_columns(cursor, "file_data", ["namespace_imports TEXT"])
 
         # #3313 step 4: the wrapper-aware count -- per rule, the call sites in this
         # file that reach the rule's behaviour through a project wrapper recorded in
@@ -2598,6 +2601,9 @@ class RecordKeeper:
             # #3813: the decode record (see the schema note).
             row_data.append(file_data.get("source_encoding"))
             row_data.append(file_data.get("source_decode"))
+            # #3788: a JS/TS file's namespace-import aliases ({alias: specifier}), NULL if none.
+            namespaces = file_data.get("namespace_imports")
+            row_data.append(json.dumps(namespaces, sort_keys=True) if namespaces else None)
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -2715,7 +2721,7 @@ class RecordKeeper:
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports,
                     wrapper_facts, wrapped_debug_prints, wrapped_panics_and_aborts, wrapped_memory_alloc,
-                    declared_names, source_encoding, source_decode
+                    declared_names, source_encoding, source_decode, namespace_imports
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,

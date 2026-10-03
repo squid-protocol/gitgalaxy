@@ -44659,7 +44659,7 @@
         "satisfiesWordInvariant@734": 1,
         "trimLine@655": 1,
         "trimLineEndAtSoftBreak@705": 1,
-        "wrapLine@486": 0,
+        "wrapLine@486": 1,
         "wrapText@397": 0,
         "wrapWord@578": 1
       }
@@ -44696,7 +44696,7 @@
         "fromNullable@1363": 1,
         "fromNullableK@1421": 1,
         "getAltValidation@453": 1,
-        "getApplicativeValidation@404": 3,
+        "getApplicativeValidation@404": 4,
         "getCompactable@260": 2,
         "getEq@228": 0,
         "getFilterable@281": 1,

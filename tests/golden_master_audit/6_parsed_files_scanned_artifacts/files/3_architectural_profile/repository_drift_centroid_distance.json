@@ -1935,11 +1935,11 @@
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 6.628,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 3.553,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 3.295,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 5.647,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 5.147,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 3.786,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 5.003,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 3.649,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 4.892,
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 6.072
     },
     "javascript/react": {
@@ -3064,8 +3064,8 @@
     },
     "python/homeassistant_ble_integrations": {
       "python/homeassistant_ble_integrations/LICENSE.md": 0.0,
-      "python/homeassistant_ble_integrations/aranet___init__.py": 6.428,
-      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 7.94,
+      "python/homeassistant_ble_integrations/aranet___init__.py": 6.029,
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": 7.735,
       "python/homeassistant_ble_integrations/utils.py": 6.074
     },
     "python/langchain_agents": {
@@ -3127,7 +3127,7 @@
       "python/twisted/defer.py": 6.519,
       "python/twisted/http.py": 6.728,
       "python/twisted/reflect.py": 7.669,
-      "python/twisted/transport.py": 6.557
+      "python/twisted/transport.py": 6.585
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 6.252,

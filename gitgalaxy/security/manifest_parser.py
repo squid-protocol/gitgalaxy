@@ -658,7 +658,10 @@ class UniversalManifestSlicer:
                 venv_path = target_path / venv_dir
                 if venv_path.exists():
                     for root, dirs, _ in os.walk(venv_path):
-                        if "site-packages" in root:
+                        # Test the parts RELATIVE to the venv: an absolute `root` also carries the
+                        # scan's own parent directories, so a tree that merely lives under a
+                        # `site-packages` folder would match everywhere (#4239, #4058).
+                        if "site-packages" in Path(root).relative_to(venv_path).parts:
                             # Case-insensitive match for the package folder
                             for d in dirs:
                                 if d.lower() == safe_pkg_name or d.lower().startswith(f"{safe_pkg_name}-"):

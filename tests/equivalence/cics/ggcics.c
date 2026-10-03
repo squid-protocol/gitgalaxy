@@ -206,6 +206,16 @@ static void copy_file(const char *from, const char *to) {
     if (b) fclose(b);
 }
 
+/* files.cfg's sixth column: the file's flags, comma-separated -- NONE (the CSD defines it RECOVERY(NONE)) and ESDS
+ * (an entry-sequenced data set: no key; each record is found by its relative byte address, #4213). */
+static int flag_in(const char *flags, const char *flag) {
+    size_t n = strlen(flag);
+    for (const char *p = flags; (p = strstr(p, flag)) != NULL; p += n) {
+        if ((p == flags || p[-1] == ',') && (p[n] == '\0' || p[n] == ',')) return 1;
+    }
+    return 0;
+}
+
 /* Whether the CSD defines the file at `path` RECOVERY(NONE) (files.cfg's sixth column): its changes are not backed out. */
 static int non_recoverable(const char *path) {
     char line[4096], name[64], p[3000], rec[16];
@@ -214,7 +224,7 @@ static int non_recoverable(const char *path) {
     FILE *cfg = fopen(line, "r");
     while (cfg && !none && fgets(line, sizeof line, cfg)) {
         if (sscanf(line, "%63s %2999s %d %d %d %15s", name, p, &a, &b, &c, rec) == 6 && strcmp(p, path) == 0)
-            none = strcmp(rec, "NONE") == 0;
+            none = flag_in(rec, "NONE");
     }
     if (cfg) fclose(cfg);
     return none;
@@ -247,6 +257,38 @@ static int file_cfg(const char *want, char *path, int *reclen, int *keyoff, int 
     }
     if (cfg) fclose(cfg);
     return found;
+}
+
+/* Whether files.cfg defines the file `want` as an ESDS (#4213). */
+static int is_esds(const char *want) {
+    char line[4096], name[64], p[3000], flags[64];
+    int a, b, c, esds = 0;
+    snprintf(line, sizeof line, "%s/files.cfg", dir_in());
+    FILE *cfg = fopen(line, "r");
+    while (cfg && fgets(line, sizeof line, cfg)) {
+        if (sscanf(line, "%63s %2999s %d %d %d %63s", name, p, &a, &b, &c, flags) == 6 && strcmp(name, want) == 0) {
+            esds = flag_in(flags, "ESDS");
+            break;
+        }
+    }
+    if (cfg) fclose(cfg);
+    return esds;
+}
+
+/* What IBM does not document, or this model does not cover, stops the run: 98 and "<what>: not modelled"
+ * (oracle_assumptions.md X5, X13), which the harness reports as a refusal by name -- never a guess. */
+static void refuse(const char *what) {
+    printf("%s: not modelled\n", what);
+    fflush(stdout);
+    exit(98);
+}
+
+/* A keyed command on an ESDS (#4213): an ESDS has no key; only its browse by RBA is modelled. */
+static void keyed_on_esds(const char *verb, const char *want) {
+    char why[120];
+    if (!is_esds(want)) return;
+    snprintf(why, sizeof why, "%s by key on %s, an ESDS", verb, want);
+    refuse(why);
 }
 
 /* The record number (0-based) whose key is `key`, or -1. */
@@ -284,6 +326,7 @@ int GGCWRIT(gg_cics *c, char *ridfld, int keylen, char *from, int fromlen) {
         file_event("WRITE", want, ridfld, keylen, c->resp);
         return 0;
     }
+    keyed_on_esds("WRITE", want);
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
     } else if (find_key(path, reclen, keyoff, klen < keylen ? klen : keylen, ridfld) >= 0) {
@@ -389,6 +432,7 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
         event(ev, NULL, 0);
         return 0;
     }
+    keyed_on_esds("READ", want);
     snprintf(line, sizeof line, "%s/files.cfg", dir_in());
     FILE *cfg = fopen(line, "r");
     if (cfg) {
@@ -435,7 +479,12 @@ int GGCREAD(gg_cics *c, char *ridfld, int keylen, char *into, int intolen) {
  *              just read) -- NOTFND when that key is not there, as documented for the STARTBR case; after an
  *              X'FF' STARTBR it reads the last record. ENDFILE before the first.
  *   ENDBR      INVREQ (35) when no browse is active.  */
-static struct { char name[9]; int active, equal, last, dir, have_last; char start[256], lastkey[256]; } br[MAX_FILES];
+static struct {
+    char name[9];
+    int active, equal, last, dir, have_last, rba;
+    char start[256], lastkey[256];
+    unsigned long rstart, rlast;  /* an RBA browse (#4213): the STARTBR's RBA, the last RBA read */
+} br[MAX_FILES];
 
 static int browse_slot(const char *file, int create) {
     for (int i = 0; i < MAX_FILES; i++) if (br[i].name[0] && strcmp(br[i].name, file) == 0) return i;
@@ -489,7 +538,120 @@ static long pick_last(const char *all, long n, int reclen, int keyoff, int klen)
     return best;
 }
 
-/* STARTBR FILE(name1) RIDFLD [GTEQ | EQUAL: GG-FLAGS 'EQUAL']. */
+/* ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------------
+ * IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV, option RBA: "the record identification field specified in the
+ * RIDFLD option contains a relative byte address"; "if you specify the RBA option, it applies to every READNEXT or
+ * READPREV command in the browse, and causes CICS to return the relative byte address of each retrieved record".
+ * EQUAL "is the default for a direct ESDS browse"; GTEQ "is not valid for directly browsing an ESDS" (refused by the
+ * translator). "To position the browse at the last record in the file, ready for a backward browse, specify a RIDFLD
+ * of X'FF' characters ... For a standard ESDS, specify the RBA option" (Sequential reading (browsing)); "when you set
+ * RIDFLD to reposition a browse, the record identifier must be in the same form as on the previous STARTBR" (ibid.).
+ * Modelled: an ESDS of fixed-length records in arrival order, a record's RBA its byte offset (oracle_assumptions.md
+ * X13); RIDFLD a fullword, big-endian. The browse moves as the keyed one above does, in RBA order. Refused by name: an
+ * RBA that addresses no record (IBM does not say whether VSAM answers NOTFND, INVREQ or ILLOGIC), RBA on a file that
+ * is not an ESDS (a KSDS by RBA), a keyed browse of an ESDS, and a browse that mixes RBA and key commands. */
+static unsigned long rba_get(const char *rid) {
+    const unsigned char *u = (const unsigned char *)rid;
+    return ((unsigned long)u[0] << 24) | ((unsigned long)u[1] << 16) | ((unsigned long)u[2] << 8) | u[3];
+}
+
+static void rba_put(char *rid, unsigned long v) {
+    rid[0] = (char)((v >> 24) & 0xFF);
+    rid[1] = (char)((v >> 16) & 0xFF);
+    rid[2] = (char)((v >> 8) & 0xFF);
+    rid[3] = (char)(v & 0xFF);
+}
+
+#define RBA_END 0xFFFFFFFFUL
+
+/* The record (0-based) at `rba`; refused when no record starts there. */
+static long rba_record(const char *verb, const char *want, unsigned long rba, int reclen, long n) {
+    char why[120];
+    if (rba % (unsigned long)reclen == 0 && rba / (unsigned long)reclen < (unsigned long)n) {
+        return (long)(rba / (unsigned long)reclen);
+    }
+    snprintf(why, sizeof why, "%s RBA %lu on %s: no record starts there", verb, rba, want);
+    refuse(why);
+    return -1;
+}
+
+static void rba_event(const char *verb, const char *file, unsigned long rba, int resp) {
+    char ev[120];
+    snprintf(ev, sizeof ev, "%s file=%s rba=%lu resp=%d", verb, file, rba, resp);
+    event(ev, NULL, 0);
+}
+
+/* STARTBR ... RBA: GG-FLAGS 'EQUAL RBA'. */
+static int rba_startbr(gg_cics *c, const char *want, const char *path, int reclen, char *ridfld, int keylen) {
+    char why[120];
+    if (!is_esds(want)) {
+        snprintf(why, sizeof why, "STARTBR RBA on %s, not an ESDS", want);
+        refuse(why);
+    }
+    if (keylen < 4) refuse("an RBA RIDFLD shorter than a fullword");
+    int s = browse_slot(want, 1);
+    unsigned long rba = rba_get(ridfld);
+    if (s >= 0 && br[s].active) {
+        c->resp = INVREQ;
+        c->resp2 = 33;
+    } else {
+        long n;
+        char *all = load_records(path, reclen, &n);
+        free(all);
+        if (rba != RBA_END) rba_record("STARTBR", want, rba, reclen, n);
+        br[s].active = 1;
+        br[s].dir = 0;
+        br[s].have_last = 0;
+        br[s].equal = 1;
+        br[s].rba = 1;
+        br[s].last = rba == RBA_END;
+        br[s].rstart = rba;
+        c->resp = NORMAL;
+    }
+    rba_event("STARTBR", want, rba, c->resp);
+    return 0;
+}
+
+/* READNEXT (dir 1) / READPREV (dir -1) ... RBA: GG-FLAGS 'RBA'; the browse is an RBA browse. */
+static int rba_read(gg_cics *c, int dir, const char *want, const char *path, int reclen, int s, char *ridfld,
+                    int keylen, char *into, int intolen) {
+    const char *verb = dir > 0 ? "READNEXT" : "READPREV";
+    if (keylen < 4) refuse("an RBA RIDFLD shorter than a fullword");
+    unsigned long rba = rba_get(ridfld), was = br[s].have_last ? br[s].rlast : br[s].rstart;
+    int changed = rba != was;
+    long n, at;
+    char *all = load_records(path, reclen, &n);
+    if (dir > 0) {
+        if (br[s].dir == 0 && !br[s].last && !changed) at = rba_record(verb, want, rba, reclen, n);
+        else if (br[s].dir == 1 && !changed) at = (long)(rba / (unsigned long)reclen) + 1;
+        else if (rba == RBA_END) at = -1;
+        else at = rba_record(verb, want, rba, reclen, n);
+        if (at >= n) at = -1;
+        c->resp = at < 0 ? ENDFILE : NORMAL;
+        if (at < 0) c->resp2 = 90;
+    } else {
+        if (rba == RBA_END && (br[s].dir == 0 || changed)) at = n - 1;
+        else if (br[s].dir == -1 && !changed) at = (long)(rba / (unsigned long)reclen) - 1;
+        else at = rba_record(verb, want, rba, reclen, n);
+        c->resp = at < 0 ? ENDFILE : NORMAL;
+        if (at < 0) c->resp2 = 90;
+    }
+    if (at >= 0) {
+        const char *rec = all + at * reclen;
+        memcpy(into, rec, (size_t)(reclen < intolen ? reclen : intolen));
+        rba = (unsigned long)at * (unsigned long)reclen;
+        rba_put(ridfld, rba);
+        br[s].rlast = rba;
+        br[s].have_last = 1;
+        br[s].dir = dir;
+        if (reclen > intolen) { c->resp = LENGERR; c->resp2 = 11; }
+    }
+    free(all);
+    rba_event(verb, want, rba, c->resp);
+    return 0;
+}
+
+/* STARTBR FILE(name1) RIDFLD [GTEQ | EQUAL: GG-FLAGS 'EQUAL'] [RBA: GG-FLAGS 'RBA', #4213]. */
 int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
     char want[9], path[3000], key[256];
     int reclen, keyoff, klen, fresp, fresp2;
@@ -501,10 +663,15 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
         file_event("STARTBR", want, ridfld, keylen, c->resp);
         return 0;
     }
-    int s = browse_slot(want, 1);
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
-    } else if (s >= 0 && br[s].active) {
+        file_event("STARTBR", want, ridfld, keylen, c->resp);
+        return 0;
+    }
+    if (strstr(c->flags, "RBA")) return rba_startbr(c, want, path, reclen, ridfld, keylen);
+    keyed_on_esds("STARTBR", want);
+    int s = browse_slot(want, 1);
+    if (s >= 0 && br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 33;
     } else {
@@ -521,6 +688,7 @@ int GGCSTBR(gg_cics *c, char *ridfld, int keylen) {
             c->resp2 = 80;
         } else {
             br[s].active = 1;
+            br[s].rba = 0;
             br[s].equal = equal;
             br[s].last = last;
             br[s].dir = 0;
@@ -552,6 +720,13 @@ static int browse_read(gg_cics *c, int dir, char *ridfld, int keylen, char *into
     } else if (s < 0 || !br[s].active) {
         c->resp = INVREQ;
         c->resp2 = 34;
+    } else if (br[s].rba != (strstr(c->flags, "RBA") != NULL)) {  /* IBM: the same form as the STARTBR's */
+        char why[120];
+        snprintf(why, sizeof why, "%s by %s in %s browse of %s", verb, br[s].rba ? "key" : "RBA",
+                 br[s].rba ? "an RBA" : "a keyed", want);
+        refuse(why);
+    } else if (br[s].rba) {
+        return rba_read(c, dir, want, path, reclen, s, ridfld, keylen, into, intolen);
     } else {
         int len = keylen < klen ? keylen : klen;
         memset(key, 0, sizeof key);
@@ -635,6 +810,7 @@ int GGCDELT(gg_cics *c, char *ridfld, int keylen) {
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);
         return 0;
     }
+    keyed_on_esds("DELETE", want);
     if (!file_cfg(want, path, &reclen, &keyoff, &klen)) {
         c->resp = FILENOTFOUND;
         file_event("DELETE", want, ridfld, by_hold ? 0 : keylen, c->resp);

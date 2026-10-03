@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import base64
 import re
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -260,6 +261,26 @@ def trunc_std(program: Path, options: list[str] | None = None) -> bool:
 
 _ENTRIES = re.compile(r"^    public (?:void runTask\(CicsTask task\)|int runBatch\(List<Dd> dds, String parm\)|"
                       r"int handleCall\([^)]*\)) \{$", re.M)  # fmt: skip
+
+
+_FIELD_DECL = re.compile(r"^    private final Field (f\d+_\w+) = .*\n", re.M)
+_FIELD_REF = re.compile(r"\bf\d+_\w+\b")
+
+
+def drop_unused_fields(java: str) -> str:
+    """Drop the Field of every item nothing in the class names (most are a copybook's or a map's items the program
+    never touches). A Field is a view of its storage, built with no side effect, so the storage keeps every byte --
+    its image, its length, every group move and record I/O -- and only the dead view goes. Repeated until nothing
+    changes, so a Field named only by another dropped Field's declaration goes too."""
+    while True:
+        uses = Counter(_FIELD_REF.findall(java))
+        out = "".join(
+            ln if (m := _FIELD_DECL.fullmatch(ln)) is None or uses[m.group(1)] > 1 else ""
+            for ln in java.splitlines(keepends=True)
+        )
+        if out == java:
+            return out
+        java = out
 
 
 def with_trunc(java: str, std: bool) -> str:
@@ -951,7 +972,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
-    return Result(with_trunc("\n".join(out), trunc_std(program, options)), service, stats)
+    return Result(with_trunc(drop_unused_fields("\n".join(out)), trunc_std(program, options)), service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:

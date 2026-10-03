@@ -1935,11 +1935,11 @@
     },
     "javascript/node_tls_security_tests": {
       "javascript/node_tls_security_tests/regexp-unicode-sets.js": 0,
-      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 2,
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": 1,
       "javascript/node_tls_security_tests/test-fs-lchown.js": 0,
       "javascript/node_tls_security_tests/test-https-host-headers.js": 0,
-      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 2,
-      "javascript/node_tls_security_tests/test-tls-psk-server.js": 2,
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": 1,
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": 1,
       "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": 1
     },
     "javascript/react": {
@@ -3127,7 +3127,7 @@
       "python/twisted/defer.py": 0,
       "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 2
+      "python/twisted/transport.py": 9
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

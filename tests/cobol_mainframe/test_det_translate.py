@@ -159,6 +159,27 @@ def test_each_entry_runs_with_its_programs_trunc(tmp_path):
     assert out.index("finally") < out.index("void other()") and 'x("{");' in out
 
 
+def test_an_item_nothing_uses_has_no_field():
+    """A Field is a view of its storage's bytes: one nothing reads or writes is dead code, so it is not emitted. The
+    storage keeps every byte (its image and its length), so the proof sees the same bytes; only the view goes."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    java = (
+        "class S {\n"
+        "    private final Field f1_REC = Field.group(s_REC, 0, 4);\n"
+        "    private final Field f2_A = Field.alphanumeric(s_REC, 0, 2, false);\n"
+        "    private final Field f3_A_B = Field.alphanumeric(s_REC, 2, 2, false);\n"
+        "    private final Field f4_C = Field.zoned(s_REC, 2, 2, 0, false, false, false);\n"
+        "    private int p0() {\n        Cobol.move(f2_A, f1_REC, CS);\n        return 1;\n    }\n"
+        '    private boolean isOk() { return Cobol.compare(f4_C, "00", CS) == 0; }\n'
+        "}\n"
+    )
+    out = P.drop_unused_fields(java)
+    assert "f3_A_B" not in out
+    assert all(f in out for f in ("f1_REC = Field.group", "f2_A = Field.", "f4_C = Field."))
+    assert P.drop_unused_fields(out) == out
+
+
 class _RbaCics(C.Cics):
     """A Cics with operands resolved by name (no program): RIDFLD a fullword, INTO a 56-byte record."""
 

@@ -44,6 +44,7 @@ from gitgalaxy.core.unicode_paths import on_disk
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_agent_forge import ticket_skeleton
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_transaction_forge import DTO_SUBPACKAGE
+from gitgalaxy.tools.cobol_to_java.java_target import visual_bidi
 
 TICKET_VERSION = 1
 PORTING_RULES = [
@@ -357,6 +358,22 @@ def multibyte_rules(data: dict[str, Any] | None) -> list[str]:
     ]
 
 
+def bidi_rules(data: dict[str, Any] | None) -> list[str]:
+    """#3987: where the record bytes keep Arabic / Hebrew text in visual order (a 3270's left-to-right screen
+    order: data.bidi_layout visual, or auto under cp420 / cp424 / cp864 / cp862), CobolRecords hands the port
+    logical Strings and stores visual bytes. Said only there; a logical estate keeps today's rules."""
+    if not visual_bidi(data):
+        return []
+    return [
+        "This migration's records keep right-to-left text (Arabic, Hebrew) in VISUAL order, as the 3270 showed it "
+        "left to right. CobolRecords.text(...) and the entity codecs return it in logical (reading) order, and "
+        "putText(...) / toRecord(...) store it visual again: keep every String in logical order, never reverse "
+        "one by hand. Where a String meets record bytes outside CobolRecords (a COMMAREA, a hand-built record), "
+        "convert it with CobolRecords.visual(logical) / CobolRecords.logical(visual). A reference modification "
+        "(X(3:5)) or INSPECT of such a field counts positions in visual order: flag it in a TODO (#3987)."
+    ]
+
+
 def option_rules(options: list[dict[str, Any]]) -> list[str]:
     """#3828: one rule per CBL / PROCESS option that changes what the program computes."""
     line_of = {str(o.get("option")): o.get("line") for o in options}
@@ -638,6 +655,7 @@ def build_ticket(key: str, skeleton: dict[str, Any], java_dir: Path, package: st
     rules += decimal_point_rules(text, target.get("culture"))  # #3984
     rules += collation_rules(target.get("culture"))  # #3986
     rules += multibyte_rules(target.get("data"))  # #3985
+    rules += bidi_rules(target.get("data"))  # #3987
     if (target.get("culture") or {}).get("rounding") == "half_even":  # #3819: a declared deviation
         rules.append(
             "This migration declares culture.rounding: half_even (a deviation from COBOL): a plain ROUNDED "

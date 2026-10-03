@@ -157,7 +157,7 @@ def extract_transactions(repo: Path) -> dict[str, set[str]]:
                 by_program.setdefault(program, set()).add(transid)
 
     for path in repo.rglob("*"):
-        if not path.is_file() or ".git" in path.parts:
+        if not path.is_file() or ".git" in path.relative_to(repo).parts:
             continue
         suffix = path.suffix.lower()
         if suffix in (".csd", ".rdo"):  # #3495: `.rdo` is a DFHCSDUP member too

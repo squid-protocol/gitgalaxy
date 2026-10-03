@@ -428,6 +428,13 @@ class StateRehydrator:
                     for k in rk:
                         if k not in ("_fp", "id", "file_id") and k not in cl:
                             cl[k] = r[k]
+                    # #3786: the resolver (and a fresh scan) carry a class's parents as
+                    # `inheritance`, a list; the DB column `inheritance_parents` is its JSON.
+                    try:
+                        parents = json.loads(cl.pop("inheritance_parents", None) or "[]")
+                    except (TypeError, ValueError):
+                        parents = []
+                    cl["inheritance"] = parents if isinstance(parents, list) else []
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
                 # #3200/#3201/#3246: the mainframe boundary channel, restored for

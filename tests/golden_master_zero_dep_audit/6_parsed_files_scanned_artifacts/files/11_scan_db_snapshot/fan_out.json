@@ -44232,7 +44232,7 @@
         "fromTaskOption@151": 0,
         "fromTaskOptionK@393": 1,
         "getAltTaskValidation@716": 0,
-        "getApplicativeTaskValidation@696": 1,
+        "getApplicativeTaskValidation@696": 0,
         "getCompactable@730": 0,
         "getFilterable@744": 1,
         "getSemigroup@1852": 0,

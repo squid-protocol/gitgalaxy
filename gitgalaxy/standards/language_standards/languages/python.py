@@ -17,7 +17,9 @@ from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    PY_CRYPTOGRAPHY,
     PY_DL_FRAMEWORKS,
+    PY_HARDWARE_BRIDGE,
     PY_LLM_API,
     PY_LLM_ORCHESTRATOR,
     PY_LLM_VECTOR_STORE,
@@ -368,14 +370,10 @@ DEFINITION: dict[str, Any] = {
             r"\[[^\]]{0,500}\bfor\b[^\]]{0,500}\]|\{[^}]{0,500}\bfor\b[^}]{0,500}\}|\([^)]{0,500}\bfor\b[^)]{0,500}\)"
         ),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
-        "hardware_bridge": re.compile(
-            r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
-        ),
-        "cryptography": re.compile(
-            # #2898: hashlib/hmac added -- the stdlib's own crypto modules were missing
-            # from the name list, so files importing them read 0.
-            r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac)\b"
-        ),
+        # hardware_bridge / cryptography (#4238): anchored on the top-level package, see
+        # _shared_patterns.py. #2898 added hashlib/hmac to the cryptography names.
+        "hardware_bridge": PY_HARDWARE_BRIDGE,
+        "cryptography": PY_CRYPTOGRAPHY,
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Metaprogramming and class-level binding.
         "reflection_metaprogramming": re.compile(

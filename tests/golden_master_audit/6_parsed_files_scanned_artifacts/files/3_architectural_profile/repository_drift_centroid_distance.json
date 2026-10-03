@@ -3000,7 +3000,7 @@
       "python/twisted/defer.py": 6.519,
       "python/twisted/http.py": 6.728,
       "python/twisted/reflect.py": 7.669,
-      "python/twisted/transport.py": 6.557
+      "python/twisted/transport.py": 6.585
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 6.252,

@@ -211,11 +211,18 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
         config = {**jtm.MATRIX["h2"], "culture": case["culture"]} if case.get("culture") else jtm.MATRIX["h2"]
         project = jtm.generate(clean, "h2", config, work)
     (project / OVERLAY_FILE).write_text(json.dumps(overlay) + "\n", encoding="utf-8")
+    sources = {rel: (port_dir / rel if (port_dir / rel).is_file() else next(d / r for d, r in used if r == rel))
+               for rel in overlay}  # fmt: skip
+    # #4188: a port proven with the programs its task LINKs to runs them as Java too, never as their stubs
+    if port and port_dir.is_dir() and case.get("programs"):
+        linked, origins = linked_programs(case, corpus, project, sources, work)
+        overlay = overlay + [rel for rel in linked if rel not in sources]
+        sources.update(linked)
+        (work / LINKED_FILE).write_text(json.dumps(origins, indent=2) + "\n", encoding="utf-8")
     for rel in overlay:
         dest = project / "src/main/java" / PKG_DIR / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
-        source = port_dir / rel if (port_dir / rel).is_file() else next(d / r for d, r in used if r == rel)
-        shutil.copy(source, dest)
+        shutil.copy(sources[rel], dest)
     if earlier is not None and overlay:
         _compile_overlay(project, earlier, overlay, work)
     if case.get("db2"):  # IBM's JDBC driver, and the Db2 repositories on the harness's Db2
@@ -229,6 +236,49 @@ def prepare_project(case: dict[str, Any], corpus: Path, work: Path, test_source:
 
 
 OVERLAY_FILE = "equivalence_overlay.json"  # the port files laid over the generated project, for --reuse
+LINKED_FILE = "linked_programs.json"  # #4188: where each LINKed program's Java came from, for the report
+
+
+def linked_programs(case: dict[str, Any], corpus: Path, project: Path, sources: dict[str, Path],
+                    work: Path) -> tuple[dict[str, Path], dict[str, str]]:  # fmt: skip
+    """The Java of each program the case's task LINKs to (`"programs"`), for a port's proof (#4188): the port's own
+    service when it carries one, else the program's committed model port (the case that proves it), else its
+    deterministic translation from this checkout -- {published path: source}, and {program: origin}."""
+    from gitgalaxy.tools.cobol_to_java.det import program as P
+
+    files: dict[str, Path] = {}
+    origins: dict[str, str] = {}
+    for extra in case["programs"]:
+        prog = extra["program"].upper()
+        rel = f"service/{_service_class(prog)}.java"
+        if rel in sources:
+            origins[prog] = "the port under proof"
+            continue
+        proving = sorted(c.parent for c in CASES.glob("*/case.json")
+                         if (c.parent / "port" / rel).is_file()
+                         and json.loads(c.read_text(encoding="utf-8")).get("program", "").upper() == prog)  # fmt: skip
+        if proving:
+            other = proving[0] / "port"
+            for f in sorted(other.rglob("*.java")):
+                files.setdefault(f.relative_to(other).as_posix(), f)
+            origins[prog] = f"committed model port ({proving[0].name})"
+            continue
+        dirs = [corpus / d for d in case.get("copy_dirs", ["app/cpy"])]
+        dirs += [corpus / d for d in (case.get("db2") or {}).get("include_dirs", [])]
+        stub = (project / "src/main/java" / PKG_DIR / rel).read_text(encoding="utf-8")
+        r = P.translate(corpus / extra["program_source"], dirs, stub, PKG, P.estate_files(project), project,
+                        options=case.get("compiler_options"))  # fmt: skip
+        out = work / "linked" / rel
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(r.java, encoding="utf-8")
+        files[rel] = out
+        for rt, text in P.runtime_files(PKG, P.has_batch(project)).items():
+            dest = work / "linked" / rt
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_text(text, encoding="utf-8")
+            files.setdefault(rt, dest)
+        origins[prog] = f"det port (translated from {extra['program_source']})"
+    return files, origins
 
 
 def _reused_project(earlier: Path, work: Path, overlay: list[str]) -> Path:

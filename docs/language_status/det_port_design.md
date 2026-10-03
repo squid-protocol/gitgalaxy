@@ -393,6 +393,12 @@ REDEFINES). Prediction before the change: `--typed` ≈ +0.9% code lines once it
 (`initialState()`); measured +1.0%. `--typed --groups` costs +10.7% (pack / unpack around whole-group uses).
 SENTINEL's ×0.44 comes from dropping byte storage altogether, which a byte-level proof does not allow.
 
+**Typed is the default** (`det_port.py` and `port_runner`, since 2026-10; `--no-typed` for the byte form). It
+proves every case the byte form proves -- all 51 cases translated `--typed`: 49 proven, the 2 KNOWN_UNPROVEN differ
+as before -- across CardDemo, CBSA and GenApp, Db2 included. 1,427 items become plain `String` / `long` /
+`BigDecimal` fields, each with its COBOL name and picture as a comment (`private long f97_APPL_RESULT;  // APPL-RESULT
+PIC S9(9) BINARY`), at +1.0% code lines. `--groups` stays opt-in (+10.7%).
+
 | 49 programs, each program's service file | COBOL | before #4202 | #4202 | + `initialState()` |
 |---|---|---|---|---|
 | code lines | 23,598 | 81,206 | 64,215 | 62,803 |

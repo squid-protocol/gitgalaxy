@@ -615,7 +615,10 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--style", choices=("dispatch", "structured"), default="structured",
                    help="det: paragraphs as named methods where the program allows (structured), or a dispatcher")  # fmt: skip
     r.add_argument(
-        "--typed", action="store_true", help="det: WORKING-STORAGE items as typed Java fields where every use allows"
+        "--typed",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="det: WORKING-STORAGE items as typed Java fields where every use allows (default; --no-typed: bytes)",
     )
     r.add_argument(
         "--groups",

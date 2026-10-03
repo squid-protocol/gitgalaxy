@@ -179,7 +179,9 @@ def constants(lines: list[Line]) -> list[Line]:
                        re.I)  # fmt: skip
     for ln in kept:
         parts = _LIT_SPLIT.split(ln.text)
-        ln.text = "".join(p if i % 2 else names.sub(lambda m: found[m.group(1).upper()], p) for i, p in enumerate(parts))
+        ln.text = "".join(
+            p if i % 2 else names.sub(lambda m: found[m.group(1).upper()], p) for i, p in enumerate(parts)
+        )
     return kept
 
 

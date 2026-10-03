@@ -142,8 +142,11 @@ def _area_a(s: str, in_procedure: bool) -> bool:
     if re.match(r"(01|77|FD|SD|RD|CD)\b", u):
         return True
     # a paragraph header: a lone name sentence in the PROCEDURE DIVISION
-    return in_procedure and bool(re.fullmatch(r"[A-Z0-9][A-Z0-9-]*\s*\.", u)) and u.rstrip(". ") not in (
-        "EXIT", "GOBACK", "CONTINUE", "STOP RUN")
+    return (
+        in_procedure
+        and bool(re.fullmatch(r"[A-Z0-9][A-Z0-9-]*\s*\.", u))
+        and u.rstrip(". ") not in ("EXIT", "GOBACK", "CONTINUE", "STOP RUN")
+    )
 
 
 def _pieces(text: str) -> list[str]:
@@ -255,8 +258,18 @@ def main() -> int:
                 report["nested_units"] += int(nested)
         except FreeFormatError as e:
             report["refused"].append(f"{rel}: {e}")
-    print(report["files"], "files,", report["units"], "top-level units (", report["nested_units"],
-          "with nested programs ),", report["copybooks"], "copybooks;", len(report["refused"]), "refused")
+    print(
+        report["files"],
+        "files,",
+        report["units"],
+        "top-level units (",
+        report["nested_units"],
+        "with nested programs ),",
+        report["copybooks"],
+        "copybooks;",
+        len(report["refused"]),
+        "refused",
+    )
     for r in report["refused"]:
         print("  refused:", r)
     return 0

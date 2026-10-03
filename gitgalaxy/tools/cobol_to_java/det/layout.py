@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 
-from gitgalaxy.tools.cobol_to_java.det.source import Line, as_fixed
+from gitgalaxy.tools.cobol_to_java.det.source import Line
 
 POSITIVE = "{ABCDEFGHI"  # overpunched +0..+9 (-fsign=EBCDIC, ASCII data)
 NEGATIVE = "}JKLMNOPQR"

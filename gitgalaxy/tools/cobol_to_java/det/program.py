@@ -348,7 +348,9 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
                 continue
             if it.category == "ALPHANUMERIC" and it.usage == "DISPLAY":
                 out[id(it)] = "X"
-            elif it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.scale == 0 and not it.native_bytes:
+            elif (
+                it.category == "NUMERIC" and it.usage in ("BINARY", "COMP-5") and it.scale == 0 and not it.native_bytes
+            ):
                 out[id(it)] = "BIN"  # (an exact-width native binary stays in storage: its wrap is its byte width)
             elif it.category == "NUMERIC" and (
                 it.usage == "PACKED" or (it.usage == "DISPLAY" and not it.sign_separate)

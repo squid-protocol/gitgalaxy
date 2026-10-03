@@ -44,9 +44,11 @@ def test_replacing_mixes_pseudo_text_words_and_literals_in_order():
 def test_leading_and_trailing_replace_only_word_parts():
     text = "02 PACKET-ID. 02 XPACKET-ID. 02 PACKET-REFERENCE"
     assert S._replace(text, "PACKET-", "LOGIN-PACKET-", "LEADING") == (
-        "02 LOGIN-PACKET-ID. 02 XPACKET-ID. 02 LOGIN-PACKET-REFERENCE")
+        "02 LOGIN-PACKET-ID. 02 XPACKET-ID. 02 LOGIN-PACKET-REFERENCE"
+    )
     assert S._replace("05 A-IN PIC X. 05 IN-B. 05 X-IN-Y", "-IN", "-OUT", "TRAILING") == (
-        "05 A-OUT PIC X. 05 IN-B. 05 X-IN-Y")
+        "05 A-OUT PIC X. 05 IN-B. 05 X-IN-Y"
+    )
 
 
 # ---- level-78 constants -----------------------------------------------------------------------------------------
@@ -66,7 +68,7 @@ def test_native_binaries_have_exact_widths_and_little_endian_values():
     sizes = {c.name: c.size for c in rec.children}
     assert sizes == {"L1": 4, "C1": 1, "S1": 2, "D1": 8, "K5": 4, "KB": 4}
     # GnuCOBOL 3.1 on x86 under the harness flags: 01000000 c8 feff 0000000000000000 01000000 00000001
-    assert L.image(rec).hex() == "01000000" "c8" "feff" "0000000000000000" "01000000" "00000001"
+    assert L.image(rec).hex() == "01000000c8feff00000000000000000100000000000001"
     assert [c.signed for c in rec.children[:4]] == [True, False, True, False]
 
 
@@ -117,7 +119,7 @@ def test_free_format_resolves_directives_drops_comments_and_splits_units():
     units = ff.units(resolved)
     assert [(n, nested) for n, _, nested in units] == [("Alpha", False), ("Beta", False)]
     fixed = ff.layout(units[0][1])
-    assert "       01 A PIC X(3) VALUE \"*>a\"." in fixed  # Area A, comment gone, the literal's *> kept
+    assert '       01 A PIC X(3) VALUE "*>a".' in fixed  # Area A, comment gone, the literal's *> kept
     assert "           DISPLAY A" in fixed  # Area B
     assert all(len(x) <= 72 for x in fixed)
 
@@ -130,7 +132,7 @@ def test_free_format_refuses_what_it_does_not_model():
 
 
 def test_free_format_continues_a_literal_longer_than_a_line():
-    fixed = ff.layout(["01 A PIC X(200) VALUE \"" + "z" * 150 + "\"."])
+    fixed = ff.layout(['01 A PIC X(200) VALUE "' + "z" * 150 + '".'])
     assert all(len(x) <= 72 for x in fixed)
     assert any(x[6] == "-" for x in fixed)
     joined = " ".join(ln.text for ln in S.logical_lines(fixed, "t"))

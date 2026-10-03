@@ -94,6 +94,7 @@ from equivalence_common import (
     data_encoding,
     decode_field,
     diff_records,
+    diff_varseq,
     java_failure_report,
     layout_fields,
     read_program,
@@ -177,6 +178,9 @@ def cobol_driver(program: str, parm: Optional[str]) -> str:
 
 
 FAULTS_DIR = CASES / "faults"  # the fault injector and the abend stub (ggfault.c, ggabend.c)
+LE_MODELS = CASES / "le"  # models of the routines a program CALLs that GnuCOBOL has no code for (CEEDAYS, COBDATFT)
+# A model refuses what it does not model ("NAME: ... is not modelled" on stderr, exit 98): never the oracle.
+MODEL_REFUSAL = re.compile(rb"^([A-Z0-9]{1,8}): [^\n]* is not modelled$", re.M)
 FAULT_OPS = ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START")
 
 
@@ -241,9 +245,13 @@ def run_cobol(
     (src / "EQDRIVER.cbl").write_text(cobol_driver(case["program"], case.get("parm")), encoding="ascii")
     for stub in ("ggabend.c", "ggfault.c", "ggdisplay.c"):
         shutil.copy(FAULTS_DIR / stub, src / stub)
+    models = sorted(LE_MODELS.glob("*.c"))
+    for m in models:
+        shutil.copy(m, src / m.name)
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
     sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
-    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{sql}")
+    le = "".join(f" src/{m.name}" for m in models)
+    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}")
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
     inject = "LD_PRELOAD=/work/ggdisplay.so "
@@ -258,7 +266,7 @@ def run_cobol(
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
-    script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND {inject}{tz}{clock}{env} "
+    script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND COB_VARSEQ_FORMAT=0 {inject}{tz}{clock}{env} "
                   f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
     for dd, spec in case["datasets"].items():
@@ -288,6 +296,10 @@ def run_cobol(
     # A CALL to a routine nothing here provides (CBACT01C's assembler COBDATFT) ends the run in libcob's own
     # "module not found": that is GnuCOBOL's failure, never the program's behaviour -- refused, not recorded as the
     # oracle (SYSOUT leaves libcob's lines out, so a port imitating the crash would otherwise prove).
+    refused = MODEL_REFUSAL.search(outs["SYSOUT"])
+    if refused:  # a model of a CALLed routine reached what it does not model: no oracle for this run
+        raise RuntimeError(f"the run reaches what the {refused.group(1).decode()} model does not model "
+                           f"({refused.group(0).decode()}) -- not runnable faithfully")  # fmt: skip
     missing = re.search(rb"libcob: [^\n]*module '([^']+)' not found", outs["SYSOUT"])
     if missing:
         raise RuntimeError(f"the program CALLs {missing.group(1).decode()!r}, which no model provides "
@@ -447,6 +459,27 @@ def selected_faults(case: dict[str, Any], arg: Optional[str]) -> list[dict[str, 
     return [f for f in faults if f["name"] in names]
 
 
+POSITIVE_OVERPUNCH = b"{ABCDEFGHI"  # a positive zoned sign digit 0-9 (C zone), as the ASCII data writes it
+
+
+def accept_unsigned_positive(a: bytes, b: bytes) -> tuple[bytes, bytes, int]:
+    """oracle_assumptions.md C10, for the datasets a case names in `"zoned_sign_equivalent"`: a byte that is a
+    plain digit on one side and the same digit with the positive overpunch on the other (an F zone against a C
+    zone: the same positive value; GnuCOBOL's INITIALIZE / VALUE ZERO leave the F, z/OS writes the preferred C)
+    is taken as equal. Both are made the overpunch; the count of such bytes is reported, never hidden."""
+    if len(a) != len(b):
+        return a, b, 0
+    x, y, n = bytearray(a), bytearray(b), 0
+    for i, (p, q) in enumerate(zip(a, b)):
+        if p != q:
+            for digit, over in ((p, q), (q, p)):
+                if 0x30 <= digit <= 0x39 and over == POSITIVE_OVERPUNCH[digit - 0x30]:
+                    x[i] = y[i] = over
+                    n += 1
+                    break
+    return bytes(x), bytes(y), n
+
+
 def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], java: dict[str, bytes],
                 fault: Optional[dict[str, Any]] = None) -> dict[str, Any]:  # fmt: skip
     """One run of the step on both sides: equal when both abend with the same code, or neither does and their
@@ -475,9 +508,22 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
         for dd, spec in case["datasets"].items():
             if not spec.get("compare"):
                 continue
+            left, right = cobol.get(dd, b""), java.get(dd, b"")
+            if dd in case.get("zoned_sign_equivalent", []):  # C10, declared by the case
+                left, right, n = accept_unsigned_positive(left, right)
+                if n:
+                    run.setdefault("sign_equivalent", {})[dd] = n
+            if spec.get("record_format") == "V":  # variable-length: each record against its length's layout
+                layouts = {int(n): layout_fields(corpus, spec["copybook"], rec) for n, rec in spec["layouts"].items()}
+                d = diff_varseq(left, right, layouts, case.get("code_page", "cp037"),
+                                data_encoding(case))  # fmt: skip
+                run["outputs"][dd] = d
+                if d["equal"] != d["records"] or d["diffs"]:
+                    why.append(f"{dd}: {d['equal']}/{d['records']} records equal")
+                continue
             fields = layout_fields(corpus, spec["copybook"], spec.get("record"))
-            d = diff_records(cobol.get(dd, b""), java.get(dd, b""), spec["reclen"], fields,
-                             case.get("code_page", "cp037"), data_encoding(case))  # fmt: skip
+            d = diff_records(left, right, spec["reclen"], fields, case.get("code_page", "cp037"),
+                             data_encoding(case))  # fmt: skip
             if d["layout_bytes"] != spec["reclen"]:  # #3820: the copybook's layout does not fill the record
                 print(f"{case['program']} {dd}: layout is {d['layout_bytes']} bytes, reclen {spec['reclen']}")
             run["outputs"][dd] = d
@@ -498,6 +544,9 @@ def compare_run(case: dict[str, Any], corpus: Path, cobol: dict[str, bytes], jav
     ends = (f"both ABEND {abend['cobol']}" if abend["cobol"] and abend["cobol"] == abend["java"]
             else f"both end RETURN-CODE {rc['cobol']}" if not why else "")  # fmt: skip
     run["summary"] = "; ".join(why) if why else ends
+    if run.get("sign_equivalent"):
+        run["summary"] += " (C10: " + ", ".join(f"{dd} {n} sign bytes F/C" for dd, n in run["sign_equivalent"].items())
+        run["summary"] += ")"
     return run
 
 

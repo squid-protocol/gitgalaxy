@@ -987,7 +987,7 @@ def commarea_fields(corpus: Path, case: dict[str, Any]) -> list[dict[str, Any]]:
 
 def screen_fields(corpus: Path, case: dict[str, Any], map_name: str, side: str) -> list[dict[str, Any]]:
     scr = case["screens"][map_name]
-    return common.layout_fields(corpus, scr["copybook"], scr[side])
+    return common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
 
 
 # #4023 follow-up: the conditions a scenario may inject, by name -> their DFHRESP numbers (IBM CICS "RESP values")
@@ -1033,11 +1033,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     work.mkdir(parents=True, exist_ok=True)
     src = work / "src"
     src.mkdir(exist_ok=True)
-    for cpy in case.get("copy_dirs", []):
-        for p in (corpus / cpy).iterdir():
-            if p.is_file():
-                shutil.copy(p, src / p.name)
-                shutil.copy(p, src / (p.stem.upper() + ".cpy"))  # COPY COACTVW finds COACTVW.CPY
+    common.stage_copybooks(case, corpus, src)
     for p in STUB.iterdir():
         shutil.copy(p, src / p.name)
     # #3828: the program's CBL / PROCESS cards and the case's `compiler_options` become cobc flags
@@ -1385,7 +1381,8 @@ def map_subfields(
     cleared: the mainframe's bytes are not known, so nothing is claimed about them)."""
     out: dict[str, dict[str, int]] = {}
     scr = case["screens"][map_name]
-    layouts = [common.layout_fields(corpus, scr["copybook"], scr[side]) for side in ("input", "output")]
+    layouts = [common.layout_fields(corpus, str(common.case_path(corpus, scr["copybook"])), scr[side])
+               for side in ("input", "output")]  # fmt: skip
     data_names = {f["name"][:-1] for f in layouts[1] if f["name"].endswith("O")}
     space = " ".encode(enc)
     for f in (x for layout in layouts for x in layout):
@@ -1623,6 +1620,10 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
     var = svc[0].lower() + svc[1:]
     ca = commarea_class(case, src, next(src.rglob(f"{svc}.java")))
     screens = {m: _generated_class(src, rf'String MAP = "{m}";') for m in case["screens"]}
+    # The estate has the CICS exception package only when some program throws or handles one (UowForge): IBM DBB
+    # MortgageApplication's do not, so nothing there can throw CicsAbendException and the test catches none.
+    has_abend = any(src.rglob("exception/CicsAbendException.java"))
+    abend_import = f"import {pkg}.exception.CicsAbendException;\n" if has_abend else ""
     by_base = {f["base"]: f for f in files}
     region = case.get("region") or {}
     region_java = f'"{region["applid"]}", "{region["sysid"]}"' if region.get("applid") else "null, null"
@@ -1667,6 +1668,9 @@ def cics_equivalence_test(case: dict[str, Any], src: Path, files: list[dict[str,
                  "datasource.DataSourceTransactionManager(db2Jdbc.getJdbcTemplate().getDataSource()))"
                  ".executeWithoutResult(db2Status -> {\n            ") if db2 else ""  # fmt: skip
     db2_rollback = "db2Status.setRollbackOnly(); " if db2 else ""
+    abend_catch = (" catch (CicsAbendException e) {\n                    status.setRollbackOnly();\n"
+                   f"                    {db2_rollback}task.abend(e.getAbcode());\n                }}")  # fmt: skip
+    abend_catch = abend_catch if has_abend else ""
     db2_end = "\n            });" if db2 else ""
     recv = [f'            if (r.has("{m}")) received.put("{m}", {pkg}.dto.screen.{cls}.fromValues('
             f'json.convertValue(r.get("{m}"), new TypeReference<Map<String, String>>() {{ }})));'
@@ -1678,8 +1682,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import {pkg}.cics.CicsTask;
 import {pkg}.dto.screen.ScreenModel;
-import {pkg}.exception.CicsAbendException;
-import java.io.IOException;
+{abend_import}import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1779,10 +1782,7 @@ class EquivalenceRunTest {{
                     {var}.runTask(task);
                 }} catch (NotRun e) {{
                     // #4173: the LINKed program is not run here; the task's events end at its LINK
-                }} catch (CicsAbendException e) {{
-                    status.setRollbackOnly();
-                    {db2_rollback}task.abend(e.getAbcode());
-                }} catch (RuntimeException e) {{
+                }}{abend_catch} catch (RuntimeException e) {{
                     // #4173: a derived SQL-fault task that reaches a det port's named hole (an untranslated
                     // statement) is not judged -- recorded, never passed; any other failure stays a failure
                     if (!sc.path("derived").asBoolean() || !"Hole".equals(e.getClass().getSimpleName())) {{
@@ -2006,6 +2006,36 @@ def mask_clock_dump(case: dict[str, Any], table: str, dump: bytes, counter: list
                 counter[0] += 1
         lines[k] = "|".join(vals)
     return "\n".join(lines).encode("latin-1")
+
+
+def mask_absent_commarea(sc: dict[str, Any], cev: list[dict[str, Any]], jev: list[dict[str, Any]],
+                         counter: list[int]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:  # fmt: skip
+    """A task that starts with no COMMAREA (EIBCALEN 0) but MOVEs DFHCOMMAREA anyway (IBM DBB EPSCMORT does, before
+    it tests EIBCALEN) copies storage it was never given -- on z/OS, undefined (oracle_assumptions.md X12). The
+    harness gives LOW-VALUES there, which a numeric field holds only if nothing set it (a MOVE leaves digits, never
+    X'00'); the Java DTO's number cannot be invalid. Such a field -- COBOL's value all LOW-VALUES in a COMMAREA the
+    task returns, in a scenario with no COMMAREA -- is undefined, so it is left out on both sides and counted."""
+    if sc.get("commarea") is not None:
+        return cev, jev
+    undefined = set()
+    for e in cev:
+        ca = e.get("commarea")
+        if isinstance(ca, dict):
+            undefined |= {k for k, v in ca.items() if isinstance(v, str) and re.fullmatch(r"<invalid b'(\\x00)+'>", v)}
+    if not undefined:
+        return cev, jev
+
+    def drop(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        out = []
+        for e in events:
+            ca = e.get("commarea")
+            if isinstance(ca, dict) and undefined & set(ca):
+                e = {**e, "commarea": {k: v for k, v in ca.items() if k not in undefined}}
+            out.append(e)
+        return out
+
+    counter[0] += len(undefined)
+    return drop(cev), drop(jev)
 
 
 def mask_clock_events(case: dict[str, Any], events: list[dict[str, Any]], counter: list[int]) -> list[dict[str, Any]]:
@@ -2317,6 +2347,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
         sc = next(x for x in case["scenarios"] if x["name"] == name)
         if sc.get("prefix_link"):  # #4173: a fault task that LINKs to a program the case does not run -- both
             cev, jev = _to_link(cev, sc["prefix_link"]), _to_link(jev, sc["prefix_link"])  # sides judged up to it
+        undefined = [0]  # COMMAREA fields a task with no COMMAREA copied from nowhere (X12)
+        cev, jev = mask_absent_commarea(sc, cev, jev, undefined)
         d = compare_events(cev, jev)
         report["outputs"][name] = {"equal": d["equal"], "records": d["events"], "diffs": d["diffs"],
                                    "cobol": cev, "java": jev}  # fmt: skip
@@ -2349,6 +2381,8 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
             changed.update(compare_db2(case, res.get("db2", {}), work / "java" / "out", name, clock))
         if clock[0]:
             report["outputs"][name]["clock_masked"] = clock[0]
+        if undefined[0]:
+            report["outputs"][name]["undefined_commarea_fields"] = undefined[0]
         if changed:  # file updates: what the task left in a file differs
             report["outputs"][name]["files"] = changed
             ok = False

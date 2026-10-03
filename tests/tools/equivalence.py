@@ -98,6 +98,7 @@ from equivalence_common import (
     java_failure_report,
     layout_fields,
     read_program,
+    stage_copybooks,
     require_ascii_runtime,
     reuse,
     reused,
@@ -222,10 +223,7 @@ def run_cobol(
         (work / "stmts.txt").write_text(table, encoding="latin-1")
         shutil.copy(equivalence_db2.STUB, src / "ggsql.c")
     (src / "PROGRAM.cbl").write_text(program, encoding=staged)
-    for cpy in case.get("copy_dirs", []):
-        for p in (corpus / cpy).iterdir():
-            if p.is_file():
-                shutil.copy(p, src / p.name)
+    stage_copybooks(case, corpus, src)
     script = ["set -e", "cd /work"]
     flags = " ".join(["-std=ibm -fsign=EBCDIC", *option_flags, "-I /work/src"])
     import equivalence_inputs  # #3804: `@generate` inputs, from their record layouts
@@ -253,7 +251,9 @@ def run_cobol(
     # #4023: traced; CEE3ABD is the abend stub, which records the abend instead of failing the CALL
     sql = f" src/ggsql.c {equivalence_db2.COBOL_LINK}" if db2 else ""
     le = "".join(f" src/{m.name}" for m in models)
-    script.append(f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}")
+    script.append(
+        f"cobc -x {flags} {cov.TRACE_FLAG} -o program src/EQDRIVER.cbl src/PROGRAM.cbl src/ggabend.c{le}{sql}"
+    )
     # #4056: DISPLAY as IBM writes it (faults/ggdisplay.c), so SYSOUT is compared against IBM's text
     script.append("gcc -shared -fPIC -O2 -o /work/ggdisplay.so src/ggdisplay.c -ldl")
     inject = "LD_PRELOAD=/work/ggdisplay.so "

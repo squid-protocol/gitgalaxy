@@ -1724,27 +1724,32 @@ class GalaxyIR:
         """
         kids: list = []
 
-        def _copies(owner: EngineDataItem) -> bool:
-            """Append `owner`'s COPY members; True when one closes `item`."""
+        def _copies(owner: EngineDataItem, owner_ef: EngineFile, d: int) -> bool:
+            """Append `owner`'s COPY members; True when one closes `item`. A copied root that is elementary and is
+            followed in its copybook by a COPY of its own (IBM DBB EPSMTCOM: `10 PROCESS-INDICATOR` then `COPY
+            EPSMTINP.` and `COPY EPSMTOUT.`) has those members after it, as its siblings, resolved from the copybook."""
             for member in (owner.copy_members or "").split(","):
                 if not member:
                     continue
-                cb, roots = self._copy_roots(member, ef, origin, depth)
+                cb, roots = self._copy_roots(member, owner_ef, origin, d)
                 if cb is None:
                     if owner is item:
                         kids.append((None, member))
                     continue
                 if roots and all(r.level > item.level for r in roots):
-                    kids.extend((cb, root) for root in roots)
+                    for root in roots:
+                        kids.append((cb, root))
+                        if _is_elementary(root) and root.copy_members and _copies(root, cb, d + 1):
+                            return True
                 elif roots:
                     return True
             return False
 
-        if not _is_elementary(item) and _copies(item):
+        if not _is_elementary(item) and _copies(item, ef, depth):
             return kids
         for child in item.children:
             kids.append((ef, child))
-            if _is_elementary(child) and _copies(child):
+            if _is_elementary(child) and _copies(child, ef, depth):
                 break
         return kids
 

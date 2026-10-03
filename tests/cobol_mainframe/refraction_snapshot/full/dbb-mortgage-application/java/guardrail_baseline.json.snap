@@ -1,0 +1,303 @@
+{
+  "files": {
+    "src/main/java/com/gitgalaxy/modernized/DbbMortgageApplicationApplication.java": {
+      "calls": [],
+      "classes": [
+        "DbbMortgageApplicationApplication"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "main"
+      ],
+      "program": null,
+      "sha256": "1007f1f329f825265e9cc71fe0109e3681fda4e1eec122cc587964dc8c87a9c3"
+    },
+    "src/main/java/com/gitgalaxy/modernized/controller/EpscsmrtController.java": {
+      "calls": [
+        "EpscsmrtService"
+      ],
+      "classes": [
+        "EpscsmrtController"
+      ],
+      "endpoints": [
+        "executeEpscsmrt"
+      ],
+      "fields": [
+        "epscsmrtService"
+      ],
+      "kind": "controller",
+      "methods": [
+        "executeEpscsmrt"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+      "sha256": "068c8a6c7e70a3a2796dba827c00c732501dc62dffad8a24f2fb286df8235652"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/EpscmortDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "EpscmortDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "blankMsg",
+        "endOfTransMsg",
+        "ibmreqd",
+        "sqlErrorCode",
+        "wCallProgram",
+        "wComareaLength",
+        "wsFormatNumber"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "4bd87e7bf6cde10756a83590bfd65b0450a7541e4a2b0cac5088d4e10617f355"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/EpscsmrtDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "EpscsmrtDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "calledProgramName",
+        "wsCalledProgram"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "b58d6dc6fe7e5520e1304d90b42dfd2079fbd3cacbac9040bbd200f6daa4ac71"
+    },
+    "src/main/java/com/gitgalaxy/modernized/dto/EpsmlistDfhcommareaDto.java": {
+      "calls": [],
+      "classes": [
+        "EpsmlistDfhcommareaDto"
+      ],
+      "endpoints": [],
+      "fields": [
+        "closeFile",
+        "dispCount",
+        "endOfFile",
+        "maxLoop",
+        "outmapCompany",
+        "outmapLoan",
+        "outmapPhoneNum",
+        "outmapRate",
+        "outmapYears",
+        "response",
+        "ridLength",
+        "wCallProgram",
+        "wComareaLength",
+        "wsFormatNumber"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "db24bac10893240ee7b7b5e4fba1acb7aabbc34712671c8a8dc74000cc0d38a2"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/EpscsmrdX00000175.java": {
+      "calls": [],
+      "classes": [
+        "EpscsmrdX00000175"
+      ],
+      "endpoints": [],
+      "fields": [
+        "epspcomErrmsg",
+        "epspcomNumberOfMonths",
+        "epspcomNumberOfYears",
+        "epspcomPrincipleData",
+        "epspcomProgramRetcode",
+        "epspcomProgramRetcodeRdf",
+        "epspcomQuotedInterestRate",
+        "epspcomReturnMonthPayment",
+        "epspcomYearMonthInd",
+        "processIndicator",
+        "sysId"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "4c99f0d6034fb2f16633239d9813a797e48046d92916316f1a86f572c69352ce"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/EpsmpmtWsWorkAmounts.java": {
+      "calls": [],
+      "classes": [
+        "EpsmpmtWsWorkAmounts"
+      ],
+      "endpoints": [],
+      "fields": [
+        "errorIndicator",
+        "errorText",
+        "interest",
+        "loan",
+        "numberPeriods",
+        "payment",
+        "staticMaximumPrinciple",
+        "sysId",
+        "validationIndicator",
+        "wsNumberOfMonths"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "5075d954751605b9d0c692a16f43fc7fe3327d0c962f8eaa4388c2988db1f301"
+    },
+    "src/main/java/com/gitgalaxy/modernized/entity/EpsnbrvlWsWorkAmounts.java": {
+      "calls": [],
+      "classes": [
+        "EpsnbrvlWsWorkAmounts"
+      ],
+      "endpoints": [],
+      "fields": [
+        "errorIndicator",
+        "errorText",
+        "sysId",
+        "wsDecIdx",
+        "wsDecimalSpace",
+        "wsEndSpace",
+        "wsIdx",
+        "wsLeadingSpaces",
+        "wsMaxField",
+        "wsNumIdx",
+        "wsTrailingSpaces"
+      ],
+      "kind": "data",
+      "methods": [],
+      "program": null,
+      "sha256": "1ad7e7a3f0563c2b16a6ad09beef89d8a381ceadd505a7436a276ee77a0cfa11"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/EpscmortService.java": {
+      "calls": [],
+      "classes": [
+        "EpscmortService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEpscmort"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epscmort.cbl",
+      "sha256": "9ef2cbc564dc9aaf3d2120f09bf914dedbaa361aeb1867d3fdd3afece5d4fca7"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/EpscsmrtService.java": {
+      "calls": [
+        "WsCalledProgramService"
+      ],
+      "classes": [
+        "EpscsmrtService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEpscsmrt"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epscsmrt.cbl",
+      "sha256": "0f7af6afa9da77c6a844ed5585b835346e5ab24a2a585783e2de65f31b254c1e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/EpsmlistService.java": {
+      "calls": [],
+      "classes": [
+        "EpsmlistService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEpsmlist"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epsmlist.cbl",
+      "sha256": "84ac024ff10b712864409fecd1b85c3e10df63ac2a4590d0583a9e3d4077c41e"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/EpsmpmtService.java": {
+      "calls": [],
+      "classes": [
+        "EpsmpmtService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEpsmpmt"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epsmpmt.cbl",
+      "sha256": "5757f74094794cfe8922c1720a22d356bff606d5aba8524137e6330359578b05"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/EpsnbrvlService.java": {
+      "calls": [],
+      "classes": [
+        "EpsnbrvlService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeEpsnbrvl"
+      ],
+      "program": "zBuilder/MortgageApplication/cobol/epsnbrvl.cbl",
+      "sha256": "2859e024bcbed76d26f500bda914dda3b757cc87b9307b4ef66c4b27789dd4c0"
+    },
+    "src/main/java/com/gitgalaxy/modernized/service/WsCalledProgramService.java": {
+      "calls": [],
+      "classes": [
+        "WsCalledProgramService"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "service",
+      "methods": [
+        "executeDummyCall"
+      ],
+      "program": null,
+      "sha256": "367cab1731ea881a7eb07dbc976f67aab3c57bcc21251c603374567e902a6fbb"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/CobolCompare.java": {
+      "calls": [],
+      "classes": [
+        "CobolCompare"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "CobolCompare",
+        "bytes",
+        "compare",
+        "eq",
+        "filled",
+        "ge",
+        "gt",
+        "highValues",
+        "le",
+        "lowValues",
+        "lt"
+      ],
+      "program": null,
+      "sha256": "a97626e7b0add603f98f9cc6bc825ef247c7fa57a6bba7619738a77b4385a45f"
+    },
+    "src/main/java/com/gitgalaxy/modernized/util/EbcdicDecoderUtil.java": {
+      "calls": [],
+      "classes": [
+        "EbcdicDecoderUtil",
+        "PackedDecimalDataException"
+      ],
+      "endpoints": [],
+      "fields": [],
+      "kind": "other",
+      "methods": [
+        "decodeEbcdicString",
+        "invalid",
+        "unpackComp3"
+      ],
+      "program": null,
+      "sha256": "798cfe5cf5c8bd5e0a6fe146ccd7bc39f951e6e486e4791a3c9f1a46b294f926"
+    }
+  },
+  "generated_from": {
+    "clean_room": "dbb-mortgage-application_gitgalaxy_clean_<TS>"
+  },
+  "tables": [],
+  "version": 1
+}

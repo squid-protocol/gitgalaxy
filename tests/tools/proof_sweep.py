@@ -33,6 +33,8 @@ KNOWN_UNPROVEN = {
     ("det", "carddemo-cardupdate"): "COCRDUPC writes blanks into a PIC 9(3) CVV a typed DTO field cannot hold (#4085)",
     ("det", "carddemo-intcalc-generated"): "generated card numbers mix letters and digits: ASCII vs EBCDIC key order "
     "picks different duplicates (oracle_assumptions.md D1)",
+    ("det", "mortgage-mpmt"): "IBM DBB EPSMPMT compiles with CBL NUMPROC(MIG), which GnuCOBOL cannot honour "
+    "(oracle_assumptions.md C5)",
 }
 
 

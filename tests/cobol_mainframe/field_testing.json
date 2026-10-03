@@ -79,6 +79,19 @@
         "pli",
         "cobol"
       ]
+    },
+    {
+      "id": "dbb-mortgage-application",
+      "kind": "public",
+      "round": 7,
+      "keyed_by": "#4216",
+      "date": "2026-10-03",
+      "languages": [
+        "cobol",
+        "bms",
+        "jcl",
+        "db2_sql"
+      ]
     }
   ],
   "defects": [
@@ -677,6 +690,32 @@
       "found_by": "ledger",
       "issue": 4031,
       "summary": "The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so GENAPP's legal paragraph `End-Program.` (5 programs, reached by PERFORM END-PROGRAM) is not a unit. Surfaced when #4028 fixed the same rule in the forge and the key reader, and the key gained the paragraph."
+    },
+    {
+      "id": "D038",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "MOVE truncation"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4204,
+      "summary": "A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231."
+    },
+    {
+      "id": "D039",
+      "estate": "dbb-mortgage-application",
+      "side": "engine",
+      "fields": [
+        "data moves"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "ledger",
+      "issue": 4205,
+      "summary": "MOVE ALL X'..' (a hexadecimal figurative) is not recorded as a data move: IBM DBB EPSCSMRD L1457 (ALL X'00') and L3452 (ALL X'FF')."
     }
   ],
   "fields": {

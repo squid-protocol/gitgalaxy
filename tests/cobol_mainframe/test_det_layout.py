@@ -97,3 +97,32 @@ def test_the_initial_image_is_gnucobols(name, tmp_path):
             bad.append(f"{r.name}: size {len(mine) // 2} vs {len(hexed) // 2}, first diff at byte {first} ({item}): "
                        f"mine {mine[max(0, first * 2 - 4):first * 2 + 12]} gnucobol {hexed[max(0, first * 2 - 4):first * 2 + 12]}")  # fmt: skip
     assert not bad, "\n".join(bad)
+
+
+def test_compiler_option_cards_are_skipped_from_any_column():
+    """IBM DBB MortgageApplication: `   CBL NUMPROC(MIG),FLAG(I,W),RENT` starts in column 4 (the sequence area). A card
+    may start in any column from 1; it is not COBOL text, and the DATA DIVISION must still parse after it."""
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    raw = [
+        "   CBL NUMPROC(MIG),FLAG(I,W),RENT",
+        "       ID DIVISION.",
+        "       PROGRAM-ID. EPSMPMT.",
+        "       DATA DIVISION.",
+        "       WORKING-STORAGE SECTION.",
+        "       01 A PIC X.",
+    ]
+    texts = [ln.text.strip() for ln in logical_lines(raw, "t.cbl")]
+    assert texts[0] == "IDENTIFICATION DIVISION."
+    assert not any("NUMPROC" in t for t in texts)
+    gen = logical_lines(["       PROCESS SQL", "       IDENTIFICATION DIVISION."], "g.cbl")
+    assert [ln.text.strip() for ln in gen] == ["IDENTIFICATION DIVISION."]
+
+
+def test_id_division_abbreviation_reads_as_identification_division():
+    """`ID DIVISION.` is IBM's abbreviation (IBM DBB MortgageApplication); the downstream parser knows only the long form."""
+    from gitgalaxy.tools.cobol_to_java.det.source import logical_lines
+
+    texts = [ln.text.strip() for ln in logical_lines(["       ID DIVISION.", "       PROGRAM-ID. X."], "t.cbl")]
+    assert texts[0] == "IDENTIFICATION DIVISION."
+    assert [ln.text.strip() for ln in logical_lines(["       MOVE ID TO X."], "t.cbl")] == ["MOVE ID TO X."]

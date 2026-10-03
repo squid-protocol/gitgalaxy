@@ -408,6 +408,10 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         if project is None:
             raise ValueError("a CICS program needs the generated project")
         gen.cics = C.Cics(gen, C.Generated(project, stub), package)
+    if gen.cics is not None:
+        gen.dto_codecs = gen.cics
+    elif project is not None:
+        gen.dto_codecs_factory = lambda: C.Cics(gen, C.Generated(project, stub), package)
     if any(re.match(r"(?is)\s*EXEC\s+SQL\b", s.text) for p in proc.paragraphs for s in S.walk(p.body)
            if s.kind == "EXEC"):  # fmt: skip
         from gitgalaxy.tools.cobol_to_java.det.sql import Sql
@@ -418,9 +422,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     # programs this one CALLs that have a service: the stub's ObjectProvider<XService> ... .handleCall(
     providers = []
     inferred: list[str] = []
+
+    def callee_types(cls: str) -> list[str]:
+        """The CALLed service's handleCall parameter types, from the estate (a contract DTO for a group item)."""
+        svc = next(project.glob(f"src/main/java/**/service/{cls}Service.java"), None) if project is not None else None
+        hc = re.search(r"public int handleCall\(([^)]*)\)", svc.read_text(encoding="utf-8")) if svc else None
+        return [x.strip().rsplit(" ", 1)[0] for x in hc.group(1).split(",") if x.strip()] if hc else []
+
     for m in re.finditer(r"private final ObjectProvider<(\w+)Service> (\w+);", stub):
         if re.search(rf"\b{m.group(2)}\.getObject\(\)\.handleCall\(", stub):
             gen.callees[m.group(1).upper()] = m.group(2)
+            gen.callee_types[m.group(1).upper()] = callee_types(m.group(1))
             providers.append((f"ObjectProvider<{m.group(1)}Service>", m.group(2)))
     # a CALLed program the stub does not wire (the CALL sits in a procedure copybook): its service in the estate,
     # when it has the CALL entry
@@ -434,6 +446,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             if svc is not None and "public int handleCall(" in svc.read_text(encoding="utf-8"):
                 field = cls[0].lower() + cls[1:] + "Service"
                 gen.callees[prog_name] = field
+                gen.callee_types[prog_name] = callee_types(cls)
                 providers.append((f"ObjectProvider<{cls}Service>", field))
                 inferred.append(f"CALL {prog_name} -> {cls}Service.handleCall: the estate's service for it")
     file_decls, file_inits, ctor_repos = [], [], []
@@ -605,8 +618,12 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 f"        System.arraycopy(parmText, 0, {st}.bytes, 2, Math.min(parmText.length, {st}.bytes.length - 2));",
             ]
 
-    # the CALL entry: the stub's handleCall signature, each CobolRef<String> the text of a USING item
+    # the CALL entry: the stub's handleCall signature -- a CobolRef<String> the text of a PIC X USING item, a
+    # contract DTO (the call forge's type for a group USING item, IBM DBB EPSNBRVL's EPS-NUMBER-VALIDATION) carried
+    # in and out of the item's storage by the COMMAREA codec a LINK uses (det/cics.py): BY REFERENCE, the caller's
+    # object is filled with what the program left
     call_entry: list[str] = []
+    call_codecs: list[str] = []
     hc = re.search(r"public int handleCall\(([^)]*)\)", stub)
     if hc:
         params = [p.strip() for p in hc.group(1).split(",") if p.strip()]
@@ -618,13 +635,24 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             typ, _ = prm.rsplit(" ", 1)
             name = f"arg{k + 1}"  # the stub's own names may be a field's (LS-DATE -> lsDate): only the type matters
             item = next((r for r in linkage if k < len(using) and r.name == using[k]), None)
-            if typ != "CobolRef<String>" or item is None:
+            if item is None:
                 break
             f = gen.ids[id(item)]
-            ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
-            body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
+            if typ == "CobolRef<String>":
+                ins.append(f'        Cobol.move({name}.get() == null ? "" : {name}.get(), {f}, CS);')
+                body_out.append(f"        {name}.set(Cobol.text({f}, CS));")
+                continue
+            if project is None or not re.fullmatch(r"[A-Z]\w*", typ):
+                break
+            try:
+                cls = gen.codec_for(typ)
+            except G.Untranslatable:
+                break
+            ins.append(f"        in_{cls}({name}, {f}.storage(), {f}.offset());")
+            body_out.append(f"        fill_{cls}({name}, {f}.storage(), {f}.offset());")
         else:
             body_in = ins
+
         if body_in is None:
             call_entry = [
                 f"    public int handleCall({signature}) {{",
@@ -641,9 +669,17 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             imports.setdefault("CobolRef", f"{package}.call.CobolRef")
             extra_imports.append(imports["CobolRef"])
 
+    if gen.dto_codecs is not None and gen.dto_codecs is not gen.cics:
+        for code in gen.dto_codecs.codecs.values():
+            call_codecs += code
+        if gen.dto_codecs.codecs:
+            extra_imports.append(f"{package}.dto.contract.*")
     if providers:
         ctor_repos += providers
-        extra_imports += ["org.springframework.beans.factory.ObjectProvider", f"{package}.call.CobolRef"]
+        extra_imports.append("org.springframework.beans.factory.ObjectProvider")
+        # CobolRef only where a CALL passes text: a callee taking DTOs only has no `call` package in the estate
+        if any(not ts or "CobolRef<String>" in ts for ts in (gen.callee_types.get(p, []) for p in gen.callees)):
+            extra_imports.append(f"{package}.call.CobolRef")
     if not is_cics and any(gen.id_methods.values()):
         extra_imports.append(f"{package}.entity.vsam.*")  # an entity's composite id class, for findById
     cics_members: list[str] = []
@@ -806,6 +842,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "",
         *[ln for code in gen.id_methods.values() if code for ln in code],
         *cics_members,
+        *call_codecs,
         *file_decls,
         "",
         *[f"    private final {c} {f};" for c, f in dict.fromkeys(ctor_repos)],

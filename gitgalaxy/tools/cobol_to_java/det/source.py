@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from gitgalaxy.core.compiler_options import cards
 from gitgalaxy.core.source_text import read_source
 
 # a copybook's own extensions before a program's: `COPY GETCOMPY` in GETCOMPY.cbl means the member, not the program
@@ -30,13 +31,20 @@ def _raw_lines(path: Path) -> list[str]:
     return read_source(path).text.splitlines()
 
 
+_ID_DIVISION = re.compile(r"^(\s*)ID\s+DIVISION(?=\s*\.)", re.I)
+
+
 def logical_lines(raw: list[str], file: str) -> list[Line]:
     """Columns 8-72 of each code line; comment (* /), debugging (D) and blank lines dropped; a continuation line
     (indicator '-') joined to the line before: a continued literal resumes after the continuation's first quote."""
     out: list[Line] = []
+    # Compiler-option cards (CBL / PROCESS, before the program or after an END PROGRAM) are not COBOL text. The
+    # engine's own reader decides which lines they are: a card may start in any column from 1, so IBM DBB's
+    # `   CBL NUMPROC(MIG),...` (CBL in columns 4-6) is one, as GenApp's `       PROCESS SQL` is.
+    card_lines = {n for n, _ in cards("\n".join(raw))}
     for n, line in enumerate(raw, 1):
-        if not out and re.match(r"\s*(CBL|PROCESS)\b", line[7:72] if len(line) > 7 else line, re.I):
-            continue  # compiler options before the program (PROCESS CICS,... / CBL ...): not COBOL text
+        if n in card_lines:
+            continue
         if len(line) < 7:
             continue
         ind = line[6]
@@ -54,6 +62,10 @@ def logical_lines(raw: list[str], file: str) -> list[Line]:
             continue
         if not body.strip():
             continue
+        if _ID_DIVISION.match(body):
+            # `ID DIVISION.`: IBM's abbreviation of IDENTIFICATION DIVISION (IBM DBB MortgageApplication), which the
+            # parser downstream knows only in full
+            body = _ID_DIVISION.sub(lambda m: m.group(1) + "IDENTIFICATION DIVISION", body, count=1)
         out.append(Line(body.rstrip() if not _open_literal(body) else body, file, n))
     return out
 

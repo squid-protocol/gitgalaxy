@@ -60,6 +60,7 @@ def owning_package(root: str, directory: str, cache: dict[str, Optional[Package]
                     found = Package(current, data)
                     break
         except (OSError, ValueError):
+            # Best-effort lookup: an unreadable or malformed package.json means "no owning package at this level"; keep walking upward.
             pass
         if not current:
             break

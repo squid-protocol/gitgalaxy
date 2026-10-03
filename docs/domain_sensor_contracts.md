@@ -63,8 +63,8 @@ Two things the table cannot show and the reader should know:
   languages because the crucible carries no skipped tests. None of those is a defect.
 - **Kind was corrected where the rule's anchor said so.** The six import-anchored pack rules
   (`llm_orchestrator`, `llm_vector_store`, `ml_traditional`, `dl_frameworks`, `hardware_bridge`,
-  `cryptography` -- all import-anchored regexes; the first four match only the library's
-  top-level package since #4150) fire on the import statement and never on a
+  `cryptography` -- all import-anchored regexes; each matches only the library's
+  top-level package since #4150 and #4238) fire on the import statement and never on a
   use, so their kind is `declaration` (the import contract's unit, #2875), not `site`.
 
 ## The rows

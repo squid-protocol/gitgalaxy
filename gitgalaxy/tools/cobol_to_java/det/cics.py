@@ -808,7 +808,46 @@ class Cics:
         out.append(f"{ind}}}")
         return out + self.outcome(opts, resp, "0", ind)
 
+    # -- #4213: an ESDS browsed by relative byte address (IBM DBB EPSMLIST)
+    def _rba(self, verb: str, opts: dict) -> bool:
+        """Whether the command addresses its file by RBA; what is not modelled is a hole by name. Modelled: STARTBR /
+        READNEXT / READPREV ... RBA (CicsTask's RBA browse, oracle_assumptions.md X13). XRBA, RRN, READ / WRITE / DELETE
+        by RBA, and GTEQ / KEYLENGTH / GENERIC / REQID in an RBA browse are not (IBM: GTEQ "is not valid for directly
+        browsing an ESDS")."""
+        for o in ("XRBA", "RRN"):
+            if o in opts:
+                raise CicsError(f"{verb} {o}: not modelled")
+        if "RBA" not in opts:
+            return False
+        if verb not in ("STARTBR", "READNEXT", "READPREV"):
+            raise CicsError(f"{verb} RBA: not modelled")
+        for o in ("GTEQ", "KEYLENGTH", "GENERIC", "REQID"):
+            if o in opts:
+                raise CicsError(f"{verb} RBA {o}: not modelled")
+        if self.size(opts["RIDFLD"]) < 4:
+            raise CicsError(f"{verb} RBA: RIDFLD {opts['RIDFLD']} is shorter than the fullword an RBA is")
+        return True
+
+    def rba_browse(self, verb: str, opts: dict, ind: str) -> list[str]:
+        file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
+        rid = self.field(opts["RIDFLD"])
+        rba = f"CicsTask.rba(DetCics.bytes({rid}, 4))"
+        if verb == "STARTBR":
+            r = self.g.tmpname("resp")
+            return [f"{ind}int {r} = task.startbrRba({file}, {rba});", *self.outcome(opts, r, "0", ind)]
+        r = self.g.tmpname("read")
+        fn = "readnextRba" if verb == "READNEXT" else "readprevRba"
+        into = self.field(opts["INTO"])
+        return [f"{ind}CicsTask.BrowsedRba {r} = task.{fn}({file}, {rba}, {self.size(opts['INTO'])});",
+                f"{ind}if ({r}.record() != null) {{",
+                f"{ind}    DetCics.put({rid}, CicsTask.rbaBytes({r}.rba()));",
+                f"{ind}    DetCics.put({into}, {r}.record());",
+                f"{ind}}}",
+                *self.outcome(opts, f"{r}.resp()", f"{r}.resp2()", ind)]  # fmt: skip
+
     def read(self, verb: str, opts: dict, ind: str) -> list[str]:
+        if self._rba(verb, opts):
+            return self.rba_browse(verb, opts, ind)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         into = self.field(opts["INTO"])
@@ -842,6 +881,8 @@ class Cics:
         return f"DetCics.bytes({frm})"
 
     def file_update(self, verb: str, opts: dict, ind: str) -> list[str]:
+        if self._rba(verb, opts):
+            return self.rba_browse(verb, opts, ind)
         st = self.store(opts)
         file = self.name(_arg(opts.get("DATASET") or opts.get("FILE")))
         g = self.g

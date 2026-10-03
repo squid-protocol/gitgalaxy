@@ -178,3 +178,71 @@ def test_an_item_nothing_uses_has_no_field():
     assert "f3_A_B" not in out
     assert all(f in out for f in ("f1_REC = Field.group", "f2_A = Field.", "f4_C = Field."))
     assert P.drop_unused_fields(out) == out
+
+
+class _RbaCics(C.Cics):
+    """A Cics with operands resolved by name (no program): RIDFLD a fullword, INTO a 56-byte record."""
+
+    SIZES = {"RID": 4, "SHORT": 2, "REC": 56}
+
+    def __init__(self):
+        class G:
+            n = 0
+
+            def tmpname(self, base):
+                G.n += 1
+                return f"{base}{G.n}"
+
+        super().__init__(G(), None, "p")
+
+    def field(self, text):
+        return f"f_{text}"
+
+    def read_field(self, text):
+        return f"f_{text}"
+
+    def size(self, text):
+        return self.SIZES[text]
+
+    def name(self, text):
+        return f"{text}.strip()"
+
+    def store(self, opts):
+        raise AssertionError("an RBA browse needs no keyed store")
+
+    def outcome(self, opts, resp, resp2, ind):
+        return [f"{ind}OUTCOME({resp}, {resp2});"]
+
+
+def test_an_esds_browse_by_rba_is_translated_and_the_rest_refused():
+    """#4213 (IBM DBB EPSMLIST): STARTBR / READNEXT / READPREV ... RBA run as CicsTask's RBA browse -- RIDFLD's fullword
+    is the RBA, and READNEXT sets it to the RBA of the record read; the record goes INTO. Before #4213 the translator
+    dropped RBA and browsed by key. GTEQ / KEYLENGTH with RBA, XRBA, RRN, and READ / WRITE / DELETE by RBA are holes."""
+    c = _RbaCics()
+    assert c.command("STARTBR DATASET('EPSMORTF') RIDFLD(RID) RBA EQUAL RESP(R)", "") == [
+        "int resp1 = task.startbrRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)));",
+        "OUTCOME(resp1, 0);",
+    ]
+    assert c.command("READNEXT FILE('EPSMORTF') INTO(REC) RIDFLD(RID) RBA RESP(R)", "") == [
+        "CicsTask.BrowsedRba read2 = task.readnextRba('EPSMORTF'.strip(), CicsTask.rba(DetCics.bytes(f_RID, 4)), 56);",
+        "if (read2.record() != null) {",
+        "    DetCics.put(f_RID, CicsTask.rbaBytes(read2.rba()));",
+        "    DetCics.put(f_REC, read2.record());",
+        "}",
+        "OUTCOME(read2.resp(), read2.resp2());",
+    ]
+    assert "task.readprevRba(" in c.command("READPREV FILE(F) INTO(REC) RIDFLD(RID) RBA", "")[0]
+    for bad in (
+        "STARTBR FILE(F) RIDFLD(RID) RBA GTEQ",
+        "STARTBR FILE(F) RIDFLD(RID) RBA KEYLENGTH(4)",
+        "STARTBR FILE(F) RIDFLD(SHORT) RBA",
+        "STARTBR FILE(F) RIDFLD(RID) XRBA",
+        "STARTBR FILE(F) RIDFLD(RID) RRN",
+        "READNEXT FILE(F) INTO(REC) RIDFLD(RID) XRBA",
+        "READPREV FILE(F) INTO(REC) RIDFLD(RID) RRN",
+        "READ FILE(F) INTO(REC) RIDFLD(RID) RBA",
+        "WRITE FILE(F) FROM(REC) RIDFLD(RID) RBA",
+        "DELETE FILE(F) RIDFLD(RID) RBA",
+    ):
+        with pytest.raises(C.CicsError):
+            c.command(bad, "")

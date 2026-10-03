@@ -727,13 +727,16 @@ public class CicsTask {
     }
 
     /** One file's browse: its keys (asked again on every command, so a record written meanwhile is seen), how it
-     *  started, and the last key read and in which direction (0: none yet). */
+     *  started, and the last key read and in which direction (0: none yet). An RBA browse (#4213) keeps RBAs. */
     private static final class Browse {
         java.util.function.Supplier<java.util.NavigableSet<String>> keys;
         boolean equal;
         String start;
         String last;
         int dir;
+        boolean rba;
+        long rbaStart;
+        long rbaLast = -1;
     }
 
     private final Map<String, Browse> browses = new java.util.HashMap<>();
@@ -758,6 +761,9 @@ public class CicsTask {
         int[] planned = root().injected("STARTBR", file);
         if (planned != null) {
             return planned[0];
+        }
+        if (root().esds.containsKey(file)) {
+            throw refused("STARTBR by key on " + file + ", an ESDS");
         }
         Map<String, Browse> all = root().browses;
         if (all.containsKey(file)) {
@@ -786,6 +792,9 @@ public class CicsTask {
         Browse b = root().browses.get(file);
         if (b == null) {
             return new Browsed(16, null);
+        }
+        if (b.rba) {
+            throw refused("READNEXT by key in an RBA browse of " + file);
         }
         java.util.NavigableSet<String> k = b.keys.get();
         boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
@@ -818,6 +827,9 @@ public class CicsTask {
         if (b == null) {
             return new Browsed(16, null);
         }
+        if (b.rba) {
+            throw refused("READPREV by key in an RBA browse of " + file);
+        }
         java.util.NavigableSet<String> k = b.keys.get();
         boolean changed = !ridfld.equals(b.last != null ? b.last : b.start);
         String at;
@@ -838,6 +850,160 @@ public class CicsTask {
         b.last = at;
         b.dir = -1;
         return new Browsed(0, at);
+    }
+
+    // ---- #4213: an ESDS browsed by relative byte address (STARTBR / READNEXT / READPREV ... RBA) ----------------
+    // IBM CICS TS, EXEC CICS STARTBR / READNEXT / READPREV, option RBA: RIDFLD "contains a relative byte address",
+    // and READNEXT / READPREV "return the relative byte address of each retrieved record". EQUAL is "the default for a
+    // direct ESDS browse"; a RIDFLD of X'FF's positions at the end, for READPREV. The records are fixed-length, in
+    // arrival order, and a record's RBA is its byte offset (oracle_assumptions.md X13); the browse moves as the keyed
+    // one does, in RBA order. Refused (UnsupportedOperationException, "... not modelled"), as the COBOL side's stub
+    // refuses them: an RBA that addresses no record, RBA on a file that is not an ESDS, a browse mixing RBA and keys.
+
+    /** An ESDS of the region: its records in arrival order, each `reclen` bytes. */
+    private record Esds(int reclen, List<byte[]> records) {
+    }
+
+    private final Map<String, Esds> esds = new java.util.HashMap<>();
+
+    /** The region's ESDS `file` (a case's dataset): its records in arrival order, each `reclen` bytes. */
+    public CicsTask withEsds(String file, int reclen, List<byte[]> records) {
+        root().esds.put(file, new Esds(reclen, new ArrayList<>(records)));
+        return this;
+    }
+
+    /** The ESDS `file`'s records, as the task leaves them. */
+    public List<byte[]> esdsRecords(String file) {
+        return root().esds.get(file).records();
+    }
+
+    /** A fullword RIDFLD's RBA: its first four bytes, big-endian, unsigned. */
+    public static long rba(byte[] ridfld) {
+        long v = 0;
+        for (int i = 0; i < 4; i++) {
+            v = (v << 8) | (ridfld[i] & 0xFF);
+        }
+        return v;
+    }
+
+    /** An RBA as the fullword CICS returns in RIDFLD. */
+    public static byte[] rbaBytes(long rba) {
+        return new byte[] {(byte) (rba >>> 24), (byte) (rba >>> 16), (byte) (rba >>> 8), (byte) rba};
+    }
+
+    private static final long RBA_END = 0xFFFFFFFFL;
+
+    private static UnsupportedOperationException refused(String what) {
+        return new UnsupportedOperationException(what + ": not modelled");
+    }
+
+    private Esds esdsOf(String file) {
+        Esds e = root().esds.get(file);
+        if (e == null) {
+            throw refused("STARTBR RBA on " + file + ", not an ESDS");
+        }
+        return e;
+    }
+
+    /** The record (0-based) at `rba`; refused when no record starts there. */
+    private static int rbaRecord(String verb, String file, Esds e, long rba) {
+        if (rba % e.reclen() == 0 && rba / e.reclen() < e.records().size()) {
+            return (int) (rba / e.reclen());
+        }
+        throw refused(verb + " RBA " + rba + " on " + file + ": no record starts there");
+    }
+
+    /** What a READNEXT / READPREV ... RBA found: its RESP and RESP2, and the record and its RBA (null: none). A record
+     *  longer than INTO is LENGERR (22) with the record still returned (CICS copies what INTO takes). */
+    public record BrowsedRba(int resp, int resp2, long rba, byte[] record) {
+        public boolean normal() {
+            return resp == 0;
+        }
+    }
+
+    /** STARTBR FILE(file) RIDFLD(rba) RBA [EQUAL]: positions on the record at `rba`, or at the end for X'FFFFFFFF'.
+     *  INVREQ (16) when a browse of the file is active. */
+    public int startbrRba(String file, long rba) {
+        int[] planned = root().injected("STARTBR", file);
+        if (planned != null) {
+            return planned[0];
+        }
+        Esds e = esdsOf(file);
+        Map<String, Browse> all = root().browses;
+        if (all.containsKey(file)) {
+            return 16;
+        }
+        if (rba != RBA_END) {
+            rbaRecord("STARTBR", file, e, rba);
+        }
+        Browse b = new Browse();
+        b.rba = true;
+        b.equal = true;
+        b.rbaStart = rba;
+        all.put(file, b);
+        return 0;
+    }
+
+    /** READNEXT FILE(file) RIDFLD(ridfld) RBA: the record STARTBR positioned on, then each next; a RIDFLD the program
+     *  changed, or a READNEXT after a READPREV, repositions at that RBA. ENDFILE (20) past the last; INVREQ (16) with
+     *  no browse. `intoLength`: INTO's length (LENGERR past it). */
+    public BrowsedRba readnextRba(String file, long ridfld, int intoLength) {
+        return rbaRead("READNEXT", 1, file, ridfld, intoLength);
+    }
+
+    /** READPREV FILE(file) RIDFLD(ridfld) RBA: right after STARTBR the STARTBR's record (or, after X'FFFFFFFF', the
+     *  last); after a READNEXT, or with RIDFLD changed, the record at RIDFLD -- the one READNEXT just read, again;
+     *  then each previous. ENDFILE (20) before the first; INVREQ (16) with no browse. */
+    public BrowsedRba readprevRba(String file, long ridfld, int intoLength) {
+        return rbaRead("READPREV", -1, file, ridfld, intoLength);
+    }
+
+    private BrowsedRba rbaRead(String verb, int dir, String file, long ridfld, int intoLength) {
+        int[] planned = root().injected(verb, file);
+        if (planned != null) {
+            return new BrowsedRba(planned[0], planned.length > 1 ? planned[1] : 0, ridfld, null);
+        }
+        Browse b = root().browses.get(file);
+        if (b == null) {
+            return new BrowsedRba(16, 34, ridfld, null);
+        }
+        if (!b.rba) {
+            throw refused(verb + " by RBA in a keyed browse of " + file);
+        }
+        Esds e = root().esds.get(file);
+        int n = e.records().size();
+        boolean changed = ridfld != (b.rbaLast >= 0 ? b.rbaLast : b.rbaStart);
+        long at;
+        if (dir > 0) {
+            if (b.dir == 0 && b.rbaStart != RBA_END && !changed) {
+                at = rbaRecord(verb, file, e, ridfld);
+            } else if (b.dir == 1 && !changed) {
+                at = ridfld / e.reclen() + 1;
+            } else if (ridfld == RBA_END) {
+                at = -1;
+            } else {
+                at = rbaRecord(verb, file, e, ridfld);
+            }
+            if (at >= n) {
+                at = -1;
+            }
+        } else {
+            if (ridfld == RBA_END && (b.dir == 0 || changed)) {
+                at = n - 1;
+            } else if (b.dir == -1 && !changed) {
+                at = ridfld / e.reclen() - 1;
+            } else {
+                at = rbaRecord(verb, file, e, ridfld);
+            }
+        }
+        if (at < 0) {
+            return new BrowsedRba(20, 90, ridfld, null);
+        }
+        byte[] rec = e.records().get((int) at);
+        long rba = at * e.reclen();
+        b.rbaLast = rba;
+        b.dir = dir;
+        return rec.length > intoLength ? new BrowsedRba(22, 11, rba, rec) : new BrowsedRba(0, 0, rba, rec);
     }
 
     /** ENDBR FILE(file): the browse ends; INVREQ (16) when none is active. */

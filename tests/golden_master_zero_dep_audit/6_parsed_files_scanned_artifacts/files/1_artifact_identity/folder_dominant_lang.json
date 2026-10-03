@@ -411,6 +411,9 @@
     "c": {
       "c/SOURCES.md": "markdown"
     },
+    "c/cosmopolitan_intrin": {
+      "c/cosmopolitan_intrin/countbits.c": "c"
+    },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": "c",
       "c/cpython/ceval.c": "c",
@@ -435,6 +438,9 @@
       "c/doom/r_defs.h": "c",
       "c/doom/w_wad.c": "c",
       "c/doom/z_zone.c": "c"
+    },
+    "c/freebsd_openpam": {
+      "c/freebsd_openpam/pam_acct_mgmt.c": "c"
     },
     "c/micropython": {
       "c/micropython/compile.c": "c",
@@ -1126,6 +1132,10 @@
       "cpp/powertoys/main.cpp": "cpp",
       "cpp/powertoys/powertoy_module.h": "cpp"
     },
+    "cpp/serenity_ak_siphash_cpu": {
+      "cpp/serenity_ak_siphash_cpu/CPUFeatures.cpp": "cpp",
+      "cpp/serenity_ak_siphash_cpu/SipHash.cpp": "cpp"
+    },
     "csd": {
       "csd/SOURCES.md": "markdown"
     },
@@ -1362,6 +1372,9 @@
       "go/core/syscall_linux.go": "go",
       "go/core/value.go": "go"
     },
+    "go/go_runtime_rand": {
+      "go/go_runtime_rand/rand.go": "go"
+    },
     "go/kubernetes": {
       "go/kubernetes/csi_plugin.go": "go",
       "go/kubernetes/generic.go": "go",
@@ -1370,6 +1383,9 @@
       "go/kubernetes/proxier.go": "go",
       "go/kubernetes/replica_set.go": "go",
       "go/kubernetes/scheduler.go": "go"
+    },
+    "go/kubernetes_kubectl_tls": {
+      "go/kubernetes_kubectl_tls/create_secret_tls_test.go": "go"
     },
     "groovy/fineract_gradle_plugin": {
       "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "groovy",
@@ -1876,6 +1892,17 @@
     "java": {
       "java/SOURCES.md": "markdown"
     },
+    "java/flutter_android_editing_tests": {
+      "java/flutter_android_editing_tests/InputConnectionAdaptorTest.java": "java"
+    },
+    "java/jenkins_cli": {
+      "java/jenkins_cli/LICENSE.txt": "plaintext",
+      "java/jenkins_cli/SetBuildDescriptionCommand.java": "plaintext"
+    },
+    "java/selenium_grid_session_queue": {
+      "java/selenium_grid_session_queue/NOTICE": "plaintext",
+      "java/selenium_grid_session_queue/RemoteNewSessionQueue.java": "plaintext"
+    },
     "java/springboot": {
       "java/springboot/AutoConfigurationImportSelector.java": "java",
       "java/springboot/Binder.java": "java",
@@ -1889,6 +1916,13 @@
     "javascript": {
       "javascript/SOURCES.md": "markdown"
     },
+    "javascript/cesium_particle_emitters": {
+      "javascript/cesium_particle_emitters/CircleEmitter.js": "markdown",
+      "javascript/cesium_particle_emitters/LICENSE.md": "markdown"
+    },
+    "javascript/javascript_algorithms_bits": {
+      "javascript/javascript_algorithms_bits/fullAdder.js": "javascript"
+    },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": "javascript",
       "javascript/jquery/ajax.js": "javascript",
@@ -1899,6 +1933,15 @@
       "javascript/jquery/event.js": "javascript",
       "javascript/jquery/tokenize.js": "javascript"
     },
+    "javascript/node_tls_security_tests": {
+      "javascript/node_tls_security_tests/regexp-unicode-sets.js": "javascript",
+      "javascript/node_tls_security_tests/test-crypto-dh-modp2.js": "javascript",
+      "javascript/node_tls_security_tests/test-fs-lchown.js": "javascript",
+      "javascript/node_tls_security_tests/test-https-host-headers.js": "javascript",
+      "javascript/node_tls_security_tests/test-tls-cert-ext-encoding.js": "javascript",
+      "javascript/node_tls_security_tests/test-tls-psk-server.js": "javascript",
+      "javascript/node_tls_security_tests/test-tls-use-after-free-regression.js": "javascript"
+    },
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": "javascript",
       "javascript/react/ReactFiberBeginWork.js": "javascript",
@@ -1906,6 +1949,9 @@
       "javascript/react/ReactFlightServer.js": "javascript",
       "javascript/react/ReactSymbols.js": "javascript",
       "javascript/react/build.js": "javascript"
+    },
+    "javascript/react_error_codes": {
+      "javascript/react_error_codes/extract-errors.js": "javascript"
     },
     "javascript/threejs": {
       "javascript/threejs/BufferGeometry.js": "javascript",
@@ -2393,6 +2439,16 @@
       "makefile/freebsd/COPYRIGHT": "plaintext",
       "makefile/freebsd/Makefile": "plaintext"
     },
+    "markdown": {
+      "markdown/SOURCES.md": "markdown"
+    },
+    "markdown/airflow_job_lifecycle": {
+      "markdown/airflow_job_lifecycle/JOB_LIFECYCLE.md": "plaintext",
+      "markdown/airflow_job_lifecycle/NOTICE": "plaintext"
+    },
+    "markdown/kubernetes_client_go": {
+      "markdown/kubernetes_client_go/ARCHITECTURE.md": "markdown"
+    },
     "matlab": {
       "matlab/SOURCES.md": "markdown"
     },
@@ -2442,6 +2498,10 @@
     },
     "perl": {
       "perl/SOURCES.md": "markdown"
+    },
+    "perl/ack3_tests": {
+      "perl/ack3_tests/LICENSE.md": "perl",
+      "perl/ack3_tests/file-permission.t": "perl"
     },
     "perl/bugzilla": {
       "perl/bugzilla/Auth.pm": "perl",
@@ -2497,6 +2557,10 @@
       "php/laravel_core/Model.php": "php",
       "php/laravel_core/Router.php": "php"
     },
+    "php/laravel_validation_rules": {
+      "php/laravel_validation_rules/Can.php": "php",
+      "php/laravel_validation_rules/LICENSE.md": "php"
+    },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": "php",
       "php/magento2/AbstractModel.php": "php",
@@ -2515,6 +2579,9 @@
       "php/symfony/Parser.php": "php",
       "php/symfony/Request.php": "php",
       "php/symfony/Router.php": "php"
+    },
+    "php/symfony_emoji_data": {
+      "php/symfony_emoji_data/emoji-ccp.php": "php"
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": "php",
@@ -2731,6 +2798,17 @@
       "python/airflow/s3.py": "python",
       "python/airflow/scheduler_job_runner.py": "python"
     },
+    "python/airflow_ai_providers": {
+      "python/airflow_ai_providers/NOTICE": "python",
+      "python/airflow_ai_providers/openai_src_airflow_providers_openai_hooks_openai.py": "python",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_hooks_pinecone.py": "python",
+      "python/airflow_ai_providers/pinecone_src_airflow_providers_pinecone_operators_pinecone.py": "python",
+      "python/airflow_ai_providers/pinecone_tests_system_pinecone_example_pinecone_cohere.py": "python"
+    },
+    "python/airflow_opsgenie_tests": {
+      "python/airflow_opsgenie_tests/NOTICE": "python",
+      "python/airflow_opsgenie_tests/test_opsgenie.py": "python"
+    },
     "python/cython": {
       "python/cython/COPYING.txt": "python",
       "python/cython/CodeGeneration.py": "python",
@@ -2738,6 +2816,10 @@
       "python/cython/MemoryView.pxd": "python",
       "python/cython/MemoryView.pyx": "python",
       "python/cython/Nodes.py": "python"
+    },
+    "python/django_db_tests": {
+      "python/django_db_tests/test_iterator.py": "python",
+      "python/django_db_tests/test_utils.py": "python"
     },
     "python/fastapi": {
       "python/fastapi/CONTRIBUTING.md": "markdown",
@@ -2976,6 +3058,26 @@
       "python/fastapi/tests/test_ws_router.py": "python",
       "python/fastapi/tests/utils.py": "python"
     },
+    "python/homeassistant_anthropic": {
+      "python/homeassistant_anthropic/LICENSE.md": "python",
+      "python/homeassistant_anthropic/coordinator.py": "python"
+    },
+    "python/homeassistant_ble_integrations": {
+      "python/homeassistant_ble_integrations/LICENSE.md": "python",
+      "python/homeassistant_ble_integrations/aranet___init__.py": "python",
+      "python/homeassistant_ble_integrations/gardena_bluetooth___init__.py": "python",
+      "python/homeassistant_ble_integrations/utils.py": "python"
+    },
+    "python/langchain_agents": {
+      "python/langchain_agents/langchain_agents_middleware_model_fallback.py": "python",
+      "python/langchain_agents/langchain_agents_middleware_tool_emulator.py": "python",
+      "python/langchain_agents/tests_integration_tests_chat_models_test_base.py": "python"
+    },
+    "python/micropython_usb_tls": {
+      "python/micropython_usb_tls/ssl_verify_callback.py": "python",
+      "python/micropython_usb_tls/tls_dtls.py": "python",
+      "python/micropython_usb_tls/usb_simple_host_pyusb.py": "python"
+    },
     "python/numpy": {
       "python/numpy/LICENSE.txt": "python",
       "python/numpy/__init__.py": "python",
@@ -2995,6 +3097,27 @@
       "python/numpy/testutils.py": "python",
       "python/numpy/ufunc_docstrings.py": "python",
       "python/numpy/verify_c_api_version.py": "python"
+    },
+    "python/opencv_dnn_conversion": {
+      "python/opencv_dnn_conversion/py_to_py_resnet50_onnx.py": "python"
+    },
+    "python/pip_vendored_requests": {
+      "python/pip_vendored_requests/LICENSE.txt": "python",
+      "python/pip_vendored_requests/packages.py": "python"
+    },
+    "python/scikit-learn_examples": {
+      "python/scikit-learn_examples/COPYING": "python",
+      "python/scikit-learn_examples/linear_model_plot_nnls.py": "python",
+      "python/scikit-learn_examples/svm_plot_custom_kernel.py": "python"
+    },
+    "python/tensorflow_ml_ops": {
+      "python/tensorflow_ml_ops/core_tfrt_saved_model_tests_gen_matmul_gpu.py": "python",
+      "python/tensorflow_ml_ops/lite_testing_op_tests_einsum.py": "python"
+    },
+    "python/thealgorithms_machine_learning": {
+      "python/thealgorithms_machine_learning/LICENSE.md": "python",
+      "python/thealgorithms_machine_learning/logistic_regression.py": "python",
+      "python/thealgorithms_machine_learning/lstm_lstm_prediction.py": "python"
     },
     "python/twisted": {
       "python/twisted/defer.py": "python",
@@ -3061,6 +3184,10 @@
       "ruby/rails/metal.rb": "ruby",
       "ruby/rails/routing.rb": "ruby"
     },
+    "ruby/rails_http_token_auth": {
+      "ruby/rails_http_token_auth/MIT-LICENSE": "ruby",
+      "ruby/rails_http_token_auth/http_token_authentication_test.rb": "ruby"
+    },
     "rust": {
       "rust/SOURCES.md": "markdown"
     },
@@ -3074,6 +3201,12 @@
       "rust/bevy/bevy_reflect_path.rs": "rust",
       "rust/bevy/bevy_render_phase.rs": "rust",
       "rust/bevy/bevy_schedule_graph.rs": "rust"
+    },
+    "rust/bevy_asset_examples": {
+      "rust/bevy_asset_examples/LICENSE-APACHE": "rust",
+      "rust/bevy_asset_examples/LICENSE-MIT": "rust",
+      "rust/bevy_asset_examples/image_node.rs": "rust",
+      "rust/bevy_asset_examples/rotation.rs": "rust"
     },
     "rust/holylang": {
       "rust/holylang/ast.rs": "rust",
@@ -3118,6 +3251,9 @@
       "rust/tokio/tests.rs": "rust",
       "rust/tokio/tokio_mpsc_bounded.rs": "rust",
       "rust/tokio/tokio_named_pipe.rs": "rust"
+    },
+    "rust/tokio_util_rand": {
+      "rust/tokio_util_rand/rand.rs": "rust"
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": "rust",
@@ -3260,6 +3396,10 @@
       "shell/freebsd-src/runulp.sh": "shell",
       "shell/freebsd-src/timeout_test.sh": "shell",
       "shell/freebsd-src/ztest.sh": "shell"
+    },
+    "shell/freebsd_sysbuild": {
+      "shell/freebsd_sysbuild/COPYRIGHT": "shell",
+      "shell/freebsd_sysbuild/sysbuild.sh": "shell"
     },
     "shell/haiku": {
       "shell/haiku/HardwareChecker.sh": "shell",
@@ -3688,6 +3828,9 @@
     "typescript": {
       "typescript/SOURCES.md": "markdown"
     },
+    "typescript/angular_zonejs_mocha": {
+      "typescript/angular_zonejs_mocha/mocha.ts": "typescript"
+    },
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": "typescript",
       "typescript/assemblyscript/ast.ts": "typescript",
@@ -3695,12 +3838,30 @@
       "typescript/assemblyscript/package.json": "typescript",
       "typescript/assemblyscript/parser.ts": "typescript"
     },
+    "typescript/effect_ai_anthropic": {
+      "typescript/effect_ai_anthropic/AnthropicTokenizer.ts": "typescript"
+    },
+    "typescript/excalibur_math": {
+      "typescript/excalibur_math/LICENSE.md": "typescript",
+      "typescript/excalibur_math/collision_colliders_separating-axis.ts": "typescript",
+      "typescript/excalibur_math/math_ray.ts": "typescript"
+    },
+    "typescript/excalidraw_text_wrapping": {
+      "typescript/excalidraw_text_wrapping/textWrapping.ts": "typescript"
+    },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": "typescript",
       "typescript/fp-ts/HKT.ts": "typescript",
       "typescript/fp-ts/TaskEither.ts": "typescript",
       "typescript/fp-ts/package.json": "typescript",
       "typescript/fp-ts/pipeable.ts": "typescript"
+    },
+    "typescript/nx_util_ai": {
+      "typescript/nx_util_ai/nx-dev_pages_api_query-ai-handler.ts": "typescript",
+      "typescript/nx_util_ai/util-ai_src_lib_moderation.ts": "typescript"
+    },
+    "typescript/pixijs_examples": {
+      "typescript/pixijs_examples/events_dragging.ts": "typescript"
     },
     "typescript/playwright": {
       "typescript/playwright/NOTICE": "typescript",
@@ -3892,6 +4053,9 @@
       "zig/zig/Type.zig": "zig",
       "zig/zig/Zcu.zig": "zig",
       "zig/zig/main.zig": "zig"
+    },
+    "zig/zig_std_linux_mips": {
+      "zig/zig_std_linux_mips/mips.zig": "zig"
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": "zig",

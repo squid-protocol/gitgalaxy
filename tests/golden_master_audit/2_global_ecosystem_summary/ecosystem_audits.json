@@ -394,13 +394,13 @@
     },
     "firewall": {
       "imports_blacklisted": 0,
-      "imports_unknown": 10260,
+      "imports_unknown": 10627,
       "imports_whitelisted": 0,
-      "threats_allowed": 0,
+      "threats_allowed": 2,
       "threats_found": 1
     },
     "xray": {
-      "anomalies_found": 64
+      "anomalies_found": 69
     }
   }
 }

@@ -881,4 +881,22 @@ public final class Cobol {
             }
         }
     }
+
+    /** #4181: a LINK's COMMAREA as the target's DTO of `size` bytes reads it. The COMMAREA is passed by reference, so
+     *  the target sees the caller's storage from the area's first byte -- here up to the end of the caller's record
+     *  (its 01 item's storage), never past it: z/OS would show the target whatever storage follows the record, which
+     *  this port does not lay out, so those bytes are LOW-VALUES (docs/language_status/oracle_assumptions.md X10). */
+    public static Storage commarea(Field f, int size) {
+        Storage w = new Storage(size);
+        int n = Math.max(0, Math.min(size, f.storage().bytes.length - f.offset()));
+        System.arraycopy(f.storage().bytes, f.offset(), w.bytes, 0, n);
+        return w;
+    }
+
+    /** #4181: what the LINKed program left in the COMMAREA, back into the caller's storage -- up to the end of the
+     *  caller's record, as commarea read it. */
+    public static void commareaBack(Storage w, Field f) {
+        int n = Math.max(0, Math.min(w.bytes.length, f.storage().bytes.length - f.offset()));
+        System.arraycopy(w.bytes, 0, f.storage().bytes, f.offset(), n);
+    }
 }

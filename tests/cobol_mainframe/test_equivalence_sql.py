@@ -15,6 +15,11 @@ sys.path.insert(0, str(ROOT / "tests" / "tools"))
 import equivalence_sql as Q  # noqa: E402
 
 
+def _shape(table: str) -> list[str]:
+    """The table's lines, each S line without its #4173 key (program, line: test_sql_faults.py pins those)."""
+    return [" ".join(ln.split()[:6]) if ln.startswith("S ") else ln for ln in table.splitlines()]
+
+
 def program(data: list[str], proc: list[str]) -> str:
     lines = ["       IDENTIFICATION DIVISION.", "       PROGRAM-ID. SQLT.", "       DATA DIVISION.",
              "       WORKING-STORAGE SECTION.", "           EXEC SQL INCLUDE SQLCA END-EXEC.",
@@ -45,7 +50,7 @@ def precompile(proc: list[str], data: list[str] = DATA, tmp: Path | None = None)
 def test_insert_binds_each_host_variable_as_its_db2_type():
     prog, table = precompile(["EXEC SQL INSERT INTO T (A, B, C, D, E)", "  VALUES (:HV-TYPE, :HV-DESC, :HV-AMT,",
                               "  :HV-COUNT, :HV-ZONED) END-EXEC"])  # fmt: skip
-    lines = table.splitlines()
+    lines = _shape(table)
     assert lines[0] == "S 1 EXEC 5 0 -"
     # CHAR(2); VARCHAR(50) from the 49-level pair; DECIMAL(9,2) packed; INTEGER binary; DECIMAL(4,0) zoned
     assert lines[1:6] == ["I 0 X 2 0 0 0 -1", "I 1 V 50 0 0 0 -1", "I 2 P 5 9 2 1 -1", "I 3 B 4 9 0 1 -1",
@@ -57,7 +62,7 @@ def test_insert_binds_each_host_variable_as_its_db2_type():
 def test_select_into_a_host_structure_with_an_indicator():
     _, table = precompile(["EXEC SQL SELECT A, B", "  INTO :HV-ROW-TYPE:HV-IND, :HV-ROW-AMT",
                            "  FROM T WHERE A = :HV-TYPE", "END-EXEC"])  # fmt: skip
-    lines = table.splitlines()
+    lines = _shape(table)
     assert lines[0] == "S 1 SELECT1 1 2 -"
     assert lines[1] == "I 3 X 2 0 0 0 -1"  # the WHERE's host variable (arguments: the INTO list first)
     assert lines[2:4] == ["O 0 X 2 0 0 0 1", "O 2 P 4 7 2 1 -1"]  # the indicator is argument 1
@@ -73,7 +78,7 @@ def test_a_cursor_runs_its_select_at_open_and_fetches_into_host_variables():
     _, table = precompile(["EXEC SQL DECLARE C1 CURSOR FOR SELECT A, B FROM T", "  WHERE A >= :HV-TYPE ORDER BY A",
                            "END-EXEC", "EXEC SQL OPEN C1 END-EXEC", "EXEC SQL FETCH C1",
                            "  INTO :HV-ROW-TYPE, :HV-ROW-AMT END-EXEC", "EXEC SQL CLOSE C1 END-EXEC"])  # fmt: skip
-    lines = table.splitlines()
+    lines = _shape(table)
     assert lines[0] == "S 1 OPEN 1 0 C1" and lines[2] == "Q SELECT A, B FROM T WHERE A >= ? ORDER BY A"
     assert lines[3] == "S 2 FETCH 0 2 C1" and lines[4:6] == ["O 0 X 2 0 0 0 -1", "O 1 P 4 7 2 1 -1"]
     assert lines[7] == "S 3 CLOSE 0 0 C1"
@@ -105,7 +110,7 @@ def test_set_assigns_a_values_row_to_host_variables():
     _, table = precompile(["EXEC SQL SET :HV-COUNT = IDENTITY_VAL_LOCAL() END-EXEC",
                            "EXEC SQL SET (:HV-TYPE, :HV-AMT) =", "  ('AB', COALESCE(:HV-ZONED, 0))",
                            "END-EXEC"])  # fmt: skip
-    lines = table.splitlines()
+    lines = _shape(table)
     assert lines[:3] == ["S 1 SELECT1 0 1 -", "O 0 B 4 9 0 1 -1", "Q VALUES (IDENTITY_VAL_LOCAL())"]
     assert lines[3] == "S 2 SELECT1 1 2 -" and lines[-1] == "Q VALUES ('AB', COALESCE(?, 0))"
 
@@ -119,7 +124,7 @@ def test_a_positioned_update_runs_as_written_on_its_named_cursor():
     _, table = precompile(["EXEC SQL DECLARE C1 CURSOR FOR SELECT A FROM T", "  FOR UPDATE OF A END-EXEC",
                            "EXEC SQL OPEN C1 END-EXEC", "EXEC SQL FETCH C1 INTO :HV-TYPE END-EXEC",
                            "EXEC SQL UPDATE T SET A = :HV-TYPE WHERE CURRENT OF C1", "END-EXEC"])  # fmt: skip
-    lines = table.splitlines()
+    lines = _shape(table)
     assert (
         lines[0] == "S 1 OPEN 0 0 C1"
         and "S 3 EXEC 1 0 -" in lines

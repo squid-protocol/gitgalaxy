@@ -140,6 +140,7 @@ public class CicsTask {
     private final String aid;
     private final Object commarea;
     private final Integer eibcalen;
+    private byte[] linkArea;  // #4181 follow-up: the LINK COMMAREA's bytes, when the linking program passed them
     private final Map<String, Object> received;
     private final List<Map<String, Object>> events;
     private boolean ended;
@@ -260,6 +261,13 @@ public class CicsTask {
      *  program runs at the next level on `commarea` itself -- what it changes, the caller sees -- then any
      *  program it XCTLs to, and control returns here. The handlers of this program are not the callee's. */
     public String link(String program, Object commarea, int length) {
+        return link(program, commarea, length, null);
+    }
+
+    /** LINK with the COMMAREA's bytes as well (#4181 follow-up): the area is passed by reference, so a program
+     *  given `area` reads and writes those bytes as its DFHCOMMAREA -- every byte, the ones its contract DTO does
+     *  not name too (a caller's record laid out unlike the target's contract). The event carries them (base64). */
+    public String link(String program, Object commarea, int length, byte[] area) {
         String resp = "NORMAL";
         Integer resp2 = null;
         int len = commarea == null ? 0 : length;
@@ -272,12 +280,17 @@ public class CicsTask {
         }
         event("LINK", "target", program, "length", len, "commarea", snapshot.apply(commarea), "resp", resp,
                 "resp2", resp2);
+        if (area != null) {
+            events.get(events.size() - 1).put("area", java.util.Base64.getEncoder().encodeToString(
+                    java.util.Arrays.copyOf(area, Math.max(0, Math.min(len, area.length)))));
+        }
         if (!"NORMAL".equals(resp)) {
             return resp;
         }
         CicsTask callee = new CicsTask(this, level + 1, program, commarea, len, commarea);
         callee.invoker = this.program;
         callee.linkLength = len;
+        callee.linkArea = area;
         for (int hop = 0; callee != null && hop < 32; hop++) {
             programs.run(callee.program, callee);
             if (callee.xctlTarget != null) {
@@ -521,6 +534,12 @@ public class CicsTask {
     /** LINK PROGRAM(program) with no COMMAREA: the callee's EIBCALEN is 0. */
     public String link(String program) {
         return link(program, null, 0);
+    }
+
+    /** The bytes of the COMMAREA this program was LINKed with, when its caller passed them (by reference: what it
+     *  writes there its caller sees); null otherwise. */
+    public byte[] linkArea() {
+        return linkArea;
     }
 
     private java.util.Map<String, Long> counters = new java.util.HashMap<>();  // the region's named counters (root's)

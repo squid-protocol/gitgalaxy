@@ -183,7 +183,7 @@ FAULT_OPS = ("OPEN", "CLOSE", "READ", "WRITE", "REWRITE", "DELETE", "START")
 def fault_plan(fault: dict[str, Any]) -> str:
     """A case fault's plan as both sides read it: `DD OP NTH STATUS` per line (see faults/ggfault.c)."""
     lines = []
-    for f in fault["plan"]:
+    for f in fault.get("plan", []):
         if f["op"] not in FAULT_OPS or not re.fullmatch(r"[0-9A-Z]{2}", str(f["status"])):
             raise ValueError(f"fault {fault['name']}: bad op / status {f}")
         nth = "*" if f.get("nth", 1) == "*" else int(f.get("nth", 1))
@@ -210,7 +210,9 @@ def run_cobol(
     if db2:  # a Db2 program: its EXEC SQL precompiled into calls of the SQL stub (equivalence_sql.py)
         dirs = [corpus / d for d in [*case.get("copy_dirs", []), *db2.get("include_dirs", [])]]
         try:
-            program, table = equivalence_sql.precompile(program, dirs, corpus / case["program_source"])
+            program, table = equivalence_sql.precompile(
+                program, dirs, corpus / case["program_source"], program=case["program"]
+            )
         except equivalence_sql.Unsupported as e:
             raise RuntimeError(f"not runnable faithfully: {e}") from e
         (work / "stmts.txt").write_text(table, encoding="latin-1")
@@ -258,6 +260,12 @@ def run_cobol(
     tz = f"TZ='{case['zone']}' " if case.get("zone") else ""
     # the step's RETURN-CODE is an output like any other (CBTRN02C sets 4 when it rejects): recorded, not fatal
     sqlenv = equivalence_db2.cobol_env("/work/stmts.txt") if db2 else ""
+    if db2:  # #4173: each statement the step runs traced; a fault run's SQL faults, those that fire logged
+        sqlenv += "GGSQL_TRACE=/work/sqltrace.txt GGSQL_FAULTS_LOG=/work/FAULTS "
+        (work / "sqltrace.txt").unlink(missing_ok=True)
+        if fault is not None and fault.get("sql_plan"):
+            (work / "sqlfaults.cfg").write_text("".join(x + "\n" for x in fault["sql_plan"]), encoding="ascii")
+            sqlenv += "GGSQL_FAULTS=/work/sqlfaults.cfg "
     script.append(f"set +e; {cov.trace_env('/work/' + cov.TRACE_NAME)}GG_ABEND=/work/ABEND {inject}{tz}{clock}{env} "
                   f"{sqlenv}./program > /work/stdout.txt 2>&1; echo $? > /work/RETURN-CODE; set -e")  # fmt: skip
     # after an abend (or an OPEN a fault refused) an output may not exist: unloaded if it does
@@ -433,6 +441,29 @@ def feedback_md(report: dict[str, Any]) -> str:
 
 
 # ---- #4023 follow-up: fault runs ------------------------------------------------------
+def enumerated_batch_sql_faults(cobol_work: Path, table: str) -> list[dict[str, Any]]:
+    """#4173: one more run of a batch step per SQL statement its normal run executed, that statement's first
+    execution failing (equivalence_cics.default_fault's SQLCODE) -- a fault run like the case's own."""
+    import equivalence_cics as ec
+
+    stmts = {(x["program"], x["line"]): x for x in ec.sql_statements(table)}
+    trace = cobol_work / "sqltrace.txt"
+    words = trace.read_text(encoding="ascii").split() if trace.is_file() else []
+    out, seen = [], set()
+    for prog, line in zip(words[::2], words[1::2]):
+        key = (prog, int(line))
+        if key in seen or key not in stmts:
+            continue
+        seen.add(key)
+        code = ec.default_fault(stmts[key])
+        if code is None:
+            continue
+        out.append({"name": f"sql-{prog.lower()}-{line}", "plan": [], "derived": True,
+                    "sql_plan": [f"{prog} {line} 1 {code} {ec.SQLSTATES[code]}"],
+                    "why": f"#4173: the first {stmts[key]['kind']} at {prog} line {line} failing (SQLCODE {code})"})  # fmt: skip
+    return out
+
+
 def selected_faults(case: dict[str, Any], arg: Optional[str]) -> list[dict[str, Any]]:
     """The case's `faults` to run: `all` (the default), `none`, or names separated by commas."""
     faults = case.get("faults", [])
@@ -558,6 +589,9 @@ def main() -> int:
                    "the case's `data_encoding`, else latin-1)")  # fmt: skip
     r.add_argument("--faults", help="#4023 follow-up: the case's fault runs to run as well: all (default) | none | "
                    "NAME,NAME")  # fmt: skip
+    r.add_argument("--sql-faults", default="auto", choices=("auto", "declared", "none"),
+                   help="#4173: a Db2 case's SQL faults: auto (default: one more run per SQL statement the case "
+                   "executes, it failing) | declared (the case's own sql_faults only) | none")  # fmt: skip
     r.add_argument("--case-file", type=Path, help="#4049: prove this case.json instead of the case's own (its "
                    "inputs and port still come from the case's directory)")  # fmt: skip
     r.add_argument("--reuse", type=Path, help="an earlier run's --keep directory of this case: its COBOL side "
@@ -598,11 +632,20 @@ def main() -> int:
         import equivalence_cics as ec
 
         return ec.run_case(case, corpus, work, port=not args.generated_only, port_dir=args.port,
-                           cobol_only=args.cobol_only)  # fmt: skip
+                           cobol_only=args.cobol_only, sql_faults=args.sql_faults)  # fmt: skip
     faults = selected_faults(case, args.faults)
     if case.get("db2"):  # the case's tables, created from its DDL on the harness's Db2 (equivalence_db2.py)
         equivalence_db2.create(case, corpus)
     cobol = run_cobol(case, corpus, work / "cobol")
+    if case.get("db2") and args.sql_faults != "none":  # #4173: the case's SQL faults, resolved to their statements
+        import equivalence_cics as ec
+
+        table = (work / "cobol" / "stmts.txt").read_text(encoding="latin-1")
+        for f in faults:
+            if f.get("sql_faults"):
+                f["sql_plan"] = ec.sql_fault_plan(case, {"name": f["name"], **f}, table)
+        if args.sql_faults == "auto" and args.faults != "none":
+            faults = [*faults, *enumerated_batch_sql_faults(work / "cobol", table)]
     cobol_faults = {f["name"]: run_cobol(case, corpus, work / "faults" / f["name"] / "cobol", f) for f in faults}
     if args.cobol_only:
         for name, res in [("", cobol), *cobol_faults.items()]:
@@ -628,7 +671,8 @@ def main() -> int:
     try:
         runs = ej.run_java_environments(case, corpus, work / "java", work / "cobol", envs,
                                         port=not args.generated_only, port_dir=args.port,
-                                        faults=tuple((f["name"], fault_plan(f)) for f in faults),
+                                        faults=tuple((f["name"], fault_plan(f), "\n".join(f.get("sql_plan", [])))
+                                                     for f in faults),
                                         stop=differs if args.first_difference else None)  # fmt: skip
     except RuntimeError as e:  # the port does not compile, or its run fails: the loop's feedback, not a crash
         failed = java_failure_report(case, work, str(e))

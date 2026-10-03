@@ -303,7 +303,9 @@ property for used to reach the port as nothing. It is now refused by name. ABNDP
 cases were checked: none drops a field.
 
 GenApp's error paths (DUPREC, NOTFND, injected faults) all LINK to LGSTSQ first, which the one-program cases do
-not run: they are not exercised (the harness refuses a scenario that reaches such a LINK). The CBSA cases cover
+not run. A case scenario that reaches such a LINK is refused. Since #4173 an SQL-fault task that reaches it is judged
+up to and including the LINK (its events and the COMMAREA bytes it passes, byte for byte), its end state not compared
+(register X6, M2). The CBSA cases cover
 their error paths, ABNDPROC's DUPREC among them. No case here browses, so EBCDIC vs ASCII key order is still not
 exercised.
 
@@ -469,8 +471,16 @@ NULL is distinct.
     the equivalence test's, around each task; a deployment must give each task the same unit of work. A batch
     program's repositories autocommit, so a batch ROLLBACK is a hole (register Q3). A file defined `RECOVERY(NONE)`
     in the CSD keeps its changes through a backout on both sides.
-  - The harness has no SQL fault injection yet (register M2): Db2 error paths are reached only where a scenario's
-    data produces the error (a duplicate key, a foreign-key refusal, +100).
+  - SQL faults (#4173, register M2): each statement is keyed `PROGRAM:LINE` (its EXEC SQL's line in the file it is
+    written in), the key every DetSql call carries; a fault plan skips that execution on both sides (ggsql.c,
+    DetSql) with its SQLCODE. `equivalence.py run --sql-faults auto` (the default) adds a task per statement the
+    case's tasks executed: -803 for an INSERT, +100 for a SELECT INTO, -913 for the rest. Branches covered rose on 14
+    of the 17 Db2 cases (LGACDB01 6/14 → 8/14, LGUPDB01 17/38 → 26/38, DELACC 10/14 → 13/14).
+  - What the proofs found (#4173): a LINK whose area is shorter than the target's contract DTO read past the caller's
+    record (#4181: GenApp's 71-byte ERROR-MSG as LGSTSQ's 99-byte CA-ERROR-MSG); and a contract DTO typed from another
+    caller's record dropped the bytes it does not name (ERROR-MSG's date, under CA-ERROR-MSG's FILLER). A LINK now
+    reads to the end of the caller's record only (`Cobol.commarea`, register X10) and a det caller passes the bytes
+    themselves (`CicsTask.link(..., area)`).
 
 ## In port_runner
 

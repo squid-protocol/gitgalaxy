@@ -275,6 +275,10 @@ Only generator output, never a test case:
 - The harness itself: `equivalence_cics.alphanumeric` read the 9 of `PIC X(09)` as a digit position, so COACTUPC's
   ACUP-OLD-CUST-SSN-X `017590544` reached the Java side as 17590544 -- another record than COBOL's. Fixed; the 15
   model-written CICS ports re-prove with the fix.
+- #4213: the translator dropped RBA (and XRBA / RRN) from a browse and browsed by key: IBM DBB EPSMLIST's
+  `STARTBR ... RIDFLD(RID-LENGTH) RBA` "translated" 51/51 into a keyed browse of a store the project does not have.
+  An ESDS browse by RBA is now CicsTask's RBA browse (`startbrRba` / `readnextRba` / `readprevRba`, register X13);
+  XRBA, RRN and READ / WRITE / DELETE by RBA are holes by name.
 
 ### Keyed reads
 

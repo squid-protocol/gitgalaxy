@@ -1077,15 +1077,6 @@ LANGUAGE_SECURITY_PROFILES = {
         },  # C code hiding in a JS app = Trojan
         "web_in_systems": {"state_mutation": 3.0},  # JS embedded in C firmware = Bizarre architecture
     },
-    # ---> THE ARCHETYPE VIOLATION MATRIX (k=10 Edition) <---
-    # Multiplies threat mass based on how anomalous the behavior is for the file's physical DNA.
-    "CONTEXT_VIOLATION_MATRIX": {
-        "Cluster 1: High-Dependency Config & Object Nodes": {
-            # The New Config/JSON/Typescript Interface nodes.
-            # These should NEVER execute logic, manage memory, or be obfuscated.
-            "secrets_risk_multiplier": 2.0,
-        },
-    },
     # ---> THE BASELINE SPATIAL DISPERSIONS (Z-Score baselines) <---
     "ARCHETYPE_DISPERSIONS": {
         "Cluster 0: Native Core & Memory Management": 4.58,

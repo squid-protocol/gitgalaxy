@@ -5,7 +5,7 @@
   ],
   "value": {
     "Galaxy Column Digests": {
-      "a_dists": "11a1f1d73aef",
+      "a_dists": "458795e83507",
       "a_ids": "54b61c089b5d",
       "ai_threats": "32b594d8b10e",
       "author_distribution": "32b594d8b10e",
@@ -13,7 +13,7 @@
       "cog_raw": "e61beef80fac",
       "d_locs": "4d840100c50d",
       "edges": "d7e76cda52a1",
-      "hits_flat": "0c74336df088",
+      "hits_flat": "be5a9820ecc3",
       "imports": "df99dcf0385c",
       "lang_ids": "cf6072df23c2",
       "locs": "b7089858d748",
@@ -2606,7 +2606,7 @@
       "python/twisted/defer.py": "31401913e6a1",
       "python/twisted/http.py": "a7fb5e793cd0",
       "python/twisted/reflect.py": "4fcaaf9c1eec",
-      "python/twisted/transport.py": "1b8b3dbb8ece",
+      "python/twisted/transport.py": "a351b81a555c",
       "python/wtfpython/2_tricky_strings.py": "5d92c242ae8c",
       "python/wtfpython/README.md": "51a5420e4b40",
       "python/wtfpython/insert_ids.py": "a4f4b4857096",

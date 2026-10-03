@@ -18,7 +18,9 @@ from .._shared_patterns import (
     COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
+    JS_CRYPTOGRAPHY,
     JS_DL_FRAMEWORKS,
+    JS_HARDWARE_BRIDGE,
     JS_LLM_API,
     JS_LLM_ORCHESTRATOR,
     JS_LLM_VECTOR_STORE,
@@ -363,13 +365,10 @@ DEFINITION: dict[str, Any] = {
         # 21. comprehensions (Iterators / Comprehensions)
         "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
-        "hardware_bridge": re.compile(
-            # #2898: webgl removed -- a renderer, not a hardware peripheral.
-            r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer)\b"
-        ),
-        "cryptography": re.compile(
-            r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2)\b"
-        ),
+        # hardware_bridge / cryptography (#4238): anchored on the package specifier, see
+        # _shared_patterns.py. #2898 removed webgl (a renderer, not a peripheral).
+        "hardware_bridge": JS_HARDWARE_BRIDGE,
+        "cryptography": JS_CRYPTOGRAPHY,
         # 23. heat_triggers (Metaprogramming & Reflection)
         "reflection_metaprogramming": re.compile(
             r"\b(arguments\.|prototype|__proto__|Object\.assign|Reflect|Proxy|Object\.defineProperty|\.bind\(|\.call\(|\.apply\()\b"

@@ -210,7 +210,7 @@
     "| concurrency | 5416 | 519 | 2 | `typescript/playwright/frames.ts` |",
     "| connectivity | 24203 | 1189 | 13 | `css/bootstrap_dist/bootstrap.rtl.css` |",
     "| io | 15424 | 1012 | 7 | `fortran/wrf/regtest.csh` |",
-    "| crypto | 3 | 2 | 0 | `python/twisted/transport.py` |",
+    "| crypto | 10 | 2 | 0 | `python/twisted/transport.py` |",
     "| ipc | 1570 | 298 | 0 | `cobol/gnucobol/numeric-dump.cob` |",
     "| time | 1044 | 270 | 0 | `lua/cosmopolitan/files.lua` |",
     "| serialization | 1005 | 160 | 0 | `lua/cosmopolitan/calls.lua` |",

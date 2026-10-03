@@ -168,6 +168,30 @@ JS_ML_TRADITIONAL = _js_package_import(r"sklearn")
 PY_DL_FRAMEWORKS = _py_package_import(r"tensorflow|torch|keras")
 JS_DL_FRAMEWORKS = _js_package_import(r"tensorflow|torch|keras|@tensorflow(?:-models)?/[\w.-]+")
 
+# hardware_bridge / cryptography (#4238): the last two import-anchored rules had the
+# same `\b(?:import|require|from)\b.*?(?:names)\b` shape (library name ANYWHERE on
+# an import line) and fired on `from myproj.crypto.utils import X`,
+# `from .ssl_helpers import y`, `import { Foo } from './usb/driver'`. They now use the
+# same builders as the AI/ML pack. Names are unchanged except the deliberate
+# additions noted inline.
+# python: `cryptography` and `OpenSSL` are added so `from cryptography import x509` and
+# `from OpenSSL import crypto` (which the old rule caught only through the incidental
+# `x509` / `crypto` tokens) still count; `socket.io` is
+# dropped (not a python module name) and `webgl` kept as before.
+PY_HARDWARE_BRIDGE = _py_package_import(r"serialport|usb|bluetooth|websocket|printer|webgl")
+PY_CRYPTOGRAPHY = _py_package_import(
+    r"cryptography|OpenSSL|crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac"
+)
+# js/ts: `node:`-prefixed builtins, `crypto-*` (`crypto-js`) and the `@serialport/*`,
+# `@socket.io/*` and `@scope/x509` scoped packages all counted under the old
+# anywhere-on-the-line shape, so they are named explicitly.
+JS_HARDWARE_BRIDGE = _js_package_import(
+    r"serialport|@serialport/[\w.-]+|usb|bluetooth|socket\.io(?:-client)?|@socket\.io/[\w.-]+|websocket|printer"
+)
+JS_CRYPTOGRAPHY = _js_package_import(
+    r"(?:node:)?(?:crypto|tls)|crypto-[\w.-]+|bcrypt|ssl|jsonwebtoken|argon2|x509|@[\w.-]+/x509"
+)
+
 # A `<script>` whose `type` attribute is any of these carries NO executable logic
 # -- a browser treats every `type` outside the JS-MIME / `module` / bare set as an
 # inert data block and never runs it. Real corpus cases: reveal.js

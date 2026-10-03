@@ -195,9 +195,6 @@ class SignalProcessor:
             },
         )
 
-        # ---> NEW: Fetch the Archetype Matrix
-        self.CONTEXT_VIOLATION_MATRIX = security_profiles.get("CONTEXT_VIOLATION_MATRIX", {})
-
         self.logger.info("Signal Processor Online | Context-Aware Risk Schema & ML Archetypes loaded.")
 
     def _classify_archetype(

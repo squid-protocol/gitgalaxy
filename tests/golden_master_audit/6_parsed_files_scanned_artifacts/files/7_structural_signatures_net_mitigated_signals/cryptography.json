@@ -3000,7 +3000,7 @@
       "python/twisted/defer.py": 0,
       "python/twisted/http.py": 0,
       "python/twisted/reflect.py": 0,
-      "python/twisted/transport.py": 2
+      "python/twisted/transport.py": 9
     },
     "python/wtfpython": {
       "python/wtfpython/2_tricky_strings.py": 0,

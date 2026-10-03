@@ -161,6 +161,11 @@ select = [
     "A",        # flake8-builtins
     "RSE",      # flake8-raise
     "RUF",      # ruff-specific rules
+    # flake8-implicit-str-concat: CodeQL flagged an implicit concatenation inside a list (a missing
+    # comma) only after push (#4241). ISC003 (explicit `+`) is style noise, so not selected.
+    # There is no ruff rule for a missing super().__init__() call (pylint W0231 has no port);
+    # CodeQL's py/missing-call-to-init remains the only catch (#4236).
+    "ISC001", "ISC002", "ISC004",
 ]
 # E741 (ambiguous short variable names like `l`, `I`) is a long-accepted
 # convention in this codebase's math-heavy code (spatial_mapper.py, etc.).

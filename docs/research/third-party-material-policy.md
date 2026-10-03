@@ -18,6 +18,18 @@ GitGalaxy's research compares COBOL→Java translations made by others: IBM WCA4
 6. **Patents.** Before commercial use of a feature inspired by another party's method (e.g. #4175, scenario generation from path conditions, inspired by IBM's published papers), check for relevant patents or get legal review.
 7. **Blameless reporting.** Describe third-party results factually, with pinned versions, and judge each piece of work by what it attempted. Never present it as representing a product beyond the artifact actually measured.
 
+## Scanning other people's code
+
+GitGalaxy works like an X-ray. It reveals structure a codebase's authors did not choose to expose, so how we come to scan something, and what we publish about it, both need care.
+
+1. **Scan only what we are entitled to see.**
+   - Public repositories, our own code, and client code with the client's permission are fine; client results stay private unless the client agrees otherwise.
+   - Never scan leaked, confidential or NDA-covered code without explicit permission.
+2. **Check terms, not just licences.** Commercial products, trials and services often prohibit publishing benchmarks or comparisons, or reverse engineering. Before publishing any comparison of a product run under its terms (e.g. AWS Transform, a WCA4Z trial), read those terms and flag it to the maintainer.
+3. **Publish measurements, not reconstructions.** Metrics, verdicts, root causes and brief quotes are fine. A description detailed enough to rebuild someone's design is not.
+4. **Security findings go private first.** A vulnerability or exposed secret found in someone else's code is disclosed privately to its owner before any public mention.
+5. **Mind the referee's bias.** The author is also a participant, so report results that cut against our thesis as prominently as those that support it, keep the blameless framing, and make every result reproducible.
+
 ## Current sources
 
 | Source | Licence | Our use |

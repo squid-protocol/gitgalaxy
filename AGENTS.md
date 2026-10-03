@@ -47,4 +47,4 @@ When working with other people's code, tools, papers or artifacts (IBM, Devin, S
 1. **Flag first:** stop and ask before copying third-party code, using unlicensed material, quoting at length, or shipping a vendor-inspired feature commercially.
 2. **Borrow ideas, not code:** implement techniques yourself and record where each idea came from. Never commit third-party code without explicit maintainer approval for that specific case.
 3. **Unlicensed sources:** run them locally from pinned commits, never commit them, and quote briefly with attribution.
-
+4. **Scanning others' code:** scan only what we may lawfully see; check product terms for benchmark or reverse-engineering clauses before publishing comparisons; publish measurements, not reconstructions; disclose security findings privately first.

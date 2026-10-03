@@ -473,23 +473,6 @@ def keyed_unit_name(prog: dict[str, Any], name: str, line: int) -> str:
     return sibling_unit(pid, name) if pid else name
 
 
-def bare_units(prog: dict[str, Any]) -> set[str]:
-    """Every unit name in the entry's source, whichever program declares it: what
-    a parser that reads a file as one program can be checked against (#4206)."""
-    return {u["name"] for u in prog["units"]} | {
-        u["name"] for s in prog.get("siblings", {}).values() for u in s["units"]
-    }
-
-
-def bare_dead(prog: dict[str, Any]) -> set[str]:
-    """The bare names dead in EVERY program that declares them (#4206): a name a
-    sibling still reaches is not dead code in the file."""
-    progs = [prog, *prog.get("siblings", {}).values()]
-    return {
-        n for n in bare_units(prog) if all(n in p["dead"] for p in progs if any(u["name"] == n for u in p["units"]))
-    }
-
-
 def _units(src: Source, start: Optional[int] = None, stop: Optional[int] = None) -> list[dict[str, Any]]:
     """Paragraph/section headers in Area A of the PROCEDURE DIVISION, with bodies.
 
@@ -6371,12 +6354,19 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
     readers, so the harness and the scorer share one implementation without
     importing each other (#3211: refraction_differential is the harness on top)."""
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
+        keyed_unit,
+        program_units,
         resolve_copybooks,
         split_procedure_division,
         unit_headers,
     )
 
-    content = resolve_copybooks(read_key_text(path).upper(), path, repo)
+    raw = read_key_text(path).upper()
+    # #4243: a multi-program source's units per program, a later program's as PROG:NAME
+    per_program = program_units(raw, path, repo)
+    if per_program is not None:
+        return {keyed_unit(prefix, u["name"]) for prefix, units in per_program for u in units if u["name"]}
+    content = resolve_copybooks(raw, path, repo)
     split = split_procedure_division(content)
     return set(unit_headers(split[1])) if split else set()
 

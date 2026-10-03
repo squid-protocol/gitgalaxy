@@ -501,10 +501,6 @@ def test_draft_keys_sibling_programs_with_their_own_units(tmp_path):
     assert ak.keyed_unit_name(entry, "MAINLINE", 8) == "MAINLINE"
     assert ak.keyed_unit_name(entry, "MAINLINE", 22) == "SECOND:MAINLINE"
     assert ak.keyed_unit_name(entry, "MAINLINE", 34) == "INNER:MAINLINE"
-    # A parser that reads the file as one program is checked on bare names: a name
-    # is dead only where no program that declares it reaches it.
-    assert ak.bare_units(entry) == {"MAINLINE", "FIRST-UNUSED", "SECOND-USED", "INNER-UNUSED"}
-    assert ak.bare_dead(entry) == {"INNER-UNUSED"}
 
 
 def test_score_places_engine_units_in_their_sibling_program(tmp_path):
@@ -523,6 +519,19 @@ def test_score_places_engine_units_in_their_sibling_program(tmp_path):
         "SECOND:MAINLINE",
         "INNER:MAINLINE",
     }
+
+
+def test_the_forge_reads_a_multi_program_source_per_program(tmp_path):
+    """#4243: the forge's unit view (old_paragraphs) and dead verdicts name a sibling's
+    unit PROG:NAME, as the key does, so they score pair for pair. Read as one program
+    they held SECOND's AUTHOR / INSTALLATION headers, one MAINLINE, and no INNER units."""
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
+
+    path = tmp_path / "MULTI.cbl"
+    path.write_text(_MULTI_PROGRAM, encoding="utf-8")
+    entry, _ = ak.draft_program(path, tmp_path, [path], {})
+    assert ak.old_paragraphs(path, tmp_path) == {u["name"] for u in ak.keyed_units(entry)}
+    assert x_ray_dead_code(path, copybook_root=tmp_path)["dead_paras"] == set(ak.keyed_dead(entry))
 
 
 def test_every_go_to_in_a_name_run_is_seen(tmp_path):

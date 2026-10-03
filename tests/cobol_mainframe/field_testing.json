@@ -730,6 +730,20 @@
       "found_by": "scan of CobolCraft (GnuCOBOL free-format; not a mainframe estate)",
       "issue": 4203,
       "summary": "In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it."
+    },
+    {
+      "id": "D043",
+      "estate": "dbb-mortgage-application",
+      "side": "forge",
+      "fields": [
+        "units",
+        "dead"
+      ],
+      "language": "cobol",
+      "severity": "fact",
+      "found_by": "census",
+      "issue": 4243,
+      "summary": "cobol_graveyard_finder read a multi-program source as one program: IBM DBB epscsmrd.cbl (eleven siblings, two nested, each opening with MAINLINE SECTION) gave the later programs' AUTHOR / INSTALLATION / LINKAGE headers as units of the first, one MAINLINE for thirteen, and reachability across programs. Its reader also had the gaps the key's draft fixed on the same file (#4206): a consuming GO TO match swallowed the later GO TO ... DEPENDING ON targets, a DEPENDING ON anywhere in a sentence hid a plain GO TO after it, and XML PARSE PROCESSING PROCEDURE reached nothing. 973 forge unit / dead mismatches against the draft; 0 after."
     }
   ],
   "fields": {

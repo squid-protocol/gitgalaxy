@@ -119,7 +119,7 @@ PINNED = {
     # driver no JCL step runs.
     "dbb-mortgage-application": {
         "program calls": (7, 19), "copybooks": (11, 11), "transactions": (2, 3), "screens": (7, 7),
-        "data flows": (124, 566), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        "data flows": (141, 568), "IMS PSBs": (0, 0), "batch entry": (0, 1),
     },
     # #3512: ECS001 ("Sample CICS program initiated via a terminal") issues only
     # EXEC CICS WEB, so it read as a batch program until WEB commands drew rows; it

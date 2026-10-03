@@ -98,27 +98,52 @@ The two harness gaps found earlier are closed: screen attributes (#4053) and DIS
 
 ### Every survivor triaged (2026-10-03)
 
-<!-- mutation-scores-intro -->
+The table below is generated from the committed results file, `docs/language_status/mutation_scores.json`
+(per port: the commit the mutants ran on, the seed, per-operator killed / survived / stillborn counts, and every
+survivor with its verdict and reason). Re-render it with `python tests/tools/mutation_scores.py table`; rebuild
+it from run directories with `mutation_scores.py build --runs DIR... --triage T.json... --commit SHA` (an earlier
+results file is accepted as a triage input, so a re-run keeps the verdicts of mutants it judged before).
+
+- **Equivalence cases** run with `mutation.py` (fast mode). **Crucible ports** run with
+  `tests/tools/mutation_crucible.py`: the same mutants and seeded sample, each proven by the crucible runner's
+  java-ported side against the hand-written expected event logs (#4024), `--jobs` at a time.
+- **Raw score** = caught / (caught + survived). **Without equivalent + unreachable** drops the survivors that
+  no input can make observable. Case gaps and harness gaps stay in the denominator: they are real weaknesses of
+  the proof. Stillborn mutants (javac refused them) count for nothing; a timeout counts as caught.
+- Every survivor was triaged by a model reading the port, the COBOL, the case and the harness, and a sample of
+  the "equivalent" and "unreachable" verdicts was checked by hand (for example: COMEN01C's header fields are
+  rewritten by `populateHeaderInfo` before every SEND; COACTVWC's `dispatchCdemoToProgramL349` has no caller;
+  the CEEDAYS model never returns 0x09CD, so CSUTLDTC's invalid-era branch cannot run). The verdicts are
+  judgements, kept with their reasons in the results file.
 
 <!-- mutation-scores -->
 | port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
 |---|---|---|---|---|---|
 | COACTVWC (carddemo-acctview) | equivalence | 150/329 | 87/129 (67%) | 87/116 (75%) | 29 / 0 / 12 / 1 / 0 |
 | CSUTLDTC (carddemo-dateutil) | equivalence | 217/217 | 135/201 (67%) | 135/145 (93%) | 10 / 0 / 12 / 44 / 0 |
-| COMEN01C (carddemo-menu) | equivalence | 150/359 | 72/136 (53%) | 72/136 (53%) | 0 / 0 / 0 / 0 / 64 |
-| **all equivalence** | | 517 run | **294/466 (63%)** | **294/397 (74%)** | 39 / 0 / 24 / 45 / 64 |
-| **all estate** | | 517 run | **294/466 (63%)** | **294/397 (74%)** | 39 / 0 / 24 / 45 / 64 |
+| COMEN01C (carddemo-menu) | equivalence | 150/359 | 72/136 (53%) | 72/84 (86%) | 12 / 0 / 36 / 16 / 0 |
+| CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/21 (90%) | 2 / 0 / 1 / 0 / 0 |
+| CASUB (ca-link-lengths) | crucible | 24/43 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 6 / 4 / 0 |
+| CAXA (ca-xctl-versions) | crucible | 24/74 | 18/21 (86%) | 18/20 (90%) | 2 / 0 / 1 / 0 / 0 |
+| CAXB (ca-xctl-versions) | crucible | 24/153 | 15/24 (62%) | 15/24 (62%) | 0 / 0 / 0 / 0 / 9 |
+| GTSTART (gt-start-retrieve) | crucible | 24/87 | 14/22 (64%) | 14/22 (64%) | 0 / 0 / 0 / 0 / 8 |
+| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/21 (81%) | 0 / 0 / 0 / 0 / 4 |
+| GTSHOW (gt-terminal-coalesce) | crucible | 24/65 | 20/24 (83%) | 20/24 (83%) | 0 / 0 / 0 / 0 / 4 |
+| **all crucible** | | 168 run | **115/158 (73%)** | **115/146 (79%)** | 6 / 0 / 8 / 4 / 25 |
+| **all equivalence** | | 517 run | **294/466 (63%)** | **294/345 (85%)** | 51 / 0 / 60 / 61 / 0 |
+| **all estate** | | 685 run | **409/624 (66%)** | **409/491 (83%)** | 57 / 0 / 68 / 65 / 25 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 26/31 (84%) | 26/29 (90%) |
-| BDM | 0/1 (0%) | - |
-| CON | 40/100 (40%) | 40/64 (62%) |
-| COR | 16/26 (62%) | 16/22 (73%) |
-| DEL | 33/56 (59%) | 33/55 (60%) |
-| LIT | 51/84 (61%) | 51/71 (72%) |
-| NEG | 67/78 (86%) | 67/77 (87%) |
-| ROR | 61/90 (68%) | 61/79 (77%) |
+| AOR | 35/44 (80%) | 35/40 (88%) |
+| BDM | 0/4 (0%) | 0/3 (0%) |
+| CON | 60/129 (47%) | 60/74 (81%) |
+| COR | 19/31 (61%) | 19/26 (73%) |
+| DEL | 52/83 (63%) | 52/73 (71%) |
+| LIT | 71/108 (66%) | 71/80 (89%) |
+| NEG | 90/104 (87%) | 90/94 (96%) |
+| RET | 4/7 (57%) | 4/7 (57%) |
+| ROR | 78/114 (68%) | 78/94 (83%) |
 <!-- /mutation-scores -->
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a

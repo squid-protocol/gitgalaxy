@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_GENERIC,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -431,6 +436,8 @@ DEFINITION: dict[str, Any] = {
         # idiomatic (`/* if (x) foo(); */`).
         "dead_code": re.compile(
             r"(?://|/\*)[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
         ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: apply the family-wide line-marker fix (#2658

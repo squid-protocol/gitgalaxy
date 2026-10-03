@@ -13,7 +13,12 @@ from typing import Any
 from gitgalaxy.standards.language_standards import _lazy_re as re  # #3914: compiled on first use
 from gitgalaxy.standards.language_standards.identifiers import CAPITAL, ID_CONTINUE, ID_START
 
-from .._shared_patterns import CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import (
+    CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
+    COMMENTED_STATEMENT_C_FAMILY,
+    GLOBAL_FRAGILE_DEBT,
+    GLOBAL_PLANNED_DEBT,
+)
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -355,7 +360,10 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"//[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b"),
+        "dead_code": re.compile(
+            r"(?://|/\*)[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/\*\*` and its tags (`@param`, `@return`, ...) were
         # independent alternatives, so one javadoc block counted doc=2 (one

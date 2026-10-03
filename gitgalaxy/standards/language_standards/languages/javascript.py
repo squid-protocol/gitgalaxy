@@ -15,6 +15,7 @@ from gitgalaxy.standards.language_standards.identifiers import ID_CONTINUE, ID_S
 
 from .._shared_patterns import (
     CALLS_OUT_C_STYLE,
+    COMMENTED_STATEMENT_C_FAMILY,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_LLM_ORCHESTRATOR,
@@ -306,7 +307,11 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
-        "dead_code": re.compile(r"//[ \t]*(?:if|for|while|function|class|return|var|const|let|import)\b"),
+        "dead_code": re.compile(
+            r"//[ \t]*(?:if|for|while|function|class|return|var|const|let|import)\b"
+            + r"|"
+            + COMMENTED_STATEMENT_C_FAMILY
+        ),
         # 13. doc (Structured Documentation)
         # BUG FIX #2672: `/**` and the JSDoc tags (`@param`, `@return`, ...)
         # were independent alternatives, so one JSDoc block counted doc

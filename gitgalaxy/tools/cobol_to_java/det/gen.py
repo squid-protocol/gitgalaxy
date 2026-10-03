@@ -736,7 +736,7 @@ class Gen:
             body = self._cond_body(cn, subscripts)
             base = "is" + "".join(w[:1].upper() + w[1:] for w in [camel(cn.name)])
             name, k = base, 1
-            paras = set(self.method(i) for i in range(len(self.p.proc.paragraphs))) if self.structured else set()
+            paras = {self.method(i) for i in range(len(self.p.proc.paragraphs))} if self.structured else set()
             while name in self.taken_names or name in JAVA_RESERVED or name in METHODS_TAKEN or name in paras:
                 k += 1
                 name = f"{base}{k}"

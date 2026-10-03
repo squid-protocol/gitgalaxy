@@ -129,6 +129,33 @@ and an untranslated statement (`if (true) throw new Hole("...")`) into `planned_
 [port_invariance_contract.md](port_invariance_contract.md) holds io and ipc, with the structural readings, to the
 same rank across a port.
 
+## Java's file-opening classes (#4191)
+
+Java's type-name alternative (`File`, `InputStream`, `Reader`, `Writer`, `Path`, ...) matches whole
+tokens, and the `java.io` classes that actually open a file are single compound tokens: `FileInputStream`
+is not `File`. A program doing all its file I/O through them read as having none. SENTINEL IDE's
+translation of AWS CardDemo opens every dataset as
+`new BufferedReader(new InputStreamReader(new FileInputStream(path), UTF_8))`, and all 28 of its CardDemo
+program classes scanned with io = 0 (COBOL median 4).
+
+**One hit is the call that opens the resource.** `new FileInputStream(`, `new FileOutputStream(`,
+`new FileReader(`, `new FileWriter(`, `new RandomAccessFile(`, a `PrintWriter` / `PrintStream` constructed
+on a path literal (`new PrintWriter("report.txt")`), and `FileChannel.open(` /
+`AsynchronousFileChannel.open(`. The decorators around an open (`BufferedReader`, `InputStreamReader`,
+`BufferedWriter`, `OutputStreamWriter`, a `PrintWriter` over a writer) open nothing, so the usual chain is
+one hit, not three (C4: one statement is one hit). Declarations, imports and generic arguments
+(`FileReader r;`, `import java.io.FileInputStream;`, `List<FileInputStream>`) are not opens and do not
+count. `Files.newBufferedReader(` / `newInputStream(` and the rest of `java.nio.file.Files` were already
+counted by the `Files.` token.
+
+Accepted residue: Java's io rule is not literal-scoped (its det-runtime alternatives anchor on string
+contents such as `open("INPUT")`), so `"new FileReader("` inside a string literal counts, as `"File not
+found"` already did through the `File` token. A translator's own runtime facade is not covered either: the rest of
+SENTINEL's CardDemo classes read and write through its runtime (`xrefFile.read(`, `dalyTranFile.readNext(`,
+`fileIO.rewrite(`, `screenIO.sendMap(`), a surface with no C1 anchor; a bare `.read(` would match ordinary code.
+This is the situation the det port's cobolrt was in before the section above; with this change 5 of SENTINEL's
+28 classes (its batch programs that open files directly) read as doing I/O, 14 remain at 0.
+
 ## The 46-language audit
 
 `rule_probe.py io all --samples 8` before → after. crucible = hits across the

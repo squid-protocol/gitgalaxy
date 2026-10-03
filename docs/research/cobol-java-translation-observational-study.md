@@ -131,7 +131,7 @@ In Devin's projects, 60–80% of code lines sit in a shared framework of record 
 
 | Subject | Program | Scenarios | Result | Notes |
 |---|---|---|---|---|
-| Det ports | 49 of 51 cases | 7–29 runs per batch case, with fault injection; 705 scenarios across the sweep | proven | 2 not proven on purpose (#4085, D1). Coverage modest on some CICS/Db2 programs (LGACDB01 6/14 branches) |
+| Det ports | 49 of 51 cases | 7–29 runs per batch case, with fault injection; 705 scenarios across the 50-case sweep, before CBACT01C (13 runs) was added | proven | 2 not proven on purpose (#4085, D1). Coverage modest on some CICS/Db2 programs (LGACDB01 6/14 branches) |
 | Model ports | 23 committed | per case, with faults | proven | 3 more pending review (#4187). INQACC, XFRFUN and LGUPDB01 unprovable through the harness gap #4188 |
 | IBM WCA4Z | LGACDB01 INSERT-CUSTOMER, in our det task | 4 | **not equivalent on any** | Db2 −4461: DATEOFBIRTH never bound (`// ps.setDate(4, …)`); failure swallowed (`// caReturnCode = 90;`). The published JUnit doesn't compile against the published Java, and the recorded run is 2 skipped passes / 2 failures, against the 4/4 reported. Their test 2 asserts DATEOFBIRTH and would likely flag the defect if it ran. The artifacts may come from a different version |
 | Devin arm A (COBOL only) | CBACT04C / CBTRN02C | base run, 6 JVM environments each | equal in default/tr/de/hi; differs in ar-EG/th-TH | `String.format` without a locale writes non-ASCII digits (`BatchContext:45`, `Cbact04c:156`, `Cbtrn02c:42,119`) |

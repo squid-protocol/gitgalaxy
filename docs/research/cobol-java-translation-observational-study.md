@@ -1,6 +1,6 @@
 # COBOL → Java translation, observed: one harness, one scanner, many translators
 
-*An observational, post-hoc study. Draft, 2026-10-03. Sections marked **pending** wait on in-flight work and are labelled with what they will add.*
+*An observational, post-hoc study. Draft for review, 2026-10-03.*
 
 ## Abstract
 
@@ -16,7 +16,7 @@ We measured all of them with the same two instruments: the equivalence harness, 
 1. **Translations fall on a structural spectrum** the scanner can place without running anything: literal at byte level → literal with text I/O → restructured → re-architected.
 2. **Literal translation has a structural signature, whoever does it.** Function, branch and mutation counts keep their rank order from COBOL (ρ 0.83–0.97) for two independent literal translators, and that signature disappears in restructured ports.
 3. **Size depends on representation, not on literalness.** One literal translator is 0.44× the COBOL's size; ours is ×3.8.
-4. **Behaviour and structure are separable.** A restructured port can match the COBOL byte for byte on base runs while sharing almost none of its structure.
+4. **Behaviour and structure are separable, in both directions.** Restructured ports (Devin's eval arms, Lightyear) matched the COBOL byte for byte on base runs while sharing little of its structure. A structure-preserving port (SENTINEL) failed on two programs through record-layout errors. Its literal structure did keep the error paths' shape: 10 of 11 abend codes matched on a missing file, where the restructured ports matched none.
 5. **What differs most is verifiability:**
    - a deterministic translator gives the same code every run, while 26 agent sessions on one program share under a fifth of their class names;
    - error paths centralised into a framework could not be exercised by our harness, while literal ports keep them drivable.
@@ -131,10 +131,25 @@ In Devin's projects, 60–80% of code lines sit in a shared framework of record 
 | IBM WCA4Z | LGACDB01 INSERT-CUSTOMER, in our det task | 4 | **not equivalent on any** | Db2 −4461: DATEOFBIRTH never bound (`// ps.setDate(4, …)`); failure swallowed (`// caReturnCode = 90;`). The published JUnit doesn't compile against the published Java, and the recorded run is 2 skipped passes / 2 failures, against the 4/4 reported. Their test 2 asserts DATEOFBIRTH and would likely flag the defect if it ran. The artifacts may come from a different version |
 | Devin arm A (COBOL only) | CBACT04C / CBTRN02C | base run, 6 JVM environments each | equal in default/tr/de/hi; differs in ar-EG/th-TH | `String.format` without a locale writes non-ASCII digits (`BatchContext:45`, `Cbact04c:156`, `Cbtrn02c:42,119`) |
 | Devin arm B (+ AWS Transform analysis) | CBACT04C / CBTRN02C | same | CBACT04C as A; CBTRN02C equal in all 6 | one locale defect (`Cbact04c:67`) |
-| Lightyear | CBACT04C | **pending (agent M)** | — | Lightyear reports equivalence as "unobserved"; this would be the first observation |
-| SENTINEL | CardDemo batch programs | **pending (agent M)** | — | UTF-8 text I/O, so probably a field-level, not byte-level, comparison |
+| Lightyear | CBACT04C (intcalc) | base run, 6 JVM environments | **data equal** in default/tr/de/hi (ACCTFILE 52/52, TRANSACT 53/53, RC 0); ar-EG and th-TH differ | Locale defect: `String.format` without a locale (`ZonedDecimal.java:47`, `InterestCalculationService.java:94`). Prints no job log, by design. This is the first observation of the equivalence its README calls "unobserved" |
+| SENTINEL | CBACT02C, CBACT03C, CBCUS01C | base run | job log differs (records logged as Java `toString()`, e.g. `CVACT02Y{cardNum=…}`) | These cases compare only the job log, so there's no data verdict |
+| SENTINEL | CBACT04C (intcalc) | base run | **differs**: abends U0999 on the first account (COBOL: RC 0) | `XREF-ACCT-ID` read at `substring(16, 27)`; CVACT03Y puts it at offset 25. Every cross-reference lookup fails (status 23) |
+| SENTINEL | CBTRN02C (posttran) | base run | **differs in every output**: all 305 transactions rejected (COBOL: 264 posted, 41 rejected, RC 4) | `DALYTRAN-AMT` (S9(09)V99, 11 bytes) read as 12, shifting every later field by one. Also: the same XREF offset; 361-byte reject lines against a 430-byte record; a 26-byte TCATBALF key against 17; the TCATBALF open check skipped |
 
-**Coverage asymmetry.** Devin's ports have no hook for injecting file statuses, so they were judged on base runs only: 49/86 (CBACT04C) and 55/96 (CBTRN02C) branches, against 85/86 and 95/96 for our ports' fault-injected proofs.
+**Not run, with reasons:**
+- SENTINEL CBTRN01C and CBTRN03C: built on reader/writer interfaces with no shipped implementation.
+- SENTINEL COBTUPDT: JPA against its own Db2 schema; not attempted.
+- Lightyear COACTVWC: a read-only lookup with no CICS task to compare.
+
+SENTINEL's full project does not compile as shipped (18 errors in 3 files the programs don't use), so only the five program classes were compiled.
+
+**Adapter** (`docs/research/third-party-ports-harness.md`, #4194):
+- text lines in and out; fixed records rejoined; wrong-length lines flagged, never padded;
+- Lightyear driven by its own jar and `--carddemo.*` properties;
+- SENTINEL driven by calling each program's `execute()`, as its unit tests do;
+- logging reduced to messages; `ABCODE n` mapped to `Unnnn`.
+
+**Coverage asymmetry.** The third-party ports have no hook for injecting file statuses, so they were judged on base runs, plus the missing-file runs in §8. Base runs cover 49/86 (CBACT04C), 55/96 (CBTRN02C) and 13/22 branches, against 85/86 and 95/96 for our ports' fault-injected proofs.
 
 **Our own failures, found by the same harness:**
 - **#4181:** the det port marshals `LINK LGSTSQ COMMAREA(ERROR-MSG)` past its 71 bytes, on an error path none of our proofs reach.
@@ -205,16 +220,31 @@ Independently, the workshop practice moved toward executed references.
 - **Devin arm A** keeps `ERROR READING …`/`ERROR WRITING …` and `Abend(999)`, but has no file-status codes (Java `IOException` instead) and no `ERROR OPENING …` messages.
 - **SENTINEL** keeps both the status codes (`"35"` on a missing file) and the messages.
 
-**Pending (agent M):** the external-fault experiment, which creates failures from outside with no code hook (a missing input, a truncated record, a duplicate key). It will measure what each port actually does on those paths, against the COBOL.
+**The external-fault experiment** (#4194). With no I/O seam to inject a status, a missing input file stands in for the COBOL's status-35 OPEN fault. In every run, the COBOL displays its specific `ERROR OPENING …` message and `FILE STATUS IS: NNNN0035`, then abends U0999.
+
+| Port | Runs matching the COBOL | What the port does instead |
+|---|---|---|
+| SENTINEL | 10 of 11 abend codes match | Several messages worded or spaced differently. With TCATBALF absent, CBTRN02C treats it as empty and finishes normally (it opens the file only `if (f.exists())`) |
+| Lightyear | 0 of 4 | The job ends FAILED and publishes nothing, but the process **exits 0** (Spring Boot's default for a failed batch job). A scheduler reading the return code would see success |
+| Devin arm A | 0 of 8 | Exits 12, prints the path on stderr; no `ERROR OPENING` message, no status |
+| Devin arm B | 0 of 8 | Exits 1 with a Java stack trace |
+
+The structural observation (error handling collapsed into a framework) becomes measured behaviour: the restructured ports still detect the failure, but report it differently from the COBOL, in code, message and status.
+
+**Caveats.**
+- On z/OS a missing DD usually fails at job-step allocation, before OPEN.
+- A missing file exercises only one fault class; truncated records and duplicate keys are not yet run.
+- GnuCOBOL is the reference.
+- Lightyear's own comparator was not used.
 
 ## 9. Pros and cons by strategy
 
 | Strategy (examples) | Pros | Cons |
 |---|---|---|
 | **Literal, byte-level (det)** | Path-by-path verifiable (fault injection reaches 85/86, 95/96 branches); reproducible byte for byte; paragraph lineage keeps runbooks, abend codes and audit trails; regenerate-and-diff on COBOL change | ×3.8 size (×4.2 as emitted, by file median); COBOL-shaped Java; depends on the cobolrt runtime; coverage limited by hand-written scenarios (SQL errors unreached, #4173) |
-| **Literal, native fields (SENTINEL)** | Keeps structure (ρ 0.88–0.91) at 0.44× size; keeps file-status codes and error messages | Text I/O instead of record bytes (byte equivalence likely lost, pending); no parity claim found; reproducibility unknown |
+| **Literal, native fields (SENTINEL)** | Keeps structure (ρ 0.88–0.91) at 0.44× size; keeps file-status codes and error messages, and matches 10 of 11 missing-file abend codes | Two record-offset errors broke CBACT04C and CBTRN02C on base runs; records logged as Java objects; no parity claim found; the project doesn't compile as shipped; reproducibility unknown |
 | **Model-written under proof (our loop)** | Idiomatic; near-COBOL size (×1.09); proven on its scenarios | Not reproducible; leftover scaffold TODOs (#4179); LINKed-program harness gap (#4188) |
-| **Agent-restructured (Devin, Lightyear)** | Idiomatic and small program classes; the best runs match base-run behaviour byte for byte (Devin eval arms) | Each session a new codebase (Jaccard 0.18); error handling centralised and not reachable by our fault injection; mostly self-written tests; locale defects |
+| **Agent-restructured (Devin, Lightyear)** | Idiomatic, small program classes; base-run data equal to the COBOL in default locales (Devin's eval arms, Lightyear CBACT04C) | Each session a new codebase (Jaccard 0.18); failure behaviour diverges (exit 0 on a failed job, generic exit codes, stack traces); no fault seam; mostly self-written tests (Devin); the same locale defect in all three |
 | **Re-architected (lasserre)** | Smallest (×0.07); modern platform services (JPA, Batch, JMS) | Program boundaries and output contracts replaced; equivalence checked only through lossy normalisation |
 | **Research artifact (IBM WCA4Z, 2024)** | Path-complete test generation (a capability we lack, #4175); real z/OS reference | Paragraph scope; mocked resources; published artifacts inconsistent with the reported result; failed against real Db2 |
 
@@ -231,8 +261,9 @@ Independently, the workshop practice moved toward executed references.
 | Data representation | Byte-exact storage images (EBCDIC, packed, zoned) | Native typed fields; UTF-8 text I/O | Varied (5 input/output designs across 26 CBACT01C attempts) | Record codecs (`CardDemoRecordCodec`, `ZonedDecimal`) | PostgreSQL entities (JPA) | Generated record classes |
 | Size against COBOL | ×4.2 as emitted (file median) | ×0.44 (estate) | Small program classes plus a framework (60–80% of project lines) | ≈×0.5 for CBACT04C (260 / 552 lines) | ×0.07 (estate) | n.a. (one paragraph) |
 | Correctness claim | Per-program executed byte-level proof, with fault injection | None found | Mostly self-written tests from reading the COBOL (57/67) | Equivalence "unobserved"; signed evidence receipts | Lossy "shadow mode" comparator | Generated path tests, run on z/OS; Java side mocked |
+| Observed here (base runs) | 48/50 cases proven | CBACT04C and CBTRN02C differ (record offsets) | Eval arms: data equal (locale defect) | CBACT04C data equal (locale defect) | Not run | LGACDB01 not equivalent |
 | Reproducibility | Byte-identical across runs | Unknown | Divergent across sessions (class-name Jaccard 0.18) | Unknown | Unknown | Unknown |
-| Error paths | Kept, and fault-tested | Kept (status codes and messages) | Partly collapsed into the framework (messages and Abend kept; status codes gone) | Not yet observed (pending) | Mapped onto Spring Batch exit statuses and exceptions; COBOL status codes and messages not kept | Commented out (`// caReturnCode = 90;`) |
+| Error paths (missing input file) | Kept, and fault-tested | Kept: 10/11 abend codes match; some messages differ; one missing file treated as empty | Collapsed: 0/16 match (exit 12 or 1, no status) | Detected but exits 0: 0/4 match | Mapped onto Spring Batch exit statuses and exceptions; COBOL status codes and messages not kept | Commented out (`// caReturnCode = 90;`) |
 
 Sources: §2–§8; Lightyear and lasserre readings from this study's scans at the pinned commits.
 
@@ -245,6 +276,11 @@ These are observations about what each approach shows is possible or costly, not
 - **Lightyear:** evidence can be reported as signed receipts, with an explicit "unobserved" scope where equivalence hasn't been checked. That's an honest way to say what is and isn't known.
 - **viniman27:** scenario volume. 12,700 GnuCOBOL executions dwarf the 7–29 runs per case used here.
 - **Devin:** the cost of redesigning in each session shows up as variance between attempts and a runtime re-invented each time. The workshop's own practice nonetheless converged on GnuCOBOL references and byte parity.
+- **Across SENTINEL, Lightyear and Devin, three lessons from execution:**
+  - Literal structure didn't guarantee correct data. SENTINEL kept the structure and the shape of its error paths best, yet two record-offset errors broke CBACT04C and CBTRN02C. Being structure-preserving and being layout-correct are separate properties: the scanner sees the first, and only execution sees the second.
+  - The restructured ports got base-run data right in default locales, but their failure behaviour diverges.
+  - The same locale defect (`String.format` without a locale) appeared independently in Lightyear and in both Devin arms.
+- **Only executed comparison distinguished these outcomes.** Neither the structural scan nor the ports' own validation did. That's the paper's core observation.
 - **lasserre:** the endpoint many organisations want (a modern platform architecture), and what's at risk when it is reached without an executed oracle.
 
 ### 10.3 Synthesis
@@ -263,15 +299,18 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 1. One scanner places translations on a structural spectrum without executing them (§5).
 2. Paragraph-level structural rank agreement is a signature of literal translation, seen in two independent literal translators and absent in restructured ones (§4, §5).
 3. Translation size is driven by data representation more than by structural fidelity (§5).
-4. Byte-level base-run equivalence is reachable by restructured ports (§6).
-5. The published IBM LGACDB01 artifact is not equivalent to its COBOL against real Db2 (§6).
-6. Repeated agent sessions on one program produce structurally divergent code, while the deterministic translator is reproducible (§7).
-7. Validation practice in public work varies widely and is mostly not execution-based (§8).
+4. Byte-level base-run equivalence is reachable by restructured ports (Devin's eval arms, Lightyear CBACT04C), while a structure-preserving port (SENTINEL) can still fail on record layout (§6).
+5. Structural fidelity, layout correctness and failure behaviour are separable properties. The scanner measures the first; only execution measured the other two (§6, §8).
+6. On a missing input file, the restructured ports detect the failure but report it differently from the COBOL (exit 0, generic codes, stack traces), while the literal port mostly matches its abend codes (§8).
+7. The published IBM LGACDB01 artifact is not equivalent to its COBOL against real Db2 (§6).
+8. Repeated agent sessions on one program produce structurally divergent code, while the deterministic translator is reproducible (§7).
+9. Validation practice in public work varies widely and is mostly not execution-based (§8).
 
 **Not supported:**
 - that any translator or strategy is better overall;
 - generalisation beyond these programs, estates and snapshots;
-- that restructured ports' error paths are wrong (they are unexercised, pending the fault experiment);
+- that any port's error paths are wrong beyond the one fault class run (a missing input file);
+- that literal translators in general carry layout errors (one translator, two programs);
 - that our reference is z/OS-exact;
 - that commercial products today behave like these public artifacts.
 
@@ -283,7 +322,7 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
   - name-based framework detection;
   - rewrapped det copies inflate line counts (†).
 - **Oracle:** GnuCOBOL, our CICS model and Db2 LUW stand in for z/OS (`oracle_assumptions.md`, e.g. C9, D1, C10, X6, M2).
-- **Coverage:** hand-written scenarios; no SQL fault injection (#4173); third-party ports judged on base runs only.
+- **Coverage:** hand-written scenarios; no SQL fault injection (#4173); third-party ports judged on base runs (49/86, 55/96, 13/22 branches) plus one external fault class (a missing file, which on z/OS usually fails at allocation rather than OPEN).
 - **Adapters:** thin and committed separately, but written by us.
 - **Versions:** IBM's artifact dates from 2024 and may not match its paper's evaluation; Devin's branches span six months; snapshots are pinned.
 - **Authorship:** the translator's author designed the instruments (§1).
@@ -293,12 +332,9 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 **Issues:**
 - #4170 (fixed), #4171, #4172, #4173, #4174, #4175, #4179, #4181, #4188, #4191 (fixed in #4193).
 
-**Pending in this study:**
-- Lightyear CBACT04C and SENTINEL batch programs through the harness;
-- the external-fault experiment.
-
 **Next:**
 - complete CBACT01C (COBDATFT model, register entries C10/L3/F3) and judge Devin's 9 byte-comparable CBACT01C ports;
+- more external fault classes (truncated records, duplicate keys) for all third-party ports; SENTINEL CBTRN01C/CBTRN03C, which need shipped reader implementations;
 - add viniman27's 12,700 inputs as scenarios (licence permitting);
 - a z/OS cross-check of the oracle;
 - more estates: NIST CCVS85, IBM DBB MortgageApplication, Galasa SimBank;
@@ -327,6 +363,7 @@ Pinned third-party commits are in §2 and `devin-carddemo-inventory.json`.
   - `docs/research/lgacdb01-four-way.md`
   - `docs/research/devin-carddemo-survey.md`
   - `docs/research/devin-carddemo-harness.md`
+  - `docs/research/third-party-ports-harness.md`
   - `docs/language_status/ibm_wca4z_lgacdb01.md`
   - `docs/language_status/construct_correspondence.md`
   - `docs/wiki/05-18-cobol-java-scan-parity.md`

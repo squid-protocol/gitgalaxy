@@ -371,9 +371,9 @@
       "tested_on_public": 4
     },
     "program_id": {
-      "clean_fresh_facts": 5,
-      "clean_fresh_rounds": 1,
-      "engine_defects": 2,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 3,
       "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,

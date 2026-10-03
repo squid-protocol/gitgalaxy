@@ -315,7 +315,7 @@ DEFINITION: dict[str, Any] = {
         # #2859: see the globals comment above -- a paren/brace walk classifies
         # which indented identifier lines are direct members of a top-level
         # `var (` / `const (` declaration group.
-        "_scope_filters": {"globals": "go_declaration_group"},
+        "_scope_filters": {"globals": "go_declaration_group", "branch": "outside_literals"},
         # #3072: every state_mutation arm requires one of `=`/`++`/`--`/`<-`/
         # `atomic.`/`delete(` on the match's own line; sweep only those lines.
         # See c.py's entry for the safety contract.

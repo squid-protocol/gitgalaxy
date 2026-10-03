@@ -59,8 +59,12 @@ for any rule, in any language** (gitgalaxy#2535 traced this to ground with direc
 there is no shielding mechanism). Corollaries:
 
 1. A keyword inside a string literal is a real hit for every rule. A rule that must not
-   count one has to exclude it itself; a corpus that plants a decoy inside a string is
-   testing the rule, not the stream (keyword-rosetta #17, #71, #73).
+   count one has to exclude it itself -- in its pattern, or by opting into the
+   `outside_literals` scope filter, which drops a match that touches a string literal or
+   comment (gitgalaxy#4136; python `vectorized_math`'s `@` arm; the 18 brace-family
+   `branch` rules, whose `?` read every JDBC `"values (?, ?)"` placeholder as a ternary,
+   shield with the brace slicer's literal syntax -- docs/branch_rule_contract.md). A corpus that plants a
+   decoy inside a string is testing the rule, not the stream (keyword-rosetta #17, #71, #73).
 2. Comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`, `fragile_debt`,
    `spec_exposure`) read the comment surface instead; a language whose comment syntax
    `prism.py` does not know sends its comments into the code stream (gitgalaxy#2610, jcl).
@@ -68,6 +72,9 @@ there is no shielding mechanism). Corollaries:
    same shape for markdown: `prism.py`'s Prose Bypass routes the whole file into the comment
    stream and `detector.comment_analysis` runs the four rules there (#691) -- probed on the
    code stream they read 0 on every file.
+   A comment-stream rule's pattern also runs on the code stream, so a rule may own a code shape
+   that no comment can hold: java's `planned_debt` counts a det port's untranslated statement,
+   `if (true) throw new Hole("...")`, as the open work a TODO would otherwise name.
 3. The recorded count is the raw hit count, for every signal (gitgalaxy#2813). The
    proximity pairs in `core/spatial_correlation.py` (the x3 cascading flux on
    `state_mutation`, the silencer dampener on `high_risk_execution`, the race and

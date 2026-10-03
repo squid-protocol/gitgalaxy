@@ -26,6 +26,7 @@ from typing import Any, Optional
 import cobol_answer_key as ak
 
 SQLCA = Path(__file__).resolve().parent.parent / "equivalence" / "db2" / "SQLCA.cpy"
+SQLDA = SQLCA.with_name("SQLDA.cpy")  # declared only: dynamic SQL is refused
 STUB = Path(__file__).resolve().parent.parent / "equivalence" / "db2" / "ggsql.c"
 MAX_ARGS = 24  # ggsql.c's GGSQL takes 24 host-variable arguments
 
@@ -95,7 +96,7 @@ def expand_includes(lines: list[str], dirs: list[Path], depth: int = 0) -> list[
             inc = re.match(r"\s*EXEC\s+SQL\s+INCLUDE\s+([A-Z0-9#@$-]+)\s+END-EXEC\s*(\.?)", text, re.I)
             if inc:
                 name = inc.group(1).upper()
-                member = SQLCA if name == "SQLCA" else _find_member(name, dirs)
+                member = {"SQLCA": SQLCA, "SQLDA": SQLDA}.get(name) or _find_member(name, dirs)
                 body = member.read_text(encoding="latin-1").split("\n")
                 out += expand_includes(body, dirs, depth + 1)
                 i = j + 1

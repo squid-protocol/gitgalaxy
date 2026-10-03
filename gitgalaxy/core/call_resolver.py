@@ -367,12 +367,17 @@ class _Set:
 
     __slots__ = ("_prefix", "by_dir", "by_path", "defs", "n_paths", "owners")
 
-    def __init__(self, defs: list[_Definition]) -> None:
+    def __init__(self, defs: list[_Definition], signatures: tuple[_Definition, ...] = ()) -> None:
         self.defs = defs
         self.by_path: dict[str, _Definition] = {}  # path -> first definition in it
         self.by_dir: dict[str, list[_Definition]] = {}
-        # path -> the distinct owners (classes; None = free) defining the name there
+        # path -> the distinct owners (classes; None = free) defining the name there.
+        # #3836: a class that only DECLARES it (an interface, an `abstract` method)
+        # counts too: a receiver may be that type, so it is one more candidate
+        # class, though never a target itself.
         self.owners: dict[str, set[Optional[str]]] = {}
+        for d in signatures:
+            self.owners.setdefault(d.path, set()).add(d.owner_key)
         for d in defs:
             self.owners.setdefault(d.path, set()).add(d.owner_key)
             if d.path not in self.by_path:
@@ -410,7 +415,7 @@ class _Bucket:
     `all`, `free` (free functions and classes -- what a bare call may reach),
     `methods` (functions with an owner -- what a receiver may reach)."""
 
-    __slots__ = ("_all", "_free", "_methods", "by_owner", "defs")
+    __slots__ = ("_all", "_free", "_methods", "by_owner", "defs", "signatures")
 
     def __init__(self) -> None:
         self.defs: list[_Definition] = []
@@ -418,6 +423,10 @@ class _Bucket:
         # Several: two programs can share a PROGRAM-ID (zopeneditor's SAM1 and
         # SAM1LIB), two packages a class name -- `owned()` picks among them.
         self.by_owner: dict[str, list[_Definition]] = {}
+        # #3836: bodyless declarations of the name on a class (an interface or
+        # `abstract` method): never targets (#3757), but they say the call
+        # dispatches to an override the scan cannot pick
+        self.signatures: list[_Definition] = []
         self._all: Optional[_Set] = None
         self._free: Optional[_Set] = None
         self._methods: Optional[_Set] = None
@@ -446,7 +455,9 @@ class _Bucket:
     @property
     def methods(self) -> _Set:
         if self._methods is None:
-            self._methods = _Set([d for d in self.defs if d.kind == "function" and d.owner_key is not None])
+            self._methods = _Set(
+                [d for d in self.defs if d.kind == "function" and d.owner_key is not None], tuple(self.signatures)
+            )
         return self._methods
 
 
@@ -468,16 +479,31 @@ def _index(parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], _Bucket]
             if func.get("is_synthetic_slice"):
                 continue
             shape = func.get("def_shape") or None
-            if shape == "signature":
-                # #3757: an interface member, an `abstract` method, an overload
-                # signature -- no code runs there, so no call lands there
-                continue
             name = str(func.get("name") or "")
             leaf, prefix = _leaf(name)
             if not leaf:
                 continue
             owner = func.get("parent_class_name") or prefix
             owner_key = _key(_leaf(owner)[0], lang) if owner else None
+            if shape == "signature":
+                # #3757: an interface member, an `abstract` method, an overload
+                # signature -- no code runs there, so no call lands there. A
+                # class's declaration is kept aside (#3836, see _Bucket.signatures).
+                if owner_key is not None:
+                    index.setdefault((group, _key(leaf, lang)), _Bucket()).signatures.append(
+                        _Definition(
+                            path,
+                            dir_,
+                            parts,
+                            stem,
+                            name,
+                            int(func.get("start_line", 0) or 0),
+                            owner_key,
+                            "function",
+                            shape,
+                        )
+                    )
+                continue
             index.setdefault((group, _key(leaf, lang)), _Bucket()).add(
                 _Definition(
                     path,
@@ -775,15 +801,31 @@ def _resolve_one(
                 return d
         return _nearest_of(defs, caller.parts) or min(defs, key=lambda d: d.path)
 
+    def walk(owners: list[str]) -> Optional[tuple[str, Optional[_Definition]]]:
+        """The caller's lineage, nearest class first: the first class with a body
+        for the name wins (`class`). #3836: a class that only DECLARES it -- an
+        `abstract` method, an interface's -- ends the walk: the call dispatches to
+        an override, which the scan cannot pick, so it is the ambiguous `receiver`
+        step (an implementation as the guess), never a confident link. The
+        caller's own class is checked in its own file, where it is defined."""
+        for i, owner_key in enumerate(owners):
+            d = owned(owner_key)
+            if d is not None and (i or d.path == caller.path):
+                return "class", d
+            if any(s.owner_key == owner_key and (i or s.path == caller.path) for s in bucket.signatures):
+                return "receiver", _ladder(bucket.methods, caller, True, cache)[1]
+            if d is not None:
+                return "class", d
+        return None
+
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
     if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
         return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
-        for owner_key in lineage:
-            d = owned(owner_key)
-            if d is not None:
-                return "class", d
+        hit = walk(lineage)
+        if hit is not None:
+            return hit
         # A bare call cannot reach another class's method: only a free
         # function, a class (a constructor), or the caller's own lineage,
         # handled above. (Ownerless-method languages keep every candidate.)
@@ -799,10 +841,9 @@ def _resolve_one(
         return step, d
 
     if qualifier in _SELF_RECEIVERS:
-        for owner_key in lineage:
-            d = owned(owner_key)
-            if d is not None:
-                return "class", d
+        hit = walk(lineage)
+        if hit is not None:
+            return hit
         return _ladder(bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:

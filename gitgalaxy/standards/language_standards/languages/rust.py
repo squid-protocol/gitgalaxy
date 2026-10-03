@@ -54,6 +54,10 @@ DEFINITION: dict[str, Any] = {
     # package, so the typosquat radar never tallies them (#3595).
     "local_import_prefixes": ("crate::", "self::", "super::"),
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_RUST,  # #3643: macros, turbofish; patterns are not calls
         # #3359 (contract C2): keywords and special forms, never calls

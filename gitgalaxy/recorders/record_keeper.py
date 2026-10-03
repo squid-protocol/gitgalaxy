@@ -421,6 +421,14 @@ class RecordKeeper:
         """Nearest-centroid file archetype from the assembled metrics, mirroring the
         offline apply_file_clusters. Returns the archetype name, or None if the brain
         is unavailable/degenerate (caller keeps its fallback label)."""
+        detail = self._classify_file_archetype_detail(ctx, hv)
+        return detail[0] if detail else None
+
+    def _classify_file_archetype_detail(self, ctx: dict, hv: list) -> Optional[tuple[str, float, dict[str, float]]]:
+        """``(name, distance, fingerprint)``: the nearest archetype, the Euclidean
+        distance to its centroid in the brain's scaled+weighted space, and the
+        distance to every centroid (#4106 -- these were placeholders since #3061
+        moved classification here). None when the brain is unavailable."""
         if not hasattr(self, "_file_brain"):
             self._prep_file_brain()
         fb = self._file_brain
@@ -461,14 +469,18 @@ class RecordKeeper:
             q = iqr[i] if iqr[i] > 0 else 1.0
             vec.append(((v - med[i]) / q) * wts[i])
         best_i, best_d = -1, None
+        fingerprint: dict[str, float] = {}
         for ci, cen in enumerate(fb["centroids"]):
             d = 0.0
             for j in range(len(vec)):
                 diff = vec[j] - cen[j]
                 d += diff * diff
+            fingerprint[fb["names"][ci]] = round(math.sqrt(d), 3)
             if best_d is None or d < best_d:
                 best_d, best_i = d, ci
-        return fb["names"][best_i] if 0 <= best_i < len(fb["names"]) else None
+        if not 0 <= best_i < len(fb["names"]) or best_d is None:
+            return None
+        return fb["names"][best_i], round(math.sqrt(best_d), 3), fingerprint
 
     def _heal_column(self, cursor: sqlite3.Cursor, table: str, column: str, sql_type: str) -> None:
         """Add `column` to a database that predates it; a no-op when it exists."""
@@ -2254,7 +2266,7 @@ class RecordKeeper:
                         _mix[_idx] = _mix.get(_idx, 0) + 1
                 _tot = sum(_mix.values())
                 _micro = {k: (v / _tot) * 100.0 for k, v in _mix.items()} if _tot else {}
-                _res = self._classify_file_archetype(
+                _res = self._classify_file_archetype_detail(
                     {
                         "coding_loc": float(file_data.get("coding_loc", 0) or 0),
                         "func_z_max": func_z_max,
@@ -2278,7 +2290,7 @@ class RecordKeeper:
                     hv,
                 )
                 if _res:
-                    file_archetype = _res
+                    file_archetype, tel["global_drift"], tel["archetype_fingerprint"] = _res
             # Propagate the authoritative file archetype back into the shared
             # telemetry dict so the audit/LLM recorders (which run AFTER this DB
             # recorder, see galaxyscope recorder order) report the same value the

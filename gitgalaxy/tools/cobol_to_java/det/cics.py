@@ -104,6 +104,8 @@ _PROP = re.compile(r"//\s*(.+?)\n\s*private\s+([\w.<>]+)\s+(\w+);")
 _LEAF = re.compile(r"([A-Z0-9-]+):\s*PIC\s+(\S+?)(?:\s+(COMP-3|COMP-5|COMP-4|COMP|BINARY|PACKED-DECIMAL|DISPLAY))?,"
                    r"\s*offset\s+(\d+),\s*(\d+)\s+bytes(?:\s*\(([^)]+)\))?")  # fmt: skip
 _PART = re.compile(r"offset\s+(\d+),\s*(\d+)\s+bytes\s*->\s*([A-Z0-9-]+)")
+_POINTER = re.compile(r"([A-Z0-9-]+):\s*POINTER,\s*offset\s+(\d+),\s*(\d+)\s+bytes")
+POINTER_BYTES = 8  # GnuCOBOL's on x86-64, and so the port's storage; IBM's is 4 (oracle_assumptions.md C9)
 
 
 @dataclass
@@ -229,6 +231,10 @@ class Generated:
             if part:
                 d.parts.append((var, self.dto(jtype), int(part.group(1))))
                 continue
+            ptr = _POINTER.search(comment)
+            if ptr and jtype == "String":  # CBSA's PCB pointers: NULL travels, an address cannot (DetCics.pointerIn)
+                d.leaves.append(Leaf(var, jtype, ptr.group(1), "", "POINTER", int(ptr.group(2)), int(ptr.group(3))))
+                continue
             leaf = _LEAF.search(comment)
             if not leaf or jtype not in ("String", "Integer", "Long", "Short", "BigDecimal", "java.math.BigDecimal"):
                 raise CicsError(f"{cls}.{var}: a property the port cannot convert ({jtype})")
@@ -345,7 +351,19 @@ class Cics:
                     "            return;", "        }"]  # fmt: skip
         # fill_: the bytes into an existing DTO (a LINKed program's COMMAREA is its caller's object); out_: a new one
         lines_out = [f"    private void fill_{cls}({cls} d, Storage s, int base) {{"]
+        pointers = [x for x in d.leaves if x.usage == "POINTER"]
+        first = min((p.offset for p in pointers), default=None)
+        after = first is not None and (any(x.offset > first for x in d.leaves if x.usage != "POINTER")
+                                       or any(off > first for _, _, off in d.parts))  # fmt: skip
+        if after:
+            raise CicsError(f"{cls}: data after a POINTER (GnuCOBOL's pointer is {POINTER_BYTES} bytes, IBM's 4: "
+                            "every later offset differs)")  # fmt: skip
         for leaf in d.leaves:
+            if leaf.usage == "POINTER":
+                cap = leaf.var[0].upper() + leaf.var[1:]
+                lines_in.append(f"        DetCics.pointerIn(d.get{cap}(), s, base + {leaf.offset}, {POINTER_BYTES});")
+                lines_out.append(f"        d.set{cap}(DetCics.pointerOut(s, base + {leaf.offset}, {POINTER_BYTES}));")
+                continue
             it = item_for(leaf)
             if it.size != leaf.size:
                 # the comment does not carry everything (SIGN LEADING SEPARATE): the item as its copybook declares it
@@ -446,7 +464,8 @@ class Cics:
             self.repos[rcls] = repo
             self.stores[name] = (
                 f"new DetCics.Store<{entity}>({repo}::findAll, e -> e.toRecord(CS), "
-                f"b -> {entity}.fromRecord(b, CS), {repo}::save, {repo}::delete, {off}, {length}, CS)"
+                f"b -> {entity}.fromRecord(b, CS), e -> task.write({G_jstr(name)}, () -> {repo}.save(e)), "
+                f"e -> task.write({G_jstr(name)}, () -> {repo}.delete(e)), {off}, {length}, CS)"
                 # the base cluster's key: findById; an alternate index keeps the ordered scan
                 + (self.g.find_by_id(entity, repo) if prop is None else "")
             )
@@ -457,6 +476,15 @@ class Cics:
     def command(self, text: str, ind: str) -> list[str]:
         words, opts = parse_exec(text)
         verb = " ".join(words)
+        if verb.split()[0] in ("ENQ", "DEQ", "DELAY"):  # (DELAY FOR SECONDS(n): words DELAY FOR)
+            # one task in the region: ENQ / DEQ never wait; a task takes no time, a DELAY included
+            allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
+                       "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
+                       "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb.split()[0]]  # fmt: skip
+            bad = [o for o in opts if o not in allowed | {*words, "RESP", "RESP2", "NOHANDLE"}]
+            if bad:
+                raise CicsError(f"{verb} {' '.join(bad)}")
+            return self.outcome(opts, "0", "0", ind)
         if verb == "GET" and "COUNTER" in opts:  # GET COUNTER: its value, then +1; NOTFND for a counter not defined
             bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
             if bad or not opts.get("VALUE"):
@@ -589,11 +617,14 @@ class Cics:
             out = []
             for form in ("YYYYMMDD", "MMDDYYYY", "DDMMYYYY", "YYMMDD", "MMDDYY", "DDMMYY"):
                 if form in opts:
-                    sep = self.text(_arg(opts["DATESEP"])) if opts.get("DATESEP") else '""'
+                    # DATESEP with no value is IBM's default separator, '/'; no DATESEP, none
+                    sep = (self.text(_arg(opts["DATESEP"])) if opts.get("DATESEP")
+                           else '"/"' if "DATESEP" in opts else '""')  # fmt: skip
                     out.append(f"{ind}Cobol.move(CicsTask.formatDate({t}, {G_jstr(form)}, {sep}), "
                                f"{self.field(_arg(opts[form]))}, CS);")  # fmt: skip
             if "TIME" in opts:
-                sep = self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP") else '""'
+                sep = (self.text(_arg(opts["TIMESEP"])) if opts.get("TIMESEP")
+                       else '":"' if "TIMESEP" in opts else '""')  # TIMESEP alone: IBM's ':'  # fmt: skip
                 out.append(f"{ind}Cobol.move(CicsTask.formatTime({t}, {sep}), {self.field(_arg(opts['TIME']))}, CS);")
             if not out:
                 raise CicsError("FORMATTIME form")

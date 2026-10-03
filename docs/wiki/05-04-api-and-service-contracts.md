@@ -16,7 +16,8 @@ Legacy applications run as CICS transactional modules or JCL batch jobs. These p
   - **Transactional**: If processing in-memory data without file allocations, generates a JSON POST endpoint (`/api/v1/{module}/execute`) accepting `@RequestBody` DTOs.
   - **Batch**: If dataset file bindings (`DD` allocations) exist, generates a multipart POST endpoint (`/api/v1/{module}/execute-batch`) accepting `@RequestParam MultipartFile` arguments.
 - **Service Layer Auto-Wiring**: Constructs `{ModuleName}Service.java`. External COBOL subroutines are injected via Lombok `@RequiredArgsConstructor`.
-- **Mock Service Generation**: For unresolved external module calls, generates inline interface stubs (`TODO: IMPLEMENT SUBROUTINE CALL`) and mock `@Service` classes that intercept calls, log warnings, and return execution to prevent context initialization failure on startup.
+- **Mock Service Generation**: For unresolved external module calls, generates inline interface stubs (a `// TODO: AI AGENT - Implement or mock interface call to: <Name>Service` marker) and mock `@Service` classes that intercept calls, log warnings, and return execution to prevent context initialization failure on startup.
+- **Calls between ported programs**: CALL, LINK and XCTL between programs of the estate are generated as service-to-service calls by the call forge (`cobol_to_java_call_forge.py`). The service skeleton is then filled by a port, deterministic or model-written, and proven against the COBOL: see [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md). Proven cases include CICS tasks that LINK to other programs, compared with the COMMAREA each LINK returns.
 
 ## Pipeline Integration
 **Inputs received:** Execution paradigms and inter-module dependency graphs from the IR.

@@ -93,7 +93,7 @@
     "apex/apex-recipes": {
       "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": 7.26,
       "apex/apex-recipes/LICENSE.md": 2.4,
-      "apex/apex-recipes/QueueableRecipes.cls": 18.62,
+      "apex/apex-recipes/QueueableRecipes.cls": 17.22,
       "apex/apex-recipes/SOQLRecipes.cls": 33.96,
       "apex/apex-recipes/SOQLRecipes.cls-meta.xml": 10.52,
       "apex/apex-recipes/SOQLRecipes_Tests.cls": 101.32,
@@ -126,7 +126,7 @@
     "assembly/cosmopolitan": {
       "assembly/cosmopolitan/BUILD.mk": 13.8,
       "assembly/cosmopolitan/ape.S": 261.24,
-      "assembly/cosmopolitan/loader.c": 1288.32,
+      "assembly/cosmopolitan/loader.c": 1285.32,
       "assembly/cosmopolitan/notice.inc": 10.52,
       "assembly/cosmopolitan/start.S": 7.98
     },
@@ -413,47 +413,47 @@
     },
     "c/cpython": {
       "c/cpython/Makefile.pre.in": 643.0,
-      "c/cpython/ceval.c": 4160.18,
-      "c/cpython/compile.c": 1300.94,
-      "c/cpython/dictobject.c": 5388.06,
-      "c/cpython/frameobject.c": 1410.72,
-      "c/cpython/gc.c": 1206.54,
-      "c/cpython/object.c": 1862.9,
-      "c/cpython/typeobject.c": 7294.5
+      "c/cpython/ceval.c": 3801.08,
+      "c/cpython/compile.c": 1288.24,
+      "c/cpython/dictobject.c": 5318.76,
+      "c/cpython/frameobject.c": 1403.82,
+      "c/cpython/gc.c": 1191.64,
+      "c/cpython/object.c": 1800.1,
+      "c/cpython/typeobject.c": 7202.5
     },
     "c/doom": {
       "c/doom/LICENSE.TXT": 6.82,
       "c/doom/README.TXT": 1.64,
-      "c/doom/d_main.c": 729.16,
+      "c/doom/d_main.c": 723.16,
       "c/doom/doomdef.h": 32.68,
-      "c/doom/i_system.c": 51.34,
-      "c/doom/m_fixed.c": 23.42,
+      "c/doom/i_system.c": 48.54,
+      "c/doom/m_fixed.c": 21.62,
       "c/doom/m_fixed.h": 19.24,
       "c/doom/p_mobj.c": 856.72,
       "c/doom/p_mobj.h": 19.6,
       "c/doom/r_bsp.c": 368.72,
       "c/doom/r_defs.h": 36.58,
       "c/doom/w_wad.c": 357.46,
-      "c/doom/z_zone.c": 328.22
+      "c/doom/z_zone.c": 320.52
     },
     "c/micropython": {
-      "c/micropython/compile.c": 2665.92,
+      "c/micropython/compile.c": 2503.62,
       "c/micropython/compile.h": 19.3,
-      "c/micropython/emitnative.c": 1603.26,
-      "c/micropython/gc.c": 930.62,
+      "c/micropython/emitnative.c": 1483.16,
+      "c/micropython/gc.c": 737.72,
       "c/micropython/gc.h": 37.92,
       "c/micropython/modmachine.c": 28.36,
-      "c/micropython/modmachine.h": 80.66,
-      "c/micropython/objtype.c": 966.52,
+      "c/micropython/modmachine.h": 72.66,
+      "c/micropython/objtype.c": 881.82,
       "c/micropython/objtype.h": 20.36,
-      "c/micropython/vfs.c": 358.28,
+      "c/micropython/vfs.c": 348.18,
       "c/micropython/vfs.h": 43.82,
-      "c/micropython/vm.c": 456.62
+      "c/micropython/vm.c": 392.62
     },
     "c/sqlite": {
       "c/sqlite/LICENSE.md": 1.72,
       "c/sqlite/README.md": 8.52,
-      "c/sqlite/lemon.c": 8108.94
+      "c/sqlite/lemon.c": 8038.64
     },
     "cobol/CICS-Cobol": {
       "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": 1.5,
@@ -1048,9 +1048,9 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": 13.5,
-      "cobol/gnucobol_internals/codegen.c": 12285.36,
-      "cobol/gnucobol_internals/fileio.c": 9360.04,
-      "cobol/gnucobol_internals/numeric.c": 2641.88,
+      "cobol/gnucobol_internals/codegen.c": 11915.86,
+      "cobol/gnucobol_internals/fileio.c": 9277.24,
+      "cobol/gnucobol_internals/numeric.c": 2544.78,
       "cobol/gnucobol_internals/parser.y": 11967.14,
       "cobol/gnucobol_internals/scanner.l": 1331.14,
       "cobol/gnucobol_internals/syn_misc.at": 137.34
@@ -1085,31 +1085,31 @@
       "cpp/NVDA/core.py": 534.22,
       "cpp/NVDA/ensureuv.ps1": 59.5,
       "cpp/NVDA/espeak.py": 333.28,
-      "cpp/NVDA/inProcess.cpp": 126.46,
+      "cpp/NVDA/inProcess.cpp": 124.76,
       "cpp/NVDA/nvdaControllerInternal.cpp": 30.12,
       "cpp/NVDA/readme.md": 1.0,
-      "cpp/NVDA/storage.cpp": 1517.7
+      "cpp/NVDA/storage.cpp": 1495.3
     },
     "cpp/godot": {
       "cpp/godot/AUTHORS.md": 7.8,
       "cpp/godot/DONORS.md": 7.1,
       "cpp/godot/LICENSE.txt": 1.0,
-      "cpp/godot/editor_node.cpp": 6078.1,
+      "cpp/godot/editor_node.cpp": 5994.8,
       "cpp/godot/editor_node.h": 105.02,
-      "cpp/godot/gdscript_vm.cpp": 2306.76,
-      "cpp/godot/main.cpp": 5269.34,
+      "cpp/godot/gdscript_vm.cpp": 2214.86,
+      "cpp/godot/main.cpp": 4858.94,
       "cpp/godot/main.h": 17.22,
-      "cpp/godot/node.cpp": 2988.28,
-      "cpp/godot/node.h": 202.9,
-      "cpp/godot/object.cpp": 1947.98,
-      "cpp/godot/object.h": 171.84,
+      "cpp/godot/node.cpp": 2979.78,
+      "cpp/godot/node.h": 198.9,
+      "cpp/godot/object.cpp": 1936.28,
+      "cpp/godot/object.h": 167.84,
       "cpp/godot/rendering_server_default.cpp": 227.02,
       "cpp/godot/rendering_server_default.h": 89.86,
-      "cpp/godot/variant.cpp": 2761.72,
+      "cpp/godot/variant.cpp": 2754.52,
       "cpp/godot/variant.h": 230.18
     },
     "cpp/mlir": {
-      "cpp/mlir/flatbuffer_export.cc": 2325.2,
+      "cpp/mlir/flatbuffer_export.cc": 2307.2,
       "cpp/mlir/glob_lit_test.bzl": 70.28,
       "cpp/mlir/mlir_bridge_rollout_policy.cc": 17.04,
       "cpp/mlir/mlir_graph_optimization_pass.cc": 230.14,
@@ -1118,12 +1118,12 @@
       "cpp/mlir/tf_tfl_translate.cc": 132.64
     },
     "cpp/powertoys": {
-      "cpp/powertoys/FancyZones.cpp": 617.88,
+      "cpp/powertoys/FancyZones.cpp": 613.08,
       "cpp/powertoys/FancyZones.h": 15.42,
       "cpp/powertoys/ImageResizerExt.cpp": 24.9,
-      "cpp/powertoys/centralized_kb_hook.cpp": 165.7,
+      "cpp/powertoys/centralized_kb_hook.cpp": 158.3,
       "cpp/powertoys/logger.cpp": 42.14,
-      "cpp/powertoys/main.cpp": 294.48,
+      "cpp/powertoys/main.cpp": 285.08,
       "cpp/powertoys/powertoy_module.h": 11.18
     },
     "csd": {
@@ -1149,13 +1149,13 @@
       "csharp/SOURCES.md": 1.0
     },
     "csharp/roslyn": {
-      "csharp/roslyn/CSharpCompilation.cs": 2640.24,
-      "csharp/roslyn/CSharpSyntaxTree.cs": 419.16,
+      "csharp/roslyn/CSharpCompilation.cs": 2632.44,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 395.46,
       "csharp/roslyn/DiagnosticAnalyzer.cs": 11.78,
-      "csharp/roslyn/LanguageParser.cs": 9085.74,
+      "csharp/roslyn/LanguageParser.cs": 9071.74,
       "csharp/roslyn/License.txt": 1.0,
-      "csharp/roslyn/MethodCompiler.cs": 1682.96,
-      "csharp/roslyn/Workspace.cs": 897.62
+      "csharp/roslyn/MethodCompiler.cs": 1678.86,
+      "csharp/roslyn/Workspace.cs": 887.32
     },
     "css": {
       "css/SOURCES.md": 1.0
@@ -1212,13 +1212,13 @@
       "dart/SOURCES.md": 1.0
     },
     "dart/flutter": {
-      "dart/flutter/editable_text.dart": 3336.66,
-      "dart/flutter/events.dart": 4661.68,
-      "dart/flutter/framework.dart": 2376.9,
-      "dart/flutter/navigator.dart": 2510.5,
-      "dart/flutter/object.dart": 3259.3,
-      "dart/flutter/semantics.dart": 3717.06,
-      "dart/flutter/theme_data.dart": 6535.9
+      "dart/flutter/editable_text.dart": 3089.86,
+      "dart/flutter/events.dart": 3587.88,
+      "dart/flutter/framework.dart": 2236.6,
+      "dart/flutter/navigator.dart": 2462.2,
+      "dart/flutter/object.dart": 3125.6,
+      "dart/flutter/semantics.dart": 3592.56,
+      "dart/flutter/theme_data.dart": 4865.5
     },
     "db2_sql": {
       "db2_sql/SOURCES.md": 1.0
@@ -1245,24 +1245,24 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 1.68,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": 6.4,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 135.46,
-      "dockerfile/moby/builder/dockerfile/copy.go": 301.12,
+      "dockerfile/moby/builder/dockerfile/copy.go": 296.32,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 18.54,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": 49.52,
-      "dockerfile/moby/builder/dockerfile/copy_windows.go": 945.21,
-      "dockerfile/moby/builder/dockerfile/dispatchers.go": 497.02,
-      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 450.98,
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 79.96,
+      "dockerfile/moby/builder/dockerfile/dispatchers.go": 493.62,
+      "dockerfile/moby/builder/dockerfile/dispatchers_test.go": 429.18,
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": 23.72,
-      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 14.12,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 77.4,
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 17.88,
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": 12.62,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": 67.0,
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": 13.68,
       "dockerfile/moby/builder/dockerfile/evaluator.go": 141.04,
-      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 26.7,
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 25.3,
       "dockerfile/moby/builder/dockerfile/imagecontext.go": 73.18,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": 27.2,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 38.56,
       "dockerfile/moby/builder/dockerfile/internals.go": 187.16,
-      "dockerfile/moby/builder/dockerfile/internals_linux.go": 57.1,
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 20.92,
+      "dockerfile/moby/builder/dockerfile/internals_linux.go": 51.8,
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 17.12,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 75.0,
       "dockerfile/moby/builder/dockerfile/internals_windows.go": 49.98,
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": 11.06,
@@ -1276,11 +1276,11 @@
       "dockerfile/moby/builder/remotecontext/detect_test.go": 44.2,
       "dockerfile/moby/builder/remotecontext/filehash.go": 17.94,
       "dockerfile/moby/builder/remotecontext/git.go": 10.38,
-      "dockerfile/moby/builder/remotecontext/lazycontext.go": 40.04,
+      "dockerfile/moby/builder/remotecontext/lazycontext.go": 34.54,
       "dockerfile/moby/builder/remotecontext/mimetype.go": 5.52,
       "dockerfile/moby/builder/remotecontext/mimetype_test.go": 3.04,
-      "dockerfile/moby/builder/remotecontext/remote.go": 71.04,
-      "dockerfile/moby/builder/remotecontext/remote_test.go": 87.1,
+      "dockerfile/moby/builder/remotecontext/remote.go": 69.64,
+      "dockerfile/moby/builder/remotecontext/remote_test.go": 85.7,
       "dockerfile/moby/builder/remotecontext/tarsum_test.go": 65.84,
       "dockerfile/moby/builder/remotecontext/utils_test.go": 5.7
     },
@@ -1292,7 +1292,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context.go": 10.94,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/builder_context_test.go": 25.88,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums.go": 70.16,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 34.96,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/fileinfosums_test.go": 33.56,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 171.28,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 4.62,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 272.12,
@@ -1354,21 +1354,21 @@
     },
     "go/core": {
       "go/core/PATENTS": 1.0,
-      "go/core/main.go": 216.76,
-      "go/core/mgc.go": 721.68,
+      "go/core/main.go": 215.36,
+      "go/core/mgc.go": 718.88,
       "go/core/mutex.go": 8.72,
-      "go/core/proc.go": 3708.36,
+      "go/core/proc.go": 3697.46,
       "go/core/server.go": 1993.22,
       "go/core/syscall_linux.go": 980.34,
-      "go/core/value.go": 2133.74
+      "go/core/value.go": 2118.14
     },
     "go/kubernetes": {
-      "go/kubernetes/csi_plugin.go": 494.18,
-      "go/kubernetes/generic.go": 354.16,
-      "go/kubernetes/kubelet.go": 123.88,
+      "go/kubernetes/csi_plugin.go": 463.78,
+      "go/kubernetes/generic.go": 351.16,
+      "go/kubernetes/kubelet.go": 119.78,
       "go/kubernetes/options.go": 17.68,
-      "go/kubernetes/proxier.go": 731.7,
-      "go/kubernetes/replica_set.go": 446.6,
+      "go/kubernetes/proxier.go": 722.8,
+      "go/kubernetes/replica_set.go": 432.3,
       "go/kubernetes/scheduler.go": 316.76
     },
     "groovy/fineract_gradle_plugin": {
@@ -1379,39 +1379,39 @@
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GitService.groovy": 35.74,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_GpgService.groovy": 48.12,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_JiraService.groovy": 58.18,
-      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 21.94,
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_SubversionService.groovy": 16.74,
       "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_TemplateService.groovy": 34.7
     },
     "groovy/flutter_android_gradle": {
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_app_build.gradle": 37.28,
       "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": 19.56,
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_settings.gradle": 17.56,
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_app_build.gradle": 30.84,
       "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": 19.56,
+      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_settings.gradle": 17.56,
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_app_build.gradle": 30.98,
       "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": 19.56,
+      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_settings.gradle": 17.56,
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_app_build.gradle": 30.84,
       "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": 17.42,
-      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": 18.44,
+      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_settings.gradle": 16.44,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": 13.42,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": 16.4,
       "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": 14.64,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_app_build.gradle": 30.9,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": 19.56,
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_settings.gradle": 17.56,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_app_build.gradle": 28.84,
       "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": 19.56,
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_settings.gradle": 17.56,
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_app_build.gradle": 30.86,
       "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": 17.48,
-      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": 19.56
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_settings.gradle": 17.56
     },
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": 1.0,
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": 16.68,
-      "groovy/godot_android_gradle/java_app_build.gradle": 138.48,
+      "groovy/godot_android_gradle/java_app_build.gradle": 41.18,
       "groovy/godot_android_gradle/java_app_settings.gradle": 15.3,
       "groovy/godot_android_gradle/java_editor_build.gradle": 51.02,
       "groovy/godot_android_gradle/java_lib_build.gradle": 42.66,
@@ -1421,12 +1421,12 @@
       "groovy/godot_android_gradle/java_settings.gradle": 16.48
     },
     "groovy/gradle": {
-      "groovy/gradle/DefaultPluginManager.java": 270.58,
-      "groovy/gradle/DefaultProject.java": 774.4,
-      "groovy/gradle/DefaultTask.java": 191.5
+      "groovy/gradle/DefaultPluginManager.java": 216.48,
+      "groovy/gradle/DefaultProject.java": 704.3,
+      "groovy/gradle/DefaultTask.java": 153.9
     },
     "groovy/gradle_buildlogic_groovy": {
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 42.74,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_EnrichedReportRenderer.groovy": 37.74,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": 2.66,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChanges.groovy": 11.4,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": 2.06,
@@ -1438,12 +1438,12 @@
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": 1.82,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": 5.24,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": 1.78,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": 79.42,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractGradleViolationRule.groovy": 75.42,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": 17.98,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": 6.06,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_IncubatingInternalInterfaceAddedRule.groovy": 27.8,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": 21.24,
-      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": 55.02,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_KotlinModifiersBreakingChangeRule.groovy": 19.54,
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_MethodsRemovedInInternalSuperClassRule.groovy": 53.02,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_ExplodeZipAndFindJars.groovy": 11.92,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": 3.84,
       "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": 3.84,
@@ -1484,19 +1484,19 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": 7.38,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": 2.98,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": 2.36,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 35.14,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 31.74,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildFeatureIntegrationTest.groovy": 11.42,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": 39.08,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": 5.54,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 20.64,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 22.46,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": 18.04,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": 10.56,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": 18.52,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": 6.16,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 28.32,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 16.0,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 26.32,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": 13.0,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": 13.2,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": 6.86,
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 27.18,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": 21.58,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": 9.7,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": 7.02,
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": 19.92,
@@ -1533,7 +1533,7 @@
       "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": 2.9
     },
     "groovy/jenkins_view_groovy": {
-      "groovy/jenkins_view_groovy/Jenkinsfile": 151.76,
+      "groovy/jenkins_view_groovy/Jenkinsfile": 147.36,
       "groovy/jenkins_view_groovy/LICENSE.txt": 1.0,
       "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": 15.34,
       "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": 17.4,
@@ -1572,11 +1572,11 @@
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": 14.16,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": 14.16,
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": 19.28,
-      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 19.24,
+      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": 14.24,
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": 20.68,
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": 19.8,
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": 26.38,
-      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": 20.38,
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-annotations-jvm_build.gradle": 18.38,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": 27.04,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": 10.52,
       "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": 10.52,
@@ -1609,13 +1609,13 @@
       "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": 15.34
     },
     "groovy/spock": {
-      "groovy/spock/DeepBlockRewriter.java": 189.5,
-      "groovy/spock/SpecParser.java": 198.72,
-      "groovy/spock/SpecRewriter.java": 398.56,
-      "groovy/spock/SpockTransform.java": 25.64
+      "groovy/spock/DeepBlockRewriter.java": 186.1,
+      "groovy/spock/SpecParser.java": 178.72,
+      "groovy/spock/SpecRewriter.java": 383.06,
+      "groovy/spock/SpockTransform.java": 19.44
     },
     "groovy/spock_core_groovy": {
-      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 21.84,
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": 20.34,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": 3.14,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 70.48,
       "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": 3.1,
@@ -1640,11 +1640,11 @@
       "groovy/spock_smoke_specs/Blocks.groovy": 5.66,
       "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": 8.88,
       "groovy/spock_smoke_specs/CleanupBlocks.groovy": 45.74,
-      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": 16.22,
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": 14.02,
       "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": 25.18,
       "groovy/spock_smoke_specs/ExpectBlocks.groovy": 3.4,
       "groovy/spock_smoke_specs/FeatureFiltering.groovy": 7.78,
-      "groovy/spock_smoke_specs/FeatureMethods.groovy": 15.9,
+      "groovy/spock_smoke_specs/FeatureMethods.groovy": 11.8,
       "groovy/spock_smoke_specs/FinalFields.groovy": 24.3,
       "groovy/spock_smoke_specs/FixtureMethods.groovy": 17.88,
       "groovy/spock_smoke_specs/GroovyCallChain.groovy": 6.86,
@@ -1663,7 +1663,7 @@
       "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": 19.92,
       "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": 4.04,
       "groovy/spock_specs/org_spockframework_datapipes_DataPipesIteratorSpec.groovy": 38.6,
-      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 100.96,
+      "groovy/spock_specs/org_spockframework_docs_datadriven_DataSpec.groovy": 98.96,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": 1.6,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": 2.86,
       "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": 1.76,
@@ -1673,7 +1673,7 @@
       "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": 2.16,
       "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": 4.2,
       "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": 15.66,
-      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 2.9,
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": 1.9,
       "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": 10.34,
       "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": 10.2,
       "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": 3.98,
@@ -1862,7 +1862,7 @@
     "html/vscode_webviews": {
       "html/vscode_webviews/LICENSE.txt": 1.0,
       "html/vscode_webviews/build_builtin_index.html": 0.03,
-      "html/vscode_webviews/github_auth_media_index.html": 0.29,
+      "html/vscode_webviews/github_auth_media_index.html": 0.27,
       "html/vscode_webviews/webWorkerExtensionHostIframe.html": 0.13,
       "html/vscode_webviews/webview_pre_index.html": 0.03,
       "html/vscode_webviews/workbench.html": 0.05
@@ -1877,44 +1877,44 @@
       "java/SOURCES.md": 1.0
     },
     "java/springboot": {
-      "java/springboot/AutoConfigurationImportSelector.java": 260.66,
-      "java/springboot/Binder.java": 314.18,
+      "java/springboot/AutoConfigurationImportSelector.java": 234.16,
+      "java/springboot/Binder.java": 260.68,
       "java/springboot/JarLauncher.java": 8.52,
       "java/springboot/LICENSE.txt": 4.04,
-      "java/springboot/OnClassCondition.java": 103.94,
-      "java/springboot/ServletWebServerApplicationContext.java": 78.08,
-      "java/springboot/SpringApplication.java": 791.08,
-      "java/springboot/WebMvcAutoConfiguration.java": 258.04
+      "java/springboot/OnClassCondition.java": 98.14,
+      "java/springboot/ServletWebServerApplicationContext.java": 75.58,
+      "java/springboot/SpringApplication.java": 677.18,
+      "java/springboot/WebMvcAutoConfiguration.java": 244.14
     },
     "javascript": {
       "javascript/SOURCES.md": 1.0
     },
     "javascript/jquery": {
       "javascript/jquery/LICENSE.txt": 1.0,
-      "javascript/jquery/ajax.js": 888.2,
+      "javascript/jquery/ajax.js": 884.7,
       "javascript/jquery/buildFragment.js": 134.28,
       "javascript/jquery/core.js": 315.26,
       "javascript/jquery/css.js": 386.76,
       "javascript/jquery/deferred.js": 325.54,
-      "javascript/jquery/event.js": 823.44,
+      "javascript/jquery/event.js": 821.04,
       "javascript/jquery/tokenize.js": 78.44
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": 83.7,
-      "javascript/react/ReactFiberBeginWork.js": 2413.84,
-      "javascript/react/ReactFiberWorkLoop.js": 3071.02,
-      "javascript/react/ReactFlightServer.js": 4501.9,
+      "javascript/react/BabelPlugin.ts": 71.2,
+      "javascript/react/ReactFiberBeginWork.js": 2379.84,
+      "javascript/react/ReactFiberWorkLoop.js": 3061.62,
+      "javascript/react/ReactFlightServer.js": 4479.8,
       "javascript/react/ReactSymbols.js": 37.4,
-      "javascript/react/build.js": 482.88
+      "javascript/react/build.js": 469.68
     },
     "javascript/threejs": {
-      "javascript/threejs/BufferGeometry.js": 492.46,
-      "javascript/threejs/Editor.js": 419.66,
-      "javascript/threejs/GLTFLoader.js": 2903.46,
+      "javascript/threejs/BufferGeometry.js": 489.06,
+      "javascript/threejs/Editor.js": 404.16,
+      "javascript/threejs/GLTFLoader.js": 2897.46,
       "javascript/threejs/Matrix4.js": 726.94,
       "javascript/threejs/Nodes.js": 156.8,
-      "javascript/threejs/WebGLProgram.js": 729.62,
-      "javascript/threejs/WebGLRenderer.js": 2898.16
+      "javascript/threejs/WebGLProgram.js": 725.72,
+      "javascript/threejs/WebGLRenderer.js": 2893.36
     },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": 3.92,
@@ -2424,7 +2424,7 @@
       "nix/bun/shell.nix": 16.78
     },
     "nix/ghostty": {
-      "nix/ghostty/build.zig": 89.14,
+      "nix/ghostty/build.zig": 87.74,
       "nix/ghostty/default.nix": 15.26,
       "nix/ghostty/flake.nix": 17.46,
       "nix/ghostty/shell.nix": 15.24
@@ -2434,11 +2434,11 @@
     },
     "objective-c/worldwideweb": {
       "objective-c/worldwideweb/Anchor.m": 149.8,
-      "objective-c/worldwideweb/HText.c": 749.14,
-      "objective-c/worldwideweb/HyperManager.m": 254.18,
+      "objective-c/worldwideweb/HText.c": 747.44,
+      "objective-c/worldwideweb/HyperManager.m": 244.68,
       "objective-c/worldwideweb/HyperText.h": 93.44,
-      "objective-c/worldwideweb/HyperText.m": 1280.58,
-      "objective-c/worldwideweb/TcpAccess.m": 38.46
+      "objective-c/worldwideweb/HyperText.m": 1262.78,
+      "objective-c/worldwideweb/TcpAccess.m": 36.76
     },
     "perl": {
       "perl/SOURCES.md": 1.0
@@ -2479,51 +2479,51 @@
       "php/SOURCES.md": 1.0
     },
     "php/guzzle": {
-      "php/guzzle/Client.php": 349.68,
-      "php/guzzle/CurlFactory.php": 670.24,
+      "php/guzzle/Client.php": 347.88,
+      "php/guzzle/CurlFactory.php": 659.04,
       "php/guzzle/CurlMultiHandler.php": 143.4,
       "php/guzzle/Middleware.php": 91.68,
       "php/guzzle/Pool.php": 69.08,
       "php/guzzle/RequestException.php": 117.76,
-      "php/guzzle/StreamHandler.php": 496.18
+      "php/guzzle/StreamHandler.php": 486.48
     },
     "php/laravel_core": {
       "php/laravel_core/Application.php": 551.76,
-      "php/laravel_core/BladeCompiler.php": 533.42,
+      "php/laravel_core/BladeCompiler.php": 504.62,
       "php/laravel_core/Collection.php": 1128.18,
-      "php/laravel_core/Container.php": 921.4,
+      "php/laravel_core/Container.php": 912.2,
       "php/laravel_core/Facade.php": 122.12,
       "php/laravel_core/LICENSE.md": 1.0,
-      "php/laravel_core/Model.php": 1116.64,
+      "php/laravel_core/Model.php": 1113.64,
       "php/laravel_core/Router.php": 627.48
     },
     "php/magento2": {
       "php/magento2/AbstractBlock.php": 600.64,
-      "php/magento2/AbstractModel.php": 413.18,
+      "php/magento2/AbstractModel.php": 410.38,
       "php/magento2/Application.php": 27.5,
       "php/magento2/Http.php": 59.62,
       "php/magento2/Interceptor.php": 91.9,
       "php/magento2/LICENSE.txt": 1.0,
-      "php/magento2/Mysql.php": 3221.24,
+      "php/magento2/Mysql.php": 3139.94,
       "php/magento2/ObjectManager.php": 32.12
     },
     "php/symfony": {
-      "php/symfony/Application.php": 1299.0,
-      "php/symfony/ContainerBuilder.php": 1553.92,
+      "php/symfony/Application.php": 1276.4,
+      "php/symfony/ContainerBuilder.php": 1544.12,
       "php/symfony/EventDispatcher.php": 270.14,
-      "php/symfony/HttpKernel.php": 241.68,
-      "php/symfony/Parser.php": 313.02,
-      "php/symfony/Request.php": 1764.88,
+      "php/symfony/HttpKernel.php": 233.68,
+      "php/symfony/Parser.php": 300.72,
+      "php/symfony/Request.php": 1732.38,
       "php/symfony/Router.php": 193.38
     },
     "php/wordpress": {
       "php/wordpress/admin-ajax.php": 26.94,
-      "php/wordpress/class-wp-query.php": 3993.06,
-      "php/wordpress/formatting.php": 4208.86,
-      "php/wordpress/functions.php": 5479.06,
+      "php/wordpress/class-wp-query.php": 3986.36,
+      "php/wordpress/formatting.php": 3835.06,
+      "php/wordpress/functions.php": 5333.06,
       "php/wordpress/license.txt": 7.7,
       "php/wordpress/plugin.php": 381.0,
-      "php/wordpress/wp-login.php": 520.96,
+      "php/wordpress/wp-login.php": 514.96,
       "php/wordpress/wp-settings.php": 79.28
     },
     "plaintext": {
@@ -2989,7 +2989,7 @@
       "python/numpy/generate_numpy_api.py": 124.32,
       "python/numpy/generate_ufunc_api.py": 81.24,
       "python/numpy/generate_umath_doc.py": 26.66,
-      "python/numpy/lapack_litemodule.c": 111.2,
+      "python/numpy/lapack_litemodule.c": 99.9,
       "python/numpy/numpy_api.py": 21.92,
       "python/numpy/symbolic.py": 1817.6,
       "python/numpy/testutils.py": 228.62,
@@ -3067,11 +3067,11 @@
     "rust/bevy": {
       "rust/bevy/LICENSE-APACHE": 3.54,
       "rust/bevy/LICENSE-MIT": 1.0,
-      "rust/bevy/bevy_ecs_macros.rs": 256.84,
-      "rust/bevy/bevy_ecs_query.rs": 219.3,
+      "rust/bevy/bevy_ecs_macros.rs": 255.14,
+      "rust/bevy/bevy_ecs_query.rs": 216.1,
       "rust/bevy/bevy_ecs_table.rs": 99.76,
-      "rust/bevy/bevy_ecs_world.rs": 924.48,
-      "rust/bevy/bevy_reflect_path.rs": 59.48,
+      "rust/bevy/bevy_ecs_world.rs": 911.88,
+      "rust/bevy/bevy_reflect_path.rs": 56.08,
       "rust/bevy/bevy_render_phase.rs": 9.76,
       "rust/bevy/bevy_schedule_graph.rs": 106.54
     },
@@ -3080,18 +3080,18 @@
       "rust/holylang/compile.rs": 20.06,
       "rust/holylang/error.rs": 5.1,
       "rust/holylang/main.rs": 2.02,
-      "rust/holylang/parser.rs": 519.82,
-      "rust/holylang/semantic.rs": 578.84,
-      "rust/holylang/transpiler.rs": 382.96
+      "rust/holylang/parser.rs": 476.82,
+      "rust/holylang/semantic.rs": 529.84,
+      "rust/holylang/transpiler.rs": 351.56
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": 3.54,
       "rust/serde/LICENSE-MIT": 1.0,
-      "rust/serde/serde_core_de_impls.rs": 829.2,
-      "rust/serde/serde_core_de_mod.rs": 285.22,
+      "rust/serde/serde_core_de_impls.rs": 826.1,
+      "rust/serde/serde_core_de_mod.rs": 283.22,
       "rust/serde/serde_core_macros.rs": 17.38,
       "rust/serde/serde_derive_de.rs": 317.2,
-      "rust/serde/serde_internals_ast.rs": 80.1,
+      "rust/serde/serde_internals_ast.rs": 77.8,
       "rust/serde/serde_internals_attr.rs": 1064.14,
       "rust/serde/test_annotations.rs": 291.54
     },
@@ -3107,12 +3107,12 @@
     },
     "rust/tokio": {
       "rust/tokio/addr_of.rs": 15.44,
-      "rust/tokio/block_on.rs": 10.4,
+      "rust/tokio/block_on.rs": 9.0,
       "rust/tokio/blocking.rs": 28.54,
-      "rust/tokio/builder.rs": 339.94,
+      "rust/tokio/builder.rs": 338.24,
       "rust/tokio/config.rs": 28.46,
       "rust/tokio/fuzz.rs": 11.52,
-      "rust/tokio/interval.rs": 63.44,
+      "rust/tokio/interval.rs": 61.44,
       "rust/tokio/lib.rs": 40.28,
       "rust/tokio/maybe_done.rs": 39.1,
       "rust/tokio/tests.rs": 172.8,
@@ -3121,21 +3121,21 @@
     },
     "rust/wasmtime": {
       "rust/wasmtime/wasmtime_component_macro.rs": 14.94,
-      "rust/wasmtime/wasmtime_instance.rs": 333.3,
-      "rust/wasmtime/wasmtime_isle_parser.rs": 743.94,
+      "rust/wasmtime/wasmtime_instance.rs": 330.5,
+      "rust/wasmtime/wasmtime_isle_parser.rs": 739.34,
       "rust/wasmtime/wasmtime_pulley_interp.rs": 2682.1
     },
     "scala": {
       "scala/SOURCES.md": 1.0
     },
     "scala/kafka": {
-      "scala/kafka/Kafka.scala": 28.8,
-      "scala/kafka/KafkaApis.scala": 2385.26,
+      "scala/kafka/Kafka.scala": 27.4,
+      "scala/kafka/KafkaApis.scala": 2350.96,
       "scala/kafka/KafkaRaftManager.scala": 32.54,
-      "scala/kafka/LogManager.scala": 771.24,
-      "scala/kafka/Partition.scala": 923.8,
-      "scala/kafka/ReplicaManager.scala": 1379.08,
-      "scala/kafka/SocketServer.scala": 685.72
+      "scala/kafka/LogManager.scala": 686.04,
+      "scala/kafka/Partition.scala": 858.9,
+      "scala/kafka/ReplicaManager.scala": 1328.68,
+      "scala/kafka/SocketServer.scala": 632.22
     },
     "scheme": {
       "scheme/SOURCES.md": 1.0
@@ -3143,8 +3143,8 @@
     "scheme/racket": {
       "scheme/racket/LICENSE.txt": 3.86,
       "scheme/racket/cpnanopass.ss": 3067.88,
-      "scheme/racket/eval.c": 4308.78,
-      "scheme/racket/fun.c": 12210.26,
+      "scheme/racket/eval.c": 4181.18,
+      "scheme/racket/fun.c": 11949.16,
       "scheme/racket/io.ss": 537.08,
       "scheme/racket/schemify.rkt": 1051.08,
       "scheme/racket/thread.rkt": 497.58
@@ -3457,7 +3457,7 @@
       "sql/SOURCES.md": 1.0
     },
     "sql/baseline": {
-      "sql/baseline/schema.php": 812.8
+      "sql/baseline/schema.php": 609.7
     },
     "sql/mediawiki_mysql": {
       "sql/mediawiki_mysql/COPYING": 7.58,
@@ -3584,13 +3584,13 @@
       "swift/SOURCES.md": 1.0
     },
     "swift/alamofire": {
-      "swift/alamofire/AFError.swift": 87.66,
+      "swift/alamofire/AFError.swift": 86.26,
       "swift/alamofire/Alamofire.podspec": 36.7,
       "swift/alamofire/Package.swift": 15.52,
-      "swift/alamofire/ParameterEncoder.swift": 105.92,
-      "swift/alamofire/Request.swift": 631.12,
-      "swift/alamofire/Response.swift": 141.36,
-      "swift/alamofire/Session.swift": 769.42
+      "swift/alamofire/ParameterEncoder.swift": 102.52,
+      "swift/alamofire/Request.swift": 625.92,
+      "swift/alamofire/Response.swift": 139.96,
+      "swift/alamofire/Session.swift": 749.12
     },
     "tabular": {
       "tabular/SOURCES.md": 1.0
@@ -3691,9 +3691,9 @@
     "typescript/assemblyscript": {
       "typescript/assemblyscript/asconfig.json": 15.94,
       "typescript/assemblyscript/ast.ts": 1030.82,
-      "typescript/assemblyscript/compiler.ts": 8220.54,
+      "typescript/assemblyscript/compiler.ts": 8183.14,
       "typescript/assemblyscript/package.json": 2.3,
-      "typescript/assemblyscript/parser.ts": 3325.18
+      "typescript/assemblyscript/parser.ts": 3317.08
     },
     "typescript/fp-ts": {
       "typescript/fp-ts/Either.ts": 347.76,
@@ -3709,26 +3709,26 @@
       "typescript/playwright/SUPPORT.md": 1.0,
       "typescript/playwright/api.ts": 48.64,
       "typescript/playwright/bidiConnection.ts": 203.78,
-      "typescript/playwright/connection.ts": 383.58,
+      "typescript/playwright/connection.ts": 381.28,
       "typescript/playwright/crConnection.ts": 185.62,
-      "typescript/playwright/dispatcher.ts": 388.08,
-      "typescript/playwright/frames.ts": 2072.26,
+      "typescript/playwright/dispatcher.ts": 380.48,
+      "typescript/playwright/frames.ts": 2017.66,
       "typescript/playwright/protocol.ts": 18.44
     },
     "typescript/typescript_compiler": {
-      "typescript/typescript_compiler/binder.ts": 2959.82,
+      "typescript/typescript_compiler/binder.ts": 2955.32,
       "typescript/typescript_compiler/package.json": 2.36
     },
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 1.0,
-      "typescript/vscode/async.ts": 2064.76,
-      "typescript/vscode/codeEditorWidget.ts": 1582.1,
+      "typescript/vscode/async.ts": 2060.16,
+      "typescript/vscode/codeEditorWidget.ts": 1571.2,
       "typescript/vscode/eslint.config.js": 76.08,
-      "typescript/vscode/extHost.api.impl.ts": 1760.22,
-      "typescript/vscode/gulpfile.vscode.ts": 444.12,
-      "typescript/vscode/instantiationService.ts": 391.56,
+      "typescript/vscode/extHost.api.impl.ts": 1738.92,
+      "typescript/vscode/gulpfile.vscode.ts": 433.82,
+      "typescript/vscode/instantiationService.ts": 386.96,
       "typescript/vscode/ipc.ts": 987.54,
-      "typescript/vscode/lifecycle.ts": 534.94,
+      "typescript/vscode/lifecycle.ts": 533.44,
       "typescript/vscode/package.json": 5.2,
       "typescript/vscode/vscode.d.ts": 134.8
     },
@@ -3859,11 +3859,11 @@
       "zig/bun/LICENSE.md": 1.48,
       "zig/bun/MimallocArena.zig": 126.68,
       "zig/bun/Parser.zig": 732.94,
-      "zig/bun/comptime_string_map.zig": 299.46,
+      "zig/bun/comptime_string_map.zig": 297.46,
       "zig/bun/napi.zig": 2401.4
     },
     "zig/mach": {
-      "zig/mach/Core.zig": 202.04,
+      "zig/mach/Core.zig": 200.24,
       "zig/mach/StringTable.zig": 33.64,
       "zig/mach/collision.zig": 351.96,
       "zig/mach/graph.zig": 218.62,
@@ -3873,8 +3873,8 @@
       "zig/mach/win32.zig": 1509.76
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 403.22,
-      "zig/tigerbeetle/build.zig": 575.34,
+      "zig/tigerbeetle/aof.zig": 392.32,
+      "zig/tigerbeetle/build.zig": 565.84,
       "zig/tigerbeetle/build_multiversion.zig": 102.76,
       "zig/tigerbeetle/cluster.zig": 569.72,
       "zig/tigerbeetle/config.zig": 35.22,
@@ -3884,19 +3884,19 @@
       "zig/tigerbeetle/direction.zig": 58.8,
       "zig/tigerbeetle/download.sh": 75.36,
       "zig/tigerbeetle/download.win.ps1": 29.3,
-      "zig/tigerbeetle/state_machine.zig": 1728.0
+      "zig/tigerbeetle/state_machine.zig": 1718.4
     },
     "zig/zig": {
-      "zig/zig/Compilation.zig": 3001.88,
+      "zig/zig/Compilation.zig": 2973.98,
       "zig/zig/InternPool.zig": 4635.44,
       "zig/zig/Type.zig": 2114.3,
       "zig/zig/Zcu.zig": 1591.28,
-      "zig/zig/main.zig": 5023.08
+      "zig/zig/main.zig": 4990.48
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 223.9,
-      "zig/zls/DocumentStore.zig": 539.28,
-      "zig/zls/Server.zig": 919.0,
+      "zig/zls/DocumentStore.zig": 537.58,
+      "zig/zls/Server.zig": 917.3,
       "zig/zls/analysis.zig": 2970.68,
       "zig/zls/ast.zig": 856.42,
       "zig/zls/config_gen.zig": 531.28,

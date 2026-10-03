@@ -1909,6 +1909,14 @@ def test_record_keeper_classifies_file_archetype_from_self_describing_brain(monk
     hot_ctx = dict(base_ctx, func_z_max=50.0)
     assert rk._classify_file_archetype(hot_ctx, hv_hot) == "file_cluster_0"
 
+    # #4106: the distance and per-centroid fingerprint were placeholders (0.0 /
+    # {}) since #3061; the detail call now returns the distances it computes.
+    name, dist, fingerprint = rk._classify_file_archetype_detail(base_ctx, hv_zero)
+    assert name == "file_cluster_1" and dist == 0.0
+    assert fingerprint == {"file_cluster_0": round((50.0**2 + 10.0**2) ** 0.5, 3), "file_cluster_1": 0.0}
+    name, dist, fingerprint = rk._classify_file_archetype_detail(hot_ctx, hv_hot)
+    assert name == min(fingerprint, key=fingerprint.get) and dist == fingerprint[name]
+
 
 # ==============================================================================
 # gitgalaxy#2994: MEASUREMENT TIERS -- TIER 1/3 (FAMILIES & RELATIONS)

@@ -17,11 +17,11 @@ from .._shared_patterns import (
     CALLS_OUT_C_STYLE_GENERIC,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
-    GLOBAL_LLM_API,
     GLOBAL_LLM_ORCHESTRATOR,
     GLOBAL_LLM_VECTOR_STORE,
     GLOBAL_ML_TRADITIONAL,
     GLOBAL_PLANNED_DEBT,
+    JS_LLM_API,
 )
 
 DEFINITION: dict[str, Any] = {
@@ -66,6 +66,10 @@ DEFINITION: dict[str, Any] = {
     # an `@/` / `~/` / `#` alias prefix, is the tail of a real file path.
     "bare_import_names_package": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,
@@ -88,7 +92,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # EXCLUDES: Exceptions (throw). Includes control flow and logical short-circuits.
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?|\?\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?\?|\?"),
         # 2. args (Parameters / Coupling)
         # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
         # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
@@ -752,7 +756,7 @@ DEFINITION: dict[str, Any] = {
             r"|\.bind\(|\.call\(|\.apply\("
         ),
         # --- AI & LLM SDK SENSORS (GLOBAL_, see #322) ---
-        "llm_api": GLOBAL_LLM_API,
+        "llm_api": JS_LLM_API,
         "llm_orchestrator": GLOBAL_LLM_ORCHESTRATOR,
         "llm_vector_store": GLOBAL_LLM_VECTOR_STORE,
         "ml_traditional": GLOBAL_ML_TRADITIONAL,

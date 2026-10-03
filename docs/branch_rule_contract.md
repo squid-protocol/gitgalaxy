@@ -61,6 +61,34 @@ loop forms still count, anchored on their condition words
 corollary-4 question from the other side). They moved to
 `structural_boundaries` beside `type`/`interface`/`declare`.
 
+## Literals
+
+**4 · A token inside a literal is not a decision.** The code stream keeps
+string literals (the stream contract), so every C-family rule counted them: a
+JDBC `"INSERT ... values (?, ?, ?, ?, ?)"` read as five ternaries, `"if"` in a
+message as an if, a Java text block as whatever it held. IBM's published WCA4Z
+translation of GenApp's LGACDB01 (`Lgacdb01.insertCustomer`, one if/else)
+scored complexity 21, 19 of it the `?` placeholders in its two INSERT strings.
+The 18 brace-family languages (apex, c, cpp, csharp, dart, go, groovy, java,
+javascript, kotlin, objective-c, php, rust, scala, solidity, swift, typescript,
+zig) opt `branch` into the `outside_literals` scope filter, which for them
+shields with the brace slicer's own literal syntax (char literals, raw and
+verbatim strings, text blocks, template literals; a rust lifetime is not a
+literal). The pins are `tests/extraction/languages/test_branch_literals.py`,
+through the real extractor, since a bare regex never sees the filter. A
+JS/TS template literal's `${a ? b : c}` is shielded with its literal: a known,
+accepted undercount.
+
+**Java's `:` and `?`.** A ternary is one decision, counted at its `?` (the
+"value-selection" dual below; java also counted its `:`, so every ternary read
+2). A `:` is never a decision in java: the ternary's own, a `case`/`default`
+label's (corollary 2: the keyword counts the arm), a statement label, the
+enhanced-for and `assert` separators. A generic wildcard (`<?>`,
+`<? extends T>`, `<? super T>`, `Map<?, V>`) is a type, not a ternary.
+Likewise `??` is one value-selection decision: typescript, javascript, dart,
+swift and apex listed `\?` before `\?\?`, so the single `?` arm won and `a ?? b`
+read 2.
+
 ## Deliberate duals and deferred residue
 
 - **Value-selection operators stay dual.** `?:`/`??`/`orelse`/kotlin `?:` are

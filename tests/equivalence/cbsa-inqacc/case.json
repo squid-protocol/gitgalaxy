@@ -1,0 +1,167 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "INQACC",
+ "program_source": "src/base/cobol_src/INQACC.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OUAC",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_copy/INQACC.cpy",
+    "record": "INQACC-COMMAREA"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "current-found",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "1"
+   },
+   "why": "cursor OPEN +0, FETCH +0, CLOSE +0: every column moved, the three dates reformatted from Db2's ISO text into DDMMYYYY; available and actual balances differ; 'Y'"
+  },
+  {
+   "name": "saving-found",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "2"
+   },
+   "why": "type SAVING with an interest rate"
+  },
+  {
+   "name": "loan-negative-balance",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "3"
+   },
+   "why": "type LOAN: negative DECIMAL(12,2) balances into the signed S9(10)V99 COMMAREA fields"
+  },
+  {
+   "name": "mortgage-found",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "5"
+   },
+   "why": "type MORTGAGE, a large negative balance"
+  },
+  {
+   "name": "max-values-leap-day",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "6"
+   },
+   "why": "rate 9999.99, overdraft 99999999, available 9999999999.99 and actual -9999999999.99 (the largest each PICTURE holds); opened 2024-02-29"
+  },
+  {
+   "name": "overdraft-past-picture",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "11"
+   },
+   "why": "INTEGER overdraft 123456789 through S9(9) COMP into 9(8): the high-order digit is lost (23456789); statement dates across a year end"
+  },
+  {
+   "name": "negative-overdraft",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "9"
+   },
+   "why": "INTEGER overdraft -250 into the unsigned 9(8): the sign is dropped; a one-cent negative available balance"
+  },
+  {
+   "name": "account-zero",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "0"
+   },
+   "why": "boundary: account number 00000000 exists and is read through the cursor"
+  },
+  {
+   "name": "account-99999998",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "99999998"
+   },
+   "why": "boundary: the account just below the sentinel takes the cursor path"
+  },
+  {
+   "name": "last-account-sentinel",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "99999999"
+   },
+   "why": "INQACC-ACCNO 99999999: READ-ACCOUNT-LAST's SELECT ... ORDER BY ACCOUNT_NUMBER DESC FETCH FIRST 1 ROW gives the highest account of sort code 987654 (99999998), 'Y'"
+  },
+  {
+   "name": "not-found",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "12"
+   },
+   "why": "the cursor's FETCH +100 (no row): OUTPUT-DATA initialized, ACCOUNT-TYPE spaces, 'N'; the rest of the COMMAREA untouched"
+  },
+  {
+   "name": "other-sort-code-not-found",
+   "commarea": {
+    "INQACC-SCODE": "123456",
+    "INQACC-ACCNO": "10"
+   },
+   "why": "account 00000010 exists only under sort code 123456; the cursor uses the program's own SORTCODE (987654), not INQACC-SCODE: +100, 'N'"
+  },
+  {
+   "name": "blank-account-type",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "7"
+   },
+   "why": "a row whose ACCOUNT_TYPE is all spaces: FETCH +0 but ACCOUNT-TYPE = SPACES, 'N'"
+  },
+  {
+   "name": "null-statement-date",
+   "commarea": {
+    "INQACC-SCODE": "987654",
+    "INQACC-ACCNO": "4"
+   },
+   "why": "ACCOUNT_LAST_STATEMENT NULL with no indicator: FETCH -305; CHECK-FOR-STORM-DRAIN-DB2 (WHEN OTHER), ABNDINFO filled from the clock and EIB, LINK ABNDPROC (an ABNDFILE record), then ABEND HRAC CANCEL"
+  }
+ ],
+ "notes": "CBSA's inquire-account service (INQACC, LINKed by BNK1DAC / BNK1UAC with the INQACC copybook's COMMAREA). INQACC-ACCNO 99999999 reads the highest account of the program's own sort code (987654) with SELECT ... ORDER BY ACCOUNT_NUMBER DESC FETCH FIRST 1 ROW; any other number OPENs cursor ACC-CURSOR on the program's SORTCODE (not INQACC-SCODE) and INQACC-ACCNO, FETCHes once and CLOSEs. FETCH +100 initializes the output; any other non-zero SQLCODE (e.g. -305, a NULL date with no indicator) fills ABNDINFO from the clock and EIB, LINKs ABNDPROC (run in the same task: an ABNDFILE record) and ABENDs HRAC CANCEL. An ACCOUNT-TYPE of spaces or low-values gives INQACC-SUCCESS 'N', else the COMMAREA is filled (dates reformatted from Db2's ISO text to DDMMYYYY) and 'Y'. ACCOUNT has a unique index on (sort code, number), so the cursor never has more than one row. Both ACCOUNT and ABNDFILE are compared after every scenario. abndfile.bin is empty (the file starts with no records)."
+}

@@ -247,6 +247,18 @@ def _literal(value: str) -> str | None:
     return (m.group(1) if m.group(1) is not None else m.group(2)) if m else None
 
 
+def _recovery(case: dict[str, Any], f: dict[str, Any]) -> str:
+    """files.cfg's sixth column: " NONE" for a file whose dataset the case says the CSD defines RECOVERY(NONE)
+    (`"recovery": "NONE"`, a deployment fact with its `why`): CICS does not back out its changes."""
+    spec = case.get("datasets", {}).get(f["base"]) or {}
+    return " NONE" if str(spec.get("recovery", "")).upper() == "NONE" else ""
+
+
+def non_recoverable_files(case: dict[str, Any], files: list[dict[str, Any]]) -> list[str]:
+    """The CICS files whose changes survive a backout (RECOVERY(NONE))."""
+    return sorted({f["file"] for f in files if _recovery(case, f)})
+
+
 def _counters(case: dict[str, Any], sc: dict[str, Any]) -> dict[str, int]:
     """The named counters a scenario's region has ("POOL/NAME": the next value): the scenario's, else the case's."""
     return dict(sc["counters"] if "counters" in sc else case.get("counters") or {})
@@ -429,6 +441,16 @@ def translate_command(body: str, labels: list[str] | None = None, handle_aid: bo
         else:  # the record a READ UPDATE holds
             args, mode = ["BY REFERENCE GG-FLAGS", "BY VALUE 0"], "MOVE 'HELD' TO GG-FLAGS"
         return [name(file, "GG-NAME1"), mode] + _call("GGCDELT", args) + _resp(opts, True, labels)
+    if verb in ("ENQ", "DEQ", "DELAY"):
+        # one task in the region: nothing else holds the resource (ENQ / DEQ NORMAL), and a task takes no time, a
+        # DELAY included (EIBTIME / ASKTIME stay as dispatched; oracle_assumptions.md X4)
+        allowed = {"ENQ": {"RESOURCE", "LENGTH", "NOSUSPEND", "TASK", "UOW", "MAXLIFETIME"},
+                   "DEQ": {"RESOURCE", "LENGTH", "TASK", "UOW", "MAXLIFETIME"},
+                   "DELAY": {"FOR", "INTERVAL", "TIME", "HOURS", "MINUTES", "SECONDS", "MILLISECS"}}[verb]  # fmt: skip
+        bad = [o for o in opts if o not in allowed | {verb, "RESP", "RESP2", "NOHANDLE"}]
+        if bad:
+            raise Unsupported(f"{verb} {' '.join(bad)}", [f"{verb} {bad[0]}"])
+        return ["MOVE 0 TO GG-RESP", "MOVE 0 TO GG-RESP2"] + _resp(opts, False, labels)
     if verb == "GET" and "COUNTER" in opts:  # a named counter (IBM CICS TS, GET COUNTER): its value, then +1
         bad = [o for o in opts if o not in ("GET", "COUNTER", "POOL", "VALUE", "RESP", "NOHANDLE")]
         if bad or not opts.get("VALUE"):
@@ -619,7 +641,12 @@ def translate(source: str) -> tuple[str, bool]:
     if problems:
         raise Unsupported("; ".join(problems), features)
     text = "\n".join(_DFHRESP.sub(lambda m: str(DFHRESP[m.group(1).upper()]), ln) for ln in out) + "\n"
-    has_commarea = bool(re.search(r"^.{6} +01\s+DFHCOMMAREA\b", text, re.M | re.I))
+    # the COMMAREA: an 01 DFHCOMMAREA, or a copybook's record renamed to it (CBSA's COPY INQACC REPLACING
+    # INQACC-COMMAREA BY DFHCOMMAREA)
+    has_commarea = bool(
+        re.search(r"^.{6} +01\s+DFHCOMMAREA\b", text, re.M | re.I)
+        or re.search(r"^.{6} +COPY\s+\S+\s+REPLACING\b[^.]*\bBY\s+DFHCOMMAREA\b", text, re.M | re.I)
+    )
     text = re.sub(r"^(.{6} +WORKING-STORAGE\s+SECTION\.[^\n]*\n)", r"\1       COPY DFHEIBLK.\n", text,
                   count=1, flags=re.M | re.I)  # fmt: skip
     if "COPY DFHEIBLK" not in text:
@@ -858,6 +885,8 @@ def decode_record(data: bytes, fields: list[dict[str, Any]], enc: str = common.D
     with spaces: COTRTLIC's unfetched rows are LOW-VALUES, and the program protects exactly those."""
     out = {}
     for f in fields:
+        if f["name"] == "FILLER":  # unnamed: no DTO property holds it, and several would share one key
+            continue
         raw = data[f["offset"] : f["offset"] + f["bytes"]]
         if len(raw) < f["bytes"]:
             continue
@@ -1034,7 +1063,8 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
     (src / "PROGRAM.cbl").write_text(text, encoding=staged)
     (src / "EQCICSDR.cbl").write_text(cics_driver(case["program"], has_commarea), encoding="ascii")
     (work / "files.cfg").write_text("".join(
-        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}\n" for f in files
+        f"{f['file']} /work/files/{f['base']} {f['reclen']} {f['key_offset']} {f['key_length']}{_recovery(case, f)}\n"
+        for f in files
     ), encoding="ascii")  # fmt: skip
     (work / "files").mkdir(exist_ok=True)
     for f in files:
@@ -1108,7 +1138,7 @@ def run_cobol_cics(case: dict[str, Any], corpus: Path, work: Path, files: list[d
         shutil.copytree(work / "files", d / "files", dirs_exist_ok=True)
         (d / "files.cfg").write_text("".join(
             f"{f['file']} /work/scenarios/{sc['name']}/files/{f['base']} {f['reclen']} {f['key_offset']} "
-            f"{f['key_length']}\n" for f in files
+            f"{f['key_length']}{_recovery(case, f)}\n" for f in files
         ), encoding="ascii")  # fmt: skip
         if sc.get("commarea") is not None:
             (d / "commarea.in").write_bytes(encode_record(ca_fields, sc["commarea"], b"init", enc))
@@ -1204,7 +1234,7 @@ def outputs(out: Path, case: dict[str, Any], corpus: Path, ca_fields: list[dict[
         elif verb == "SEND-TEXT":
             text = common._decode_text(data, enc)  # #3815: not text in the page -> the bytes shown, never dropped
             res["text"].append(f"<undecodable {data!r} in {enc}>" if text is None else text.rstrip(" \x00"))
-        elif verb in ("RETURN", "XCTL"):
+        elif verb in ("RETURN", "XCTL") and int(kv.get("level", "1")) <= 1:  # the task's own (a LINK level's: no)
             key = "transid" if verb == "RETURN" else "program"
             ca = decode_record(data, ca_fields, enc) if data else None
             res[verb.lower()] = {key: kv.get(key, ""), "commarea": ca}
@@ -1576,7 +1606,15 @@ class EquivalenceRunTest {{
                     .withClock(java.time.LocalDateTime.parse("{ej._clock(case)}"))  // EIBTIME / ASKTIME: the case's clock
                     .withRegion({region_java})  // ASSIGN APPLID / SYSID
                     .withProgram("{case["program"]}")  // the task's first program (a LINK's INVOKINGPROG)
-                    .withCounters(counters(sc));  // GET COUNTER: the region's named counters
+                    .withCounters(counters(sc))  // GET COUNTER: the region's named counters
+                    // RECOVERY(NONE) files: their changes made outside the unit of work, so they survive a backout
+                    .withNonRecoverable(java.util.Set.of({", ".join(f'"{x}"' for x in non_recoverable_files(case, files))}),
+                            change -> {{
+                                org.springframework.transaction.support.TransactionTemplate t =
+                                        new org.springframework.transaction.support.TransactionTemplate(transactions);
+                                t.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+                                t.executeWithoutResult(s -> change.run());
+                            }});
 {csd_java}
             List<String> faults = new ArrayList<>();  // #4023 follow-up: the scenario's injected conditions
             sc.path("faults").forEach(f -> faults.add(f.asText()));
@@ -1839,8 +1877,12 @@ def cobol_events(res: dict[str, Any]) -> list[dict[str, Any]]:
         elif verb == "RECEIVE-MAP":  # #4009: CicsTask.receive records it too
             out.append({"event": "RECEIVE-MAP", "map": re.search(r"\bmap=(\S*)", args).group(1)})
         elif verb == "RETURN":
-            out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,
-                        "commarea": res["return"]["commarea"]})  # fmt: skip
+            lvl = re.search(r"\blevel=(\d+)", args)
+            if lvl and int(lvl.group(1)) > 1:  # a LINKed program's RETURN: back to its caller, no COMMAREA of its own
+                out.append({"event": "RETURN", "transid": None, "commarea": None})
+            else:
+                out.append({"event": "RETURN", "transid": res["return"]["transid"] or None,
+                            "commarea": res["return"]["commarea"]})  # fmt: skip
         elif verb == "XCTL":
             out.append({"event": "XCTL", "program": res["xctl"]["program"], "commarea": res["xctl"]["commarea"]})
         elif verb == "LINK":  # a LINK the case runs (its "programs"): compared by its target (what the target did is
@@ -1947,7 +1989,8 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
         o = report["outputs"].get(sc["name"])
         fired = (o or {}).get("fired")
         bad_fired = bool(sc.get("faults")) and (not fired or not fired["cobol"] or fired["cobol"] != fired["java"])
-        if o is None or (o["equal"] == o["records"] and not bad_fired):
+        files = {n: f for n, f in (o or {}).get("files", {}).items() if f["equal"] != f["records"]}
+        if o is None or (o["equal"] == o["records"] and not bad_fired and not files):
             continue
         out += [f"### Scenario {sc['name']}: {o['equal']}/{o['records']} events equal", "",
                 f"Key {sc.get('aid', 'DFHENTER')}; COMMAREA {json.dumps(sc.get('commarea'))}; "
@@ -1955,6 +1998,14 @@ def feedback_md(case: dict[str, Any], report: dict[str, Any], limit: int = 6) ->
                 + (f"; injected {json.dumps(sc['faults'])}" if sc.get("faults") else ""), ""]  # fmt: skip
         if bad_fired:
             out += [f"Injected conditions fired: COBOL {fired and fired['cobol']}, Java {fired and fired['java']}", ""]
+        # a file or Db2 table the scenario left different (a LINKed program's writes too), not only its events
+        for name, f in files.items():
+            out.append(f"- {name}: {f['equal']}/{f['records']} records equal")
+            for d in f.get("diffs", [])[:limit]:
+                if "missing" in d:
+                    out.append(f"  - record {d['record']}: missing on the {d['missing']} side")
+                for fd in d.get("fields", [])[:10]:
+                    out.append(f"  - record {d['record']} {fd['field']}: COBOL `{fd['cobol']}`, Java `{fd['java']}`")
         for x in o["diffs"][:limit]:
             if "fields" not in x:
                 out.append(f"- event {x['event']}: COBOL `{x.get('cobol')}`, Java `{x.get('java')}`")
@@ -1975,9 +2026,10 @@ def run_case(case: dict[str, Any], corpus: Path, work: Path, port: bool = True, 
     """A CICS case end to end: facts -> stub files, the COBOL tasks, the Java tasks, the report."""
     import json
 
-    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+    import equivalence_cache
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
-    ir = load_galaxy_ir(scan_to_db(corpus, work / "scan"))
+    ir = load_galaxy_ir(equivalence_cache.scan_db(corpus, work / "scan"))  # (once per corpus and engine)
     files = stub_files(ir, case["program_source"], case.get("datasets"))
     for extra in case.get("programs", []):  # the programs the task LINKs to use files of their own
         files += [f for f in stub_files(ir, extra["program_source"], case.get("datasets"))

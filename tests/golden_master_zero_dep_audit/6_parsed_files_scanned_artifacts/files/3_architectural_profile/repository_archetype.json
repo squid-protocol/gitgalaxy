@@ -424,7 +424,7 @@
     "c/doom": {
       "c/doom/LICENSE.TXT": "Static: Literature & Documentation",
       "c/doom/README.TXT": "Static: Literature & Documentation",
-      "c/doom/d_main.c": "file_cluster_8",
+      "c/doom/d_main.c": "file_cluster_6",
       "c/doom/doomdef.h": "file_cluster_17",
       "c/doom/i_system.c": "file_cluster_12",
       "c/doom/m_fixed.c": "file_cluster_15",
@@ -439,8 +439,8 @@
     "c/micropython": {
       "c/micropython/compile.c": "file_cluster_6",
       "c/micropython/compile.h": "file_cluster_17",
-      "c/micropython/emitnative.c": "file_cluster_4",
-      "c/micropython/gc.c": "file_cluster_8",
+      "c/micropython/emitnative.c": "file_cluster_16",
+      "c/micropython/gc.c": "file_cluster_6",
       "c/micropython/gc.h": "file_cluster_17",
       "c/micropython/modmachine.c": "file_cluster_16",
       "c/micropython/modmachine.h": "file_cluster_17",
@@ -1048,7 +1048,7 @@
     },
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/COPYING": "Static: Literature & Documentation",
-      "cobol/gnucobol_internals/codegen.c": "file_cluster_8",
+      "cobol/gnucobol_internals/codegen.c": "file_cluster_6",
       "cobol/gnucobol_internals/fileio.c": "file_cluster_8",
       "cobol/gnucobol_internals/numeric.c": "file_cluster_4",
       "cobol/gnucobol_internals/parser.y": "file_cluster_15",
@@ -1123,7 +1123,7 @@
       "cpp/powertoys/ImageResizerExt.cpp": "file_cluster_15",
       "cpp/powertoys/centralized_kb_hook.cpp": "file_cluster_4",
       "cpp/powertoys/logger.cpp": "file_cluster_15",
-      "cpp/powertoys/main.cpp": "file_cluster_6",
+      "cpp/powertoys/main.cpp": "file_cluster_4",
       "cpp/powertoys/powertoy_module.h": "file_cluster_11"
     },
     "csd": {
@@ -1253,7 +1253,7 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_test.go": "file_cluster_4",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix.go": "file_cluster_16",
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "file_cluster_9",
-      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "file_cluster_8",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": "file_cluster_16",
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "file_cluster_9",
       "dockerfile/moby/builder/dockerfile/evaluator.go": "file_cluster_4",
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": "file_cluster_15",
@@ -1262,7 +1262,7 @@
       "dockerfile/moby/builder/dockerfile/imageprobe.go": "file_cluster_10",
       "dockerfile/moby/builder/dockerfile/internals.go": "file_cluster_16",
       "dockerfile/moby/builder/dockerfile/internals_linux.go": "file_cluster_16",
-      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "file_cluster_9",
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "file_cluster_2",
       "dockerfile/moby/builder/dockerfile/internals_test.go": "file_cluster_10",
       "dockerfile/moby/builder/dockerfile/internals_windows.go": "file_cluster_16",
       "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "file_cluster_2",
@@ -1411,7 +1411,7 @@
     "groovy/godot_android_gradle": {
       "groovy/godot_android_gradle/LICENSE.txt": "Static: Literature & Documentation",
       "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": "file_cluster_2",
-      "groovy/godot_android_gradle/java_app_build.gradle": "file_cluster_1",
+      "groovy/godot_android_gradle/java_app_build.gradle": "file_cluster_12",
       "groovy/godot_android_gradle/java_app_settings.gradle": "file_cluster_2",
       "groovy/godot_android_gradle/java_editor_build.gradle": "file_cluster_12",
       "groovy/godot_android_gradle/java_lib_build.gradle": "file_cluster_7",
@@ -1489,14 +1489,14 @@
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": "file_cluster_2",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": "file_cluster_9",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": "file_cluster_13",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": "file_cluster_13",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": "file_cluster_9",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": "file_cluster_12",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": "file_cluster_2",
-      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": "file_cluster_9",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": "file_cluster_10",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": "file_cluster_2",
       "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": "file_cluster_2",
@@ -1572,7 +1572,7 @@
       "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": "file_cluster_2",
       "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": "file_cluster_10",
       "groovy/kotlin_build_gradle/kotlin-native_gradle_loadRootProperties.gradle": "file_cluster_10",
-      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "file_cluster_12",
+      "groovy/kotlin_build_gradle/libraries_examples_kotlin-gradle-subplugin-example_build.gradle": "file_cluster_10",
       "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "file_cluster_7",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": "file_cluster_2",
       "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": "file_cluster_2",
@@ -1900,7 +1900,7 @@
       "javascript/jquery/tokenize.js": "file_cluster_1"
     },
     "javascript/react": {
-      "javascript/react/BabelPlugin.ts": "file_cluster_3",
+      "javascript/react/BabelPlugin.ts": "file_cluster_8",
       "javascript/react/ReactFiberBeginWork.js": "file_cluster_6",
       "javascript/react/ReactFiberWorkLoop.js": "file_cluster_4",
       "javascript/react/ReactFlightServer.js": "file_cluster_4",
@@ -3081,8 +3081,8 @@
       "rust/holylang/error.rs": "file_cluster_0",
       "rust/holylang/main.rs": "file_cluster_14",
       "rust/holylang/parser.rs": "file_cluster_8",
-      "rust/holylang/semantic.rs": "file_cluster_8",
-      "rust/holylang/transpiler.rs": "file_cluster_8"
+      "rust/holylang/semantic.rs": "file_cluster_6",
+      "rust/holylang/transpiler.rs": "file_cluster_6"
     },
     "rust/serde": {
       "rust/serde/LICENSE-APACHE": "Static: Literature & Documentation",

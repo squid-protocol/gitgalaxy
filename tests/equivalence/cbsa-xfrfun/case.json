@@ -1,0 +1,321 @@
+{
+ "kind": "cics",
+ "corpus": "cics-banking-sample-application-cbsa",
+ "program": "XFRFUN",
+ "program_source": "src/base/cobol_src/XFRFUN.cbl",
+ "copy_dirs": [
+  "src/base/cobol_copy"
+ ],
+ "transid": "OTFN",
+ "clock": "2026/10/01 10:30:15.00",
+ "region": {
+  "applid": "CBSAREGN",
+  "sysid": "CICA"
+ },
+ "programs": [
+  {
+   "program": "ABNDPROC",
+   "program_source": "src/base/cobol_src/ABNDPROC.cbl"
+  }
+ ],
+ "datasets": {
+  "CBSA.CICSBSA.ABNDFILE": {
+   "input": "@case/abndfile.bin",
+   "entity": "WsAbndArea",
+   "copybook": "src/base/cobol_src/ABNDPROC.cbl",
+   "record": "WS-ABND-AREA",
+   "recovery": "NONE",
+   "recovery_why": "etc/install/base/installjcl/BANK.csd: DEFINE FILE(ABNDFILE) ... RECOVERY(NONE) -- the abend log a backout must not undo"
+  }
+ },
+ "db2": {
+  "ddl": [
+   "etc/install/base/db2jcl/CRETB01.jcl",
+   "etc/install/base/db2jcl/CREI101.jcl",
+   "etc/install/base/db2jcl/CRETB02.jcl"
+  ],
+  "seed": "@case/seed.sql",
+  "compare": [
+   "IBMUSER.ACCOUNT",
+   "IBMUSER.PROCTRAN"
+  ],
+  "qualifier": "IBMUSER"
+ },
+ "commarea": {
+  "segments": [
+   {
+    "copybook": "src/base/cobol_src/BNK1TFN.cbl",
+    "record": "SUBPGM-PARMS"
+   }
+  ]
+ },
+ "linked": true,
+ "screens": {},
+ "scenarios": [
+  {
+   "name": "transfer-low-to-high",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "100.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO < TACCNO: FROM SELECT +0, both balances less 100.00, UPDATE; TO SELECT +0, plus 100.00, UPDATE; PROCTRAN 'TFR' row (from sort code/account, 'TRANSFER' + to sort code/account, amount, clock date/time, ref EIBTASKN); the four balances returned, 'Y'"
+  },
+  {
+   "name": "transfer-high-to-low",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "50.25",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO > TACCNO: the TO account is read and updated first, then the FROM; same PROCTRAN row shape, 'Y'"
+  },
+  {
+   "name": "overdraw-no-funds-check",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000008",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "5000.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "no funds check at all: available 100.00 (actual 150.00, differs) goes to -4900.00 / -4850.00, 'Y'"
+  },
+  {
+   "name": "beyond-overdraft-limit",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000003",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "2000.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "the overdraft limit (500) is never consulted: 1000.00 -> -1000.00; credited to a LOAN, 'Y'"
+  },
+  {
+   "name": "loan-to-mortgage",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000003",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000004",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "0.01",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "account types are not checked: LOAN to MORTGAGE, the smallest amount 0.01, 'Y'"
+  },
+  {
+   "name": "amount-zero",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "0",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "boundary: COMM-AMT <= 0 -> 'N' '4' and RETURN before any SQL; sort codes still overwritten with 987654"
+  },
+  {
+   "name": "amount-negative",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "-10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "a negative amount: 'N' '4', nothing read or written"
+  },
+  {
+   "name": "amount-max",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000009",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "9999999999.99",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "the largest COMM-AMT: FROM 250.00 -> -9999999749.99, TO 0.00 -> 9999999999.99 (both fit S9(10)V99 and DECIMAL(12,2)); PROCTRAN amount at the limit"
+  },
+  {
+   "name": "to-balance-overflow-truncates",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000006",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "0.01",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "boundary: TO 9999999999.99 + 0.01 overflows S9(10)V99 COMP-3; COMPUTE has no ON SIZE ERROR, so the high-order digit is lost (0.00) and written back"
+  },
+  {
+   "name": "from-balance-overflow-truncates",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000007",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000008",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "0.01",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "boundary: FROM -9999999999.99 - 0.01 overflows: the high-order digit is lost and written back"
+  },
+  {
+   "name": "same-account",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO = TACCNO (sort codes both 987654): ABNDINFO from the clock and EIB, LINK ABNDPROC (an ABNDFILE record, RECOVERY(NONE)), ABEND SAME CANCEL; no SQL"
+  },
+  {
+   "name": "same-account-other-sortcodes",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "111111",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "222222",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "the caller's sort codes 111111 / 222222 are overwritten by the program's 987654 before the compare, so still 'SAME'"
+  },
+  {
+   "name": "from-not-found-read-first",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000011",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000099",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO < TACCNO, FROM SELECT +100: '1', SYNCPOINT ROLLBACK (l.503, nothing to undo), 'N' '1', TO never read"
+  },
+  {
+   "name": "from-not-found-read-second",
+   "commarea": {
+    "SUBPGM-FACCNO": "99999998",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO > TACCNO: TO updated first, then FROM SELECT +100: '1' -> SYNCPOINT ROLLBACK backs out the TO UPDATE (l.679); 'N' '1' with COMM-TAVBAL/TACTBAL already set"
+  },
+  {
+   "name": "to-not-found-read-second",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "99999998",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO < TACCNO: FROM updated, TO SELECT +100: '2' and SYNCPOINT ROLLBACK in UPDATE-ACCOUNT-DB2-TO (l.1111), backing out the FROM UPDATE, then a second ROLLBACK (l.407); 'N' '2' with COMM-FAVBAL/FACTBAL already set"
+  },
+  {
+   "name": "to-not-found-read-first",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000002",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000000",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "10.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO > TACCNO: TO 00000000 SELECT +100 first: '2', ROLLBACK in -TO, then the ELSE branch's ROLLBACK (l.826); 'N' '2'"
+  },
+  {
+   "name": "from-other-sortcode-not-found",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000010",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "5.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "account 00000010 exists only under sort code 123456; COMM-FSCODE is overwritten with 987654: TO updated first, FROM +100, rollback, 'N' '1'"
+  },
+  {
+   "name": "highest-account",
+   "commarea": {
+    "SUBPGM-FACCNO": "99999999",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000002",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "21.09",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "the highest account number as FROM (FACCNO > TACCNO), 'Y'"
+  },
+  {
+   "name": "from-null-date-read-first",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000005",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000009",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FROM row has ACCOUNT_LAST_STATEMENT NULL and no indicator: SELECT -305 -> '3' -> ABNDINFO, LINK ABNDPROC, ABEND FROM CANCEL; nothing changed"
+  },
+  {
+   "name": "to-null-date-read-second",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000001",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000005",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FROM updated, then TO SELECT -305: '3', but the RUF2 LINK/ABEND (l.1298-1347) sits inside IF SQLCODE = -911 (a misplaced END-IF in CBSA), so the program falls through to the COMPUTE and the TO UPDATE, which Db2 rejects (-180: the unset date host variables); UNABLE TO UPDATE path: ABNDINFO (code 'RUF2'), LINK ABNDPROC, ABEND RUF3 (l.1546) -> HANDLE ABEND LABEL ABEND-HANDLING: ASSIGN ABCODE, no WHEN matches, ABEND RUF3 NODUMP; the abend backs out the FROM UPDATE, the ABNDFILE record stays"
+  },
+  {
+   "name": "from-null-date-read-second",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000005",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000001",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO > TACCNO: TO updated first, then FROM SELECT -305 '3' -> (FAIL-CODE not '1') ABNDINFO, LINK ABNDPROC, ABEND FROM CANCEL; the abend backs out the TO UPDATE"
+  },
+  {
+   "name": "to-null-date-read-first",
+   "commarea": {
+    "SUBPGM-FACCNO": "00000009",
+    "SUBPGM-FSCODE": "987654",
+    "SUBPGM-TACCNO": "00000005",
+    "SUBPGM-TSCODE": "987654",
+    "SUBPGM-AMT": "1.00",
+    "SUBPGM-SUCCESS": "N"
+   },
+   "why": "FACCNO > TACCNO: TO SELECT -305 first, the same fall-through to the failing UPDATE (-180) and ABEND RUF3 through ABEND-HANDLING; nothing changed in Db2"
+  }
+ ],
+ "notes": "CBSA's transfer service (XFRFUN, LINKed by BNK1TFN with SUBPGM-PARMS, the XFRFUN copybook's layout under the caller's names: the generated DTO is the caller's). Both sort codes are overwritten with the program's own (987654). COMM-AMT <= 0 fails '4'; FACCNO = TACCNO LINKs ABNDPROC and ABENDs SAME CANCEL. Otherwise the lower-numbered account is read and updated first (SELECT INTO, COMPUTE without ON SIZE ERROR, UPDATE): FROM loses COMM-AMT, TO gains it, with no funds, overdraft-limit or account-type check. A FROM SELECT +100 gives '1', a TO SELECT +100 '2'; either, after the other account was updated, is followed by EXEC CICS SYNCPOINT ROLLBACK, which backs out that UPDATE (Db2 change in the task's unit of work). Any other SQLCODE on the FROM SELECT (-305: a NULL date with no indicator) LINKs ABNDPROC and ABENDs FROM CANCEL; on the TO SELECT the program means to LINK ABNDPROC and ABEND RUF2, but that code sits inside IF SQLCODE = -911 (l.1197-1348, a misplaced END-IF), so it goes on to COMPUTE and UPDATE the TO row from host variables the failed SELECT left unset; Db2 rejects the UPDATE (-180) and the program LINKs ABNDPROC and ABENDs RUF3, which its HANDLE ABEND LABEL(ABEND-HANDLING) catches and re-issues. An abend backs out the task's Db2 changes; ABNDFILE is RECOVERY(NONE) in CBSA's CSD and keeps its record. On success a PROCTRAN row 'TFR' is INSERTed (FROM sort code/account, desc 'TRANSFER' + TO sort code + account, clock date DD.MM.YYYY and time, ref EIBTASKN) and COMM-SUCCESS is 'Y'. ACCOUNT, PROCTRAN and ABNDFILE are compared after every scenario. Not reached (M2: no SQL fault injection; no SYNCPOINT fault): an UPDATE or INSERT failing after its SELECT, -911 deadlock/timeout retries, SYNCPOINT ROLLBACK returning other than NORMAL, the RUF2 abend and timeout texts (only under -911), the 'TO  ' abends after a TO failure other than '2' (l.481-492, l.766-823: '3' always ends in the RUF3 abend inside UPDATE-ACCOUNT-DB2-TO), a FROM UPDATE failing (l.1014), and ABEND-HANDLING's AD2Z / AFCR-AFCT arms."
+}

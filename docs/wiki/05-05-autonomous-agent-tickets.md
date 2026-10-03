@@ -39,6 +39,17 @@ graph TD
 ## Performance Notes
 Ticket generation is an $O(1)$ string formatting operation per target variable slice, adding negligible overhead to the pipeline.
 
+## Porting tickets and the porting loop
+Whole-program porting now goes through porting tickets (`ai_agent_jobs/<PROGRAM>_port_ticket.md`, written by `cobol_to_java_port_tickets.py`) and `port_runner`:
+
+- A ticket carries the COBOL, the generated classes the port must use, and the porting rules.
+- `port_runner run` fills it with a model (hosted, self-hosted or air-gapped), a command, or the deterministic translator (`--backend det`), which needs no model.
+- `port_runner prove` runs the equivalence harness. A failed proof's findings become the next attempt's feedback.
+- `port_runner refine` lets a model rewrite a proven deterministic port one method at a time, each rewrite proven or reverted.
+- A person approves or rejects every port.
+
+See [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md).
+
 ## Future Work
 - Integration of continuous feedback loops where the agent can request additional context if the provided slice is insufficient.
 

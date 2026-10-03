@@ -80,7 +80,13 @@ int main(int argc, char **argv) {
         if (!ok(SQLExecDirect(h, (SQLCHAR *)argv[2], SQL_NTS))) fail(SQL_HANDLE_STMT, h, argv[2]);
         while (SQLFetch(h) == SQL_SUCCESS) {
             SQLGetData(h, 1, SQL_C_CHAR, value, sizeof value, &got);
-            printf("%s\n", got == SQL_NULL_DATA ? "NULL" : value);
+            if (got == SQL_NULL_DATA) {
+                printf("NULL\n");
+            } else {  /* the value's own length: a CHAR column holding X'00' (LOW-VALUES) is not cut at its first NUL */
+                size_t n = got >= 0 && (size_t)got < sizeof value ? (size_t)got : strlen(value);
+                fwrite(value, 1, n, stdout);
+                putchar('\n');
+            }
         }
         SQLFreeHandle(SQL_HANDLE_STMT, h);
         SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_COMMIT);

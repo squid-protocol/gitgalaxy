@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from gitgalaxy.core.aperture import DET_PORT_MARKER
 from gitgalaxy.tools.cobol_to_java.det import cics as C
 from gitgalaxy.tools.cobol_to_java.det import expr as E
 from gitgalaxy.tools.cobol_to_java.det import gen as G
@@ -28,6 +29,9 @@ class Result:
     java: str
     service: str  # the class name
     stats: dict
+
+
+IMAGE_PIECE = 400  # base64 characters per line of a storage image
 
 
 def has_batch(project: Path | None) -> bool:
@@ -196,7 +200,8 @@ def write_only_pointers(records: list, proc) -> set[str]:
 
 def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
               estate: dict[str, str] | None = None, project: Path | None = None,
-              style: str = "dispatch", typed: bool = False, groups: bool = False) -> Result:  # fmt: skip
+              style: str = "dispatch", typed: bool = False, groups: bool = False,
+              options: list[str] | None = None) -> Result:  # fmt: skip
     """`style`: "dispatch" (paragraphs numbered, run by a PERFORM / GO TO dispatcher) or "structured" (paragraphs
     as named methods called directly, fields by their COBOL names) -- structured only where `structurable`.
     `typed` (B3): standalone WORKING-STORAGE items held as typed Java fields -- an alphanumeric item a String of
@@ -208,12 +213,74 @@ def translate(program: Path, copy_dirs: list[Path], stub: str, package: str,
     """
     excluded: set[str] = set()
     while True:
-        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups)
+        out = _attempt(program, copy_dirs, stub, package, estate, project, style, typed, excluded, groups, options)
         if isinstance(out, Result):
             return out
         if out.names <= excluded:
             raise out
         excluded |= out.names
+
+
+def trunc_std(program: Path, options: list[str] | None = None) -> bool:
+    """Whether binary items keep only their PICTURE's digits (#4102): the TRUNC option in effect -- the program's
+    CBL / PROCESS cards over `options` (the compile step's PARM, as a case states it), else IBM's default, STD."""
+    from gitgalaxy.core.compiler_options import DEFAULTS, compiler_options, effective, parse_options
+    from gitgalaxy.core.source_text import read_source
+
+    rows = [{"option": o, "value": v} for text in options or [] for o, v, _ in parse_options(text)]
+    rows += compiler_options(read_source(program).text)
+    return str(effective(rows).get("TRUNC") or DEFAULTS["TRUNC"]).upper() == "STD"
+
+
+_ENTRIES = re.compile(r"^    public (?:void runTask\(CicsTask task\)|int runBatch\(List<Dd> dds, String parm\)|"
+                      r"int handleCall\([^)]*\)) \{$", re.M)  # fmt: skip
+
+
+def with_trunc(java: str, std: bool) -> str:
+    """Each entry (runTask / runBatch / handleCall) run with this program's TRUNC (Cobol.swapTruncBinary), the
+    caller's restored after it -- a LINK or CALL into a program compiled otherwise leaves the caller's as it was."""
+    out, at = [], 0
+    for m in _ENTRIES.finditer(java):
+        end = _method_end(java, m.end())
+        if end is None:
+            continue
+        body = java[m.end() : end]
+        out.append(java[at : m.end()])
+        out.append(
+            f"\n        boolean truncBefore = Cobol.swapTruncBinary({'true' if std else 'false'});  // TRUNC"
+            f"({'STD' if std else 'BIN'})\n        try {{"
+        )
+        out.append("\n".join(("    " + ln) if ln.strip() else ln for ln in body.split("\n")))
+        out.append("    } finally {\n            Cobol.swapTruncBinary(truncBefore);\n        }\n    ")
+        at = end
+    out.append(java[at:])
+    return "".join(out)
+
+
+def _method_end(java: str, start: int) -> int | None:
+    """The offset of the `}` closing the method whose body starts at `start` (string and char literals skipped)."""
+    depth, i, n = 1, start, len(java)
+    while i < n:
+        ch = java[i]
+        if ch in "\"'":
+            j = i + 1
+            while j < n and java[j] != ch:
+                j += 2 if java[j] == "\\" else 1
+            i = j + 1
+            continue
+        if ch == "/" and java.startswith("//", i):
+            i = java.find("\n", i)
+            if i < 0:
+                return None
+            continue
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return i
+        i += 1
+    return None
 
 
 def _attempt(*args) -> Result | G.LiftViolation:
@@ -268,7 +335,7 @@ def liftable(records: list, excluded: set[str], rc: L.Item) -> dict[int, str]:
 
 def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, estate: dict[str, str] | None,
                project: Path | None, style: str, typed: bool, excluded: set[str],
-               groups: bool = False) -> Result:  # fmt: skip
+               groups: bool = False, options: list[str] | None = None) -> Result:  # fmt: skip
     lines = program_lines(program, [*copy_dirs, C.COPY])
     records = L.parse(lines)
     is_cics = "runTask(CicsTask" in stub
@@ -627,6 +694,8 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "",
     ]
     out = [
+        # a comment only: it declares the file a deterministic port, which GitGalaxy's aperture admits to a scan
+        f"{DET_PORT_MARKER} COBOL {prog.name} ({program.name}), translated by rule, statement for statement",
         f"package {pkg}.service;",
         "",
         *(
@@ -681,10 +750,11 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    private static final int GOTO = 1 << 20;",
         *consts,
         "",
-        # (a string constant holds at most 65535 bytes: a large image is joined from pieces at class load)
+        # (a string constant holds at most 65535 bytes: a large image is joined from pieces at class load; the
+        # pieces sit one per line so no line outgrows a reader's or a scanner's line limit)
         *[
-            f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode(String.join("", '
-            + ", ".join(f'"{b[i : i + 30000]}"' for i in range(0, max(len(b), 1), 30000))
+            f'    private static final byte[] IMAGE_{n} = Base64.getDecoder().decode(String.join("",\n            '
+            + ",\n            ".join(f'"{b[i : i + IMAGE_PIECE]}"' for i in range(0, max(len(b), 1), IMAGE_PIECE))
             + "));"
             for n, b in storages
         ],
@@ -804,7 +874,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
     stats = dict(gen.stats)
     stats["program"] = prog.name
     stats["inferred"] = inferred
-    return Result("\n".join(out), service, stats)
+    return Result(with_trunc("\n".join(out), trunc_std(program, options)), service, stats)
 
 
 def _record_io(proc: S.Procedure, fd: G.FileDef, records: list) -> bool:
@@ -881,7 +951,14 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
                 continue
             try:
                 cx.codec(cls)
-            except C.CicsError:
+            except C.CicsError as e:
+                if cls != cx.gp.contract:
+                    continue
+                # the program's own COMMAREA cannot be carried (INQACCCU: data after a POINTER, register C9): the task
+                # stops by name when it gets one, rather than run as if there were no COMMAREA
+                kw = "if" if not ca_in else "} else if"
+                ca_in += [f"        {kw} (ca instanceof {cls}) {{",
+                          f"            throw new Hole({G.jstr(f'the COMMAREA {cls}: {e}')});"]  # fmt: skip
                 continue
             kw = "if" if not ca_in else "} else if"
             ca_in += [f"        {kw} (ca instanceof {cls} x) {{", f"            in_{cls}(x, {st}, 0);",

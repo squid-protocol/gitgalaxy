@@ -56,6 +56,10 @@ DEFINITION: dict[str, Any] = {
     # (/* */) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "standard_block",
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         # #3644: type-argument lists before `(` (`static_cast<int>(`, `new Array<T>()`).
         "calls_out": CALLS_OUT_C_STYLE_GENERIC,

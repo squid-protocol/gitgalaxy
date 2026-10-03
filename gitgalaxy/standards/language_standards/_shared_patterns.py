@@ -101,13 +101,46 @@ GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_
 # being hand-pasted per-language (see #322).
 _IMPORT_WRAPPER = r"\b(?:import|require|from)\b.*?(?:{names})\b"
 
-_LLM_API_NAMES = r"openai|anthropic"
 _LLM_ORCHESTRATOR_NAMES = r"langchain|llama_index"
 _LLM_VECTOR_STORE_NAMES = r"chromadb|pinecone"
 _ML_TRADITIONAL_NAMES = r"sklearn"
 _DL_FRAMEWORKS_NAMES = r"tensorflow|torch|keras"
 
-GLOBAL_LLM_API = re.compile(_IMPORT_WRAPPER.format(names=_LLM_API_NAMES))
+# #4137: llm_api is anchored on the provider SDK's TOP-LEVEL package, not on any
+# path segment that happens to be named after a provider. The shared
+# `_IMPORT_WRAPPER` shape (`import ... openai\b` anywhere later on the line)
+# fired on `from airflow.providers.openai.hooks.openai import OpenAIHook` -- an
+# airflow-internal module that never imports the SDK -- and on JS/TS relative
+# paths such as `from './openai/client'`. The two families spell "the package"
+# differently, so each gets its own pattern:
+#
+# * Python: the module right after `from` / each item after `import` must BE
+#   the SDK package (`openai`, `anthropic`, or langchain's per-provider
+#   `langchain_openai` / `langchain_anthropic` distributions -- top-level
+#   packages that `llm_orchestrator`'s `langchain\b` cannot see), optionally
+#   followed by a submodule (`from openai.types import X`). Anchored at a
+#   statement start (line start or `;`), so `from airflow.providers import
+#   openai` and `from . import openai` are not SDK imports. Pieces are
+#   adjacent-disjoint (`[\w.]+` / `[ \t]` / `,`) and the item list is bounded,
+#   so there is no Rule-14 split ambiguity.
+# * JS/TS: the module SPECIFIER (the quoted string after `from` / `import` /
+#   `require(` / `import(`) must name a package: `openai`, `anthropic`, the
+#   official `@openai/*` and `@anthropic-ai/*` scopes, or a scoped provider
+#   adapter `@scope/openai` / `@scope/anthropic` (`@ai-sdk/openai`,
+#   `@azure/openai`, `@langchain/anthropic`). A relative (`./`, `../`), absolute
+#   or alias (`@/`, `~/`) path is never a package, so it never matches.
+_LLM_API_PY_PACKAGES = r"openai|anthropic|langchain_openai|langchain_anthropic"
+PY_LLM_API = re.compile(
+    r"(?:^|;)[ \t]*(?:"
+    r"from[ \t]+(?:" + _LLM_API_PY_PACKAGES + r")(?!\w)[\w.]*[ \t]+import\b"
+    r"|import[ \t]+(?:[\w.]+(?:[ \t]+as[ \t]+\w+)?[ \t]*,[ \t]*){0,16}(?:" + _LLM_API_PY_PACKAGES + r")(?!\w)"
+    r")",
+    re.M,
+)
+_LLM_API_JS_PACKAGES = r"openai|anthropic|@(?:openai|anthropic-ai)/[\w.-]+|@[\w.-]+/(?:openai|anthropic)"
+JS_LLM_API = re.compile(
+    r"\b(?:from|import|require)[ \t]*(?:\([ \t]*)?['\"`](?:" + _LLM_API_JS_PACKAGES + r")(?=['\"`/])"
+)
 GLOBAL_LLM_ORCHESTRATOR = re.compile(_IMPORT_WRAPPER.format(names=_LLM_ORCHESTRATOR_NAMES))
 GLOBAL_LLM_VECTOR_STORE = re.compile(_IMPORT_WRAPPER.format(names=_LLM_VECTOR_STORE_NAMES))
 GLOBAL_ML_TRADITIONAL = re.compile(_IMPORT_WRAPPER.format(names=_ML_TRADITIONAL_NAMES))
@@ -170,6 +203,17 @@ _GENERIC_ARG_CHAR = r"[^<>()\n;{}=|!?\"']"
 CALLS_OUT_C_STYLE_GENERIC = re.compile(
     rf"\b([{ID_START}][{ID_CONTINUE}]*)"
     r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){1,200}>[ \t]*)?"
+    r"\s*\("
+)
+
+# #4124 (contract C3): the generic-aware pattern for the JVM languages (java, kotlin, groovy).
+# It adds the C1 `@Name(` annotation guard and accepts an empty list, the Java diamond
+# `new ArrayList<>(`. Without it, `new HashMap<K, V>()`, `ArrayDeque<T>()` and
+# `register<Copy>("x")` were missed. The list rules are CALLS_OUT_C_STYLE_GENERIC's.
+# detector.py treats it exactly like CALLS_OUT_C_STYLE.
+CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION = re.compile(
+    rf"(?<!@)\b([{ID_START}][{ID_CONTINUE}]*)"
+    r"(?:<(?:" + _GENERIC_ARG_CHAR + r"|<" + _GENERIC_ARG_CHAR + r"{0,200}>){0,200}>[ \t]*)?"
     r"\s*\("
 )
 
@@ -290,6 +334,7 @@ QUALIFIED_CALLS_OUT_PATTERNS = (
     CALLS_OUT_C_STYLE,
     CALLS_OUT_C_STYLE_NO_ANNOTATION,
     CALLS_OUT_C_STYLE_GENERIC,
+    CALLS_OUT_C_STYLE_GENERIC_NO_ANNOTATION,
     CALLS_OUT_RUBY,
     CALLS_OUT_RUST,
     CALLS_OUT_GO,

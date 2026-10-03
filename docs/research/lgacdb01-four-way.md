@@ -1,5 +1,7 @@
 # One program, two independent translations: GenApp LGACDB01, scanned and proven
 
+*Case study for the umbrella paper: [cobol-java-translation-observational-study.md](cobol-java-translation-observational-study.md).*
+
 *A post-hoc comparison. Status: draft for review, 2026-10-02.*
 
 ## Abstract

@@ -1893,6 +1893,62 @@ def test_a_pre_3452_db_loads_with_no_data_moves(lineage_scanned, tmp_path):
     assert ir.data_flows() == [] and [h["item"] for h in ir.field_lineage("cbl/LCALLER.cbl", "WS-NAME")] == ["WS-NAME"]
 
 
+# #4204 (IBM DBB EPSCMORT): the qualified source lives in a NESTED copybook (QCOM copies QOUT),
+# and QCOM is COPYed under two records, so the same copybook items are laid out twice.
+QUALIFIED_NESTED = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. QNEST.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-MSG             PIC X(40).
+       01 W-COMM-AREA.
+          COPY QCOM.
+       LINKAGE SECTION.
+       01 DFHCOMMAREA.
+       COPY QCOM.
+       PROCEDURE DIVISION USING DFHCOMMAREA.
+           MOVE Q-ERRMSG OF W-COMM-AREA TO WS-MSG.
+           MOVE Q-ERRMSG OF DFHCOMMAREA TO WS-MSG.
+           MOVE Q-IND OF W-COMM-AREA TO WS-MSG.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def qualified_nested_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_qualified_nested")
+    repo = base / "qnest"
+    files = {
+        "cbl/QNEST.cbl": QUALIFIED_NESTED,
+        "cpy/QCOM.cpy": "          10  Q-IND               PIC X.\n\n          COPY QOUT.\n",
+        "cpy/QOUT.cpy": "          10 Q-ERRMSG           PIC X(80).\n          10 Q-RC               PIC 9(4).\n",
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_a_qualified_source_in_a_nested_copybook_copied_twice_resolves_and_truncates(qualified_nested_scanned):
+    flows = load_galaxy_ir(qualified_nested_scanned).data_flows()
+    got = {
+        (f["line"], f["source"]): (
+            f["status"],
+            f["source_span"] and (f["source_span"]["record"], f["source_span"]["offset"], f["source_span"]["bytes"]),
+            f["truncates"],
+        )
+        for f in flows
+        if f["file"] == "cbl/QNEST.cbl"
+    }
+    assert got == {
+        # The qualifier picks the placement: each record the copybook is COPYed under.
+        (12, "Q-ERRMSG OF W-COMM-AREA"): ("resolved", ("W-COMM-AREA", 1, 80), True),
+        (13, "Q-ERRMSG OF DFHCOMMAREA"): ("resolved", ("DFHCOMMAREA", 1, 80), True),
+        (14, "Q-IND OF W-COMM-AREA"): ("resolved", ("W-COMM-AREA", 0, 1), False),
+    }
+
+
 # ---- #3490: symbolic maps generated from BMS source ---------------------------
 SYM_BMS = (
     "\n".join(

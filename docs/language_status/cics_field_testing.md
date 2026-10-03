@@ -29,7 +29,6 @@ counted in it (their fact counts are not recorded here).
 | dead | 5 | 0 | 3 | 144 | 0 | 6 | 3 | 35 | 8.6% | open | 265 more clean fresh facts |
 | entry transactions | 4 | 0 | 2 | 70 | 0 | 0 | 2 | 30 | 10.0% | open | 270 more clean fresh facts |
 | DD names | 4 | 0 | 1 | 89 | 0 | 0 | 1 | 22 | 13.6% | open | 1 more clean fresh round(s), 278 more clean fresh facts |
-| units | 7 | 0 | 4 | 2,058 | 6 | 3 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | DB2 table access | 3 | 0 | 1 | 58 | 0 | 0 | 1 | 21 | 14.3% | open | 1 more clean fresh round(s), 279 more clean fresh facts |
 | dynamic call targets | 5 | 0 | 2 | 232 | 0 | 0 | 2 | 16 | 18.8% | open | 284 more clean fresh facts |
 | inputs | 3 | 0 | 1 | 55 | 0 | 2 | 1 | 13 | 23.1% | open | 1 more clean fresh round(s), 287 more clean fresh facts |
@@ -45,6 +44,7 @@ counted in it (their fact counts are not recorded here).
 | IMS access check | 2 | 0 | 1 | 15 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | IMS segment access | 2 | 0 | 1 | 21 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
 | async children | 2 | 0 | 1 | 6 | 0 | 0 | 1 | 1 | - | open | 1 more clean fresh round(s), 299 more clean fresh facts |
+| units | 7 | 0 | 4 | 2,058 | 7 | 3 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | MOVE truncation | 6 | 0 | 3 | 165 | 1 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | data moves | 6 | 0 | 3 | 12,583 | 3 | 0 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
 | record fields | 6 | 0 | 3 | 5,475 | 3 | 2 | 0 | 0 | - | open | 2 more clean fresh round(s), 300 more clean fresh facts |
@@ -126,8 +126,9 @@ counted in it (their fact counts are not recorded here).
 | D035 | review, after 6 | forge | fact | inputs, outputs, file control | #3998 | The refractor without `--scan` read SELECT with its own regex (cobol_dag_architect): `ASSIGN TO "x"` gave DD `TO`, `SELECT OPTIONAL f` and Japanese / full-width file names were missed, so lineage differed from `--scan`. It now uses the engine's SELECT reader. Found while fixing #3992, not by the estate scan. |
 | D036 | unkeyed estate, after 6 | forge | fact | units, dead | #4026 / #4028 | cobol_graveyard_finder's unit reader took only ASCII names, so Japanese / full-width paragraphs and sections (13 opensourcecobol4j programs) were not units, and it rejected any `END-...` name as a scope terminator, so the legal paragraph `END-IPROC1.` was not one either: those units were neither counted nor judged dead or alive. A GnuCOBOL trace entered them. |
 | D037 | 4 | engine | fact | units | #4031 | The engine's COBOL function-start rule excludes every END-... word as a scope terminator, so GENAPP's legal paragraph `End-Program.` (5 programs, reached by PERFORM END-PROGRAM) is not a unit. Surfaced when #4028 fixed the same rule in the forge and the key reader, and the key gained the paragraph. |
-| D038 | 7 | engine | fact | MOVE truncation | #4204 | A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231. |
+| D038 | 7 | engine | fact | MOVE truncation | #4204 | A MOVE whose source is qualified (EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA, 80 bytes, into the BMS field MSGERRO) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length. IBM DBB EPSCMORT L231. Root cause: the item lives in EPSMTOUT, nested in EPSMTCOM, which EPSCMORT COPYs under both W-COMMUNICATION-AREA and DFHCOMMAREA; storage spans were keyed by item, so the second placement overwrote the first and a qualifier naming the first never matched (17 qualified data flows on this estate were unresolved). |
 | D039 | 7 | engine | fact | data moves | #4205 | MOVE ALL X'..' (a hexadecimal figurative) is not recorded as a data move: IBM DBB EPSCSMRD L1457 (ALL X'00') and L3452 (ALL X'FF'). |
+| D040 | unkeyed estate, after 7 | engine | fact | units | #4203 | In free-format source the engine's COBOL function-start rule let its optional 6-column sequence-area slot swallow an indent plus the level number (`    01 VALUE-BYTES.`), stepping past its level-number shield, so data description entries (and indented FD / SD lines) read as paragraphs: 143 phantom units on CobolCraft @ e8c420df, every unit of coordinates.cob and decode.cob. No keyed estate is free-format, so the ledger never saw it. |
 
 Key errors (the census's findings against the answer key itself) are counted from each key's
 rulings, not logged by hand. The engine agreeing with a key is only as good as the key: a key

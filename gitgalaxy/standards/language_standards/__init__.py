@@ -88,6 +88,7 @@ from .languages import csv as _csv
 from .languages import dart as _dart
 from .languages import db2_sql as _db2_sql
 from .languages import dockerfile as _dockerfile
+from .languages import easytrieve as _easytrieve
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
 from .languages import glsl as _glsl
@@ -213,4 +214,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "hlasm": _hlasm.DEFINITION,
     "rexx": _rexx.DEFINITION,
     "csd": _csd.DEFINITION,
+    "easytrieve": _easytrieve.DEFINITION,
 }

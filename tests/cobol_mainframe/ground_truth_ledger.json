@@ -1,20 +1,10 @@
 {
   "about": "Mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py). Every engine/forge disagreement with a hand-verified answer key, keyed '<side> | <field> | <program> | <value> | fp|fn' -> cause; every cause has a kind (defect|deliberate) and names its owning issue. CI fails on an unlisted mismatch, a listed one that no longer reproduces, an UNTRIAGED entry, a cause without an issue, or a stale scoreboard. Re-measure with `update`, triage with `assign`.",
   "causes": {
-    "engine_data_moves_all_hex_figurative": {
-      "issue": 4205,
-      "kind": "defect",
-      "summary": "MOVE ALL X'..' (a hex figurative) is not recorded as a data move."
-    },
     "engine_dead_is_unreferenced_by_name": {
       "issue": 2806,
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
-    },
-    "engine_move_truncation_qualified_source": {
-      "issue": 4204,
-      "kind": "defect",
-      "summary": "A MOVE whose source is qualified (X OF Y) is recorded but its truncation is not flagged: the sizer does not resolve the qualified source's length."
     },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
@@ -1984,9 +1974,6 @@
     },
     "dbb-mortgage-application": {
       "mismatches": {
-        "engine | MOVE truncation | zBuilder/MortgageApplication/cobol/epscmort.cbl | L231 EPSPCOM-ERRMSG OF W-COMMUNICATION-AREA -> MSGERRO | fn": "engine_move_truncation_qualified_source",
-        "engine | data moves | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L1457 MOVE ALL X'00' -> HASH-TOKEN | fn": "engine_data_moves_all_hex_figurative",
-        "engine | data moves | zBuilder/MortgageApplication/cobol/epscsmrd.cbl | L3452 MOVE ALL X'FF' -> INSTRUCTIONS | fn": "engine_data_moves_all_hex_figurative",
         "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epscmort.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epscsmrt.cbl | A000-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | zBuilder/MortgageApplication/cobol/epsmlist.cbl | EPSCMORT-MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
@@ -2122,8 +2109,8 @@
         },
         "MOVE truncation": {
           "engine": {
-            "got": 3,
-            "tp": 3,
+            "got": 4,
+            "tp": 4,
             "truth": 4
           },
           "forge": null,
@@ -2207,8 +2194,8 @@
         },
         "data moves": {
           "engine": {
-            "got": 576,
-            "tp": 576,
+            "got": 578,
+            "tp": 578,
             "truth": 578
           },
           "forge": null,

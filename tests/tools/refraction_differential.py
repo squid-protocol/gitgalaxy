@@ -1011,9 +1011,9 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     if field == "program_id":
         truth = {prog["program_id"]}
     elif field == "paragraph":
-        truth = {u["name"] for u in prog["units"]}
+        truth = ak.bare_units(prog)  # #4206: every program in the source
     elif field == "dead":
-        truth = set(prog["dead"])
+        truth = ak.bare_dead(prog)
     elif field == "copybook":
         truth = {Path(c["resolves_to"]).stem.upper() for c in prog["copybooks"] if c.get("resolves_to")}
     elif field == "record":

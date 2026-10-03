@@ -827,11 +827,15 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
             else []
         ),
         # a CALLed program's WORKING-STORAGE is set once and keeps its values from call to call
-        *(
-            [f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages] + inits
-            if hc
-            else []
-        ),
+        *(["        initialState();"] if hc else []),
+        "    }",
+        "",
+    ]
+    out += [
+        "    /** WORKING-STORAGE (and every storage) as its VALUE clauses set it: each entry point starts from here. */",
+        "    private void initialState() {",
+        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
+        *inits,
         "    }",
         "",
     ]
@@ -839,8 +843,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
         "    /** The program run on its own (no JCL step, no CICS task, no caller): the PROCEDURE DIVISION from its",
         "     *  initial storage; RETURN-CODE. */",
         "    public int runProgram() {",
-        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
-        *inits,
+        "        initialState();",
         *([] if structured else ["        performDepth = 0;"]),
         "        try {",
         f"            {'runAll()' if structured else f'perform(0, {n_para - 1})'};",
@@ -877,8 +880,7 @@ def _translate(program: Path, copy_dirs: list[Path], stub: str, package: str, es
                 "    /** The batch entry. */",
                 "    public int runBatch(List<Dd> dds, String parm) {",
                 *(["        DetSql.closeAll();  // a step's cursors are its own"] if gen.sql is not None else []),
-                *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
-                *inits,
+                "        initialState();",
                 *parm_code,
                 *file_inits,
                 "        try {",
@@ -1074,8 +1076,7 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
         "        caBack = () -> { };",
         "        handlers.clear();",
         "        heldKey.clear();",
-        *[f"        System.arraycopy(IMAGE_{n}, 0, {n}.bytes, 0, IMAGE_{n}.length);" for n, _ in storages],
-        *inits,
+        "        initialState();",
         f"        Cobol.move(task.transid(), {gen.eib('EIBTRNID')}, CS);",
         "        java.time.LocalDateTime now = task.now();",
         f"        Cobol.store({gen.eib('EIBDATE')}, BigDecimal.valueOf((now.getYear() - 1900) * 1000L + now.getDayOfYear()), false, CS);",

@@ -61,8 +61,8 @@ DATA DIVISION is nine programs'. Before the fixes below, all 6 were refused.
 is `10 PROCESS-INDICATOR` then `COPY EPSMTINP.` and `COPY EPSMTOUT.`; the COMMAREA DTO was 1 byte and is now the whole
 106-byte record.
 
-**Forge:** a CICS estate always gets the CICS exception types (`CicsAbendException`, ...). This one has no program
-that ABENDs explicitly.
+**Harness (CICS):** the generator emits the CICS exception package only when some program throws or handles one,
+and this estate has none. The CICS equivalence test now catches `CicsAbendException` only when the project has it.
 
 **Harness:**
 - A CALL case may declare a group USING item's `record`. The Java side gets a DTO built field by field and returns

@@ -69,6 +69,10 @@ entry), proven by the same harness. It is *faithful by construction*, not idioma
   use. It is the same expression the use site held, so behaviour does not change; it is a readability rule, not a size
   one (+0.4% code lines on its own: each test was already one expression). `det_parity.py` counts paragraph methods
   only, so these do not count as methods.
+- **One initial state.** Every entry point (`runProgram`, `runBatch`, `runTask`, the CALL entry) starts from
+  `initialState()`: the storages' VALUE images copied in and, with `--typed`, each typed field's initial value. Until
+  2026-10 each entry repeated them (3,538 typed-init lines over 150 entry methods): −2.3% code lines on the default
+  output, −4.7% with `--typed`.
 - **Holes are explicit.** A statement the translator does not handle becomes
   `throw new Hole("line N: <statement>")`; the measurement counts it as untranslated.
 
@@ -378,6 +382,24 @@ The batch programs' state is flags, counters and amounts: a third of the runtime
 is mostly the screen map, the commarea and file records -- groups, which stay byte storage (their typed form is a
 DTO, not a lifted field; next). test_det_programs.py runs every program both ways against GnuCOBOL, TYPED among them
 (each kind and each fallback).
+
+**Typed values and size (2026-10, measured on all 51 cases, translate-only).** Typed fields are a readability rule,
+not a size rule. Counting the emitted lines by kind showed why: a typed field's declaration replaces its byte
+`Field` one for one (1,427 each way), byte MOVEs drop by only ~500 lines, and the items that dominate the port --
+records, COMMAREAs, screen maps -- are exactly the ones whose bytes the proof needs (record I/O, group moves,
+REDEFINES). Prediction before the change: `--typed` ≈ +0.9% code lines once its initial values are set once
+(`initialState()`); measured +1.0%. `--typed --groups` costs +10.7% (pack / unpack around whole-group uses).
+SENTINEL's ×0.44 comes from dropping byte storage altogether, which a byte-level proof does not allow.
+
+| 49 programs, each program's service file | COBOL | before #4202 | #4202 | + `initialState()` |
+|---|---|---|---|---|
+| code lines | 23,598 | 81,206 | 64,215 | 62,803 |
+| code lines ÷ COBOL, median (range) | 1 | ×4.28 (1.9–9.3) | ×3.32 (1.6–7.2) | ×3.18 (1.6–7.0) |
+| token mass | 323 K | 2,617 K | 2,502 K | 2,452 K |
+| max function complexity, median / max | 8 / 97 | 26 / 172 | 26 / 172 | 26 / 172 |
+
+The large programs are ×1.6–2.0 of their COBOL; the ratio is high only for small programs, where the fixed
+service overhead dominates. Token mass and complexity barely move: the removed lines were short boilerplate.
 
 **Typed groups** (`--typed --groups`, no model). B3 types only items whose groups are never used whole, so a
 COMMAREA or a record read INTO stayed byte storage. With `--groups` the items inside such a group are typed too,

@@ -125,26 +125,65 @@ results file is accepted as a triage input, so a re-run keeps the verdicts of mu
 | CALINK (ca-link-lengths) | crucible | 24/165 | 19/22 (86%) | 19/21 (90%) | 2 / 0 / 1 / 0 / 0 |
 | CASUB (ca-link-lengths) | crucible | 24/43 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 6 / 4 / 0 |
 | CAXA (ca-xctl-versions) | crucible | 24/74 | 18/21 (86%) | 18/20 (90%) | 2 / 0 / 1 / 0 / 0 |
-| CAXB (ca-xctl-versions) | crucible | 24/153 | 15/24 (62%) | 15/24 (62%) | 0 / 0 / 0 / 0 / 9 |
-| GTSTART (gt-start-retrieve) | crucible | 24/87 | 14/22 (64%) | 14/22 (64%) | 0 / 0 / 0 / 0 / 8 |
-| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/21 (81%) | 0 / 0 / 0 / 0 / 4 |
-| GTSHOW (gt-terminal-coalesce) | crucible | 24/65 | 20/24 (83%) | 20/24 (83%) | 0 / 0 / 0 / 0 / 4 |
-| **all crucible** | | 168 run | **115/158 (73%)** | **115/146 (79%)** | 6 / 0 / 8 / 4 / 25 |
+| CAXB (ca-xctl-versions) | crucible | 24/153 | 15/24 (62%) | 15/19 (79%) | 4 / 0 / 2 / 3 / 0 |
+| GTSTART (gt-start-retrieve) | crucible | 24/87 | 14/22 (64%) | 14/18 (78%) | 4 / 0 / 4 / 0 / 0 |
+| GTWORK (gt-start-retrieve) | crucible | 24/87 | 17/21 (81%) | 17/19 (89%) | 2 / 0 / 1 / 1 / 0 |
+| GTSHOW (gt-terminal-coalesce) | crucible | 24/65 | 20/24 (83%) | 20/21 (95%) | 1 / 0 / 3 / 0 / 0 |
+| GTTERM (gt-terminal-coalesce) | crucible | 24/84 | 13/21 (62%) | 13/19 (68%) | 6 / 0 / 1 / 1 / 0 |
+| HCMAIN (hc-abend-link) | crucible | 24/196 | 12/24 (50%) | 12/14 (86%) | 2 / 0 / 4 / 6 / 0 |
+| HCSUB (hc-abend-link) | crucible | 24/83 | 13/24 (54%) | 13/14 (93%) | 1 / 0 / 5 / 5 / 0 |
+| HCQREAD (hc-perform-range) | crucible | 24/201 | 12/21 (57%) | 12/12 (100%) | 0 / 0 / 4 / 5 / 0 |
+| HXATTR (hx-attr-bytes) | crucible | 24/152 | 10/20 (50%) | 10/10 (100%) | 0 / 0 / 7 / 3 / 0 |
+| HXEXT (hx-extended-cursor) | crucible | 24/105 | 14/22 (64%) | 14/19 (74%) | 5 / 0 / 3 / 0 / 0 |
+| PCDETL (pc-aid-menu) | crucible | 24/60 | 14/24 (58%) | 14/14 (100%) | 0 / 0 / 9 / 1 / 0 |
+| PCMENU (pc-aid-menu) | crucible | 24/147 | 14/22 (64%) | 14/15 (93%) | 1 / 0 / 5 / 2 / 0 |
+| PCCONF (pc-wizard) | crucible | 24/247 | 14/23 (61%) | 14/17 (82%) | 3 / 0 / 6 / 0 / 0 |
+| PCWIZ (pc-wizard) | crucible | 24/177 | 11/21 (52%) | 11/16 (69%) | 5 / 0 / 3 / 2 / 0 |
+| **all crucible** | | 408 run | **242/380 (64%)** | **242/282 (86%)** | 40 / 0 / 65 / 33 / 0 |
 | **all equivalence** | | 517 run | **294/466 (63%)** | **294/345 (85%)** | 51 / 0 / 60 / 61 / 0 |
-| **all estate** | | 685 run | **409/624 (66%)** | **409/491 (83%)** | 57 / 0 / 68 / 65 / 25 |
+| **all estate** | | 925 run | **536/846 (63%)** | **536/627 (85%)** | 91 / 0 / 125 / 94 / 0 |
 
 | operator | caught / judged | without equivalent + unreachable |
 |---|---|---|
-| AOR | 35/44 (80%) | 35/40 (88%) |
-| BDM | 0/4 (0%) | 0/3 (0%) |
-| CON | 60/129 (47%) | 60/74 (81%) |
-| COR | 19/31 (61%) | 19/26 (73%) |
-| DEL | 52/83 (63%) | 52/73 (71%) |
-| LIT | 71/108 (66%) | 71/80 (89%) |
-| NEG | 90/104 (87%) | 90/94 (96%) |
-| RET | 4/7 (57%) | 4/7 (57%) |
-| ROR | 78/114 (68%) | 78/94 (83%) |
+| AOR | 52/65 (80%) | 52/57 (91%) |
+| BDM | 1/9 (11%) | 1/2 (50%) |
+| CON | 80/167 (48%) | 80/94 (85%) |
+| COR | 26/51 (51%) | 26/37 (70%) |
+| DEL | 67/117 (57%) | 67/93 (72%) |
+| LIT | 97/142 (68%) | 97/106 (92%) |
+| NEG | 112/133 (84%) | 112/116 (97%) |
+| RET | 8/17 (47%) | 8/13 (62%) |
+| ROR | 93/145 (64%) | 93/109 (85%) |
 <!-- /mutation-scores -->
+
+Run on gitgalaxy `416fb6420` (2026-10-03): CSUTLDTC all 217 mutants; COMEN01C and COACTVWC 150 each (seed 0);
+the 17 crucible ports 24 each (seed 0, cics-crucible v0.2.0). The three batch cases (CBACT04C, CBTRN02C,
+CBTRN03C) were not re-run here; their seed-1 raw scores are in the table above this section.
+
+What the triage found:
+
+- **No harness gap.** No survivor changes an output that the proof runs but does not compare. The two found
+  earlier (#4053 screen attributes, #4056 SYSOUT) are closed, and the crucible's event log records attributes,
+  colour, highlight and cursor.
+- **Case gaps (91)** are inputs the cases lack, and they are the test-strengthening loop's (#4049) work list:
+  - COACTVWC: a blank or `*` account id; a commarea whose program part, last map or names are not blank; no
+    commarea at all; PF3 from a caller other than the menu; an account with a group id, a blank SSN, or a balance of
+    1,000,000 or more.
+  - COMEN01C: options 9 and 10; option text below `0` (`1!`); a fault plan on the XCTL.
+  - CSUTLDTC: a January date; day `00`; year `0000`; year `0001` with a bad day; a non-digit in the last two places.
+    So not all of its remaining survivors sit behind undocumented CEEDAYS behaviour. These are valid inputs that the
+    CEEDAYS model accepts, though the COBOL still decides their expected results.
+  - Fault plans: 15 survivors across the estate are reached only when a CICS command raises a condition, for
+    example a WRITEQ TS or an XCTL that fails, or a callee that abends. The crucible has no fault injection, so
+    these are case gaps that need a fault plan. The other crucible gaps are scenarios it does not have, such as an
+    empty NAME in pc-wizard, a six-character account with a non-digit in hx-extended-cursor, or a bare `CA02`.
+- **Unreachable (94).** 57 are in code that no input reaches: CEEDAYS feedback codes the model never returns, the
+  fixed COMEN02Y menu table, guards that make a later test impossible. **37 are port code that the proof never
+  calls**: controller-style entry points (`executeX`, `handleLink`, `bridgeX`, `onAbendLnn`) and generated helpers
+  that the model-written ports kept beside `runTask`. Nothing in the proof calls them, so nothing proves them. They
+  are dead in the shipped Java as the harness drives it (#4255).
+- **Equivalent (125).** These are mostly padding and truncation that the compare hides: `pad(x, 26)` on an X(25)
+  field, a rounding mode on a value already at scale 2, or an initial value that is overwritten before it is read.
 
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.

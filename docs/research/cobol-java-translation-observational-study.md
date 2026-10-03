@@ -60,7 +60,7 @@ Three further repositories in the sweep were empty or stubs. Repositories withou
 
 Still open:
 - commented-out statements not counted (#4171);
-- compound JDK I/O classes (`FileInputStream`, `BufferedReader`) not counted (#4191; **pending**, agent N).
+- compound JDK I/O classes not counted (#4191, fixed in #4193). Translator-specific runtime facades remain unrecognised, apart from our own cobolrt (#4163).
 
 **Contracts.** Port invariance (#4167) asserts rank agreement for the readings that should survive literal translation. The parity bands (#4162) predict a det port's methods and branches from its COBOL.
 
@@ -86,9 +86,11 @@ COBOL against the det port, 49 programs, tie-corrected Spearman ρ (#4167, after
 | Mutations | 0.89 | 0.84 | 0.88 | 3.65 |
 | Code lines | 0.89 | 0.74 | 0.51 | 3.85 |
 | Tokens | 0.93 | 0.81 | 0.52 | 7.29 |
-| I/O | — (reads 0; scanner gap #4191) | 0.90 | — | 0.75 |
+| I/O | 0.07 ‖ | 0.90 | — | 0.75 |
 
-**Pending (#4191, agent N):** SENTINEL's I/O ρ after the scanner recognises compound JDK I/O classes.
+‖ After #4193 (which fixed #4191). Java I/O now counts the call that opens a resource: `new FileInputStream`/`FileOutputStream`/`FileReader`/`FileWriter`/`RandomAccessFile`, `PrintWriter`/`PrintStream` on a path literal, and `FileChannel.open`. Decorators such as `BufferedReader` don't count, so a nested chain counts once. SENTINEL's I/O total across its 28 classes rose from 26 to 43 (CBTRN02C 2 → 10, CBACT04C 0 → 6). Its COBOL-vs-port I/O ρ moved only from −0.01 to 0.07. Our det, model, Devin and lasserre readings, and the port-invariance I/O ρ (0.871), are unchanged.
+
+**A finding about the instrument.** 14 of SENTINEL's classes do their I/O through SENTINEL's own runtime facade (`xrefFile.read(`, `fileIO.rewrite(`, `screenIO.sendMap(`). The scanner can't safely anchor on those names without matching ordinary Java. Our det ports' I/O agreement (0.24 → 0.87) likewise came only after the scanner was taught our runtime's vocabulary (#4163). So for a third-party port, the I/O ρ measures how well the scanner recognises that translator's runtime as much as it measures structure. SENTINEL's structural evidence rests on functions, branches and mutations (ρ 0.88–0.91), which don't depend on runtime vocabulary.
 
 ## 5. Observation B: a structural spectrum, readable without execution
 
@@ -98,11 +100,11 @@ Whole CardDemo estate (28 programs where available):
 |---|---|---|---|---|---|
 | COBOL | — | 17,279 | 2,336 | 187 | 1 |
 | Literal, byte-level storage | det | 64,899 † | 6,328 | 124 | ≈3.8 † |
-| Literal, text I/O | SENTINEL | 7,630 | 1,469 | 26 ‡ | 0.44 |
+| Literal, text I/O | SENTINEL | 7,630 | 1,469 | 43 ‡ | 0.44 |
 | Re-architected (Spring/JPA/Batch/JMS) | lasserre | 1,137 | 34 | 30 | 0.07 |
 
 † Measured on det copies with long lines rewrapped for scanning, which inflates line counts by a median of ~19% (wiki 05-18). Branch and token readings are unaffected.
-‡ Undercounted (#4191).
+‡ After #4193. Still an undercount: 14 classes do I/O through SENTINEL's own runtime facade, which the scanner doesn't recognise (§4).
 
 Program classes for CBACT04C and CBTRN02C, where we have each strategy (lines / branches / I/O / mutations):
 
@@ -277,7 +279,7 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 
 - **Selection:** public artifacts only, many of them workshop or demo code; programs chosen where we already had cases; few programs per translator.
 - **Instrument:**
-  - scanner defects, found and fixed (#4163, #4164, #4178) or still open (#4171, #4191);
+  - scanner defects, found and fixed (#4163, #4164, #4178, #4193) or still open (#4171). I/O readings for third-party ports depend on the scanner recognising each translator's runtime vocabulary (§4);
   - name-based framework detection;
   - rewrapped det copies inflate line counts (†).
 - **Oracle:** GnuCOBOL, our CICS model and Db2 LUW stand in for z/OS (`oracle_assumptions.md`, e.g. C9, D1, C10, X6, M2).
@@ -289,10 +291,9 @@ Every approach trades three things: **fidelity** to the COBOL's structure and by
 ## 13. Follow-ups
 
 **Issues:**
-- #4170 (fixed), #4171, #4172, #4173, #4174, #4175, #4179, #4181, #4188, #4191.
+- #4170 (fixed), #4171, #4172, #4173, #4174, #4175, #4179, #4181, #4188, #4191 (fixed in #4193).
 
 **Pending in this study:**
-- SENTINEL I/O after #4191;
 - Lightyear CBACT04C and SENTINEL batch programs through the harness;
 - the external-fault experiment.
 

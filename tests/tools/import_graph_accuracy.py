@@ -618,6 +618,82 @@ def perl_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
 # ----------------------------------------------------------------------------- package-scoped JVM languages
 
 
+# Scala 3 top-level definitions: outside an object, only a Scala 3 file declares these.
+_SCALA3_TOP_LEVEL = frozenset(
+    {"function_definition", "val_definition", "var_definition", "given_definition", "extension_definition"}
+)
+
+
+def _package_segments(clause: Any, src: bytes) -> list[str]:
+    ident = next((x for x in clause.children if x.type in ("identifier", "package_identifier")), None)
+    if ident is None:
+        return []
+    # a backquoted segment (`io.circe.`export``) is the plain name
+    return [p.strip("`") for p in re.split(r"[.\s]+", _text(ident, src)) if p.strip("`")]
+
+
+def _index_members(
+    children: Any,
+    outer: list[str],
+    f: str,
+    src: bytes,
+    by_name: dict[tuple[str, str], set[str]],
+    by_pkg: dict[str, set[str]],
+    pkg_object: dict[str, set[str]],
+) -> None:
+    """Index one package scope's top-level declarations. A flat `package a.b` clause extends
+    the package for what follows it; a Scala packaging BLOCK `package p { ... }` is package
+    `<outer>.p` for its body only (circe's tests/examples/package.scala declares `Foo` and `Wub`
+    in one after its `package object examples`, #3799). The package's own file (import contract
+    C7) is its `package object`, or a Scala 3 `package.scala` holding top-level definitions."""
+    pkg_parts = list(outer)
+    names: list[tuple[str, str]] = []  # (package, name)
+    top_level_defs: set[str] = set()
+    blocks: list[tuple[Any, list[str]]] = []  # (body, its package), indexed after this scope
+    for c in children:
+        t = c.type
+        if t in ("package_header", "package_clause"):
+            body = next((x for x in c.children if x.type == "template_body"), None)
+            if body is not None:
+                blocks.append((body, [*pkg_parts, *_package_segments(c, src)]))
+            else:
+                pkg_parts += _package_segments(c, src)
+        elif t == "package_object":
+            n = c.child_by_field_name("name")
+            if n is not None:
+                by_pkg[".".join([*pkg_parts, _text(n, src)])].add(f)
+                pkg_object[".".join([*pkg_parts, _text(n, src)])].add(f)
+                names.append((".".join(pkg_parts), _text(n, src)))
+        else:
+            n = c.child_by_field_name("name")
+            if n is None:
+                n = next(
+                    (x for x in c.children if x.type in ("type_identifier", "simple_identifier", "identifier")),
+                    None,
+                )
+            if n is None and t == "property_declaration":
+                vd = next((x for x in c.children if x.type == "variable_declaration"), None)
+                n = next((x for x in vd.children if x.type == "simple_identifier"), None) if vd else None
+            # An import is not a declaration, though scala's node is `import_declaration`:
+            # indexing it made every file importing `cats.x` "declare" `cats` (#3641).
+            if (
+                n is not None
+                and t != "import_declaration"
+                and t.endswith(("declaration", "definition", "type_alias", "object"))
+            ):
+                names.append((".".join(pkg_parts), _text(n, src)))
+                if t in _SCALA3_TOP_LEVEL:
+                    top_level_defs.add(".".join(pkg_parts))
+    by_pkg[".".join(pkg_parts)].add(f)  # first: the file's own package is its import context
+    for pkg, name in names:
+        by_name[(pkg, name)].add(f)
+    if f.rsplit("/", 1)[-1] == "package.scala":
+        for pkg in top_level_defs:
+            pkg_object[pkg].add(f)
+    for body, pkg_of_block in blocks:
+        _index_members(body.children, pkg_of_block, f, src, by_name, by_pkg, pkg_object)
+
+
 def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str, Any]:
     """Kotlin / Scala: a declaration's file is found by PACKAGE and NAME, not by
     path -- neither language ties the directory or the file name to what it
@@ -637,44 +713,7 @@ def _jvm_decl_index(group: Group, lang: str, exts: tuple[str, ...]) -> dict[str,
             src = (group.root / f).read_bytes()
         except OSError:
             continue
-        root = _ts_tree(lang, src)
-        pkg_parts: list[str] = []
-        names: list[tuple[str, str]] = []  # (package suffix, name)
-        for c in root.children:
-            t = c.type
-            if t in ("package_header", "package_clause"):
-                ident = next((x for x in c.children if x.type in ("identifier", "package_identifier")), None)
-                if ident is not None:
-                    # a backquoted segment (`io.circe.`export``) is the plain name
-                    pkg_parts += [p.strip("`") for p in re.split(r"[.\s]+", _text(ident, src)) if p.strip("`")]
-            elif t == "package_object":
-                n = c.child_by_field_name("name")
-                if n is not None:
-                    by_pkg[".".join([*pkg_parts, _text(n, src)])].add(f)
-                    pkg_object[".".join([*pkg_parts, _text(n, src)])].add(f)
-                    names.append(("", _text(n, src)))
-            else:
-                n = c.child_by_field_name("name")
-                if n is None:
-                    n = next(
-                        (x for x in c.children if x.type in ("type_identifier", "simple_identifier", "identifier")),
-                        None,
-                    )
-                if n is None and t == "property_declaration":
-                    vd = next((x for x in c.children if x.type == "variable_declaration"), None)
-                    n = next((x for x in vd.children if x.type == "simple_identifier"), None) if vd else None
-                # An import is not a declaration, though scala's node is `import_declaration`:
-                # indexing it made every file importing `cats.x` "declare" `cats` (#3641).
-                if (
-                    n is not None
-                    and t != "import_declaration"
-                    and t.endswith(("declaration", "definition", "type_alias", "object"))
-                ):
-                    names.append(("", _text(n, src)))
-        pkg = ".".join(pkg_parts)
-        by_pkg[pkg].add(f)
-        for _, name in names:
-            by_name[(pkg, name)].add(f)
+        _index_members(_ts_tree(lang, src).children, [], f, src, by_name, by_pkg, pkg_object)
 
     def java_file(parts: list[str]) -> set[str]:
         for cut in range(0, min(3, len(parts))):
@@ -706,6 +745,13 @@ def _jvm_resolve(index: dict[str, Any], parts: list[str], wildcard: bool, contex
             hit: set[str] = set()
             if len(full) > 1:
                 hit = set(index["name"].get((".".join(full[:-1]), full[-1]), ()))
+            # A NESTED object's members (`io.circe.DecodingFailure.Reason._`) are its
+            # top-level owner's file, as a named member import's are (#3799).
+            for cut in (1, 2):
+                head = full[: len(full) - cut]
+                if hit or len(head) < 2 or not head[-1][:1].isupper():
+                    break
+                hit = set(index["name"].get((".".join(head[:-1]), head[-1]), ()))
             if hit:
                 return hit
             continue
@@ -752,23 +798,27 @@ def scala_imports(src: bytes, rel: str, group: Group) -> list[set[str]]:
     for n in _walk(_ts_tree("scala", src)):
         if n.type != "import_declaration":
             continue
-        path = [_text(c, src) for c in n.children if c.type == "identifier"]
+        # a backquoted segment (`io.circe.`export`.Exported`) is the plain name (#3799)
+        path = [_text(c, src).strip("`") for c in n.children if c.type == "identifier"]
         selectors = next((c for c in n.children if c.type == "namespace_selectors"), None)
         if any(c.type == "namespace_wildcard" for c in n.children):
             out.append(_jvm_resolve(index, path, True, context))
         elif selectors is not None:
             for s in selectors.children:
                 if s.type == "identifier":
-                    out.append(_jvm_resolve(index, [*path, _text(s, src)], False, context))
+                    out.append(_jvm_resolve(index, [*path, _text(s, src).strip("`")], False, context))
                 elif s.type == "arrow_renamed_identifier":
                     first = next((x for x in s.children if x.type == "identifier"), None)
                     if first is not None:
-                        out.append(_jvm_resolve(index, [*path, _text(first, src)], False, context))
+                        out.append(_jvm_resolve(index, [*path, _text(first, src).strip("`")], False, context))
                 elif s.type in ("namespace_wildcard", "wildcard"):
                     out.append(_jvm_resolve(index, path, True, context))
         elif path:
             out.append(_jvm_resolve(index, path, False, context))
-    return out
+    # `import AutoDerivedSuite._` beside `object AutoDerivedSuite` names the importer's own
+    # declaration. When a build variant declares it too (scala-0/ and scala-2/ copies), the
+    # importer's own variant is meant (import contract C8): no edge, never the other copy (#3799).
+    return [set() if rel in hit else hit for hit in out]
 
 
 # ----------------------------------------------------------------------------- dart, haskell, shell, solidity
@@ -995,13 +1045,20 @@ _SOURCE_SUFFIXES = frozenset(
 
 def _names_declaration_in(token: str, path: str) -> bool:
     """A dotted import of a DECLARATION (`com.x.metadata.isPrimary`, kotlin/scala/java) whose
-    package path is the target file's directory: captured, but the name is not the file's."""
-    parts = [p for p in token.strip().split(".") if p and p != "_"]
-    if len(parts) < 3:
-        return False
-    package = parts[:-1]
+    package path is the target file's directory: captured, but the name is not the file's. The
+    name may be a member of a nested declaration (`io.circe.DecodingFailure.Reason.X`, whose
+    DecodingFailure lives in io/circe/Error.scala), or the package itself (`import io.circe.jawn`,
+    whose own file is io/circe/jawn/package.scala) -- captured too, not a capture miss (#3799)."""
+    parts = [p for p in token.strip().split(".") if p and p not in ("_", "*")]
     dirs = path.rsplit("/", 1)[0].split("/") if "/" in path else []
-    return len(dirs) >= len(package) and dirs[-len(package) :] == package
+    for k in range(len(parts), max(2, len(parts) - 3) - 1, -1):
+        package = parts[:k]
+        # below the token's own length, only a dotted name's owner chain (Upper-case) is cut away
+        if k < len(parts) - 1 and not parts[k][:1].isupper():
+            break
+        if len(dirs) >= len(package) and dirs[-len(package) :] == package:
+            return True
+    return False
 
 
 _TEST_PATH = re.compile(r"(^|/)(tests?|spec|__tests__|testdata|fixtures?)(/|$)|[._-](test|spec)\.", re.I)

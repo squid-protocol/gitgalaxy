@@ -31,7 +31,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 | id | area | entry | status | reached by a proof? |
 |---|---|---|---|---|
-| C1 | compiler | Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` (#4102) | **DIFFERS** | reachable (GenApp LGICDB01); no proven scenario |
+| C1 | compiler | Binary truncation: `TRUNC(STD)` (IBM's default) on both sides (#4102, fixed) | MATCHED | reachable (GenApp LGICDB01) |
 | C2 | compiler | Arithmetic intermediates: exact decimal vs IBM's precision rules | ASSUMED | yes (INTCALC, POSTTRAN …) |
 | C3 | compiler | An integer literal truncated to zero keeps no sign | DIFFERS | no |
 | C4 | compiler | An unsigned binary taken below zero by ADD/SUBTRACT wraps | DIFFERS | no |
@@ -39,6 +39,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | C6 | compiler | COMP-1 / COMP-2: IEEE vs IBM hexadecimal floating point | DIFFERS | no (CBSA uses them) |
 | C7 | compiler | COMP-5 byte order: little-endian vs z/OS big-endian | DIFFERS | read as numbers only |
 | C8 | compiler | DISPLAY of signed zoned, binary and packed items | MATCHED | yes |
+| C9 | compiler | POINTER is 8 bytes in GnuCOBOL (x86-64), 4 on z/OS | DIFFERS | only NULL, trailing (CBSA) |
 | D1 | data | Text order is ASCII (Latin-1), not EBCDIC | DIFFERS | keys: no; comparisons: not audited |
 | D2 | data | Hex literals that name EBCDIC characters (`X'40'`) | DIFFERS | no |
 | D3 | data | Zoned signs in ASCII data (`{`, `}`, A–R overpunch) | MATCHED | yes |
@@ -48,7 +49,7 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | F4 | files | JCL utility steps (SORT, IDCAMS, IEBGENER) are not run | — | — |
 | X1 | CICS | Commands, RESP/RESP2 and EIB from IBM's API reference | ASSUMED | yes |
 | X2 | CICS | Screens compared as the symbolic map, not the 3270 stream | ASSUMED | yes |
-| X3 | CICS | Every file is recoverable on SYNCPOINT ROLLBACK and abend | ASSUMED | yes (UOW scenarios) |
+| X3 | CICS | Backout: recoverable files and Db2 undone, RECOVERY(NONE) files kept | MATCHED | yes (CBSA INQACC) |
 | X4 | CICS | A task takes no time (ASKTIME = dispatch time) | ASSUMED | yes |
 | X5 | CICS | Options and conditions IBM leaves open are refused | REFUSED | — |
 | X6 | CICS | WRITEQ with a LENGTH past its FROM item (GenApp LGSTSQ) | REFUSED | — |
@@ -59,8 +60,8 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 | L2 | LE | CEE3ABD abend codes | MATCHED | yes |
 | Q1 | Db2 | Db2 for Linux runs the SQL, not Db2 for z/OS | ASSUMED | yes |
 | Q2 | Db2 | EXEC SQL keeps RETURN-CODE | ASSUMED | yes |
-| Q3 | Db2 | The Java side commits each statement | DIFFERS | no |
-| Q4 | Db2 | WHENEVER, dynamic SQL, positioned UPDATE/DELETE | REFUSED | — |
+| Q3 | Db2 | The Java side's unit of work: one per CICS task; batch commits each statement | MATCHED (CICS) / DIFFERS (batch) | CICS: yes (CBSA XFRFUN); batch: no |
+| Q4 | Db2 | WHENEVER, dynamic SQL, CONNECT, CALL, SCROLL cursors, host-variable arrays | REFUSED | — |
 | Q5 | Db2 | DSNTIAC / DSNTIAR message formatting | REFUSED | no |
 | Q6 | Db2 | Date and time text in ISO form; DDL adapted from z/OS jobs | ASSUMED | yes (CBSA, GenApp) |
 | Q7 | Db2 | `CCSID EBCDIC` tables hold Unicode text: string order differs | DIFFERS | no |
@@ -74,23 +75,17 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 
 ## Compiler: GnuCOBOL 3.1.2 `-std=ibm` vs IBM Enterprise COBOL
 
-### C1. Binary truncation: IBM's default `TRUNC(STD)` runs as `TRUNC(BIN)` — DIFFERS
+### C1. Binary truncation — MATCHED (fixed 2026-10-02, #4102)
 - **What.** Under `TRUNC(STD)`, IBM's default, a binary item (COMP, COMP-4, BINARY) holds only its PICTURE's digits:
-  `MOVE 99999` to `PIC S9(4) COMP` stores 9999, and `ADD 1` to 9999 raises ON SIZE ERROR. Under `TRUNC(BIN)` the
-  item holds whatever its bytes hold.
-- **Evidence (2026-10-02, `gitgalaxy-gnucobol:3`).** `cobc -std=ibm` behaves as `TRUNC(BIN)` with or without
-  `-fnotrunc`: MOVE gives -31073 (the bytes wrapped), ADD gives +10000 with no size error, and COMPUTE 12345 gives
-  +12345. `cobc -std=ibm -fbinary-truncate` gives IBM's `TRUNC(STD)` results: +09999, SIZE ERROR, +02345.
-- **The harness.** `equivalence_common.COBC_OPTIONS` maps `TRUNC(STD)` to no flag, and the Java runtime's
-  `Cobol.setTruncBinary` defaults to off. So both sides agree, and both run `TRUNC(BIN)`.
-- **Who asks for STD.** CBSA's programs say `PROCESS ... TRUNC(STD)` on their first line; CBSA's UPDCUST and ABNDPROC
-  are proven cases. CardDemo's compile PARMs (`samples/proc/BUILDBAT.prc`, `BUILDONL.prc`) name no TRUNC, which
-  means the installation default, STD as IBM ships it.
-- **Reached?** Only where a binary item receives more digits than its PICTURE. Not yet measured.
-- **To settle** (#4102).
-  1. Map `TRUNC(STD)` to `-fbinary-truncate`.
-  2. Have the det port call `Cobol.setTruncBinary(true)` when the effective option is STD.
-  3. Re-prove every case and report which proofs move.
+  `MOVE 99999` to `PIC S9(4) COMP` stores 9999, and `ADD 1` to 9999 raises ON SIZE ERROR. COMP-5 keeps its bytes.
+- **Was.** `cobc -std=ibm` alone behaves as `TRUNC(BIN)`, and the harness passed no flag for STD; the det runtime ran
+  BIN too. Both sides agreed, both differed from IBM.
+- **Now.** The harness applies IBM's defaults for options nothing names: STD is GnuCOBOL's `-fbinary-truncate` (measured:
+  +09999, SIZE ERROR, +02345). The det port sets each entry's TRUNC from the program's CBL / PROCESS cards, else the
+  case's `compiler_options`, else STD, and restores the caller's on exit. Every det and model port was re-proven under
+  it; nothing moved (no proven scenario puts more digits in a binary item than its PICTURE).
+- **Reach.** GenApp's LGICDB01 moves the 10-digit CA-CUSTOMER-NUM into an `S9(9) COMP`: a customer number of 10 digits
+  would now behave as on z/OS.
 
 ### C2. Arithmetic intermediates — ASSUMED
 - **What.** GnuCOBOL computes arithmetic in exact decimal, and DIVIDE follows `cob_decimal_div` (the dividend
@@ -131,6 +126,14 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
   file.
 - **Reached.** The harness's SQLCA declares its binary fields COMP-5, as IBM's does, and programs read them only as
   numbers. In the corpora, only CardDemo's IMSFUNCS.cpy declares COMP-5.
+
+### C9. POINTER size — DIFFERS
+- **What.** A POINTER is 8 bytes in GnuCOBOL on x86-64 and 4 on z/OS (31-bit), so every offset after one differs.
+- **Reach.** CBSA passes IMS-era PCB pointers at the end of its COMMAREAs, always NULL. The port carries a POINTER in a
+  COMMAREA DTO as NULL only (DetCics.pointerIn / pointerOut stop by name on an address) and refuses a DTO with data
+  after a POINTER: the task stops by name when it gets one.
+- **Waiting on it.** CBSA's INQACCCU, DELCUS and CREACC pass COMMAREAs with data after a POINTER. They need the COBOL
+  side on 4-byte pointers (a 32-bit GnuCOBOL build) before they can be proven.
 
 ### C8. DISPLAY text — MATCHED
 - **What.** GnuCOBOL writes a signed zoned item as `012-` and a binary item as `-00007`. IBM writes their external
@@ -204,15 +207,22 @@ verdict, but it limits what the proof says about inputs outside the scenarios.
 - **Not modelled.** What a 3270 shows after BMS merges the physical map, MAPONLY, DATAONLY, ERASE and FRSET. Two
   ports with equal symbolic maps could differ on a terminal only if BMS itself differed.
 
-### X3. Recoverable files — ASSUMED
-- **What.** SYNCPOINT ROLLBACK and an abend's backout restore every file the task changed, and the Db2 unit of work
-  ends with it.
-- **Not modelled.** CICS restores only files defined RECOVERY(BACKOUTONLY|ALL); the CSD's RECOVERY attribute is not
-  read. Temporary storage is not backed out.
+### X3. Backout and recoverable files — MATCHED
+- **What.** SYNCPOINT ROLLBACK, or an abend that terminates the task, backs out the unit of work: the recoverable files'
+  changes and the task's Db2 changes. A file the CSD defines RECOVERY(NONE) keeps its changes (CBSA's ABNDFILE: the
+  abend log a backout must not undo).
+- **How.** A case states a dataset's RECOVERY(NONE) (`"recovery": "NONE"`, with a `recovery_why` citing the CSD: the
+  engine's facts do not carry the attribute). The COBOL model does not save such a file for backout; the Java side
+  makes its changes outside the task's transaction (REQUIRES_NEW).
+- **Fixed 2026-10-02.** Until then the COBOL model backed out every file, and the Java side backed out nothing on an
+  abend that terminated the task (only on SYNCPOINT ROLLBACK). No proven scenario had changed a file and then abended.
+- **Not modelled.** Temporary storage is not backed out (CICS backs out recoverable TS queues).
 
 ### X4. Time — ASSUMED
 - **What.** EIBDATE and EIBTIME are the case's clock at dispatch. ASKTIME leaves them unchanged (a task takes no time),
   and FORMATTIME formats from that clock.
+- A DELAY takes no time either (CBSA's INQCUST and credit agencies retry after one); ENQ and DEQ are NORMAL, one
+  task being the region's only one.
 
 ### X5. What IBM leaves open — REFUSED
 Refused by name (`equivalence_cics.Unsupported`):
@@ -274,14 +284,18 @@ The length READQ TS returns on ITEMERR or QIDERR is not documented, so it is not
 ### Q2. EXEC SQL keeps RETURN-CODE — ASSUMED
 - The precompiled CALL preserves RETURN-CODE around the stub. Whether IBM's DSNHLI call resets it is not documented.
 
-### Q3. Java commits each statement — DIFFERS
-- **What.** The generated Db2 repositories autocommit, so a ROLLBACK is a hole. A CICS backout after a Db2 change would
-  show as a difference, never as a proof.
-- **Reached.** No proven scenario reaches it.
+### Q3. The Java side's Db2 unit of work — MATCHED for CICS tasks, DIFFERS for batch
+- **CICS.** The equivalence test runs each task's SQL in one Db2 transaction, as CICS's Db2 thread does: committed when
+  the task ends, rolled back with the task's recoverable files by SYNCPOINT ROLLBACK or an abend (X3). The transaction
+  is the harness's (`equivalence_cics.py`, a `TransactionTemplate` around the task); a deployment must give each task
+  the same unit of work. Reached: CBSA XFRFUN's four ROLLBACK paths are proven.
+- **Batch.** The generated Db2 repositories autocommit, so a batch program's ROLLBACK is a hole. No proven batch
+  scenario reaches one (COBTUPDT has no ROLLBACK path).
 
 ### Q4. Unsupported embedded SQL — REFUSED
-- **Refused.** WHENEVER, PREPARE/EXECUTE (dynamic SQL) and `WHERE CURRENT OF` stop the precompiler by name, as does an
-  undeclared host variable.
+- **Refused.** WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT, CALL, ALLOCATE / ASSOCIATE, SCROLL
+  cursors and host-variable arrays stop the precompiler by name, as does an undeclared host variable or a `WHERE
+  CURRENT OF` a cursor the program does not declare. A positioned UPDATE / DELETE on a declared cursor runs (Q8).
 
 ### Q5. DSNTIAC / DSNTIAR — REFUSED
 - **What.** IBM's message formatter is not modelled. COTRTLIC's call to it, on the Db2-error path, is its one

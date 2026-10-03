@@ -36,6 +36,10 @@ DEFINITION: dict[str, Any] = {
     # resolver tries dirname(importer)/x.zig before a name search.
     "imports_resolve_from_importer_dir": True,
     "rules": {
+        # A `branch` hit is code: a keyword, `?` or `:` inside a string or char
+        # literal (a JDBC `"values (?, ?)"`, `"if"` in a message) is not a
+        # decision. See branch_rule_contract.md, "Literals".
+        "_scope_filters": {"branch": "outside_literals"},
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
         # #3359 (contract C2): keywords and special forms, never calls

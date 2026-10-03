@@ -421,7 +421,28 @@ class SecurityLens:
             # payload takes (each invisible codepoint carries one encoded byte, so
             # a useful payload necessarily requires many in a row). The {3,}
             # quantifier is what keeps this signal both real and low-noise.
-            "unicode_steganography": re.compile("[\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F]{3,}"),
+            #
+            # #4135: the one legitimate RUN of Tags-block codepoints is an emoji
+            # subdivision flag (England/Scotland/Wales): U+1F3F4 WAVING BLACK FLAG,
+            # then a CLDR subdivision id spelled in TAG LATIN SMALL LETTER / TAG
+            # DIGIT codepoints (U+E0061-E007A, U+E0030-E0039), then CANCEL TAG
+            # U+E007F -- e.g. U+1F3F4 + "gbeng" + U+E007F. A subdivision id is a
+            # 2-letter or 3-digit region plus 1-4 alphanumerics, so 3-7 tag chars.
+            # The exemption is deliberately tight: the run must START right after
+            # U+1F3F4, hold only 3-7 lowercase/digit tags, and END at the U+E007F
+            # with no further invisible codepoint after it. Anything else -- tags
+            # with no flag base, uppercase/punctuation tags, an overlong id, a
+            # missing CANCEL TAG, or extra payload codepoints trailing the flag --
+            # still fires on the whole run. The leading `(?<![...])` keeps every
+            # match anchored at a run's start (finditer never matched mid-run
+            # before either, the greedy {3,} consumed the whole run), so a skipped
+            # flag cannot be re-matched from its second codepoint.
+            "unicode_steganography": re.compile(
+                "(?<![\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F])"
+                "(?!(?<=\\U0001F3F4)[\\U000E0030-\\U000E0039\\U000E0061-\\U000E007A]{3,7}\\U000E007F\\uFE0F?"
+                "(?![\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F]))"
+                "[\\uFE00-\\uFE0F\\U000E0100-\\U000E01EF\\U000E0000-\\U000E007F]{3,}"
+            ),
             # 15. Self-Referential File Propagation (worm/self-copy pattern, #1150)
             # A worm's defining mechanical trait is duplicating or overwriting
             # itself. Requires a self-file-reference token (__filename/__dirname/

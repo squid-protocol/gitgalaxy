@@ -160,7 +160,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 5.95,
+        "cognitive_load": 5.8,
         "concurrency": 12.45,
         "dead_code": 0.0,
         "documentation": 11.88,
@@ -170,10 +170,10 @@
         "stability": 43.75,
         "state_flux": 31.01,
         "tech_debt": 47.65,
-        "verification": 2.03
+        "verification": 2.02
       },
       "file_count": 8,
-      "total_mass": 204.94
+      "total_mass": 203.54
     },
     "assembly": {
       "avg_exposures": {
@@ -236,7 +236,7 @@
       "avg_exposures": {
         "api_exposure": 2.58,
         "churn": 0.0,
-        "cognitive_load": 18.58,
+        "cognitive_load": 18.41,
         "concurrency": 0.0,
         "dead_code": 2.32,
         "documentation": 76.36,
@@ -249,7 +249,7 @@
         "verification": 33.4
       },
       "file_count": 5,
-      "total_mass": 1581.86
+      "total_mass": 1578.86
     },
     "assembly/cosmopolitan_runtime": {
       "avg_exposures": {
@@ -673,26 +673,26 @@
       "avg_exposures": {
         "api_exposure": 15.52,
         "churn": 0.0,
-        "cognitive_load": 49.4,
+        "cognitive_load": 50.92,
         "concurrency": 0.0,
         "dead_code": 5.11,
         "documentation": 99.72,
-        "safety_score": 78.79,
+        "safety_score": 78.45,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 87.31,
+        "state_flux": 87.24,
         "tech_debt": 37.5,
         "verification": 80.0
       },
       "file_count": 8,
-      "total_mass": 23266.84
+      "total_mass": 22649.14
     },
     "c/doom": {
       "avg_exposures": {
         "api_exposure": 28.65,
         "churn": 0.0,
-        "cognitive_load": 30.55,
+        "cognitive_load": 30.33,
         "concurrency": 0.0,
         "dead_code": 8.0,
         "documentation": 53.85,
@@ -705,32 +705,32 @@
         "verification": 31.87
       },
       "file_count": 13,
-      "total_mass": 2831.6
+      "total_mass": 2813.3
     },
     "c/micropython": {
       "avg_exposures": {
         "api_exposure": 6.31,
         "churn": 0.0,
-        "cognitive_load": 37.27,
+        "cognitive_load": 29.86,
         "concurrency": 0.0,
         "dead_code": 4.65,
         "documentation": 57.43,
-        "safety_score": 43.86,
+        "safety_score": 42.66,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 49.78,
+        "state_flux": 49.75,
         "tech_debt": 23.2,
-        "verification": 34.68
+        "verification": 28.22
       },
       "file_count": 12,
-      "total_mass": 7211.64
+      "total_mass": 6569.54
     },
     "c/sqlite": {
       "avg_exposures": {
         "api_exposure": 2.81,
         "churn": 0.0,
-        "cognitive_load": 29.97,
+        "cognitive_load": 29.87,
         "concurrency": 0.0,
         "dead_code": 1.72,
         "documentation": 16.53,
@@ -743,7 +743,7 @@
         "verification": 26.67
       },
       "file_count": 3,
-      "total_mass": 8119.18
+      "total_mass": 8048.88
     },
     "cobol/CICS-Cobol": {
       "avg_exposures": {
@@ -1015,11 +1015,11 @@
       "avg_exposures": {
         "api_exposure": 5.05,
         "churn": 0.0,
-        "cognitive_load": 57.36,
+        "cognitive_load": 57.09,
         "concurrency": 0.0,
         "dead_code": 0.69,
         "documentation": 70.81,
-        "safety_score": 67.26,
+        "safety_score": 67.2,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
@@ -1028,7 +1028,7 @@
         "verification": 57.47
       },
       "file_count": 7,
-      "total_mass": 37736.4
+      "total_mass": 37187.0
     },
     "cobol/zECS": {
       "avg_exposures": {
@@ -1091,11 +1091,11 @@
       "avg_exposures": {
         "api_exposure": 15.68,
         "churn": 0.0,
-        "cognitive_load": 36.66,
+        "cognitive_load": 36.59,
         "concurrency": 5.31,
         "dead_code": 0.81,
         "documentation": 29.19,
-        "safety_score": 52.96,
+        "safety_score": 52.95,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 33.33,
@@ -1104,17 +1104,17 @@
         "verification": 40.42
       },
       "file_count": 12,
-      "total_mass": 9248.14
+      "total_mass": 9224.04
     },
     "cpp/godot": {
       "avg_exposures": {
         "api_exposure": 14.03,
         "churn": 0.0,
-        "cognitive_load": 38.75,
+        "cognitive_load": 37.93,
         "concurrency": 0.0,
         "dead_code": 2.11,
         "documentation": 37.06,
-        "safety_score": 54.54,
+        "safety_score": 54.36,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.62,
@@ -1123,13 +1123,13 @@
         "verification": 55.29
       },
       "file_count": 16,
-      "total_mass": 22412.12
+      "total_mass": 21791.12
     },
     "cpp/mlir": {
       "avg_exposures": {
         "api_exposure": 0.39,
         "churn": 0.0,
-        "cognitive_load": 22.64,
+        "cognitive_load": 22.61,
         "concurrency": 0.0,
         "dead_code": 0.74,
         "documentation": 91.43,
@@ -1142,26 +1142,26 @@
         "verification": 35.3
       },
       "file_count": 7,
-      "total_mass": 2781.62
+      "total_mass": 2763.62
     },
     "cpp/powertoys": {
       "avg_exposures": {
         "api_exposure": 12.54,
         "churn": 0.0,
-        "cognitive_load": 19.5,
+        "cognitive_load": 22.11,
         "concurrency": 5.64,
         "dead_code": 1.35,
         "documentation": 85.71,
-        "safety_score": 46.71,
+        "safety_score": 46.59,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 61.35,
+        "state_flux": 61.33,
         "tech_debt": 27.37,
         "verification": 35.67
       },
       "file_count": 7,
-      "total_mass": 1171.7
+      "total_mass": 1150.1
     },
     "csd": {
       "avg_exposures": {
@@ -1262,7 +1262,7 @@
       "avg_exposures": {
         "api_exposure": 3.95,
         "churn": 0.0,
-        "cognitive_load": 23.28,
+        "cognitive_load": 23.13,
         "concurrency": 20.17,
         "dead_code": 4.12,
         "documentation": 50.52,
@@ -1275,7 +1275,7 @@
         "verification": 57.48
       },
       "file_count": 7,
-      "total_mass": 14738.5
+      "total_mass": 14678.6
     },
     "css": {
       "avg_exposures": {
@@ -1490,20 +1490,20 @@
       "avg_exposures": {
         "api_exposure": 3.19,
         "churn": 0.0,
-        "cognitive_load": 32.45,
+        "cognitive_load": 30.03,
         "concurrency": 12.89,
         "dead_code": 6.84,
         "documentation": 44.0,
-        "safety_score": 22.28,
+        "safety_score": 22.19,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 86.14,
+        "state_flux": 86.1,
         "tech_debt": 37.64,
-        "verification": 35.72
+        "verification": 24.64
       },
       "file_count": 7,
-      "total_mass": 26398.0
+      "total_mass": 22960.2
     },
     "db2_sql": {
       "avg_exposures": {
@@ -1566,39 +1566,39 @@
       "avg_exposures": {
         "api_exposure": 2.89,
         "churn": 0.0,
-        "cognitive_load": 16.1,
+        "cognitive_load": 15.1,
         "concurrency": 6.39,
         "dead_code": 2.45,
         "documentation": 79.84,
-        "safety_score": 41.3,
+        "safety_score": 40.72,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 55.91,
+        "state_flux": 54.44,
         "tech_debt": 68.31,
-        "verification": 19.57
+        "verification": 16.98
       },
       "file_count": 30,
-      "total_mass": 3683.03
+      "total_mass": 2761.18
     },
     "dockerfile/moby/builder/remotecontext": {
       "avg_exposures": {
         "api_exposure": 3.36,
         "churn": 0.0,
-        "cognitive_load": 10.02,
+        "cognitive_load": 9.76,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 62.22,
-        "safety_score": 34.08,
+        "safety_score": 33.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 43.2,
+        "state_flux": 40.96,
         "tech_debt": 68.89,
-        "verification": 14.33
+        "verification": 7.87
       },
       "file_count": 12,
-      "total_mass": 493.8
+      "total_mass": 485.5
     },
     "dockerfile/moby/builder/remotecontext/git": {
       "avg_exposures": {
@@ -1623,7 +1623,7 @@
       "avg_exposures": {
         "api_exposure": 5.16,
         "churn": 0.0,
-        "cognitive_load": 18.83,
+        "cognitive_load": 18.63,
         "concurrency": 1.34,
         "dead_code": 0.79,
         "documentation": 31.19,
@@ -1636,7 +1636,7 @@
         "verification": 8.96
       },
       "file_count": 10,
-      "total_mass": 729.94
+      "total_mass": 728.54
     },
     "dockerfile/moby/builder/remotecontext/urlutil": {
       "avg_exposures": {
@@ -1775,11 +1775,11 @@
       "avg_exposures": {
         "api_exposure": 3.69,
         "churn": 0.0,
-        "cognitive_load": 31.62,
+        "cognitive_load": 31.58,
         "concurrency": 4.35,
         "dead_code": 11.87,
         "documentation": 44.54,
-        "safety_score": 65.82,
+        "safety_score": 65.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -1788,55 +1788,55 @@
         "verification": 60.29
       },
       "file_count": 8,
-      "total_mass": 9763.82
+      "total_mass": 9733.12
     },
     "go/kubernetes": {
       "avg_exposures": {
         "api_exposure": 4.92,
         "churn": 0.0,
-        "cognitive_load": 16.81,
+        "cognitive_load": 16.47,
         "concurrency": 28.03,
         "dead_code": 4.41,
         "documentation": 33.72,
-        "safety_score": 53.36,
+        "safety_score": 53.3,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 81.62,
+        "state_flux": 81.58,
         "tech_debt": 46.05,
         "verification": 68.9
       },
       "file_count": 7,
-      "total_mass": 2484.96
+      "total_mass": 2424.26
     },
     "groovy/fineract_gradle_plugin": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 14.34,
+        "cognitive_load": 14.2,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 88.89,
-        "safety_score": 63.65,
+        "safety_score": 63.31,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
-        "state_flux": 62.22,
+        "state_flux": 59.08,
         "tech_debt": 62.91,
-        "verification": 2.16
+        "verification": 2.15
       },
       "file_count": 9,
-      "total_mass": 260.14
+      "total_mass": 254.94
     },
     "groovy/flutter_android_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 23.05,
+        "cognitive_load": 19.26,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 4.17,
-        "safety_score": 78.65,
+        "safety_score": 77.6,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -1845,64 +1845,64 @@
         "verification": 2.3
       },
       "file_count": 24,
-      "total_mass": 523.1
+      "total_mass": 509.1
     },
     "groovy/godot_android_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 16.07,
+        "cognitive_load": 13.81,
         "concurrency": 5.26,
         "dead_code": 0.0,
         "documentation": 40.0,
-        "safety_score": 64.67,
+        "safety_score": 63.8,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 45.0,
         "state_flux": 0.0,
         "tech_debt": 0.0,
-        "verification": 9.85
+        "verification": 2.08
       },
       "file_count": 10,
-      "total_mass": 422.34
+      "total_mass": 325.04
     },
     "groovy/gradle": {
       "avg_exposures": {
         "api_exposure": 10.33,
         "churn": 0.0,
-        "cognitive_load": 34.55,
+        "cognitive_load": 30.92,
         "concurrency": 38.79,
         "dead_code": 1.99,
         "documentation": 98.74,
-        "safety_score": 73.47,
+        "safety_score": 70.18,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 76.37,
+        "state_flux": 58.1,
         "tech_debt": 82.0,
         "verification": 80.0
       },
       "file_count": 3,
-      "total_mass": 1236.48
+      "total_mass": 1074.68
     },
     "groovy/gradle_buildlogic_groovy": {
       "avg_exposures": {
         "api_exposure": 0.41,
         "churn": 0.0,
-        "cognitive_load": 10.08,
+        "cognitive_load": 9.38,
         "concurrency": 1.74,
         "dead_code": 0.0,
         "documentation": 83.75,
-        "safety_score": 50.45,
+        "safety_score": 50.34,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 31.84,
+        "state_flux": 31.83,
         "tech_debt": 66.33,
         "verification": 5.64
       },
       "file_count": 24,
-      "total_mass": 410.06
+      "total_mass": 397.36
     },
     "groovy/gradle_dsl_snippets": {
       "avg_exposures": {
@@ -1927,20 +1927,20 @@
       "avg_exposures": {
         "api_exposure": 0.11,
         "churn": 0.0,
-        "cognitive_load": 7.51,
+        "cognitive_load": 5.15,
         "concurrency": 30.15,
         "dead_code": 0.25,
         "documentation": 100.0,
-        "safety_score": 26.45,
+        "safety_score": 26.25,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 18.34,
+        "state_flux": 16.72,
         "tech_debt": 85.37,
-        "verification": 4.91
+        "verification": 4.9
       },
       "file_count": 30,
-      "total_mass": 476.9
+      "total_mass": 448.4
     },
     "groovy/gradle_sample_task_classes": {
       "avg_exposures": {
@@ -1965,7 +1965,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 5.91,
+        "cognitive_load": 5.84,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 3.33,
@@ -1978,17 +1978,17 @@
         "verification": 4.81
       },
       "file_count": 30,
-      "total_mass": 574.66
+      "total_mass": 570.26
     },
     "groovy/kotlin_build_gradle": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 2.16,
+        "cognitive_load": 1.48,
         "concurrency": 0.87,
         "dead_code": 0.41,
         "documentation": 12.0,
-        "safety_score": 42.15,
+        "safety_score": 41.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 48.0,
@@ -1997,7 +1997,7 @@
         "verification": 2.21
       },
       "file_count": 25,
-      "total_mass": 424.92
+      "total_mass": 417.92
     },
     "groovy/retrofit_gradle": {
       "avg_exposures": {
@@ -2022,26 +2022,26 @@
       "avg_exposures": {
         "api_exposure": 2.99,
         "churn": 0.0,
-        "cognitive_load": 35.85,
+        "cognitive_load": 33.55,
         "concurrency": 0.0,
         "dead_code": 7.72,
         "documentation": 92.86,
-        "safety_score": 76.76,
+        "safety_score": 76.72,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 74.91,
+        "state_flux": 74.9,
         "tech_debt": 58.11,
-        "verification": 60.62
+        "verification": 60.61
       },
       "file_count": 4,
-      "total_mass": 812.42
+      "total_mass": 767.32
     },
     "groovy/spock_core_groovy": {
       "avg_exposures": {
         "api_exposure": 0.07,
         "churn": 0.0,
-        "cognitive_load": 9.93,
+        "cognitive_load": 9.91,
         "concurrency": 5.88,
         "dead_code": 0.0,
         "documentation": 85.39,
@@ -2054,13 +2054,13 @@
         "verification": 6.95
       },
       "file_count": 17,
-      "total_mass": 366.52
+      "total_mass": 365.02
     },
     "groovy/spock_smoke_specs": {
       "avg_exposures": {
         "api_exposure": 0.03,
         "churn": 0.0,
-        "cognitive_load": 4.02,
+        "cognitive_load": 3.87,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 90.86,
@@ -2073,13 +2073,13 @@
         "verification": 2.33
       },
       "file_count": 24,
-      "total_mass": 355.56
+      "total_mass": 349.26
     },
     "groovy/spock_specs": {
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 2.34,
+        "cognitive_load": 2.16,
         "concurrency": 1.3,
         "dead_code": 0.34,
         "documentation": 95.56,
@@ -2092,7 +2092,7 @@
         "verification": 2.32
       },
       "file_count": 30,
-      "total_mass": 317.98
+      "total_mass": 314.98
     },
     "groovy/spring_boot_gradle": {
       "avg_exposures": {
@@ -2535,7 +2535,7 @@
       "avg_exposures": {
         "api_exposure": 4.35,
         "churn": 0.0,
-        "cognitive_load": 27.99,
+        "cognitive_load": 27.86,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 16.67,
@@ -2548,7 +2548,7 @@
         "verification": 1.94
       },
       "file_count": 6,
-      "total_mass": 1.53
+      "total_mass": 1.51
     },
     "html/wordpress_blocks": {
       "avg_exposures": {
@@ -2592,20 +2592,20 @@
       "avg_exposures": {
         "api_exposure": 4.16,
         "churn": 0.0,
-        "cognitive_load": 15.9,
+        "cognitive_load": 14.47,
         "concurrency": 10.9,
         "dead_code": 0.0,
         "documentation": 59.79,
-        "safety_score": 61.4,
+        "safety_score": 60.99,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
-        "state_flux": 56.66,
+        "state_flux": 55.25,
         "tech_debt": 55.1,
         "verification": 50.59
       },
       "file_count": 8,
-      "total_mass": 1818.54
+      "total_mass": 1602.44
     },
     "javascript": {
       "avg_exposures": {
@@ -2630,7 +2630,7 @@
       "avg_exposures": {
         "api_exposure": 11.2,
         "churn": 0.0,
-        "cognitive_load": 71.23,
+        "cognitive_load": 71.21,
         "concurrency": 15.18,
         "dead_code": 3.07,
         "documentation": 87.5,
@@ -2643,36 +2643,36 @@
         "verification": 50.68
       },
       "file_count": 8,
-      "total_mass": 2952.92
+      "total_mass": 2947.02
     },
     "javascript/react": {
       "avg_exposures": {
         "api_exposure": 18.04,
         "churn": 0.0,
-        "cognitive_load": 37.11,
+        "cognitive_load": 36.54,
         "concurrency": 18.54,
         "dead_code": 2.56,
         "documentation": 91.4,
-        "safety_score": 47.83,
+        "safety_score": 47.81,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 68.54,
         "tech_debt": 38.96,
-        "verification": 54.17
+        "verification": 54.16
       },
       "file_count": 6,
-      "total_mass": 10590.74
+      "total_mass": 10499.54
     },
     "javascript/threejs": {
       "avg_exposures": {
         "api_exposure": 4.36,
         "churn": 0.0,
-        "cognitive_load": 54.15,
+        "cognitive_load": 54.08,
         "concurrency": 21.68,
         "dead_code": 2.85,
         "documentation": 42.52,
-        "safety_score": 71.73,
+        "safety_score": 71.44,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -2681,7 +2681,7 @@
         "verification": 68.9
       },
       "file_count": 7,
-      "total_mass": 8327.1
+      "total_mass": 8293.5
     },
     "jcl/cash-account-cobol": {
       "avg_exposures": {
@@ -3295,7 +3295,7 @@
       "avg_exposures": {
         "api_exposure": 0.59,
         "churn": 0.0,
-        "cognitive_load": 2.11,
+        "cognitive_load": 2.08,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 25.0,
@@ -3308,7 +3308,7 @@
         "verification": 2.32
       },
       "file_count": 4,
-      "total_mass": 137.1
+      "total_mass": 135.7
     },
     "objective-c": {
       "avg_exposures": {
@@ -3333,11 +3333,11 @@
       "avg_exposures": {
         "api_exposure": 54.49,
         "churn": 0.0,
-        "cognitive_load": 60.15,
+        "cognitive_load": 59.46,
         "concurrency": 0.0,
         "dead_code": 3.45,
         "documentation": 100.0,
-        "safety_score": 75.39,
+        "safety_score": 75.38,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -3346,7 +3346,7 @@
         "verification": 67.1
       },
       "file_count": 6,
-      "total_mass": 2565.6
+      "total_mass": 2534.9
     },
     "perl": {
       "avg_exposures": {
@@ -3466,7 +3466,7 @@
       "avg_exposures": {
         "api_exposure": 3.67,
         "churn": 0.0,
-        "cognitive_load": 37.73,
+        "cognitive_load": 37.53,
         "concurrency": 6.42,
         "dead_code": 2.45,
         "documentation": 21.0,
@@ -3479,17 +3479,17 @@
         "verification": 35.37
       },
       "file_count": 7,
-      "total_mass": 1938.02
+      "total_mass": 1915.32
     },
     "php/laravel_core": {
       "avg_exposures": {
         "api_exposure": 6.8,
         "churn": 0.0,
-        "cognitive_load": 31.72,
+        "cognitive_load": 30.25,
         "concurrency": 1.62,
         "dead_code": 0.62,
         "documentation": 0.46,
-        "safety_score": 71.11,
+        "safety_score": 71.02,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -3498,17 +3498,17 @@
         "verification": 70.0
       },
       "file_count": 8,
-      "total_mass": 5002.0
+      "total_mass": 4961.0
     },
     "php/magento2": {
       "avg_exposures": {
         "api_exposure": 3.74,
         "churn": 0.0,
-        "cognitive_load": 28.21,
+        "cognitive_load": 28.12,
         "concurrency": 5.49,
         "dead_code": 1.26,
         "documentation": 0.0,
-        "safety_score": 76.11,
+        "safety_score": 76.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -3517,17 +3517,17 @@
         "verification": 31.22
       },
       "file_count": 8,
-      "total_mass": 4447.2
+      "total_mass": 4363.1
     },
     "php/symfony": {
       "avg_exposures": {
         "api_exposure": 5.38,
         "churn": 0.0,
-        "cognitive_load": 52.37,
+        "cognitive_load": 51.99,
         "concurrency": 2.43,
         "dead_code": 1.54,
         "documentation": 42.14,
-        "safety_score": 87.73,
+        "safety_score": 87.47,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -3536,17 +3536,17 @@
         "verification": 57.9
       },
       "file_count": 7,
-      "total_mass": 5636.02
+      "total_mass": 5550.82
     },
     "php/wordpress": {
       "avg_exposures": {
         "api_exposure": 8.0,
         "churn": 0.0,
-        "cognitive_load": 27.0,
+        "cognitive_load": 26.63,
         "concurrency": 3.99,
         "dead_code": 2.49,
         "documentation": 0.0,
-        "safety_score": 74.91,
+        "safety_score": 74.8,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 43.75,
@@ -3555,7 +3555,7 @@
         "verification": 40.86
       },
       "file_count": 8,
-      "total_mass": 14696.86
+      "total_mass": 14164.36
     },
     "plaintext": {
       "avg_exposures": {
@@ -4036,20 +4036,20 @@
       "avg_exposures": {
         "api_exposure": 14.46,
         "churn": 0.0,
-        "cognitive_load": 35.03,
+        "cognitive_load": 34.89,
         "concurrency": 0.0,
         "dead_code": 5.45,
         "documentation": 31.06,
-        "safety_score": 72.28,
+        "safety_score": 72.22,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 44.44,
-        "state_flux": 72.62,
+        "state_flux": 72.04,
         "tech_debt": 15.76,
         "verification": 40.92
       },
       "file_count": 18,
-      "total_mass": 16581.36
+      "total_mass": 16570.06
     },
     "python/twisted": {
       "avg_exposures": {
@@ -4226,58 +4226,58 @@
       "avg_exposures": {
         "api_exposure": 5.13,
         "churn": 0.0,
-        "cognitive_load": 8.87,
+        "cognitive_load": 8.75,
         "concurrency": 13.08,
         "dead_code": 10.01,
         "documentation": 35.44,
-        "safety_score": 35.67,
+        "safety_score": 35.49,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 38.89,
-        "state_flux": 29.37,
+        "state_flux": 28.33,
         "tech_debt": 48.43,
         "verification": 27.72
       },
       "file_count": 9,
-      "total_mass": 1680.7
+      "total_mass": 1659.8
     },
     "rust/holylang": {
       "avg_exposures": {
         "api_exposure": 6.12,
         "churn": 0.0,
-        "cognitive_load": 19.04,
+        "cognitive_load": 16.68,
         "concurrency": 0.0,
         "dead_code": 1.74,
         "documentation": 56.79,
-        "safety_score": 57.21,
+        "safety_score": 57.09,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 53.12,
+        "state_flux": 52.51,
         "tech_debt": 52.23,
         "verification": 35.62
       },
       "file_count": 7,
-      "total_mass": 1533.36
+      "total_mass": 1409.96
     },
     "rust/serde": {
       "avg_exposures": {
         "api_exposure": 4.44,
         "churn": 0.0,
-        "cognitive_load": 5.01,
+        "cognitive_load": 4.99,
         "concurrency": 0.0,
         "dead_code": 7.67,
         "documentation": 50.57,
-        "safety_score": 26.13,
+        "safety_score": 26.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 38.89,
-        "state_flux": 13.49,
+        "state_flux": 13.4,
         "tech_debt": 36.79,
-        "verification": 44.96
+        "verification": 36.34
       },
       "file_count": 9,
-      "total_mass": 2889.32
+      "total_mass": 2881.92
     },
     "rust/syn": {
       "avg_exposures": {
@@ -4302,7 +4302,7 @@
       "avg_exposures": {
         "api_exposure": 12.4,
         "churn": 0.0,
-        "cognitive_load": 14.99,
+        "cognitive_load": 14.13,
         "concurrency": 50.45,
         "dead_code": 31.58,
         "documentation": 40.78,
@@ -4315,13 +4315,13 @@
         "verification": 21.57
       },
       "file_count": 12,
-      "total_mass": 1346.5
+      "total_mass": 1341.4
     },
     "rust/wasmtime": {
       "avg_exposures": {
         "api_exposure": 7.1,
         "churn": 0.0,
-        "cognitive_load": 10.2,
+        "cognitive_load": 10.13,
         "concurrency": 8.52,
         "dead_code": 6.32,
         "documentation": 81.48,
@@ -4334,7 +4334,7 @@
         "verification": 60.58
       },
       "file_count": 4,
-      "total_mass": 3774.28
+      "total_mass": 3766.88
     },
     "scala": {
       "avg_exposures": {
@@ -4359,20 +4359,20 @@
       "avg_exposures": {
         "api_exposure": 4.85,
         "churn": 0.0,
-        "cognitive_load": 13.31,
+        "cognitive_load": 12.44,
         "concurrency": 0.0,
         "dead_code": 1.44,
         "documentation": 78.07,
-        "safety_score": 60.06,
+        "safety_score": 59.95,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 53.16,
+        "state_flux": 52.48,
         "tech_debt": 43.48,
         "verification": 57.83
       },
       "file_count": 7,
-      "total_mass": 6206.44
+      "total_mass": 5916.74
     },
     "scheme": {
       "avg_exposures": {
@@ -4397,11 +4397,11 @@
       "avg_exposures": {
         "api_exposure": 1.52,
         "churn": 0.0,
-        "cognitive_load": 36.67,
+        "cognitive_load": 36.58,
         "concurrency": 1.95,
         "dead_code": 2.82,
         "documentation": 85.71,
-        "safety_score": 60.09,
+        "safety_score": 60.08,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 42.86,
@@ -4410,7 +4410,7 @@
         "verification": 68.57
       },
       "file_count": 7,
-      "total_mass": 21676.52
+      "total_mass": 21287.82
     },
     "shell": {
       "avg_exposures": {
@@ -4739,11 +4739,11 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 67.91,
+        "cognitive_load": 42.03,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 86.74,
+        "safety_score": 86.33,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
@@ -4752,7 +4752,7 @@
         "verification": 80.0
       },
       "file_count": 1,
-      "total_mass": 812.8
+      "total_mass": 609.7
     },
     "sql/mediawiki_mysql": {
       "avg_exposures": {
@@ -5062,7 +5062,7 @@
       "avg_exposures": {
         "api_exposure": 7.81,
         "churn": 0.0,
-        "cognitive_load": 26.35,
+        "cognitive_load": 25.38,
         "concurrency": 48.98,
         "dead_code": 7.75,
         "documentation": 12.85,
@@ -5075,7 +5075,7 @@
         "verification": 35.64
       },
       "file_count": 7,
-      "total_mass": 1787.7
+      "total_mass": 1756.0
     },
     "tabular": {
       "avg_exposures": {
@@ -5461,11 +5461,11 @@
       "avg_exposures": {
         "api_exposure": 18.33,
         "churn": 0.0,
-        "cognitive_load": 22.14,
+        "cognitive_load": 22.06,
         "concurrency": 0.0,
         "dead_code": 2.27,
         "documentation": 35.12,
-        "safety_score": 44.14,
+        "safety_score": 44.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.0,
@@ -5474,7 +5474,7 @@
         "verification": 48.46
       },
       "file_count": 5,
-      "total_mass": 12594.78
+      "total_mass": 12549.28
     },
     "typescript/fp-ts": {
       "avg_exposures": {
@@ -5499,11 +5499,11 @@
       "avg_exposures": {
         "api_exposure": 5.82,
         "churn": 0.0,
-        "cognitive_load": 43.19,
+        "cognitive_load": 43.17,
         "concurrency": 46.33,
         "dead_code": 0.0,
         "documentation": 22.73,
-        "safety_score": 47.44,
+        "safety_score": 47.43,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 31.82,
@@ -5512,13 +5512,13 @@
         "verification": 36.78
       },
       "file_count": 11,
-      "total_mass": 3309.78
+      "total_mass": 3245.28
     },
     "typescript/typescript_compiler": {
       "avg_exposures": {
         "api_exposure": 2.9,
         "churn": 0.0,
-        "cognitive_load": 26.16,
+        "cognitive_load": 26.11,
         "concurrency": 0.0,
         "dead_code": 2.95,
         "documentation": 45.33,
@@ -5531,26 +5531,26 @@
         "verification": 40.0
       },
       "file_count": 2,
-      "total_mass": 2962.18
+      "total_mass": 2957.68
     },
     "typescript/vscode": {
       "avg_exposures": {
         "api_exposure": 7.64,
         "churn": 0.0,
-        "cognitive_load": 31.58,
+        "cognitive_load": 31.38,
         "concurrency": 39.26,
         "dead_code": 1.55,
         "documentation": 54.29,
-        "safety_score": 57.97,
+        "safety_score": 57.96,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 40.91,
-        "state_flux": 59.92,
+        "state_flux": 59.84,
         "tech_debt": 50.1,
         "verification": 58.39
       },
       "file_count": 11,
-      "total_mass": 7982.32
+      "total_mass": 7929.12
     },
     "typescript/zod": {
       "avg_exposures": {
@@ -6050,7 +6050,7 @@
       "avg_exposures": {
         "api_exposure": 9.06,
         "churn": 0.0,
-        "cognitive_load": 19.34,
+        "cognitive_load": 19.3,
         "concurrency": 0.0,
         "dead_code": 2.9,
         "documentation": 33.59,
@@ -6063,13 +6063,13 @@
         "verification": 48.49
       },
       "file_count": 5,
-      "total_mass": 3561.96
+      "total_mass": 3559.96
     },
     "zig/mach": {
       "avg_exposures": {
         "api_exposure": 40.75,
         "churn": 0.0,
-        "cognitive_load": 11.8,
+        "cognitive_load": 11.79,
         "concurrency": 1.67,
         "dead_code": 3.69,
         "documentation": 53.4,
@@ -6082,13 +6082,13 @@
         "verification": 41.22
       },
       "file_count": 8,
-      "total_mass": 2977.78
+      "total_mass": 2975.98
     },
     "zig/tigerbeetle": {
       "avg_exposures": {
         "api_exposure": 24.44,
         "churn": 0.0,
-        "cognitive_load": 22.31,
+        "cognitive_load": 22.29,
         "concurrency": 0.0,
         "dead_code": 1.36,
         "documentation": 73.37,
@@ -6101,32 +6101,32 @@
         "verification": 15.36
       },
       "file_count": 12,
-      "total_mass": 3825.92
+      "total_mass": 3795.92
     },
     "zig/zig": {
       "avg_exposures": {
         "api_exposure": 74.16,
         "churn": 0.0,
-        "cognitive_load": 23.51,
+        "cognitive_load": 23.43,
         "concurrency": 7.57,
         "dead_code": 5.11,
         "documentation": 70.9,
-        "safety_score": 42.02,
+        "safety_score": 42.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 55.14,
+        "state_flux": 54.96,
         "tech_debt": 12.38,
         "verification": 2.54
       },
       "file_count": 5,
-      "total_mass": 16365.98
+      "total_mass": 16305.48
     },
     "zig/zls": {
       "avg_exposures": {
         "api_exposure": 39.85,
         "churn": 0.0,
-        "cognitive_load": 17.32,
+        "cognitive_load": 17.28,
         "concurrency": 10.15,
         "dead_code": 3.07,
         "documentation": 80.23,
@@ -6139,7 +6139,7 @@
         "verification": 24.58
       },
       "file_count": 7,
-      "total_mass": 6255.6
+      "total_mass": 6252.2
     }
   }
 }

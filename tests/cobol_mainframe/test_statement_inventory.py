@@ -53,4 +53,6 @@ def test_buckets():
     assert b("ACCEPT WS-D FROM DATE YYYYMMDD")[0] == "R" and b("ACCEPT WS-PARM")[0] == "H"
     assert b("EXEC SQL SELECT 1 INTO :X FROM T END-EXEC") == ("H", "EXEC SQL")
     assert b("EXEC CICS RETURN END-EXEC")[0] == "R"
-    assert b("EXEC CICS DELAY FOR SECONDS(1) END-EXEC")[0] == "H"
+    assert (
+        b("EXEC CICS DELAY FOR SECONDS(1) END-EXEC")[0] == "R" and b("EXEC CICS WEB RECEIVE INTO(X) END-EXEC")[0] == "H"
+    )

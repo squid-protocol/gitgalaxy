@@ -592,6 +592,21 @@ def test_a_receiver_type_that_is_not_a_known_class_changes_nothing():
     assert typed["step"] == plain["step"] != "typed"
 
 
+def test_a_typed_java_field_beats_the_callers_own_same_named_method():
+    # JsonObject.getAsJsonArray: `members.get(name)` on a LinkedTreeMap field is
+    # LinkedTreeMap.get, not JsonObject's own get (the detector types the field).
+    caller = _fn("getAsJsonArray", 10, owner="JsonObject", calls=["get"], quals={"get": ["members"]})
+    caller["calls_out_receiver_types"] = {"members": "LinkedTreeMap"}
+    files = [
+        _file("gson/JsonObject.java", "java", [caller, _fn("get", 30, owner="JsonObject")],
+              [{"name": "JsonObject", "inheritance": [], "start_line": 1}]),
+        _file("gson/internal/LinkedTreeMap.java", "java", [_fn("get", 90, owner="LinkedTreeMap")],
+              [{"name": "LinkedTreeMap", "inheritance": [], "start_line": 1}]),
+    ]  # fmt: skip
+    row = _site(resolve_calls(files)[0], "get")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("typed", "gson/internal/LinkedTreeMap.java", 90)
+
+
 # ----------------------------------------------------------------------------- decorators
 
 
@@ -832,3 +847,96 @@ def test_overload_choice_is_java_only():
     ]
     rows = [s for s in resolve_calls(files)[0] if s["callee"] == "f"]
     assert len(rows) == 1 and rows[0]["step"] != "overload"
+
+
+def _sig(name, line, owner):
+    return {**_fn(name, line, owner=owner), "def_shape": "signature"}
+
+
+def test_bare_call_to_an_own_abstract_method_is_ambiguous_3836():
+    # gson ReflectiveTypeAdapterFactory.java: abstract class `Adapter` declares
+    # `abstract void readField(...)`; its `read` calls `readField(...)` bare, which
+    # dispatches to a subclass's override. proto/'s LegacyProtoTypeAdapterFactory
+    # has an unrelated class also named `Adapter` with a concrete `readField`: the
+    # walk must not leave the caller's file for a namesake class.
+    files = [
+        _file(
+            "gson/ReflectiveTypeAdapterFactory.java",
+            "java",
+            [
+                _sig("readField", 560, "Adapter"),
+                _fn("read", 523, owner="Adapter", calls=["readField"], quals={"readField": [""]}),
+                _fn("readField", 580, owner="FieldReflectionAdapter"),
+                _fn("readField", 647, owner="RecordAdapter"),
+            ],
+            [
+                {"name": "Adapter", "inheritance": []},
+                {"name": "FieldReflectionAdapter", "inheritance": ["Adapter"]},
+                {"name": "RecordAdapter", "inheritance": ["Adapter"]},
+            ],
+        ),
+        _file(
+            "proto/LegacyProtoTypeAdapterFactory.java",
+            "java",
+            [_fn("readField", 305, owner="Adapter")],
+            [{"name": "Adapter", "inheritance": []}],
+        ),
+    ]
+    row = _site(resolve_calls(files)[0], "readField")
+    assert row["resolution"] == "ambiguous"
+    assert row["dst_path"] != "proto/LegacyProtoTypeAdapterFactory.java"
+
+
+def test_an_inherited_abstract_method_stops_the_lineage_walk_3836():
+    # `toJson` in TypeAdapter calls its own `abstract write(...)` bare; a subclass
+    # implements it. The call is a virtual dispatch: never a confident link.
+    files = [
+        _file(
+            "TypeAdapter.java",
+            "java",
+            [
+                _sig("write", 131, "TypeAdapter"),
+                _fn("toJson", 140, owner="TypeAdapter", calls=["write"], quals={"write": [""]}),
+            ],
+            [{"name": "TypeAdapter", "inheritance": []}],
+        ),
+        _file("Impl.java", "java", [_fn("write", 5, owner="Impl")], [{"name": "Impl", "inheritance": ["TypeAdapter"]}]),
+    ]
+    row = _site(resolve_calls(files)[0], "write")
+    assert row["resolution"] == "ambiguous"
+    # a concrete override in the caller's own class still wins
+    files[0]["functions"].append(_fn("write", 150, owner="TypeAdapter"))
+    row = _site(resolve_calls(files)[0], "write")
+    assert (row["step"], row["dst_line"]) == ("class", 150)
+
+
+def test_a_declaring_interface_counts_as_a_receiver_candidate_3836():
+    # `postDeserializer.postDeserialize(result)`: the interface is imported, and
+    # so is one implementation. The receiver could be any implementation of the
+    # interface, so the one visible body is a guess, not a confident edge.
+    files = [
+        _file(
+            "InterceptorFactory.java",
+            "java",
+            [
+                _fn(
+                    "read",
+                    60,
+                    owner="InterceptorAdapter",
+                    calls=["postDeserialize"],
+                    quals={"postDeserialize": ["postDeserializer"]},
+                )
+            ],
+        ),
+        _file("JsonPostDeserializer.java", "java", [_sig("postDeserialize", 30, "JsonPostDeserializer")]),
+        _file("UserValidator.java", "java", [_fn("postDeserialize", 12, owner="UserValidator")]),
+    ]
+    edges = [
+        {"src": "InterceptorFactory.java", "dst": "JsonPostDeserializer.java", "edge_kind": "import"},
+        {"src": "InterceptorFactory.java", "dst": "UserValidator.java", "edge_kind": "import"},
+    ]
+    row = _site(resolve_calls(files, edges)[0], "postDeserialize")
+    assert (row["step"], row["resolution"]) == ("receiver", "ambiguous")
+    # with no implementation anywhere, nothing in the repository runs: no target
+    row = _site(resolve_calls(files[:2], edges[:1])[0], "postDeserialize")
+    assert row["dst_path"] is None

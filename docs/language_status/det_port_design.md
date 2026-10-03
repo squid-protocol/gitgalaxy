@@ -1,7 +1,10 @@
 # Deterministic port (det-port): design and the runtime contract
 
-**Status: 31 programs are translated with no model and proven.** That is 24 from CardDemo, 5 from GenApp and 2 from
-CBSA. All 24 CardDemo programs also prove in the structured, typed style. A model has refactored the largest of
+**Status (2026-10-02): 48 programs are translated with no model and proven.** That is 27 from CardDemo, 8 from
+CBSA and 13 from GenApp, over 50 equivalence cases; 17 of those cases run embedded SQL on a real Db2. Two cases are
+not proven on purpose, each with its reason (`KNOWN_UNPROVEN` in `tests/tools/proof_sweep.py`): COCRDUPC writes
+blanks into a `PIC 9(3)` field a typed DTO cannot hold (#4085), and `carddemo-intcalc-generated` depends on
+ASCII vs EBCDIC key order (register D1; the same program, CBACT04C, proves on its other case). All 24 CardDemo programs also prove in the structured, typed style. A model has refactored the largest of
 them, COACTUPC, one method at a time; every rewrite was proven and kept.
 
 ## The method in brief
@@ -23,8 +26,8 @@ COBOL program ──(1) det_port.py: translate, no model──► Java port, fai
 
 | step | tool | what it guarantees | measured |
 |---|---|---|---|
-| translate | `port_runner run --backend det [--style structured] [--typed]` (or `tests/tools/det_port.py run CASE ...` for the equivalence cases) | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 96.8% of 16,798 statements across six estates ([survey](det_survey.md)) |
-| prove | `tests/tools/equivalence.py run CASE --port DIR --faults all` | equal events (screens, COMMAREAs, XCTL / LINK / RETURN), files and RETURN-CODE against GnuCOBOL, field by field, on every scenario and injected fault | 31 programs proven |
+| translate | `port_runner run --backend det [--style structured] [--typed]` (or `tests/tools/det_port.py run CASE ...` for the equivalence cases) | the same port from the same source every time; an untranslatable statement is a named `Hole`, never a guess | 97.8% of 17,224 statements across six estates ([survey](det_survey.md), 2026-10-02) |
+| prove | `tests/tools/equivalence.py run CASE --port DIR --faults all` | equal events (screens, COMMAREAs, XCTL / LINK / RETURN), files and RETURN-CODE against GnuCOBOL, field by field, on every scenario and injected fault | 48 programs proven (50 cases, 2 not proven on purpose) |
 | make readable, no model | `--style structured` (B1), `--typed` (B3) | named methods and fields; typed Java fields where every use allows | 24 of 24 proven typed; batch runtime calls −36% |
 | make readable, with a model | `port_runner refine --prove-command ...` (or `tests/tools/det_refine.py run CASE --port DIR`) (B2) | each rewrite is proven, else retried once, else reverted: the port is proven after every step | COACTUPC 109 of 109 methods kept, runtime calls −63% |
 
@@ -138,9 +141,13 @@ away from zero with ROUNDED).
 
 What GnuCOBOL (`-std=ibm`) does, which the runtime follows (each is a case in `tests/cobol_mainframe/test_cobolrt.py`):
 
-- **Binary items are not truncated to the PICTURE digits** (the harness's GnuCOBOL behaves as `TRUNC(BIN)`): an
-  `S9(4) COMP` holds anything its two bytes hold (99999 MOVEd in wraps to X'869F'; ON SIZE ERROR fires only past the
-  byte capacity). `Cobol.setTruncBinary(true)` selects `TRUNC(STD)` (digits) instead.
+- **Binary items follow the program's TRUNC option** (#4102). Under IBM's default `TRUNC(STD)` a binary item keeps
+  only its PICTURE's digits (MOVE 99999 to `S9(4) COMP` stores 9999; ADD past 9999 is a size error); under
+  `TRUNC(BIN)` it holds anything its bytes hold (99999 wraps to X'869F'). The translator reads the option from the
+  program's CBL / PROCESS cards and the case's compile options, else IBM's default STD (`det/program.py`
+  `trunc_std`), and each entry point runs with it (`Cobol.swapTruncBinary`, restored on return, so a LINK into a
+  program compiled otherwise keeps the caller's). The harness compiles the COBOL side to match: `TRUNC(STD)` is
+  `cobc -fbinary-truncate`, `TRUNC(BIN)` is `-fnotrunc` (`equivalence_common.py`; register C1, MATCHED).
 - **COMP-5 is native little-endian**; COMP / COMP-4 / BINARY are big-endian; 1-4 digits 2 bytes, 5-9 4, 10-18 8.
 - A MOVE keeps the sending sign through truncation (a `-0.05` into `S9(3)` is X"30307D", negative zero).
 - `MOVE SPACES` to a numeric or numeric-edited item does not compile (cobc error); the runtime fills it with spaces.
@@ -157,6 +164,9 @@ give the same bytes.
 
 ## Results (CardDemo, the 23 programs with model-written proven ports)
 
+This table is the first comparison, on the programs that also have model-written ports. Every case is re-proven
+with `det_port.py run --all-cases`, or with every model port as well by `proof_sweep.py`.
+
 `python tests/tools/det_port.py run --all-proven --work DIR` translates each program onto its generated service and
 proves the result with the same harness as the model-written ports (every case's scenarios and fault runs).
 
@@ -171,6 +181,29 @@ proves the result with the same harness as the model-written ports (every case's
 COACTUPC, the 4,200-line account update a model could not port in one pass, is proven on all 54 of its scenarios.
 
 No model is involved anywhere: the port is a function of the COBOL source and the generated project.
+
+### Structural parity: a warning before the proof
+
+Each translated program is also measured by GitGalaxy's own single-file extraction (`tests/tools/det_parity.py`):
+COBOL paragraphs and branch points against the port's methods and branch points. On the 49 programs ported across
+CardDemo, CBSA and GenApp (2026-10-02) the port keeps a fixed overhead plus a slope, by kind (Theil-Sen fits):
+
+| | batch | CICS | proven ports, port / prediction | warning band |
+|---|---|---|---|---|
+| methods | 11.4 + 1.12 × paragraphs | 20.8 + 1.13 × paragraphs | 0.88 .. 1.21 | outside 0.6 .. 1.6 |
+| branch points | 12.6 + 1.30 × branches | 51.8 + 2.33 × branches | 0.73 .. 1.58 | outside 0.5 .. 2.5 |
+
+The fixed overhead is why a small program reads as a huge ratio of raw counts (ABNDPROC: 1 branch in COBOL, 47 in
+Java): response checks, abend paths and storage setup every port carries. Against the fit it sits at ×0.87.
+
+The branch row was refit when Java's `branch` rule stopped counting a `?` or `:` inside a string literal and a
+ternary twice (branch_rule_contract.md, "Literals"; issue #4170). Same 49 programs, same Theil-Sen method: the
+det ports' median branch count fell from 159 to 127, CICS's overhead from 70.8 to 51.8 and its slope from 2.77 to
+2.33, batch's from 15.0 + 1.62 to 12.6 + 1.30. The methods row did not move.
+None of the 49 warns. A warning (`det_port.py run` and `check` print it; `summary.json` / `check.json` carry
+`parity_warnings`) says a translation dropped or duplicated paragraphs or expanded a construct far beyond the
+estate's norm. It is a place to look, never a failed proof or an exit code. When the emitter's shape moves on
+purpose (a readability layer), refit `MODEL` in `det_parity.py` from a fresh `run --all-cases --translate-only`.
 
 ### Where the boundary comes from
 
@@ -240,7 +273,8 @@ byte count it states.
 ## Beyond CardDemo (A5)
 
 Equivalence cases for programs of two more estates, the COBOL run by GnuCOBOL as the oracle
-(`tests/equivalence/genapp-*`, `tests/equivalence/cbsa-*`):
+(`tests/equivalence/genapp-*`, `tests/equivalence/cbsa-*`). These are the first seven, all VSAM / CICS; the 14 CBSA and GenApp Db2
+cases that followed are under [Db2](#db2-embedded-sql):
 
 | case | program | det port |
 |---|---|---|
@@ -377,14 +411,17 @@ NULL is distinct.
   - host variables are bound as the Db2 precompiler declares them for COBOL: `PIC X(n)` CHAR(n) with all its bytes,
     a 49-level pair VARCHAR, zoned and packed DECIMAL(p,s), binary SMALLINT / INTEGER / BIGINT;
   - SQLCODE, SQLSTATE, the warnings and SQLERRD(3) come from Db2 itself;
-  - forms it does not model are refused by name: WHENEVER, positioned UPDATE / DELETE, dynamic SQL, host-variable
-    arrays, a program that shows SQLERRMC.
+  - `SET :hv = expr` runs as a one-row `VALUES` into the host variables; a positioned UPDATE / DELETE (`WHERE
+    CURRENT OF`) runs as written, ggsql.c naming each cursor at its OPEN;
+  - forms it does not model are refused by name: WHENEVER, dynamic SQL (PREPARE / EXECUTE / DESCRIBE), CONNECT,
+    CALL, ALLOCATE / ASSOCIATE, SCROLL cursors and host-variable arrays.
 - **Java side (the det port).** Each statement calls the generated Db2 repository's method for it. The generator writes
   one method per statement, with the SQL as written and its Javadoc naming the source line and each parameter's host
   variable, so the boundary is again the generator's. `cobolrt/sql/DetSql` turns host-variable bytes into JDBC values
   and back by the same Db2 rules. It turns outcomes into the SQLCA: +100 for a searched UPDATE / DELETE with no row,
-  +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN.
-- **Proven: all three of CardDemo's Db2 programs, two of CBSA's and all eight of GenApp's**, translated with no model.
+  +100 / -811 for SELECT INTO, Db2's own SQLCODE otherwise. Cursors run their query at OPEN; for a positioned UPDATE /
+  DELETE the generated repository addresses the cursor's current row by its `RID_BIT`.
+- **Proven: all three of CardDemo's Db2 programs, six of CBSA's and all eight of GenApp's**, translated with no model.
 
   | case | program | scenarios | paragraphs | branches | translated |
   |---|---|---|---|---|---|
@@ -393,6 +430,10 @@ NULL is distinct.
   | `carddemo-cotrtlic` | COTRTLIC, CICS list screen with cursors | 27 | 56/59 | 165/230 | 631/632 |
   | `cbsa-updacc` | CBSA UPDACC, LINKed account update (CBSA's own DDL) | 10 | 7/7 | 5/6 | 58/58 |
   | `cbsa-dbcrfun` | CBSA DBCRFUN, debit / credit + PROCTRAN | 22 | 16/22 | 22/35 | 148/148 |
+  | `cbsa-inqacc` | CBSA INQACC, inquire account (cursor; ABNDPROC in the task) | 14 | 22/25 | 13/25 | 240/240 |
+  | `cbsa-delacc` | CBSA DELACC, delete account + PROCTRAN | 11 | 19/19 | 10/14 | 134/134 |
+  | `cbsa-xfrfun` | CBSA XFRFUN, transfer funds (four SYNCPOINT ROLLBACK paths) | 22 | 27/28 | 44/81 | 439/439 |
+  | `cbsa-custctrl` | CBSA CUSTCTRL, customer control record | 6 | 7/7 | 3/4 | 21/21 |
   | `genapp-lgicdb01` | GenApp LGICDB01, inquire customer | 12 | 3/4 | 4/12 | 44/44 |
   | `genapp-lgipdb01` | GenApp LGIPDB01, inquire policy (cursors) | 29 | 11/12 | 46/74 | 238/238 |
   | `genapp-lgacdb02` | GenApp LGACDB02, add customer password | 8 | 2/3 | 4/10 | 39/39 |
@@ -412,14 +453,24 @@ NULL is distinct.
     scenario reaches; the COBOL side cannot run DSNTIAC either.
 - **CICS.** The COBOL side runs every scenario in one container, so a small CLI tool (`tests/equivalence/db2/ggsqlrun.c`)
   resets the tables before each task and dumps them after it. The Java side's test does the same over JDBC.
-  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it. Db2 cases
-  run one at a time: they share the database, and the harness takes a lock.
+  A SYNCPOINT, a SYNCPOINT ROLLBACK or an abend's backout (ggcics.c) ends the Db2 unit of work with it.
+- **Side by side.** Db2 cases run in parallel on a pool of databases in the one Db2 instance (GGDB, GGDB1 ..;
+  `$GITGALAXY_DB2_POOL`, default 4), one case a database for its whole run (a lock file each). Each database has
+  its own catalog, schemas and identity counters, so every name the SQL uses stays as written and no case sees
+  another's rows. A pool database is created as GGDB is (code set, territory, collation, page size); the rest of
+  its configuration differs only in self-tuned memory sizes and logging. The harness keeps each database active:
+  one nothing holds is activated by every connect, about a second each time.
 - **Declared, not measured:**
   - Db2 for Linux, not z/OS, runs the SQL. Its SQLCODEs for these statements are the same codes.
   - EXEC SQL keeps RETURN-CODE. Whether IBM's precompiled call to DSNHLI resets it is not known.
   - A run that ends normally commits.
-  - The Java side commits each statement as the repositories run it, so ROLLBACK is a hole. A CICS path that
-    backs out after a Db2 change would show as a difference, never as a proof; no scenario here reaches one.
+  - A CICS task's SQL is one Db2 unit of work, as under CICS's Db2 thread: a SYNCPOINT ROLLBACK or an abend backs out
+    the task's SQL with its recoverable file changes (XFRFUN's four ROLLBACK paths are proven). The transaction is
+    the equivalence test's, around each task; a deployment must give each task the same unit of work. A batch
+    program's repositories autocommit, so a batch ROLLBACK is a hole (register Q3). A file defined `RECOVERY(NONE)`
+    in the CSD keeps its changes through a backout on both sides.
+  - The harness has no SQL fault injection yet (register M2): Db2 error paths are reached only where a scenario's
+    data produces the error (a duplicate key, a foreign-key refusal, +100).
 
 ## In port_runner
 
@@ -441,7 +492,16 @@ The combined method runs in the porting loop like any other backend, and every e
 - **Screens stay byte storage.** COMMAREAs and records read INTO are typed with `--groups`, but a symbolic map's
   input and output maps overlap (`REDEFINES`), which typing does not do yet.
 - **The oracle is GnuCOBOL.** [oracle_assumptions.md](oracle_assumptions.md) lists every known or suspected difference
-  from z/OS (C1: IBM's default TRUNC(STD) has been running as TRUNC(BIN) on both sides); a z/OS session would settle most.
-- **Breadth outside CardDemo** is 7 cases in two estates. Db2 (EXEC SQL), IMS and pointer code are out of scope for
-  this translator: such statements stay named holes.
+  from z/OS, with its status; a z/OS session would settle most. Two bound what is proven today: **C9**, a POINTER is
+  8 bytes under the harness's 64-bit GnuCOBOL and 4 on z/OS, so a COMMAREA that carries one (CBSA's INQACCCU, DELCUS,
+  CREACC) cannot be compared byte for byte yet; **D1**, proofs compare text in ASCII order, z/OS in EBCDIC: indexed
+  keys that mix letters and digits browse differently, and no audit has yet counted the in-program comparisons whose
+  result could change.
+- **Breadth outside CardDemo** is 21 programs in two estates (CBSA 8, GenApp 13), 14 of them on Db2. CBSA's other
+  Db2 programs are blocked by C9 (INQACCCU, DELCUS, CREACC), by IBM's CEEIGZCT copybook (CRECUST), by FUNCTION
+  RANDOM (BANKDATA) or by having only a Java caller (ACCTCTRL).
+- **Out of scope for this translator:** IMS (EXEC DLI), MQ, pointer arithmetic, ALTER, ENTRY, dynamic CALL. Such
+  statements stay named holes. A POINTER only stored and passed on (GenApp's prologue) is translated.
+- **Re-proving everything** after a runtime, harness or oracle change: `tests/tools/proof_sweep.py --work DIR`
+  re-proves every det and model port and compares the result with the cases not proven on purpose.
 

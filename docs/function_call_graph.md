@@ -47,7 +47,19 @@ In TypeScript and JavaScript the detector also records what each definition is
   signature. No code runs there, so it is never a call target (#3757). A call to
   an overloaded function reaches its implementation.
 
-Other languages leave `def_shape` NULL and resolve as before.
+Java records `signature` too (#3836): an interface method or an `abstract` method,
+which ends in `;` with no body. A `native` method has no Java body either, but it
+runs, so it stays a target. A signature still tells the resolver something:
+
+- a bare or `this.` call to a method the caller's own class (or an ancestor) only
+  declares is a virtual dispatch to an override. It is an ambiguous `receiver` row,
+  not a link to another class that happens to share the name;
+- a class or interface that declares the method counts as one more candidate class
+  for an untyped receiver, so an interface plus one visible implementation is
+  ambiguous, not a confident link to that implementation.
+
+Other languages leave `def_shape` NULL and resolve as before. C# and Kotlin
+interfaces have the same shape, but no compiler reference measures them yet.
 
 ## Edge kinds
 
@@ -101,8 +113,8 @@ Together: recall of pyan3's function edges across calls, decorators and referenc
   judged links, 57.1% recall, 73.7% resolution recall. The checker also shows that 52
   confident links point into the repo for a call that runs a built-in (`str.trim()`,
   `map.get()`), so strict precision is 96.6% (#3756). Java is measured against
-  scip-java (javac-resolved SCIP) on gson: 92.7% confident precision over 3,474 judged
-  links, and 41.0% recall. A call to an overloaded method links to the overload with that
+  scip-java (javac-resolved SCIP) on gson: 93.2% confident precision over 3,727 judged
+  links, and 44.2% recall. A call to an overloaded method links to the overload with that
   many parameters (#3835). When several overloads take that many, the call is ambiguous:
   a row, not an edge (`docs/graph_accuracy.md`, "Call resolution in Java, and SCIP").
   Other languages run the same machinery unmeasured.

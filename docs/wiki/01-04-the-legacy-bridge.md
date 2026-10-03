@@ -41,7 +41,7 @@ While Autonomous AI Agents and Large Language Models (LLMs) are highly capable o
 
 GitGalaxy serves as the deterministic bridge. Before an AI agent writes a single line of Java, GitGalaxy injects a strict remediation ticket containing the exact external dependencies, required I/O boundaries, and "honesty flags" (e.g., *“This module assumes EBCDIC encoding”*). 
 
-By grounding probabilistic AI models in deterministic structural physics, GitGalaxy guarantees that modernized microservices reflect the absolute reality of the legacy monolith.
+Grounding a model in verified facts does not by itself show that its Java behaves like the COBOL. So every port, whether a model wrote it or GitGalaxy's deterministic translator did, is proven against the original program before a person approves it: the COBOL runs under GnuCOBOL (with a CICS model and, for embedded SQL, a real Db2), the port runs on the JVM, and their outputs, screens, COMMAREAs and tables must match on every scenario and injected fault. The oracle is not z/OS, and its known differences are listed with the proofs. See [Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md).
 
 ---
 

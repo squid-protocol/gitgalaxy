@@ -141,7 +141,8 @@ class FunctionNode(TypedDict, total=False):
 
     name: str
     parent_class_name: str
-    # typescript/javascript only (#3757): 'binding' | 'member' | 'signature'
+    # typescript/javascript (#3757): 'binding' | 'member' | 'signature';
+    # java (#3836): 'signature' for a bodyless method, else unset
     def_shape: str
     usage_status: int
 
@@ -879,6 +880,16 @@ _ANGLE_BRACKET_GENERIC_LANGUAGES = frozenset(
 # another script, not a label. Same name class as batch's func_start, bounded.
 _BATCH_CALL_TARGET_RE = re.compile(r"\bcall[ \t]+:([A-Za-z_][\w.-]{0,63})", re.I)
 
+# The brace-sliced languages whose `outside_literals` scope filter shields with
+# `_build_brace_safe_stream` (their own string/char literal syntax) rather than
+# the indentation slicer's python-shaped shield.
+_BRACE_LITERAL_SHIELD_LANGS = frozenset(
+    {
+        "apex", "c", "cpp", "csharp", "dart", "go", "groovy", "java", "javascript", "kotlin",
+        "objective-c", "php", "rust", "scala", "solidity", "swift", "typescript", "zig",
+    }
+)  # fmt: skip
+
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "fortran": frozenset({"EXIT"}),
     "abap": frozenset({"RETURN", "EXIT"}),
@@ -1362,6 +1373,76 @@ def _python_receiver_types(text: str, receivers: set[str]) -> dict[str, str]:
     return {k: v or "" for k, v in found.items()}
 
 
+# Receiver types (Java): a declaration names its variable's class, so after
+# `Gson gson = ...` or in `void f(JsonReader in)`, `gson.toJson()` and `in.peek()`
+# resolve on that class. Covers parameters, locals, fields, `for (T x :`,
+# `catch (T e)`, `instanceof T x` and `var x = new T(`. The type is an upper-case
+# identifier (`Map.Entry`, `java.util.Map` allowed), optionally generic; the
+# name is followed by `=`, `;`, `,`, `:` or `)`. An array or varargs type maps to
+# None: `xs.clone()` is not a method of the element class. Every quantifier is
+# bounded; the text is literal-shielded.
+_JAVA_DECL = re.compile(
+    r"(?<![\w$.])(?:[a-z][\w$]{0,63}\.){0,8}([A-Z][\w$]{0,127}(?:\.[A-Z][\w$]{0,127}){0,4})"
+    r"(?:<[^;=(){}]{0,200}?>)?((?:[ \t]*\[[ \t]*\])*|[ \t]*\.\.\.)[ \t\r\n]+"
+    r"([A-Za-z_$][\w$]{0,127})[ \t\r\n]*(?=[=;,:)])"
+)
+_JAVA_VAR_NEW = re.compile(
+    r"\bvar[ \t]+([A-Za-z_$][\w$]{0,127})[ \t]*=[ \t]*new[ \t]+(?:[a-z][\w$]{0,63}\.){0,8}"
+    r"([A-Z][\w$]{0,127}(?:\.[A-Z][\w$]{0,127}){0,4})[ \t]*[<(]"
+)
+# Words an upper-case "type" position can hold that are not a declaration's type.
+_JAVA_DECL_NAME_STOP = frozenset({"extends", "implements", "super", "instanceof", "throws", "default"})
+
+
+def _java_declared_types(text: str) -> dict[str, Optional[str]]:
+    """Every variable `text` declares -> its class leaf name; None when the name is
+    declared with two different classes, or as an array."""
+    found: dict[str, Optional[str]] = {}
+
+    def note(name: str, cls: Optional[str]) -> None:
+        leaf = cls.rsplit(".", 1)[-1] if cls else None
+        if name in found and found[name] != leaf:
+            found[name] = None
+        else:
+            found.setdefault(name, leaf)
+
+    for m in _JAVA_DECL.finditer(text):
+        if m.group(3) in _JAVA_DECL_NAME_STOP:
+            continue
+        note(m.group(3), None if m.group(2).strip() else m.group(1))
+    for m in _JAVA_VAR_NEW.finditer(text):
+        note(m.group(1), m.group(2))
+    return found
+
+
+def _java_receiver_types(
+    text: str, receivers: set[str], file_types: Optional[dict[str, Optional[str]]] = None
+) -> dict[str, str]:
+    """Receiver name -> class leaf name, for the receivers in `receivers` (Java).
+
+    The function's own declarations (parameters, locals) win; a name it does not
+    declare is a field, typed by the file's declarations (`file_types`, from
+    `_java_declared_types` over the whole file) when they agree on one class.
+    `this.x` is always the field. A name with no single known class maps to "".
+    The resolver checks that the answer is a class it knows.
+    """
+    local = _java_declared_types(text)
+    out: dict[str, str] = {}
+    scopes: tuple[dict[str, Optional[str]], ...]
+    for r in receivers:
+        if r.startswith("this."):
+            name, scopes = r[5:], (file_types or {},)
+        else:
+            name, scopes = r, (local, file_types or {})
+        if not name or "." in name:
+            continue
+        for scope in scopes:
+            if name in scope:
+                out[r] = scope[name] or ""
+                break
+    return out
+
+
 # #3644 (C3): words that can stand before `name(` at the start of a C++ statement
 # without being the type of a declared variable (`return f(x)`, `new Foo(x)`).
 _DECLARATOR_NON_TYPES = frozenset(
@@ -1666,6 +1747,11 @@ def _ts_js_def_shape(code: str, match: "re.Match[str]", bodyless: bool) -> str:
     # only the statement the name belongs to: `const o = { f() {` is a member
     segment = decl[max(decl.rfind(c) for c in "{;,(") + 1 :]
     return "binding" if _TS_JS_BINDING_KEYWORD.search(segment) else "member"
+
+
+# #3836: a java method ending in `;` with no body is an interface or `abstract`
+# declaration -- a `signature`, never a call target -- unless it is `native`.
+_JAVA_NATIVE_MODIFIER = re.compile(r"\bnative\b")
 
 
 # #2547: satellite names the structural slicer synthesizes for languages/modes with
@@ -2264,6 +2350,8 @@ class StructuralExtractor:
             self.logger.setLevel(logging.INFO)
 
         self.primary_lang_id = lang_id.lower() if lang_id else "unknown"
+        # Java receiver typing (#3772): the current file's declared variable types
+        self._file_declared_types: Optional[dict[str, Optional[str]]] = None
         # Pinned explicitly: LANGUAGE_DEFINITIONS (assigned to this same
         # attribute below, in the AUTO-HEAL branch) has no module-level
         # annotation, so mypy infers its instance-attribute type from that
@@ -5668,6 +5756,12 @@ class StructuralExtractor:
             opener, closer = "(", ")"
 
         safe_code = self._build_brace_safe_stream(code, lang_id)
+        # Java receiver typing: a field's declared class, for every unit in this file
+        self._file_declared_types = (
+            _java_declared_types(self._apply_literal_shield(code, lang_id))
+            if lang_id == "java" and self.languages.get(lang_id, {}).get("calls_out_receiver_types")
+            else None
+        )
 
         # KNOWN-MACRO SHIELD (tri-comparison sweep, cpp): a function-like macro's own
         # INVOCATION (`OPCODE(OPCODE_OPERATOR) { ... }`, godot/gdscript_vm.cpp's bytecode
@@ -5779,6 +5873,7 @@ class StructuralExtractor:
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
             ts_bodyless = False  # #3757: set by the typescript/javascript terminator scan
+            java_bodyless = False  # #3836: set by the java terminator scan
 
             # #2933: scheme's func_start leads with `^[ \t\n]*` under re.M, whose
             # newline-inclusive class swallows the blank/blanked-comment lines
@@ -6745,6 +6840,11 @@ class StructuralExtractor:
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
+                    # #3836: an interface or `abstract` method runs no code, so no
+                    # call lands on it (#3757's `signature`). A `native` method has
+                    # no java body either, but it does run: it stays a target.
+                    decl = code[code.rfind("\n", 0, start_idx) + 1 : match.end()]
+                    java_bodyless = not _JAVA_NATIVE_MODIFIER.search(decl)
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
             # #1756: Go allows BODYLESS function declarations -- assembly-backed
@@ -6984,6 +7084,8 @@ class StructuralExtractor:
             )
             if lang_id in ("typescript", "javascript"):
                 sat["def_shape"] = _ts_js_def_shape(code, match, ts_bodyless)
+            elif java_bodyless:
+                sat["def_shape"] = "signature"
             satellites.append(sat)
             sum_fxn_impact += mag
 
@@ -8202,7 +8304,8 @@ class StructuralExtractor:
     # `go_declaration_group` (#2859), `matlab_return_channel`,
     # `yaml_parameter_block` (#2753), `abap_declaration_statement` (#2824)
     # and `jcl_instream_payload` (#3010), plus `cobol_sentence_start` (#3197)
-    # and `batch_call_target` (#3338); add new ones here, keyed by the
+    # and `batch_call_target` (#3338), and the language-agnostic
+    # `outside_literals` (#4136); add new ones here, keyed by the
     # name a language definition uses, so the registry stays data.
     # ------------------------------------------------------------------
 
@@ -8633,6 +8736,27 @@ class StructuralExtractor:
             # func_start is the only rule that opts in.
             called = {n.lower() for n in _BATCH_CALL_TARGET_RE.findall(code)}
             return [m for m in matches if m.group(1) and m.group(1).lower() in called]
+        if filter_name == "outside_literals":
+            # #4136: drop a match that touches a string literal or a comment.
+            # The code stream keeps string literals (the stream contract), so
+            # python's matmul `@` arm counted `"gecko@003"` and every
+            # `"johndoe@example.com"` fixture. Reuses the index-aligned
+            # string/comment shield the indentation slicer already builds: a
+            # match is code iff its span is identical in the shielded copy
+            # (any literal or comment character in it was blanked). Not
+            # memoized through `cache` (it holds offset sets); only rules that
+            # opt in pay the shield, and only when they matched something.
+            # A brace-family language takes the brace slicer's shield instead:
+            # its literal syntax (char literals, rust lifetimes, raw/verbatim
+            # strings) is what that shield knows, and the python-shaped one
+            # would read a C `#if` or a rust `'a` as a literal. The C-family
+            # `branch` rules opt in: their `?` counted every JDBC placeholder
+            # in `"... values (?, ?, ?)"`.
+            if seg_lang in _BRACE_LITERAL_SHIELD_LANGS:
+                safe = self._build_brace_safe_stream(code, seg_lang)
+            else:
+                safe = self._build_indentation_safe_stream(code, seg_lang)
+            return [m for m in matches if safe[m.start() : m.end()] == code[m.start() : m.end()]]
         self.logger.warning(
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
         )
@@ -9926,7 +10050,9 @@ class StructuralExtractor:
         receiver_types: dict[str, str] = {}
         if receiver_text is not None and self.languages.get(self.primary_lang_id, {}).get("calls_out_receiver_types"):
             receivers = {q for c in calls_out for q in qualifiers_seen.get(c, ()) if q and q != "<expr>"}
-            if receivers:
+            if receivers and self.primary_lang_id == "java":
+                receiver_types = _java_receiver_types(receiver_text, receivers, self._file_declared_types)
+            elif receivers:
                 receiver_types = _python_receiver_types(receiver_text, receivers)
 
         references: list[tuple[str, str]] = []

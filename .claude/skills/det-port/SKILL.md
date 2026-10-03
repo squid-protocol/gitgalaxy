@@ -24,9 +24,15 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
   build on first use.
 - **Db2.** The container `gitgalaxy-db2` (Db2 Community Edition, port 127.0.0.1:50000, database GGDB) starts on
   first use and stays up. The first start takes minutes.
-  - Db2 cases share it, so they take a lock (`~/.cache/gitgalaxy-db2.lock`) and run one at a time.
+  - Db2 cases run side by side on a pool of databases in it (GGDB, GGDB1 ..; `GITGALAXY_DB2_POOL`, default 4),
+    one case a database (a lock file each under `~/.cache`; GGDB's is `gitgalaxy-db2.lock`, the one older checkouts
+    take). A pool database is created on first use (about 30 s). The harness keeps each database active: an
+    inactive one costs about a second a connect.
   - The test password lives in `equivalence_db2.py` and goes to containers through `docker -e`. Never write it
     into a generated script (CodeQL flags clear-text storage).
+- **Estate cache.** The corpus scan and the corpus refactor every case starts from are built once and kept under
+  `~/.cache/gitgalaxy-equivalence` (`equivalence_cache.py`), keyed by the corpus commit and state, every engine
+  file, and the `GITGALAXY_*` environment. Any engine edit is a new key. `GITGALAXY_EQUIV_CACHE=off` builds every time.
 - **Scratch.** Use the job's tmp directory for `--work` and `--keep`. A reused `--keep` directory carries state.
 
 ## Commands
@@ -36,8 +42,10 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 GITGALAXY_LICENSE_KEY=COMMUN
 | translate + prove cases | `$PY tests/tools/det_port.py run CASE... --work DIR [--style structured] [--typed [--groups]] [--jobs 2]` |
 | translate every case only | `$PY tests/tools/det_port.py run --all-cases --translate-only --work DIR` |
 | **did my change move a port?** | `$PY tests/tools/det_port.py check --work DIR` (base: `origin/main`; `--base-ref REF`, `--base DIR`). A runtime class counts only for the ports that name it |
+| structural parity of one port | printed by `run` and `check` as `parity warning:` lines (`parity_warnings` in summary.json / check.json); `tests/tools/det_parity.py`, fit and bands in `det_port_design.md` |
 | prove one port by hand | `$PY tests/tools/equivalence.py run CASE --port DIR/CASE/port --keep DIR/proof --faults all` |
 | all CI gates | `$PY tests/tools/pr_gates.py` (`--fast` skips the golden masters and the suite) |
+| **re-prove everything** (a runtime / harness / oracle change) | `$PY tests/tools/proof_sweep.py --work DIR` -- every det and model port, checked against the cases not proven on purpose; det ~9 min at `--jobs 4`, model ~12 min (2026-10-02) |
 
 Results:
 - `DIR/CASE/proof.log` ends with the coverage claim.
@@ -75,6 +83,9 @@ A translator fix is never a hand edit of a port.
       (runtime, checked against GnuCOBOL).
 - [ ] `det_port.py check --work DIR`: every port that changed is re-proven with `det_port.py run`. An unchanged port
       needs no re-proof.
+- [ ] Read any `parity warning:` lines from `check` before the proofs: a port whose methods or branch points left
+      the estate's band dropped, duplicated or over-expanded something. A warning never fails a proof; a change
+      that reshapes every port on purpose refits `det_parity.MODEL`.
 - [ ] A change in the runtime's behaviour: re-prove every det port (`run --all-cases`). Model ports don't use
       `cobolrt`.
 - [ ] Add a line under "What the proofs found" in `det_port_design.md` when a proof found the bug.
@@ -111,3 +122,22 @@ A translator fix is never a hand edit of a port.
 - [ ] Commits and PRs are pre-authorized. Merge when CI is green: wait for `gh pr checks N` to show no pending row,
       parsing its text (no `--json`).
 - [ ] Never approve a port on Joe's behalf. Never re-bless a golden master without reviewing what moved.
+
+## Lessons (Db2 on three estates, 2026-10-02)
+
+- **Most failures were the oracle's, not the translator's.** The oracle and the port agreed and both differed from
+  IBM (TRUNC(BIN) for STD; the CLI's timestamp text; no backout on the Java side; every file treated as recoverable),
+  or an output was never compared (a LINKed program's COMMAREA). Each new estate found such gaps: when a case
+  "proves" too easily, ask what is not being compared. Every finding goes in `oracle_assumptions.md`.
+- **Real programs carry real defects; the port keeps them.** A FETCH into more host variables than columns, a WRITEQ
+  past its FROM area, a reference modification 28K past its item, a misplaced END-IF. Where the outcome depends on
+  storage layout, refuse by name (exit 98 / a Hole) rather than prove a guess.
+- **A subagent writing scenarios works when it must stop, not work around**: every stop it made was a real gap.
+- **The bottleneck is proof throughput** (one Db2 lock, a Maven build per proof). `det_port.py check` scopes a change;
+  `proof_sweep.py` re-proves everything when the runtime or harness moves.
+- **Process:** format, then test, then commit -- read the test result before committing; never force-push without
+  asking (push a rebased branch under a new name instead).
+- **A det port declares itself to the scanner.** Its first line is `// gitgalaxy-det-port: COBOL <PROGRAM> ...`.
+  GitGalaxy's aperture admits it past the generated-noise gates (wiki 02-03, "Declared ports"); without that line a
+  default scan drops most ports as machine output. Keep that line first, and keep emitted lines under 500
+  characters where it is free: storage images go one 400-character piece per line.

@@ -1,10 +1,19 @@
 # COBOL to Java: from verified facts to a proven port
 
 This directory turns a mainframe estate into a Spring Boot project and carries each program's
-business logic across with proof. It does not translate COBOL line by line, and it does not ask
-a model to rewrite a program unchecked. The structure is generated from facts the engine
-verified. The business logic is ported per program, by a person or a model the customer chooses.
-Every port is proven byte for byte against the original COBOL before a person approves it.
+business logic across with proof. It never asks a model to rewrite a program unchecked. The
+structure is generated from facts the engine verified. The business logic is ported per
+program in one of two ways:
+
+- **the deterministic translator** ([`det/`](det/), "det-port"): no model; each statement
+  becomes a call into a small runtime (`cobolrt`) that follows COBOL's rules byte for byte, and
+  anything it cannot translate is a named `Hole`, never a guess. A model may then refactor the
+  port one method at a time, each rewrite proven or reverted ([design](../../../docs/language_status/det_port_design.md));
+- **a person or a model the customer chooses**, writing the service from a porting ticket.
+
+Every port is proven byte for byte against the original COBOL before a person approves it. As of
+2026-10-02, 48 programs from CardDemo, CBSA and GenApp are proven as det ports (17 cases on a real
+Db2) and 23 CardDemo programs as model-written ports.
 
 The extraction tools this builds on (dead-code finder, data lineage, schema and JCL generation,
 the GalaxyIR fact store) live in [`../cobol_to_cobol/`](../cobol_to_cobol/README.md). What has
@@ -29,8 +38,10 @@ python -m gitgalaxy.tools.cobol_to_java.port_runner review <project> --ticket CB
    worklist (`migration_worklist.md`). It never guesses. Each program that still has business
    logic to write gets a porting ticket (`ai_agent_jobs/<PROGRAM>_port_ticket.md`): the COBOL,
    the generated classes it must use, and the porting rules.
-3. **Port.** `port_runner run` sends a ticket to a backend: a hosted, self-hosted or air-gapped
-   model, or any command. `submit` records a port a person wrote. A guardrail
+3. **Port.** `port_runner run` sends a ticket to a backend: the deterministic translator
+   (`--backend det --source-root ESTATE [--style structured] [--typed]`), a hosted, self-hosted
+   or air-gapped model, or any command. `port_runner refine` lets a model rewrite a proven port
+   one method at a time, each rewrite proven. `submit` records a port a person wrote. A guardrail
    ([`cobol_to_java_guardrail.py`](cobol_to_java_guardrail.py)) checks the port against the
    generated project's inventory. It flags any call to a service or repository the COBOL never
    reached, a new component or endpoint, a record field outside the verified layout, or SQL on
@@ -43,7 +54,11 @@ python -m gitgalaxy.tools.cobol_to_java.port_runner review <project> --ticket CB
    - **CICS**: every task event in order: each SEND MAP (the screen's text, attributes,
      colour, highlight, cursor and options), SEND TEXT, RECEIVE MAP, the RETURN or XCTL with its
      COMMAREA, and an abend;
-   - **CALL**: every USING item after each call, and the return code.
+   - **CALL**: every USING item after each call, and the return code;
+   - **Db2**: every compared table, row by row, after each run, both sides running their SQL on
+     one IBM Db2 Community Edition ([`tests/tools/equivalence_db2.py`](../../../tests/tools/equivalence_db2.py));
+   - **LINK**: a LINKed program's COMMAREA as it returns, and multi-program cases where the
+     task's programs are ported and proven together.
 
    Every case also runs fault plans: file statuses or CICS responses injected on both sides at
    the same statement, which must end the same way. A failed proof's findings become the next
@@ -108,10 +123,14 @@ which generates CardDemo under 17 configs and runs the real Maven / Gradle build
 
 ## Limits
 
-- **The oracle is GnuCOBOL,** with a stub CICS runtime (`tests/equivalence/cics/ggcics.c`) and IBM
+- **The oracle is GnuCOBOL,** with a model of CICS (`tests/equivalence/cics/ggcics.c`), IBM
   Language Environment services modelled only where IBM documents them
-  (`tests/equivalence/le/`). An undocumented case is refused, not guessed. Captured mainframe
-  output as the oracle is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
+  (`tests/equivalence/le/`), and Db2 for Linux standing in for Db2 for z/OS. An undocumented
+  case is refused, not guessed. Every known or suspected difference from z/OS, and whether a
+  proven program reaches it, is in the
+  [oracle-assumptions register](../../../docs/language_status/oracle_assumptions.md) (for example
+  C9: a POINTER is 8 bytes here and 4 on z/OS; D1: text compares in ASCII order). Captured
+  mainframe output as the oracle is [#4050](https://github.com/squid-protocol/gitgalaxy/issues/4050).
 - **Data runs as ASCII pages** under GnuCOBOL. An EBCDIC data page cannot be run (#3815).
 - **"Proven" means proven on the case's runs.** Read it with the coverage and mutation numbers,
   never alone.

@@ -3,7 +3,7 @@
 > **File Reference:** [`gitgalaxy/tools/cobol_to_java/batch_test_harness.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_java/batch_test_harness.py)
 
 ## Engineering Summary
-This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. In GitGalaxy, it serves as the primary CI/CD integration testing tool.
+This subsystem is an automated verification framework that executes the entire end-to-end modernization pipeline across multiple repositories. It solves the problem of detecting regressions in static analysis or code generation logic by compiling the output artifacts. It exists to guarantee that changes to the core engine do not break downstream compilability. It checks that the generated project compiles; whether a ported program behaves like the COBOL is checked by the equivalence harness ([Proven COBOL-to-Java Ports](05-19-proven-cobol-to-java-ports.md)).
 
 ## Purpose
 To stress-test the modernization pipeline and verify that static analysis extraction and Java code generation produce 100% compilable Spring Boot applications.
@@ -36,13 +36,13 @@ graph TD
 - Using full subprocess Maven compilation rather than AST validation. Chosen because it provides absolute ground-truth verification of the generated `pom.xml` and Java source, sacrificing test execution speed for accuracy.
 
 ## Limitations
-- Only validates syntax and compilability; it does not execute functional unit tests on the translated business logic.
+- Only validates syntax and compilability. Functional equivalence is the equivalence harness's job (`tests/tools/equivalence.py`, `det_port.py`, `proof_sweep.py`), and every supported target config is compile-checked by `tests/tools/java_target_matrix.py`.
 
 ## Performance Notes
 Test execution is bounded by the speed of Maven compilation and JDK startup overhead. Bounded by a 5-minute timeout per project to prevent blocking CI/CD runners.
 
 ## Future Work
-- Integration with JUnit generation for functional validation testing.
+- Running the equivalence harness's cases from this harness for estates that have them.
 
 ## Related Components
 - `cobol_refractor_controller.py`

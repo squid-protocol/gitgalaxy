@@ -366,6 +366,9 @@ APERTURE_CONFIG = {
     ],
     # --- 4. Integrity Thresholds ---
     "MAX_LINE_LENGTH": 500,
+    # A declared deterministic port (aperture.declared_port) may carry longer lines -- compound
+    # conditions spelled out in full -- up to this bound.
+    "DECLARED_PORT_MAX_LINE_LENGTH": 5000,
     "MINIFICATION_SCAN_LIMIT": 50,
     # Soft ceiling: content-based classifiers (binary/minified/monotony/array
     # shields) decide whether a file over this size is real signal or noise.

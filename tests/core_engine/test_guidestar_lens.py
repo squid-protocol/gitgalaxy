@@ -380,19 +380,21 @@ def test_guidestar_gitignore_survives_unreadable_file(guidestar, tmp_path):
 
 
 # ==============================================================================
-# TEST 12: DOCUMENTATION COVERAGE -- SCAN ROOT ITSELF INSIDE AN IGNORED DIR
+# TEST 12: DOCUMENTATION COVERAGE -- SCAN ROOT ITSELF INSIDE AN IGNORED DIR (#4058)
 # ==============================================================================
 def test_guidestar_documentation_coverage_root_inside_ignored_dir(tmp_path):
     """
-    Edge case: if the scan root itself is nested inside a directory whose
-    name matches IGNORED_DIRECTORIES, os.walk's dirs[:] pruning can't help
-    (it only prevents further descent, the root itself was never a
-    candidate for pruning) -- the explicit `dir_path.parts` check exists
-    specifically to catch this.
+    A scan root nested inside a directory whose name matches IGNORED_DIRECTORIES
+    projects the same coverage as one anywhere else. The scan root is what the user
+    asked to scan; only directories *under* it can be ignored. This test used to pin
+    the opposite (empty coverage), which is #4058: the check read the absolute path,
+    so a checkout under `/tmp/...` or `.../docs/...` lost every documentation shield.
     """
     nested_root = tmp_path / "vendor" / "some_project"
     nested_root.mkdir(parents=True)
     (nested_root / "README.md").write_text("z" * 500, encoding="utf-8")
+    (nested_root / "vendor").mkdir()
+    (nested_root / "vendor" / "README.md").write_text("v" * 500, encoding="utf-8")
 
     lens = GuideStarLens(
         root_path=nested_root,
@@ -400,9 +402,52 @@ def test_guidestar_documentation_coverage_root_inside_ignored_dir(tmp_path):
     )
     lens._calculate_documentation_coverage()
 
-    assert lens.documentation_coverage == {}, (
-        "A scan root nested inside an ignored directory name should contribute no documentation coverage."
-    )
+    # The root's own README counts; the ignored `vendor/` *under* the root still doesn't.
+    assert lens.documentation_coverage == {"__root__": round(500 / 3000.0, 3)}
+
+
+# ==============================================================================
+# TEST 12b: NOTHING DEPENDS ON THE SCAN ROOT'S PARENT DIRECTORIES (#4058)
+# ==============================================================================
+_PARENTS_4058 = ("neutral", "tmp", "docs", "vendor", "src", "TMP")
+
+
+def _doc_tree(root):
+    root.mkdir(parents=True)
+    (root / "README.md").write_text("root doc " * 60, encoding="utf-8")
+    (root / "pkg").mkdir()
+    (root / "pkg" / "GUIDE.md").write_text("pkg doc " * 40, encoding="utf-8")
+    (root / "node_modules" / "dep").mkdir(parents=True)
+    (root / "node_modules" / "dep" / "README.md").write_text("dep doc " * 60, encoding="utf-8")
+    return root
+
+
+@pytest.mark.parametrize("parent", _PARENTS_4058)
+def test_guidestar_documentation_coverage_ignores_the_roots_parents(tmp_path, parent):
+    """The production IGNORED_DIRECTORIES holds `tmp`, `docs`, `vendor`, ... A checkout
+    under a parent of that name must project exactly the coverage it projects elsewhere."""
+    from gitgalaxy.standards.gitgalaxy_config import GUIDESTAR_CONFIG
+
+    root = _doc_tree(tmp_path / parent / "proj")
+    lens = GuideStarLens(root_path=root, guidestar_config=GUIDESTAR_CONFIG)
+    lens._calculate_documentation_coverage()
+
+    assert lens.documentation_coverage == {"__root__": round(540 / 3000.0, 3), "pkg": round(320 / 3000.0, 3)}
+
+
+@pytest.mark.parametrize("parent", _PARENTS_4058)
+def test_guidestar_sector_bias_ignores_the_roots_parents(tmp_path, parent):
+    """Sector Bias reads the path under the scan root. The scan worker passes absolute
+    paths, so a checkout under `.../src/` used to bias every file it held."""
+    root = tmp_path / parent / "proj"
+    root.mkdir(parents=True)
+    lens = GuideStarLens(root_path=root, guidestar_config=MOCK_GUIDESTAR_CONFIG)
+
+    assert lens.get_intent_status(root / "temp" / "cache.log") == (False, {})
+    assert lens.get_intent_status("temp/cache.log") == (False, {})
+    found, lock = lens.get_intent_status(root / "src" / "helper.js")
+    assert found is True
+    assert lock["source_proof"] == "Sector Bias"
 
 
 # ==============================================================================

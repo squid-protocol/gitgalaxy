@@ -143,7 +143,9 @@ class GuideStarLens:
 
         # 4. Sector Bias: If the file lives in an intentional folder, it gets a base lock
         if not lock:
-            parts = set(p.lower() for p in path_obj.parts)
+            # #4058: the parts of the path under the scan root only. An absolute path's
+            # parents (`/home/me/src/...`) say where the checkout sits, not what the file is.
+            parts = {p.lower() for p in Path(rel_path).parts}
             if parts.intersection(self.INTENT_BIASED_SECTORS):
                 return True, {
                     "lang_id": "unknown",
@@ -490,8 +492,11 @@ class GuideStarLens:
             dirs[:] = [d for d in dirs if d.lower() not in ignored_directories_lower]
 
             dir_path = Path(root_dir)
+            rel_dir_path = dir_path.relative_to(self.root)
 
-            if any(part.lower() in ignored_directories_lower for part in dir_path.parts):
+            # #4058: test the parts under the scan root, never the absolute path. A checkout
+            # under `/tmp/...` or `.../docs/...` must project the same coverage as anywhere else.
+            if any(part.lower() in ignored_directories_lower for part in rel_dir_path.parts):
                 continue
 
             local_shield_footprint = 0
@@ -512,7 +517,7 @@ class GuideStarLens:
                 # 3000+ bytes of documentation provides a 100% (1.0) shield for this folder.
                 shield_strength = min(local_shield_footprint / 3000.0, 1.0)
 
-                rel_dir = str(dir_path.relative_to(self.root)).replace("\\", "/")
+                rel_dir = str(rel_dir_path).replace("\\", "/")
                 if rel_dir == ".":
                     rel_dir = "__root__"
 

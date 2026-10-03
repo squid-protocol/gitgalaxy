@@ -668,7 +668,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     is_minified = True
 
             vendor_paths = _worker_state["config"].get("APERTURE_CONFIG", {}).get("VENDOR_MINIFICATION_PATHS", [])
-            safe_path = full_path_str.replace("\\", "/")
+            # #4058: match the vendor markers against the path under the scan root (with a
+            # leading "/" so a top-level `vendor/` still matches), not the absolute path:
+            # a checkout under `.../vendor/...` would otherwise blank every file it holds.
+            safe_path = "/" + rel_path.replace("\\", "/")
 
             if re.search(r"\.min\.[a-z]+$", full_path_str, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True

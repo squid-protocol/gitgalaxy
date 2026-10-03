@@ -24,6 +24,12 @@ from gitgalaxy.core.graph_engine import (
     pagerank,
 )
 from gitgalaxy.core.invocation_resolver import PROGRAM_DECLARING_LANGUAGES
+from gitgalaxy.core.package_self_reference import (
+    Package,
+    export_targets,
+    owning_package,
+    split_specifier,
+)
 from gitgalaxy.core.path_proximity import proximity_rank
 from gitgalaxy.core.unicode_paths import nfc
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
@@ -205,6 +211,8 @@ class NetworkRiskSensor:
         # it). Only used to tell two same-named candidates apart as ONE file: a
         # symlinked header (`include/X.h -> ../Core/X.h`) is scanned at both paths.
         self.root: Optional[str] = None
+        # #3789: scan-relative directory -> the package.json that owns it (None: none does)
+        self._packages: dict[str, Optional[Package]] = {}
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -216,6 +224,7 @@ class NetworkRiskSensor:
         """
         resolution_map: dict[str, list[str]] = defaultdict(list)
         self._by_norm_path = {}
+        self._packages = {}
         self._declared_in = defaultdict(list)
         self._dir_tails = None
         for f in files:
@@ -418,7 +427,9 @@ class NetworkRiskSensor:
         # A JS/TS bare specifier names a package; only an aliased or multi-
         # segment one that mirrors a real file path is local (see the flag).
         if src_def.get("bare_import_names_package") and not is_relative and not target_token.startswith("/"):
-            return self._resolve_path_mirror(target_token, resolution_map, src_lang, file_facts)
+            return self._resolve_self_reference(target_token, curr_path) or self._resolve_path_mirror(
+                target_token, resolution_map, src_lang, file_facts
+            )
 
         # `#include <chrono>` names a file called exactly `chrono`, never chrono.h.
         if src_def.get("include_names_file_literally") and not posixpath.splitext(target_token)[1]:
@@ -754,6 +765,49 @@ class NetworkRiskSensor:
         owner = directory if owns_directory else posixpath.join(directory, posixpath.splitext(name)[0])
         for rel in (posixpath.join(owner, module + ".rs"), posixpath.join(owner, module, "mod.rs")):
             hit = self._by_norm_path.get(posixpath.normpath(rel) if owner else rel)
+            if hit is not None:
+                return hit
+        return None
+
+    def _resolve_self_reference(self, specifier: str, curr_path: str) -> Optional[str]:
+        """#3789: `from "zod/v4"` inside zod -> the file zod's package.json `exports` declares.
+
+        Only the nearest package.json (the importing file's own package) is consulted, and
+        only when its `name` is the specifier's package. See core/package_self_reference.py.
+        """
+        if self.root is None:
+            return None
+        pkg = owning_package(self.root, posixpath.dirname(curr_path.replace("\\", "/")), self._packages)
+        if pkg is None or not pkg.name:
+            return None
+        name, subpath = split_specifier(specifier.replace("\\", "/"))
+        if name != pkg.name:
+            return None
+        for target in export_targets(pkg, subpath):
+            hit = self._declared_file(pkg.dir, target)
+            if hit is not None and hit != curr_path:
+                return hit
+        return None
+
+    def _declared_file(self, package_dir: str, target: str) -> Optional[str]:
+        """The scanned file a package.json target (`./src/index.ts`, `./v4/index.js`) names:
+        exactly that file, its emitted-spelling source (`.js` -> `.ts`), or, for an
+        extensionless / directory target, the file with a source extension or an `index`."""
+        if not target.startswith("./") or ".." in target.split("/"):
+            return None
+        rel = posixpath.normpath(posixpath.join(package_dir, target))
+        stem, ext = posixpath.splitext(rel)
+        exact = self._by_norm_path.get(rel)
+        if exact is not None:
+            return exact
+        if ext in _ESM_EMITTED_EXTS:
+            names = [stem + e for e in _ESM_SOURCE_EXTS if e not in _ESM_EMITTED_EXTS and e != ".d.ts"]
+        elif not ext:
+            names = [rel + e for e in _ESM_SOURCE_EXTS] + [posixpath.join(rel, "index" + e) for e in _ESM_SOURCE_EXTS]
+        else:
+            return None
+        for name in names:
+            hit = self._by_norm_path.get(name)
             if hit is not None:
                 return hit
         return None

@@ -92,16 +92,6 @@ def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
             return "{ABCDEFGHI", "}JKLMNOPQR"
     except UnicodeDecodeError:
         pass  # Expected for non-ASCII-compatible encodings during probing; report unsupported below.
-    raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page") from e
-    try:
-        if bytes([0xF0]).decode(cp) == "0":
-            return bytes(range(0xC0, 0xCA)).decode(cp), bytes(range(0xD0, 0xDA)).decode(cp)
-    except UnicodeDecodeError:
-    try:
-        if bytes([0x30]).decode(cp) == "0":
-            return "{ABCDEFGHI", "}JKLMNOPQR"
-    except UnicodeDecodeError:
-        pass  # Expected for non-ASCII-compatible encodings during probing; report unsupported below.
     raise ConfigError(f"data.code_page {code_page!r}: not a known EBCDIC or ASCII code page")
 
 

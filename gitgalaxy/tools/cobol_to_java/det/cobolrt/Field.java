@@ -72,6 +72,13 @@ public final class Field {
                 native_, false, false, null);
     }
 
+    /** GnuCOBOL's BINARY-CHAR / -SHORT / -LONG / -DOUBLE: native (little-endian) binary of exactly `length` bytes,
+     *  never truncated to digits (`digits` is the full range's, for conversions only). */
+    public static Field binaryNative(Storage s, int offset, int length, int digits, boolean signed) {
+        return new Field(s, offset, length, Kind.NUMERIC_BINARY, digits, 0, signed, false, false, true, false, false,
+                null);
+    }
+
     public static Field numericEdited(Storage s, int offset, int length, String picture, boolean blankWhenZero) {
         int[] shape = Editing.shape(picture);
         return new Field(s, offset, length, Kind.NUMERIC_EDITED, shape[0] + shape[1], shape[1], false, false, false,

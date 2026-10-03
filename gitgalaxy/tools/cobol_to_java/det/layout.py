@@ -41,6 +41,8 @@ class Item:
     blank_when_zero: bool = False
     children: list = field(default_factory=list)
     conditions: list = field(default_factory=list)  # its 88s
+    unmodelled_usage: str | None = None  # a USAGE clause naming no usage this layout models
+    native_bytes: int = 0  # GnuCOBOL BINARY-CHAR / -SHORT / -LONG / -DOUBLE: a native binary of exactly this width
     parent: Item | None = None
     line: int = 0
     # computed
@@ -91,6 +93,8 @@ class Item:
         return self.category == "NUMERIC" and "S" in self.picture()
 
     def elementary_size(self) -> int:
+        if self.native_bytes:
+            return self.native_bytes
         cat, p = self.category, self.picture()
         if cat == "FLOAT":
             return 4 if self.usage == "COMP-1" else 8
@@ -128,6 +132,12 @@ def _parser():
 def _txt(node, src: bytes) -> str:
     return src[node.start_byte : node.end_byte].decode("latin-1")
 
+
+# GnuCOBOL's native binary usages: their width in bytes, and the digits of their full range (signed / unsigned)
+_NATIVE_BINARY = re.compile(r"BINARY-(CHAR|SHORT|LONG|DOUBLE)(?:\s+(SIGNED|UNSIGNED))?")  # (-LONG-LONG: DOUBLE)
+_NATIVE_WIDTH = {"CHAR": 1, "SHORT": 2, "LONG": 4, "DOUBLE": 8}
+_NATIVE_DIGITS = {(1, True): 3, (1, False): 3, (2, True): 5, (2, False): 5, (4, True): 10, (4, False): 10,
+                  (8, True): 19, (8, False): 20}  # fmt: skip
 
 _SECTIONS = {"file_section": "FILE", "working_storage_section": "WORKING-STORAGE",
              "local_storage_section": "LOCAL-STORAGE", "linkage_section": "LINKAGE"}  # fmt: skip
@@ -184,20 +194,84 @@ def _data_only(lines: list[Line]) -> list[Line]:
     return out
 
 
+# GnuCOBOL data clauses this layout does not model, refused by name before the grammar (which would only report a
+# parse error near them): floating-point usages, run-unit EXTERNAL storage, VALUE LENGTH OF, RECURSIVE programs
+_DIALECT_REFUSALS = (
+    (re.compile(r"\bFLOAT-(SHORT|LONG|DECIMAL-\d+|BINARY-\d+)\b", re.I), "USAGE {0} not modelled"),
+    (re.compile(r"^\s*\d+\s+[A-Z0-9-]+\b[^.]*\bEXTERNAL\b", re.I | re.M), "EXTERNAL data not modelled"),
+    (re.compile(r"\bVALUE\s+(?:IS\s+)?LENGTH\s+OF\b", re.I), "VALUE LENGTH OF not modelled"),
+    (re.compile(r"\bPROGRAM-ID\.\s*[A-Z0-9-]+\s+(?:IS\s+)?RECURSIVE\b", re.I), "RECURSIVE program not modelled"),
+)
+
+
+def _refuse_dialect(text: str) -> None:
+    for pattern, why in _DIALECT_REFUSALS:
+        m = pattern.search(text)
+        if m:
+            line = text.count("\n", 0, m.start()) + 1
+            raise LayoutError(f"line {line}: {why.format(m.group(0).upper())}")
+
+
+_LONG_LITERAL = re.compile(r"(?<![A-Z0-9-])(X?)(\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*')", re.I)
+
+
+def _fit(text: str, held: dict[str, str]) -> list[str]:
+    """One logical line as fixed-format lines the grammar reads (text in columns 8-72). A longer line -- a COPY
+    ... REPLACING literal, a joined continuation -- has each literal longer than 12 characters held aside under a
+    short placeholder literal (`held`: placeholder -> the literal; the grammar has no continuation lines), and is
+    then broken at spaces. A short line is `as_fixed`'s line exactly."""
+    if len(text) <= 65:
+        return [f"       {text}"]
+
+    def hold(m: re.Match) -> str:
+        if len(m.group(2)) <= 12:
+            return m.group(0)
+        key = f"'GGL{len(held):06d}'"
+        held[key[1:-1]] = m.group(0)
+        return key
+
+    text = _LONG_LITERAL.sub(hold, text)
+    out, cur = [], ""
+    for word in text.split(" "):
+        if not word:
+            continue
+        cand = f"{cur} {word}" if cur else word
+        if cur and len(cand) > 65:
+            out.append(cur)
+            cur = word
+        else:
+            cur = cand
+    out.append(cur)
+    return [f"       {out[0]}", *(f"           {x}" for x in out[1:])]
+
+
 def parse(lines: list[Line]) -> list[Item]:
     """The 01 / 77 records of the DATA DIVISION, each a tree of Items."""
-    text = as_fixed(_data_only(lines))
+    data = _data_only(lines)
+    # each logical line as fixed-format lines (a line past column 72 -- a COPY ... REPLACING literal, a joined
+    # continuation -- re-continued), and the logical line each one came from
+    physical, origin, held = [], [], {}
+    for k, ln in enumerate(data, 1):
+        for p in _fit(ln.text, held):
+            physical.append(p)
+            origin.append(k)
+    text = "".join(f"{p}\n" for p in physical)  # (= as_fixed(data) when no line is too long)
     # the PROCEDURE DIVISION is not needed (and EXEC blocks there are not this grammar's): stop before it
     m = re.search(r"^ {7}\s*PROCEDURE\s+DIVISION\b", text, re.I | re.M)
     head = text[: m.start()] if m else text
+    _refuse_dialect(head)
+    head = re.sub(r"\bBINARY-LONG-LONG\b", "BINARY-DOUBLE", head, flags=re.I)  # GnuCOBOL's synonym, same 8 bytes
     src = (head + "       PROCEDURE DIVISION.\n           GOBACK.\n").encode("latin-1")
     tree = _parser().parse(src)
     records: list[Item] = []
     errors = []
 
+    def logical(row: int) -> int:  # a 0-based row of the parsed text -> the 1-based expanded line it came from
+        return origin[row] if row < len(origin) else row + 1
+
     def visit(node, section: str | None, fd: str | None):
         if node.type == "ERROR":
-            errors.append(node.start_point[0] + 1)
+            errors.append(logical(node.start_point[0]))
         if node.type in _SECTIONS:
             section = _SECTIONS[node.type]
         if node.type == "file_description":
@@ -213,7 +287,7 @@ def parse(lines: list[Line]) -> list[Item]:
 
     def records_append(node, section, fd):
         it = _item(node, src, section or "?", fd)
-        it.line = node.start_point[0] + 1
+        it.line = logical(node.start_point[0])
         if it.level == 88:
             if stack:
                 stack[-1].conditions.append(it)
@@ -249,7 +323,23 @@ def parse(lines: list[Line]) -> list[Item]:
                 raise LayoutError(f"line {r.line}: 01 {r.name} REDEFINES {r.redefines}, no 01 of that name before it")
             r.record = target.record or target
         by_name[(r.section, r.name)] = r
+    if held:  # the literals _fit held aside, back in the VALUEs that hold their placeholders
+        for r in records:
+            for it in r.walk():
+                for x in (it, *it.conditions):
+                    x.values = [_unhold(v, held) for v in x.values]
     return records
+
+
+def _unhold(v, held: dict[str, str]):
+    if not isinstance(v, tuple):
+        return v
+    if v[0] == "lit" and isinstance(v[1], str) and v[1] in held:
+        lit = held[v[1]]
+        if lit[:1] in "xX":
+            return ("hex", bytes.fromhex(lit[2:-1]))
+        return ("lit", lit[1:-1].replace(lit[0] * 2, lit[0]))
+    return (v[0], *(_unhold(x, held) for x in v[1:]))
 
 
 def _item(node, src: bytes, section: str, fd: str | None) -> Item:
@@ -268,6 +358,16 @@ def _item(node, src: bytes, section: str, fd: str | None) -> Item:
             kinds = [g.type for g in c.children if g.type.upper() in _USAGE]
             if kinds:
                 it.usage = _USAGE[kinds[0].upper()]
+            else:
+                text = re.sub(r"^USAGE\s+(IS\s+)?", "", " ".join(_txt(c, src).split()).upper())
+                native = _NATIVE_BINARY.fullmatch(text)
+                if native:  # GnuCOBOL's fixed-width native binaries: COMP-5 of exactly 1 / 2 / 4 / 8 bytes
+                    it.usage = "COMP-5"
+                    it.native_bytes = _NATIVE_WIDTH[native.group(1)]
+                    signed = native.group(2) != "UNSIGNED"  # SIGNED is GnuCOBOL's default for BINARY-xxx
+                    it.pic = f"{'S' if signed else ''}9({_NATIVE_DIGITS[(it.native_bytes, signed)]})"
+                else:  # a USAGE this layout does not model (FLOAT-LONG, PROGRAM-POINTER, COMP-X ...): refused
+                    it.unmodelled_usage = text
         elif t == "occurs_clause":
             ints = [int(_txt(g, src)) for g in c.children if g.type == "integer"]
             it.occurs = ints[-1] if ints else 1
@@ -345,6 +445,12 @@ def layout(rec: Item) -> None:
     def size_of(it: Item, at: int) -> int:
         it.offset = at
         it.record = rec
+        if it.unmodelled_usage:
+            raise LayoutError(f"line {it.line}: {it.name}: USAGE {it.unmodelled_usage} not modelled")
+        if it.pic is None and it.usage == "DISPLAY" and not it.children:
+            # an elementary item needs a PICTURE unless its USAGE gives the size (COMP-1/-2, POINTER, INDEX): one
+            # with neither would silently take no storage -- refused, never laid out as zero bytes
+            raise LayoutError(f"line {it.line}: {it.name}: an elementary item with no PICTURE and no modelled USAGE")
         if it.pic is not None or it.usage in ("COMP-1", "COMP-2", "POINTER", "INDEX") or not it.children:
             it.size = it.elementary_size() if (it.pic or it.usage != "DISPLAY") else 0
             return it.size * it.occurs
@@ -470,7 +576,9 @@ def encode_number(it: Item, value: Decimal) -> bytes:
         return bytes.fromhex(nib)
     if it.usage in ("BINARY", "COMP-5"):
         v = -int(s) if negative else int(s)
-        return v.to_bytes(it.size, "big", signed=signed or v < 0)
+        # COMP / BINARY is big-endian; COMP-5 (native) little-endian, as GnuCOBOL lays it out on x86 and as the
+        # runtime (Codec, nativeBin) and the lifted initial value (program.py) read it
+        return v.to_bytes(it.size, "little" if it.usage == "COMP-5" else "big", signed=signed or v < 0)
     if not signed:
         return s.encode("latin-1")
     if it.sign_separate:

@@ -73,8 +73,9 @@ _COPY = re.compile(r"^\s*COPY\s+(['\"]?)([A-Z0-9#@$-]+)\1(?:\s+(?:OF|IN)\s+[A-Z0
 
 
 def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset = frozenset()) -> list[Line]:
-    """COPY statements replaced by their members' lines (recursively); REPLACING ==a== BY ==b== and word-for-word
-    `a BY b` applied. A member found nowhere raises CopyNotFound."""
+    """COPY statements replaced by their members' lines (recursively); REPLACING's operands applied in order:
+    ==a== BY ==b==, word-for-word `a BY b`, a literal BY a literal, and LEADING / TRAILING ==a== BY ==b== on text
+    words. A member found nowhere raises CopyNotFound."""
     out: list[Line] = []
     i = 0
     while i < len(lines):
@@ -96,7 +97,7 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
             i += 1
             continue
         stmt, j = ln.text, i
-        while not re.search(r"\.\s*$", re.sub(r"==.*?==|'[^']*'", "", stmt)) and j + 1 < len(lines):
+        while not re.search(r"\.\s*$", re.sub(r"==.*?==|'[^']*'|\"[^\"]*\"", "", stmt)) and j + 1 < len(lines):
             j += 1
             stmt += " " + lines[j].text
         name = m.group(2).upper()
@@ -114,8 +115,8 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
         pairs = _replacing(stmt)
         if pairs:
             for b in body:
-                for old, new in pairs:
-                    b.text = _replace(b.text, old, new)
+                for mode, old, new in pairs:
+                    b.text = _replace(b.text, old, new, mode)
         expanded = expand(body, dirs, depth + 1, chain | {member.resolve()})
         # the text before COPY on its line (rare: `01 X. COPY Y.`) and what follows the COPY's period stay
         head = ln.text[: m.start()]
@@ -126,27 +127,66 @@ def expand(lines: list[Line], dirs: list[Path], depth: int = 0, chain: frozenset
     return out
 
 
-def _replacing(stmt: str) -> list[tuple[str, str]]:
+# one REPLACING operand: pseudo-text, a literal, or a word (a separator comma / semicolon after it is not part of it)
+_OPERAND = r"==.*?==|\"(?:[^\"]|\"\")*\"|'(?:[^']|'')*'|[^\s,;=]+"
+_REPLACING_PAIR = re.compile(rf"(?:\b(LEADING|TRAILING)\s+)?({_OPERAND})\s+BY\s+({_OPERAND})", re.I | re.S)
+
+
+def _operand(op: str) -> str:
+    return op[2:-2].strip() if op.startswith("==") else op
+
+
+def _replacing(stmt: str) -> list[tuple[str, str, str]]:
+    """COPY ... REPLACING's (mode, old, new) operands, in order; mode is '', 'LEADING' or 'TRAILING'. The operands
+    may mix pseudo-text, literals and words, separated by spaces, commas or semicolons."""
     m = re.search(r"\bREPLACING\b(.*)$", stmt, re.I | re.S)
     if not m:
         return []
     body = m.group(1).rstrip().rstrip(".")
-    pairs = re.findall(r"==(.*?)==\s+BY\s+==(.*?)==", body, re.I | re.S)
-    if pairs:
-        return [(a.strip(), b.strip()) for a, b in pairs]
-    return [(a, b) for a, b in re.findall(r"(\S+)\s+BY\s+(\S+)", body, re.I)]
+    return [((mode or "").upper(), _operand(a), _operand(b)) for mode, a, b in _REPLACING_PAIR.findall(body)]
 
 
-def _replace(text: str, old: str, new: str) -> str:
+def _replace(text: str, old: str, new: str, mode: str = "") -> str:
+    if mode == "LEADING":  # the leading part of each text word that starts with `old`
+        return re.sub(rf"(?<![A-Z0-9-]){re.escape(old)}(?=[A-Z0-9-])", new, text, flags=re.I)
+    if mode == "TRAILING":  # the trailing part of each text word that ends with `old`
+        return re.sub(rf"(?<=[A-Z0-9-]){re.escape(old)}(?![A-Z0-9-])", new, text, flags=re.I)
     if re.fullmatch(r"[A-Z0-9-]+", old, re.I):  # a word: whole words only
         return re.sub(rf"(?<![A-Z0-9-]){re.escape(old)}(?![A-Z0-9-])", new, text, flags=re.I)
     return text.replace(old, new)
 
 
+_LITERAL = r"[-+]?\d+(?:\.\d+)?|X?\"[^\"]*\"|X?'[^']*'"
+_CONSTANT = re.compile(rf"\s*78\s+([A-Z0-9][A-Z0-9-]*)\s+VALUE\s+(?:IS\s+)?({_LITERAL})\s*\.\s*$", re.I)
+_LIT_SPLIT = re.compile(r"(X?\"[^\"]*\"|X?'[^']*')", re.I)
+
+
+def constants(lines: list[Line]) -> list[Line]:
+    """Level-78 constant entries (COBOL 2002 / GnuCOBOL: `78 NAME VALUE literal.`) resolved as the compiler does:
+    the entry dropped and every NAME outside a literal replaced by its literal. Only a literal VALUE is taken; any
+    other 78 entry is left for the layout to refuse by name."""
+    found: dict[str, str] = {}
+    kept: list[Line] = []
+    for ln in lines:
+        m = _CONSTANT.match(ln.text)
+        if m:
+            found[m.group(1).upper()] = m.group(2)
+        else:
+            kept.append(ln)
+    if not found:
+        return lines
+    names = re.compile(rf"(?<![A-Z0-9-])({'|'.join(map(re.escape, sorted(found, key=len, reverse=True)))})(?![A-Z0-9-])",
+                       re.I)  # fmt: skip
+    for ln in kept:
+        parts = _LIT_SPLIT.split(ln.text)
+        ln.text = "".join(p if i % 2 else names.sub(lambda m: found[m.group(1).upper()], p) for i, p in enumerate(parts))
+    return kept
+
+
 def program_lines(program: Path, dirs: list[Path]) -> list[Line]:
-    """The whole program, expanded."""
-    return expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
-                  chain=frozenset({program.resolve()}))  # fmt: skip
+    """The whole program, expanded, its level-78 constants resolved."""
+    return constants(expand(logical_lines(_raw_lines(program), str(program)), [program.parent, *dirs],
+                            chain=frozenset({program.resolve()})))  # fmt: skip
 
 
 def as_fixed(lines: list[Line]) -> str:

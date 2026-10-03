@@ -856,6 +856,8 @@ class Gen:
         if cat == "NUMERIC":
             if it.usage == "PACKED":
                 return f"Field.packed({storage}, {offset}, {it.digits}, {it.scale}, {_b(it.signed)})"
+            if it.native_bytes:  # GnuCOBOL BINARY-CHAR / -SHORT / -LONG / -DOUBLE: native, exactly this wide
+                return f"Field.binaryNative({storage}, {offset}, {it.native_bytes}, {it.digits}, {_b(it.signed)})"
             if it.usage in ("BINARY", "COMP-5"):
                 return f"Field.binary({storage}, {offset}, {it.digits}, {it.scale}, {_b(it.signed)}, {_b(it.usage == 'COMP-5')})"
             return (f"Field.zoned({storage}, {offset}, {it.digits}, {it.scale}, {_b(it.signed)}, "

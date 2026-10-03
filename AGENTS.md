@@ -40,3 +40,11 @@ GitGalaxy enforces a zero-tolerance policy against lossy reads (enforced by `tes
 # Formatting Pipeline
 
 Before pushing code, you MUST always add `ruff format <files>` to your pre-commit pipeline to avoid failing the Ruff Audit CI checks. The strict zero-tolerance baseline will reject any code that `ruff` would reformat.
+
+# Third-Party Material (comparing other translators)
+
+When working with other people's code, tools, papers or artifacts (IBM, Devin, SENTINEL, Lightyear, AWS, etc.), you **MUST** follow `docs/research/third-party-material-policy.md`:
+1. **Flag first:** stop and ask before copying third-party code, using unlicensed material, quoting at length, or shipping a vendor-inspired feature commercially.
+2. **Borrow ideas, not code:** implement techniques yourself and record where each idea came from. Never commit third-party code without explicit maintainer approval for that specific case.
+3. **Unlicensed sources:** run them locally from pinned commits, never commit them, and quote briefly with attribution.
+

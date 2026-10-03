@@ -59,6 +59,16 @@ entry), proven by the same harness. It is *faithful by construction*, not idioma
 - **Boundaries convert.** Where the program meets the generated project -- a file READ / WRITE (entities'
   `fromRecord` / `toRecord`), a CICS command (`CicsTask`), DISPLAY (`Sysout`), an abend (`CobolAbend`) -- the
   translator emits the conversion between storage bytes and the generated classes.
+- **Items are declared where they are bound.** Each data item's `Field` is one line,
+  `private final Field acctId = Field.zoned(s_ACCOUNT_RECORD, 0, 11, 0, false, false, false);`, in record order after
+  its storage (until 2026-10 a declaration list plus `fields0()..fieldsN()` init chunks: two lines per item; merging
+  them took 20.7% of the code lines off the 50 cases' ports; the largest constructor, COACTUPC's 1,332 items, is well
+  inside the JVM's 64 KB method limit).
+- **Condition-names are named methods.** An 88's test (without subscripts) is emitted once as
+  `private boolean isApplAok()`, documented with its lineage (`/** 88 APPL-AOK of APPL-RESULT. */`), and called at each
+  use. It is the same expression the use site held, so behaviour does not change; it is a readability rule, not a size
+  one (+0.4% code lines on its own: each test was already one expression). `det_parity.py` counts paragraph methods
+  only, so these do not count as methods.
 - **Holes are explicit.** A statement the translator does not handle becomes
   `throw new Hole("line N: <statement>")`; the measurement counts it as untranslated.
 

@@ -139,6 +139,11 @@ A translator fix is never a hand edit of a port.
   `proof_sweep.py` re-proves everything when the runtime or harness moves.
 - **Process:** format, then test, then commit -- read the test result before committing; never force-push without
   asking (push a rebased branch under a new name instead).
+- **Readability rules: measure the det output, not the model ports.** The construct map ranked "88 tests as named
+  methods" first (~3,800 lines, from the model ports' shape); in the det output each test was already one expression,
+  so naming them saved nothing (+0.4%). Counting the det lines by kind (field declarations 17.6%, storage images
+  11.2%) found the real saving: one-line field declarations (-20.7%). Every rule ships only through the full sweep,
+  a 3-run determinism check, and the parity / invariance tests.
 - **A det port declares itself to the scanner.** Its first line is `// gitgalaxy-det-port: COBOL <PROGRAM> ...`.
   GitGalaxy's aperture admits it past the generated-noise gates (wiki 02-03, "Declared ports"); without that line a
   default scan drops most ports as machine output. Keep that line first, and keep emitted lines under 500

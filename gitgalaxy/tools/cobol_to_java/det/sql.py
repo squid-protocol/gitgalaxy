@@ -220,6 +220,7 @@ class Sql:
         meth = self.methods.get((self.program, line))
         if meth is None:
             raise SqlError(f"no generated Db2 repository method for the statement at line {line}")
+        at = self.g_str(f"{self.program}:{line}")  # #4173: the key a SQL fault names (ggsql.c's program and line)
         repo_field = meth.repo[0].lower() + meth.repo[1:]
         self.repos[meth.repo] = repo_field
         call = f"{repo_field}.{meth.name}"
@@ -228,13 +229,13 @@ class Sql:
             if verb not in ("UPDATE", "DELETE") or "GG-RID" not in meth.params:
                 raise SqlError("a positioned statement the generated method does not position")
             return [*self._params(sql[: pos.start()], meth, n, ind),
-                    f"{ind}DetSql.updateCurrent(SQLCA_AREA, {self.g_str(pos.group(1))}, rid -> {{ "
+                    f"{ind}DetSql.updateCurrent(SQLCA_AREA, {at}, {self.g_str(pos.group(1))}, rid -> {{ "
                     f"{n}.put({self.g_str(meth.params['GG-RID'])}, rid); return {call}({n}); }}, CS);"]  # fmt: skip
         if verb in ("INSERT", "UPDATE", "DELETE"):
             searched = verb != "INSERT"
             return [
                 *self._params(sql, meth, n, ind),
-                f"{ind}DetSql.update(SQLCA_AREA, () -> {call}({n}), {'true' if searched else 'false'}, CS);",
+                f"{ind}DetSql.update(SQLCA_AREA, {at}, () -> {call}({n}), {'true' if searched else 'false'}, CS);",
             ]
         if verb in ("SELECT", "WITH") and meth.verb != "CURSOR":
             m = re.match(r"(.*?)\bINTO\b(.*?)\bFROM\b(.*)", sql, re.I | re.S)
@@ -242,29 +243,29 @@ class Sql:
                 raise SqlError("SELECT without INTO")
             row = self.g.tmpname("sqlRow")
             return [*self._params(m.group(1) + " FROM " + m.group(3), meth, n, ind),
-                    f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, () -> {call}({n}), CS);",
+                    f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, {at}, () -> {call}({n}), CS);",
                     *self._into(m.group(2), row, ind)]  # fmt: skip
         if assigns:  # the generated method runs VALUES (the expressions); its row goes into the host variables
             targets, exprs = _set_parts(sql)
             row = self.g.tmpname("sqlRow")
             return [*self._params(", ".join(exprs), meth, n, ind),
-                    f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, () -> {call}({n}), CS);",
+                    f"{ind}java.util.Map<String, Object> {row} = DetSql.selectOne(SQLCA_AREA, {at}, () -> {call}({n}), CS);",
                     *self._into(", ".join(targets), row, ind)]  # fmt: skip
         if verb == "OPEN" and meth.verb == "CURSOR":
             cursor = u.split()[1]
             return [
                 *self._params(self._cursor_sql(meth), meth, n, ind),
-                f"{ind}DetSql.open(SQLCA_AREA, {self.g_str(cursor)}, () -> {call}({n}), CS);",
+                f"{ind}DetSql.open(SQLCA_AREA, {at}, {self.g_str(cursor)}, () -> {call}({n}), CS);",
             ]
         if verb == "FETCH" and meth.verb == "CURSOR":
             m = re.fullmatch(r"FETCH\s+(?:NEXT\s+)?(?:FROM\s+)?([A-Z0-9_-]+)\s+INTO\s+(.*)", sql, re.I | re.S)
             if not m:
                 raise SqlError(f"EXEC SQL {u[:50]}")
             row = self.g.tmpname("sqlRow")
-            return [f"{ind}java.util.Map<String, Object> {row} = DetSql.fetch(SQLCA_AREA, "
+            return [f"{ind}java.util.Map<String, Object> {row} = DetSql.fetch(SQLCA_AREA, {at}, "
                     f"{self.g_str(m.group(1).upper())}, CS);", *self._into(m.group(2), row, ind)]  # fmt: skip
         if verb == "CLOSE" and meth.verb == "CURSOR":
-            return [f"{ind}DetSql.close(SQLCA_AREA, {self.g_str(u.split()[1])}, CS);"]
+            return [f"{ind}DetSql.close(SQLCA_AREA, {at}, {self.g_str(u.split()[1])}, CS);"]
         raise SqlError(f"EXEC SQL {verb}")
 
     def _cursor_sql(self, meth: Method) -> str:

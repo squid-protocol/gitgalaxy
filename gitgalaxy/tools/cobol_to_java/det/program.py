@@ -1007,6 +1007,15 @@ def _cics_parts(gen: G.Gen, records: list, roots: dict, proc: S.Procedure, stora
                       f"            calen = cx(task, {cx.gp.dto(cls).size});"]  # fmt: skip
         if ca_in:
             ca_in.append("        }")
+        # #4181 follow-up: a det caller's LINK passes its COMMAREA's bytes (by reference): they are DFHCOMMAREA, every
+        # byte -- the ones the contract DTO does not name too -- and what the program leaves there goes back to them
+        ca_in += ["        byte[] raw = task.linkArea();",
+                  "        if (raw != null) {",
+                  f"            System.arraycopy(raw, 0, {st}.bytes, 0, Math.min(raw.length, {st}.bytes.length));",
+                  "            Runnable typed = caBack;",
+                  f"            caBack = () -> {{ typed.run(); System.arraycopy({st}.bytes, 0, raw, 0, "
+                  f"Math.min(raw.length, {st}.bytes.length)); }};",
+                  "        }"]  # fmt: skip
     store_cases = [f'            case "{n}" -> {e};' for n, e in cx.stores.items()]
     members = [
         "    private CicsTask task;",

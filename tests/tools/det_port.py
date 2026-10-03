@@ -129,8 +129,20 @@ def _parity(port: Path, corpus: Path, programs: list[tuple[str, str]]) -> dict[s
 def prove(name: str, work: Path, faults: str) -> dict[str, Any]:
     keep = work / name / "proof"
     shutil.rmtree(keep, ignore_errors=True)  # equivalence.py --keep wants a fresh directory
-    argv = [sys.executable, str(TOOLS / "equivalence.py"), "run", name, "--port", str(work / name / "port"),
-            "--keep", str(keep), "--faults", faults]  # fmt: skip
+    argv = [
+        sys.executable,
+        str(TOOLS / "equivalence.py"),
+        "run",
+        name,
+        "--port",
+        str(work / name / "port"),
+        "--keep",
+        str(keep),
+        "--faults",
+        faults,
+        "--sql-faults",
+        "none" if faults == "none" else "auto",
+    ]  # fmt: skip  (#4173: SQL faults with the rest)
     log = work / name / "proof.log"
     with log.open("wb") as fh:
         try:  # a port that loops (a translation fault) must not hang the run

@@ -407,9 +407,9 @@
       "tested_on_public": 1
     },
     "units": {
-      "clean_fresh_facts": 21,
-      "clean_fresh_rounds": 1,
-      "engine_defects": 6,
+      "clean_fresh_facts": 0,
+      "clean_fresh_rounds": 0,
+      "engine_defects": 7,
       "fresh_rounds": 4,
       "status": "open",
       "tested_on_private": 0,

@@ -123,6 +123,18 @@ def render(results: dict, doc: Path) -> None:
     doc.write_text(f"{head}{BEGIN}\n{table(results)}\n{END}{tail}", encoding="utf-8")
 
 
+def load_triage(paths: list[Path]) -> dict:
+    """Survivor verdicts from triage maps and/or earlier results files (their survivors' verdicts); later wins."""
+    out: dict = {}
+    for p in paths:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        if "ports" in data:
+            data = {f"{q['case']}/{q['program']}:{s['id']}": {"verdict": s["verdict"], "reason": s["reason"]}
+                    for q in data["ports"] for s in q["survivors"] if s["verdict"] in TRIAGE}  # fmt: skip
+        out.update(data)
+    return out
+
+
 def runs_in(d: Path) -> list[Path]:
     return [d / "mutation.json"] if (d / "mutation.json").exists() else sorted(d.glob("*/*/mutation.json"))
 
@@ -132,7 +144,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
     b.add_argument("--runs", nargs="+", type=Path, required=True)
-    b.add_argument("--triage", type=Path)
+    b.add_argument("--triage", type=Path, nargs="*", default=[], help="triage files, or an earlier results file")
     b.add_argument("--commit", required=True, help="the gitgalaxy commit the mutants ran on")
     b.add_argument("--out", type=Path, default=RESULTS)
     b.add_argument("--doc", type=Path, default=DOC)
@@ -141,7 +153,7 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("--doc", type=Path, default=DOC)
     args = ap.parse_args(argv)
     if args.cmd == "build":
-        triage = json.loads(args.triage.read_text(encoding="utf-8")) if args.triage else {}
+        triage = load_triage(args.triage)
         runs = [json.loads(p.read_text(encoding="utf-8")) for d in args.runs for p in runs_in(d)]
         ports = [port_entry(r, triage, args.commit) for r in runs]
         results = {"format": "gitgalaxy-mutation-scores/1", "issue": "#4047",

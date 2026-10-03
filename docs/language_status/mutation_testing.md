@@ -96,6 +96,31 @@ What still survives:
 The two harness gaps found earlier are closed: screen attributes (#4053) and DISPLAY / SYSOUT
 (#4056).
 
+### Every survivor triaged (2026-10-03)
+
+<!-- mutation-scores-intro -->
+
+<!-- mutation-scores -->
+| port | harness | mutants run / all | raw score | without equivalent + unreachable | survivors: case gap / harness gap / equivalent / unreachable / untriaged |
+|---|---|---|---|---|---|
+| COACTVWC (carddemo-acctview) | equivalence | 150/329 | 87/129 (67%) | 87/116 (75%) | 29 / 0 / 12 / 1 / 0 |
+| CSUTLDTC (carddemo-dateutil) | equivalence | 217/217 | 135/201 (67%) | 135/145 (93%) | 10 / 0 / 12 / 44 / 0 |
+| COMEN01C (carddemo-menu) | equivalence | 150/359 | 72/136 (53%) | 72/136 (53%) | 0 / 0 / 0 / 0 / 64 |
+| **all equivalence** | | 517 run | **294/466 (63%)** | **294/397 (74%)** | 39 / 0 / 24 / 45 / 64 |
+| **all estate** | | 517 run | **294/466 (63%)** | **294/397 (74%)** | 39 / 0 / 24 / 45 / 64 |
+
+| operator | caught / judged | without equivalent + unreachable |
+|---|---|---|
+| AOR | 26/31 (84%) | 26/29 (90%) |
+| BDM | 0/1 (0%) | - |
+| CON | 40/100 (40%) | 40/64 (62%) |
+| COR | 16/26 (62%) | 16/22 (73%) |
+| DEL | 33/56 (59%) | 33/55 (60%) |
+| LIT | 51/84 (61%) | 51/71 (72%) |
+| NEG | 67/78 (86%) | 67/77 (87%) |
+| ROR | 61/90 (68%) | 61/79 (77%) |
+<!-- /mutation-scores -->
+
 A score is quoted with its case and seed, never alone. Every survivor is triaged as a case gap, a
 harness gap, an equivalent mutant (with the reason) or dead code.
 

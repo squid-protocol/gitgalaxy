@@ -459,3 +459,53 @@ def test_java_det_port_patterns_redos_immune():
         pattern = JAVA_RULES[signature]
         assert_redos_immune(pattern, 'task.write("' + "x" * 40000, timeout_sec=3.0)
         assert_redos_immune(pattern, "A" * 40000 + ".open(", timeout_sec=3.0)
+
+
+# #4191: the java.io classes that open a file are single tokens (`FileInputStream` is not `File`), so a
+# program doing all its file I/O through them scanned with io = 0 (SENTINEL IDE's CardDemo port, all 28
+# program classes). The hit is the constructor that opens the resource; decorators around it open nothing.
+_JAVA_OPENING_CASES = [
+    ("in = new FileInputStream(path);", "import java.io.FileInputStream;"),
+    ("out = new FileOutputStream(f, true);", "List<FileOutputStream> outs = new ArrayList<>();"),
+    ("r = new FileReader(name);", "FileReader reader;"),
+    ("w = new FileWriter(out);", "x = newFileWriter(out);"),
+    ('raf = new RandomAccessFile(p, "rw");', "RandomAccessFile raf = this.raf;"),
+    ('w = new PrintWriter("report.txt");', "w = new PrintWriter(writer);"),
+    ('ps = new PrintStream( "log.txt");', "ps = new PrintStream(out, true);"),
+    ("ch = FileChannel.open(path, READ);", "long n = ch.size();"),
+    ("ch = AsynchronousFileChannel.open(p);", "AsynchronousFileChannel ch = null;"),
+]
+
+
+@pytest.mark.parametrize("positive,negative", _JAVA_OPENING_CASES)
+def test_java_io_counts_the_constructor_that_opens_a_file(positive, negative):
+    pattern = JAVA_RULES["io"]
+    assert pattern.search(positive), f"java io missed a file open: {positive!r}"
+    assert not pattern.search(negative), f"java io matched a non-opening use: {negative!r}"
+
+
+def _java_io(code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    counts, *_rest = StructuralExtractor("java", LANGUAGE_DEFINITIONS).coding_analysis([("java", code, 0)])
+    return counts["io"]
+
+
+def test_java_io_a_decorated_open_is_one_hit():
+    code = (
+        "class A {\n  void f() {\n"
+        "    r = new BufferedReader(new InputStreamReader(new FileInputStream(tcatbalPath), UTF_8));\n"
+        "    w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outPath)));\n"
+        "  }\n}\n"
+    )
+    assert _java_io(code) == 2
+
+
+def test_java_io_decorators_alone_open_nothing():
+    assert _java_io("class A {\n  void f() {\n    b = new BufferedReader(reader);\n    p = new PrintWriter(w);\n  }\n}\n") == 0
+
+
+def test_java_io_opening_alternatives_redos_immune():
+    pattern = JAVA_RULES["io"]
+    assert_redos_immune(pattern, "new " + " " * 40000 + "FileInputStream", timeout_sec=3.0)
+    assert_redos_immune(pattern, "new PrintWriter(" + " " * 40000, timeout_sec=3.0)

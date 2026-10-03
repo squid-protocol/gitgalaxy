@@ -36,6 +36,14 @@ DDL_AUTO = ("none", "validate", "update", "create", "create-drop")
 UI_FLAVOURS = ("none", "thymeleaf", "openapi-only")  # #3619: what the BMS screens become beyond view models
 MESSAGING = ("in-memory", "jms", "kafka")  # #3620: the adapter behind the TD / MQ message port
 REMOTE_CALLS = ("http", "local")  # a DPL LINK to another region: an HTTP client, or the in-process bean
+# #3987: the order right-to-left text (Arabic, Hebrew) is stored in: logical (reading order), or visual as a
+# 3270 showed it -- visual_ltr with the record's first byte at the screen's left (IBM's host default),
+# visual_rtl at its right (a screen-reverse terminal). auto = visual_ltr on VISUAL_BIDI_PAGES, else logical.
+BIDI_LAYOUTS = ("auto", "logical", "visual_ltr", "visual_rtl")
+# The JDK names of the pages whose data is visual by IBM's convention (CDRA): a 3270 had no BiDi engine, so
+# the host stored the characters left to right as the screen showed them. EBCDIC Arabic / Hebrew, PC Arabic /
+# Hebrew. The Windows and ISO pages (1255 / 1256, 8859-6 / -8) are logical by default.
+VISUAL_BIDI_PAGES = ("IBM420", "IBM424", "IBM864", "IBM862")
 # #3819: the culture section. The first value of each is COBOL's own behaviour (the default);
 # anything else is a business choice the run declares as a deviation.
 ROUNDING = ("cobol", "half_even")  # ROUNDED: half away from zero (ROUNDED MODE honoured) | banker's
@@ -68,6 +76,20 @@ def record_charset_java(name: str) -> str:
         return java_charset_name(name)
     except LookupError as e:
         raise ConfigError(f"data.record_charset {name!r}: not a known code page") from e
+
+
+def visual_bidi(data: dict[str, Any] | None) -> bool:
+    """#3987: whether the record bytes keep right-to-left text in visual order -- data.bidi_layout visual_ltr /
+    visual_rtl, or auto with a record charset that is visual by convention (VISUAL_BIDI_PAGES). CobolRecords decides the same
+    way at run time, per Charset."""
+    d = data or {}
+    layout = str(d.get("bidi_layout") or "auto")
+    if layout != "auto":
+        return layout.startswith("visual")
+    try:
+        return record_charset_java(str(d.get("record_charset") or "latin-1")) in VISUAL_BIDI_PAGES
+    except ConfigError:
+        return False
 
 
 def zoned_sign_characters(code_page: str = "cp037") -> tuple[str, str]:
@@ -166,6 +188,9 @@ class Data:
     # ported Java reads and writes. A deployment fact, never a port's guess: CobolRecords.charset() returns it.
     # ISO-8859-1 (latin-1) is what an ASCII transfer of a single-byte estate gives, and what ran before.
     record_charset: str = "latin-1"
+    # #3987: the order the record bytes keep right-to-left text in (BIDI_LAYOUTS). Visual: as a 3270 showed it;
+    # CobolRecords turns it into logical (reading-order) Unicode and back.
+    bidi_layout: str = "auto"
 
 
 @dataclass
@@ -274,6 +299,9 @@ def _check(target: JavaTarget) -> None:
         raise ConfigError(f"spring_boot.version {s.version!r}: a Spring Boot 3.x.y version (jakarta namespace)")
     zoned_sign_characters(target.data.code_page)  # #3826: an unknown code page fails at load, not mid-generation
     record_charset_java(target.data.record_charset)  # #4060: likewise an unknown record charset
+    if target.data.bidi_layout not in BIDI_LAYOUTS:
+        raise ConfigError(f"data.bidi_layout {target.data.bidi_layout!r} is not supported; "
+                          f"choose one of {', '.join(BIDI_LAYOUTS)}")  # fmt: skip
     _check_culture(target.culture)
 
 
@@ -412,6 +440,10 @@ data:
   code_page: cp037                      # the EBCDIC code page for zoned-decimal sign overpunch
   record_charset: latin-1               # the code page the migrated record bytes are in (datasets, files,
                                         #   COMMAREAs): latin-1 after an ASCII transfer, cp037 if kept EBCDIC
+  bidi_layout: auto                     # {" | ".join(BIDI_LAYOUTS)}  (Arabic / Hebrew text in the records:
+                                        #   visual = as the 3270 showed it, the first byte at the screen's left
+                                        #   (ltr) or right (rtl, screen reverse), turned into logical Unicode
+                                        #   and back; auto = visual_ltr under cp420 / cp424 / cp864 / cp862)
 
 # Cultural and regional assumptions (#3819). Every default is what the COBOL program does on its
 # mainframe; anything else is a business choice, listed under "Declared cultural deviations" in

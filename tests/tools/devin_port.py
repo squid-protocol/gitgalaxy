@@ -129,6 +129,7 @@ PORTS: dict[str, dict[str, Any]] = {
         "repo": CODEV, "branch": "devin/1788345561-cbact01c-batch-flow", "sha": "73e9452dda39d56d564f5456092705ed84864983",
         "pr": 13, "about": "codev series: the batch flow", "build": ("classes", "java", None), "jdk": 17,
         "main": "com.carddemo.batch.cbact01c.Cbact01c", "input": "fixed",
+        "decode": {"VBRCFILE": "vb-rdw"},
         "programs": {"CBACT01C": ("carddemo-readacct", ["--acctfile", "{dd:ACCTFILE}", "--outfile", "{dd:OUTFILE}",
                                                         "--arryfile", "{dd:ARRYFILE}", "--vbrcfile", "{dd:VBRCFILE}",
                                                         "--charset", "ASCII", "--display"])},
@@ -138,6 +139,7 @@ PORTS: dict[str, dict[str, Any]] = {
         "sha": "2f5c0773b96ae98b4046783f8de2e4e96e79cf1c", "pr": 14,
         "about": "codev series: the golden master (a Python oracle for the expected bytes)",
         "build": ("classes", "java", None), "jdk": 17, "main": "com.carddemo.batch.cbact01c.Cbact01c", "input": "fixed",
+        "decode": {"VBRCFILE": "vb-rdw"},
         "programs": {"CBACT01C": ("carddemo-readacct", ["--acctfile", "{dd:ACCTFILE}", "--outfile", "{dd:OUTFILE}",
                                                         "--arryfile", "{dd:ARRYFILE}", "--vbrcfile", "{dd:VBRCFILE}",
                                                         "--charset", "ASCII", "--display"])},
@@ -171,19 +173,19 @@ def vb_len2(data: bytes) -> bytes:
 
 def lines_hex_packed(data: bytes, reclen: int, packed: list[tuple[int, int]]) -> bytes:
     """Newline-terminated records whose packed-decimal fields (offset, bytes) are written as 2*bytes hex digits:
-    each record's bytes as the copybook lays them out."""
+    each record's bytes as the copybook lays them out. Anything else is compared as written."""
     out = []
     for line in data.split(b"\n"):
         if not line:
             continue
-        rec, pos = bytearray(), 0
+        rec, pos = bytearray(), 0  # rec: the record so far; pos: where in the line the next byte is read
         for off, n in sorted(packed):
-            rec += line[pos : pos + off - len(rec)]
-            pos += off - (len(rec) - n * 0)  # advance to the hex digits
-            pos = pos if len(rec) == off else pos
+            text = off - len(rec)  # the bytes before this packed field, copied as they are
+            rec += line[pos : pos + text]
+            pos += text
             try:
                 rec += bytes.fromhex(line[pos : pos + 2 * n].decode("ascii"))
-            except ValueError:
+            except (ValueError, UnicodeDecodeError):
                 return data  # not hex where a packed field sits: compared as written
             pos += 2 * n
         rec += line[pos:]
@@ -193,6 +195,21 @@ def lines_hex_packed(data: bytes, reclen: int, packed: list[tuple[int, int]]) ->
     return b"".join(out)
 
 
+def vb_rdw(data: bytes) -> bytes:
+    """Records each led by a z/OS RDW -- a 2-byte length that counts the 4-byte header, then two zero bytes --
+    re-framed as GnuCOBOL frames them (oracle_assumptions.md F3: GnuCOBOL's length does not count the header)."""
+    recs, i = [], 0
+    while i + 4 <= len(data):
+        n = int.from_bytes(data[i : i + 2], "big")
+        if n < 4 or data[i + 2 : i + 4] != b"\0\0":
+            return data  # not an RDW: compared as written (the comparison reports the framing error)
+        recs.append(data[i + 4 : i + n])
+        i += n
+    if i != len(data):
+        return data
+    return gnucobol_frame(recs)
+
+
 def decode(spec: Any, data: bytes) -> bytes:
     if spec is None:
         return data
@@ -200,6 +217,8 @@ def decode(spec: Any, data: bytes) -> bytes:
         return vb_lines(data)
     if spec == "vb-len2":
         return vb_len2(data)
+    if spec == "vb-rdw":
+        return vb_rdw(data)
     if spec == "vb-unframed":
         return data  # nothing marks where a record ends: compared as written
     if isinstance(spec, tuple) and spec[0] == "lines-hex-packed":
